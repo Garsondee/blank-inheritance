@@ -71,6 +71,35 @@ export function applyHardness(rawDamage, hardness) {
   return Math.max(0, rawDamage - hardness);
 }
 
+/**
+ * THE single implementation of "how much of this raw damage actually lands"
+ * (design doc §15e). Player Core p.399 order: immunity first, then weakness
+ * ADDED, then Hardness subtracted — then Scale-Hardness (design doc §14b)
+ * subtracted separately, and only for a "mounted"-trait Strike.
+ *
+ * WHY THIS EXISTS. This logic was written twice — once in engine.mjs's
+ * applyStrikeDamage (what really happens) and once in considerations.mjs's
+ * afterMitigation (what the AI predicts). Two implementations of one rule is
+ * exactly the shape of the weakness/Hardness ordering bug this project
+ * already fixed once; the AI silently mispredicting damage is far worse than
+ * a loud crash, because it degrades decisions without ever failing a test.
+ *
+ * `targetEffective` is a REQUIRED separate argument rather than something the
+ * caller folds into `target`, because Hardness must be the damage-state-adjusted
+ * value (resolveEffectiveStats halves it at Critical). The old AI-side call had
+ * to remember `{ ...target, hardness: targetEffective.hardness }` and would
+ * silently compute hardness-of-0 if it forgot. Now forgetting is impossible.
+ */
+export function mitigateDamage(rawDamage, { target, targetEffective, strike }) {
+  if (target.immuneToAllDamage) return 0;
+  const withWeakness = rawDamage + (target.weaknessAll || 0);
+  let applied = applyHardness(withWeakness, targetEffective.hardness ?? 0);
+  if (strike?.traits?.includes("mounted") && target.scaleHardness) {
+    applied = applyHardness(applied, target.scaleHardness);
+  }
+  return applied;
+}
+
 /** A basic saving throw (Reflex, typically) against an area effect's DC. */
 export function resolveSave(rng, { saveBonus, dc }) {
   const d20 = rollD20(rng);

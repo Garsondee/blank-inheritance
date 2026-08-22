@@ -534,3 +534,51 @@ Ingram's instruction, verbatim: *"We need it to explain WHY the character did wh
 **Scoped out of this pass, flagged rather than rushed:** Ingram's "better yet" — animating tokens sliding across the map at a measured pace so a turn visually replays instead of jumping between snapshots. This is a genuinely separate, sizable front-end task (CSS/JS position interpolation, a play/pause/pacing control, coordinating the decision-overlay lines' timing with token motion, and reconciling "watch it animate" with the existing scrubber's instant-jump-to-any-step model) — not attempted here rather than shipped half-working and unverified. The multi-arrow-per-move and box-sizing pieces (the concrete, testable half of the ask) are done and verified; real animation is the next real step, not silently dropped.
 
 282/282 tests passing project-wide.
+
+## 15. The AI rebuild — diagnosis and frozen baseline
+
+Ingram, 2026-08-23, after reading a real transcript: *"You'll also see a Claimant who uses two actions to walk forwards but not a third without any logical reason. Your AI is still busted... Stop a moment. Think... go think about how this sort of thing is actually done in real life."*
+
+That instruction was correct, and the honest answer is that §14h's utility AI is **architecturally** wrong rather than buggy. Three independent root causes, established by measurement rather than inspection:
+
+### 15a. What was actually measured
+
+`tools/battle-simulator/analysis/metrics.mjs` (new) exists because §14j's action-utilization audit turned out to answer a **gameable** question. The Runabout scores 100% utilization by alternating two always-legal filler verbs — fully utilized by accident of having something trivially legal to do, not by playing well. Optimising against utilization alone would reward adding more filler. So the metrics module measures several things that are hard to game at once: utilization, idle-turn rate, **verb diversity**, **decision entropy** (Shannon, over the action mix), damage, and illegal-proposal count. The last two of those are what actually caught the failure.
+
+**Frozen baseline — the pre-rebuild AI, 4 scenarios × 20 seeds (seeds 1000-1019), captured 2026-08-23 before any code changed:**
+
+```
+GLOBAL   runs=80  outcomes={party-victory:61, stalemate:10, party-defeat:5, timeout:4}
+         utilization=57.1%   idleTurnRate=20.3%   illegalProposals=0
+         verbDiversity=4.85 (min per combatant 0)   decisionEntropy=1.924 bits
+         distinctPlaySignatures=62/80 (77.5%)   meanRounds=5.7
+
+  vesper            util= 32.2%  idle=59.3%  verbs=2 [spot,strike]
+  ladle             util= 38.0%  idle=53.1%  verbs=2 [move,repair]
+  hod               util= 44.2%  idle=44.2%  verbs=2 [spot,strike]
+  claimant-one      util= 60.2%  idle= 0.0%  verbs=2 [advance,strike]
+  frame-mystic-test util= 67.8%  idle= 9.0%  verbs=3 [healAbility,move,spellAttack]
+  frame-reference   util= 75.3%  idle= 0.0%  verbs=3 [move,spot,strike]
+  kingfisher        util= 83.2%  idle= 0.0%  verbs=3 [move,spot,strike]
+  runabout          util=100.0%  idle= 0.0%  verbs=2 [evacuate,move]
+```
+
+Per-scenario utilization: five-vehicles 54.8%, melee-draws-fire 58.3%, mystic-solo 66.4%, reduced-force 48.9%. In `reduced-force` the Ladle idles **79%** of its turns.
+
+**No combatant, in any scenario, at any seed, ever used more than three distinct action types.** That single number is the clearest statement of the problem.
+
+### 15b. The three root causes
+
+1. **Rules infidelity — the largest single contributor.** `legality.mjs` charged movement against a cumulative *per-turn* Speed budget (`feetAlreadyMovedThisTurn + stepDistance > effectiveSpeed`). Real SF2E's Stride is one action for up to your full Speed, repeatable — three Strides is 3× Speed. Under the old rule, "spend three actions closing distance" was **mechanically impossible**: after one move, every further move that turn was illegal, so the AI correctly found nothing to do and held. Compounding it, we implemented ~8 action types against the SRD's 24+ basic actions (`player-core/383-actions.json`, pg. 406) — the AI had almost nothing to choose *from*, which is the direct cause of the ≤3-verb ceiling.
+
+2. **No world model.** `grid.mjs` (66 lines) was the entire spatial model: a bounding rectangle plus a list of occupied cells. No terrain, walls, cover, LOS, or pathfinding. `computeDestination` was a greedy 7-direction compass walk that produced three separately-diagnosed bugs (§14h bent-path, §14i overshoot oscillation, stale speed budget). Every move candidate scored a flat `value: 1` — a brilliant flanking move and a pointless shuffle were **numerically identical**.
+
+3. **Greedy single-action selection.** `utility-ai.mjs` scored `weight × value` over dimensionally-inconsistent magnitudes — expected damage ~26, civilians 9.0, a flat 1 for all movement, `directive: 1000` for the Claimant. The weights *were* the entire normalization mechanism, hand-tuned to keep the comparison from being nonsense. And because it chose one action at a time with no concept of a turn, the Claimant's held third point had **three independent locks**: `candidates.mjs` hard-blocked move candidates for anything with an `objective`; `RELENTLESS_ADVANCER.positioning` was `0` so a move would score 0 anyway; and a full-Speed Advance left `remainingSpeedFeet` at 0.
+
+### 15c. What the field actually does
+
+Researched rather than recalled. Turn-based tactical combat is a *combinatorial-action, stochastic, partially-observable, multi-agent* game, and each adjective has its own literature: **Hierarchical Portfolio Search** (Churchill & Buro; shipped in *Prismata*, the closest published analogue) and **NaiveMCTS / LSI** (Ontañón, µRTS) for the combinatorial turn; **Information Set MCTS** (Cowling et al.) and determinization/PIMC for hidden information; **Bayesian occupancy filters** for tracking unseen enemies; **Dijkstra maps / flow fields** (Brogue) and **influence maps** for space; **shadowcasting** for FOV; and AlphaZero-style policy+value nets as the ceiling.
+
+The honest verdict for this project: the apex is **not** AlphaZero. This is a GM's diagnostic instrument, not a competitive engine — it needs to play *plausibly, variably, and legibly*, because the question being asked is "would this encounter be interesting and appropriately deadly," and a superhuman optimizer answers a different question. Target: plan search over a well-built world model, with a tunable competence knob.
+
+The load-bearing architectural point: **everything below the decision layer is shared by every rung of that ladder.** Build the world model, forward model, and evaluation properly and the decision algorithm becomes swappable — greedy → plan search → MCTS → learned — with nothing underneath rewritten. The original mistake was building a decision layer on a weak substrate.

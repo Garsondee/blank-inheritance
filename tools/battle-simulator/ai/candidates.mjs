@@ -228,7 +228,7 @@ function generateStrikeCandidates(state, combatant, pos, turnState) {
       const spotBonus = combatant.spotted ? 2 : 0;
       const attackModifier = item.attackBonus + mapPenalty + rangePenalty + spotBonus;
       const targetEffective = resolveEffectiveStats(target);
-      const value = expectedStrikeDamage({ attackModifier, targetAc: targetEffective.ac, strike: item, target: { ...target, hardness: targetEffective.hardness } });
+      const value = expectedStrikeDamage({ attackModifier, targetAc: targetEffective.ac, strike: item, target, targetEffective });
 
       raw.push({ source, index, item, target, attackModifier, targetAc: targetEffective.ac, value });
     }
@@ -310,9 +310,9 @@ function generateSpotCandidates(state, combatant, turnState) {
     const legal = checkSpotLegal({ spotter: combatant, target: ally, turnState });
     if (!legal.legal) continue;
     const allyStrike = ally.strikes[0];
-    const targetForScoring = { ...opponent, hardness: opponentEffective.hardness };
-    const without = expectedStrikeDamage({ attackModifier: allyStrike.attackBonus, targetAc: opponentEffective.ac, strike: allyStrike, target: targetForScoring });
-    const withBonus = expectedStrikeDamage({ attackModifier: allyStrike.attackBonus + 2, targetAc: opponentEffective.ac, strike: allyStrike, target: targetForScoring });
+    const targetForScoring = opponent;
+    const without = expectedStrikeDamage({ attackModifier: allyStrike.attackBonus, targetAc: opponentEffective.ac, strike: allyStrike, target: targetForScoring, targetEffective: opponentEffective });
+    const withBonus = expectedStrikeDamage({ attackModifier: allyStrike.attackBonus + 2, targetAc: opponentEffective.ac, strike: allyStrike, target: targetForScoring, targetEffective: opponentEffective });
     const gain = withBonus - without;
     candidates.push({
       type: "spot", targetId: ally.id, weightKey: "support", value: gain,

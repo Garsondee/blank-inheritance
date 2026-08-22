@@ -40,7 +40,7 @@
 import { makeRng, rollD20 } from "./rng.mjs";
 import { resolveEffectiveStats } from "./combatant.mjs";
 import { checkMoveLegality, checkStrikeLegal, checkFieldRepairLegal, checkActionBudget, checkTargetAlive, checkSpotLegal, checkEvacuateLegal, checkSpellAttackLegal, checkHealAbilityLegal, multipleAttackPenalty, rangeIncrementPenalty } from "./legality.mjs";
-import { resolveStrike, applyHardness, resolveFieldRepair, resolveEvacuation } from "./resolve.mjs";
+import { resolveStrike, applyHardness, mitigateDamage, resolveFieldRepair, resolveEvacuation } from "./resolve.mjs";
 import { distanceFeet, isAdjacent, isInBounds } from "./grid.mjs";
 
 /**
@@ -74,11 +74,22 @@ export function runBattle(scenario) {
   const state = {
     round: 0,
     gridSize: scenario.gridSize,
+    // `seed` and `initiativeOrder` are on state deliberately (design doc §15d), not just in the
+    // log. The AI needs both and can reach neither otherwise:
+    //  - seed: so the AI can derive its OWN per-decision RNG stream (§15f). It must never draw
+    //    from the engine's rng — doing so would re-align every subsequent d20 whenever the AI
+    //    changes, destroying the common-random-numbers property that makes two AI versions
+    //    comparable on the same seed.
+    //  - initiativeOrder: so an evaluator can tell which opponents have already acted this round
+    //    and which still threaten it. "Who is healthier" mis-prices a mid-round state without it.
+    seed: scenario.seed,
+    initiativeOrder: null, // filled immediately below, once the roll has happened
     combatants: new Map(scenario.combatants.map((c) => [c.id, structuredClone(c)])),
     positions: new Map(scenario.combatants.map((c) => [c.id, { ...c.position }])),
     reactionAvailable: new Map(scenario.combatants.map((c) => [c.id, true]))
   };
   const { order: initiativeOrder, rolls: initiativeRolls } = rollInitiative(rng, scenario.combatants);
+  state.initiativeOrder = initiativeOrder;
 
   // Full authored ("sheet") stats, not just the display-minimum fields — the artifact's
   // character-sheet panel (design doc §14f) reads this directly rather than needing separate
@@ -186,10 +197,38 @@ export function accountForActions({ available, spent, heldReason }) {
   return { available, spent, held, heldReason: held > 0 ? heldReason : null };
 }
 
+/**
+ * ONE mutable per-turn object (design doc §15d). Everything that carries
+ * information from one action to the next within a turn lives here and
+ * nowhere else: the action budget, movement spent, and the shared
+ * multiple-attack-penalty counter.
+ *
+ * WHY THIS IS ONE OBJECT AND NOT TWO. These counters used to be split
+ * across `turnState` (actionsAvailable/actionsUsed) and `turnLog`
+ * (feetMoved/strikesAttempted) for no reason other than history, while
+ * attemptAction mutated both. That split is a latent bug factory for any
+ * lookahead sandbox: forking a turn means snapshotting *every* mutable
+ * per-turn counter, and a two-object surface means there is a list to keep
+ * in sync by hand. With one object, `{ ...turnProgress }` is a complete
+ * fork by construction — and if a fifth counter is ever added it lands
+ * here, therefore in the AI's argument, therefore in the fork, with no
+ * list to update. turnLog is now append-only logging that nothing reads
+ * for decisions.
+ */
+function makeTurnProgress(startEffective) {
+  return {
+    actionsAvailable: startEffective.actionsAvailable,
+    actionsUsed: 0,
+    feetMoved: 0,
+    strikesAttempted: 0,
+    decisionIndex: 0 // monotonic per turn; seeds the AI's own per-decision RNG (§15f)
+  };
+}
+
 function runTurn({ state, rng, scenario, combatantId }) {
   const combatant = state.combatants.get(combatantId);
   const startEffective = resolveEffectiveStats(combatant);
-  const turnState = { actionsAvailable: startEffective.actionsAvailable, actionsUsed: 0 };
+  const turnProgress = makeTurnProgress(startEffective);
   const turnLog = { combatantId, effectiveStats: startEffective, feetMoved: 0, strikesAttempted: 0, actions: [] };
 
   if (startEffective.disabled) {
@@ -226,34 +265,44 @@ function runTurn({ state, rng, scenario, combatantId }) {
     // started with — accountForActions correctly caught it as a genuine overspend rather than
     // silently accepting it. Real SF2E rule: your turn's action budget is fixed at the moment
     // the turn begins; a benefit gained mid-turn takes effect starting next turn, not this one.
-    turnState.actionsAvailable = Math.min(effective.actionsAvailable, startEffective.actionsAvailable);
+    turnProgress.actionsAvailable = Math.min(effective.actionsAvailable, startEffective.actionsAvailable);
 
-    const proposal = scenario.ai(state, combatantId, { ...turnState, feetMoved: turnLog.feetMoved, strikesAttempted: turnLog.strikesAttempted, effective });
+    // The AI receives a COPY, never the live object — it can read its own turn progress but
+    // cannot mutate the engine's counters. Field names are unchanged from the old two-object
+    // spread, so this refactor is invisible to every AI implementation.
+    const proposal = scenario.ai(state, combatantId, { ...turnProgress, effective });
     if (!proposal) {
       heldReason = "No legal action the AI could find to spend the remaining action point(s) on";
       break;
     }
 
-    const result = attemptAction({ state, rng, combatantId, proposal, turnState, turnLog, effective });
+    const result = attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLog, effective });
     turnLog.actions.push(result);
+    turnProgress.decisionIndex += 1;
     if (!result.legal) {
       // a well-behaved AI never proposes an illegal action twice in a row; stop the turn rather than loop forever
       heldReason = `AI proposed an illegal ${result.type} (${result.reason}) — turn ended rather than retry`;
       break;
     }
-    if (turnState.actionsUsed >= turnState.actionsAvailable) break; // spent everything this turn's (possibly-reduced) budget allows
+    if (turnProgress.actionsUsed >= turnProgress.actionsAvailable) break; // spent everything this turn's (possibly-reduced) budget allows
   }
+
+  // turnLog mirrors the final counters for the battle log / artifact only; nothing reads these
+  // for decisions (that is turnProgress's job), so they are copied once at the end rather than
+  // maintained in parallel.
+  turnLog.feetMoved = turnProgress.feetMoved;
+  turnLog.strikesAttempted = turnProgress.strikesAttempted;
 
   // If the turn ended "cleanly" (heldReason still null) but fewer points were spent than the
   // turn STARTED with, the only legitimate cause is a mid-turn damage-state drop shrinking the
   // action cap (e.g. a reaction knocks the combatant from Operational into Critical) — confirm
   // that's really what happened and label it; accountForActions() below throws if not, rather
   // than letting a real accounting gap through unexplained.
-  if (heldReason === null && turnState.actionsUsed < startEffective.actionsAvailable && latestEffective.actionsAvailable < startEffective.actionsAvailable) {
+  if (heldReason === null && turnProgress.actionsUsed < startEffective.actionsAvailable && latestEffective.actionsAvailable < startEffective.actionsAvailable) {
     heldReason = `Damage state dropped mid-turn (${startEffective.damageState} -> ${latestEffective.damageState}), reducing the action cap from ${startEffective.actionsAvailable} to ${latestEffective.actionsAvailable}`;
   }
 
-  turnLog.actionAccounting = accountForActions({ available: startEffective.actionsAvailable, spent: turnState.actionsUsed, heldReason });
+  turnLog.actionAccounting = accountForActions({ available: startEffective.actionsAvailable, spent: turnProgress.actionsUsed, heldReason });
   return turnLog;
 }
 
@@ -286,17 +335,16 @@ function applyStrikeDamage(strikeResult, target, targetEffective, strike) {
   if (!strikeResult.damage) return { appliedDamage: 0, immune: false };
   if (target.immuneToAllDamage) return { appliedDamage: 0, immune: true };
 
-  const rawPlusWeakness = strikeResult.damage.raw + (target.weaknessAll || 0);
-  let appliedDamage = applyHardness(rawPlusWeakness, targetEffective.hardness);
-  if (strike?.traits?.includes("mounted") && target.scaleHardness) {
-    appliedDamage = applyHardness(appliedDamage, target.scaleHardness);
-  }
+  // Mitigation maths lives in resolve.mjs's mitigateDamage — the ONE implementation shared with
+  // the AI's own damage prediction (design doc §15e). This function's remaining job is the part
+  // only the engine may do: actually writing the HP.
+  const appliedDamage = mitigateDamage(strikeResult.damage.raw, { target, targetEffective, strike });
   target.currentHP = Math.max(0, target.currentHP - appliedDamage);
   return { appliedDamage, immune: false };
 }
 
 /** The ONLY function in this codebase permitted to mutate combatant position/HP/flags. */
-function attemptAction({ state, rng, combatantId, proposal, turnState, turnLog, effective }) {
+function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLog, effective }) {
   const combatant = state.combatants.get(combatantId);
   const pos = state.positions.get(combatantId);
 
@@ -306,18 +354,18 @@ function attemptAction({ state, rng, combatantId, proposal, turnState, turnLog, 
       from: pos,
       to: proposal.to,
       effectiveSpeed: effective.speed,
-      feetAlreadyMovedThisTurn: turnLog.feetMoved,
+      feetAlreadyMovedThisTurn: turnProgress.feetMoved,
       allPositions: [...state.positions.entries()].map(([id, p]) => ({ combatantId: id, pos: p })),
       gridSize: state.gridSize,
-      turnState // FIX: checkMoveLegality now checks the action budget itself — "move" was
+      turnState: turnProgress // FIX: checkMoveLegality now checks the action budget itself — "move" was
       // previously the one proposal type exempt from budget enforcement.
     });
     if (!check.legal) return { type: "move", to: proposal.to, legal: false, reason: check.reason };
 
     const stepDistance = distanceFeet(pos, proposal.to);
     state.positions.set(combatantId, { ...proposal.to });
-    turnLog.feetMoved += stepDistance;
-    turnState.actionsUsed += 1;
+    turnProgress.feetMoved += stepDistance;
+    turnProgress.actionsUsed += 1;
 
     const result = { type: "move", from: { ...pos }, to: { ...proposal.to }, feet: stepDistance, legal: true, actionsCost: 1, decisionReason: proposal.reason ?? null };
 
@@ -332,11 +380,11 @@ function attemptAction({ state, rng, combatantId, proposal, turnState, turnLog, 
     const targetPos = state.positions.get(proposal.targetId);
     const strike = combatant.strikes[proposal.strikeIndex ?? 0];
 
-    const check = checkStrikeLegal({ attacker: combatant, attackerPos: pos, target, targetPos, strike, turnState });
+    const check = checkStrikeLegal({ attacker: combatant, attackerPos: pos, target, targetPos, strike, turnState: turnProgress });
     if (!check.legal) return { type: "strike", targetId: proposal.targetId, legal: false, reason: check.reason };
 
-    turnLog.strikesAttempted += 1;
-    const mapPenalty = multipleAttackPenalty(turnLog.strikesAttempted, (strike.traits ?? []).includes("agile"));
+    turnProgress.strikesAttempted += 1;
+    const mapPenalty = multipleAttackPenalty(turnProgress.strikesAttempted, (strike.traits ?? []).includes("agile"));
     const rangePenalty = rangeIncrementPenalty(strike, distanceFeet(pos, targetPos));
     const targetEffective = resolveEffectiveStats(target);
 
@@ -348,7 +396,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnState, turnLog, 
     strikeResult.rangePenalty = rangePenalty;
     if (combatant.spotted) { strikeResult.spotBonusApplied = spotBonus; combatant.spotted = false; }
     const { appliedDamage, immune } = applyStrikeDamage(strikeResult, target, targetEffective, strike);
-    turnState.actionsUsed += 1;
+    turnProgress.actionsUsed += 1;
 
     // Limited-use ordnance (design doc §14g): decrement on a successful fire — checkStrikeLegal
     // already refused this proposal if usesRemaining was already 0, so this can only run when
@@ -386,18 +434,18 @@ function attemptAction({ state, rng, combatantId, proposal, turnState, turnLog, 
     const targetPos = state.positions.get(proposal.targetId);
     const spell = combatant.spells[proposal.spellIndex ?? 0];
 
-    const check = checkSpellAttackLegal({ caster: combatant, casterPos: pos, target, targetPos, spell, turnState });
+    const check = checkSpellAttackLegal({ caster: combatant, casterPos: pos, target, targetPos, spell, turnState: turnProgress });
     if (!check.legal) return { type: "spellAttack", targetId: proposal.targetId, legal: false, reason: check.reason };
 
-    turnLog.strikesAttempted += 1;
-    const mapPenalty = multipleAttackPenalty(turnLog.strikesAttempted, (spell.traits ?? []).includes("agile"));
+    turnProgress.strikesAttempted += 1;
+    const mapPenalty = multipleAttackPenalty(turnProgress.strikesAttempted, (spell.traits ?? []).includes("agile"));
     const targetEffective = resolveEffectiveStats(target);
 
     const spotBonus = combatant.spotted ? 2 : 0;
     const spellResult = resolveStrike(rng, { attacker: combatant, strike: spell, targetAc: targetEffective.ac, mapPenalty: mapPenalty + spotBonus });
     if (combatant.spotted) { spellResult.spotBonusApplied = spotBonus; combatant.spotted = false; }
     const { appliedDamage, immune } = applyStrikeDamage(spellResult, target, targetEffective, spell);
-    turnState.actionsUsed += spell.actions ?? 1;
+    turnProgress.actionsUsed += spell.actions ?? 1;
 
     if (spell.usesRemaining != null) spell.usesRemaining -= 1;
 
@@ -428,12 +476,12 @@ function attemptAction({ state, rng, combatantId, proposal, turnState, turnLog, 
     const targetPos = state.positions.get(proposal.targetId);
     const ability = combatant.healAbilities[proposal.abilityIndex ?? 0];
 
-    const check = checkHealAbilityLegal({ healer: combatant, healerPos: pos, target, targetPos, ability, turnState });
+    const check = checkHealAbilityLegal({ healer: combatant, healerPos: pos, target, targetPos, ability, turnState: turnProgress });
     if (!check.legal) return { type: "healAbility", targetId: proposal.targetId, legal: false, reason: check.reason };
 
     const healing = ability.healingAmount ?? 0;
     target.currentHP = Math.min(target.maxHP, target.currentHP + healing);
-    turnState.actionsUsed += ability.actions ?? 1;
+    turnProgress.actionsUsed += ability.actions ?? 1;
 
     if (ability.usesRemaining != null) ability.usesRemaining -= 1;
 
@@ -454,14 +502,14 @@ function attemptAction({ state, rng, combatantId, proposal, turnState, turnLog, 
     const target = state.combatants.get(proposal.targetId);
     const targetPos = state.positions.get(proposal.targetId);
 
-    const check = checkFieldRepairLegal({ repairer: combatant, repairerPos: pos, target, targetPos, turnState });
+    const check = checkFieldRepairLegal({ repairer: combatant, repairerPos: pos, target, targetPos, turnState: turnProgress });
     if (!check.legal) return { type: "repair", targetId: proposal.targetId, legal: false, reason: check.reason };
 
     const repairResult = resolveFieldRepair(rng, { repairBonus: combatant.repairBonus, handlingDC: combatant.handlingDC });
     if (repairResult.healing > 0) {
       target.currentHP = Math.min(target.maxHP, target.currentHP + repairResult.healing);
     }
-    turnState.actionsUsed += 2;
+    turnProgress.actionsUsed += 2;
 
     return {
       type: "repair",
@@ -476,11 +524,11 @@ function attemptAction({ state, rng, combatantId, proposal, turnState, turnLog, 
 
   if (proposal.type === "spot") {
     const target = state.combatants.get(proposal.targetId);
-    const check = checkSpotLegal({ spotter: combatant, target, turnState });
+    const check = checkSpotLegal({ spotter: combatant, target, turnState: turnProgress });
     if (!check.legal) return { type: "spot", targetId: proposal.targetId, legal: false, reason: check.reason };
 
     target.spotted = true;
-    turnState.actionsUsed += 1;
+    turnProgress.actionsUsed += 1;
 
     return { type: "spot", targetId: proposal.targetId, targetName: target.name, legal: true, actionsCost: 1, decisionReason: proposal.reason ?? null };
   }
@@ -490,11 +538,11 @@ function attemptAction({ state, rng, combatantId, proposal, turnState, turnLog, 
       .filter((c) => c.side !== combatant.side && c.currentHP > 0)
       .map((c) => state.positions.get(c.id));
 
-    const check = checkEvacuateLegal({ evacuator: combatant, evacuatorPos: pos, oppositionPositions, turnState });
+    const check = checkEvacuateLegal({ evacuator: combatant, evacuatorPos: pos, oppositionPositions, turnState: turnProgress });
     if (!check.legal) return { type: "evacuate", legal: false, reason: check.reason };
 
     const evac = resolveEvacuation(rng);
-    turnState.actionsUsed += 2;
+    turnProgress.actionsUsed += 2;
 
     return { type: "evacuate", legal: true, actionsCost: 2, civilians: evac.civilians, roll: evac.rolls, decisionReason: proposal.reason ?? null };
   }
@@ -512,8 +560,8 @@ function attemptAction({ state, rng, combatantId, proposal, turnState, turnLog, 
     // (letting a follow-up ordinary "move" stack a second full Speed budget on top in the same
     // turn). All three are fixed by walking the path one square at a time using the same
     // distanceFeet/isInBounds machinery ordinary movement uses, and by charging feetMoved for real.
-    const budgetCheck = checkActionBudget(turnState, 2);
-    if (!budgetCheck.legal) return { type: "advance", legal: false, reason: `Not enough actions for Advance (needs 2, ${turnState.actionsAvailable - turnState.actionsUsed} remain).` };
+    const budgetCheck = checkActionBudget(turnProgress, 2);
+    if (!budgetCheck.legal) return { type: "advance", legal: false, reason: `Not enough actions for Advance (needs 2, ${turnProgress.actionsAvailable - turnProgress.actionsUsed} remain).` };
 
     const dx = Math.sign(proposal.towards.col - pos.col);
     const dy = Math.sign(proposal.towards.row - pos.row);
@@ -530,8 +578,8 @@ function attemptAction({ state, rng, combatantId, proposal, turnState, turnLog, 
     }
     const traveled = distanceFeet(pos, next);
     state.positions.set(combatantId, next);
-    turnLog.feetMoved += traveled; // now correctly shared with any later "move" proposal this same turn
-    turnState.actionsUsed += 2;
+    turnProgress.feetMoved += traveled; // now correctly shared with any later "move" proposal this same turn
+    turnProgress.actionsUsed += 2;
     const result = { type: "advance", from: { ...pos }, to: { ...next }, feet: traveled, legal: true, actionsCost: 2, decisionReason: proposal.reason ?? null };
     const reactions = checkReactionTriggers({ state, rng, moverId: combatantId });
     if (reactions.length) result.triggeredReactions = reactions;

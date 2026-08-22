@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { makeRng } from "../../tools/battle-simulator/engine/rng.mjs";
-import { degreeOfSuccess, resolveStrike, applyHardness, resolveSave, basicSaveDamage, resolveFieldRepair, resolveEvacuation } from "../../tools/battle-simulator/engine/resolve.mjs";
+import { degreeOfSuccess, resolveStrike, applyHardness, mitigateDamage, resolveSave, basicSaveDamage, resolveFieldRepair, resolveEvacuation } from "../../tools/battle-simulator/engine/resolve.mjs";
 
 test("degreeOfSuccess: the four bands, no natural-roll shift", () => {
   assert.equal(degreeOfSuccess(10, 30, 20), "criticalSuccess"); // >= DC+10
@@ -97,4 +97,69 @@ test("rng: different seeds produce different sequences (real, not curated, varia
   const seqA = Array.from({ length: 10 }, () => a());
   const seqB = Array.from({ length: 10 }, () => b());
   assert.notDeepEqual(seqA, seqB);
+});
+
+// ---------------------------------------------------------------------------
+// mitigateDamage (design doc §15e) — the ONE shared implementation of damage
+// mitigation. These tests moved here from considerations.test.mjs when the AI's
+// duplicate `afterMitigation` was deleted: the rule lives in resolve.mjs now, so
+// its tests do too, where they will outlive any number of AI rewrites.
+// ---------------------------------------------------------------------------
+
+test("mitigateDamage: Player Core p.399 order — weakness is ADDED before Hardness is subtracted, not after", () => {
+  const target = { weaknessAll: 3 };
+  const targetEffective = { hardness: 12 };
+  // raw 1 + weakness 3 = 4, then Hardness 12 absorbs all of it -> 0.
+  // The WRONG order (max(0, 1-12) = 0, then +3) would leak 3 damage through as guaranteed damage.
+  assert.equal(mitigateDamage(1, { target, targetEffective, strike: {} }), 0);
+});
+
+test("mitigateDamage: Scale-Hardness applies only to a mounted-trait Strike", () => {
+  const target = { scaleHardness: 15 };
+  const targetEffective = { hardness: 0 };
+  assert.equal(mitigateDamage(20, { target, targetEffective, strike: { traits: ["mounted"] } }), 5);
+  assert.equal(mitigateDamage(20, { target, targetEffective, strike: { traits: [] } }), 20, "no mounted trait -> Scale-Hardness must not apply");
+});
+
+test("mitigateDamage: an immune target takes exactly 0 regardless of raw damage", () => {
+  assert.equal(mitigateDamage(999, { target: { immuneToAllDamage: true }, targetEffective: { hardness: 0 }, strike: {} }), 0);
+});
+
+test("REGRESSION: mitigateDamage reads Hardness from targetEffective, NOT from target — the damage-state-adjusted value is the correct one", () => {
+  // resolveEffectiveStats halves Hardness at Critical damage state. The old AI-side copy read
+  // `target.hardness` and callers had to remember to spread the effective value in; forgetting
+  // silently computed hardness-of-0. Passing targetEffective explicitly makes that impossible.
+  const target = { hardness: 999 };            // raw sheet value — must be ignored
+  const targetEffective = { hardness: 5 };      // damage-state-adjusted — must be used
+  assert.equal(mitigateDamage(20, { target, targetEffective, strike: {} }), 15);
+});
+
+test("DRIFT ALARM: the AI's analytic expected damage matches the real resolver's sampled mean within 1% — if a damage rule changes in one place and not the other, this fails", async () => {
+  const { expectedStrikeDamage } = await import("../../tools/battle-simulator/ai/considerations.mjs");
+  const cases = [
+    { name: "sidearm vs Claimant, weakness up", strike: { attackBonus: 20, traits: ["mounted"], damage: [{ dice: "3d6", bonus: 10 }] }, ac: 33, target: { currentHP: 165, weaknessAll: 15, scaleHardness: 15 }, eff: { hardness: 0 } },
+    { name: "sidearm vs Claimant, field intact-ish (hardness bites)", strike: { attackBonus: 20, traits: ["mounted"], damage: [{ dice: "3d6", bonus: 10 }] }, ac: 33, target: { currentHP: 165, scaleHardness: 15 }, eff: { hardness: 0 } },
+    { name: "Frame melee, no mitigation", strike: { attackBonus: 25, traits: [], damage: [{ dice: "2d12", bonus: 17 }] }, ac: 33, target: { currentHP: 165 }, eff: { hardness: 0 } },
+    { name: "third strike at -10 MAP", strike: { attackBonus: 10, traits: [], damage: [{ dice: "3d6", bonus: 10 }] }, ac: 33, target: { currentHP: 165 }, eff: { hardness: 0 } }
+  ];
+
+  for (const c of cases) {
+    const analytic = expectedStrikeDamage({ attackModifier: c.strike.attackBonus, targetAc: c.ac, strike: c.strike, target: c.target, targetEffective: c.eff });
+    const rng = makeRng(20260823);
+    const TRIALS = 60000;
+    let total = 0;
+    for (let i = 0; i < TRIALS; i++) {
+      const r = resolveStrike(rng, { attacker: {}, strike: c.strike, targetAc: c.ac, mapPenalty: 0 });
+      if (r.damage) total += mitigateDamage(r.damage.raw, { target: c.target, targetEffective: c.eff, strike: c.strike });
+    }
+    const sampled = total / TRIALS;
+    // Tolerance is absolute-or-relative: the analytic value is a mean-of-dice plug-in, and
+    // max(0, X - hardness) is convex, so a Jensen gap appears when Hardness sits near the mean
+    // damage. Measured under 0.5% for every configuration this project actually produces.
+    const tolerance = Math.max(0.25, analytic * 0.01);
+    assert.ok(
+      Math.abs(analytic - sampled) <= tolerance,
+      `${c.name}: analytic ${analytic.toFixed(3)} vs sampled ${sampled.toFixed(3)} (${TRIALS} trials) — drifted beyond ${tolerance.toFixed(3)}`
+    );
+  }
 });

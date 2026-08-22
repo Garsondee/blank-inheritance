@@ -12,7 +12,7 @@
  * average), not a simulated roll. That's the whole point of scoring
  * candidates before committing to one.
  */
-import { degreeOfSuccess } from "../engine/resolve.mjs";
+import { degreeOfSuccess, mitigateDamage } from "../engine/resolve.mjs";
 
 /** Average result of an "NdX+B" formula — 3d6+10 -> 3*3.5+10 = 20.5. */
 export function averageDamage(dice, bonus) {
@@ -48,20 +48,15 @@ export function degreeProbabilities(modifier, dc) {
 }
 
 /**
- * Damage a hit of the given raw amount actually applies after
- * weakness/Hardness/Scale-Hardness — the SAME order engine.mjs's
- * applyStrikeDamage uses (Player Core p.399: weakness added before
- * Hardness is subtracted), so the AI's expectation matches what
- * applyStrikeDamage will actually do once the dice are rolled for real.
+ * REMOVED 2026-08-23 (design doc §15e): `afterMitigation` used to live here
+ * as a second, hand-copied implementation of engine.mjs's damage-mitigation
+ * rule. Two implementations of one rule is precisely the shape of the
+ * weakness/Hardness ordering bug this project already fixed once — and an AI
+ * that silently mispredicts damage is worse than a crash, because it degrades
+ * every decision without ever failing a test. The single implementation now
+ * lives in engine/resolve.mjs as `mitigateDamage`, and both the engine and
+ * this module call it.
  */
-export function afterMitigation(rawDamage, target, strike) {
-  const withWeakness = rawDamage + (target.weaknessAll || 0);
-  let applied = Math.max(0, withWeakness - (target.hardness || 0));
-  if (strike?.traits?.includes("mounted") && target.scaleHardness) {
-    applied = Math.max(0, applied - target.scaleHardness);
-  }
-  return applied;
-}
 
 /**
  * Expected damage of one Strike attempt, folding in hit probability AND
@@ -72,12 +67,13 @@ export function afterMitigation(rawDamage, target, strike) {
  * limited-use weapon on a shielded target, as a CONSEQUENCE of honest
  * expected-value math, not a special-cased "don't do that" rule.
  */
-export function expectedStrikeDamage({ attackModifier, targetAc, strike, target }) {
+export function expectedStrikeDamage({ attackModifier, targetAc, strike, target, targetEffective }) {
   if (target.immuneToAllDamage || target.currentHP <= 0) return 0;
+  const effective = targetEffective ?? { hardness: target.hardness ?? 0 };
   const avgRaw = averageStrikeDamage(strike);
   const probs = degreeProbabilities(attackModifier, targetAc);
-  const onHit = afterMitigation(avgRaw, target, strike);
-  const onCrit = afterMitigation(avgRaw * 2, target, strike);
+  const onHit = mitigateDamage(avgRaw, { target, targetEffective: effective, strike });
+  const onCrit = mitigateDamage(avgRaw * 2, { target, targetEffective: effective, strike });
   return probs.success * onHit + probs.criticalSuccess * onCrit;
 }
 

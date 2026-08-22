@@ -8,7 +8,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  averageDamage, averageStrikeDamage, degreeProbabilities, afterMitigation, expectedStrikeDamage, hitProbability,
+  averageDamage, averageStrikeDamage, degreeProbabilities, expectedStrikeDamage, hitProbability,
   expectedRepairHealing, AVERAGE_EVACUATION_CIVILIANS
 } from "../../tools/battle-simulator/ai/considerations.mjs";
 import { degreeOfSuccess } from "../../tools/battle-simulator/engine/resolve.mjs";
@@ -53,18 +53,6 @@ test("degreeProbabilities: the four bands always sum to exactly 1", () => {
 test("degreeProbabilities: an overwhelming modifier is critical success on 19/20 faces (a natural 1 always shifts one degree down, even here) and a hopeless one is critical failure on 19/20 (a natural 20 always shifts one degree up)", () => {
   assert.deepEqual(degreeProbabilities(100, 10), { criticalSuccess: 0.95, success: 0.05, failure: 0, criticalFailure: 0 });
   assert.deepEqual(degreeProbabilities(-100, 10), { criticalSuccess: 0, success: 0, failure: 0.05, criticalFailure: 0.95 });
-});
-
-test("afterMitigation: matches Player Core p.399's order exactly (weakness added BEFORE Hardness is subtracted) — same regression legality.mjs/engine.mjs already guard against, now also guarded in the AI's own math", () => {
-  const target = { hardness: 12, weaknessAll: 3 };
-  // raw 1 + weakness 3 = 4, then hardness 12 fully absorbs it -> 0, NOT max(0,1-12)=0 then +3=3
-  assert.equal(afterMitigation(1, target, {}), 0);
-});
-
-test("afterMitigation: Scale-Hardness only applies to mounted-trait strikes", () => {
-  const target = { hardness: 0, scaleHardness: 15 };
-  assert.equal(afterMitigation(20, target, { traits: ["mounted"] }), 5);
-  assert.equal(afterMitigation(20, target, { traits: [] }), 20, "no mounted trait -> Scale-Hardness must not apply");
 });
 
 test("expectedStrikeDamage: is exactly 0 against an immune target, regardless of attack bonus (the mechanism that replaces the old special-cased 'don't fire the missile at an immune target' check with honest expected-value math)", () => {
