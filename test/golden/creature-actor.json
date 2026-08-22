@@ -1,0 +1,101 @@
+{
+  "_id": "694dfa5322a61d7e",
+  "name": "TEST FIXTURE — Diagnostic Creature",
+  "type": "npc",
+  "system": {
+    "abilities": {
+      "str": {
+        "mod": 6
+      },
+      "dex": {
+        "mod": 2
+      },
+      "con": {
+        "mod": 5
+      },
+      "int": {
+        "mod": -1
+      },
+      "wis": {
+        "mod": 3
+      },
+      "cha": {
+        "mod": 0
+      }
+    },
+    "attributes": {
+      "ac": {
+        "value": 33
+      },
+      "hp": {
+        "value": 215,
+        "max": 215
+      },
+      "speed": {
+        "value": 25
+      }
+    },
+    "perception": {
+      "mod": 22
+    },
+    "saves": {
+      "fortitude": {
+        "value": 25
+      },
+      "reflex": {
+        "value": 21
+      },
+      "will": {
+        "value": 24
+      }
+    },
+    "skills": {
+      "athletics": {
+        "base": 24
+      },
+      "stealth": {
+        "base": 18
+      }
+    },
+    "traits": {
+      "value": [
+        "aberration"
+      ],
+      "size": {
+        "value": "lg"
+      }
+    },
+    "details": {
+      "level": {
+        "value": 12
+      },
+      "blurb": "",
+      "publicNotes": "SYNTHETIC TEST FIXTURE for validating the Foundry sync pipeline only. Not a real Claimant, not canon — do not use as campaign content. See ideas/entries and the module's diagnostic test sync."
+    }
+  },
+  "items": [
+    {
+      "name": "Claw",
+      "type": "melee",
+      "system": {
+        "action": "strike",
+        "bonus": {
+          "value": 25
+        },
+        "damageRolls": {
+          "blankinh00": {
+            "damage": "3d8+10",
+            "damageType": "slashing"
+          }
+        },
+        "range": null,
+        "traits": {
+          "value": [
+            "agile",
+            "magical"
+          ]
+        }
+      }
+    }
+  ]
+}

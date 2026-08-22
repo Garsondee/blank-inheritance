@@ -1,0 +1,13 @@
+{
+  "name": "blank-inheritance",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Blank Inheritance campaign data and Foundry VTT module — test suite. Not a published package.",
+  "scripts": {
+    "test": "node --test test/"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1"
+  }
+}

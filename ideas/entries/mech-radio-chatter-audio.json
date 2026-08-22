@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "mech-radio-chatter-audio",
+  "type": "idea",
+  "title": "Mech radio-chatter audio system (ElevenLabs + spatial/proximity)",
+  "status": "accepted",
+  "domains": ["audio", "mechanics", "tooling", "technical-architecture"],
+  "summary": "ElevenLabs-generated ATC-style radio chatter per mech/pilot, triggered on pilot assignment/turn start/damage/crit/crit-fail, run through a radio-compression effect that degrades further as the mech takes damage, bookended by consistent beeps; proximity-based ambient volume for enemies on both the campaign map and smaller battle maps.",
+  "description": "A custom ElevenLabs API integration to generate unique radio-chatter lines per mech and (once named) per pilot. Explicitly scoped down: NOT for every scene, NOT full character dialogue — background flavor audio tied specifically to mech-relevant events, to bring pilots/Frames into the world without becoming a full voice-acting system. Trigger points named: when a pilot is assigned to a mech, when it becomes their turn in initiative, on taking damage, on landing a critical hit, on suffering a critical failure.\n\nProcessing: run the generated lines through effects that make them sound like compressed radio/walkie-talkie chatter rather than clean AI voice — 'the closer it sounds to a handheld walkie talkie noise the better.' Additionally, the chatter should audibly degrade/break up more as the mech takes damage — audio quality as a diegetic readout of the Frame's condition. Needs a consistent bookending SFX (start/end 'beep,' like a push-to-talk button) and its own constructed in-fiction ATC-style lingo/vocabulary for mech pilot radio communication.\n\nSpatial extension: enemies (Claimants/Frames) as audio sources — as players move closer to an enemy on the campaign-scale map, the sounds of battle get louder automatically. A similar effect is wanted at smaller battle-map scale (alien idle noises intensifying with proximity to enemy tokens).\n\nRelated existing assets: audio/in-tray/dialogue/control/ already has one real ElevenLabs-generated test line (voice preset 'Juniper - Grounded and Professional'), confirming this is already in motion, not purely speculative.",
+  "capturedDate": "2026-08-22",
+  "lastTouchedDate": "2026-08-22",
+  "sourceContext": "User planning message, 2026-08-22 — large worldbuilding/tooling brain-dump.",
+  "openSubQuestions": [
+    "The actual ATC-lingo vocabulary/glossary for mech pilot radio comms — not designed yet.",
+    "Exact trigger-to-audio mapping and how many line variants per trigger to avoid repetition fatigue.",
+    "Technical approach for the radio-compression/degradation effect (real-time DSP vs. pre-rendered variants per damage state).",
+    "Technical approach for proximity-based volume on both the campaign map and battle maps — likely connects to whatever the in-scene overlay/UI system ends up being."
+  ],
+  "relatedRefs": ["in-scene-ui-panel-mimetic-controls", "threejs-webgpu-overlay-layer", "asset-review-pipeline"],
+  "resolution": null
+}

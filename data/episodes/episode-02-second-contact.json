@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/episode.schema.json",
+  "id": "episode-02-second-contact",
+  "type": "episode",
+  "title": "Second Contact",
+  "dayRange": { "start": 6, "end": 6 },
+  "summary": "Two Frames deploy, chosen by the players from whatever the repair-day economy left standing. The remaining four kids take ground roles, rotated so nobody repeats a role from Day 1.",
+  "deploymentRule": "Two Frames deploy, player-chosen from whatever the repair economy left standing.",
+  "groundRoleRule": "Remaining four kids take ground roles; rotate assignments so nobody repeats a role from Day 1.",
+  "downtime": null,
+  "designRequirement": "Two Frames at two actions each cannot win this fight. Two Frames where at least one reaches Harmonised (65%+) can. The path to that threshold should be discoverable and earned in play — visible, costly, and not simply granted by the GM.",
+  "scenes": [],
+  "endOfEpisodeEffects": [
+    "Kids level up to 2.",
+    "Frames do not level — they remain fixed at 12, advancing only through Resonance bands and unlocks."
+  ],
+  "openQuestionRefs": ["day1-pilot-day6-choice"],
+  "danglingThreads": []
+}

@@ -1,0 +1,145 @@
+{
+  "$schema": "../../../../data/schema/kid.schema.json",
+  "id": "test-fixture-sensor-operator",
+  "type": "kid",
+  "name": "TEST FIXTURE — Sensor Operator (Witchwarper, synthetic, not one of the six real kids)",
+  "player": null,
+  "age": 17,
+  "concept": "Synthetic test fixture — a reflavoured SF2E Adventure Pregen (Witchwarper) standing in for the Sensor Operator ground-role slot. Arcana training lines up directly with the Spot obstacle's skill options.",
+  "level": 1,
+  "xp": 0,
+  "ancestry": "Ysoki",
+  "heritage": "Tunnel Ysoki",
+  "background": "City Slicker",
+  "class": "Witchwarper",
+  "size": "small",
+  "languages": [
+    "common"
+  ],
+  "abilityModifiers": {
+    "str": -1,
+    "dex": 3,
+    "con": 1,
+    "int": 4,
+    "wis": 1,
+    "cha": 1
+  },
+  "perception": {
+    "proficiency": {
+      "rank": "trained",
+      "modifier": 4
+    }
+  },
+  "savingThrows": {
+    "fortitude": {
+      "rank": "trained",
+      "modifier": 4
+    },
+    "reflex": {
+      "rank": "trained",
+      "modifier": 6
+    },
+    "will": {
+      "rank": "expert",
+      "modifier": 6
+    }
+  },
+  "skills": {
+    "acrobatics": {
+      "rank": "trained",
+      "modifier": 6
+    },
+    "arcana": {
+      "rank": "trained",
+      "modifier": 7
+    },
+    "athletics": {
+      "rank": "untrained",
+      "modifier": -1
+    },
+    "computers": {
+      "rank": "untrained",
+      "modifier": 4
+    },
+    "crafting": {
+      "rank": "untrained",
+      "modifier": 4
+    },
+    "deception": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "diplomacy": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "intimidation": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "medicine": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "nature": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "occultism": {
+      "rank": "untrained",
+      "modifier": 4
+    },
+    "performance": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "piloting": {
+      "rank": "untrained",
+      "modifier": 3
+    },
+    "religion": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "society": {
+      "rank": "trained",
+      "modifier": 7
+    },
+    "stealth": {
+      "rank": "trained",
+      "modifier": 6
+    },
+    "survival": {
+      "rank": "trained",
+      "modifier": 4
+    },
+    "thievery": {
+      "rank": "trained",
+      "modifier": 6
+    }
+  },
+  "classDC": {
+    "rank": "trained",
+    "modifier": 17
+  },
+  "hitPoints": {
+    "max": 15,
+    "current": 15
+  },
+  "armorClass": {
+    "value": 17,
+    "armorProficiency": {
+      "rank": "trained",
+      "modifier": 3
+    },
+    "wornArmor": "Second Skin"
+  },
+  "speed": {
+    "land": 25
+  },
+  "heroPoints": 1,
+  "groundRoleHistory": [],
+  "framePilotedRef": null,
+  "status": "Synthetic — battle-simulator test fixture only.",
+  "notes": "Reflavoured from the SF2E Player Core \"Adventure Pregens\" compendium (gamesystems/sf2e/packs/paizo-pregens), extracted via tools/pack-extractor and re-derived from first principles via tools/character-builder/derive.mjs. Computed HP was cross-checked against the pregen's own official total as a correctness check (see test/battle-simulator/kid-fixtures.test.mjs) before this file was written."
+}

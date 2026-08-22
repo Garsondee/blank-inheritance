@@ -1,0 +1,5 @@
+{
+  "_comment": "Foundry/sf2e versions the tier-3 contract tests were last verified against. Bump deliberately after re-running tier 3 against upgraded local source trees (gamesystems/sf2e/, foundryvtt/) and fixing whatever it reports — see design/testing-strategy.md §3, tier 3.",
+  "foundry": "14.367.0",
+  "sf2e": "1.4.1"
+}

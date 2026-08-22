@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "world-map-satellite-combat",
+  "type": "idea",
+  "title": "World map / satellite-scale combat with defensible assets",
+  "status": "accepted",
+  "domains": [
+    "mechanics",
+    "visual",
+    "encounter-design"
+  ],
+  "summary": "A literal city-scale (satellite-view-style) map that mech-level combat plays out on, with specific named assets the party has to defend, giving Claimant attacks concrete stakes. A real map asset has since been produced.",
+  "description": "Originally floated as an eventual need: a literal city-scale map mech combat plays out on, with specific, named assets the party has to defend — giving Claimant attacks concrete stakes ('defend this') rather than only abstract ones. This has since been substantially concretized by two later, more detailed ideas: civilian-protection-combat-layer (the actual combat mechanic — civilians/vehicles/infrastructure as attackable, defendable statblocked targets with an HP-based outcome report) and mech-physical-classification-and-equipment (which confirms a real world-map asset already exists: a heavily zoomed-out view of the city with a large surrounding ocean and inland mountains/plains, produced specifically for this purpose).\n\nKept as its own tracked idea because the 'satellite-view map as its own scene type' framing is a distinct decision from the combat-mechanics layer that runs on top of it — the map could end up used differently than the civilian-protection mechanic assumes, and vice versa.",
+  "capturedDate": "2026-08-22",
+  "lastTouchedDate": "2026-08-23",
+  "sourceContext": "User 'vibe with me' worldbuilding session — originally captured as prose in design/campaign-arc.md's 'Evolving mechanics threads' section; concretized by a later planning message; migrated here on audit.",
+  "openSubQuestions": [
+    "Which specific city assets are named as defensible — not enumerated yet."
+  ],
+  "relatedRefs": [
+    "civilian-protection-combat-layer",
+    "mech-physical-classification-and-equipment",
+    "design/foundry-module-design.md#3-scenes-theatre-of-mind-and-the-asset-pipeline",
+    "procedural-city-map-generator"
+  ],
+  "resolution": null,
+  "resolvedSubQuestions": [
+    "How the satellite-scale map scene relates to normal battle-map scenes mechanically (zoom levels? separate scene entirely with its own grid convention?) — ANSWERED 2026-08-23 by procedural-city-map-generator: ONE vector model rendered at two scales, not two scene types. At FEET_PER_SQUARE=50 a grid square is ~15m, which is larger than a house, so individual buildings are simply not representable on the tactical grid. The city view therefore takes the BLOCK as its unit; the battle view crops a neighbourhood and takes the BUILDING as its unit. Both render from the same seeded vector scene graph, which is a further reason that map is generated as vector rather than raster."
+  ]
+}

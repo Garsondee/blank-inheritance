@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "dialogue-management-panel",
+  "type": "idea",
+  "title": "Dialogue management panel for critical NPC conversations",
+  "status": "accepted",
+  "domains": ["ui", "mechanics", "tooling"],
+  "summary": "A GM-facing info panel for running important NPC conversations: player goals, NPC goals, hard lines the NPC won't cross, what's coercible, and a subject list each with a DC and one-click buttons to record degree of success as the scene plays out.",
+  "description": "Stated directly: 'We build a dialogue managing system which allows the group to have critical conversations with NPCs.' The panel should make it easy for the GM to manage the conversation live: player goals, the NPC's own goals, hard lines the NPC won't cross, information about what could plausibly be coerced from them, and — the mechanical core — a long list of subjects each with an associated DC, plus buttons to record the degree of success (critical failure / failure / neutral / success / critical success) as the players attempt them.\n\nStructurally this is the same shape challenge.schema.json already models (a set of DC'd checks with per-degree outcomes), wearing a live-session UI. Feeds directly into chat-log-knowledge-base (recorded outcomes need to be durably queryable after the session, not just visible in the moment) and is probably a component of campaign-managing-system rather than a fully standalone tool.",
+  "capturedDate": "2026-08-22",
+  "lastTouchedDate": "2026-08-22",
+  "sourceContext": "User planning message on dialogue/journal/campaign-management systems, prior to the ideas/ system existing — originally captured as prose in design/campaign-arc.md's 'Foundry module: new concept threads' section, migrated here on audit.",
+  "openSubQuestions": [
+    "Exact panel layout and what counts as a 'hard line' vs. 'coercible' in data terms.",
+    "Whether this extends challenge.schema.json directly or needs its own lighter schema.",
+    "How this plugs into the ApplicationV2 director's-panel work already designed."
+  ],
+  "relatedRefs": ["chat-log-knowledge-base", "campaign-managing-system", "data/schema/challenge.schema.json", "design/foundry-module-design.md"],
+  "resolution": null
+}

@@ -1,0 +1,58 @@
+{
+  "$schema": "../../schema/frame.schema.json",
+  "id": "tsukikage",
+  "type": "frame",
+  "name": "Tsukikage (月影, \"Moon-shadow\")",
+  "pilotKidRef": "nakamura-ren",
+  "level": 12,
+  "classAssignmentMethod": "psych-profile-verdict",
+  "concept": "A Mystic-class Frame, quiet and steady where Ren himself is quiet and steady with his body instead — its Eldritch Lance reads at Frame scale as a beam of raw psychic force from the dark between stars, and its Transfer Vitality is the one place in this whole roster where 'a spell is a kilometre-wide effect' means healing, not hurting.",
+  "size": "huge",
+  "languages": ["Common"],
+  "abilityModifiers": { "str": 1, "dex": 1, "con": 2, "int": 1, "wis": 4, "cha": 2 },
+  "perception": { "proficiency": { "rank": "expert", "modifier": 22 } },
+  "savingThrows": {
+    "fortitude": { "rank": "trained", "modifier": 22 },
+    "reflex": { "rank": "trained", "modifier": 19 },
+    "will": { "rank": "expert", "modifier": 25 }
+  },
+  "skills": {
+    "religion": { "rank": "master", "modifier": 25 },
+    "medicine": { "rank": "expert", "modifier": 22 }
+  },
+  "classDC": { "rank": "expert", "modifier": 34 },
+  "spellcasting": {
+    "tradition": "occult",
+    "dc": 32,
+    "attackModifier": 24,
+    "castingType": "spontaneous"
+  },
+  "spells": [
+    { "name": "Eldritch Lance", "attackBonus": 24, "range": 300, "actions": 2, "traits": ["attack", "cantrip", "concentrate", "manipulate", "mental"], "damage": [{ "dice": "7d6", "bonus": 0, "damageType": "mental" }] }
+  ],
+  "classFeatures": [
+    { "name": "Vitality Network", "levelGained": 1, "description": "Your soul supports a network of energy that connects and heals those in your bond. Grants Transfer Vitality." }
+  ],
+  "healAbilities": [
+    { "name": "Transfer Vitality", "healingAmount": 30, "range": 600, "actions": 1, "traits": ["concentrate", "healing", "mystic"], "usesRemaining": 2, "usesPerEncounter": 2 }
+  ],
+  "hitPoints": { "max": 160, "current": 160 },
+  "armorClass": { "value": 30 },
+  "speed": { "land": 300 },
+  "resonanceBand": null,
+  "abilityBands": {
+    "deadWeight": [
+      { "refType": "spell", "refName": "Eldritch Lance" },
+      { "refType": "ability", "refName": "Transfer Vitality" }
+    ],
+    "attuned": [],
+    "resonant": [],
+    "absolute": []
+  },
+  "damageState": "operational",
+  "repairLog": [],
+  "customizations": [],
+  "internalPowerRoundsRemaining": null,
+  "deployable": true,
+  "notes": "DRAFT — proposed 2026-08-22 at Ingram's direct request, open to full revision. Reuses the SAME real, pack-extracted content already proven in tools/battle-simulator/data/combatants.mjs's makeMysticFrame() (design doc §14k) — Eldritch Lance and Transfer Vitality are the actual Player Core text of a real level-1 Mystic pregen's cantrip and class feature (tools/pack-extractor/, gamesystems/sf2e/packs/paizo-pregens), scaled to level 12 via real rules (cantrips auto-heighten to half level rounded up; Transfer Vitality's own printed +10-per-5-levels text). AC/HP updated from that test fixture's ad hoc approximation (28/150) to the real GM Core Low-tier numbers (30/160) now that this project has those exact tables pulled — the battle-simulator test fixture itself is left untouched (it's tested, working infrastructure serving a different purpose: a stress-test combatant, not this campaign's actual roster). This is the one Frame in this batch whose combat kit is already end-to-end proven in the battle simulator, not just documented."
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "frame.schema.json",
+  "title": "Frame",
+  "description": "A player's mech: a full, standard SF2E PC (see common/sf2e-common.schema.json#/$defs/pcStatblock) — pick a class, build it exactly as any PC of the same level — reflavored at the fiction layer, plus Resonance-band gating and campaign repair-economy fields. Starts at level 12 and stays fixed there only through the six-day opening arc; from Day 7 onward it levels up in lockstep with its pilot's own milestone leveling (see design/campaign-arc.md's 8-level arc). At any level, abilityBands still controls which of the full statblock's feats/classFeatures/abilities/spellcasting/strikes are actually usable at the pilot's current Resonance band (see data/campaign/config.json resonance.bands) — leveling and band-gating are independent axes. One file per Frame in data/characters/frames/.",
+  "allOf": [
+    { "$ref": "common/sf2e-common.schema.json#/$defs/pcStatblock" },
+    {
+      "type": "object",
+      "required": ["id", "type", "name", "pilotKidRef"],
+      "properties": {
+        "$schema": { "type": "string" },
+        "id": { "type": "string" },
+        "type": { "const": "frame" },
+        "name": { "type": ["string", "null"] },
+        "pilotKidRef": { "type": ["string", "null"], "description": "id of the kid who pilots this Frame." },
+        "level": { "type": "integer", "minimum": 12, "default": 12, "description": "12 through the opening arc (Days 1-6); rises in lockstep with the pilot's kid level from Day 7 onward, gated by a major Claimant defeat plus enough downtime to refit. See design/campaign-arc.md." },
+        "classAssignmentMethod": {
+          "enum": ["player-chosen", "psych-profile-verdict", null],
+          "description": "Open design question — see campaign/open-questions.json #frame-class-assignment."
+        },
+        "concept": { "type": ["string", "null"], "description": "One or two sentence reflavoring concept (e.g. what a Strike/spell looks like at mech scale)." },
+        "abilityBands": {
+          "type": "object",
+          "description": "Which of this Frame's full level-12 statblock entries (from the pcStatblock fields above: feats, classFeatures, abilities, spellcasting.slots/focusSpells, strikes) are gated at each Resonance band. Each entry is a {refType, refName} pointer into this same file's arrays — refName should match that entry's \"name\" (or spell name / slot rank) exactly. A Dead Weight Frame should still be competent; sort generously rather than dumping everything into the top band.",
+          "properties": {
+            "deadWeight": { "type": "array", "items": { "$ref": "#/$defs/bandRef" }, "description": "Baseline abilities, always available (below 40% Resonance)." },
+            "attuned": { "type": "array", "items": { "$ref": "#/$defs/bandRef" }, "description": "Unlocked at Nominal (40-64%)." },
+            "resonant": { "type": "array", "items": { "$ref": "#/$defs/bandRef" }, "description": "Unlocked at Harmonised (65-84%)." },
+            "absolute": { "type": "array", "items": { "$ref": "#/$defs/bandRef" }, "description": "Unlocked at Absolute (85%+)." }
+          }
+        },
+        "damageState": { "enum": ["operational", "degraded", "critical", "hulked"], "default": "operational" },
+        "repairLog": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "date": { "type": "string" },
+              "fromState": { "type": "string" },
+              "toState": { "type": "string" },
+              "technicianDaysCost": { "type": "number" },
+              "notes": { "type": "string" }
+            }
+          }
+        },
+        "customizations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "description": { "type": "string" },
+              "technicianDaysCost": { "type": "number" }
+            }
+          }
+        },
+        "internalPowerRoundsRemaining": { "type": ["integer", "null"], "description": "Encounter-scoped tracker; clear between fights. Max value is set by the pilot's Resonance band (3-4/6/8/10 rounds)." },
+        "deployable": { "type": "boolean", "default": true },
+        "notes": { "type": "string" }
+      }
+    }
+  ],
+  "$defs": {
+    "bandRef": {
+      "type": "object",
+      "required": ["refType", "refName"],
+      "properties": {
+        "refType": { "enum": ["feat", "classFeature", "ability", "spell", "strike"] },
+        "refName": { "type": "string", "description": "Must match the \"name\" (or spell name within spellcasting) of an entry elsewhere in this file." }
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "antagonist-structure-cicada-org-moral-complexity",
+  "type": "idea",
+  "title": "Antagonist structure: fey-aliens + human cicada-cult allies, required moral complexity",
+  "status": "accepted",
+  "domains": ["narrative", "antagonists", "worldbuilding"],
+  "summary": "Primary antagonists are aliens, potentially fey-aliens, with a clandestine human/humanoid allied organization (cicada logo) giving players infiltration/investigation content; both sides need real, logical motivations — explicitly not generic villains — with a reserved twist that humanity's excavation may be the real danger, and the antagonists might be trying to protect humanity from something worse.",
+  "description": "The 'bad guys' being alien, and potentially fey-alien, is confirmed — this directly picks up the fey/Claimant synthesis floated in the prior planning session (fey logic of bargains and claims underneath the Claimants' bureaucratic register). Alongside them: a clandestine organization of humans and humanoids, allied with the aliens, branded with a cicada logo (see cicada-motif). This gives players a whole category of encounters distinct from Frame-scale combat: uncovering, surveilling, infiltrating, and dismantling this organization's operations.\n\nExplicit, important instruction on how these antagonists must be written: 'they should probably be right about some things and wrong about others' — not generic baddies. Both the aliens and their human allies need real motivations and objectives that, once fully explored, read as logical and consistent, potentially even reframing them from villains to just another self-interested party. Specific thematic hook to build toward: humanity is taking things that don't belong to it and doing things with them that aren't advisable — and the excavation itself might not even be the real danger. The antagonists could plausibly be trying to protect humanity from something worse that lurks beyond what's already been found. This should be held in reserve as a late-campaign reveal option, not spent early.",
+  "capturedDate": "2026-08-22",
+  "lastTouchedDate": "2026-08-22",
+  "sourceContext": "User planning message, 2026-08-22 — large worldbuilding/tooling brain-dump. Directly builds on the fey/Claimant synthesis offered in the prior session's creative response.",
+  "openSubQuestions": [
+    "Actual identity, structure, and named members of the cicada organization — not started, per this project's standing practice of not inventing named creative content unilaterally.",
+    "What (if anything) the aliens/Claimants are actually protecting humanity from — reserved, not decided.",
+    "How/when players first encounter evidence of the cicada organization vs. the aliens directly."
+  ],
+  "relatedRefs": ["cicada-motif", "design/campaign-arc.md#core-theme", "design/design-bible.md"],
+  "resolution": null
+}

@@ -1,0 +1,33 @@
+.DS_Store
+Thumbs.db
+node_modules/
+*.log
+.env
+
+# Large local reference trees — not project content, not for version control
+/gamesystems/
+/foundryvtt/
+/reference/
+
+# Raw asset intake libraries (images, audio) — large binaries, the user's own
+# working source material. Organized/approved assets eventually get copied
+# into foundry/blank-inheritance/assets/ for actual module use; these
+# raw trees are never themselves version-controlled.
+/artwork/
+/audio/
+
+# Module binaries: synced to the Foundry server by WinSCP, but not committed.
+# The .gitkeep files are kept so the directory structure survives in git.
+/foundry/blank-inheritance/assets/**
+!/foundry/blank-inheritance/assets/**/
+!/foundry/blank-inheritance/assets/**/.gitkeep
+
+# Battle-simulator generated output. All of this is reproducible from source at
+# any time (`node tools/battle-simulator/run-scenario.mjs` then
+# `node tools/battle-simulator/artifact/build.mjs`), and it is rewritten on every
+# build — committing it would put ~1.2MB of churn into history per rebuild.
+# assets/battle-map.b64.txt is deliberately NOT ignored: it has no generator
+# script, is an input to build.mjs, and never changes.
+/tools/battle-simulator/battle-log.json
+/tools/battle-simulator/artifact/contact-simulation.html
+/tools/battle-simulator/logs/

@@ -1,0 +1,146 @@
+{
+  "$schema": "../../../../data/schema/kid.schema.json",
+  "id": "test-fixture-evacuation-marshal",
+  "type": "kid",
+  "name": "TEST FIXTURE — Evacuation Marshal (Solarian, synthetic, not one of the six real kids)",
+  "player": null,
+  "age": 17,
+  "concept": "Synthetic test fixture — a reflavoured SF2E Adventure Pregen (Solarian) standing in for the Evacuation Marshal ground-role slot. High Strength, built for physically moving people clear.",
+  "level": 1,
+  "xp": 0,
+  "ancestry": "Vesk",
+  "heritage": "Nightstalker Vesk",
+  "background": "Outlaw",
+  "class": "Solarian",
+  "size": "medium",
+  "languages": [
+    "common",
+    "vesk"
+  ],
+  "abilityModifiers": {
+    "str": 4,
+    "dex": 2,
+    "con": 3,
+    "int": 0,
+    "wis": 0,
+    "cha": 0
+  },
+  "perception": {
+    "proficiency": {
+      "rank": "expert",
+      "modifier": 5
+    }
+  },
+  "savingThrows": {
+    "fortitude": {
+      "rank": "trained",
+      "modifier": 6
+    },
+    "reflex": {
+      "rank": "expert",
+      "modifier": 7
+    },
+    "will": {
+      "rank": "expert",
+      "modifier": 5
+    }
+  },
+  "skills": {
+    "acrobatics": {
+      "rank": "trained",
+      "modifier": 5
+    },
+    "arcana": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "athletics": {
+      "rank": "untrained",
+      "modifier": 4
+    },
+    "computers": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "crafting": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "deception": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "diplomacy": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "intimidation": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "medicine": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "nature": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "occultism": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "performance": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "piloting": {
+      "rank": "untrained",
+      "modifier": 2
+    },
+    "religion": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "society": {
+      "rank": "trained",
+      "modifier": 3
+    },
+    "stealth": {
+      "rank": "trained",
+      "modifier": 5
+    },
+    "survival": {
+      "rank": "trained",
+      "modifier": 3
+    },
+    "thievery": {
+      "rank": "untrained",
+      "modifier": 2
+    }
+  },
+  "classDC": {
+    "rank": "trained",
+    "modifier": 17
+  },
+  "hitPoints": {
+    "max": 23,
+    "current": 23
+  },
+  "armorClass": {
+    "value": 18,
+    "armorProficiency": {
+      "rank": "trained",
+      "modifier": 3
+    },
+    "wornArmor": "Freebooter Armor"
+  },
+  "speed": {
+    "land": 20
+  },
+  "heroPoints": 1,
+  "groundRoleHistory": [],
+  "framePilotedRef": null,
+  "status": "Synthetic — battle-simulator test fixture only.",
+  "notes": "Reflavoured from the SF2E Player Core \"Adventure Pregens\" compendium (gamesystems/sf2e/packs/paizo-pregens), extracted via tools/pack-extractor and re-derived from first principles via tools/character-builder/derive.mjs. Computed HP was cross-checked against the pregen's own official total as a correctness check (see test/battle-simulator/kid-fixtures.test.mjs) before this file was written."
+}

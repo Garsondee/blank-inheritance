@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "antagonist.schema.json",
+  "title": "Antagonist",
+  "description": "A named long-arc antagonist (as opposed to a per-encounter Claimant). One file per antagonist in data/antagonists/.",
+  "type": "object",
+  "required": ["id", "type", "workingName"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string" },
+    "type": { "const": "antagonist" },
+    "name": { "type": ["string", "null"] },
+    "workingName": { "type": "string" },
+    "namingPlaceholderRef": { "type": ["string", "null"] },
+    "description": { "type": "string" },
+    "engagementType": { "type": "string" },
+    "status": { "type": "string" },
+    "firstAppearance": {
+      "type": "object",
+      "properties": {
+        "eventRef": { "type": "string" }
+      }
+    }
+  }
+}

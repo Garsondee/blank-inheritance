@@ -1,0 +1,16 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "schema-ref-ajv-compatibility",
+  "type": "idea",
+  "title": "Fix $ref/$id mismatch so schemas validate with ajv, not just VS Code",
+  "status": "done",
+  "domains": ["tooling", "technical-architecture"],
+  "summary": "All data/schema/*.json files use file-relative $ref paths (e.g. \"common/sf2e-common.schema.json#/$defs/X\") which VS Code resolves fine for editor validation, but a real validator like ajv can't — it resolves $ref against each schema's declared $id, and sf2e-common.schema.json's self-declared $id (\"sf2e-common.schema.json\") doesn't match the path other schemas reference it by (\"common/sf2e-common.schema.json\").",
+  "description": "Discovered while trying to actually run creature.schema.json against ajv-cli to validate a test fixture (foundry/blank-inheritance/data/_test-fixtures/test-creature.json) for the Foundry module test case. ajv-cli failed with \"can't resolve reference common/sf2e-common.schema.json#/$defs/combatStatblock from id creature.schema.json\" — confirmed this is an $id/path mismatch, not an actual data problem (the fixture was hand-verified against the schema definitions directly and looks correct).\n\nThis affects every schema in data/schema/ that references common/sf2e-common.schema.json (kid, frame, npc, creature, subsystem, challenge), not just creature.schema.json. Worth fixing before building any real automated validator (ROADMAP.md #1's future sync tool will need real schema validation, not just VS Code's editor-time checking) — likely fix is giving sf2e-common.schema.json an $id that matches how it's actually referenced (e.g. a full relative path or a proper URI), or switching all $refs to a consistent absolute-ish scheme ajv can resolve without extra configuration.",
+  "capturedDate": "2026-08-22",
+  "lastTouchedDate": "2026-08-22",
+  "sourceContext": "Discovered while validating test fixtures for the Foundry module test-case implementation. Fixed while bootstrapping the automated test suite (design/testing-strategy.md) the same day — this became a hard prerequisite for tier 2 (data corpus validation), which needs real ajv resolution to exist at all.",
+  "openSubQuestions": [],
+  "relatedRefs": ["data/schema/common/sf2e-common.schema.json", "data/schema/creature.schema.json", "design/testing-strategy.md"],
+  "resolution": "Fixed by changing sf2e-common.schema.json's own $id from \"sf2e-common.schema.json\" to \"common/sf2e-common.schema.json\", matching the path every referencing schema already used in its $ref (kid, frame, npc, creature, subsystem, challenge all referenced it as \"common/sf2e-common.schema.json#/...\" — none needed to change). Confirmed frame.schema.json's local #/$defs/bandRef and sf2e-common's own internal #/$defs/* refs were unaffected, as expected (fragment-only refs resolve against the current document regardless of $id). Verified with ajv (Ajv2020, draft 2020-12): all 15 real files under data/ now validate against their declared $schema — covered by test/tier2-data-corpus.test.mjs."
+}

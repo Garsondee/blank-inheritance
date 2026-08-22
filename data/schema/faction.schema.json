@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "faction.schema.json",
+  "title": "Faction",
+  "description": "An organisation. One file per faction in data/factions/.",
+  "type": "object",
+  "required": ["id", "type", "name", "description"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string" },
+    "type": { "const": "faction" },
+    "name": { "type": ["string", "null"] },
+    "namingPlaceholderRef": { "type": ["string", "null"] },
+    "description": { "type": "string" },
+    "notablePoles": { "type": "array", "items": { "type": "string" }, "description": "NPC id refs." },
+    "sharedResources": { "type": "object" }
+  }
+}

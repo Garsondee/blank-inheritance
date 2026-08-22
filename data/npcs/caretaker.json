@@ -1,0 +1,12 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "caretaker",
+  "type": "npc",
+  "name": null,
+  "role": "The Caretaker",
+  "pole": "misguided-normalcy",
+  "affiliation": "directorate",
+  "description": "Tries, misguidedly, to give the kids something like a normal adolescence. Every accommodation they win costs technician-days from the same pool that repairs and upgrades Frames — kindness has a visible, charged line item.",
+  "openQuestionRefs": [],
+  "status": "placeholder — not yet named or cast"
+}

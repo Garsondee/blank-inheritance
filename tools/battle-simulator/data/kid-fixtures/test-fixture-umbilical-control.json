@@ -1,0 +1,145 @@
+{
+  "$schema": "../../../../data/schema/kid.schema.json",
+  "id": "test-fixture-umbilical-control",
+  "type": "kid",
+  "name": "TEST FIXTURE — Umbilical Control (Mystic, synthetic, not one of the six real kids)",
+  "player": null,
+  "age": 17,
+  "concept": "Synthetic test fixture — a reflavoured SF2E Adventure Pregen (Mystic) standing in for the Umbilical Control ground-role slot. A spiritual-bond class reflavoured as a technical bond to the Frame's systems.",
+  "level": 1,
+  "xp": 0,
+  "ancestry": "Android",
+  "heritage": "Networked Android",
+  "background": "Detective",
+  "class": "Mystic",
+  "size": "medium",
+  "languages": [
+    "common"
+  ],
+  "abilityModifiers": {
+    "str": 0,
+    "dex": 3,
+    "con": 1,
+    "int": 1,
+    "wis": 4,
+    "cha": 0
+  },
+  "perception": {
+    "proficiency": {
+      "rank": "trained",
+      "modifier": 7
+    }
+  },
+  "savingThrows": {
+    "fortitude": {
+      "rank": "trained",
+      "modifier": 4
+    },
+    "reflex": {
+      "rank": "trained",
+      "modifier": 6
+    },
+    "will": {
+      "rank": "expert",
+      "modifier": 9
+    }
+  },
+  "skills": {
+    "acrobatics": {
+      "rank": "untrained",
+      "modifier": 3
+    },
+    "arcana": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "athletics": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "computers": {
+      "rank": "trained",
+      "modifier": 4
+    },
+    "crafting": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "deception": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "diplomacy": {
+      "rank": "trained",
+      "modifier": 3
+    },
+    "intimidation": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "medicine": {
+      "rank": "untrained",
+      "modifier": 4
+    },
+    "nature": {
+      "rank": "untrained",
+      "modifier": 4
+    },
+    "occultism": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "performance": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "piloting": {
+      "rank": "trained",
+      "modifier": 6
+    },
+    "religion": {
+      "rank": "untrained",
+      "modifier": 4
+    },
+    "society": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "stealth": {
+      "rank": "trained",
+      "modifier": 6
+    },
+    "survival": {
+      "rank": "untrained",
+      "modifier": 4
+    },
+    "thievery": {
+      "rank": "untrained",
+      "modifier": 3
+    }
+  },
+  "classDC": {
+    "rank": "trained",
+    "modifier": 17
+  },
+  "hitPoints": {
+    "max": 15,
+    "current": 15
+  },
+  "armorClass": {
+    "value": 17,
+    "armorProficiency": {
+      "rank": "trained",
+      "modifier": 3
+    },
+    "wornArmor": "Second Skin"
+  },
+  "speed": {
+    "land": 25
+  },
+  "heroPoints": 1,
+  "groundRoleHistory": [],
+  "framePilotedRef": null,
+  "status": "Synthetic — battle-simulator test fixture only.",
+  "notes": "Reflavoured from the SF2E Player Core \"Adventure Pregens\" compendium (gamesystems/sf2e/packs/paizo-pregens), extracted via tools/pack-extractor and re-derived from first principles via tools/character-builder/derive.mjs. Computed HP was cross-checked against the pregen's own official total as a correctness check (see test/battle-simulator/kid-fixtures.test.mjs) before this file was written."
+}

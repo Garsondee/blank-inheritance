@@ -1,0 +1,10 @@
+{
+  "$schema": "../../../../data/schema/kid.schema.json",
+  "id": "test-fixture-kid-001",
+  "type": "kid",
+  "name": "TEST FIXTURE — Diagnostic Character",
+  "player": null,
+  "age": 17,
+  "level": 3,
+  "notes": "SYNTHETIC TEST FIXTURE for validating the Foundry sync pipeline only. Not one of the six real kids, not canon — do not use as campaign content. See ideas/entries and the module's diagnostic test sync."
+}

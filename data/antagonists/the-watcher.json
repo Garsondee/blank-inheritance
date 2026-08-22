@@ -1,0 +1,14 @@
+{
+  "$schema": "../schema/antagonist.schema.json",
+  "id": "the-watcher",
+  "type": "antagonist",
+  "name": null,
+  "workingName": "The Watcher",
+  "namingPlaceholderRef": "the-watcher-name",
+  "description": "An invisible, city-hovering, manipulating presence, first glimpsed through a Type C False Contact.",
+  "engagementType": "Long-arc antagonist dealt with through investigation and ground-level play rather than a Frame encounter — not a fight resolved in a single session.",
+  "status": "Thread stays open through the whole opening arc.",
+  "firstAppearance": {
+    "eventRef": "false-contact-type-c"
+  }
+}

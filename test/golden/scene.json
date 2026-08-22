@@ -1,0 +1,36 @@
+{
+  "_id": "eea76d2a76347e01",
+  "name": "TEST FIXTURE — Diagnostic Scene",
+  "width": 2000,
+  "height": 1400,
+  "grid": {
+    "size": 100
+  },
+  "levels": [
+    {
+      "_id": "defaultLevel0000",
+      "name": "Default",
+      "background": {
+        "color": "#1a1a2e"
+      }
+    }
+  ],
+  "tokens": [
+    {
+      "_id": "11f837a4bb7087c9",
+      "actorId": "694dfa5322a61d7e",
+      "x": 1400,
+      "y": 700,
+      "width": 1,
+      "height": 1
+    },
+    {
+      "_id": "64163851cc0ddae3",
+      "actorId": "dd82c16d46492a9d",
+      "x": 600,
+      "y": 700,
+      "width": 1,
+      "height": 1
+    }
+  ]
+}

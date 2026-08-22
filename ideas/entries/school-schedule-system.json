@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "school-schedule-system",
+  "type": "idea",
+  "title": "School Schedule system",
+  "status": "new",
+  "domains": ["mechanics", "narrative"],
+  "summary": "A day contains multiple discrete class periods a player can choose to attend or skip; attending costs a time slot and rolls a skill check whose degree of success can grant bonuses, information, or an NPC contact on top of raising the kid's grade; skipping accrues toward a bad report card dealt with later.",
+  "description": "Explicitly speculative, recorded with the user's own tentative language preserved rather than tightened: a day contains multiple discrete class periods; attending one costs a time slot and rolls a skill check, and the degree of success can grant bonuses, information, or an important NPC contact, on top of raising the attending kid's grade. Skipping is explicitly permitted ('leave to avoid lessons') but accrues toward a bad report card, with consequences dealt with later rather than immediately. Design intent matches the existing Time Economy: there should always be more interesting things to do than slots to spend on them — school just adds another menu layered into the mandatory-school portion of the day rather than replacing it.\n\nIdeas floated within this, also speculative: a History class as the natural (if optional) vector for campaign backstory, with the specific hope that at least one player attends it so the table gets the lore somehow without forcing it on everyone; after-hours clubs as a higher-commitment option on top of the class system; weekly objectives (separate from daily attendance) that grant bonuses or avoid penalties, also costing time slots.\n\nOpen question directly tied to this: whether the school is the same physical facility as the civil-defense/Directorate site the kids report to for shifts, or a separate location — tracked separately as a real campaign-design question, see relatedRefs.",
+  "capturedDate": "2026-08-22",
+  "lastTouchedDate": "2026-08-22",
+  "sourceContext": "User 'vibe with me' worldbuilding session — originally captured as prose in design/campaign-arc.md's 'Evolving mechanics threads' section, migrated here on audit.",
+  "openSubQuestions": [
+    "Full class list and which skills each maps to — not designed.",
+    "Exact bonus/info/contact table per degree of success — not designed.",
+    "Report-card consequence mechanics — 'dealt with later' was explicitly left open by the user.",
+    "After-hours clubs — whether they exist at all is still a maybe."
+  ],
+  "relatedRefs": ["data/campaign/open-questions.json#school-facility-same-location", "data/campaign/config.json#timeEconomy", "data/campaign/naming-placeholders.json#school-name"],
+  "resolution": null
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "mech-physical-classification-and-equipment",
+  "type": "idea",
+  "title": "Mech physical classification, Frame equipment, and student vehicle tiers",
+  "status": "accepted",
+  "domains": ["mechanics", "visual", "worldbuilding"],
+  "summary": "Classify mech art by movement method/size/mounting capability to drive real Frame build variety; reflavor real SF2E items into Frame-specific and student-civil-defense-specific equipment (named via real military/civil vehicle classes); lock in a grid-size-to-power-tier convention; a literal world map asset already exists.",
+  "description": "The generated mech artwork turned out with real variety in size and equipment loadout, and the user wants to lean into that rather than normalize it away. Proposed classification axes: movement method (e.g. tracked feet = faster; four legs = harder to knock over/more stable), and physical form as a gate on what equipment can be mounted (large cannon mounts allow certain heavy weapon classes; hands allow carrying and swapping a wider range of equipment on shorter notice than a fixed mount). The user will help classify the actual mech images once shared.\n\nEquipment plan: take real SF2E items and produce reflavored, campaign-unique versions specifically for Frame use — not generic reskins, bespoke to this campaign. Separately, produce equipment scaled for civil-defense/ground-role students, explicitly named using real military/civil vehicle classes (IFV, APC, recon vehicles, helicopters, etc.) so students have their own real gear-choice axis (e.g. better-armored-but-slower vs. faster-but-more-fragile, with fast vehicles specifically enabling covering large map distances quickly). This is the concrete mechanism meant to let non-pilot students keep pace with Frames in large-scale impact, directly serving the 'don't let ground-role students be second-line' goal already recorded in design/campaign-arc.md.\n\nGrid-size convention (concrete, ready to use): larger Frames occupy a 2x2 grid footprint instead of the SF2E-standard 1x1; smaller mechs can use ordinary SF2E creature sizes to appear on the map at 1x1; a 3x3 footprint is reserved specifically for extremely high-end antagonists (climactic/boss-tier Claimants); ground-role students (on foot, civil-defense scale) get the smallest available size specifically to visually sell the scale gap next to Frames.\n\nA literal world map asset has already been produced: a heavily zoomed-out view of the city being defended, including a large amount of surrounding ocean and inland mountains/plains — meant for the satellite-view mech-scale combat concept already noted as an evolving mechanics thread.",
+  "capturedDate": "2026-08-22",
+  "lastTouchedDate": "2026-08-22",
+  "sourceContext": "User planning message, 2026-08-22 — large worldbuilding/tooling brain-dump.",
+  "openSubQuestions": [
+    "Actual classification pass over the mech art — needs the user's direct input per image, not started.",
+    "Exact reflavored Frame-equipment list and student-vehicle equipment list — not designed yet.",
+    "Precise stat implications of the movement-method/size classifications (how much faster, how much harder to knock over, etc.)."
+  ],
+  "relatedRefs": [
+    "design/campaign-arc.md#non-pilot-students-avoiding-a-second-line-role",
+    "design/campaign-arc.md#evolving-mechanics-threads-not-locked--recorded-so-nothing-gets-lost",
+    "data/schema/frame.schema.json",
+    "civilian-protection-combat-layer",
+    "artwork/in-tray/mechs"
+  ],
+  "resolution": null
+}

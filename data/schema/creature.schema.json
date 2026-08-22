@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "creature.schema.json",
+  "title": "Creature",
+  "description": "A monster/NPC-style SF2E stat block (GM Core creature-building rules), as distinct from a full PC build (see common/sf2e-common.schema.json#/$defs/pcStatblock, used by kid/frame). Reusable for Claimant instances (data/antagonists/claimants/) and any other creature that needs combat stats but isn't a PC. One file per creature.",
+  "allOf": [
+    { "$ref": "common/sf2e-common.schema.json#/$defs/combatStatblock" },
+    {
+      "type": "object",
+      "required": ["id", "type", "name"],
+      "properties": {
+        "$schema": { "type": "string" },
+        "id": { "type": "string" },
+        "type": { "const": "creature" },
+        "name": { "type": ["string", "null"] },
+        "notes": { "type": "string" }
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "_comment": "Frozen real example of an sf2e melee Item, extracted from the shipped compendium packs during the original technical-reference research (design/foundry-technical-reference.md, 'melee Item' section, real Claw example) — not a live compendium read (no LevelDB parser lives in this repo). Item.types in template.json does not include melee at all (only 15 of 25 declared types have template entries; sf2e defines the rest in code DataModels), so this frozen example is the only verified ground truth available for tier 3(b). If sf2e's real pack data changes shape, this snapshot goes stale the same way template.json's version pin can — re-verify against a real compendium export when upgrading sf2e.",
+  "name": "Claw",
+  "type": "melee",
+  "system": {
+    "action": "strike",
+    "bonus": { "value": 6 },
+    "damageRolls": {
+      "abc1230000000001": { "damage": "1d4+1", "damageType": "slashing" }
+    },
+    "range": null,
+    "traits": { "value": ["agile"] }
+  }
+}

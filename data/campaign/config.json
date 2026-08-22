@@ -1,0 +1,159 @@
+{
+  "$schema": "../schema/campaign-config.schema.json",
+  "id": "config",
+  "twoTracksPrinciple": "Every pilot runs on two independent numbers, Resonance and Bleed. Neither ever produces a numeric combat bonus larger than +2 — the difference between a well-synced and poorly-synced pilot is what they're allowed to do, not how good they are at doing it.",
+  "resonance": {
+    "range": { "min": 0, "max": 100 },
+    "bands": [
+      {
+        "id": "dead-weight",
+        "name": "Dead Weight",
+        "rangeLabel": "Below 40%",
+        "min": 0,
+        "max": 39,
+        "actionsPerTurn": 2,
+        "reaction": false,
+        "abilitiesAvailable": "Baseline only",
+        "internalPowerDuration": "3-4 rounds"
+      },
+      {
+        "id": "nominal",
+        "name": "Nominal",
+        "rangeLabel": "40-65%",
+        "min": 40,
+        "max": 64,
+        "actionsPerTurn": 2,
+        "reaction": true,
+        "abilitiesAvailable": "+ Attuned",
+        "internalPowerDuration": "6 rounds"
+      },
+      {
+        "id": "harmonised",
+        "name": "Harmonised",
+        "rangeLabel": "65-85%",
+        "min": 65,
+        "max": 84,
+        "actionsPerTurn": 3,
+        "reaction": true,
+        "abilitiesAvailable": "+ Resonant",
+        "internalPowerDuration": "8 rounds"
+      },
+      {
+        "id": "absolute",
+        "name": "Absolute",
+        "rangeLabel": "85%+",
+        "min": 85,
+        "max": 100,
+        "actionsPerTurn": 3,
+        "actionNote": "Plus one free Strike/round ignoring the multiple attack penalty.",
+        "reaction": true,
+        "abilitiesAvailable": "+ Absolute",
+        "internalPowerDuration": "10 rounds"
+      }
+    ],
+    "bandDesignNote": "Sort each Frame's class abilities into these four bands at chargen. A Dead Weight Frame should still be competent — a big, dangerous, slow thing, not a joke. Most of the campaign is played at 2 actions; reaching Harmonised for the first time, mid-fight, should be a table moment. Duration is the pacing tool: once internal power runs out, the Frame is dead weight until reconnected. Ground crew's Umbilical Control role buys more of it.",
+    "boundaryConvention": "The design bible prints adjacent bands sharing a boundary digit (e.g. \"40-65%\" then \"65-85%\"). This file resolves that the standard way — bands are contiguous and non-overlapping (65% = Harmonised, not Nominal). Revisit if that's not the intent.",
+    "pushMechanic": {
+      "description": "A pilot may raise Resonance mid-scene by accepting Bleed.",
+      "resolution": "Resolve the push with a check using the kid's own stats (a Will save, a relevant skill) — this is the one place the level-1 sheet does direct, real work inside a level-12 scene."
+    }
+  },
+  "bleed": {
+    "min": 0,
+    "max": 10,
+    "sources": [
+      "Pushing Resonance",
+      "Taking Frame damage",
+      "Plug/psychological distress",
+      "Suppression (declining an Anchor-relevant conflict to protect deployability)"
+    ],
+    "berserkThreshold": 10,
+    "berserk": {
+      "gmControlDuration": "1d4 rounds",
+      "effect": "Damage output roughly doubles; targeting stops discriminating between friend, foe, and terrain.",
+      "narrationRule": "Do not narrate this from the cockpit — the player doesn't get to watch it happen to them."
+    },
+    "pilotVisibility": null,
+    "openQuestionRef": "bleed-visibility"
+  },
+  "anchors": {
+    "countPerKid": { "min": 2, "max": 3 },
+    "writtenBy": "player",
+    "types": ["person", "belief", "need"],
+    "affirmEffect": "Raises that kid's baseline Resonance.",
+    "violateEffect": "Lowers that kid's baseline Resonance.",
+    "gmLever": "Anchors are the GM's primary lever on Resonance."
+  },
+  "suppression": {
+    "trigger": "A player declines an Anchor-relevant conflict specifically to protect their deployability (plays their kid unrealistically conflict-avoidant to stay combat-ready).",
+    "cost": "Bleed, instead of Resonance.",
+    "designIntent": "Closes the exploit where rational players make their kids blandly nice to everyone to keep the emotional game alive. Both doors cost something: having the fight costs capability, swallowing it costs stability."
+  },
+  "frameEconomy": {
+    "rosterSize": 6,
+    "hpAsCampaignResource": "Frame HP is a campaign resource, not an encounter resource. Frames do not heal between fights. They move down a damage-state track: Operational -> Degraded -> Critical -> Hulked.",
+    "damageStates": ["operational", "degraded", "critical", "hulked"],
+    "repair": {
+      "cost": "Repairing a step costs technician-days, drawn from a single shared weekly pool the Directorate allocates.",
+      "sharedPoolNote": "Frame modification/customization draws from the exact same pool. Repairing a friend's Frame and upgrading your own compete directly for the same finite resource — this is the primary economic tension of downtime."
+    },
+    "deployability": "Not all six Frames are necessarily deployable at once. A Degraded or Critical Frame may be riskier or unable to launch. When a Contact only calls for two or three Frames, the players choose the subset — the GM never has to force this; the repair economy does it for them.",
+    "permanentLoss": "A Frame that reaches Hulked can stay Hulked. Permanent loss of a personal Frame is on the table from the start (foreshadow it early, so when it happens it reads as the campaign keeping a promise, not GM cruelty)."
+  },
+  "timeEconomy": {
+    "discretionarySlicesPerDay": 2,
+    "mandatoryLoad": "Each day, mandatory school and mandatory harmonics/sync training eat most of it.",
+    "designIntent": "More options exist than slices to spend them on — that gap is the entire engine of downtime play.",
+    "options": [
+      { "id": "sync-training", "name": "Sync Training", "effect": "Nudges baseline Resonance upward, slowly.", "cost": "1 slice" },
+      { "id": "frame-modification", "name": "Frame Modification", "effect": "Customize loadout/tuning.", "cost": "1+ slices, from the shared technician-day pool" },
+      { "id": "repair-advocacy", "name": "Repair Advocacy", "effect": "Push a Frame back up the damage-state track.", "cost": "1+ slices, from the same pool" },
+      { "id": "anchor-time", "name": "Anchor Time", "effect": "Scene with an Anchor — a chance to affirm it (or risk it).", "cost": "1 slice" },
+      { "id": "investigation", "name": "Investigation", "effect": "Pull a thread.", "cost": "1+ slices, often spans several days" },
+      { "id": "analysis-duty", "name": "Analysis Duty", "effect": "Read the sensor archive: reveals the current Contact Pool state, or pushes the floor back (delays the next possible Contact).", "cost": "1 slice" },
+      { "id": "rest", "name": "Rest", "effect": "Recover; protects against burnout at GM's discretion.", "cost": "1 slice" }
+    ]
+  },
+  "contactPool": {
+    "activeFrom": "Day 7 (the opening arc, Days 1-6, is hand-placed and does not roll).",
+    "designIntent": "Bounded on both ends by design: players are never punished with a zero-warning attack, and tension never gets an indefinite escape hatch either. Starting numbers below are a proposed baseline, not fixed — tune freely.",
+    "floor": {
+      "description": "No Contact can trigger within 2 quiet days of the last one. No roll happens during this window at all.",
+      "quietDays": 2
+    },
+    "rollProcedure": {
+      "startsDay": "3 days post-Contact",
+      "die": "1d20",
+      "frequency": "each morning",
+      "triggerOn": 20,
+      "targetDecreasePerQuietMorning": 1,
+      "description": "Contact triggers on a 20. The target number drops by 1 for each additional quiet morning (20, then 19+, then 18+...) — visible, predictable, escalating."
+    },
+    "ceiling": {
+      "description": "If Contact hasn't triggered by the 8th quiet morning (target would be 13+), it happens automatically. The pool can never coast forever.",
+      "quietMorningLimit": 8
+    },
+    "analysisDutyInteraction": "Analysis Duty either reveals the current target number to the players, or spends a slice to push the floor back by a fixed number of days (a guaranteed delay). Either way, tactical certainty is purchased with personal time — the same currency as everything else in this game."
+  },
+  "falseContact": {
+    "sharedCost": "All three types cost the same disrupted evening as a real Contact.",
+    "types": [
+      {
+        "id": "type-a",
+        "name": "Genuine false positive",
+        "description": "Full scramble, nothing there. Teaches players early that the cost of readiness isn't only the Claimants — the system itself has a price."
+      },
+      {
+        "id": "type-b",
+        "name": "Role reversal",
+        "description": "The scramble is real, but what needs help is people, not a fight. The Frames end up rescuing \"children\" (evacuees, civilians, possibly off-duty kids) rather than the other way around. Same adrenaline shape, subverted resolution."
+      },
+      {
+        "id": "type-c",
+        "name": "First contact with the Watcher",
+        "description": "A false or ambiguous response that is actually the first evidence of a second, invisible antagonist. Doesn't resolve as combat — resolves as an investigation hook, and shouldn't be closed out quickly.",
+        "antagonistRef": "the-watcher"
+      }
+    ]
+  }
+}

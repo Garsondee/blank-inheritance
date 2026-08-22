@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "chat-log-knowledge-base",
+  "type": "idea",
+  "title": "Chat log scraper as structured session ground truth",
+  "status": "accepted",
+  "domains": ["tooling", "technical-architecture"],
+  "summary": "Scrape the Foundry chat log to extract inline-check results in structured form (who rolled, against what DC, what degree of success) so a session's actual events become queryable data rather than living only in scrollback.",
+  "description": "A scraper that reads Foundry's chat log and pulls out inline-check results in structured form — who tried, what they tried against, what degree of success they got. The stated goal: build up a total, durable set of knowledge about the adventure as actually played, not as planned. This is the mechanism that would make dialogue-management-panel's recorded outcomes (and any other inline @Check result) queryable after the session ends. Explicitly framed as feeding, alongside player-and-gm-journals-context-ingestion, into how future episodes get written — a complete before/after picture of a session: what the GM improvised, what actually happened mechanically, and what players privately thought about it.",
+  "capturedDate": "2026-08-22",
+  "lastTouchedDate": "2026-08-22",
+  "sourceContext": "User planning message on dialogue/journal/campaign-management systems, prior to the ideas/ system existing — originally captured as prose in design/campaign-arc.md's 'Foundry module: new concept threads' section, migrated here on audit.",
+  "openSubQuestions": [
+    "Exact data shape for a scraped check result.",
+    "Where this data lives (a flag-based store per the harvest mechanism already designed, or something else).",
+    "How 'who tried what' maps back to the labeled subjects in dialogue-management-panel specifically vs. general combat/skill rolls."
+  ],
+  "relatedRefs": ["dialogue-management-panel", "player-and-gm-journals-context-ingestion", "design/foundry-module-design.md#4-bidirectional-sync-and-the-file-system-question"],
+  "resolution": null
+}

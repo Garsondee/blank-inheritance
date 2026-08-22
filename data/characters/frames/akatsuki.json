@@ -1,0 +1,49 @@
+{
+  "$schema": "../../schema/frame.schema.json",
+  "id": "akatsuki",
+  "type": "frame",
+  "name": "Akatsuki (暁, \"Daybreak\")",
+  "pilotKidRef": "kaneda-masaru",
+  "level": 12,
+  "classAssignmentMethod": "psych-profile-verdict",
+  "concept": "A Witchwarper-class Frame that answers Masaru's exacting precision with something stranger — a battlefield-warping cantrip reflavored at Frame scale as tearing a seam in the fight itself, not throwing a punch. The one part of him that isn't careful.",
+  "size": "huge",
+  "languages": ["Common"],
+  "abilityModifiers": { "str": 1, "dex": 2, "con": 1, "int": 4, "wis": 2, "cha": 0 },
+  "perception": { "proficiency": { "rank": "expert", "modifier": 22 } },
+  "savingThrows": {
+    "fortitude": { "rank": "trained", "modifier": 19 },
+    "reflex": { "rank": "expert", "modifier": 22 },
+    "will": { "rank": "expert", "modifier": 25 }
+  },
+  "skills": {
+    "occultism": { "rank": "master", "modifier": 25 },
+    "arcana": { "rank": "expert", "modifier": 22 }
+  },
+  "classDC": { "rank": "expert", "modifier": 34 },
+  "spellcasting": {
+    "tradition": "occult",
+    "dc": 32,
+    "attackModifier": 24,
+    "castingType": "spontaneous"
+  },
+  "spells": [
+    { "name": "Quantum Shear", "attackBonus": 24, "range": 300, "actions": 2, "traits": ["attack", "cantrip", "concentrate", "manipulate"], "damage": [{ "dice": "6d8", "bonus": 0, "damageType": "force" }] }
+  ],
+  "hitPoints": { "max": 160, "current": 160 },
+  "armorClass": { "value": 30 },
+  "speed": { "land": 250 },
+  "resonanceBand": null,
+  "abilityBands": {
+    "deadWeight": [{ "refType": "spell", "refName": "Quantum Shear" }],
+    "attuned": [],
+    "resonant": [],
+    "absolute": []
+  },
+  "damageState": "operational",
+  "repairLog": [],
+  "customizations": [],
+  "internalPowerRoundsRemaining": null,
+  "deployable": true,
+  "notes": "DRAFT — proposed 2026-08-22 at Ingram's direct request, open to full revision. Grounded in GM Core pg. 121-126's real level-12 tables: AC Low (30) and HP Low (160) — 'low AC typically fits spellcasters, who compensate with their selection of powerful spells' — paired with High-tier spell DC/attack (32/+24, GM Core pg. 126, the same tier Tsukikage's Mystic uses, for a consistent 'primary caster' baseline across both spellcasting Frames). Quantum Shear's own damage (6d8, avg 27) is NOT independently pack-extracted the way Tsukikage's Eldritch Lance/Transfer Vitality are (that content came from a real Foundry pregen; Witchwarper's real signature spell wasn't separately researched this pass) — it's a representative, class-flavored placeholder sized to land in the same rough range as a real SF2E cantrip at this level (Eldritch Lance's own real printed damage at rank 6 is 7d6, avg 24.5 — spells trade raw damage for versatility compared to an equivalent weapon Strike, and this follows that same real pattern rather than inventing a bigger number). Mechanically an attack-roll spell (reuses the same spellAttack engine path Tsukikage does) even though its NAME leans into Witchwarper's real battlefield-control identity — a genuinely save-based control spell would need a new engine action type (resolveSave/basicSaveDamage exist in resolve.mjs but aren't wired to a proposal type yet) that wasn't built this pass; flagged as a real next step, not silently glossed over."
+}

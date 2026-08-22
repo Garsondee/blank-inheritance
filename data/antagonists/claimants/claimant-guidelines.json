@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schema/claimant-guidelines.schema.json",
+  "id": "claimant-guidelines",
+  "type": "antagonist-guidelines",
+  "name": "Claimants",
+  "workingNameFor": "Angels (Evangelion analogue)",
+  "buildRules": {
+    "method": "Built as standard SF2e creatures via normal creature-building guidelines.",
+    "level": "Leveled to the Frame's tier (12, to start the campaign) — never to the kids' level.",
+    "groundRule": "A Claimant statblock is never something a ground-level kid should be rolling against directly."
+  },
+  "namingConvention": "Announced by classification code, never named: \"Claimant Three, contact confirmed.\"",
+  "lore": {
+    "framing": "Frames the war as a property dispute humanity is losing, and quietly seeds the eventual question of what the Frames themselves are a claim on.",
+    "optionalHook": "Escheat — property reverting to the state when no rightful heir exists — is a clean legal metaphor for what \"the Gap\" excavation actually is, if you want to lean into it later."
+  },
+  "instanceIds": []
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/gm-notes.schema.json",
+  "id": "gm-notes",
+  "notes": [
+    {
+      "id": "interrupt-invested-time",
+      "note": "Never place a Contact event during a free period. Time it to interrupt whatever a player just spent slices investing in. The fight isn't the interruption of their life — their life is what the fight keeps eating."
+    },
+    {
+      "id": "read-numbers-flatly",
+      "note": "Read harmonics numbers aloud, flatly, in front of everyone. Institutions describing a kid's worst day as a percentage is the horror register this campaign runs on."
+    },
+    {
+      "id": "dont-narrate-berserk",
+      "note": "Don't narrate the berserk state (Bleed 10) from inside the cockpit. The player doesn't get to watch it happen to them."
+    },
+    {
+      "id": "day-1-no-plan",
+      "note": "On Day 1, let the adults visibly not have a plan. Rehearsed procedure failing on contact sets the tone for every institution in the setting from that point on."
+    }
+  ]
+}

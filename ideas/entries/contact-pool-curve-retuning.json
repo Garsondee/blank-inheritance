@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "contact-pool-curve-retuning",
+  "type": "idea",
+  "title": "Contact Pool curve retuning",
+  "status": "accepted",
+  "domains": ["mechanics"],
+  "summary": "Retune the Contact Pool so there are no rolls at all for the first several days of a week, with the roll only starting partway through and climbing to a near-certain/guaranteed Contact by week's end — the shape is decided, the exact numbers aren't.",
+  "description": "The existing Contact Pool math (data/campaign/config.json#contactPool) rolls from day 3 post-Contact onward, escalating by 1 on the target each additional quiet morning. The user's new intent is a differently-shaped curve: no rolls at all for the first several days of a week, with rolling only starting partway through and climbing to a near-certain or guaranteed Contact by the end of the week. Flagged explicitly by the user as needing careful tuning — this is a pacing curve, not a quick number swap, and the existing locked numbers in config.json should not be touched casually or before this is actually worked through.",
+  "capturedDate": "2026-08-22",
+  "lastTouchedDate": "2026-08-22",
+  "sourceContext": "User 'vibe with me' worldbuilding session — originally captured as prose in design/campaign-arc.md's 'Evolving mechanics threads' section, migrated here on audit.",
+  "openSubQuestions": [
+    "Exact day-by-day roll/target progression to replace the current day-3-onward escalation.",
+    "Whether the floor/ceiling bounding logic in the existing contactPool config changes shape or just the numbers within it."
+  ],
+  "relatedRefs": ["data/campaign/config.json#contactPool"],
+  "resolution": null
+}

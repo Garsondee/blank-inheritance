@@ -1,0 +1,54 @@
+{
+  "$schema": "../schema/naming-placeholders.schema.json",
+  "id": "naming-placeholders",
+  "placeholders": [
+    {
+      "id": "directorate-name",
+      "label": "The Directorate",
+      "description": "The organisation's actual name.",
+      "finalName": null
+    },
+    {
+      "id": "city-name",
+      "label": "The city",
+      "description": "The campaign's home city.",
+      "finalName": null
+    },
+    {
+      "id": "the-gap-name",
+      "label": "The Gap",
+      "description": "The missing span of history predating the setting — a Second Impact analogue.",
+      "finalName": null
+    },
+    {
+      "id": "kids-and-frames",
+      "label": "The six kids and their six Frames",
+      "description": "All twelve PCs.",
+      "finalName": null
+    },
+    {
+      "id": "the-watcher-name",
+      "label": "The Watcher",
+      "description": "Antagonist working name.",
+      "finalName": null
+    },
+    {
+      "id": "excavation-site-name",
+      "label": "The dig site",
+      "description": "The excavation that produced the Frames and, at the campaign's midpoint, the spaceship. Distinct from \"the Gap\" (the missing span of history) — this is the physical site.",
+      "finalName": null
+    },
+    {
+      "id": "excavated-spaceship-name",
+      "label": "The excavated spaceship",
+      "description": "The midpoint-arc ship, unearthed from the same dig site as the Frames, running on the same sync/Resonance technology. Becomes the party's shared asset. See design/campaign-arc.md.",
+      "finalName": null
+    },
+    {
+      "id": "school-name",
+      "label": "The school",
+      "description": "Where the kids attend classes. Confirmed as the same combined campus as the Directorate's civil-defense facility (see open-questions.json #school-facility-same-location, resolved) — this and \"the huge facility\" from the design bible are one location, so may end up sharing a single name rather than needing two.",
+      "finalName": null
+    }
+  ]
+}

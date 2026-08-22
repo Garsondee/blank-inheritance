@@ -1,0 +1,962 @@
+<meta charset="UTF-8">
+<title>Contact Simulation</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground: #E7E1D2;
+    --surface: #F1ECE0;
+    --surface-2: #DCD5C2;
+    --ink: #292420;
+    --ink-muted: #6B6459;
+    --border: #C9C0AC;
+    --accent: #1D6E73;
+    --accent-ink: #0E4448;
+    --amber: #B8802E;
+    --danger: #A8402F;
+    --success: #5C7A4A;
+    --screen-bg: #1C221E;
+    --screen-fg: #9FE6A8;
+    --screen-fg-dim: #5C8A63;
+    --screen-amber: #E6B85C;
+    --token-party: #1D6E73;
+    --token-opposition: #A8402F;
+    --shadow: 0 1px 2px rgba(41,36,32,0.08), 0 4px 12px rgba(41,36,32,0.10);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #1B1D1C;
+      --surface: #232522;
+      --surface-2: #2C2E29;
+      --ink: #EDE7D9;
+      --ink-muted: #A79E8C;
+      --border: #3C3E38;
+      --accent: #4CACB1;
+      --accent-ink: #BFEDEF;
+      --amber: #D6A052;
+      --danger: #D2695A;
+      --success: #8FB377;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #1B1D1C;
+    --surface: #232522;
+    --surface-2: #2C2E29;
+    --ink: #EDE7D9;
+    --ink-muted: #A79E8C;
+    --border: #3C3E38;
+    --accent: #4CACB1;
+    --accent-ink: #BFEDEF;
+    --amber: #D6A052;
+    --danger: #D2695A;
+    --success: #8FB377;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--accent); color: var(--surface); }
+
+  .label {
+    font-family: "Oswald", ui-sans-serif, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-weight: 500;
+    font-size: 11.5px;
+    color: var(--ink-muted);
+  }
+  h1, h2, h3 { font-family: "Oswald", ui-sans-serif, sans-serif; text-wrap: balance; margin: 0; }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  .app {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 22px 22px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ---------- Masthead ---------- */
+  .masthead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 14px;
+  }
+  .masthead h1 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+  .masthead .subtitle { color: var(--ink-muted); font-size: 13.5px; margin-top: 2px; }
+  .scenario-tabs { display: flex; gap: 2px; background: var(--surface-2); padding: 3px; border-radius: 8px; border: 1px solid var(--border); }
+  .scenario-tab {
+    font-family: "Oswald", sans-serif; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500;
+    font-size: 12px; padding: 8px 14px; border-radius: 6px; border: none; cursor: pointer;
+    background: transparent; color: var(--ink-muted);
+  }
+  .scenario-tab[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  :root[data-theme="dark"] .scenario-tab[aria-pressed="true"],
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .scenario-tab[aria-pressed="true"] { color: #0C2224; } }
+
+  .scenario-note { font-size: 12.5px; color: var(--ink-muted); max-width: 62ch; }
+
+  /* ---------- Initiative strip ---------- */
+  .initiative-strip {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 10px 14px; font-size: 12px;
+  }
+  .initiative-strip .label { flex-shrink: 0; }
+  .initiative-chip {
+    display: inline-flex; align-items: baseline; gap: 5px; padding: 4px 9px; border-radius: 6px;
+    background: var(--surface-2); border: 1px solid var(--border); font-family: "IBM Plex Mono", monospace;
+    font-size: 11.5px; white-space: nowrap;
+  }
+  .initiative-chip.active { border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber) inset; }
+  .initiative-chip .rank { color: var(--ink-muted); font-size: 10px; }
+  .initiative-chip .total { font-weight: 600; color: var(--accent-ink); }
+  .initiative-chip .breakdown { color: var(--ink-muted); }
+
+  /* ---------- Layout ---------- */
+  .stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 16px;
+    align-items: start;
+  }
+  @media (max-width: 860px) { .stage { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+  }
+
+  /* ---------- Map ---------- */
+  .map-panel { padding: 10px; }
+  .map-wrap { position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+  .map-wrap img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .map-wrap svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .grid-line { stroke: rgba(20,20,15,0.16); stroke-width: 1; }
+  .token { cursor: default; }
+  .token circle.body { stroke: rgba(0,0,0,0.35); stroke-width: 1.5; }
+  .token text { font-family: "IBM Plex Mono", monospace; font-weight: 600; fill: #fff; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+  .token .ring { fill: none; stroke-width: 2.5; }
+  /* FIX (2026-08-22): transform-origin:center on an SVG element without transform-box defaults
+     to the SVG VIEWPORT's origin (0,0 of the whole 1320x1320 canvas), not the circle's own
+     center — so the ring swept a huge arc across the map instead of spinning in place.
+     transform-box:fill-box makes transform-origin resolve against the ring's own bounding box. */
+  .token.active .ring { stroke: var(--amber); stroke-dasharray: 3 2; animation: spin 3.5s linear infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .token.active .ring { animation: none; } }
+
+  /* Decision overlay (design doc §14h): a move's start->end path and a strike's attacker->target
+     line, drawn for the CURRENT step's actions only, so a viewer can visually confirm a proposed
+     action actually lands where the numbers say it should rather than trusting the log text alone. */
+  .decision-line.move { stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: 6 4; fill: none; }
+  .decision-line.strike-hit { stroke: var(--success); stroke-width: 2.5; fill: none; }
+  .decision-line.strike-crit { stroke: var(--amber); stroke-width: 3.5; fill: none; }
+  .decision-line.strike-miss { stroke: var(--ink-muted); stroke-width: 2; stroke-dasharray: 2 3; fill: none; }
+  .decision-line.heal { stroke: var(--success); stroke-width: 2; stroke-dasharray: 1 3; stroke-linecap: round; fill: none; }
+  .range-ring { fill: none; stroke: var(--ink-muted); stroke-width: 1; stroke-dasharray: 2 4; opacity: 0.55; }
+
+  /* ---------- Roleplaying & Decision-Making (design doc §14m) ---------- */
+  .rp-panel { grid-column: 1 / -1; padding: 12px 14px; }
+  .rp-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+  .rp-header .label { margin: 0; }
+  .rp-subtitle { font-size: 11px; color: var(--ink-muted); }
+  .ro-row { display: flex; align-items: stretch; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+  .ro-row:last-child { border-bottom: none; }
+  .ro-row.active { background: var(--ground); border-radius: 6px; padding: 7px 8px; margin: 0 -8px; }
+  .ro-name { flex: 0 0 108px; font-size: 12px; font-weight: 600; display: flex; align-items: center; line-height: 1.25; }
+  .ro-name .side-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; flex: none; }
+  .ro-boxes { flex: 1; display: flex; gap: 3px; min-height: 38px; }
+  .ro-box { border-radius: 5px; display: flex; align-items: center; justify-content: center; padding: 3px 6px; font-size: 10.5px; font-weight: 600; text-align: center; min-width: 0; cursor: default; line-height: 1.2; }
+  .ro-box-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ro-box.spent { background: var(--accent); color: #fff; }
+  .ro-box.crit { background: var(--amber); color: #fff; }
+  .ro-box.illegal { background: var(--danger); color: #fff; }
+  .ro-box.held, .ro-box.empty { background: transparent; border: 1px dashed var(--border); color: var(--ink-muted); font-weight: 500; }
+  .rp-why { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 12.5px; }
+  .rp-why-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-muted); margin-bottom: 6px; }
+  .why-line { padding: 3px 0; line-height: 1.45; }
+  .why-line b { color: var(--accent-ink); }
+  .why-line.dim { color: var(--ink-muted); font-style: italic; }
+
+  /* ---------- Controls ---------- */
+  .controls { display: flex; align-items: center; gap: 10px; padding: 12px 14px; flex-wrap: wrap; }
+  .transport { display: flex; gap: 6px; }
+  .btn {
+    font-family: "Oswald", sans-serif; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500;
+    font-size: 12.5px; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 7px; padding: 9px 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn:active { transform: translateY(1px); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn:focus-visible, .scenario-tab:focus-visible, input[type=range]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn.primary { background: var(--accent); color: #fff; border-color: transparent; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.primary { color: #0C2224; } }
+  :root[data-theme="dark"] .btn.primary { color: #0C2224; }
+
+  .readout { font-family: "IBM Plex Mono", monospace; font-size: 13px; color: var(--ink-muted); white-space: nowrap; }
+  .readout b { color: var(--ink); font-weight: 600; }
+
+  .scrubber { flex: 1 1 160px; min-width: 120px; display: flex; align-items: center; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+
+  /* ---------- Roster ---------- */
+  .roster-panel { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .roster-title { padding: 2px 2px 6px; }
+  .combatant-card {
+    display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; align-items: center;
+    padding: 9px 10px; border-radius: 8px; border: 1px solid transparent; background: var(--surface-2);
+  }
+  .combatant-card.active { border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber) inset; }
+  .combatant-card.dead { opacity: 0.45; }
+  .cc-badge {
+    grid-row: span 2; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-family: "IBM Plex Mono", monospace; font-weight: 700; font-size: 11px; color: #fff;
+  }
+  .cc-name { font-size: 12.5px; font-weight: 600; }
+  .cc-meta { display: flex; align-items: center; gap: 6px; font-size: 11px; }
+  .hp-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; }
+  .hp-bar-fill { height: 100%; border-radius: 3px; }
+  .hp-text { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--ink-muted); white-space: nowrap; }
+  .chip {
+    font-family: "Oswald", sans-serif; text-transform: uppercase; letter-spacing: 0.04em; font-size: 9.5px; font-weight: 600;
+    padding: 2px 6px; border-radius: 4px; color: #fff; white-space: nowrap;
+  }
+
+  /* ---------- Character sheet ---------- */
+  .sheet-panel { grid-column: 1 / -1; padding: 14px 16px; }
+  .sheet-empty { color: var(--ink-muted); font-size: 12.5px; padding: 6px 2px; }
+  .sheet-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .sheet-name { font-family: "Oswald", sans-serif; font-weight: 600; font-size: 16px; }
+  .sheet-header .chip { position: relative; top: -1px; }
+  .sheet-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; margin-bottom: 12px;
+  }
+  .sheet-stat {
+    background: var(--surface-2); border-radius: 7px; padding: 7px 10px;
+  }
+  .sheet-stat .k { font-family: "Oswald", sans-serif; text-transform: uppercase; letter-spacing: 0.06em; font-size: 9.5px; color: var(--ink-muted); }
+  .sheet-stat .v { font-family: "IBM Plex Mono", monospace; font-size: 15px; font-weight: 600; margin-top: 1px; }
+  .sheet-stat .v .sub { font-size: 10.5px; font-weight: 400; color: var(--ink-muted); }
+  .sheet-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px) { .sheet-cols { grid-template-columns: 1fr; } }
+  .sheet-block-title { font-size: 10.5px; margin-bottom: 6px; }
+  .sheet-strike {
+    font-family: "IBM Plex Mono", monospace; font-size: 11.5px; padding: 6px 9px; border-radius: 6px;
+    background: var(--surface-2); margin-bottom: 5px; line-height: 1.5;
+  }
+  .sheet-strike .name { font-family: "IBM Plex Sans", sans-serif; font-weight: 600; font-size: 12px; }
+  .sheet-strike .traits { color: var(--ink-muted); }
+
+  /* ---------- Action ledger ---------- */
+  .ledger { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ledger-slot {
+    flex: 1 1 90px; min-width: 90px; border-radius: 7px; padding: 7px 10px; font-size: 11px;
+    border: 1px solid var(--border); background: var(--surface-2);
+  }
+  .ledger-slot .n { font-family: "Oswald", sans-serif; text-transform: uppercase; letter-spacing: 0.05em; font-size: 9px; color: var(--ink-muted); }
+  .ledger-slot .what { font-weight: 600; margin-top: 2px; }
+  .ledger-slot.spent { border-color: var(--success); background: color-mix(in srgb, var(--success) 12%, var(--surface-2)); }
+  .ledger-slot.held { border-color: var(--ink-muted); border-style: dashed; opacity: 0.85; }
+  .ledger-slot.rejected { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, var(--surface-2)); }
+
+  /* ---------- Log / Screen ---------- */
+  .screen-panel { grid-column: 1 / -1; }
+  .screen {
+    background: var(--screen-bg); color: var(--screen-fg); border-radius: 8px; margin: 12px;
+    padding: 14px 16px; font-family: "IBM Plex Mono", monospace; font-size: 12.5px; line-height: 1.65;
+    min-height: 120px; max-height: 260px; overflow-y: auto;
+  }
+  .screen-header { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 16px 0; }
+  .screen .line { display: flex; gap: 8px; margin-bottom: 3px; }
+  .screen .line .tag { color: var(--screen-amber); flex-shrink: 0; }
+  .screen .line.illegal { color: #E67E6E; }
+  .screen .line.event { color: var(--screen-amber); font-weight: 600; }
+  .screen .line.dim { color: var(--screen-fg-dim); }
+  .screen::-webkit-scrollbar { width: 8px; }
+  .screen::-webkit-scrollbar-thumb { background: var(--screen-fg-dim); border-radius: 4px; }
+
+  .outcome-banner {
+    grid-column: 1 / -1; padding: 14px 18px; border-radius: 10px; text-align: center;
+    font-family: "Oswald", sans-serif; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; font-size: 14px;
+  }
+  .outcome-banner.win { background: color-mix(in srgb, var(--success) 18%, var(--surface)); color: var(--success); border: 1px solid var(--success); }
+  .outcome-banner.loss { background: color-mix(in srgb, var(--danger) 18%, var(--surface)); color: var(--danger); border: 1px solid var(--danger); }
+
+  footer { color: var(--ink-muted); font-size: 11.5px; padding-top: 4px; }
+  footer a { color: var(--ink-muted); }
+</style>
+
+<div class="app">
+  <div class="masthead">
+    <div>
+      <h1>Contact Simulation</h1>
+      <div class="subtitle">Scale-and-chassis battle engine — real dice, legality-enforced, seed <span class="mono" id="seedLabel">—</span></div>
+    </div>
+    <div class="scenario-tabs" role="tablist" aria-label="Scenario" id="scenarioTabs"></div>
+  </div>
+  <div class="scenario-note" id="scenarioNote"></div>
+  <div class="panel initiative-strip">
+    <span class="label">Initiative</span>
+    <span id="initiativeList"></span>
+  </div>
+
+  <div class="stage">
+    <div class="panel map-panel">
+      <div class="map-wrap">
+        <img id="mapImg" alt="City district battle map, 44x44 grid">
+        <svg id="mapSvg" viewBox="0 0 1320 1320" preserveAspectRatio="none"></svg>
+      </div>
+    </div>
+
+    <div class="panel roster-panel">
+      <div class="label roster-title">Roster</div>
+      <div id="rosterList"></div>
+    </div>
+
+    <div class="panel sheet-panel" id="sheetPanel"></div>
+
+    <div class="panel controls">
+      <div class="transport">
+        <button class="btn" id="btnStart" title="Jump to start">⏮ Start</button>
+        <button class="btn" id="btnPrev" title="Previous turn">◀ Prev</button>
+        <button class="btn primary" id="btnNext" title="Next turn">Next ▶</button>
+        <button class="btn" id="btnEnd" title="Jump to end">End ⏭</button>
+      </div>
+      <div class="scrubber"><input type="range" id="scrubRange" min="0" max="0" value="0" aria-label="Scrub through the battle"></div>
+      <div class="readout">Round <b id="roundLabel">—</b> · Step <b id="stepLabel">—</b>/<span id="stepTotal">—</span></div>
+    </div>
+
+    <div class="panel rp-panel">
+      <div class="rp-header">
+        <div class="label">Roleplaying &amp; Decision-Making</div>
+        <div class="rp-subtitle">This round's turns so far — order, actions, and why</div>
+      </div>
+      <div id="roundOverview"></div>
+      <div class="rp-why">
+        <div class="rp-why-title">Why this turn</div>
+        <div id="roundWhy"></div>
+      </div>
+    </div>
+
+    <div class="panel screen-panel">
+      <div class="screen-header">
+        <div class="label" id="screenTitle">— Awaiting Contact —</div>
+        <div class="label" id="screenSub"></div>
+      </div>
+      <div class="screen" id="screenLog"></div>
+    </div>
+
+    <div class="outcome-banner" id="outcomeBanner" style="display:none;"></div>
+  </div>
+
+  <footer>Blank Inheritance — tools/battle-simulator. Grid: 1 square = 50ft (PF2e/SF2e's 5-10-5 diagonal rule, reskinned 10x to sell a whole city's scale — design doc §14f). Map crop: real campaign satellite art, 44×44 squares. Every action shown was legality-checked before resolution; a rejected proposal is shown in red and never changed the board. Every turn's action-point ledger is checked in code, not just displayed here — an unaccounted-for point throws during the simulation itself.</footer>
+</div>
+
+<script>
+const RUNS = __RUNS_JSON__;
+const MAP_DATA_URI = "data:image/jpeg;base64,__MAP_BASE64__";
+
+const SIDE_COLOR = { party: "var(--token-party)", opposition: "var(--token-opposition)" };
+const DAMAGE_STATE_COLOR = {
+  operational: "var(--success)",
+  degraded: "var(--amber)",
+  critical: "var(--danger)",
+  hulked: "var(--ink-muted)"
+};
+const DAMAGE_STATE_LABEL = { operational: "Operational", degraded: "Degraded", critical: "Critical", hulked: "Hulked" };
+
+// GRID/MAP_PX/CELL/FEET_PER_SQUARE/posToPx/feetToPx/reachFeetForStrikeLocal/cleanRangeFeetLocal come from
+// geometry.mjs, spliced in here by build.mjs (see tools/battle-simulator/artifact/build.mjs and
+// test/battle-simulator/artifact-geometry.test.mjs) — real, independently-tested logic, not
+// re-authored inline.
+__GEOMETRY_JS__
+
+let currentRunKey = "escort";
+let steps = [];
+let stepIndex = 0;
+
+/** Full disclosure lives once in the roster panel; every repeated per-turn mention uses this instead. */
+function shortName(name) {
+  return (name || "").replace(/^TEST FIXTURE — /, "").replace(/\s*\([^)]*\)\s*$/, "").trim();
+}
+function initials(name) {
+  return shortName(name).split(/[\s—]+/).filter(Boolean).slice(0, 2).map(w => w[0]).join("").toUpperCase();
+}
+
+function buildSteps(run) {
+  const out = [{ kind: "deployment", round: 0, snapshot: (run.log.deployment || { snapshot: run.log.initialSnapshot }).snapshot, scriptedEvents: [] }];
+  for (const round of run.log.rounds) {
+    round.turns.forEach((turn, i) => {
+      out.push({
+        kind: "turn",
+        round: round.round,
+        combatantId: turn.combatantId,
+        stunned: !!turn.stunned,
+        actions: turn.actions || [],
+        actionAccounting: turn.actionAccounting || null,
+        effectiveStats: turn.effectiveStats || null,
+        snapshot: turn.snapshot,
+        scriptedEvents: i === 0 ? round.scriptedEvents : []
+      });
+    });
+  }
+  out.push({ kind: "outcome", round: out[out.length - 1].round, snapshot: out[out.length - 1].snapshot, outcome: run.log.outcome });
+  return out;
+}
+
+function degreeLabel(d) {
+  return { criticalSuccess: "CRIT SUCCESS", success: "hit", failure: "miss", criticalFailure: "CRIT FAIL" }[d] || d;
+}
+
+function narrateAction(name, action) {
+  if (action.legal === false) {
+    return { cls: "illegal", text: `${name} attempts ${action.type} — REJECTED: ${action.reason}` };
+  }
+  if (action.type === "move") {
+    let t = `${name} moves ${action.feet}ft.`;
+    return { cls: "", text: t, reactions: action.triggeredReactions };
+  }
+  if (action.type === "advance") {
+    return { cls: "", text: `${name} Advances toward its objective.`, reactions: action.triggeredReactions };
+  }
+  if (action.type === "strike") {
+    const r = action.roll;
+    const modTxt = r.mapPenalty ? ` (${r.spotBonusApplied ? "Spotted, +2" : "MAP " + r.mapPenalty})` : "";
+    let t = `${name} — ${action.strikeName}: d20+${r.attackBonus}${modTxt} = ${r.total} vs AC ${r.targetAc} → ${degreeLabel(r.degree)}.`;
+    if (action.immune) t += " Interdiction Field intact — no effect.";
+    else if (r.damage) {
+      const hardBits = [];
+      if (action.hardnessApplied) hardBits.push(`Hardness ${action.hardnessApplied}`);
+      if (action.scaleHardnessApplied) hardBits.push(`Scale-Hardness ${action.scaleHardnessApplied}`);
+      const hardTxt = hardBits.length ? ` (${hardBits.join(" + ")} absorbed)` : "";
+      t += ` ${action.damageApplied} dmg${hardTxt} → ${action.targetHPAfter} HP.`;
+    }
+    return { cls: r.degree === "criticalSuccess" ? "" : "", text: t };
+  }
+  if (action.type === "spellAttack") {
+    const r = action.roll;
+    const modTxt = r.mapPenalty ? ` (${r.spotBonusApplied ? "Spotted, +2" : "MAP " + r.mapPenalty})` : "";
+    let t = `${name} casts ${action.spellName}: d20+${r.attackBonus}${modTxt} = ${r.total} vs AC ${r.targetAc} → ${degreeLabel(r.degree)}.`;
+    if (action.immune) t += " Interdiction Field intact — no effect.";
+    else if (r.damage) {
+      const hardBits = [];
+      if (action.hardnessApplied) hardBits.push(`Hardness ${action.hardnessApplied}`);
+      if (action.scaleHardnessApplied) hardBits.push(`Scale-Hardness ${action.scaleHardnessApplied}`);
+      const hardTxt = hardBits.length ? ` (${hardBits.join(" + ")} absorbed)` : "";
+      t += ` ${action.damageApplied} dmg${hardTxt} → ${action.targetHPAfter} HP.`;
+    }
+    return { cls: "", text: t };
+  }
+  if (action.type === "healAbility") {
+    return { cls: "", text: `${name} uses ${action.abilityName}: +${action.healing} HP → ${action.targetHPAfter} HP.` };
+  }
+  if (action.type === "repair") {
+    return { cls: "", text: `${name} — Field Repair: ${action.roll.degree === "criticalSuccess" ? "CRIT SUCCESS" : degreeLabel(action.roll.degree)}, +${action.roll.healing} HP → ${action.targetHPAfter} HP.` };
+  }
+  if (action.type === "spot") {
+    return { cls: "", text: `${name} Spots for ${action.targetName} — next Strike gets +2.` };
+  }
+  if (action.type === "evacuate") {
+    return { cls: "", text: `${name} Evacuates civilians clear of the fight — ${action.civilians} people to safety.` };
+  }
+  if (action.type === "none") return { cls: "dim", text: action.note || `${name}: no action.` };
+  return { cls: "dim", text: `${name}: ${action.type}` };
+}
+
+function narrateReactionLine(roster, r) {
+  const reactorName = roster[r.reactorId]?.name || r.reactorId;
+  const clean = shortName(reactorName);
+  return { cls: "event", text: `↳ ${clean} reacts — ${r.reactionName}! ${r.damageApplied} dmg → ${r.targetHPAfter} HP.` };
+}
+
+const DECISION_MARKERS = `<defs>
+  <marker id="arrowMove" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker>
+  <marker id="arrowHit" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--success)"/></marker>
+  <marker id="arrowCrit" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--amber)"/></marker>
+  <marker id="arrowMiss" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink-muted)"/></marker>
+  <marker id="arrowHeal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--success)"/></marker>
+</defs>`;
+
+/**
+ * Decision overlay (design doc §14h): draw THIS step's move path(s), strike line(s), and the
+ * acting strike's clean-range ring directly on the map — Ingram's explicit ask after the
+ * Claimant screenshot question ("why did it choose to strike? what was it striking? things that
+ * aren't within reach?"), so a viewer can visually confirm an action lands where the numbers say
+ * it should rather than trusting the log text alone. Only LEGAL actions are drawn — a rejected
+ * proposal never moved or struck anything, so it has no line to show.
+ *
+ * Positions are replayed incrementally through step.actions (starting from the combatant's
+ * position at the END of the previous step, i.e. the start of this turn) rather than read once
+ * from this step's final snapshot — a turn that moves then strikes needs the attacker's position
+ * AT THE TIME of the strike, which is only the final snapshot position if nothing moves it again
+ * afterward.
+ */
+function renderDecisionOverlay(run, step, stepIdx) {
+  if (step.kind !== "turn" || !step.actions?.length) return "";
+  const roster = run.log.roster;
+  const combatantId = step.combatantId;
+  const priorStep = steps[stepIdx - 1];
+  let currentPos = priorStep?.snapshot?.[combatantId]?.position;
+  if (!currentPos) return "";
+
+  let markup = "";
+  const ringsDrawn = new Set();
+  for (const action of step.actions) {
+    if (action.legal === false) continue;
+
+    if (action.type === "move" || action.type === "advance") {
+      const from = posToPx(action.from);
+      const to = posToPx(action.to);
+      markup += `<line class="decision-line move" x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" marker-end="url(#arrowMove)"/>`;
+      currentPos = action.to;
+    } else if (action.type === "strike" || action.type === "spellAttack") {
+      const targetSnapshot = step.snapshot[action.targetId];
+      if (!targetSnapshot) continue;
+      const attackerPx = posToPx(currentPos);
+      const targetPx = posToPx(targetSnapshot.position);
+      const degree = action.roll?.degree;
+      const cls = degree === "criticalSuccess" ? "strike-crit" : degree === "success" ? "strike-hit" : "strike-miss";
+      const arrow = degree === "criticalSuccess" ? "arrowCrit" : degree === "success" ? "arrowHit" : "arrowMiss";
+      markup += `<line class="decision-line ${cls}" x1="${attackerPx.x}" y1="${attackerPx.y}" x2="${targetPx.x}" y2="${targetPx.y}" marker-end="url(#${arrow})"/>`;
+
+      const itemName = action.type === "strike" ? action.strikeName : action.spellName;
+      const pool = action.type === "strike" ? roster[combatantId]?.strikes : roster[combatantId]?.spells;
+      const item = (pool || []).find((s) => s.name === itemName);
+      const reach = item ? cleanRangeFeetLocal(item) : null;
+      if (reach && !ringsDrawn.has(itemName)) {
+        ringsDrawn.add(itemName);
+        markup += `<circle class="range-ring" cx="${attackerPx.x}" cy="${attackerPx.y}" r="${feetToPx(reach)}"/>`;
+      }
+    } else if (action.type === "healAbility") {
+      const targetSnapshot = step.snapshot[action.targetId];
+      if (!targetSnapshot) continue;
+      const healerPx = posToPx(currentPos);
+      const targetPx = posToPx(targetSnapshot.position);
+      markup += `<line class="decision-line heal" x1="${healerPx.x}" y1="${healerPx.y}" x2="${targetPx.x}" y2="${targetPx.y}" marker-end="url(#arrowHeal)"/>`;
+
+      const ability = (roster[combatantId]?.healAbilities || []).find((a) => a.name === action.abilityName);
+      const reach = ability ? cleanRangeFeetLocal(ability) : null;
+      if (reach && !ringsDrawn.has(action.abilityName)) {
+        ringsDrawn.add(action.abilityName);
+        markup += `<circle class="range-ring" cx="${healerPx.x}" cy="${healerPx.y}" r="${feetToPx(reach)}"/>`;
+      }
+    }
+  }
+  return markup;
+}
+
+function renderMapTokens(run, step, activeId) {
+  const svg = document.getElementById("mapSvg");
+  const roster = run.log.roster;
+  const snapshot = step.snapshot;
+  let gridLines = "";
+  for (let i = 0; i <= GRID; i++) {
+    const p = i * CELL;
+    gridLines += `<line class="grid-line" x1="${p}" y1="0" x2="${p}" y2="1320"/><line class="grid-line" x1="0" y1="${p}" x2="1320" y2="${p}"/>`;
+  }
+  const overlay = renderDecisionOverlay(run, step, stepIndex);
+  let tokens = "";
+  for (const [id, info] of Object.entries(roster)) {
+    const s = snapshot[id];
+    if (!s) continue;
+    const cx = (s.position.col + 0.5) * CELL;
+    const cy = (s.position.row + 0.5) * CELL;
+    const dead = s.currentHP <= 0;
+    const r = info.kind === "claimant" ? 22 : info.kind === "frame" ? 17 : 14;
+    const color = SIDE_COLOR[info.side];
+    const isActive = id === activeId;
+    tokens += `<g class="token${isActive ? " active" : ""}" opacity="${dead ? 0.3 : 1}">
+      ${isActive ? `<circle class="ring" cx="${cx}" cy="${cy}" r="${r + 5}" stroke="var(--amber)"/>` : ""}
+      <circle class="body" cx="${cx}" cy="${cy}" r="${r}" fill="${color}"/>
+      <text x="${cx}" y="${cy + 1}" font-size="${r < 15 ? 9 : 10.5}">${initials(info.name)}</text>
+    </g>`;
+  }
+  svg.innerHTML = DECISION_MARKERS + gridLines + overlay + tokens;
+}
+
+function renderRoster(run, snapshot, activeId) {
+  const list = document.getElementById("rosterList");
+  const roster = run.log.roster;
+  list.innerHTML = Object.entries(roster).map(([id, info]) => {
+    const s = snapshot[id] || {};
+    const pct = Math.max(0, Math.min(100, Math.round(100 * (s.currentHP ?? info.maxHP) / info.maxHP)));
+    const dsColor = DAMAGE_STATE_COLOR[s.damageState] || "var(--ink-muted)";
+    const dead = (s.currentHP ?? 1) <= 0;
+    return `<div class="combatant-card${id === activeId ? " active" : ""}${dead ? " dead" : ""}">
+      <div class="cc-badge" style="background:${SIDE_COLOR[info.side]}">${initials(info.name)}</div>
+      <div class="cc-name">${info.name.replace(/^TEST FIXTURE — /, "")}</div>
+      <div class="cc-meta">
+        <div class="hp-bar"><div class="hp-bar-fill" style="width:${pct}%; background:${dead ? "var(--ink-muted)" : dsColor}"></div></div>
+        <div class="hp-text">${dead ? "0" : (s.currentHP ?? "—")}/${info.maxHP}</div>
+        ${!dead ? `<span class="chip" style="background:${dsColor}">${DAMAGE_STATE_LABEL[s.damageState] || ""}</span>` : `<span class="chip" style="background:var(--ink-muted)">Hulked</span>`}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+/** A short, glanceable label for one action box — the WHAT half of "what and why". */
+function actionShortLabel(action) {
+  if (action.type === "move") return `Move ${action.feet ?? "?"}ft`;
+  if (action.type === "advance") return `Advance ${action.feet ?? "?"}ft`;
+  if (action.type === "strike") return `Strike: ${action.strikeName || "?"}`;
+  if (action.type === "spellAttack") return `Cast: ${action.spellName || "?"}`;
+  if (action.type === "healAbility") return `Heal: ${action.abilityName || "?"}`;
+  if (action.type === "repair") return "Field Repair";
+  if (action.type === "spot") return `Spot: ${action.targetName || action.targetId || "?"}`;
+  if (action.type === "evacuate") return "Evacuate";
+  if (action.type === "none") return "—";
+  return action.type;
+}
+
+/**
+ * Roleplaying & Decision-Making (design doc §14m) — Ingram's direct ask:
+ * "explain WHY the character did what they did alongside actually
+ * explaining what they did," visualized as boxes sized to each action's
+ * real action-point cost (a 2-action spell visibly spans two boxes,
+ * matching the same accounting engine.mjs's accountForActions() enforces
+ * server-side) so the order and shape of a whole round reads at a glance,
+ * not just one combatant's turn at a time the way the character-sheet
+ * ledger (renderLedger, actionCost — reused here directly) already did.
+ *
+ * Reuses decisionReason — real data that's existed on every legal action
+ * since design doc §14h/§14k, threaded through engine.mjs, but never
+ * actually surfaced in the UI until now. This is the fix for that gap,
+ * not a new mechanism: the WHY was already being computed and logged,
+ * just never shown to a reader.
+ */
+function renderRoundOverview(run, step, stepIdx) {
+  const overviewEl = document.getElementById("roundOverview");
+  const whyEl = document.getElementById("roundWhy");
+  if (!overviewEl || !whyEl) return;
+  if (step.kind !== "turn") {
+    overviewEl.innerHTML = `<div class="why-line dim">${step.kind === "deployment" ? "Round 0 — deployment. No turns taken yet." : "Battle over — see the outcome above."}</div>`;
+    whyEl.innerHTML = "";
+    return;
+  }
+
+  const roster = run.log.roster;
+  const roundSteps = steps.slice(0, stepIdx + 1).filter((s) => s.kind === "turn" && s.round === step.round);
+
+  const rows = roundSteps.map((s) => {
+    const info = roster[s.combatantId] || {};
+    const boxes = [];
+    if (s.stunned) {
+      boxes.push({ cls: "held", grow: 3, label: "Stunned — turn forfeit", why: "" });
+    } else {
+      for (const action of s.actions || []) {
+        const cost = actionCost(action);
+        if (!action.legal) {
+          boxes.push({ cls: "illegal", grow: cost, label: actionShortLabel(action), why: `Rejected: ${action.reason}` });
+          continue;
+        }
+        const cls = action.roll?.degree === "criticalSuccess" ? "crit" : "spent";
+        boxes.push({ cls, grow: cost, label: actionShortLabel(action), why: action.decisionReason || "" });
+      }
+      const acc = s.actionAccounting;
+      if (acc && acc.held > 0) boxes.push({ cls: "held", grow: acc.held, label: acc.held === (acc.available ?? 3) ? "Held — nothing to do" : "Held", why: acc.heldReason || "" });
+    }
+    return { combatantId: s.combatantId, name: shortName(info.name || s.combatantId), side: info.side, isActive: s === step, boxes };
+  });
+
+  overviewEl.innerHTML = rows.map((r) => `
+    <div class="ro-row${r.isActive ? " active" : ""}">
+      <div class="ro-name"><span class="side-dot" style="background:${SIDE_COLOR[r.side] || "var(--ink-muted)"}"></span>${r.name}</div>
+      <div class="ro-boxes">
+        ${(r.boxes.length ? r.boxes : [{ cls: "empty", grow: 3, label: "—", why: "" }])
+          .map((b) => `<div class="ro-box ${b.cls}" style="flex-grow:${b.grow}" title="${(b.why || "").replace(/"/g, "&quot;")}"><div class="ro-box-label">${b.label}</div></div>`)
+          .join("")}
+      </div>
+    </div>
+  `).join("");
+
+  const activeRow = rows.find((r) => r.isActive);
+  const reasonLines = (activeRow?.boxes || []).filter((b) => b.why).map((b) => `<div class="why-line"><b>${b.label}:</b> ${b.why}</div>`);
+  whyEl.innerHTML = reasonLines.length ? reasonLines.join("") : `<div class="why-line dim">No specific reasoning recorded for this turn (a scripted or forced action, not a weighed choice).</div>`;
+}
+
+function renderScreen(run, step) {
+  const roster = run.log.roster;
+  const lines = [];
+
+  for (const evt of step.scriptedEvents || []) {
+    lines.push({ cls: "event", text: `⚠ ${evt}` });
+  }
+
+  if (step.kind === "deployment") {
+    lines.push({ cls: "event", text: "ROUND 0 — DEPLOYMENT. Every force is positioned; the clock hasn't started." });
+    for (const [id, info] of Object.entries(roster)) {
+      const pos = step.snapshot[id]?.position;
+      if (!pos) continue;
+      lines.push({ cls: "dim", text: `  ${shortName(info.name)} — (${pos.col}, ${pos.row})` });
+    }
+  } else if (step.kind === "outcome") {
+    lines.push({ cls: "event", text: `— ${step.outcome.result.toUpperCase().replace("-", " ")} — ${step.outcome.detail}` });
+  } else if (step.stunned) {
+    const name = shortName(roster[step.combatantId]?.name || step.combatantId);
+    lines.push({ cls: "dim", text: `${name} is Stunned — loses this turn.` });
+  } else {
+    const name = shortName(roster[step.combatantId]?.name || step.combatantId);
+    if (!step.actions.length) lines.push({ cls: "dim", text: `${name}: no legal action available this turn.` });
+    for (const action of step.actions) {
+      const n = narrateAction(name, action);
+      lines.push(n);
+      if (n.reactions) for (const r of n.reactions) lines.push(narrateReactionLine(roster, r));
+    }
+  }
+
+  const acc = step.actionAccounting;
+  if (acc) {
+    lines.push({ cls: "dim", text: `Action budget: ${acc.spent}/${acc.available} spent${acc.held ? `, ${acc.held} held (${acc.heldReason})` : ""}.` });
+  }
+
+  const screen = document.getElementById("screenLog");
+  screen.innerHTML = lines.map(l => `<div class="line ${l.cls || ""}"><span>${l.text}</span></div>`).join("");
+}
+
+function renderInitiativeStrip(run, activeId) {
+  const el = document.getElementById("initiativeList");
+  const rolls = run.log.initiativeRolls || [];
+  const order = run.log.initiativeOrder || [];
+  const roster = run.log.roster;
+  el.innerHTML = order.map((id, i) => {
+    const r = rolls.find((x) => x.id === id);
+    if (!r) return "";
+    return `<span class="initiative-chip${id === activeId ? " active" : ""}">
+      <span class="rank">${i + 1}.</span> ${shortName(roster[id]?.name || id)}
+      <span class="total">${r.total}</span>
+      <span class="breakdown">(d20 ${r.d20} + ${r.modifier})</span>
+    </span>`;
+  }).join(" ");
+}
+
+/** Action-point cost per proposal type — mirrors engine.mjs's attemptAction exactly. */
+/**
+ * FIX (design doc §14m, 2026-08-22): this used to be a hardcoded
+ * type->cost table, written before spellAttack/healAbility existed —
+ * both have a genuinely VARIABLE cost (a spell/ability's own `actions`
+ * field, not one fixed number per type), so the table silently reported
+ * every spell/heal as costing 1 regardless of its real cost, undersizing
+ * their box in the round-overview grid (a 2-action Eldritch Lance showed
+ * exactly as wide as a 1-action Move). Fixed by reading the real cost
+ * engine.mjs now logs directly on every legal action's own result
+ * (actionsCost) — the hardcoded table survives only as a fallback for
+ * results that don't carry it (illegal proposals, where the point is moot
+ * since nothing was actually spent).
+ */
+function actionCost(action) {
+  if (action.actionsCost != null) return action.actionsCost;
+  return { repair: 2, evacuate: 2, advance: 2 }[action.type] ?? 1;
+}
+
+function describeAction(action) {
+  if (action.type === "strike") return `Strike — ${action.strikeName || "?"} (${action.roll ? degreeLabel(action.roll.degree) : "?"})`;
+  if (action.type === "move") return `Move (${action.feet}ft)`;
+  if (action.type === "advance") return `Advance (${action.feet}ft)`;
+  if (action.type === "spot") return `Spot → ${action.targetName || action.targetId}`;
+  if (action.type === "evacuate") return `Evacuate (${action.civilians} civilians)`;
+  if (action.type === "repair") return `Field Repair (+${action.roll?.healing ?? 0} HP)`;
+  if (action.type === "none") return action.note || "No action";
+  return action.type;
+}
+
+/**
+ * The per-turn action-point ledger (design doc §14f): every point the combatant
+ * started its turn with, shown as either spent-on-something or held-with-a-reason —
+ * matching the same invariant engine.mjs's accountForActions() enforces server-side.
+ */
+function renderLedger(step) {
+  const el = document.getElementById("sheetLedger");
+  if (!el) return;
+  const acc = step.actionAccounting;
+  if (!acc) { el.innerHTML = ""; return; }
+
+  const slots = [];
+  for (const action of step.actions || []) {
+    if (!action.legal) continue; // rejected — spent nothing; the rejection itself is narrated in the log above
+    slots.push({ cost: actionCost(action), label: describeAction(action), cls: "spent" });
+  }
+  if (acc.held > 0) slots.push({ cost: acc.held, label: acc.heldReason || "Held", cls: "held" });
+
+  el.innerHTML = slots.length
+    ? slots.map((s) => `<div class="ledger-slot ${s.cls}" style="flex-grow:${s.cost}">
+        <div class="n">${s.cost} pt${s.cost > 1 ? "s" : ""}</div>
+        <div class="what">${s.label}</div>
+      </div>`).join("")
+    : `<div class="ledger-slot"><div class="n">0 pts</div><div class="what">No budget this turn</div></div>`;
+}
+
+/**
+ * The character-sheet panel (design doc §14f: "recreate the replay interface so
+ * that it shows a character sheet when it's [the acting combatant's] turn so
+ * that I can see where the numbers are coming from"). Frame-scale combatants
+ * (Claimant/Frame/vehicles) are GM Core-style flat authored stat blocks —
+ * real SF2E monster/vehicle rules don't derive their AC from parts the way a
+ * PC sheet does, so this shows exactly the numbers that exist, not a
+ * fabricated breakdown.
+ */
+function renderSheet(run, step) {
+  const panel = document.getElementById("sheetPanel");
+  if (step.kind !== "turn") {
+    panel.innerHTML = `<div class="sheet-empty">${step.kind === "deployment" ? "Round 0 — deployment. Advance to the first turn to see that combatant's sheet." : "Battle complete — no combatant is acting."}</div>`;
+    return;
+  }
+
+  const info = run.log.roster[step.combatantId];
+  const s = step.snapshot[step.combatantId] || {};
+  const eff = step.effectiveStats;
+  const initRoll = (run.log.initiativeRolls || []).find((r) => r.id === step.combatantId);
+  const dsColor = DAMAGE_STATE_COLOR[s.damageState] || "var(--ink-muted)";
+
+  const strikesHtml = (info.strikes || []).length
+    ? info.strikes.map((strike) => {
+        const dmg = (strike.damage || []).map((d) => `${d.dice}${d.bonus >= 0 ? "+" : ""}${d.bonus} ${d.damageType}`).join(", ");
+        const range = strike.strikeType === "ranged" ? ` · range ${strike.rangeIncrement}ft` : "";
+        return `<div class="sheet-strike">
+          <div class="name">${strike.name}</div>
+          d20+${strike.attackBonus}${range} · ${dmg}
+          <div class="traits">${(strike.traits || []).join(", ") || "no traits"}</div>
+        </div>`;
+      }).join("")
+    : `<div class="sheet-empty">No Strikes — support role.</div>`;
+
+  panel.innerHTML = `
+    <div class="sheet-header">
+      <div class="cc-badge" style="background:${SIDE_COLOR[info.side]}">${initials(info.name)}</div>
+      <div class="sheet-name">${shortName(info.name)}</div>
+      <span class="chip" style="background:${dsColor}">${DAMAGE_STATE_LABEL[s.damageState] || ""}</span>
+      <span class="chip" style="background:var(--ink-muted)">${info.kind} · ${info.size}${info.scaleBlind ? " · Scale-Blind" : ""}</span>
+    </div>
+    <div class="sheet-grid">
+      <div class="sheet-stat"><div class="k">AC</div><div class="v">${eff ? eff.ac : info.ac}</div></div>
+      <div class="sheet-stat"><div class="k">HP</div><div class="v">${s.currentHP}<span class="sub"> / ${info.maxHP}</span></div></div>
+      <div class="sheet-stat"><div class="k">Hardness</div><div class="v">${eff ? eff.hardness : info.hardness}${info.scaleHardness ? `<span class="sub"> +${info.scaleHardness} vs mounted</span>` : ""}</div></div>
+      <div class="sheet-stat"><div class="k">Speed</div><div class="v">${eff ? eff.speed : info.speed}<span class="sub">ft</span></div></div>
+      <div class="sheet-stat"><div class="k">Initiative</div><div class="v">${initRoll ? initRoll.total : "—"}<span class="sub">${initRoll ? ` = d20(${initRoll.d20}) + ${initRoll.modifier}` : ""}</span></div></div>
+      <div class="sheet-stat"><div class="k">Actions</div><div class="v">${eff ? eff.actionsAvailable : "—"}</div></div>
+    </div>
+    <div class="sheet-cols">
+      <div>
+        <div class="label sheet-block-title">Saving Throws</div>
+        <div class="sheet-grid">
+          <div class="sheet-stat"><div class="k">Fort</div><div class="v">+${info.saves?.fort ?? 0}</div></div>
+          <div class="sheet-stat"><div class="k">Ref</div><div class="v">+${info.saves?.ref ?? 0}</div></div>
+          <div class="sheet-stat"><div class="k">Will</div><div class="v">+${info.saves?.will ?? 0}</div></div>
+        </div>
+        ${info.resonanceBand ? `<div class="sheet-stat" style="margin-top:8px"><div class="k">Resonance Band</div><div class="v" style="font-size:12.5px">${info.resonanceBand.id}<span class="sub"> (${info.resonanceBand.actionsPerTurn} actions)</span></div></div>` : ""}
+        ${info.repairBonus != null ? `<div class="sheet-stat" style="margin-top:8px"><div class="k">Field Repair</div><div class="v">+${info.repairBonus}<span class="sub"> vs DC ${info.handlingDC}</span></div></div>` : ""}
+      </div>
+      <div>
+        <div class="label sheet-block-title">Strikes</div>
+        ${strikesHtml}
+      </div>
+    </div>
+    <div class="label sheet-block-title" style="margin-top:12px">This Turn's Action Points</div>
+    <div class="ledger" id="sheetLedger"></div>
+  `;
+  renderLedger(step);
+}
+
+function renderOutcomeBanner(step) {
+  const el = document.getElementById("outcomeBanner");
+  if (step.kind !== "outcome") { el.style.display = "none"; return; }
+  el.style.display = "block";
+  el.className = "outcome-banner " + (step.outcome.result === "party-victory" ? "win" : step.outcome.result === "party-defeat" ? "loss" : "");
+  el.textContent = step.outcome.result.replace("-", " ").toUpperCase() + " — " + step.outcome.detail;
+}
+
+function render() {
+  const run = RUNS.runs[currentRunKey];
+  const step = steps[stepIndex];
+  const activeId = step.kind === "turn" ? step.combatantId : null;
+
+  document.getElementById("seedLabel").textContent = run.config.seed;
+  document.getElementById("scenarioNote").textContent = run.label;
+  document.getElementById("mapImg").src = MAP_DATA_URI;
+
+  renderMapTokens(run, step, activeId);
+  renderRoster(run, step.snapshot, activeId);
+  renderInitiativeStrip(run, activeId);
+  renderSheet(run, step);
+  renderRoundOverview(run, step, stepIndex);
+  renderScreen(run, step);
+  renderOutcomeBanner(step);
+
+  document.getElementById("roundLabel").textContent = step.round;
+  document.getElementById("stepLabel").textContent = stepIndex + 1;
+  document.getElementById("stepTotal").textContent = steps.length;
+  document.getElementById("screenTitle").textContent = step.kind === "turn"
+    ? `Round ${step.round} — ${shortName(run.log.roster[step.combatantId]?.name)}`
+    : step.kind === "outcome" ? "Outcome" : "Round 0 — Deployment";
+  document.getElementById("screenSub").textContent = step.kind === "turn" && step.stunned ? "STUNNED" : "";
+
+  document.getElementById("scrubRange").max = steps.length - 1;
+  document.getElementById("scrubRange").value = stepIndex;
+  document.getElementById("btnPrev").disabled = stepIndex === 0;
+  document.getElementById("btnStart").disabled = stepIndex === 0;
+  document.getElementById("btnNext").disabled = stepIndex === steps.length - 1;
+  document.getElementById("btnEnd").disabled = stepIndex === steps.length - 1;
+}
+
+function goTo(i) { stepIndex = Math.max(0, Math.min(steps.length - 1, i)); render(); }
+
+function selectRun(key) {
+  currentRunKey = key;
+  steps = buildSteps(RUNS.runs[key]);
+  stepIndex = 0;
+  for (const btn of document.querySelectorAll(".scenario-tab")) btn.setAttribute("aria-pressed", String(btn.dataset.runKey === key));
+  render();
+}
+
+/**
+ * Scenario tabs are built from RUNS.runs' own keys rather than hardcoded —
+ * FIX (design doc §14m, 2026-08-22): a third scenario (mystic-frame-solo,
+ * §14k) was added to battle-log.json but the tab bar was still two
+ * hardcoded buttons with hardcoded click handlers, so there was no way to
+ * actually reach it from the UI at all (only via the browser console).
+ * Building the tab list from Object.keys(RUNS.runs) means a future
+ * scenario addition can never silently repeat this gap.
+ */
+function titleCaseKey(key) {
+  return key.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+}
+
+function renderScenarioTabs() {
+  const el = document.getElementById("scenarioTabs");
+  el.innerHTML = Object.entries(RUNS.runs).map(([key, run]) =>
+    `<button class="scenario-tab" role="tab" data-run-key="${key}" aria-pressed="${key === currentRunKey}" title="${run.label}">${titleCaseKey(key)}</button>`
+  ).join("");
+  for (const btn of el.querySelectorAll(".scenario-tab")) btn.addEventListener("click", () => selectRun(btn.dataset.runKey));
+}
+renderScenarioTabs();
+
+document.getElementById("btnStart").addEventListener("click", () => goTo(0));
+document.getElementById("btnEnd").addEventListener("click", () => goTo(steps.length - 1));
+document.getElementById("btnPrev").addEventListener("click", () => goTo(stepIndex - 1));
+document.getElementById("btnNext").addEventListener("click", () => goTo(stepIndex + 1));
+document.getElementById("scrubRange").addEventListener("input", (e) => goTo(Number(e.target.value)));
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowRight") goTo(stepIndex + 1);
+  if (e.key === "ArrowLeft") goTo(stepIndex - 1);
+});
+
+selectRun("escort");
+</script>

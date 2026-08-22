@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "campaign-config.schema.json",
+  "title": "Campaign Config",
+  "description": "Core numeric/procedural rules: Resonance, Bleed, Anchors, Suppression, Frame economy, Time Economy, Contact Pool, False Contact. Singleton file: data/campaign/config.json.",
+  "type": "object",
+  "required": ["id", "resonance", "bleed"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "config" },
+    "twoTracksPrinciple": { "type": "string" },
+    "resonance": {
+      "type": "object",
+      "properties": {
+        "range": {
+          "type": "object",
+          "properties": { "min": { "type": "number" }, "max": { "type": "number" } }
+        },
+        "bands": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "name"],
+            "properties": {
+              "id": { "enum": ["dead-weight", "nominal", "harmonised", "absolute"] },
+              "name": { "type": "string" },
+              "rangeLabel": { "type": "string" },
+              "min": { "type": "number" },
+              "max": { "type": ["number", "null"] },
+              "actionsPerTurn": { "type": "integer" },
+              "actionNote": { "type": "string" },
+              "reaction": { "type": "boolean" },
+              "abilitiesAvailable": { "type": "string" },
+              "internalPowerDuration": { "type": "string" }
+            }
+          }
+        },
+        "pushMechanic": {
+          "type": "object",
+          "properties": {
+            "description": { "type": "string" },
+            "resolution": { "type": "string" }
+          }
+        }
+      }
+    },
+    "bleed": {
+      "type": "object",
+      "properties": {
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "sources": { "type": "array", "items": { "type": "string" } },
+        "berserkThreshold": { "type": "number" },
+        "berserk": {
+          "type": "object",
+          "properties": {
+            "gmControlDuration": { "type": "string" },
+            "effect": { "type": "string" },
+            "narrationRule": { "type": "string" }
+          }
+        },
+        "pilotVisibility": { "type": ["boolean", "null"] },
+        "openQuestionRef": { "type": "string" }
+      }
+    },
+    "anchors": {
+      "type": "object",
+      "properties": {
+        "countPerKid": {
+          "type": "object",
+          "properties": { "min": { "type": "integer" }, "max": { "type": "integer" } }
+        },
+        "writtenBy": { "type": "string" },
+        "types": { "type": "array", "items": { "type": "string" } },
+        "affirmEffect": { "type": "string" },
+        "violateEffect": { "type": "string" },
+        "gmLever": { "type": "string" }
+      }
+    },
+    "suppression": {
+      "type": "object",
+      "properties": {
+        "trigger": { "type": "string" },
+        "cost": { "type": "string" },
+        "designIntent": { "type": "string" }
+      }
+    },
+    "frameEconomy": {
+      "type": "object",
+      "properties": {
+        "rosterSize": { "type": "integer" },
+        "hpAsCampaignResource": { "type": "string" },
+        "damageStates": { "type": "array", "items": { "type": "string" } },
+        "repair": {
+          "type": "object",
+          "properties": {
+            "cost": { "type": "string" },
+            "sharedPoolNote": { "type": "string" }
+          }
+        },
+        "deployability": { "type": "string" },
+        "permanentLoss": { "type": "string" }
+      }
+    },
+    "timeEconomy": {
+      "type": "object",
+      "properties": {
+        "discretionarySlicesPerDay": { "type": "integer" },
+        "mandatoryLoad": { "type": "string" },
+        "designIntent": { "type": "string" },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "effect": { "type": "string" },
+              "cost": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "contactPool": {
+      "type": "object",
+      "properties": {
+        "activeFrom": { "type": "string" },
+        "floor": {
+          "type": "object",
+          "properties": { "description": { "type": "string" }, "quietDays": { "type": "integer" } }
+        },
+        "rollProcedure": {
+          "type": "object",
+          "properties": {
+            "startsDay": { "type": "string" },
+            "die": { "type": "string" },
+            "frequency": { "type": "string" },
+            "triggerOn": { "type": "integer" },
+            "targetDecreasePerQuietMorning": { "type": "integer" },
+            "description": { "type": "string" }
+          }
+        },
+        "ceiling": {
+          "type": "object",
+          "properties": { "description": { "type": "string" }, "quietMorningLimit": { "type": "integer" } }
+        },
+        "analysisDutyInteraction": { "type": "string" }
+      }
+    },
+    "falseContact": {
+      "type": "object",
+      "properties": {
+        "sharedCost": { "type": "string" },
+        "types": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "description": { "type": "string" },
+              "antagonistRef": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

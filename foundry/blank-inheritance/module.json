@@ -1,0 +1,38 @@
+{
+  "id": "blank-inheritance",
+  "title": "Blank Inheritance",
+  "description": "Campaign module for the Blank Inheritance SF2E campaign: syncs authored campaign JSON into Foundry documents (Scenes, Actors, JournalEntries) and runs session logistics. See design/foundry-module-design.md in the source repo for the full architecture.",
+  "version": "0.0.1-test",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14.367",
+    "maximum": "14"
+  },
+  "authors": [
+    { "name": "Blank Inheritance campaign" }
+  ],
+  "relationships": {
+    "systems": [
+      {
+        "id": "sf2e",
+        "type": "system",
+        "compatibility": { "minimum": "1.4.1" }
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/blank-inheritance.mjs"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "socket": true,
+  "persistentStorage": true,
+  "flags": {
+    "canUpload": true
+  }
+}

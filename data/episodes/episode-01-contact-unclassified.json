@@ -1,0 +1,71 @@
+{
+  "$schema": "../schema/episode.schema.json",
+  "id": "episode-01-contact-unclassified",
+  "type": "episode",
+  "title": "Contact, Unclassified",
+  "dayRange": { "start": 1, "end": 1 },
+  "summary": "Only one Frame launches. The other five kids play ground roles simultaneously, in real danger, on the same clock. Cut between a level-12 initiative order and a level-1 one.",
+  "deploymentRule": "One Frame launches.",
+  "groundRoleRule": "The other five kids play ground roles simultaneously, in real danger, on the same clock.",
+  "downtime": "None. One continuous day — makes Day 2's sudden abundance of scheduling feel like a different game.",
+  "scenes": [
+    {
+      "order": 1,
+      "title": "Ordinary Tuesday",
+      "description": "All six kids, one mundane scene. Lightly press one Anchor per player. Nothing happens — this scene exists so scene 8 hurts."
+    },
+    {
+      "order": 2,
+      "title": "The alert",
+      "description": "Sirens, automated evacuation, a shape in the sky the public feeds have already stopped showing. The adults don't know what to do either."
+    },
+    {
+      "order": 3,
+      "title": "Ground layer",
+      "description": "Five level-1 kids navigate a collapsing arcology toward shelter. Three decision points, each costing time on a visible clock, each optionally helping someone else. Sets each kid's starting Resonance and confirms their Anchors through play rather than character-sheet fiat."
+    },
+    {
+      "order": 4,
+      "title": "The summons",
+      "description": "One kid is pulled to pilot — and was explicitly not the intended pilot. The Directorate's actual choice is unavailable, injured, or otherwise off the board. This kid is a contingency, not a chosen one."
+    },
+    {
+      "order": 5,
+      "title": "The refusal",
+      "description": "Let them say no, and mean it if they do. Cut back to the ground layer, mid-danger, and let that player watch the consequence play out among the other five characters — not an abstract city."
+    },
+    {
+      "order": 6,
+      "title": "The plug",
+      "description": "Slow this down. The first harmonics number is read aloud, flatly, by an adult who has done this before."
+    },
+    {
+      "order": 7,
+      "title": "The fight",
+      "description": "Three rounds, two actions, internal-power duration ticking down visibly. The Claimant is immune to damage until its interdiction field is broken; the field's weak point is only visible from ground level — the other five spot it and call it up, making the non-piloting players load-bearing inside a level-12 fight while they remain level 1. Round three: Bleed hits 10. GM takes the sheet. The Frame wins. Don't describe it from the cockpit.",
+      "encounterRef": "day-1-the-fight",
+      "subsystemRef": "day-1-ground-layer"
+    },
+    {
+      "order": 8,
+      "title": "The cost",
+      "description": "Immediately — not next session. Something the ground five spent the whole episode protecting is gone, specifically because of how the fight was won."
+    },
+    {
+      "order": 9,
+      "title": "Debrief",
+      "description": "A sterile room. The ratio read out loud as a bare number. Then the second gut-punch: the other five learn their own Frames were assigned weeks ago. Nobody told them."
+    }
+  ],
+  "castingNote": "Hand the pilot role to your most rules-fluent player; they're best placed to improvise inside a system they don't yet fully control.",
+  "firstPilotSpecialRules": {
+    "startingResonance": 68,
+    "startingBand": "harmonised",
+    "advantage": "Starts at 68% Resonance (Harmonised, three actions from round one). In-fiction, this is dissociation reading as high sync, not talent — something is wrong, and that's why it works.",
+    "disadvantage": "A real injury from the opening impairs ground scenes, and they permanently lose one discretionary slice per day to ongoing medical obligations.",
+    "decay": "Their 68% was bought with Bleed and decays toward baseline over time. They'll spend the opening arc chasing a number they got for free exactly once."
+  },
+  "endOfEpisodeEffects": [],
+  "openQuestionRefs": ["ground-five-day1-knowledge"],
+  "danglingThreads": []
+}

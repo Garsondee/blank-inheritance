@@ -1,0 +1,12 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "transparency-advocate",
+  "type": "npc",
+  "name": null,
+  "role": "The Transparency Advocate",
+  "pole": "radical-honesty",
+  "affiliation": "directorate",
+  "description": "Believes the kids should be told everything, immediately. Right in principle, destructive in practice. Exists so the players never have an obviously correct ally among the adults.",
+  "openQuestionRefs": ["third-npc-pole"],
+  "status": "placeholder — open question on whether this pole is kept, reshaped, or cut"
+}

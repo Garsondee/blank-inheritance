@@ -1,0 +1,162 @@
+{
+  "$schema": "../../schema/kid.schema.json",
+  "id": "kimura-etsuko",
+  "type": "kid",
+  "name": "Kimura Etsuko",
+  "player": null,
+  "age": 17,
+  "concept": "Keeps a shrine notebook nobody else has read, logging which of the old rites still feel like they mean something now that a kilometre-wide effect is something she can actually cast. Quiet, watchful, unnervingly calm in a crisis.",
+  "level": 1,
+  "xp": 0,
+  "ancestry": "Human",
+  "heritage": "Versatile Heritage",
+  "background": "Acolyte",
+  "class": "Mystic",
+  "size": "medium",
+  "languages": [
+    "Common"
+  ],
+  "abilityModifiers": {
+    "str": 0,
+    "dex": 1,
+    "con": 1,
+    "int": 1,
+    "wis": 4,
+    "cha": 2
+  },
+  "perception": {
+    "proficiency": {
+      "rank": "trained",
+      "modifier": 7
+    }
+  },
+  "savingThrows": {
+    "fortitude": {
+      "rank": "trained",
+      "modifier": 4
+    },
+    "reflex": {
+      "rank": "trained",
+      "modifier": 4
+    },
+    "will": {
+      "rank": "trained",
+      "modifier": 7
+    }
+  },
+  "skills": {
+    "acrobatics": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "arcana": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "athletics": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "computers": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "crafting": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "deception": {
+      "rank": "untrained",
+      "modifier": 2
+    },
+    "diplomacy": {
+      "rank": "untrained",
+      "modifier": 2
+    },
+    "intimidation": {
+      "rank": "untrained",
+      "modifier": 2
+    },
+    "medicine": {
+      "rank": "trained",
+      "modifier": 7
+    },
+    "nature": {
+      "rank": "untrained",
+      "modifier": 4
+    },
+    "occultism": {
+      "rank": "trained",
+      "modifier": 4
+    },
+    "performance": {
+      "rank": "untrained",
+      "modifier": 2
+    },
+    "piloting": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "religion": {
+      "rank": "trained",
+      "modifier": 7
+    },
+    "society": {
+      "rank": "trained",
+      "modifier": 4
+    },
+    "stealth": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "survival": {
+      "rank": "untrained",
+      "modifier": 4
+    },
+    "thievery": {
+      "rank": "untrained",
+      "modifier": 1
+    }
+  },
+  "classDC": {
+    "rank": "trained",
+    "modifier": 17
+  },
+  "hitPoints": {
+    "max": 15,
+    "current": 15
+  },
+  "armorClass": {
+    "value": 15,
+    "armorProficiency": {
+      "rank": "trained",
+      "modifier": 3
+    },
+    "wornArmor": "Shrine robes (reinforced)"
+  },
+  "speed": {
+    "land": 25
+  },
+  "heroPoints": 1,
+  "groundRoleHistory": [],
+  "framePilotedRef": "suzukaze",
+  "anchors": [
+    {
+      "id": "etsuko-anchor-belief",
+      "anchorType": "belief",
+      "description": "That the Gap took something real and sacred from the city, not just \"history\" — and that piloting a Frame without understanding that is a kind of theft."
+    },
+    {
+      "id": "etsuko-anchor-person",
+      "anchorType": "person",
+      "description": "Her grandmother, the last person who still performs the pre-Gap rites correctly, and who is running out of time to teach them to anyone."
+    },
+    {
+      "id": "etsuko-anchor-need",
+      "anchorType": "need",
+      "description": "To be believed when she says something is wrong, without having to produce proof first."
+    }
+  ],
+  "status": "DRAFT — proposed 2026-08-22 at Ingram's request, open to full revision. Not yet confirmed.",
+  "notes": "Built via tools/character-builder/derive.mjs directly (real Player Core math for HP/AC/saves/skills/classDC), not the pregen-borrowing shortcut — the six Adventure Pregens are all non-human sci-fi ancestries, a mismatch for this setting. Ability-boost pattern and proficiency ranks (uniformly trained) are documented simplifications, not pack-verified per-class data — see build-real-kids.mjs's header comment."
+}

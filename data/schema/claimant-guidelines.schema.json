@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "claimant-guidelines.schema.json",
+  "title": "Claimant Guidelines",
+  "description": "Build rules and lore for Claimants (the enemy). Individual Claimants, once built, are sibling files in data/antagonists/claimants/ following creature.schema.json (id \"type\": \"creature\") — not stored inline here. Singleton file: data/antagonists/claimants/claimant-guidelines.json.",
+  "type": "object",
+  "required": ["id", "type"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "claimant-guidelines" },
+    "type": { "const": "antagonist-guidelines" },
+    "name": { "type": "string" },
+    "workingNameFor": { "type": "string" },
+    "buildRules": {
+      "type": "object",
+      "properties": {
+        "method": { "type": "string" },
+        "level": { "type": "string" },
+        "groundRule": { "type": "string" }
+      }
+    },
+    "namingConvention": { "type": "string" },
+    "lore": {
+      "type": "object",
+      "properties": {
+        "framing": { "type": "string" },
+        "optionalHook": { "type": "string" }
+      }
+    },
+    "instanceIds": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "id refs of individual Claimants built so far, each a sibling file (e.g. claimant-three.json) following creature.schema.json. Empty until a Claimant is actually created — keep this list in sync by hand when adding/removing an instance file."
+    }
+  }
+}

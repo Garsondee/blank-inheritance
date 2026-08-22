@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gm-notes.schema.json",
+  "title": "GM Running Notes",
+  "description": "House-rule techniques for running the campaign. Singleton file: data/campaign/gm-notes.json.",
+  "type": "object",
+  "required": ["id", "notes"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "gm-notes" },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "note"],
+        "properties": {
+          "id": { "type": "string" },
+          "note": { "type": "string" }
+        }
+      }
+    }
+  }
+}

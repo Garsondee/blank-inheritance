@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "threejs-webgpu-overlay-layer",
+  "type": "idea",
+  "title": "Three.js/WebGPU graphical overlay layer for scenes",
+  "status": "new",
+  "domains": ["technical-architecture", "ui", "visual"],
+  "summary": "Proposed approach for clickable tooltips/lore/equipment-info, inline-check triggers, and radar-style HUD elements beyond native Foundry capability: a custom overlay layer built in Three.js, targeting WebGPU and TSL (Three Shading Language).",
+  "description": "Desire to enhance scenes with interactive elements beyond what Foundry natively offers: click-to-reveal tooltips, lore snippets, character/equipment/mech reminders, inline skill-check triggers with richer presentation than plain enricher text, and radar-like displays on the main battle/campaign map — described generally as 'lots of fun stuff.' The proposed technical approach, stated specifically: a special overlay layer built with Three.js, set up in WebGPU using TSL (Three Shading Language), to allow adding custom graphical layers/elements on top of the existing scene.",
+  "capturedDate": "2026-08-22",
+  "lastTouchedDate": "2026-08-22",
+  "sourceContext": "User planning message, 2026-08-22 — large worldbuilding/tooling brain-dump.",
+  "openSubQuestions": [
+    "Integration feasibility: Foundry's own canvas is already a PixiJS/WebGL rendering context (confirmed in design/foundry-technical-reference.md's research) — layering a separate Three.js/WebGPU context on top is a real technical question worth investigating before committing, not a given.",
+    "Whether a lighter-weight approach (DOM overlay, or working within Foundry's existing canvas/PIXI layers) could deliver the same features with less integration risk.",
+    "Which specific interactive features are must-have v1 vs. later polish."
+  ],
+  "relatedRefs": ["in-scene-ui-panel-mimetic-controls", "design/foundry-technical-reference.md"],
+  "resolution": null
+}

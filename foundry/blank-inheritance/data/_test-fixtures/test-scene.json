@@ -1,0 +1,13 @@
+{
+  "id": "test-fixture-scene-001",
+  "name": "TEST FIXTURE — Diagnostic Scene",
+  "backgroundColor": "#1a1a2e",
+  "width": 2000,
+  "height": 1400,
+  "gridSize": 100,
+  "placements": [
+    { "actorSourceId": "test-fixture-creature-001", "x": 1400, "y": 700 },
+    { "actorSourceId": "test-fixture-kid-001", "x": 600, "y": 700 }
+  ],
+  "notes": "SYNTHETIC TEST FIXTURE. Not a real campaign scene."
+}

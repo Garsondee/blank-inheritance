@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "open-questions.schema.json",
+  "title": "Open Design Questions",
+  "description": "Unresolved creative/design decisions, flagged so nothing gets decided by accident. These are the user's creative calls, not implementation details — see CLAUDE.md before touching status/resolution. Singleton file: data/campaign/open-questions.json.",
+  "type": "object",
+  "required": ["id", "questions"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "open-questions" },
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "question", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "question": { "type": "string" },
+          "status": { "enum": ["open", "resolved"] },
+          "resolution": { "type": ["string", "null"] },
+          "relatedRefs": { "type": "array", "items": { "type": "string" } },
+          "notes": { "type": "string", "description": "For a question that got partially illuminated without being cleanly resolved — e.g. the user answered a related question that narrows this one without picking an option for it directly. Keep status \"open\" in that case; don't use notes as a backdoor resolution." }
+        }
+      }
+    }
+  }
+}

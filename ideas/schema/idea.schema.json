@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "idea.schema.json",
+  "title": "Idea",
+  "description": "One tracked idea, at any stage from raw thought to shipped. One file per idea in ideas/entries/. See ideas/README.md for the workflow this supports.",
+  "type": "object",
+  "required": ["id", "type", "title", "status", "domains", "summary", "capturedDate", "lastTouchedDate"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string", "description": "Kebab-case slug, matches filename." },
+    "type": { "const": "idea" },
+    "title": { "type": "string" },
+    "status": {
+      "enum": ["new", "wishlist", "accepted", "in-progress", "done", "rejected"],
+      "description": "new = captured, not yet reviewed. wishlist = reviewed and liked, intentionally not prioritized yet. accepted = we're doing this, even if how isn't designed yet. in-progress = actively being built. done = shipped (see resolution for what/where). rejected = explicitly decided against (see resolution for why) — kept so it doesn't get re-proposed from scratch."
+    },
+    "domains": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Free-text tags for filtering, e.g. narrative, mechanics, tooling, audio, ui, technical-architecture, worldbuilding. An idea can span several."
+    },
+    "summary": { "type": "string", "description": "One line — what this is, at a glance." },
+    "description": { "type": "string", "description": "The full capture. Long-form is fine; faithfulness to what was actually said matters more than brevity here." },
+    "capturedDate": { "type": "string", "description": "YYYY-MM-DD, when first recorded." },
+    "lastTouchedDate": { "type": "string", "description": "YYYY-MM-DD, updated whenever status changes or the idea is meaningfully discussed again. This is what a staleness review compares against — see ideas/README.md." },
+    "sourceContext": { "type": "string", "description": "Brief provenance note — where/when this came from, so it's traceable without digging through conversation history." },
+    "openSubQuestions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Things about THIS idea that are still undecided. Lighter-weight than data/campaign/open-questions.json, which is for bigger campaign-design questions — use that instead if a sub-question outgrows this idea."
+    },
+    "resolvedSubQuestions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Sub-questions that HAVE been answered, kept with their answers rather than deleted — an idea often gets partially settled long before its overall status changes, and losing the reasoning behind an answered question means re-litigating it later. Move entries here out of openSubQuestions when the user actually decides; include the decision and the date."
+    },
+    "relatedRefs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Cross-links: other idea ids, design docs, schema/data files."
+    },
+    "resolution": { "type": ["string", "null"], "description": "For done: what was actually built and where. For rejected: why. For accepted/in-progress: optional refining notes." }
+  }
+}

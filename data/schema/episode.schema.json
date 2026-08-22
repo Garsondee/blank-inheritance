@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "episode.schema.json",
+  "title": "Episode",
+  "description": "A hand-placed campaign-opening episode or interlude. One file per episode/interlude in data/episodes/.",
+  "type": "object",
+  "required": ["id", "type", "title", "dayRange"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string" },
+    "type": { "enum": ["episode", "interlude"] },
+    "title": { "type": "string" },
+    "dayRange": {
+      "type": "object",
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "type": "integer" },
+        "end": { "type": "integer" }
+      }
+    },
+    "summary": { "type": "string" },
+    "deploymentRule": { "type": ["string", "null"] },
+    "groundRoleRule": { "type": ["string", "null"] },
+    "downtime": { "type": ["string", "null"] },
+    "structure": { "type": ["string", "null"] },
+    "designRequirement": { "type": ["string", "null"] },
+    "castingNote": { "type": ["string", "null"] },
+    "firstPilotSpecialRules": {
+      "type": ["object", "null"],
+      "properties": {
+        "startingResonance": { "type": "number" },
+        "startingBand": { "type": "string" },
+        "advantage": { "type": "string" },
+        "disadvantage": { "type": "string" },
+        "decay": { "type": "string" }
+      }
+    },
+    "scenes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["order", "title", "description"],
+        "properties": {
+          "order": { "type": "integer" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "encounterRef": { "type": ["string", "null"], "description": "id of an encounter.schema.json instance backing this scene, if it's a fight." },
+          "challengeRefs": { "type": "array", "items": { "type": "string" }, "description": "id refs of challenge.schema.json instances running in this scene (e.g. ground-layer decision points)." },
+          "subsystemRef": { "type": ["string", "null"], "description": "id of a subsystem.schema.json instance, if this scene runs as a victory-point-style sequence." }
+        }
+      }
+    },
+    "requiredBeats": { "type": "array", "items": { "type": "string" } },
+    "endOfEpisodeEffects": { "type": "array", "items": { "type": "string" } },
+    "openQuestionRefs": { "type": "array", "items": { "type": "string" } },
+    "danglingThreads": { "type": "array", "items": { "type": "string" } }
+  }
+}

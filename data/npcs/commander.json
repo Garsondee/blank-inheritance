@@ -1,0 +1,12 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "commander",
+  "type": "npc",
+  "name": null,
+  "role": "The Commander",
+  "pole": "mission-above-individuals",
+  "affiliation": "directorate",
+  "description": "One of the Directorate's three deliberately-not-stable poles. Puts the mission above the individuals carrying it out.",
+  "openQuestionRefs": [],
+  "status": "placeholder — not yet named or cast"
+}

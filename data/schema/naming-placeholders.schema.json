@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "naming-placeholders.schema.json",
+  "title": "Naming Placeholders",
+  "description": "Things that need real names but don't have them yet. Singleton file: data/campaign/naming-placeholders.json.",
+  "type": "object",
+  "required": ["id", "placeholders"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "naming-placeholders" },
+    "placeholders": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "finalName"],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "description": { "type": "string" },
+          "finalName": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

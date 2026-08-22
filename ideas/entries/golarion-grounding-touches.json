@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "golarion-grounding-touches",
+  "type": "idea",
+  "title": "Golarion grounding: our own 1950s alternate-history branch",
+  "status": "accepted",
+  "domains": ["worldbuilding", "narrative"],
+  "summary": "The campaign is explicitly set on Golarion, in a different (1950s retrofuturistic, Giant Robo-styled) era, using light specific real-Golarion touches — Pharasma temples, real ancestry terms, real location names — rather than either a fully homebrew setting or a straight Golarion campaign.",
+  "description": "Clarifying statement of setting identity: this is Golarion (Pathfinder/Starfinder's default campaign world), just a different era from the one usually depicted — 'our own 1950's style Golarion with a retrofuturistic Giant Robo styled world.' The intent is to sprinkle in real, specific Golarion lore where it serves the story rather than either ignoring Golarion entirely or trying to run a fully faithful Golarion campaign: examples given include mentioning temples of Pharasma (goddess of death and fate — thematically apt given the campaign's mortality/endurance themes), using proper ancestry terminology, and referencing real Golarion locations by their actual names. Explicit framing: 'we can make the adventure true to bits of Golarion that work for what we're doing' — cherry-pick, don't feel bound.\n\nGiant Robo is named directly as a tonal reference — a specific, deliberate genre touchstone distinct from (and additional to) the earlier-established decision that this campaign is not copying Evangelion's plot.",
+  "capturedDate": "2026-08-22",
+  "lastTouchedDate": "2026-08-22",
+  "sourceContext": "User planning message, 2026-08-22 — large worldbuilding/tooling brain-dump.",
+  "openSubQuestions": [
+    "Which specific real Golarion locations/deities/lore beyond Pharasma are worth referencing — not enumerated yet.",
+    "How this interacts with the naming-placeholders that are still open (city name, Directorate name, etc.) — some could plausibly resolve toward real-Golarion-adjacent names, but not decided."
+  ],
+  "relatedRefs": ["design/design-bible.md", "design/campaign-arc.md#setting-tone-1950s-historical-divergence", "data/campaign/naming-placeholders.json"],
+  "resolution": null
+}

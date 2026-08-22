@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/encounter.schema.json",
+  "id": "day-1-the-fight",
+  "type": "encounter",
+  "name": "Day 1, Scene 7 — The Fight",
+  "description": "One Frame, one Claimant, three rounds. Runs in parallel with subsystem day-1-ground-layer on the same clock, cutting between a level-12 initiative order and a level-1 one. The Frame is scripted to win; what is NOT scripted is how long the berserk lasts and therefore what it costs.",
+  "partyLevel": 12,
+  "partySize": 1,
+  "intendedThreatLevel": "severe",
+  "creatures": [
+    { "creatureRef": "contact-unclassified", "name": "Contact, Unclassified", "level": 12, "count": 1 }
+  ],
+  "environment": "Arcology district, mid-collapse. Frame-scale: broken elevated roadway giving high ground, a channel the Claimant must cross, building faces that will not survive being leaned on. Ground-scale: the shelter (see subsystem), three blocks from the Claimant's line of advance and directly in it. The Frame has POOR VISION (ideas/entries/vision-as-chassis-axis.json) — the pilot cannot see the shelter, the crowd, or the weak point. It is a giant swinging at what it is told about, and Day 1 is where the table learns that.",
+  "roundLimit": 3,
+  "specialRules": [
+    "IMMUNITY: The Claimant is immune to all damage while its Interdiction Field holds. The field is not broken by Frame-scale action — it is broken by the ground team filling the Field Integrity pool (6 points) in subsystem day-1-ground-layer. When it breaks: Claimant is Stunned 2 and gains weakness 15 to all damage for the rest of the encounter.",
+    "PILOT: 68% Resonance, Harmonised band — 3 actions per turn, reaction available, internal power 8 rounds (so power is NOT the pressure here; Bleed is). Per data/episodes/episode-01-contact-unclassified.json firstPilotSpecialRules.",
+    "BLEED CLOCK: pilot starts at Bleed 2 (the opening injury, plus the plug in scene 6). +1 at the end of each round, +1 per Frame hit taken, +2 if the pilot pushes Resonance. Berserk at 10. Under expected play (about two hits taken per round) this reaches 10 during round 3, exactly as the design bible scripts. A pilot who pushes can get there in round 2 — let them, and do not warn them.",
+    "BERSERK: per data/campaign/config.json — GM takes the sheet for 1d4 rounds, damage roughly doubles, targeting stops discriminating between friend, foe, and terrain. Do not narrate it from the cockpit.",
+    "THE CLAIMANT IS NOT FIGHTING THE FRAME. It Advances toward its objective every round it is not Stunned. It only Strikes via its Claim reaction, when something Large or larger ends its movement adjacent. If the Frame stands off at range and does nothing, the Claimant simply leaves, reaches the shelter, and the episode's cost is total. Blocking it is a choice the pilot has to actively make, and it is what gets them hit."
+  ],
+  "groundRoleTieIns": ["day-1-ground-layer"],
+  "rewards": "Milestone: no XP award for the Frame — Frames advance by the milestone rule in design/campaign-arc.md (a significant defeat plus enough downtime to refit), not by XP. The kids' accomplishment XP is handled in the ground-layer subsystem. The real reward is scene 9's information, and it is not a pleasant one.",
+  "relatedRefs": [
+    "episode-01-contact-unclassified",
+    "contact-unclassified",
+    "day-1-ground-layer",
+    "design/scale-and-chassis.md",
+    "data/campaign/config.json"
+  ],
+  "notes": "THE MATH, ROUND BY ROUND.\n\nFrame (level 12 PC, ~+25 to hit, ~30 damage per Strike, 3 actions) vs Claimant AC 33:\n  Strike 1 at +25 -> hits on 8+ (50%), crits on 18+ (15%)\n  Strike 2 at +20 (MAP -5) -> hits on 13+ (35%), crits only on a natural 20 (5%)\n  Strike 3 at +15 (MAP -10) -> hits on 18+ (10%), crits on a natural 20 (5%)\nWith weakness 15 applied after the field breaks (45 per hit, 75 per crit), expected output is ~61 damage per round. Berserk roughly doubles it: ~123.\n\nClaimant HP is 165. That produces three branches, and which one happens is decided entirely by the ground team:\n\n  BRANCH A - field breaks end of round 1 (ground team spent ~7 of 15 actions spotting).\n  Frame deals ~61 in round 2 and ~123 in berserk round 3 = ~184 vs 165 HP. The Claimant dies EARLY in the berserk. Rampage is short. Collateral is moderate. But ~7 actions on spotting means only ~8 left for the shelter, so evacuation lands around 6 of 8 - the shelter is not fully clear when it goes.\n\n  BRANCH B - field breaks end of round 2 (the expected case, ~4 points per round).\n  Frame gets only the berserk round: ~123 vs 165. It falls ~42 SHORT. Berserk continues into rounds 4-5 with no remaining constraint. Heavy collateral. This is the default outcome and it should feel like the Frame won something it could not control.\n\n  BRANCH C - field never breaks (ground team prioritised the shelter almost entirely).\n  The Frame goes berserk against a target it still cannot damage. It wrecks the district. The Claimant reaches its objective. Catastrophic collateral - but the shelter is empty, because they chose that. The Frame still 'wins' eventually (the berserk outlasts the field), so the design bible's 'The Frame wins' holds in every branch. What varies is only ever the price.\n\nThe Claimant's own output: +24 vs a Frame's ~AC 31 hits on 7+ (50%) and crits on 17+ (20%), for 3d8+12 (25) or 50 on a crit — expected ~22 per Strike. Across the fight the Frame should end up meaningfully damaged but nowhere near destroyed, which matters because Frames do not heal: this is what puts the party's only launched Frame onto the Degraded step of the damage track before Day 2 has even started, and it is why the Days 2-5 repair economy has teeth immediately.\n\nCONTRADICTION FLAGGED, NOT SILENTLY RESOLVED: design-bible.md line 193 describes this fight as 'Three rounds, two actions', while line 201's First Pilot rule states '68% Resonance (Harmonised, three actions from round one)'. Those cannot both be true. This encounter is built for THREE actions, because line 201 is the more specific and more recently-reasoned statement and config.json's band table agrees (Harmonised = 3 actions); line 193's 'two actions' reads as a description of the campaign's normal state, written before the First Pilot exception existed. If Ingram intends two actions instead, the Frame's per-round output drops from ~61 to ~53 (losing only the third, heavily-MAP'd Strike) — Branch A stops being reachable and Branch B becomes the ceiling. That is a real change to the scene's shape, so it needs an actual decision rather than an assumption."
+}

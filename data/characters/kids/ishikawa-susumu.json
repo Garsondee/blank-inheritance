@@ -1,0 +1,157 @@
+{
+  "$schema": "../../schema/kid.schema.json",
+  "id": "ishikawa-susumu",
+  "type": "kid",
+  "name": "Ishikawa Susumu",
+  "player": null,
+  "age": 17,
+  "concept": "Sees the angle nobody else is looking from — a real asset in a fight, a genuinely exhausting quality in a classroom. Treats the boundary between \"the Gap's leftover magic\" and \"ordinary physics\" as a puzzle he's personally offended nobody's solved yet.",
+  "level": 1,
+  "xp": 0,
+  "ancestry": "Human",
+  "heritage": "Versatile Heritage",
+  "background": "Scholar",
+  "class": "Witchwarper",
+  "size": "medium",
+  "languages": [
+    "Common"
+  ],
+  "abilityModifiers": {
+    "str": 1,
+    "dex": 2,
+    "con": 1,
+    "int": 4,
+    "wis": 1,
+    "cha": 0
+  },
+  "perception": {
+    "proficiency": {
+      "rank": "trained",
+      "modifier": 4
+    }
+  },
+  "savingThrows": {
+    "fortitude": {
+      "rank": "trained",
+      "modifier": 4
+    },
+    "reflex": {
+      "rank": "trained",
+      "modifier": 5
+    },
+    "will": {
+      "rank": "trained",
+      "modifier": 4
+    }
+  },
+  "skills": {
+    "acrobatics": {
+      "rank": "untrained",
+      "modifier": 2
+    },
+    "arcana": {
+      "rank": "trained",
+      "modifier": 7
+    },
+    "athletics": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "computers": {
+      "rank": "trained",
+      "modifier": 7
+    },
+    "crafting": {
+      "rank": "untrained",
+      "modifier": 4
+    },
+    "deception": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "diplomacy": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "intimidation": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "medicine": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "nature": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "occultism": {
+      "rank": "trained",
+      "modifier": 7
+    },
+    "performance": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "piloting": {
+      "rank": "untrained",
+      "modifier": 2
+    },
+    "religion": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "society": {
+      "rank": "trained",
+      "modifier": 7
+    },
+    "stealth": {
+      "rank": "untrained",
+      "modifier": 2
+    },
+    "survival": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "thievery": {
+      "rank": "untrained",
+      "modifier": 2
+    }
+  },
+  "classDC": {
+    "rank": "trained",
+    "modifier": 17
+  },
+  "hitPoints": {
+    "max": 15,
+    "current": 15
+  },
+  "armorClass": {
+    "value": 16,
+    "armorProficiency": {
+      "rank": "trained",
+      "modifier": 3
+    },
+    "wornArmor": "Patched-together field coat"
+  },
+  "speed": {
+    "land": 25
+  },
+  "heroPoints": 1,
+  "groundRoleHistory": [],
+  "framePilotedRef": "wakaba",
+  "anchors": [
+    {
+      "id": "susumu-anchor-need",
+      "anchorType": "need",
+      "description": "An answer — any real one — to what the Gap actually was, not another institutional non-explanation."
+    },
+    {
+      "id": "susumu-anchor-belief",
+      "anchorType": "belief",
+      "description": "That the Directorate knows more than it's saying, and that finding out is worth more risk than most people around him think it is."
+    }
+  ],
+  "status": "DRAFT — proposed 2026-08-22 at Ingram's request, open to full revision. Not yet confirmed.",
+  "notes": "Built via tools/character-builder/derive.mjs directly (real Player Core math for HP/AC/saves/skills/classDC), not the pregen-borrowing shortcut — the six Adventure Pregens are all non-human sci-fi ancestries, a mismatch for this setting. Ability-boost pattern and proficiency ranks (uniformly trained) are documented simplifications, not pack-verified per-class data — see build-real-kids.mjs's header comment."
+}

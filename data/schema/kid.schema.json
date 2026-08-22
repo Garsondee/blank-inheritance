@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kid.schema.json",
+  "title": "Kid",
+  "description": "A player's school-age character: a full, standard SF2E PC (see common/sf2e-common.schema.json#/$defs/pcStatblock) plus the campaign-specific fields that make a kid a kid — Anchors, ground-role rotation history, and the link to the Frame they pilot. Level 1 at campaign start, advances by narrative milestone rather than XP budget. One file per kid in data/characters/kids/.",
+  "allOf": [
+    { "$ref": "common/sf2e-common.schema.json#/$defs/pcStatblock" },
+    {
+      "type": "object",
+      "required": ["id", "type", "name", "player"],
+      "properties": {
+        "$schema": { "type": "string" },
+        "id": { "type": "string", "description": "Kebab-case slug, matches filename." },
+        "type": { "const": "kid" },
+        "name": { "type": ["string", "null"] },
+        "player": { "type": ["string", "null"], "description": "Which player controls this kid and their paired Frame." },
+        "age": {
+          "type": "integer",
+          "minimum": 17,
+          "default": 17,
+          "description": "Kids start at 17 — the city's charter age for civil-defense conscription eligibility. Load-bearing for the setting's premise; see design bible System Notes."
+        },
+        "concept": { "type": ["string", "null"], "description": "One or two sentence character concept." },
+        "anchors": {
+          "type": "array",
+          "description": "2-3 player-written Anchors: a person, a belief, a need.",
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "required": ["id", "anchorType", "description"],
+            "properties": {
+              "id": { "type": "string" },
+              "anchorType": { "enum": ["person", "belief", "need"] },
+              "description": { "type": "string" },
+              "status": { "type": "string", "description": "Free-text log of affirm/violate history." }
+            }
+          }
+        },
+        "resonance": {
+          "type": "object",
+          "description": "Only meaningful once this kid is piloting a Frame.",
+          "properties": {
+            "current": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+            "band": { "enum": ["dead-weight", "nominal", "harmonised", "absolute", null] }
+          }
+        },
+        "bleed": {
+          "type": "object",
+          "properties": {
+            "current": { "type": ["integer", "null"], "minimum": 0, "maximum": 10 }
+          }
+        },
+        "groundRoleHistory": {
+          "type": "array",
+          "description": "Log of which ground role this kid played each Contact, to enforce the no-repeat-twice-in-a-row rotation rule.",
+          "items": {
+            "type": "object",
+            "required": ["eventRef", "roleRef"],
+            "properties": {
+              "eventRef": { "type": "string" },
+              "roleRef": { "type": "string" }
+            }
+          }
+        },
+        "framePilotedRef": { "type": ["string", "null"], "description": "id of the Frame this kid pilots." },
+        "status": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    }
+  ]
+}

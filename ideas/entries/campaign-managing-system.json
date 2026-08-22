@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "campaign-managing-system",
+  "type": "idea",
+  "title": "Overall campaign-managing system (umbrella tool)",
+  "status": "new",
+  "domains": ["tooling", "ui"],
+  "summary": "A broader tool the dialogue panel and journal ingestion might live inside — scene-by-scene session planning, pilot/mech assignment tracking, and similar campaign-state bookkeeping the director's panel doesn't currently cover.",
+  "description": "Floated more tentatively than the ideas it would contain ('the dialogue managing system could be part of an overall campaign managing system') — this is the least fleshed-out of the cluster, essentially a proposed umbrella for dialogue-management-panel plus general campaign-state tracking: defining how each scene could go, and organizing things like which pilot is currently using which Frame. Possibly this just IS the sum of the other accepted ideas in this cluster rather than a genuinely separate build item — worth revisiting once a couple of the more concrete pieces (dialogue panel, journal ingestion) actually exist, to see if an umbrella is still needed or if it naturally falls out of the director's panel work already designed.",
+  "capturedDate": "2026-08-22",
+  "lastTouchedDate": "2026-08-22",
+  "sourceContext": "User planning message on dialogue/journal/campaign-management systems, prior to the ideas/ system existing — originally captured as prose in design/campaign-arc.md's 'Foundry module: new concept threads' section, migrated here on audit.",
+  "openSubQuestions": [
+    "Whether this is a real separate system or just what the director's panel becomes once dialogue-management-panel and journal ingestion are built into it.",
+    "What 'pilot/mech assignment tracking' actually needs beyond what frame.schema.json's pilotKidRef already carries — likely just a UI for editing that live during play."
+  ],
+  "relatedRefs": ["dialogue-management-panel", "player-and-gm-journals-context-ingestion", "design/foundry-module-design.md#7-the-directors-panel-and-the-tv-show-feel"],
+  "resolution": null
+}

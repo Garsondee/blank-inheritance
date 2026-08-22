@@ -1,0 +1,35 @@
+{
+  "$schema": "../../../../data/schema/creature.schema.json",
+  "id": "test-fixture-creature-001",
+  "type": "creature",
+  "name": "TEST FIXTURE — Diagnostic Creature",
+  "level": 12,
+  "traits": ["aberration"],
+  "size": "large",
+  "abilityModifiers": { "str": 6, "dex": 2, "con": 5, "int": -1, "wis": 3, "cha": 0 },
+  "perception": { "proficiency": { "rank": "master", "modifier": 22 } },
+  "languages": ["none"],
+  "skills": {
+    "athletics": { "rank": "expert", "modifier": 24 },
+    "stealth": { "rank": "trained", "modifier": 18 }
+  },
+  "ac": 33,
+  "savingThrows": {
+    "fortitude": { "rank": "master", "modifier": 25 },
+    "reflex": { "rank": "expert", "modifier": 21 },
+    "will": { "rank": "master", "modifier": 24 }
+  },
+  "hitPoints": { "max": 215, "current": 215 },
+  "resistances": [{ "damageType": "fire", "value": 10 }],
+  "speed": { "land": 25, "fly": 40 },
+  "strikes": [
+    {
+      "name": "Claw",
+      "strikeType": "melee",
+      "attackBonus": 25,
+      "traits": ["agile", "magical"],
+      "damage": [{ "dice": "3d8", "bonus": 10, "damageType": "slashing" }]
+    }
+  ],
+  "notes": "SYNTHETIC TEST FIXTURE for validating the Foundry sync pipeline only. Not a real Claimant, not canon — do not use as campaign content. See ideas/entries and the module's diagnostic test sync."
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "../schema/episode.schema.json",
+  "id": "interlude-days-2-5-the-squeeze",
+  "type": "interlude",
+  "title": "The Squeeze",
+  "dayRange": { "start": 2, "end": 5 },
+  "summary": "Mandatory school/training plus two discretionary slices per day. The gap between what players want to spend time on and what time they actually have is the whole engine of this stretch.",
+  "structure": "Mandatory school and mandatory harmonics/sync training eat most of each day; see campaign/config.json timeEconomy for the discretionary-slice menu.",
+  "requiredBeats": [
+    "Seed exactly one dangling thread: who was originally meant to be in that chair on Day 1? Don't resolve it yet.",
+    "Let at least one multi-day investment (an Investigation, a Frame Modification) get interrupted or destroyed by a scheduled emergency partway through — the squeeze should occasionally actually squeeze."
+  ],
+  "scenes": [],
+  "endOfEpisodeEffects": [],
+  "openQuestionRefs": [],
+  "danglingThreads": ["who-was-meant-to-pilot-day-1"]
+}

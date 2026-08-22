@@ -1,0 +1,12 @@
+{
+  "_id": "dd82c16d46492a9d",
+  "name": "TEST FIXTURE — Diagnostic Character",
+  "type": "character",
+  "system": {
+    "details": {
+      "level": {
+        "value": 3
+      }
+    }
+  }
+}

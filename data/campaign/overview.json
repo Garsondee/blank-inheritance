@@ -1,0 +1,38 @@
+{
+  "$schema": "../schema/campaign-overview.schema.json",
+  "id": "overview",
+  "title": {
+    "english": "Blank Inheritance",
+    "japanese": "空白相続",
+    "romanization": "Kuuhaku Souzoku"
+  },
+  "system": "Starfinder Second Edition",
+  "format": "Six-player, one-GM. Each player runs two characters: a school-age kid and a multi-storey combat mech.",
+  "elevatorPitch": "Six players, one GM, Starfinder Second Edition. Each player runs two characters: a kid (starts at level 1, seventeen years old, legally draft-eligible for the city's civil defense corps) and a Frame — a multi-storey combat mech, fixed at level 12, built as a full PC with its own class. The kids' school lives, relationships, and personal choices directly gate how much of their Frame's power they can actually use in a fight. Same emotional shape as Neon Genesis Evangelion, run through Starfinder's bounded-accuracy math instead of anime logic — \"legally distinct\" setting and mechanics throughout.",
+  "systemNotes": {
+    "context": "Starfinder Second Edition has no official mech rules — this system is bespoke. (Starfinder Tech Core, the next major rulebook, adds starship combat and tech classes but not mechs.) The game inherits Pathfinder 2e's math: attack bonus, AC, DCs, and HP scale tightly and predictably with level, and the four degrees of success amplify small numeric gaps into large narrative ones. A level gap much past 4-5 becomes \"cannot participate,\" not \"outmatched.\"",
+    "designPrinciples": [
+      "A level-1 kid cannot be given a numeric bonus that meaningfully affects a level-12 fight, and shouldn't be — that breaks bounded accuracy.",
+      "A level-12 Frame cannot be treated as gear worn by a level-1 kid — item bonuses stack on the wielder's own proficiency, so a Frame-as-equipment would still swing like a level-1 character. The Frame has to be its own character.",
+      "The gap between kid and Frame is a feature, not something to balance away. The system's job is to make both halves matter without ever letting them touch the same math."
+    ]
+  },
+  "characterConcepts": {
+    "kid": {
+      "startingLevel": 1,
+      "startingAge": 17,
+      "advancement": "Advances by narrative milestone (roughly one level per major arc/Contact event), not XP budget.",
+      "legalFraming": "Seventeen is the age the city's charter allows conscription into civil defense roles. The kids are here legally. Nobody is breaking a rule to put them in a cockpit — that's the horror register: procedural, not criminal."
+    },
+    "frame": {
+      "startingLevel": 12,
+      "buildMethod": "Built as a full PC using a standard SF2e class — not a monster stat block, not upscaled gear. Pick a class, build it exactly as any PC of the same level, then reflavor: a Strike is a building-sized fist, a spell is a kilometre-wide effect.",
+      "advancement": "Fixed at level 12 only through the six-day opening arc (data/episodes) — there isn't time for a full defeat-and-refit cycle in six days. From Day 7 onward, Frames level up in lockstep with their pilot's own milestone leveling across the campaign's 8-level arc (see design/campaign-arc.md), gated by a significant Claimant defeat plus enough downtime to refit. Independently of level, a Frame also only unlocks access to abilities it already statistically has as its pilot's Resonance rises — a level-12 (or higher) Frame at 30% Resonance is still only allowed to use a fraction of its sheet.",
+      "classAssignment": "Open question — see open-questions.json (frame-class-assignment): player-chosen, or assigned by the Directorate's psychological profiling as a verdict on the kid."
+    }
+  },
+  "campaignStructure": {
+    "openingArc": "Days 1-6 are hand-placed (see /data/episodes) and do not use the Contact Pool roll.",
+    "postOpeningArc": "From Day 7 onward, the hand-placed opening arc ends and the Contact Pool (see campaign/config.json) takes over as the procedural engine driving the rest of the campaign."
+  }
+}

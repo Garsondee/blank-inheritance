@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "mitflits-and-anabala",
+  "type": "idea",
+  "title": "Mitflits and Anabala",
+  "status": "accepted",
+  "domains": ["narrative", "worldbuilding", "npcs"],
+  "summary": "Golarion's Mitflits reflavored as descendants of a stranded star-faring race, reverted to simpler form over deep time; Anabala (Mitflit/demon hybrid, centuries old, powerful caster) is a named historical-lore NPC.",
+  "description": "Mitflits will be involved in this campaign. In official Golarion lore they're a fey flavor of goblin; for this world and this group, they're reframed as the descendants of a long-lost star-traveling race that crashed on Golarion long ago and reverted to a simpler form over the vast time since. They were meant to be involved in a previous campaign that never got finished, so this is a chance to bring them in properly. The user explicitly said not to worry yet about how or why they fit into this plot specifically — that's deliberately unresolved for now, just the intent to include them is locked.\n\nAnabala is a specific, named, already-conceived NPC: a Mitflit/demon hybrid who has lived through the hundreds of years between the unfinished prior campaign and this one, making her a natural source of much-needed historical information the party can't get anywhere else. She's a powerful magic user.\n\nThe user has also already created two Mitflit variants: 'wild' and 'ascended.' Details of what distinguishes them aren't specified yet beyond their existence.",
+  "capturedDate": "2026-08-22",
+  "lastTouchedDate": "2026-08-22",
+  "sourceContext": "User planning message, 2026-08-22 — large worldbuilding/tooling brain-dump following the 1950s-tone planning session. Connected to the campaign's ancestry-reveal mechanic in a follow-up Q&A the same day.",
+  "openSubQuestions": [
+    "The specific mechanism: what actually happened in the unfinished prior campaign involving Anabala/the Mitflits that now explains why non-human PCs present as outwardly human — direction is locked (see data/campaign/open-questions.json #ancestry-reveal-justification, resolved), the concrete details aren't worked out yet.",
+    "Anabala's full stat block, her role/scenes, and how/when the party actually meets her.",
+    "What distinguishes 'wild' vs 'ascended' Mitflit variants mechanically and narratively."
+  ],
+  "relatedRefs": ["artwork/in-tray/character-portraits/mitflits (15 portrait images already in the asset intake)", "data/campaign/open-questions.json#ancestry-reveal-justification"],
+  "resolution": null
+}

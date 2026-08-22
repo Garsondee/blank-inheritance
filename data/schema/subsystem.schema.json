@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "subsystem.schema.json",
+  "title": "Subsystem",
+  "description": "A GM Core-style victory-point subsystem instance (Victory Points, Influence, Research, Chases, Infiltration, Hacking, or a custom homebrew one). One or more point pools, built from discrete obstacles/checks whose degrees of success move those pools, bounded by a round/time/attempt limit, resolving to a win/lose/graduated state. Grounded in GM Core Ch.4 (reference/srd/gm-core/1125-1170). The six named subsystems share this core shape but diverge in real ways (see subsystemSpecific) — don't force a Hacking or Infiltration instance to pretend it's a simple point pool if it isn't one.",
+  "type": "object",
+  "required": ["id", "type", "name", "subsystemType", "pools", "obstacles"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string" },
+    "type": { "const": "subsystem" },
+    "name": { "type": "string" },
+    "subsystemType": { "enum": ["victory-points", "influence", "research", "chases", "infiltration", "hacking", "custom"] },
+    "description": { "type": "string", "description": "Narrative framing — what winning/losing this subsystem means in-fiction." },
+    "scale": {
+      "enum": ["quick-encounter", "long-encounter", "session", "adventure-sideline", "adventure-forefront", null],
+      "description": "GM Core's own reference scale for sizing point targets: quick encounter ~3-5 pts; long encounter ~7-10 (threshold 4); most of a session ~15-25 (thresholds 5/10/15); adventure-wide sideline ~15-20; adventure-wide forefront ~25-50 (thresholds 10/20/30/40)."
+    },
+    "pools": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Usually one pool (e.g. Victory Points). Multiple for the 'Multiple Point' VP variant (e.g. PCs' points vs. a rival's, both racing to a target) or Infiltration's IP/AP/EP split.",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "mode"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string", "description": "e.g. \"Victory Points\", \"Influence Points\", \"Awareness Points\"." },
+          "mode": { "enum": ["accumulating", "diminishing"], "description": "Accumulating = race up to a win target. Diminishing = protect the pool from hitting a loss floor." },
+          "current": { "type": "integer" },
+          "start": { "type": "integer" },
+          "floor": { "type": ["integer", "null"] },
+          "ceiling": { "type": ["integer", "null"] },
+          "winTarget": { "type": ["integer", "null"] },
+          "loseTarget": { "type": ["integer", "null"] },
+          "owner": { "enum": ["party", "opposition", "shared", null], "description": "VP's 'Enemy Victory Points' variant: a pool driven entirely by PC actions but tracking the OPPOSITION's progress, sometimes inverted (a PC crit success reduces it)." },
+          "thresholds": {
+            "type": "array",
+            "description": "Graduated mid-run benefits/complications as this pool crosses a value, not just a single win/lose at the end. GM Core warns over-succeeding can have negative narrative consequences too — thresholds aren't guaranteed to be monotonically good.",
+            "items": {
+              "type": "object",
+              "required": ["atValue", "effect"],
+              "properties": {
+                "atValue": { "type": "integer" },
+                "effect": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "objectives": {
+      "type": "array",
+      "description": "Infiltration's goal layer above obstacles: a broad aim requiring a chosen subset of obstacles cleared. Leave empty for subsystems without this hierarchy (most of them).",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "requiredObstacleCount"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "requiredObstacleCount": { "type": "integer", "description": "How many of obstacleRefs must be cleared, not necessarily all of them." },
+          "obstacleRefs": { "type": "array", "items": { "type": "string" } },
+          "sequential": { "type": "boolean", "description": "Whether this objective must be completed before the next one unlocks." }
+        }
+      }
+    },
+    "obstacles": {
+      "type": "array",
+      "minItems": 1,
+      "description": "The discrete tasks/checks that make up this subsystem.",
+      "items": {
+        "allOf": [
+          { "$ref": "common/sf2e-common.schema.json#/$defs/check" },
+          {
+            "type": "object",
+            "properties": {
+              "poolEffects": {
+                "type": "array",
+                "description": "Point deltas per degree of success, sparse — omit a degree that has no effect. Most subsystems here only ever specify 3 of the 4 degrees (crit success/success/crit failure), leaving plain failure as +0 by omission.",
+                "items": {
+                  "type": "object",
+                  "required": ["poolRef"],
+                  "properties": {
+                    "poolRef": { "type": "string" },
+                    "criticalSuccess": { "type": "integer" },
+                    "success": { "type": "integer" },
+                    "failure": { "type": "integer" },
+                    "criticalFailure": { "type": "integer" }
+                  }
+                }
+              },
+              "dcModifierEffect": {
+                "type": ["object", "null"],
+                "description": "Hacking's vulnerability pattern: succeeding at this obstacle doesn't award points, it permanently lowers another obstacle's DC instead.",
+                "properties": {
+                  "targetObstacleRef": { "type": "string" },
+                  "delta": { "type": "integer" }
+                }
+              },
+              "maxYield": { "type": ["integer", "null"], "description": "Research's per-check point cap: this obstacle can't contribute more than this many points total, however many times it's attempted." },
+              "scope": { "enum": ["individual", "group", null], "description": "Infiltration: individual = each PC earns their own progress and can only overcome it once per PC; group = the party pools progress and can only overcome it once for the whole party." },
+              "objectiveRef": { "type": ["string", "null"] },
+              "persistent": { "type": "boolean", "description": "Hacking countermeasure-style: auto-retriggers every round until disabled, rather than being a one-time obstacle." },
+              "optional": { "type": "boolean", "description": "Infiltration's Opportunities: doesn't count toward objectives/progress, grants a side benefit instead." }
+            }
+          }
+        ]
+      }
+    },
+    "complications": {
+      "type": "array",
+      "description": "Infiltration-style forced extra obstacles triggered by a crit failure, a threshold, or GM/story need. Must be resolved before other progress continues.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "triggerCondition": { "type": "string" },
+          "obstacleRef": { "type": "string" }
+        }
+      }
+    },
+    "participants": {
+      "type": "object",
+      "properties": {
+        "eligibility": { "type": "string", "description": "Usually \"any PC may attempt any obstacle they can justify.\"" },
+        "actionsPerRound": { "type": "string", "default": "one action toward the subsystem per PC per round" },
+        "mandatoryParticipation": { "type": "boolean", "description": "Chases: a PC who doesn't/can't act on their turn costs the party a point automatically." }
+      }
+    },
+    "bounding": {
+      "type": "object",
+      "description": "What limits the whole subsystem, since every one of these is bounded by something different.",
+      "properties": {
+        "boundType": { "enum": ["rounds", "real-time", "attempts", "narrative-endstate", null] },
+        "value": { "type": ["string", "integer", "null"] },
+        "description": { "type": "string" },
+        "dynamicAdjustment": { "type": "string", "description": "GM Core flags that a specific in-fiction choice can shrink/extend the bound mid-scene — note that here if relevant, rather than assuming the bound is fixed once play starts." }
+      }
+    },
+    "winCondition": { "type": "string" },
+    "loseCondition": { "type": ["string", "null"], "description": "Research and Hacking, per the source text, don't state a hard loss condition — they're bounded by escalating risk/time instead. Leave null rather than forcing one." },
+    "subsystemSpecific": {
+      "type": "object",
+      "description": "Bespoke fields that don't generalize across all six named subsystems — don't force-fit these into the shape above. Examples: Influence's NPC-level Resistances/Weaknesses (DC modifiers keyed to narrative topics) and Discover action (reveals hidden obstacle parameters instead of moving a pool); Chases' named sub-type (Chase Down/Run Away/Beat the Clock/Competitive) and per-obstacle point reset (no carryover between obstacles); Infiltration's Edge Points (a banked, pre-earned resource from downtime Preparation activities, spent to convert a failure into a success); Hacking's simple-vs-complex mode split.",
+      "properties": {}
+    },
+    "rewards": { "type": "string", "description": "GM Core: reward scope tracks subsystem scope — a single-sitting subsystem usually earns accomplishment XP, multi-session earns milestone XP, low-profile tracking may earn none." },
+    "relatedRefs": { "type": "array", "items": { "type": "string" } },
+    "notes": { "type": "string" }
+  }
+}

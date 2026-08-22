@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "hangar.schema.json",
+  "title": "Hangar",
+  "description": "The legacy-Frame graveyard beyond the six active PC Frames. Singleton file: data/hangar/legacy-units.json.",
+  "type": "object",
+  "required": ["id", "units"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "hangar" },
+    "type": { "const": "hangar" },
+    "description": { "type": "string" },
+    "purposes": { "type": "array", "items": { "type": "string" } },
+    "units": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "Hangar units are legacy Frames (PC-shaped, like the six active ones), not monsters — they don't use creature.schema.json. Most will stay lightweight narrative stubs; frameDataRef is only for a unit fleshed out enough to actually launch (e.g. as a replacement Frame).",
+        "required": ["id", "name", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": ["string", "null"] },
+          "status": { "type": "string" },
+          "description": { "type": "string" },
+          "frameDataRef": { "type": ["string", "null"], "description": "id of a full frame.schema.json file for this unit, once it's built out enough to matter mechanically (e.g. as a replacement Frame). Null for a narrative-only stub." },
+          "notes": { "type": "string" }
+        }
+      }
+    }
+  }
+}

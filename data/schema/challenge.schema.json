@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "challenge.schema.json",
+  "title": "Challenge",
+  "description": "A generic skill challenge: one or a handful of DC'd checks with no persistent point pool/tracking (see subsystem.schema.json for that — Victory Points, Chases, Infiltration, etc.). Fits the campaign's own Ground Role checks (e.g. a Sensor Operator's Recall Knowledge check during a Contact), Anchor Time scenes, or any one-off skill gauntlet. Structured with explicit DCs and skills so a future probability calculator can estimate the party's odds per check (see reference/tables/dc-and-check-math.json for the underlying degree-of-success math).",
+  "type": "object",
+  "required": ["id", "type", "name", "checks"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string" },
+    "type": { "const": "challenge" },
+    "name": { "type": "string" },
+    "description": { "type": "string", "description": "Narrative framing — what this challenge represents in-fiction." },
+    "levelContext": { "type": ["integer", "null"], "description": "The level this challenge's DCs are pitched at (usually the Frame's tier for anything tied to a Contact, or the kids' level for a purely ground-level scene) — see design bible's ground-role DC rule: DCs come from the task, never from an enemy's level." },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "common/sf2e-common.schema.json#/$defs/check" }
+    },
+    "resolutionMode": {
+      "enum": ["any-one-success", "all-must-succeed", "cumulative-count", "narrative-only"],
+      "description": "How the individual checks combine into an overall outcome. cumulative-count = GM tallies successes/failures narratively without a formal point pool."
+    },
+    "successThreshold": { "type": ["integer", "null"], "description": "For cumulative-count: how many checks need to succeed." },
+    "outcomes": { "$ref": "common/sf2e-common.schema.json#/$defs/degreeOfSuccessOutcome", "description": "Overall challenge outcome text, if resolutionMode isn't per-check." },
+    "participants": { "type": "array", "items": { "type": "string" }, "description": "id refs of kids/Frames who can attempt this, or a free-text role name (e.g. \"Sensor Operator\")." },
+    "relatedRefs": { "type": "array", "items": { "type": "string" }, "description": "e.g. an episode/scene id this challenge belongs to, or a ground-role id." },
+    "notes": { "type": "string" }
+  }
+}

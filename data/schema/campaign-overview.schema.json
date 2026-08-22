@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "campaign-overview.schema.json",
+  "title": "Campaign Overview",
+  "description": "The campaign's pitch, system notes, and character-concept summary. Singleton file: data/campaign/overview.json.",
+  "type": "object",
+  "required": ["id", "title", "elevatorPitch"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "overview" },
+    "title": {
+      "type": "object",
+      "properties": {
+        "english": { "type": "string" },
+        "japanese": { "type": "string" },
+        "romanization": { "type": "string" }
+      }
+    },
+    "system": { "type": "string" },
+    "format": { "type": "string" },
+    "elevatorPitch": { "type": "string" },
+    "systemNotes": {
+      "type": "object",
+      "properties": {
+        "context": { "type": "string" },
+        "designPrinciples": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "characterConcepts": {
+      "type": "object",
+      "properties": {
+        "kid": {
+          "type": "object",
+          "properties": {
+            "startingLevel": { "type": "integer" },
+            "startingAge": { "type": "integer" },
+            "advancement": { "type": "string" },
+            "legalFraming": { "type": "string" }
+          }
+        },
+        "frame": {
+          "type": "object",
+          "properties": {
+            "startingLevel": { "type": "integer" },
+            "buildMethod": { "type": "string" },
+            "advancement": { "type": "string" },
+            "classAssignment": { "type": "string" }
+          }
+        }
+      }
+    },
+    "campaignStructure": {
+      "type": "object",
+      "properties": {
+        "openingArc": { "type": "string" },
+        "postOpeningArc": { "type": "string" }
+      }
+    }
+  }
+}

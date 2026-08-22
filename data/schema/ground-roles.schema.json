@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ground-roles.schema.json",
+  "title": "Ground Roles",
+  "description": "The five non-piloting roles kids can play during a Contact, plus the rules governing them. Singleton file: data/campaign/ground-roles.json.",
+  "type": "object",
+  "required": ["id", "roles"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "ground-roles" },
+    "description": { "type": "string" },
+    "rules": {
+      "type": "object",
+      "properties": {
+        "dcSource": { "type": "string" },
+        "encounterDesign": { "type": "string" },
+        "rotation": { "type": "string" }
+      }
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "domain", "description"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "domain": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    }
+  }
+}

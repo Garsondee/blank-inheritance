@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "sf2e-terminology-reflavor",
+  "type": "idea",
+  "title": "SF2E terminology reflavor (cosmetic sheet language)",
+  "status": "new",
+  "domains": ["narrative", "mechanics", "ui"],
+  "summary": "Reflavor some SF2E skill/keyword language on the character sheet to fit the Frame/mecha theme — cosmetic only, no mechanical changes.",
+  "description": "It would be nice to reflavor some of the key words/skill names from SF2E so the character sheet language better fits the Frame/mecha theme and overall story, without changing anything mechanically important — purely renaming/re-presenting existing SF2E terms, not new rules. Explicitly called out as separate and lighter-weight than automated-recall-knowledge-system, which is 'Recall Knowledge' specifically getting real functional attention rather than just a cosmetic rename.",
+  "capturedDate": "2026-08-22",
+  "lastTouchedDate": "2026-08-22",
+  "sourceContext": "User planning message, 2026-08-22 — large worldbuilding/tooling brain-dump.",
+  "openSubQuestions": [
+    "Which specific terms get reflavored and to what — not started.",
+    "Where the renamed terms would actually surface (Foundry sheet only? our own data/schema field labels too?)."
+  ],
+  "relatedRefs": ["automated-recall-knowledge-system"],
+  "resolution": null
+}

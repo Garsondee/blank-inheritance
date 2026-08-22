@@ -1,0 +1,162 @@
+{
+  "$schema": "../../schema/kid.schema.json",
+  "id": "watanabe-yumiko",
+  "type": "kid",
+  "name": "Watanabe Yumiko",
+  "player": null,
+  "age": 17,
+  "concept": "Steps between danger and whoever's closest to it without deciding to first — it's just what her body does. Loud where Hiroshi is quiet, and the two of them argue constantly about whether that's a flaw or the whole point of her.",
+  "level": 1,
+  "xp": 0,
+  "ancestry": "Human",
+  "heritage": "Versatile Heritage",
+  "background": "Warrior",
+  "class": "Soldier",
+  "size": "medium",
+  "languages": [
+    "Common"
+  ],
+  "abilityModifiers": {
+    "str": 4,
+    "dex": 1,
+    "con": 2,
+    "int": 0,
+    "wis": 1,
+    "cha": 1
+  },
+  "perception": {
+    "proficiency": {
+      "rank": "trained",
+      "modifier": 4
+    }
+  },
+  "savingThrows": {
+    "fortitude": {
+      "rank": "trained",
+      "modifier": 5
+    },
+    "reflex": {
+      "rank": "trained",
+      "modifier": 4
+    },
+    "will": {
+      "rank": "trained",
+      "modifier": 4
+    }
+  },
+  "skills": {
+    "acrobatics": {
+      "rank": "trained",
+      "modifier": 4
+    },
+    "arcana": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "athletics": {
+      "rank": "trained",
+      "modifier": 7
+    },
+    "computers": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "crafting": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "deception": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "diplomacy": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "intimidation": {
+      "rank": "trained",
+      "modifier": 4
+    },
+    "medicine": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "nature": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "occultism": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "performance": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "piloting": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "religion": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "society": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "stealth": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "survival": {
+      "rank": "trained",
+      "modifier": 4
+    },
+    "thievery": {
+      "rank": "untrained",
+      "modifier": 1
+    }
+  },
+  "classDC": {
+    "rank": "trained",
+    "modifier": 17
+  },
+  "hitPoints": {
+    "max": 20,
+    "current": 20
+  },
+  "armorClass": {
+    "value": 19,
+    "armorProficiency": {
+      "rank": "expert",
+      "modifier": 5
+    },
+    "wornArmor": "Drill-issue field jacket"
+  },
+  "speed": {
+    "land": 25
+  },
+  "heroPoints": 1,
+  "groundRoleHistory": [],
+  "framePilotedRef": "hibari",
+  "anchors": [
+    {
+      "id": "yumiko-anchor-belief",
+      "anchorType": "belief",
+      "description": "That standing in front of the hit is always the right call — untested against a cost big enough to actually make her doubt it."
+    },
+    {
+      "id": "yumiko-anchor-person",
+      "anchorType": "person",
+      "description": "Etsuko, whose calm she finds genuinely unnerving and privately envies."
+    },
+    {
+      "id": "yumiko-anchor-need",
+      "anchorType": "need",
+      "description": "To be needed for something other than absorbing damage — to be asked, not just deployed."
+    }
+  ],
+  "status": "DRAFT — proposed 2026-08-22 at Ingram's request, open to full revision. Not yet confirmed.",
+  "notes": "Built via tools/character-builder/derive.mjs directly (real Player Core math for HP/AC/saves/skills/classDC), not the pregen-borrowing shortcut — the six Adventure Pregens are all non-human sci-fi ancestries, a mismatch for this setting. Ability-boost pattern and proficiency ranks (uniformly trained) are documented simplifications, not pack-verified per-class data — see build-real-kids.mjs's header comment."
+}

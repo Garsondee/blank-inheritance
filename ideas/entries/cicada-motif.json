@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "cicada-motif",
+  "type": "idea",
+  "title": "Cicada motif — civic symbol and antagonist logo",
+  "status": "accepted",
+  "domains": ["narrative", "worldbuilding", "visual", "antagonists"],
+  "summary": "Cicadas emerged unplanned across the generated art from a 'cicada summer' Midjourney prompt and are being canonized as an almost-holy civic animal — and, separately, as the emblem of the antagonists' human/humanoid allied organization.",
+  "description": "A midjourney prompt included the phrase 'cicada summer' (referring to the insects and the rare summer in which they emerge), and cicadas kept turning up across the generated artwork as an unplanned recurring visual element. Rather than treat this as noise, it's being made canon: the city will treat cicadas as an almost-holy animal. The user calls this 'absolutely perfect' given how much the setting already revolves around things being buried underground (the Gap excavation, the Frames, the midpoint spaceship) — cicadas spend years underground before emerging, which is an unusually clean thematic match.\n\nConcrete visual ideas already floated: a cicada statue built into a wall, a dried/preserved cicada pinned to someone's hat, a cicada as a graffiti tag or a carefully painted stencil. These should surface as environmental detail/set dressing across scenes.\n\nSeparately, and connected: the same cicada symbol is also the logo of the clandestine human/humanoid organization allied with the alien antagonists (see antagonist-structure-cicada-org-moral-complexity). That gives the motif a second, darker register — the city reveres cicadas as sacred because of the buried-things theme, while a hostile organization has independently adopted the same symbol, which is worth deliberately not over-explaining early (let the player-facing civic reverence and the antagonist-org branding sit side by side before anyone connects them).",
+  "capturedDate": "2026-08-22",
+  "lastTouchedDate": "2026-08-22",
+  "sourceContext": "User planning message, 2026-08-22 — large worldbuilding/tooling brain-dump.",
+  "openSubQuestions": [
+    "Whether/when the civic-reverence and antagonist-logo uses of the cicada symbol get connected in the fiction, and by whom (players investigating? forced reveal?)."
+  ],
+  "relatedRefs": ["antagonist-structure-cicada-org-moral-complexity"],
+  "resolution": null
+}

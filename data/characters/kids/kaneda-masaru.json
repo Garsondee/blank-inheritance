@@ -1,0 +1,157 @@
+{
+  "$schema": "../../schema/kid.schema.json",
+  "id": "kaneda-masaru",
+  "type": "kid",
+  "name": "Kaneda Masaru (Yoon Jae-won, 윤재원, privately)",
+  "player": null,
+  "age": 17,
+  "concept": "Precise, controlled, misses nothing — has had to be, his whole life. Uses a tsūmei (an assumed Japanese name) at school and at the Directorate; the name on his own family's records is different. Nobody at school knows both halves of him, and he has strong opinions about who gets to.",
+  "level": 1,
+  "xp": 0,
+  "ancestry": "Human",
+  "heritage": "Versatile Heritage",
+  "background": "Detective",
+  "class": "Operative",
+  "size": "medium",
+  "languages": [
+    "Common"
+  ],
+  "abilityModifiers": {
+    "str": 1,
+    "dex": 4,
+    "con": 1,
+    "int": 2,
+    "wis": 1,
+    "cha": 0
+  },
+  "perception": {
+    "proficiency": {
+      "rank": "trained",
+      "modifier": 4
+    }
+  },
+  "savingThrows": {
+    "fortitude": {
+      "rank": "trained",
+      "modifier": 4
+    },
+    "reflex": {
+      "rank": "trained",
+      "modifier": 7
+    },
+    "will": {
+      "rank": "trained",
+      "modifier": 4
+    }
+  },
+  "skills": {
+    "acrobatics": {
+      "rank": "trained",
+      "modifier": 7
+    },
+    "arcana": {
+      "rank": "untrained",
+      "modifier": 2
+    },
+    "athletics": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "computers": {
+      "rank": "untrained",
+      "modifier": 2
+    },
+    "crafting": {
+      "rank": "untrained",
+      "modifier": 2
+    },
+    "deception": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "diplomacy": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "intimidation": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "medicine": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "nature": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "occultism": {
+      "rank": "untrained",
+      "modifier": 2
+    },
+    "performance": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "piloting": {
+      "rank": "untrained",
+      "modifier": 4
+    },
+    "religion": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "society": {
+      "rank": "trained",
+      "modifier": 5
+    },
+    "stealth": {
+      "rank": "trained",
+      "modifier": 7
+    },
+    "survival": {
+      "rank": "untrained",
+      "modifier": 1
+    },
+    "thievery": {
+      "rank": "trained",
+      "modifier": 7
+    }
+  },
+  "classDC": {
+    "rank": "trained",
+    "modifier": 17
+  },
+  "hitPoints": {
+    "max": 17,
+    "current": 17
+  },
+  "armorClass": {
+    "value": 18,
+    "armorProficiency": {
+      "rank": "trained",
+      "modifier": 3
+    },
+    "wornArmor": "Fitted work coveralls"
+  },
+  "speed": {
+    "land": 25
+  },
+  "heroPoints": 1,
+  "groundRoleHistory": [],
+  "framePilotedRef": "akatsuki",
+  "anchors": [
+    {
+      "id": "masaru-anchor-need",
+      "anchorType": "need",
+      "description": "To decide for himself, every time, who learns his real name — not to have it discovered, guessed, or \"found out\" by someone else's carelessness."
+    },
+    {
+      "id": "masaru-anchor-belief",
+      "anchorType": "belief",
+      "description": "That precision is the one thing that can't be taken from him — if he's exact enough, careful enough, nobody gets to define him by anything else."
+    }
+  ],
+  "status": "DRAFT — proposed 2026-08-22 at Ingram's request, open to full revision. Not yet confirmed.",
+  "notes": "Built via tools/character-builder/derive.mjs directly (real Player Core math for HP/AC/saves/skills/classDC), not the pregen-borrowing shortcut — the six Adventure Pregens are all non-human sci-fi ancestries, a mismatch for this setting. Ability-boost pattern and proficiency ranks (uniformly trained) are documented simplifications, not pack-verified per-class data — see build-real-kids.mjs's header comment."
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "../schema/hangar.schema.json",
+  "id": "hangar",
+  "type": "hangar",
+  "description": "Beyond the six active PC Frames, the Directorate's hangar holds a larger graveyard of legacy units — many already seriously damaged, decommissioned, or never successfully synced to anyone.",
+  "purposes": [
+    "Give the setting history before session one.",
+    "Be a long-term technician-day sink: bringing one online is possible, and always costs something else.",
+    "Seed mystery — one of these units is plausibly tied to whoever was originally meant to pilot on Day 1.",
+    "Offer a possible replacement path if a PC's own Frame is ever permanently Hulked, without that having to be decided now."
+  ],
+  "units": []
+}

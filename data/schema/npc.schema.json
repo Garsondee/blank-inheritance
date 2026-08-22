@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "npc.schema.json",
+  "title": "NPC",
+  "description": "A named or working-name adult/institutional character. One file per NPC in data/npcs/. Most Directorate NPCs are purely social/narrative and never need `statblock` at all — only set it if this NPC could plausibly end up in a fight or an opposed check that needs real numbers.",
+  "type": "object",
+  "required": ["id", "type", "name", "role"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string" },
+    "type": { "const": "npc" },
+    "name": { "type": ["string", "null"] },
+    "role": { "type": "string", "description": "Functional title, e.g. \"The Commander\"." },
+    "pole": { "type": ["string", "null"], "description": "Which of the Directorate's three (non-stable) poles this NPC represents, if any." },
+    "affiliation": { "type": ["string", "null"], "description": "Faction id ref." },
+    "description": { "type": "string" },
+    "designNotes": { "type": "string" },
+    "namingPlaceholderRef": { "type": ["string", "null"] },
+    "openQuestionRefs": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string" },
+    "statblock": {
+      "description": "Optional combat/skill stat block, only needed if this NPC could plausibly roll dice against the party. Same shape as creature.schema.json.",
+      "anyOf": [
+        { "$ref": "common/sf2e-common.schema.json#/$defs/combatStatblock" },
+        { "type": "null" }
+      ]
+    }
+  }
+}

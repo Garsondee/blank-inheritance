@@ -1,0 +1,146 @@
+{
+  "$schema": "../../../../data/schema/kid.schema.json",
+  "id": "test-fixture-frame-pilot",
+  "type": "kid",
+  "name": "TEST FIXTURE — Frame Pilot (Envoy, synthetic, not one of the six real kids)",
+  "player": null,
+  "age": 17,
+  "concept": "Synthetic test fixture — a reflavoured SF2E Adventure Pregen (Envoy) standing in for the sixth kid, the one piloting the Frame this Contact rather than working a ground role.",
+  "level": 1,
+  "xp": 0,
+  "ancestry": "Skittermander",
+  "heritage": "Skitter Raised",
+  "background": "Grifter",
+  "class": "Envoy",
+  "size": "small",
+  "languages": [
+    "common",
+    "vesk"
+  ],
+  "abilityModifiers": {
+    "str": 0,
+    "dex": 3,
+    "con": 0,
+    "int": 2,
+    "wis": 0,
+    "cha": 4
+  },
+  "perception": {
+    "proficiency": {
+      "rank": "trained",
+      "modifier": 3
+    }
+  },
+  "savingThrows": {
+    "fortitude": {
+      "rank": "trained",
+      "modifier": 3
+    },
+    "reflex": {
+      "rank": "expert",
+      "modifier": 8
+    },
+    "will": {
+      "rank": "expert",
+      "modifier": 5
+    }
+  },
+  "skills": {
+    "acrobatics": {
+      "rank": "trained",
+      "modifier": 6
+    },
+    "arcana": {
+      "rank": "untrained",
+      "modifier": 2
+    },
+    "athletics": {
+      "rank": "trained",
+      "modifier": 3
+    },
+    "computers": {
+      "rank": "trained",
+      "modifier": 5
+    },
+    "crafting": {
+      "rank": "trained",
+      "modifier": 5
+    },
+    "deception": {
+      "rank": "untrained",
+      "modifier": 4
+    },
+    "diplomacy": {
+      "rank": "untrained",
+      "modifier": 4
+    },
+    "intimidation": {
+      "rank": "untrained",
+      "modifier": 4
+    },
+    "medicine": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "nature": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "occultism": {
+      "rank": "untrained",
+      "modifier": 2
+    },
+    "performance": {
+      "rank": "trained",
+      "modifier": 7
+    },
+    "piloting": {
+      "rank": "untrained",
+      "modifier": 3
+    },
+    "religion": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "society": {
+      "rank": "trained",
+      "modifier": 5
+    },
+    "stealth": {
+      "rank": "untrained",
+      "modifier": 3
+    },
+    "survival": {
+      "rank": "untrained",
+      "modifier": 0
+    },
+    "thievery": {
+      "rank": "trained",
+      "modifier": 6
+    }
+  },
+  "classDC": {
+    "rank": "trained",
+    "modifier": 17
+  },
+  "hitPoints": {
+    "max": 14,
+    "current": 14
+  },
+  "armorClass": {
+    "value": 17,
+    "armorProficiency": {
+      "rank": "trained",
+      "modifier": 3
+    },
+    "wornArmor": "Second Skin"
+  },
+  "speed": {
+    "land": 25
+  },
+  "heroPoints": 1,
+  "groundRoleHistory": [],
+  "framePilotedRef": "frame-reference",
+  "status": "Synthetic — battle-simulator test fixture only.",
+  "notes": "Reflavoured from the SF2E Player Core \"Adventure Pregens\" compendium (gamesystems/sf2e/packs/paizo-pregens), extracted via tools/pack-extractor and re-derived from first principles via tools/character-builder/derive.mjs. Computed HP was cross-checked against the pregen's own official total as a correctness check (see test/battle-simulator/kid-fixtures.test.mjs) before this file was written."
+}

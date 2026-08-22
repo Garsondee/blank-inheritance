@@ -1,0 +1,425 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "common/sf2e-common.schema.json",
+  "title": "SF2E Common Definitions",
+  "description": "Shared building blocks for representing Starfinder Second Edition mechanics, referenced via $ref by kid.schema.json, frame.schema.json, creature.schema.json, npc.schema.json, subsystem.schema.json, and challenge.schema.json. Grounded against reference/srd/ (Player Core Ch.4/6/7/8, GM Core creature-building and encounter chapters). Not an entity schema itself — nothing is stored directly in this shape.",
+  "$defs": {
+    "proficiencyRank": {
+      "enum": ["untrained", "trained", "expert", "master", "legendary"],
+      "description": "Untrained = +0 flat (does not scale with level). Trained = level+2, Expert = level+4, Master = level+6, Legendary = level+8. Expert requires no minimum level; Master requires level 7+; Legendary requires level 15+ (Player Core Ch.4)."
+    },
+    "proficiency": {
+      "type": "object",
+      "description": "A single proficiency-gated statistic (a save, Perception, a skill, Class DC, spell DC/attack, weapon/armor category).",
+      "required": ["rank", "modifier"],
+      "properties": {
+        "rank": { "$ref": "#/$defs/proficiencyRank" },
+        "modifier": { "type": "integer", "description": "Final computed bonus ready to use in a roll: proficiency bonus + relevant attribute modifier + item/other permanent bonuses. Store the computed total rather than requiring re-derivation." }
+      }
+    },
+    "abilityModifiers": {
+      "type": "object",
+      "description": "The six attribute modifiers. SF2E represents attributes as modifiers only (Player Core Ch.4) — there is no separate underlying score to track.",
+      "required": ["str", "dex", "con", "int", "wis", "cha"],
+      "properties": {
+        "str": { "type": "integer" },
+        "dex": { "type": "integer" },
+        "con": { "type": "integer" },
+        "int": { "type": "integer" },
+        "wis": { "type": "integer" },
+        "cha": { "type": "integer" }
+      }
+    },
+    "savingThrows": {
+      "type": "object",
+      "required": ["fortitude", "reflex", "will"],
+      "properties": {
+        "fortitude": { "$ref": "#/$defs/proficiency" },
+        "reflex": { "$ref": "#/$defs/proficiency" },
+        "will": { "$ref": "#/$defs/proficiency" },
+        "riders": {
+          "type": "array",
+          "description": "Rare save-wide bonuses, e.g. \"+1 status bonus to all saves vs. magic.\"",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": { "type": "integer" },
+              "bonusType": { "type": "string" },
+              "scope": { "type": "string", "description": "e.g. \"all saves\"" },
+              "condition": { "type": "string", "description": "e.g. \"vs. magic\"" }
+            }
+          }
+        }
+      }
+    },
+    "skillName": {
+      "enum": ["acrobatics", "arcana", "athletics", "computers", "crafting", "deception", "diplomacy", "intimidation", "medicine", "nature", "occultism", "performance", "piloting", "religion", "society", "stealth", "survival", "thievery"],
+      "description": "The 18 fixed-name skills (Player Core Ch.4). Lore is excluded here — it's a repeatable, player-named skill; see the `lore` array alongside `skills`."
+    },
+    "skills": {
+      "type": "object",
+      "description": "Map of the 18 fixed skills to their proficiency, plus a separate array for named Lore skills (a character can hold several, e.g. \"Starfinder Lore\").",
+      "properties": {
+        "acrobatics": { "$ref": "#/$defs/proficiency" },
+        "arcana": { "$ref": "#/$defs/proficiency" },
+        "athletics": { "$ref": "#/$defs/proficiency" },
+        "computers": { "$ref": "#/$defs/proficiency" },
+        "crafting": { "$ref": "#/$defs/proficiency" },
+        "deception": { "$ref": "#/$defs/proficiency" },
+        "diplomacy": { "$ref": "#/$defs/proficiency" },
+        "intimidation": { "$ref": "#/$defs/proficiency" },
+        "medicine": { "$ref": "#/$defs/proficiency" },
+        "nature": { "$ref": "#/$defs/proficiency" },
+        "occultism": { "$ref": "#/$defs/proficiency" },
+        "performance": { "$ref": "#/$defs/proficiency" },
+        "piloting": { "$ref": "#/$defs/proficiency" },
+        "religion": { "$ref": "#/$defs/proficiency" },
+        "society": { "$ref": "#/$defs/proficiency" },
+        "stealth": { "$ref": "#/$defs/proficiency" },
+        "survival": { "$ref": "#/$defs/proficiency" },
+        "thievery": { "$ref": "#/$defs/proficiency" },
+        "lore": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "proficiency"],
+            "properties": {
+              "name": { "type": "string", "description": "e.g. \"Starfinder Lore\", \"Directorate Lore\"." },
+              "proficiency": { "$ref": "#/$defs/proficiency" }
+            }
+          }
+        },
+        "specialUses": {
+          "type": "array",
+          "description": "Situational skill modifiers that differ from the base entry, e.g. \"Athletics +7 (+9 to Climb or Grab)\" on a creature statblock.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "skill": { "type": "string" },
+              "context": { "type": "string" },
+              "modifier": { "type": "integer" }
+            }
+          }
+        }
+      }
+    },
+    "perception": {
+      "type": "object",
+      "required": ["proficiency"],
+      "properties": {
+        "proficiency": { "$ref": "#/$defs/proficiency" },
+        "senses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string", "description": "e.g. darkvision, low-light vision, scent, magnetic scent." },
+              "acuity": { "enum": ["precise", "imprecise", "vague", null] },
+              "range": { "type": ["integer", "null"], "description": "Feet; null if unlimited/unstated." }
+            }
+          }
+        }
+      }
+    },
+    "speed": {
+      "type": "object",
+      "description": "All values in feet. GM Core creature-building: penalties floor at 5 ft.",
+      "properties": {
+        "land": { "type": "integer" },
+        "burrow": { "type": "integer" },
+        "climb": { "type": "integer" },
+        "fly": { "type": "integer" },
+        "swim": { "type": "integer" },
+        "hover": { "type": "boolean", "description": "Qualifier on fly Speed, not a separate movement type." }
+      }
+    },
+    "damageRoll": {
+      "type": "object",
+      "required": ["damageType"],
+      "properties": {
+        "dice": { "type": "string", "description": "e.g. \"2d12\". Omit for a flat bonus-only or condition-only effect (e.g. a pure persistent-damage rider)." },
+        "bonus": { "type": "integer" },
+        "damageType": { "type": "string", "description": "e.g. piercing, fire, void." },
+        "persistent": { "type": "boolean", "description": "True if this is persistent damage rather than instantaneous." }
+      }
+    },
+    "strike": {
+      "type": "object",
+      "required": ["name", "strikeType", "attackBonus", "damage"],
+      "properties": {
+        "name": { "type": "string" },
+        "strikeType": { "enum": ["melee", "ranged"] },
+        "attackBonus": { "type": "integer" },
+        "traits": { "type": "array", "items": { "type": "string" }, "description": "e.g. agile, finesse, reach, thrown, deadly. Weapon-trait bonuses are pre-folded into attackBonus/damage; traits are kept as strings because some conditions (clumsy, enfeebled) key off specific trait names." },
+        "reach": { "type": "integer", "description": "Feet. Melee only; normally derived from size but can be overridden by a trait." },
+        "rangeIncrement": { "type": "integer", "description": "Feet. Ranged only." },
+        "damage": { "type": "array", "items": { "$ref": "#/$defs/damageRoll" }, "description": "First entry is the base damage; further entries are additional/rider damage (e.g. +1d6 fire from an upgrade)." },
+        "onHitEffects": { "type": "string" }
+      }
+    },
+    "resistance": {
+      "type": "object",
+      "required": ["damageType", "value"],
+      "properties": {
+        "damageType": { "type": "string", "description": "Can be compound, e.g. \"non-magical bludgeoning\"." },
+        "value": { "type": "integer" },
+        "exceptions": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "weakness": {
+      "type": "object",
+      "required": ["damageType", "value"],
+      "properties": {
+        "damageType": { "type": "string" },
+        "value": { "type": "integer" }
+      }
+    },
+    "immunity": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "description": "A damage type, a condition, or an effect-trait (e.g. \"death effects\", \"disease\", \"mental\"), or the special tags \"critical hits\" / \"nonlethal\"." },
+        "duration": { "type": "string", "description": "Only for temporary immunities, e.g. \"1 minute\"." }
+      }
+    },
+    "condition": {
+      "enum": ["blinded", "broken", "clumsy", "concealed", "confused", "controlled", "dazzled", "deafened", "doomed", "drained", "dying", "encumbered", "enfeebled", "fascinated", "fatigued", "fleeing", "friendly", "frightened", "glitching", "grabbed", "helpful", "hidden", "hostile", "immobilized", "indifferent", "invisible", "observed", "off-guard", "paralyzed", "persistent-damage", "petrified", "prone", "quickened", "restrained", "sickened", "slowed", "stunned", "stupefied", "suppressed", "unconscious", "undetected", "unfriendly", "unnoticed", "untethered", "wounded"],
+      "description": "Full condition list per Player Core Conditions Appendix (reference/srd/player-core/425-effects.json / 504-conditions-appendix.json)."
+    },
+    "activeCondition": {
+      "type": "object",
+      "description": "A condition currently applied to a character/creature in play (session state, not a fixed sheet field).",
+      "required": ["condition"],
+      "properties": {
+        "condition": { "$ref": "#/$defs/condition" },
+        "value": { "type": "integer", "description": "For valued conditions: dying, wounded, doomed, clumsy, enfeebled, drained, stupefied, sickened, slowed, stunned, etc. all take a numeric value." },
+        "source": { "type": "string" },
+        "duration": { "type": "string" }
+      }
+    },
+    "actionCost": {
+      "enum": ["single", "double", "triple", "variable", "free", "reaction", "constant", "automatic"],
+      "description": "variable covers abilities like Piloting's Drive, listed as \"[one-action] to [three-actions]\"."
+    },
+    "ability": {
+      "type": "object",
+      "description": "A special/reactive ability, class feature action, or similar named capability. Shape generalized from the Reactive Step worked example (Player Core pg. 130) and GM Core's ability-design categories (Active/Free/Reactions/Constant-Automatic/Skill Abilities).",
+      "required": ["name", "actionCost"],
+      "properties": {
+        "name": { "type": "string" },
+        "actionCost": { "$ref": "#/$defs/actionCost" },
+        "traits": { "type": "array", "items": { "type": "string" } },
+        "trigger": { "type": "string", "description": "Required for reactions." },
+        "requirements": { "type": "string" },
+        "frequency": { "type": "string", "description": "e.g. \"once per day\", \"1/round\"." },
+        "range": { "type": "integer", "description": "Feet, for auras." },
+        "dc": { "type": "integer" },
+        "effectText": { "type": "string" }
+      }
+    },
+    "spellcasting": {
+      "type": "object",
+      "required": ["tradition"],
+      "properties": {
+        "tradition": { "enum": ["arcane", "divine", "occult", "primal"] },
+        "dc": { "type": "integer" },
+        "attackModifier": { "type": "integer" },
+        "castingType": { "enum": ["prepared", "spontaneous", "innate-only", null] },
+        "slots": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["rank"],
+            "properties": {
+              "rank": { "type": "integer" },
+              "slots": { "type": "integer" },
+              "known": { "type": "array", "items": { "type": "string" } },
+              "prepared": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "cantrips": { "type": "array", "items": { "type": "string" } },
+        "innateSpells": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["spell", "rank"],
+            "properties": {
+              "spell": { "type": "string" },
+              "rank": { "type": "integer" },
+              "frequency": { "type": "string", "description": "e.g. \"at will\", \"constant\", \"1/day\"." }
+            }
+          }
+        },
+        "focusPoints": {
+          "type": "object",
+          "properties": { "current": { "type": "integer" }, "max": { "type": "integer" } }
+        },
+        "focusSpells": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "inventoryItem": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "quantity": { "type": "integer", "default": 1 },
+        "bulk": { "type": "number", "description": "0 = negligible, 0.1 = light (10 light items = 1 Bulk), integers otherwise." },
+        "worn": { "type": "boolean" },
+        "invested": { "type": "boolean" },
+        "integrated": { "type": "boolean", "description": "Can't be Disarmed/looted while the creature lives (creature stat blocks); recharges over 24 hours." },
+        "notes": { "type": "string" }
+      }
+    },
+    "feat": {
+      "type": "object",
+      "required": ["name", "category"],
+      "properties": {
+        "name": { "type": "string" },
+        "category": { "enum": ["ancestry", "class", "skill", "general", "archetype"] },
+        "levelGained": { "type": "integer" }
+      }
+    },
+    "classFeature": {
+      "type": "object",
+      "required": ["name", "levelGained"],
+      "properties": {
+        "name": { "type": "string" },
+        "levelGained": { "type": "integer" },
+        "description": { "type": "string" }
+      }
+    },
+    "creatureTraits": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Ordered per GM Core convention: [rarity trait if not common] → [size] → [remaining traits, alphabetical]. Common categories: creature type (aberration/animal/beast/construct/humanoid/undead/etc.), holy/unholy (SF2E's replacement for a good/evil axis), elemental/energy affinity, and mechanically-detailed tags (amphibious, incorporeal, mindless, swarm)."
+    },
+    "degreeOfSuccessOutcome": {
+      "type": "object",
+      "description": "Not all four degrees need be specified — SF2E subsystem/spell text often only defines 2-3 and leaves the rest as \"no effect\" by omission.",
+      "properties": {
+        "criticalSuccess": { "type": "string" },
+        "success": { "type": "string" },
+        "failure": { "type": "string" },
+        "criticalFailure": { "type": "string" }
+      }
+    },
+    "dc": {
+      "type": "object",
+      "description": "DC-setting is rarely a bare number in practice — it's a level/proficiency-derived base plus situational adjustments (see reference/tables/dc-and-check-math.json for the underlying tables).",
+      "required": ["value"],
+      "properties": {
+        "value": { "type": "integer", "description": "The final DC to roll against." },
+        "basis": { "type": "string", "description": "How it was derived, e.g. \"level 7 DC\", \"NPC Will-based social DC\"." },
+        "adjustment": { "enum": ["incredibly-easy", "very-easy", "easy", "none", "hard", "very-hard", "incredibly-hard", null] }
+      }
+    },
+    "check": {
+      "type": "object",
+      "description": "One atomic DC'd check — the building block for challenge.schema.json and subsystem.schema.json obstacles/tasks.",
+      "required": ["id", "skillOptions", "dc"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "skillOptions": { "type": "array", "items": { "type": "string" }, "description": "One or more skills/saves/Perception that can be used, e.g. [\"stealth\", \"society\"]. List low-DC-to-high-DC if they differ in difficulty." },
+        "dc": { "$ref": "#/$defs/dc" },
+        "outcomes": { "$ref": "#/$defs/degreeOfSuccessOutcome" },
+        "repeatable": { "type": "boolean" },
+        "maxAttempts": { "type": "integer" },
+        "secret": { "type": "boolean", "description": "GM rolls, doesn't reveal the degree of success to the player." }
+      }
+    },
+    "hitPoints": {
+      "type": "object",
+      "required": ["max", "current"],
+      "properties": {
+        "max": { "type": "integer" },
+        "current": { "type": "integer" },
+        "temporary": { "type": "integer" },
+        "regeneration": { "type": "object", "properties": { "value": { "type": "integer" }, "deactivatedBy": { "type": "string" } } },
+        "fastHealing": { "type": "object", "properties": { "value": { "type": "integer" } } }
+      }
+    },
+    "pcArmorClass": {
+      "type": "object",
+      "description": "AC as derived on a PC sheet (Player Core: 10 + Dex mod, capped by armor's Dex cap, + armor proficiency + armor item bonus + other bonuses). Creature stat blocks instead just author a flat AC integer — see creature.schema.json.",
+      "required": ["value"],
+      "properties": {
+        "value": { "type": "integer" },
+        "armorProficiency": { "$ref": "#/$defs/proficiency" },
+        "wornArmor": { "type": "string" }
+      }
+    },
+    "pcStatblock": {
+      "type": "object",
+      "description": "The full SF2E player-character sheet shape (Player Core Ch.1-8), shared by kid.schema.json and frame.schema.json — both are built as complete, standard SF2E PCs (design bible: 'Pick a class, build it exactly as any level-12 PC'). Gaps intentionally left flexible rather than hardcoded: per-class feat/skill-increase cadence and spell-slot progression vary by class, so they're recorded per-character (via levelGained on each feat/feature, and the slots array) rather than assumed from a universal table.",
+      "properties": {
+        "level": { "type": "integer", "minimum": 1, "maximum": 20 },
+        "xp": { "type": "integer", "minimum": 0, "maximum": 999, "description": "Rolls over at 1000 (level up, remainder carries)." },
+        "ancestry": { "type": ["string", "null"] },
+        "heritage": { "type": ["string", "null"], "description": "Versatile heritages can attach to any ancestry, so this isn't strictly a child of ancestry." },
+        "background": { "type": ["string", "null"] },
+        "class": { "type": ["string", "null"] },
+        "size": { "enum": ["tiny", "small", "medium", "large", "huge", "gargantuan", null], "description": "Derived from ancestry for a kid; a Frame's fiction-layer size is separate from this mechanical value." },
+        "deity": { "type": ["string", "null"] },
+        "edicts": { "type": "array", "items": { "type": "string" } },
+        "anathema": { "type": "array", "items": { "type": "string" } },
+        "languages": { "type": "array", "items": { "type": "string" } },
+        "abilityModifiers": { "$ref": "#/$defs/abilityModifiers" },
+        "perception": { "$ref": "#/$defs/perception" },
+        "savingThrows": { "$ref": "#/$defs/savingThrows" },
+        "skills": { "$ref": "#/$defs/skills" },
+        "classDC": { "$ref": "#/$defs/proficiency" },
+        "hitPoints": { "$ref": "#/$defs/hitPoints" },
+        "armorClass": { "$ref": "#/$defs/pcArmorClass" },
+        "speed": { "$ref": "#/$defs/speed" },
+        "strikes": { "type": "array", "items": { "$ref": "#/$defs/strike" } },
+        "resistances": { "type": "array", "items": { "$ref": "#/$defs/resistance" } },
+        "weaknesses": { "type": "array", "items": { "$ref": "#/$defs/weakness" } },
+        "immunities": { "type": "array", "items": { "$ref": "#/$defs/immunity" } },
+        "feats": { "type": "array", "items": { "$ref": "#/$defs/feat" } },
+        "classFeatures": { "type": "array", "items": { "$ref": "#/$defs/classFeature" } },
+        "abilities": { "type": "array", "items": { "$ref": "#/$defs/ability" }, "description": "Granted actions/reactions/free actions beyond core class features, e.g. from feats or equipment." },
+        "spellcasting": { "$ref": "#/$defs/spellcasting" },
+        "inventory": { "type": "array", "items": { "$ref": "#/$defs/inventoryItem" } },
+        "currency": { "type": "integer", "description": "Credits." },
+        "heroPoints": { "type": "integer", "default": 1 },
+        "activeConditions": { "type": "array", "items": { "$ref": "#/$defs/activeCondition" }, "description": "Session state, not a fixed sheet field." }
+      }
+    },
+    "combatStatblock": {
+      "type": "object",
+      "description": "The full SF2E monster/NPC stat block shape (GM Core creature-building rules), excluding identity fields (id/type/name) so it can be embedded (e.g. npc.schema.json's optional `statblock`) as well as used standalone (creature.schema.json). Distinct from pcStatblock: flat authored AC/skills instead of derived-from-proficiency, no ancestry/background/leveling chargen fields.",
+      "required": ["level"],
+      "properties": {
+        "level": { "type": "integer", "minimum": -1, "maximum": 25, "description": "Combat level." },
+        "nonCombatLevel": { "type": ["integer", "null"], "description": "Optional separate level for non-combat challenges (GM Core example: a corporate lawyer might be level -1 in combat but 4th-level in legal matters). Non-combat XP uses this instead of level." },
+        "traits": { "$ref": "#/$defs/creatureTraits" },
+        "size": { "enum": ["tiny", "small", "medium", "large", "huge", "gargantuan"] },
+        "adjustment": {
+          "enum": ["none", "elite", "weak", null],
+          "description": "GM Core: adjustments shift level by 1 and should be applied at most once; work best on physical-combat-focused creatures. No numeric delta table survived in the mirrored SRD text as of the last check — treat any elite/weak deltas as GM judgment calls, not verified rule numbers, until reference material confirms them."
+        },
+        "baseCreatureRef": { "type": ["string", "null"], "description": "id of the un-adjusted creature/NPC this is an elite/weak version of, if adjustment is set." },
+        "abilityModifiers": { "$ref": "#/$defs/abilityModifiers" },
+        "perception": { "$ref": "#/$defs/perception" },
+        "languages": { "type": "array", "items": { "type": "string" }, "description": "Can include non-language communication modes (telepathy, truespeech, envisioning). \"none\" is valid." },
+        "skills": { "$ref": "#/$defs/skills" },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/inventoryItem" } },
+        "ac": { "type": "integer", "description": "Flat authored value (unlike a PC's derived AC)." },
+        "savingThrows": { "$ref": "#/$defs/savingThrows" },
+        "hitPoints": { "$ref": "#/$defs/hitPoints" },
+        "immunities": { "type": "array", "items": { "$ref": "#/$defs/immunity" } },
+        "resistances": { "type": "array", "items": { "$ref": "#/$defs/resistance" } },
+        "weaknesses": { "type": "array", "items": { "$ref": "#/$defs/weakness" } },
+        "speed": { "$ref": "#/$defs/speed" },
+        "strikes": { "type": "array", "items": { "$ref": "#/$defs/strike" } },
+        "spellcasting": { "$ref": "#/$defs/spellcasting" },
+        "abilities": { "type": "array", "items": { "$ref": "#/$defs/ability" }, "description": "Special/reactive abilities: active, free-action, reaction, constant/automatic, and skill abilities per GM Core's ability-design categories." },
+        "activeConditions": { "type": "array", "items": { "$ref": "#/$defs/activeCondition" } },
+        "flavorText": { "type": "string", "description": "Read-aloud/GM-facing description." }
+      }
+    }
+  }
+}

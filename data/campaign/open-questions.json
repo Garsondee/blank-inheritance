@@ -1,0 +1,77 @@
+{
+  "$schema": "../schema/open-questions.schema.json",
+  "id": "open-questions",
+  "questions": [
+    {
+      "id": "bleed-visibility",
+      "question": "Does a pilot see their own running Bleed total, or is it GM-only?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/config.json#bleed"]
+    },
+    {
+      "id": "day1-pilot-day6-choice",
+      "question": "Does the Day 1 pilot get a genuine, viable option to sit out the second Contact? If yes, what does refusal actually cost — and is it survivable as a choice, or does the story punish it into a non-choice?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["episodes/episode-02-second-contact.json"]
+    },
+    {
+      "id": "frame-class-assignment",
+      "question": "Is Frame class a psych-profile \"verdict\" the kid didn't choose, or player-selected? The verdict version is stronger characterisation but takes a build choice away from the player.",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["schema/frame.schema.json#classAssignmentMethod", "ideas/entries/in-universe-correspondence-negotiation-system.json"],
+      "notes": "Asked directly and the answer given was about something bigger: Frame builds (class, equipment, even the mech itself) aren't fixed at creation at all — players can swap/upgrade over the whole campaign via an in-universe correspondence/negotiation system (see relatedRefs), balanced case by case. Still genuinely open whether the INITIAL assignment at creation is a verdict or player-chosen — that ongoing-negotiation answer doesn't resolve it either way."
+    },
+    {
+      "id": "ratio-publication",
+      "question": "Are all six Resonance percentages read aloud and ranked at weekly harmonics testing (public, competitive, cruel), or kept private to each pilot?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": []
+    },
+    {
+      "id": "third-npc-pole",
+      "question": "Keep the Transparency Advocate as written, reshape them, or cut back to a two-pole Commander/Caretaker structure?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["npcs/transparency-advocate.json"]
+    },
+    {
+      "id": "permanent-hulk-commitment",
+      "question": "Is at least one Frame's permanent loss a planned campaign beat, or left to emerge from play?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": []
+    },
+    {
+      "id": "ground-five-day1-knowledge",
+      "question": "Do the other five know the pilot in scene 7 (Episode One) is one of their own, or do they just see a machine? Ignorance is more frightening; knowledge is more binding.",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["episodes/episode-01-contact-unclassified.json"]
+    },
+    {
+      "id": "ancestry-reveal-justification",
+      "question": "PCs with a visibly non-human ancestry present as outwardly human, revealing their true nature over time — what's the in-fiction reason this works, and how does it tie into ongoing campaign events?",
+      "status": "resolved",
+      "resolution": "Anabala/Mitflit-adjacent: tied to whatever happened in the unfinished prior campaign — Anabala and/or the Mitflits know something concrete about it, making her a literal, in-fiction source of the answer rather than unexplained lore. The discovery vector is now locked too: character creation includes a mandatory DNA test as part of Civil Defence Force clearance, which flags 'irregularities' in affected PCs — hard to explain, not disqualifying (the character is still cleared for active duty). Exact mechanism (what actually happened, why the DNA reads irregular, and how Anabala/the Mitflits' knowledge connects to it) still to be worked out together — the direction and discovery vector are locked, the underlying explanation isn't.",
+      "relatedRefs": ["design/campaign-arc.md#character-creation-the-ancestry-reveal-mechanic", "ideas/entries/mitflits-and-anabala.json", "ideas/entries/character-creation-intake-form.json"]
+    },
+    {
+      "id": "school-facility-same-location",
+      "question": "Is the school the same physical campus as \"the huge facility\" the kids report to for civil-defense/Frame shifts, or two separate locations? A combined campus is thematically appealing (institutionalized militarization of education) but not confirmed.",
+      "status": "resolved",
+      "resolution": "Same combined campus — the militarization-of-education reading was confirmed as the intended one.",
+      "relatedRefs": ["design/campaign-arc.md#evolving-mechanics-threads-and-foundry-module-concept-threads", "ideas/entries/school-schedule-system.json"]
+    },
+    {
+      "id": "ground-force-command-mechanism",
+      "question": "What local ground forces exist for non-piloting students to command during a Contact, what can they be ordered to do, and how does that command interact with the mech-scale fight? Needs enough depth that leaning into ground command is as satisfying a whole-campaign arc as piloting.",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/ground-roles.json", "design/campaign-arc.md#non-pilot-students-avoiding-a-second-line-role"]
+    }
+  ]
+}

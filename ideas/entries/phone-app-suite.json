@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "phone-app-suite",
+  "type": "idea",
+  "title": "Phone app suite — the specific things living on the personal comm device",
+  "status": "accepted",
+  "domains": ["ui", "mechanics", "narrative", "visual", "audio"],
+  "summary": "The confirmed list of apps/functions on the personal communication device: attack alert (staggered per-player delay), Claimant field guide auto-filled by Recall Knowledge, Resonance ticker, Bleed-driven UI corruption, a bulletin board that quietly tracks NPC pilot attrition, contact list as the correspondence-system entry point, an occasionally-true fortune app, a between-sessions pet/plant, and an optional alternate roll interface.",
+  "description": "The device itself (hardware, OS look, intranet, hacking access, mass-mailing broadcast) is captured in terminal-login-landing-page; this entry is the contents — the specific apps, each confirmed by the user in one pass ('I love all of them'). Several of these are deliberately double-duty: they're diegetic phone features AND automatic bookkeeping, so campaign state that currently has nowhere to live on-screen gets a home and stops depending on the GM remembering to say it out loud.\n\n**1. Attack alert / Contact klaxon — with staggered notification delay.** The phone is how a character learns a Contact is happening. The key mechanic, called out by the user as the best part: a **few seconds of delay between different players being alerted**, so the table doesn't learn simultaneously. Models real communication infrastructure (priority tiers, who's on duty, network propagation) and produces a genuine scramble instead of a clean simultaneous cut to action. Pairs naturally with the Contact Pool's procedural day structure.\n\n**2. Claimant field guide.** An in-phone bestiary that fills itself in automatically from successful Recall Knowledge checks, turning a spoken-once-and-forgotten fact into a permanent browsable entry. Direct concrete payoff for automated-recall-knowledge-system, which currently has an open sub-question about how reveals surface at the table — this answers it.\n\n**3. Resonance ticker.** A pager/stock-ticker-style widget showing running Resonance numbers. Whether it's private-to-owner or squad-visible depends on how the still-open ratio-publication question resolves; the widget works either way, so it doesn't force that decision early.\n\n**4. Bleed as UI corruption.** As a pilot's Bleed climbs, their own phone's pixel UI degrades — static, corrupted sprites, dropped or misread inputs. No new rules needed; the player watches their own instability happen to their interface. Ties to the still-open bleed-visibility question (does a pilot see their own Bleed total?) — note this is a partial answer that sidesteps it: the player *feels* Bleed without necessarily being shown a number.\n\n**5. Bulletin board that quietly gets sadder.** A noticeboard app that updates itself as NPC pilots are lost across the campaign, with no announcement — players just notice next time they check. Direct support for the supporting-cast attrition arc in campaign-arc.md, and a better fit for the campaign's stated 'dire, not utopian' trajectory than a GM voice-over would be.\n\n**6. Contact list as the correspondence UI.** Chunky pixel-art contact cards (portrait, faction badge, one-line personality blurb) are the entry point into the dialogue-tree correspondence system — tap a contact, get their branches. Makes in-universe-correspondence-negotiation-system feel like a real interface rather than a hidden menu, and pairs with the comms-alert light on the portrait frames (in-scene-character-portrait-frames) as the notification half of the same loop.\n\n**7. Fortune app that's occasionally, quietly true.** Campy daily-horoscope flavor most of the time; sometimes a real hint or small mechanical nudge buried in it. Fits the setting's magic-and-fey layer — in a Golarion-derived world, fortune-telling can be a real service rather than only a joke.\n\n**8. A tiny pet or plant tended between sessions.** Purely textural, zero mechanical weight, maximum cute; reacts to how the last session went. Deliberate found-family / small-joys-against-a-grim-world payoff, cheap to build.\n\n**9. Alternate roll interface.** The phone can optionally serve as a second way to make character rolls, for players who prefer it over the control bar (in-scene-ui-panel-mimetic-controls) or the standard sheet. Explicitly an alternative, not a replacement — the same action available through more than one surface.",
+  "capturedDate": "2026-08-22",
+  "lastTouchedDate": "2026-08-22",
+  "sourceContext": "Claude brainstorm at the user's request ('tell me some fun ideas you've had around the personal communication device'), all confirmed by the user in one pass, plus the attack-alert idea contributed by the user in the same message.",
+  "openSubQuestions": [
+    "Exact staggered-alert timing and what determines who gets alerted first — duty roster, rank, proximity, random? Not decided.",
+    "Whether the Bleed UI corruption is purely cosmetic or ever actually costs the player an action/input in a mechanically meaningful way.",
+    "Whether the fortune app's 'real hint' rate is GM-authored per session or driven by something procedural.",
+    "Which apps are v1 versus later — none of these are prioritized against each other yet, and the list is long enough that building all nine before anything ships would be a mistake.",
+    "How much of this can be authored as data (per-app JSON) versus needing bespoke code per app — a data-driven app framework would make the long tail far cheaper, but isn't designed."
+  ],
+  "relatedRefs": [
+    "terminal-login-landing-page",
+    "in-scene-character-portrait-frames",
+    "in-scene-ui-panel-mimetic-controls",
+    "in-universe-correspondence-negotiation-system",
+    "automated-recall-knowledge-system",
+    "data/campaign/open-questions.json#ratio-publication",
+    "data/campaign/open-questions.json#bleed-visibility",
+    "design/campaign-arc.md#supporting-cast-arc",
+    "data/campaign/config.json"
+  ],
+  "resolution": null
+}

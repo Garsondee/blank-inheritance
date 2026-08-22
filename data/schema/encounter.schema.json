@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "encounter.schema.json",
+  "title": "Encounter",
+  "description": "A combat encounter: the participant list and inputs needed to check it against SF2E's XP-budget encounter math (see reference/tables/encounter-and-rewards-math.json) — distinct from challenge.schema.json (skill checks) and subsystem.schema.json (victory-point scenes), which don't use XP budgeting. A future validator can sum creatures[].level via the relative-level XP table and compare to encounterDifficultyThresholds for partySize.",
+  "type": "object",
+  "required": ["id", "type", "name", "partyLevel", "partySize", "creatures"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string" },
+    "type": { "const": "encounter" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "partyLevel": { "type": "integer", "description": "For this campaign, almost always 12 (the Frames' fixed tier) — see design bible: Claimants are leveled to the Frame's tier, never the kids'." },
+    "partySize": { "type": "integer", "description": "How many Frames are actually deployed for this Contact, not the full roster of six." },
+    "intendedThreatLevel": { "enum": ["trivial", "low", "moderate", "severe", "extreme", null], "description": "The GM's design intent, to check against the computed budget." },
+    "creatures": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["level"],
+        "properties": {
+          "creatureRef": { "type": ["string", "null"], "description": "id of a creature.schema.json file, if built." },
+          "name": { "type": "string" },
+          "level": { "type": "integer", "description": "Combat level, for XP-budget purposes even if creatureRef isn't set yet." },
+          "count": { "type": "integer", "default": 1 }
+        }
+      }
+    },
+    "environment": { "type": "string", "description": "Terrain/map notes relevant to tactics." },
+    "specialRules": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Bespoke scripted overrides to normal encounter math, e.g. Episode One's Claimant being immune to damage until its interdiction field is broken by a ground-level call-out."
+    },
+    "roundLimit": { "type": ["integer", "null"], "description": "For a scripted fight with a fixed round count (e.g. Episode One's three-round structure)." },
+    "groundRoleTieIns": { "type": "array", "items": { "type": "string" }, "description": "id refs of challenge.schema.json instances running in parallel with this encounter (e.g. the five non-piloting kids' ground-role checks during a Contact)." },
+    "rewards": { "type": "string" },
+    "relatedRefs": { "type": "array", "items": { "type": "string" } },
+    "notes": { "type": "string" }
+  }
+}
