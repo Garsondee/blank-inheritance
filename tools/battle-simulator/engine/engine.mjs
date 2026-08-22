@@ -40,8 +40,70 @@
 import { makeRng, rollD20 } from "./rng.mjs";
 import { resolveEffectiveStats } from "./combatant.mjs";
 import { checkMoveLegality, checkStrikeLegal, checkFieldRepairLegal, checkActionBudget, checkTargetAlive, checkSpotLegal, checkEvacuateLegal, checkSpellAttackLegal, checkHealAbilityLegal, multipleAttackPenalty, rangeIncrementPenalty } from "./legality.mjs";
-import { resolveStrike, applyHardness, mitigateDamage, resolveFieldRepair, resolveEvacuation } from "./resolve.mjs";
+import {
+  resolveStrike, applyHardness, mitigateDamage, resolveFieldRepair, resolveEvacuation,
+  expectedStrikeDamage, expectedRepairHealing, expectedEvacuationCivilians
+} from "./resolve.mjs";
 import { distanceFeet, isAdjacent, isInBounds } from "./grid.mjs";
+
+/**
+ * OUTCOME TABLES (design doc §15f) — the ONE seam where a real battle and a
+ * lookahead sandbox differ.
+ *
+ * Everything else about resolving an action is shared: legality, action costs,
+ * the multiple-attack-penalty counter, occupancy, ordnance decrements, Spot
+ * consumption, reaction triggering. Only the moment a die collapses to a number
+ * varies. Keeping that difference to one injectable table is what stops the
+ * sandbox from becoming a second, drifting implementation of the rules.
+ *
+ * Note these deliberately bundle "roll" and "apply" together rather than letting
+ * a caller inject a resolver above applyStrikeDamage. Mitigation is per-hit and
+ * non-linear, so E[applied] != applied(E[raw]) — splitting them would silently
+ * mis-price every attack against a target with Hardness.
+ */
+const REAL_OUTCOMES = {
+  strike(rng, { attacker, strike, target, targetEffective, mapPenalty }) {
+    const roll = resolveStrike(rng, { attacker, strike, targetAc: targetEffective.ac, mapPenalty });
+    const { appliedDamage, immune } = applyStrikeDamage(roll, target, targetEffective, strike);
+    return { roll, appliedDamage, immune };
+  },
+  repair(rng, { repairer }) {
+    return resolveFieldRepair(rng, { repairBonus: repairer.repairBonus, handlingDC: repairer.handlingDC });
+  },
+  evacuate(rng) {
+    return resolveEvacuation(rng);
+  }
+};
+
+/**
+ * The deterministic twin. Takes an rng parameter it deliberately ignores — the
+ * signature matches REAL_OUTCOMES so the two are interchangeable, but a sandbox
+ * can never advance the battle's dice even by accident.
+ */
+const EXPECTED_OUTCOMES = {
+  strike(_rng, { strike, target, targetEffective, mapPenalty }) {
+    const attackModifier = strike.attackBonus + mapPenalty;
+    const immune = Boolean(target.immuneToAllDamage);
+    const expected = expectedStrikeDamage({ attackModifier, targetAc: targetEffective.ac, strike, target, targetEffective });
+    if (!immune && expected > 0) target.currentHP = Math.max(0, target.currentHP - expected);
+    return {
+      roll: {
+        expected: true, d20: null, degree: null, total: null,
+        attackBonus: strike.attackBonus, mapPenalty, targetAc: targetEffective.ac,
+        damage: expected > 0 ? { raw: expected, entries: [] } : null
+      },
+      appliedDamage: immune ? 0 : expected,
+      immune
+    };
+  },
+  repair(_rng, { repairer }) {
+    const healing = expectedRepairHealing({ repairBonus: repairer.repairBonus, handlingDC: repairer.handlingDC });
+    return { expected: true, d20: null, degree: null, healing, dc: repairer.handlingDC, repairBonus: repairer.repairBonus };
+  },
+  evacuate() {
+    return { expected: true, civilians: expectedEvacuationCivilians(), rolls: [] };
+  }
+};
 
 /**
  * Player Core pg. 427, Step 1: everyone rolls d20 + their initiative
@@ -344,7 +406,7 @@ function applyStrikeDamage(strikeResult, target, targetEffective, strike) {
 }
 
 /** The ONLY function in this codebase permitted to mutate combatant position/HP/flags. */
-function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLog, effective }) {
+function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLog, effective, outcomes = REAL_OUTCOMES }) {
   const combatant = state.combatants.get(combatantId);
   const pos = state.positions.get(combatantId);
 
@@ -378,7 +440,12 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
   if (proposal.type === "strike") {
     const target = state.combatants.get(proposal.targetId);
     const targetPos = state.positions.get(proposal.targetId);
-    const strike = combatant.strikes[proposal.strikeIndex ?? 0];
+    const strike = (combatant.strikes ?? [])[proposal.strikeIndex ?? 0];
+    // A proposal naming a strike this combatant does not have is ILLEGAL, not a crash. The
+    // contract of this file is that an AI (or an adversarial test) may propose anything and the
+    // engine turns anything invalid into a no-op with a reason — throwing would break that for
+    // the one caller most likely to probe blindly: a lookahead planner enumerating options.
+    if (!strike) return { type: "strike", targetId: proposal.targetId, legal: false, reason: `No strike at index ${proposal.strikeIndex ?? 0} — ${combatant.name} has ${(combatant.strikes ?? []).length}.` };
 
     const check = checkStrikeLegal({ attacker: combatant, attackerPos: pos, target, targetPos, strike, turnState: turnProgress });
     if (!check.legal) return { type: "strike", targetId: proposal.targetId, legal: false, reason: check.reason };
@@ -392,10 +459,11 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     // earlier ally action this same turn cycle, the actual mechanism by which a vehicle
     // makes the Frame's hit land rather than out-damaging it directly.
     const spotBonus = combatant.spotted ? 2 : 0;
-    const strikeResult = resolveStrike(rng, { attacker: combatant, strike, targetAc: targetEffective.ac, mapPenalty: mapPenalty + spotBonus + rangePenalty });
+    const { roll: strikeResult, appliedDamage, immune } = outcomes.strike(rng, {
+      attacker: combatant, strike, target, targetEffective, mapPenalty: mapPenalty + spotBonus + rangePenalty
+    });
     strikeResult.rangePenalty = rangePenalty;
     if (combatant.spotted) { strikeResult.spotBonusApplied = spotBonus; combatant.spotted = false; }
-    const { appliedDamage, immune } = applyStrikeDamage(strikeResult, target, targetEffective, strike);
     turnProgress.actionsUsed += 1;
 
     // Limited-use ordnance (design doc §14g): decrement on a successful fire — checkStrikeLegal
@@ -432,7 +500,8 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
   if (proposal.type === "spellAttack") {
     const target = state.combatants.get(proposal.targetId);
     const targetPos = state.positions.get(proposal.targetId);
-    const spell = combatant.spells[proposal.spellIndex ?? 0];
+    const spell = (combatant.spells ?? [])[proposal.spellIndex ?? 0];
+    if (!spell) return { type: "spellAttack", targetId: proposal.targetId, legal: false, reason: `No spell at index ${proposal.spellIndex ?? 0} — ${combatant.name} has ${(combatant.spells ?? []).length}.` };
 
     const check = checkSpellAttackLegal({ caster: combatant, casterPos: pos, target, targetPos, spell, turnState: turnProgress });
     if (!check.legal) return { type: "spellAttack", targetId: proposal.targetId, legal: false, reason: check.reason };
@@ -442,9 +511,10 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     const targetEffective = resolveEffectiveStats(target);
 
     const spotBonus = combatant.spotted ? 2 : 0;
-    const spellResult = resolveStrike(rng, { attacker: combatant, strike: spell, targetAc: targetEffective.ac, mapPenalty: mapPenalty + spotBonus });
+    const { roll: spellResult, appliedDamage, immune } = outcomes.strike(rng, {
+      attacker: combatant, strike: spell, target, targetEffective, mapPenalty: mapPenalty + spotBonus
+    });
     if (combatant.spotted) { spellResult.spotBonusApplied = spotBonus; combatant.spotted = false; }
-    const { appliedDamage, immune } = applyStrikeDamage(spellResult, target, targetEffective, spell);
     turnProgress.actionsUsed += spell.actions ?? 1;
 
     if (spell.usesRemaining != null) spell.usesRemaining -= 1;
@@ -474,7 +544,8 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
   if (proposal.type === "healAbility") {
     const target = state.combatants.get(proposal.targetId);
     const targetPos = state.positions.get(proposal.targetId);
-    const ability = combatant.healAbilities[proposal.abilityIndex ?? 0];
+    const ability = (combatant.healAbilities ?? [])[proposal.abilityIndex ?? 0];
+    if (!ability) return { type: "healAbility", targetId: proposal.targetId, legal: false, reason: `No heal ability at index ${proposal.abilityIndex ?? 0} — ${combatant.name} has ${(combatant.healAbilities ?? []).length}.` };
 
     const check = checkHealAbilityLegal({ healer: combatant, healerPos: pos, target, targetPos, ability, turnState: turnProgress });
     if (!check.legal) return { type: "healAbility", targetId: proposal.targetId, legal: false, reason: check.reason };
@@ -505,7 +576,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     const check = checkFieldRepairLegal({ repairer: combatant, repairerPos: pos, target, targetPos, turnState: turnProgress });
     if (!check.legal) return { type: "repair", targetId: proposal.targetId, legal: false, reason: check.reason };
 
-    const repairResult = resolveFieldRepair(rng, { repairBonus: combatant.repairBonus, handlingDC: combatant.handlingDC });
+    const repairResult = outcomes.repair(rng, { repairer: combatant });
     if (repairResult.healing > 0) {
       target.currentHP = Math.min(target.maxHP, target.currentHP + repairResult.healing);
     }
@@ -541,7 +612,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     const check = checkEvacuateLegal({ evacuator: combatant, evacuatorPos: pos, oppositionPositions, turnState: turnProgress });
     if (!check.legal) return { type: "evacuate", legal: false, reason: check.reason };
 
-    const evac = resolveEvacuation(rng);
+    const evac = outcomes.evacuate(rng);
     turnProgress.actionsUsed += 2;
 
     return { type: "evacuate", legal: true, actionsCost: 2, civilians: evac.civilians, roll: evac.rolls, decisionReason: proposal.reason ?? null };
@@ -690,4 +761,116 @@ function checkOutcome(state, scenario) {
   }
 
   return null;
+}
+
+// ---------------------------------------------------------------------------
+// LOOKAHEAD SANDBOX (design doc §15g)
+// ---------------------------------------------------------------------------
+
+/**
+ * A clone purpose-built for planning, NOT structuredClone.
+ *
+ * structuredClone costs ~68us on a live 7-combatant state — four times the cost
+ * of everything else in a search node combined, and enough to blow the whole
+ * per-decision budget after a couple of dozen nodes. This copies exactly the
+ * fields the engine ever mutates and shares the rest by reference, at ~6us.
+ *
+ * The mutable surface was derived empirically (structuredClone-diffing every AI
+ * call across a real battle), not guessed:
+ *
+ *   state.round
+ *   state.combatants.<id>.{currentHP, immuneToAllDamage, spotted, stunnedRounds, weaknessAll}
+ *   state.combatants.<id>.{strikes,spells,healAbilities}[i].usesRemaining
+ *   state.positions.<id>.{col,row}
+ *   state.reactionAvailable.<id>
+ *
+ * The ability arrays MUST be copied element-wise, not shared: attemptAction does
+ * `strike.usesRemaining -= 1`, so a shallow `{...combatant}` would let merely
+ * *planning* a Rocket Pod shot spend the real Rocket Pod — a bug whose only
+ * symptom is a vehicle mysteriously out of ordnance it never fired.
+ * Everything else (traits, damage formulas, saves, names) is read-only in the
+ * engine and safe to share. `sandbox-fidelity` tests pin all of this.
+ */
+export function cloneStateForPlanning(state) {
+  const combatants = new Map();
+  for (const [id, c] of state.combatants) {
+    const copy = { ...c };
+    if (c.strikes) copy.strikes = c.strikes.map((s) => ({ ...s }));
+    if (c.spells) copy.spells = c.spells.map((s) => ({ ...s }));
+    if (c.healAbilities) copy.healAbilities = c.healAbilities.map((a) => ({ ...a }));
+    combatants.set(id, copy);
+  }
+  const positions = new Map();
+  for (const [id, p] of state.positions) positions.set(id, { col: p.col, row: p.row });
+  return {
+    round: state.round,
+    gridSize: state.gridSize,
+    seed: state.seed,
+    initiativeOrder: state.initiativeOrder,
+    combatants,
+    positions,
+    reactionAvailable: new Map(state.reactionAvailable)
+  };
+}
+
+/**
+ * Fork the current turn into a private sandbox the AI can plan inside.
+ *
+ * This is the ONLY export that lets anything outside this module advance game
+ * state, and its shape is deliberately restrictive:
+ *
+ *  - **It clones unconditionally.** There is no "don't copy" option and there
+ *    never should be. A caller physically cannot hand it a live state to write
+ *    through, so "the planner forgot to clone" is not a reachable bug.
+ *
+ *  - **It takes no rng.** This is the critical safety property. If a sandbox
+ *    could accept the battle's rng it could silently advance the mulberry32
+ *    stream, desyncing every subsequent die roll — a bug with no error message,
+ *    whose only symptom is "the log changed." Expected-value resolution means
+ *    no rng is needed, so passing one is made impossible rather than merely
+ *    discouraged.
+ *
+ *  - **attemptAction stays module-private.** Exporting it would hand every
+ *    module in the repo a legal way to mutate the live battle. The real
+ *    invariant this file protects is not "only attemptAction writes state" but
+ *    "the live battle has exactly one writer, and it is the turn loop."
+ *
+ * @param {object} args
+ * @param {object} args.state - the live state; cloned, never mutated
+ * @param {object} args.turn  - the turnProgress copy the AI was handed
+ * @returns {{state: object, turn: object, actionsRemaining: function, apply: function}}
+ */
+export function forkTurnSandbox({ state, turn }) {
+  const sandboxState = cloneStateForPlanning(state);
+  const sandboxTurn = { ...turn };
+  // Logging sink: attemptAction appends results here. Nothing reads it during planning;
+  // it exists so the real code path doesn't need a null check.
+  const sandboxLog = { actions: [] };
+
+  return {
+    state: sandboxState,
+    turn: sandboxTurn,
+    actionsRemaining() {
+      return sandboxTurn.actionsAvailable - sandboxTurn.actionsUsed;
+    },
+    /**
+     * Apply a proposal to the sandbox using the REAL rules and EXPECTED outcomes.
+     * Returns exactly what attemptAction returns, including `legal: false` with a
+     * reason when the proposal is illegal — so a planner discovers illegality the
+     * same way the engine would, rather than by reimplementing legality checks.
+     */
+    apply(combatantId, proposal) {
+      const effective = resolveEffectiveStats(sandboxState.combatants.get(combatantId));
+      return attemptAction({
+        state: sandboxState,
+        rng: null, // EXPECTED_OUTCOMES ignores it; passing null makes misuse throw loudly
+        combatantId,
+        proposal,
+        turnProgress: sandboxTurn,
+        turnLog: sandboxLog,
+        effective,
+        outcomes: EXPECTED_OUTCOMES
+      });
+    }
+  };
 }
