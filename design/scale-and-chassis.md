@@ -834,3 +834,94 @@ Concretely, and stated so it can be held to:
 6. **Transcripts read as competent** to a human, as a cross-check that the numbers are not being satisfied in some degenerate way.
 
 Right now items 1, 2, 4 and 5 are unmet. The system is **not** yet a strong turn-taking AI, and the honest summary is that it took building tier 3 to find that out — which is the strongest possible argument for having built it.
+
+## 18. Fixing the archetype battery, and the ablation harness's first real catch
+
+Two explicit follow-ups from §17: fix the three archetypes that showed zero discriminating power, then build the ablation harness the "what would convince me" list called for. Both done; the ablation harness immediately found and helped fix a real, measured bug in `closing`.
+
+### Why solo-boss, mixed-levels, and range-asymmetry were broken
+
+All three shared one root cause, only fully visible once checked line-by-line against the real tables: **`standardParty()` — reused from this project's pre-existing campaign fixtures (Reference Frame, Mystic Frame, Hod, Vesper) — was never validated as a fairly-built level-12 party.** Checked against `reference/srd/gm-core/1004-armor-class.json`'s real by-level bands, three of the four units had AC **below the level-12 Low band (30)** entirely. Against a level+4 solo boss's Moderate-to-High attack bonus, that alone made the fight unwinnable by any policy — measured as an identical outcome whether the party was played by the real AI, `nearest`, or `greedy`, which is exactly the "side determines the outcome, not policy" signature the side-swap control exists to catch.
+
+**Fix: `data/archetype-fixtures.mjs` gained a proper benchmark party** — four units (Vanguard, Gunner, Scout, Support) built uniformly to GM Core's own level-12 bands (AC High=33 — "comparable to what a PC fighter would have", per the table's own text — HP Moderate=215, Attack High=+26, Damage Moderate=25avg), varying only weapon shape. `standardParty()` now returns these instead.
+
+**Solo boss, separately, was tuned to the wrong difficulty tier.** Level 16 (party+4) is GM Core's own "extreme... a real chance the entire party could die" — i.e. an encounter the game itself expects to sometimes be unwinnable regardless of skill, a bad choice for an archetype meant to test whether skill matters. Downgraded to level 15 (party+3, severe/extreme: "the hardest encounters most groups have a GOOD CHANCE to defeat"), with real table numbers throughout (AC High=37, Attack Moderate=+28, Damage High=36avg, HP High=344).
+
+**Mixed-levels, separately again, had an unreachable target.** The artillery's `rangeIncrement` was 1500ft — a real, unscaled SF2E siege-weapon number — against a party topping out at 300-400ft. "Close on the dangerous target" was never an available CHOICE for any policy to make well or badly; it was outside the reachable universe within any sane round limit. Reduced to 500ft. A second pass was needed after the first fix: the chaff sat directly in front of the artillery (same row band, ~750ft apart), so once anyone closed distance at all, proximity and danger became accidentally correlated and `nearest` could no longer be distinguished from good targeting. Repositioned the chaff into a genuine screen between the party and the artillery, which now sits well beyond them and off to a flank.
+
+**Range-asymmetry had a plain stat mismatch**, not a scenario-geometry problem: the brawler (170 HP/AC30/+25/avg30dmg) was simply stronger than the skirmisher (90 HP/AC29/+22/avg23.5dmg) in every dimension, so whichever side got to be the brawler won regardless of policy. Both now share **identical** level-12 stats (AC33/HP215/+26/avg25), varying only melee-reach-100 vs ranged-range-300 — isolating the one variable the archetype exists to test.
+
+### Results: real policy sensitivity, where there was none
+
+At 6-8 seeds, side-swapped:
+
+| Archetype | Before | After |
+|---|---|---|
+| solo-boss vs nearest | `0W-6L` / `6W-0L` (pure side sweep) | `4W-1L-3D` / `3W-3L-2D` (genuinely mixed) |
+| mixed-levels vs nearest | `0W-6L` / `6W-0L` | `6W-0L-2D` / `0W-8L-0D` (party side still strong — see below) |
+| range-asymmetry vs nearest | `6W-0L` / `0W-6L` (pure stat win) | `1W-7L-0D` / `3W-5L-0D` (genuinely mixed, and revealing) |
+
+Solo-boss and range-asymmetry are now cleanly fixed — real back-and-forth fights (a full transcript of solo-boss shows the boss going 339→315→211→175→126→39→10→0 across 8 rounds while the party's own units drop to single-digit HP along the way, not a one-sided steamroll in either direction).
+
+**Mixed-levels is honestly only partially fixed.** At a larger sample the party side still wins against `nearest`/`greedy` regardless of which policy controls it — a real, remaining finding, but a different one than before: it is no longer "outcome determined by side no matter what", it is "this specific 140 XP composition may simply be under-tuned relative to a properly-built level-12 party's raw power." That is a difficulty-tuning question, not a broken-test one, and is left honestly unresolved rather than papered over with a plausible-sounding fix that wasn't actually verified.
+
+### The ablation harness (`run-ablation.mjs`)
+
+Isolates ONE weight term at a time — zero it out, re-measure head-to-head win rate against `greedy` (the strongest baseline, per §17), report the delta. If a term's removal doesn't measurably hurt the win rate, it isn't earning the complexity it adds. Every ablation reuses the real `generateProposals`/sandbox/`greedy` machinery already built for §17 — the harness adds no new simulation path to trust.
+
+**Scoped honestly, not silently:** belief/fog-of-war is NOT ablated. Every archetype in the battery is open-field with no `vision` field on any combatant, which makes belief a *provable* no-op in every one of these scenarios (`refreshBelief` falls back to ground truth when nothing restricts vision) — ablating a no-op would report "0% impact" and that would be true but misleading. Measuring belief's real contribution needs a vision-restricted scenario, out of scope for this battery on purpose, and the harness says so in its own output rather than letting a missing measurement read as a passing one.
+
+### The first catch: `closing` was actively harmful, not just untested
+
+§17 had flagged `closing` (3.0/square) as an untested hypothesis for the AI's continued under-fighting. The ablation harness turned that hypothesis into a number on the very first run: on range-asymmetry, **removing `closing` entirely raised win rate from 25% to 50%** — a term that helps more by deletion than by existing is not a tiebreaker, it is steering the wrong way.
+
+The mechanism is the same currency error §17 fixed for `offensiveReach`: at weight 3.0, `closing` paid MORE for approaching than `offensiveReach` (already reduced to 0.2) pays for actually threatening once arrived, or than `enemyDamage` (1.0) pays for really dealing damage — so a unit already close enough to fight could still be pulled further out of position by a "one more square closer" credit worth more than acting.
+
+**Tuning this honestly turned out to be non-monotonic at low seed counts**, worth recording rather than hiding: at fixed seeds, `closing=1.0` scored 36% and `closing=0.3` scored *worse* at 17% before `closing=0.75` and a larger 15-seed sample settled at 30-37% — genuinely mixed in both directions rather than a clean side-sweep. The exact optimal value was not resolved this session; a proper sweep (many values, a large seed count, held in one batch rather than sequential trial-and-error) is the honest next step, not a hand-picked number.
+
+**What the fix could not risk breaking:** `closing` exists specifically because `offensiveReach`/`threatExposure` are both exactly 0 outside weapon range (§15k), so a unit with zero credit for approaching has no reason to close at all — the original, already-fixed "four consecutive rounds of move/move/move, never engaging" bug. A new regression test (`tactical-benchmark.test.mjs`) pins this directly: a unit starting outside its own range must still engage within a handful of rounds, so a future correction to this weight can never silently swing back into reintroducing the bug it was never trying to solve.
+
+### An honest new finding, not chased further this session
+
+At the larger 15-seed sample, both `swarm` and `mirror` showed the real AI losing to `nearest`/`greedy` at roughly 30-33% — worse than the smaller 6-seed samples in §17 suggested, and `swarm` specifically reproduced the exact side-sweep signature (`real-as-party` always wins, `real-as-opposition` always loses) that the earlier three archetypes needed real fixes for. This was not chased this session — it surfaces exactly the kind of thing a larger, dedicated sweep (not sequential single-value trial-and-error) should resolve, and is recorded here so it is visible rather than silently left for a future session to rediscover from scratch.
+
+### Two pre-existing tests broke from the `closing` fix — both correctly, neither reverted
+
+Lowering `closing` changed real behavior elsewhere in the suite, and both breakages were traced to
+a concrete cause (HP/action traces, not assumption) before touching either test:
+
+- **`claimant-ai.test.mjs`'s Claim-reaction test** required `totalDamage > 0` across 5 fixed seeds
+  in `five-vehicles-one-frame.mjs`. At the new weight, units correctly stop at their OWN useful
+  range (a reach-100 Frame two squares out, a 300ft-ranged vehicle at 300ft) instead of over-closing
+  the extra square to literal adjacency for no reason — so Claim, which only fires on ending
+  movement *adjacent*, legitimately stops firing across all 5 seeds (4 of which are also
+  stalemates — the ground team's field-break roll genuinely failed, where closing on a permanently-
+  immune target would be actively unwise). The underlying mechanism was never in doubt: it is
+  already proven deterministically, independent of any tactical choice, in `engine.test.mjs`'s
+  hand-built Claim fixtures. Weakened to the honest remaining claim: whenever Claim fires, it deals
+  real, non-dud damage.
+- **`stress-test-mission-one.test.mjs`'s convoy-movement test** required every neutral combatant to
+  either move at least once or start at its extraction point. Traced via a per-turn HP snapshot: a
+  45 HP, unarmed convoy vehicle was shot to 19 HP by one raider and finished off by a second, both
+  *before its own initiative slot ever arrived* — `engine.mjs`'s round loop skips a 0-HP combatant
+  outright, with no turn logged at all. That is `engine/factions.mjs`'s widened opposition
+  hostility working exactly as designed ("the raider sub-faction preying on an undefended convoy is
+  exactly the point" — this scenario's own header), not the pathing bug recurring. Widened the
+  test to accept "died before its own turn" as the third legitimate outcome it always should have
+  been.
+
+Neither fix loosens the invariant that actually matters — both still fail loudly on a real
+regression (Claim dealing zero damage when it does fire; a convoy combatant that GOT a turn, never
+moved, and wasn't home free) while no longer treating a smarter, more efficient AI as broken.
+
+### Where this leaves the "what would convince me" bar from §17
+
+| Bar | §17 | §18 |
+|---|---|---|
+| Beats `greedy` >60% on 3+ discriminating archetypes | 8-13% (2 archetypes, both broken) | 30-37% (range-asymmetry, now a real test); still unmet |
+| Mirror ~50/50 over 40+ seeds | untested at scale | tested at 15: **31%**, a real deficit, not noise — unmet, and newly concerning |
+| Value-function invariants hold | built | still holds; monotonicity re-verified throughout |
+| Focus-fire switch rate <25% | untested this session | not re-measured after the closing fix — flagged as the natural next check |
+| Ablation shows every layer earns its place | not built | **built**, and it already changed the evaluator once |
+
+The honest summary is the same shape as §17's: real, measured progress, real remaining gaps, and — this time — a working instrument that found a genuine bug on its first use rather than requiring another hand transcript-read to surface it.

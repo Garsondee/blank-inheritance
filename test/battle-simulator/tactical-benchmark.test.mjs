@@ -94,6 +94,19 @@ test("collectTacticalMetrics returns every metric family for a real battle, with
   assert.ok(m.engagement.totalDamage >= 0);
 });
 
+test("REGRESSION (design doc §15k, re-guarded by §18's closing-weight fix): a unit starting outside its own weapon range still closes distance and engages — the ORIGINAL bug this term exists for", () => {
+  // §15k: without ANY closing credit, offensiveReach/threatExposure are both exactly 0 outside
+  // weapon range, so every distant position scores identically and a stranded unit has no reason
+  // to approach at all (measured then: four consecutive rounds of move/move/move, never engaging).
+  // §18 found the weight (3.0) had overshot into actively HURTING play (ablating it to zero raised
+  // win rate in range-asymmetry) and cut it to 0.75 — this test exists so that correction can never
+  // silently swing back into reintroducing the original problem it was never trying to solve.
+  const log = runBattle(ARCHETYPES["range-asymmetry"]({ seed: 7010, roundLimit: 8 }));
+  const m = collectTacticalMetrics(log);
+  assert.ok(m.engagement.firstDamageRound !== null, "the brawler and skirmisher never engaged at all — the original §15k stranded-unit bug is back");
+  assert.ok(m.engagement.firstDamageRound <= 5, `first damage at round ${m.engagement.firstDamageRound} — closing too slow to be a real archetype`);
+});
+
 test("REGRESSION (design doc §17): the real AI engages — it deals real damage rather than spending a whole battle repositioning", () => {
   // The measured failure this guards: on one seed the AI took TWO attacks in 42 actions and dealt
   // 16 damage across nine rounds, because offensiveReach (then 0.75) made threatening damage

@@ -44,10 +44,19 @@ test("INVARIANT: no combatant EVER proposes an illegal action — the AI propose
   }
 });
 
-test("REGRESSION (design doc §16 — the convoy-never-moves bug): every neutral combatant moves at least once across the battle, or starts already at its extraction point", () => {
+test("REGRESSION (design doc §16 — the convoy-never-moves bug): every neutral combatant moves at least once, starts already at its extraction point, or dies before its own turn ever comes up", () => {
   // Found by reading a real transcript: two convoy vehicles proposed the SAME illegal move every
   // single round of a 6-round battle and never once succeeded — checkMoveLegality was re-deriving
   // a straight line to validate a destination the AI had planned as a detour around a blocker.
+  //
+  // WIDENED (design doc §18): the original two-way check (moved OR started at goal) missed a
+  // third, entirely legitimate outcome — traced directly (HP snapshot per turn, not assumed): a
+  // 45 HP, unarmed convoy vehicle can be killed by the raider sub-faction before its own initiative
+  // slot ever arrives (engine.mjs's round loop skips a combatant outright once currentHP<=0, with
+  // no turn logged at all — correct, not a bug). That is exactly what engine/factions.mjs's widened
+  // opposition hostility exists to make possible: "the raider sub-faction preying on an undefended
+  // convoy is exactly the point" (this scenario's own header). A convoy vehicle dying before it
+  // ever gets to try to flee is the raiders succeeding, not the pathing bug recurring.
   for (const seed of SEEDS) {
     const { scenario, log } = getRun(seed);
     const neutrals = scenario.combatants.filter((c) => c.side === "neutral");
@@ -55,11 +64,14 @@ test("REGRESSION (design doc §16 — the convoy-never-moves bug): every neutral
       const start = log.deployment.snapshot[c.id].position;
       const startedAtGoal = start.col === c.extractionPoint.col && start.row === c.extractionPoint.row;
       let moved = false;
+      let gotATurn = false;
       for (const round of log.rounds) for (const t of round.turns) {
         if (t.combatantId !== c.id) continue;
+        gotATurn = true;
         if ((t.actions ?? []).some((a) => a.legal && a.type === "move")) moved = true;
       }
-      assert.ok(moved || startedAtGoal, `seed ${seed}: ${c.id} never once completed a legal move across the whole battle`);
+      const diedBeforeItsTurn = !gotATurn;
+      assert.ok(moved || startedAtGoal || diedBeforeItsTurn, `seed ${seed}: ${c.id} got at least one turn, never moved, and did not start at its goal — the actual pathing bug`);
     }
   }
 });

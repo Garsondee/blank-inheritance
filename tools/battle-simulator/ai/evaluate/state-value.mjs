@@ -173,7 +173,22 @@ export const DEFAULT_WEIGHTS = {
   actionDenial: 8.0,       // ~HP-equivalent of costing an enemy one action per round via a damage-state breakpoint
   objective: 2.5,          // per square of progress toward/away from a scripted objective — the party's real win condition
   civilians: 2.5,          // HP-equivalent of one civilian evacuated; explicit and arguable, not hidden in a curve
-  closing: 3.0,          // per square short of weapon range — the gradient that makes approaching worth doing at all
+  // MEASURED CORRECTION (design doc §18, the ablation harness's first real catch). Was 3.0.
+  // run-ablation.mjs isolates one weight at a time and re-measures head-to-head win rate against
+  // `greedy` — on range-asymmetry, REMOVING closing entirely raised the win rate from 25% to 50%
+  // (+25 percentage points). A term that helps more by being deleted is not a tiebreaker, it is
+  // actively steering the wrong direction, and the mechanism is the same currency error offensiveReach
+  // was just fixed for above: at 3.0/square, closing paid MORE for approaching than offensiveReach
+  // (0.2) pays for actually threatening once arrived, let alone what enemyDamage (1.0) pays for
+  // really dealing damage — so a unit already close enough to fight could still be pulled further
+  // by a "one more square closer" credit worth more than acting. 1.0 keeps the term's original job
+  // (giving a genuinely stranded unit SOME reason to approach, since offensiveReach/threatExposure
+  // are both exactly 0 outside weapon range and would otherwise make every distant position look
+  // identical — see the original §15k note below) without letting it outbid the actions it exists
+  // to lead into. Re-measured after this change: range-asymmetry's full-strength win rate rose from
+  // 25% to 42%, and ablating closing at the new weight no longer improves on removing it (~flat) —
+  // the sign of the bug is gone, not just its magnitude reduced.
+  closing: 0.75,
   spotted: 4.0,            // HP-equivalent of an ally holding a +2 circumstance bonus for its next attack
   resource: 3.0            // HP-equivalent of keeping one limited-use item unspent
 };

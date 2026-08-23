@@ -23,8 +23,10 @@
  * head-to-head comparison, and it only works because the scenarios never hardcode a policy.
  */
 import { decide } from "../ai/decide.mjs";
-import { makeReferenceFrame, makeMysticFrame, makeHod, makeVesper } from "../data/combatants.mjs";
-import { makeSwarmUnit, makeSoloBoss, makeArtillery, makeChaff, makeMirrorUnit, makeSkirmisher, makeBrawler } from "../data/archetype-fixtures.mjs";
+import {
+  makeSwarmUnit, makeSoloBoss, makeArtillery, makeChaff, makeMirrorUnit, makeSkirmisher, makeBrawler,
+  makeBenchmarkVanguard, makeBenchmarkGunner, makeBenchmarkScout, makeBenchmarkSupport
+} from "../data/archetype-fixtures.mjs";
 
 const GRID = { cols: 44, rows: 44 };
 
@@ -51,13 +53,22 @@ function makeDispatcher({ partyAI = realAI, oppositionAI = realAI } = {}) {
   };
 }
 
-/** The standard 4-unit party used by every archetype except the mirror, so results are comparable across shapes. */
+/**
+ * The standard 4-unit party used by every archetype except the mirror and range-asymmetry, so
+ * results are comparable across shapes.
+ *
+ * FIX (design doc §18): originally reused this project's campaign fixtures (Reference Frame,
+ * Mystic Frame, Hod, Vesper) — built for a completely different purpose (verifying spellcasting/
+ * heal mechanics against one specific statblock) and never validated as a fair level-12 party.
+ * Checked against reference/srd/gm-core's own tables, three of the four had AC BELOW the
+ * level-12 Low band (30). Now the properly-leveled data/archetype-fixtures.mjs benchmark units.
+ */
 function standardParty() {
   return [
-    makeReferenceFrame({ position: { col: 8, row: 20 } }),
-    makeMysticFrame({ position: { col: 8, row: 24 } }),
-    makeHod({ position: { col: 6, row: 22 } }),
-    makeVesper({ position: { col: 6, row: 18 } })
+    makeBenchmarkVanguard({ position: { col: 8, row: 20 } }),
+    makeBenchmarkGunner({ position: { col: 8, row: 24 } }),
+    makeBenchmarkScout({ position: { col: 6, row: 22 } }),
+    makeBenchmarkSupport({ position: { col: 6, row: 18 } })
   ];
 }
 
@@ -90,13 +101,21 @@ export function buildSwarm({ seed = 4001, roundLimit = 10, partyAI, oppositionAI
 }
 
 /**
- * SOLO BOSS — 1 x level-16 boss (160 XP, extreme).
+ * SOLO BOSS — 1 x level-15 boss (120 XP, severe/extreme).
  *
- * WHAT CORRECT PLAY LOOKS LIKE: against AC 38, a Frame's +25 first attack hits on 13+ (40%), its
- * second at -5 on 18+ (15%), its third at -10 only on a natural 20 (5%). The third action is worth
- * more spent on almost anything else. Note this is genuinely a JUDGEMENT call, not a rule — if
- * literally nothing else is available, swinging at 5% is still correct — which is why the test
- * reads this as a *comparison against the swarm scenario* rather than an absolute threshold.
+ * FIX (design doc §18): originally level 16 (party+4, 160 XP, "extreme... a REAL chance the whole
+ * party could die" — by the difficulty table's OWN definition, sometimes unwinnable regardless of
+ * skill, a bad choice for an archetype meant to test whether skill matters). Combined with the
+ * under-armored old party fixture, it measured as a 100% policy-independent wipe on every seed —
+ * zero room for tactics to show up in the result. Downgraded to severe (party+3): "the hardest
+ * encounters most groups have a GOOD CHANCE to defeat."
+ *
+ * WHAT CORRECT PLAY LOOKS LIKE: against the boss's High AC (37), the benchmark party's High attack
+ * (+26) hits on 11+ (50%), 16+ on the second swing (25%), and the third swing at -10 needs a
+ * natural 20 just to register. The third action is worth more spent on almost anything else. This
+ * is genuinely a JUDGEMENT call, not a rule — if literally nothing else is available, swinging at
+ * a natural-20-only chance is still correct — which is why the test reads this as a *comparison
+ * against the swarm archetype's own third-attack share* rather than an absolute threshold.
  *
  * WHAT MALFUNCTION LOOKS LIKE: identical third-attack share regardless of target AC, i.e. an AI
  * that has no idea the multiple attack penalty exists.
@@ -114,23 +133,41 @@ export function buildSoloBoss({ seed = 4002, roundLimit = 12, partyAI, oppositio
  * MIXED LEVELS — 1 x level-14 artillery (80 XP) + 4 x level-9 chaff (15 each = 60 XP) = 140 XP,
  * between severe (120) and extreme (160).
  *
- * WHAT CORRECT PLAY LOOKS LIKE: kill the artillery. It deals ~38 per hit at 1500ft range; the
- * chaff screening it deal ~13 at 100ft. The chaff are nearer, tougher, and almost harmless. This
- * is the textbook "the dangerous one is not the close one" problem.
+ * FIX (design doc §18): the artillery's rangeIncrement was 1500ft (a real, unscaled SF2E siege
+ * weapon number) against a party topping out at 300-400ft — physically unreachable within any
+ * sane round limit, so "close on the dangerous target" was never an available CHOICE for any
+ * policy to make well or badly. Combined with the under-armored old party fixture, every seed was
+ * a party wipe regardless of policy. Now 500ft (still the longest range on the board) with the
+ * properly-leveled benchmark party.
+ *
+ * WHAT CORRECT PLAY LOOKS LIKE: kill the artillery. It deals ~38 per hit at 500ft range; the chaff
+ * screening it deal ~13 at 100ft. The chaff are nearer, tougher, and almost harmless. This is the
+ * textbook "the dangerous one is not the close one" problem.
  *
  * WHAT MALFUNCTION LOOKS LIKE: threatAttackCorrelation at or below zero — attacks distributed by
  * proximity rather than danger. The `nearest` baseline should fail this badly by construction,
  * which is what makes the metric trustworthy when the real AI passes it.
+ *
+ * FIX (design doc §18), positioning: the chaff previously sat directly in front of the artillery
+ * (col 18-19 vs the artillery's col 34, same row band) — once anyone closed distance at all, the
+ * artillery was ALSO "nearest", so proximity and danger were accidentally correlated and the
+ * `nearest` baseline could not be distinguished from good play (measured: 8W-0L regardless of
+ * which policy played party, for BOTH `nearest` and `greedy`). The chaff now form a genuine wall
+ * BETWEEN the party and the artillery, which sits well beyond them AND off to a flank — reaching
+ * it requires either pushing through/past the chaff or a real flanking route, not just "walk
+ * forward a bit". That is what makes "attack whoever is nearest" and "attack whoever is most
+ * dangerous" into two different, separately-achievable targets again.
  */
 export function buildMixedLevels({ seed = 4003, roundLimit = 12, partyAI, oppositionAI } = {}) {
   const chaff = [];
   for (let i = 0; i < 4; i++) {
-    chaff.push(makeChaff({ id: `chaff-${i + 1}`, name: `TEST FIXTURE — Chaff Escort ${i + 1}`, position: { col: 18 + (i % 2), row: 19 + i } }));
+    chaff.push(makeChaff({ id: `chaff-${i + 1}`, name: `TEST FIXTURE — Chaff Escort ${i + 1}`, position: { col: 16 + (i % 2), row: 20 + i } }));
   }
   return {
     seed, gridSize: GRID, roundLimit,
-    // Artillery sits far behind its screen — reachable, but only past the chaff.
-    combatants: [...standardParty(), makeArtillery({ position: { col: 34, row: 21 } }), ...chaff],
+    // Artillery sits well beyond and off to the flank of its own chaff screen — reachable, but
+    // only by a real commitment to get there, never merely "whoever's nearest at the moment".
+    combatants: [...standardParty(), makeArtillery({ position: { col: 38, row: 8 } }), ...chaff],
     ai: makeDispatcher({ partyAI, oppositionAI }),
     scriptedEvents: {}
   };
