@@ -125,3 +125,64 @@ export function deriveClassDC({ rankIndex = 1, level, keyAbilityModifier }) {
   const p = proficiency(rankIndex, level, keyAbilityModifier);
   return { ...p, modifier: p.modifier + 10 };
 }
+
+/**
+ * Player Core pg. 398 (reference/tables/dc-and-check-math.json's own
+ * `rollFormulas.meleeAttack`/`rangedAttack`): a Strike's attack bonus is the
+ * same proficiency-bonus + ability-modifier + item-bonus shape as every
+ * other check in this file — `rankIndex` is the weapon CATEGORY's
+ * proficiency (a class's `system.attacks` table, e.g. "simple": 1 means
+ * trained with simple weapons), not a general combat proficiency.
+ */
+export function deriveStrikeAttackBonus({ rankIndex, level, abilityModifier, itemBonus = 0 }) {
+  return proficiency(rankIndex, level, abilityModifier, itemBonus).modifier;
+}
+
+/**
+ * Which ability modifier feeds a Strike's ATTACK roll (not its damage roll —
+ * see deriveStrikeDamageBonus below, which follows a DIFFERENT rule).
+ * Ranged Strikes always use Dexterity. Melee Strikes use Strength, UNLESS
+ * the weapon has the finesse trait, in which case the wielder may use
+ * Dexterity instead if it's better — the standard, unchanged-since-PF2e
+ * Finesse trait rule (not independently re-verified against a fresh
+ * Archives of Nethys fetch this pass — the weapon-trait glossary itself is
+ * outside this project's SRD mirror's stated scope, per CLAUDE.md, and
+ * repeated attempts to fetch the live page 404'd; flagged here rather than
+ * silently presented as freshly cited, unlike the Damage Rolls formulas
+ * below which ARE freshly grounded against reference/srd/player-core/349-damage-rolls.json).
+ */
+export function abilityForStrikeAttack({ strikeType, traits = [], strModifier, dexModifier }) {
+  if (strikeType === "ranged") return dexModifier;
+  if (traits.includes("finesse")) return Math.max(strModifier, dexModifier);
+  return strModifier;
+}
+
+/**
+ * Player Core pg. 398 (reference/srd/player-core/349-damage-rolls.json,
+ * freshly re-read for this — the damage-ability rule is DIFFERENT from the
+ * attack-ability rule above, and easy to conflate with it):
+ * "Melee damage roll = damage die + Strength modifier" — ALWAYS Strength,
+ * even for a finesse weapon attacked with Dexterity; finesse changes only
+ * the attack roll, never the damage roll.
+ * "Ranged damage roll = damage die (+ Strength modifier for a thrown
+ * weapon or half Strength modifier for a propulsive weapon)" — otherwise
+ * NO ability modifier at all on a ranged damage roll.
+ * "Spell damage roll = damage die of effect" — no ability modifier unless
+ * the spell's own text says otherwise (none of Lunar-17's do).
+ */
+export function deriveStrikeDamageBonus({ strikeType, traits = [], strModifier }) {
+  if (strikeType === "melee") return strModifier;
+  if (traits.includes("thrown")) return strModifier;
+  if (traits.includes("propulsive")) return Math.floor(strModifier / 2);
+  return 0;
+}
+
+/** reference/tables/dc-and-check-math.json's `rollFormulas.spellAttack`: same proficiency-bonus + ability-modifier + item-bonus shape as a Strike. */
+export function deriveSpellAttack({ rankIndex, level, abilityModifier, itemBonus = 0 }) {
+  return proficiency(rankIndex, level, abilityModifier, itemBonus).modifier;
+}
+
+/** reference/tables/dc-and-check-math.json's `rollFormulas.spellDC`: "10 + spellcasting attribute modifier + proficiency bonus" — same formula shape as deriveClassDC, named separately since a spellcasting DC and a class DC are conceptually different rolls that happen to share one formula. */
+export function deriveSpellDC({ rankIndex, level, abilityModifier, itemBonus = 0 }) {
+  return deriveClassDC({ rankIndex, level, keyAbilityModifier: abilityModifier }).modifier + itemBonus;
+}

@@ -1,0 +1,76 @@
+{
+  "id": "raw-validation-security-goon",
+  "name": "Security Goon",
+  "side": "opposition",
+  "maxHP": 25,
+  "currentHP": 25,
+  "ac": 14,
+  "saves": {
+    "fort": 9,
+    "ref": 5,
+    "will": 4
+  },
+  "speed": 20,
+  "strikes": [
+    {
+      "name": "Arc Pistol",
+      "strikeType": "ranged",
+      "attackBonus": 9,
+      "rangeIncrement": 30,
+      "traits": [
+        "arc",
+        "expend-2",
+        "reload-1",
+        "tech"
+      ],
+      "damage": [
+        {
+          "dice": "1d4",
+          "bonus": 2,
+          "damageType": "electricity"
+        }
+      ]
+    },
+    {
+      "name": "Baton",
+      "strikeType": "melee",
+      "attackBonus": 9,
+      "traits": [
+        "analog",
+        "finesse",
+        "nonlethal",
+        "parry"
+      ],
+      "damage": [
+        {
+          "dice": "1d6",
+          "bonus": 3,
+          "damageType": "bludgeoning"
+        }
+      ]
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Get Back!",
+      "actionType": "reaction",
+      "actionsCost": null,
+      "description": "<p>A creature adjacent to the goon is targeted by an attack</p><hr /><p><strong>Effect</strong> The goon jumps in the way of the attack, changing places with the original target, and becoming the attack's new target.</p>"
+    }
+  ],
+  "actions": [
+    {
+      "name": "License to Break Bones",
+      "actionType": "action",
+      "actionsCost": 2,
+      "description": "<p><strong>Requirements</strong> A creature within the goon's reach is @UUID[Compendium.sf2e.conditions.Item.j91X7x0XSomq8d60]{Prone}</p><hr /><p><strong>Effect</strong> The goon assaults the prone creature with a flurry of stomps. The creature must attempt a @Check[fortitude|dc:16] saving throw.</p><hr /><p><strong>Critical Success</strong> The creature is unaffected.</p>\n<p><strong>Success</strong> The creature takes @Damage[1d4[bludgeoning]] damage.</p>\n<p><strong>Failure</strong> The creature takes @Damage[2d4[bludgeoning]] damage and is @UUID[Compendium.sf2e.conditions.Item.enA7BxAjBb7ns1iF]{Suppressed} until it starts its turn without being prone.</p>\n<p><strong>Critical Failure</strong> As failure, but the creature takes double damage.</p>"
+    }
+  ],
+  "lore": [
+    {
+      "name": "Legal Lore",
+      "modifier": 2
+    }
+  ],
+  "notes": "Every number here is a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/rulebook-bestiaries) — NPCs store final, precomputed combat numbers, so no derivation was needed. See test/character-builder/extract-npc.test.mjs and design/scale-and-chassis.md §19. \"License to Break Bones\" (a Fortitude-save, Prone-requiring action) is captured under `actions` for transcript honesty but is NOT a usable strike — this engine has no saving-throw mechanism."
+}

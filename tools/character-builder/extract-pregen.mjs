@@ -47,7 +47,19 @@ export function listLevel1Pregens(packDir) {
       heritage: items.find((i) => i.doc.type === "heritage")?.doc ?? null,
       background: items.find((i) => i.doc.type === "background")?.doc ?? null,
       class: items.find((i) => i.doc.type === "class")?.doc ?? null,
-      armor: items.find((i) => i.doc.type === "armor")?.doc ?? null
+      armor: items.find((i) => i.doc.type === "armor")?.doc ?? null,
+      // Combat-ability ingredients (design doc §19 Phase 2) — raw, unfiltered. What's actually
+      // WIELDED/CAST/USABLE is a judgment call for the caller (e.g. skip a save-based grenade this
+      // engine has no mechanism for), so nothing is dropped here.
+      weapons: items.filter((i) => i.doc.type === "weapon").map((i) => i.doc),
+      spellcastingEntries: items.filter((i) => i.doc.type === "spellcastingEntry").map((i) => i.doc),
+      spells: items.filter((i) => i.doc.type === "spell").map((i) => i.doc),
+      feats: items.filter((i) => i.doc.type === "feat").map((i) => i.doc),
+      // Every directly-embedded action-type item, INCLUDING feat-granted ones (e.g. Transfer
+      // Vitality, embedded on the actor once Vitality Network's GrantItem rule resolves it — see
+      // build-combat-pregen.mjs for how a specific granted action is identified and picked out by
+      // name, since nothing in the raw data marks "this is a heal ability" structurally).
+      actions: items.filter((i) => i.doc.type === "action").map((i) => i.doc)
     };
   });
 }
@@ -100,6 +112,16 @@ export function toIngredients(pregen, boostOverrides = {}) {
     languages: ancestry.system.languages?.value ?? [],
     armor: armor ? { name: armor.name, category: armor.system.category, dexCap: armor.system.dexCap, acBonus: armor.system.acBonus } : null,
     armorCategoryRank,
-    referenceHP: actor.system.attributes.hp.value // the pregen's own authoritative total, used only to verify the derivation, never trusted directly as output
+    referenceHP: actor.system.attributes.hp.value, // the pregen's own authoritative total, used only to verify the derivation, never trusted directly as output
+    // Combat-ability ingredients, passed through raw (design doc §19 Phase 2) — build-combat-pregen.mjs
+    // is where these get combined with derived ability modifiers into real Strike/spell/heal-ability
+    // objects; this function's job stays "resolve choices, don't do formula math".
+    classAttacks: klass.system.attacks, // weapon-category -> proficiency rank index (0-4)
+    spellcastingRank: klass.system.spellcasting ?? 0, // flat at level 1; a real per-level progression table lives in class-features items this project doesn't need yet
+    weapons: pregen.weapons ?? [],
+    spellcastingEntries: pregen.spellcastingEntries ?? [],
+    spells: pregen.spells ?? [],
+    feats: pregen.feats ?? [],
+    actions: pregen.actions ?? []
   };
 }

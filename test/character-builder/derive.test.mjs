@@ -9,6 +9,7 @@ import assert from "node:assert/strict";
 import {
   proficiencyBonus, proficiency, applyBoost, applyFlaw, deriveAbilityModifiers,
   deriveHP, derivePerception, deriveSavingThrows, deriveSkills, deriveArmorClass, deriveClassDC,
+  deriveStrikeAttackBonus, abilityForStrikeAttack, deriveStrikeDamageBonus, deriveSpellAttack, deriveSpellDC,
   SKILL_KEY_ABILITY
 } from "../../tools/character-builder/derive.mjs";
 
@@ -98,4 +99,69 @@ test("deriveArmorClass: 10 + Dex (capped by armor) + armor proficiency + item bo
 test("deriveClassDC: 10 + proficiency bonus + key ability modifier", () => {
   const dc = deriveClassDC({ rankIndex: 1, level: 1, keyAbilityModifier: 4 });
   assert.equal(dc.modifier, 17); // 10 + 3(trained) + 4
+});
+
+// ---------------------------------------------------------------------------
+// Strike/spell combat math (design doc §19 Phase 2) — reference/tables/dc-and-check-math.json's
+// meleeAttack/rangedAttack/spellAttack/spellDC formulas, and reference/srd/player-core/
+// 349-damage-rolls.json's melee-vs-ranged-vs-spell damage-ability rule.
+// ---------------------------------------------------------------------------
+
+test("deriveStrikeAttackBonus: same proficiency-bonus + ability-modifier + item-bonus shape as every other check", () => {
+  assert.equal(deriveStrikeAttackBonus({ rankIndex: 1, level: 1, abilityModifier: 3 }), 6); // 3(trained) + 3
+  assert.equal(deriveStrikeAttackBonus({ rankIndex: 0, level: 1, abilityModifier: 3 }), 3, "untrained (rankIndex 0) contributes +0 proficiency");
+  assert.equal(deriveStrikeAttackBonus({ rankIndex: 1, level: 1, abilityModifier: 3, itemBonus: 1 }), 7);
+});
+
+test("abilityForStrikeAttack: ranged always uses Dexterity, regardless of traits", () => {
+  assert.equal(abilityForStrikeAttack({ strikeType: "ranged", traits: [], strModifier: 5, dexModifier: 1 }), 1);
+});
+
+test("abilityForStrikeAttack: melee without finesse always uses Strength, even when Dexterity would be higher", () => {
+  assert.equal(abilityForStrikeAttack({ strikeType: "melee", traits: [], strModifier: 0, dexModifier: 3 }), 0);
+});
+
+test("abilityForStrikeAttack: melee WITH finesse uses whichever of Str/Dex is higher", () => {
+  assert.equal(abilityForStrikeAttack({ strikeType: "melee", traits: ["finesse"], strModifier: 0, dexModifier: 3 }), 3, "Dex is better here, finesse lets it be used");
+  assert.equal(abilityForStrikeAttack({ strikeType: "melee", traits: ["finesse"], strModifier: 4, dexModifier: 1 }), 4, "finesse is a CHOICE, not a forced switch — Str stays better here");
+});
+
+test("deriveStrikeDamageBonus: melee ALWAYS adds Strength, even for a finesse weapon attacked with Dexterity (Player Core pg. 398: finesse changes only the attack roll)", () => {
+  assert.equal(deriveStrikeDamageBonus({ strikeType: "melee", traits: ["finesse"], strModifier: 2 }), 2);
+});
+
+test("deriveStrikeDamageBonus: ranged adds NO ability modifier by default", () => {
+  assert.equal(deriveStrikeDamageBonus({ strikeType: "ranged", traits: [], strModifier: 5 }), 0);
+});
+
+test("deriveStrikeDamageBonus: ranged adds FULL Strength for a thrown weapon, HALF (rounded down) for propulsive", () => {
+  assert.equal(deriveStrikeDamageBonus({ strikeType: "ranged", traits: ["thrown"], strModifier: 3 }), 3);
+  assert.equal(deriveStrikeDamageBonus({ strikeType: "ranged", traits: ["propulsive"], strModifier: 3 }), 1); // floor(3/2)
+  assert.equal(deriveStrikeDamageBonus({ strikeType: "ranged", traits: ["propulsive"], strModifier: 2 }), 1);
+});
+
+test("deriveSpellAttack / deriveSpellDC: same proficiency shape as a Strike/Class DC", () => {
+  assert.equal(deriveSpellAttack({ rankIndex: 1, level: 1, abilityModifier: 4 }), 7); // 3(trained) + 4
+  assert.equal(deriveSpellDC({ rankIndex: 1, level: 1, abilityModifier: 4 }), 17); // 10 + 3(trained) + 4
+});
+
+test("REAL WORKED EXAMPLE: Lunar-17 (level-1 Mystic pregen, design doc §19) — every combat number cross-checked against an independent read of her real raw pack data", () => {
+  // Real ability modifiers (extract-pregen.mjs -> deriveAbilityModifiers on her actual boosts/flaws): str +0, dex +3, wis +4.
+  // Real class data (gamesystems/sf2e/packs/paizo-pregens, Mystic class item): system.attacks.simple = 1 (trained),
+  // system.spellcasting = 1 (trained). Every weapon she carries is category "simple".
+  const str = 0, dex = 3, wis = 4;
+
+  // Zero Knife (melee, finesse, 1d4 cold): attack uses Dex (finesse, better than Str), damage uses Str (melee always does).
+  const zeroKnifeAttackAbility = abilityForStrikeAttack({ strikeType: "melee", traits: ["finesse"], strModifier: str, dexModifier: dex });
+  assert.equal(deriveStrikeAttackBonus({ rankIndex: 1, level: 1, abilityModifier: zeroKnifeAttackAbility }), 6);
+  assert.equal(deriveStrikeDamageBonus({ strikeType: "melee", traits: ["finesse"], strModifier: str }), 0);
+
+  // Arc Pistol / Semi-Auto Pistol (ranged, no thrown/propulsive trait): attack uses Dex, damage adds nothing.
+  const rangedAttackAbility = abilityForStrikeAttack({ strikeType: "ranged", traits: [], strModifier: str, dexModifier: dex });
+  assert.equal(deriveStrikeAttackBonus({ rankIndex: 1, level: 1, abilityModifier: rangedAttackAbility }), 6);
+  assert.equal(deriveStrikeDamageBonus({ strikeType: "ranged", traits: [], strModifier: str }), 0);
+
+  // Eldritch Lance (spell attack, Occult Spontaneous Spells entry: proficiency.value 1, ability.value "wis").
+  assert.equal(deriveSpellAttack({ rankIndex: 1, level: 1, abilityModifier: wis }), 7);
+  assert.equal(deriveSpellDC({ rankIndex: 1, level: 1, abilityModifier: wis }), 17);
 });

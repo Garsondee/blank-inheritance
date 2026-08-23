@@ -1,0 +1,100 @@
+{
+  "id": "raw-validation-lunar-17",
+  "name": "Lunar-17 (level-1 Mystic pregen, design doc §19 Pure RAW SF2E Validation — real Paizo Adventure Pregen, NOT one of the six real campaign kids)",
+  "side": "party",
+  "maxHP": 15,
+  "currentHP": 15,
+  "ac": 17,
+  "saves": {
+    "fort": 4,
+    "ref": 6,
+    "will": 9
+  },
+  "perception": 7,
+  "speed": 25,
+  "strikes": [
+    {
+      "name": "Zero Knife",
+      "strikeType": "melee",
+      "attackBonus": 6,
+      "traits": [
+        "agile",
+        "finesse",
+        "powered",
+        "tech",
+        "versatile-p"
+      ],
+      "damage": [
+        {
+          "dice": "1d4",
+          "bonus": 0,
+          "damageType": "cold"
+        }
+      ]
+    },
+    {
+      "name": "Arc Pistol",
+      "strikeType": "ranged",
+      "attackBonus": 6,
+      "rangeIncrement": 30,
+      "traits": [
+        "arc",
+        "tech"
+      ],
+      "damage": [
+        {
+          "dice": "1d4",
+          "bonus": 0,
+          "damageType": "electricity"
+        }
+      ]
+    },
+    {
+      "name": "Semi-Auto Pistol",
+      "strikeType": "ranged",
+      "attackBonus": 6,
+      "rangeIncrement": 60,
+      "traits": [
+        "analog"
+      ],
+      "damage": [
+        {
+          "dice": "1d6",
+          "bonus": 0,
+          "damageType": "piercing"
+        }
+      ]
+    }
+  ],
+  "spells": [
+    {
+      "name": "Eldritch Lance",
+      "attackBonus": 7,
+      "range": 30,
+      "actions": 2,
+      "traits": [
+        "attack",
+        "cantrip",
+        "concentrate",
+        "manipulate",
+        "mental"
+      ],
+      "damage": [
+        {
+          "dice": "2d6",
+          "bonus": 0,
+          "damageType": "mental"
+        }
+      ]
+    }
+  ],
+  "healAbilities": [
+    {
+      "name": "Transfer Vitality",
+      "healingAmount": 10,
+      "range": 60,
+      "actions": 1
+    }
+  ],
+  "notes": "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §19. Transfer Vitality's healing amount (10, minimum 1) is hand-transcribed from real rule prose since no structured field exists for it — see build-combat-pregen.mjs's own citation."
+}
