@@ -65,3 +65,40 @@ test("generateProposals: ordinary move candidates are still generated alongside 
   const proposals = generateProposals(state, "me", turn);
   assert.ok(proposals.some((p) => p.type === "move"), "Step must be an ADDITIONAL option, not a replacement for move");
 });
+
+// design doc §16 — the Claimant-restraint fix, tested directly at the mechanism rather than only
+// end-to-end (claimant-ai.test.mjs's invariants). A synthetic fixture stands in for the Claimant:
+// one reactionOnly strike, an enemy already in its reach.
+test("generateProposals: NEVER offers a standalone strike proposal for a reactionOnly strike", () => {
+  const { state, turn } = makeState({ mePos: { col: 0, row: 0 }, enemyPos: { col: 0, row: 1 } }); // adjacent, in melee reach
+  state.combatants.get("me").strikes = [{ name: "Claim-only Sweep", strikeType: "melee", attackBonus: 20, traits: [], damage: [{ dice: "1d4", bonus: 0 }], reactionOnly: true }];
+  const proposals = generateProposals(state, "me", turn);
+  assert.equal(proposals.filter((p) => p.type === "strike").length, 0, "a reactionOnly strike must never appear as a standalone proposal");
+});
+
+test("generateProposals: an ordinary (non-reactionOnly) strike on the SAME combatant is unaffected", () => {
+  const { state, turn } = makeState({ mePos: { col: 0, row: 0 }, enemyPos: { col: 0, row: 1 } });
+  state.combatants.get("me").strikes = [
+    { name: "Claim-only Sweep", strikeType: "melee", attackBonus: 20, traits: [], damage: [{ dice: "1d4", bonus: 0 }], reactionOnly: true },
+    { name: "Ordinary Fist", strikeType: "melee", attackBonus: 20, traits: [], damage: [{ dice: "1d4", bonus: 0 }] }
+  ];
+  const proposals = generateProposals(state, "me", turn);
+  const strikes = proposals.filter((p) => p.type === "strike");
+  assert.equal(strikes.length, 1, "expected exactly the one ordinary strike, the reactionOnly one filtered out");
+  assert.equal(strikes[0].strikeIndex, 1, "the surviving proposal must reference the ordinary strike's own index, not the filtered one's");
+});
+
+test("generateProposals (engine/factions.mjs): a party combatant never gets a strike proposal against a neutral combatant", () => {
+  const { state, turn } = makeState({ mePos: { col: 0, row: 0 }, enemyPos: { col: 0, row: 1 } });
+  state.combatants.get("enemy").side = "neutral"; // reuse the "enemy" fixture as a civilian asset instead
+  const proposals = generateProposals(state, "me", turn);
+  assert.equal(proposals.filter((p) => p.type === "strike").length, 0, "party must never be offered a legal Strike against a neutral combatant");
+});
+
+test("generateProposals (engine/factions.mjs): an opposition combatant DOES get a strike proposal against a neutral combatant — the raider sub-faction's whole point", () => {
+  const { state, turn } = makeState({ mePos: { col: 0, row: 0 }, enemyPos: { col: 0, row: 1 } });
+  state.combatants.get("me").side = "opposition";
+  state.combatants.get("enemy").side = "neutral";
+  const proposals = generateProposals(state, "me", turn);
+  assert.ok(proposals.some((p) => p.type === "strike"), "opposition must be able to threaten a neutral asset");
+});

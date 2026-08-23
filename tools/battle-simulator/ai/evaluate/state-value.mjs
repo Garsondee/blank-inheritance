@@ -35,6 +35,7 @@ import { expectedStrikeDamage } from "../../engine/resolve.mjs";
 import { distanceFeet, reachFeetForStrike, FEET_PER_SQUARE } from "../../engine/grid.mjs";
 import { lineOfEffect } from "../../engine/terrain.mjs";
 import { pathCost } from "../world/pathfind.mjs";
+import { splitByRelation } from "../../engine/factions.mjs";
 
 /**
  * REGRESSION (design doc §15q, found by running a real synthetic-wall battle, not by
@@ -50,10 +51,35 @@ import { pathCost } from "../world/pathfind.mjs";
  * ever paid when a scenario defines walls at all (every scenario in this project does
  * not, today, so this function is a straight distanceFeet passthrough for all of them).
  */
+// MEASURED PERFORMANCE FIX (design doc §16, stress-test mission's first real run): decide() calls
+// evaluateState once per candidate proposal (potentially dozens), and this function sits inside
+// evaluateState's O(allies x enemies) closing-gradient loop — every LOS-blocked pair pays for a
+// fresh full-grid Dijkstra flood via pathCost, uncached, every single time. Measured contributing
+// several SECONDS per decide() call on an 11-combatant, 2-building scenario, on top of (and
+// separate from) ai/decide.mjs's own destination-cache fix.
+//
+// Cached keyed on `state.walls` itself, not per-call: pathCost's inputs here are `from`, `to`,
+// `state.gridSize`, and `state.walls` — occupiedPositions is hardcoded empty (see the call below),
+// so occupancy changes between a battle's `before` state and any sandboxed `after` clone are
+// irrelevant to this specific calculation. gridSize/walls never change for the life of one battle,
+// and cloneStateForPlanning shares `state.walls` BY REFERENCE across every sandbox fork of it
+// (engine.mjs's own documented contract) — so a WeakMap keyed on that one shared array correctly
+// scopes the cache to exactly one battle's terrain and is never reused across a different scenario
+// with a different walls array, without needing any explicit cache lifecycle management at all.
+const distanceCache = new WeakMap();
+
 function effectiveDistance(state, from, to) {
   if (!state.walls?.length || lineOfEffect(from, to, state.walls)) return distanceFeet(from, to);
-  const cost = pathCost({ from, to, maxFeet: 100000, gridSize: state.gridSize, occupiedPositions: [], walls: state.walls });
-  return Number.isFinite(cost) ? cost : distanceFeet(from, to) * 10; // unreachable at all — treat as very far, not infinite (keeps the term finite and comparable)
+  let cache = distanceCache.get(state.walls);
+  if (!cache) { cache = new Map(); distanceCache.set(state.walls, cache); }
+  // Distance is symmetric — normalize so A->B and B->A share one cache entry.
+  const [a, b] = `${from.col},${from.row}` <= `${to.col},${to.row}` ? [from, to] : [to, from];
+  const key = `${a.col},${a.row}|${b.col},${b.row}`;
+  if (cache.has(key)) return cache.get(key);
+  const cost = pathCost({ from: a, to: b, maxFeet: 100000, gridSize: state.gridSize, occupiedPositions: [], walls: state.walls });
+  const result = Number.isFinite(cost) ? cost : distanceFeet(from, to) * 10; // unreachable at all — treat as very far, not infinite (keeps the term finite and comparable)
+  cache.set(key, result);
+  return result;
 }
 
 /** Every attack option a combatant has, strikes and attack spells alike. */
@@ -62,6 +88,18 @@ export function attackOptions(combatant) {
   for (const s of combatant.strikes ?? []) if (s.usesRemaining == null || s.usesRemaining > 0) out.push(s);
   for (const s of combatant.spells ?? []) if (s.usesRemaining == null || s.usesRemaining > 0) out.push(s);
   return out;
+}
+
+/**
+ * attackOptions minus anything reactionOnly (design doc §16) — the subset a combatant would ever
+ * proactively seek RANGE for. A reaction-only weapon (the Claimant's Sweep, fired only through its
+ * Claim reaction) is still a completely real threat when evaluated from the OTHER direction — see
+ * bestExpectedDamage, which deliberately keeps using unfiltered attackOptions so everyone else's
+ * threatExposure still respects it. This filtered view exists only for "what should I move toward
+ * to use MY OWN weapon," where a reaction-only strike must never register as a reason to close in.
+ */
+export function proactiveAttackOptions(combatant) {
+  return attackOptions(combatant).filter((s) => !s.reactionOnly);
 }
 
 /** The distance at which an option is actually worth using — flat range for a spell, reach for melee, one increment for a gun. */
@@ -129,8 +167,12 @@ export const DEFAULT_WEIGHTS = {
  */
 export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
   const all = [...state.combatants.values()];
-  const allies = all.filter((c) => c.side === side);
-  const enemies = all.filter((c) => c.side !== side);
+  // Faction-aware (engine/factions.mjs), not a raw side filter: a scenario with a neutral side (a
+  // civilian convoy) must fold into the PARTY's allies bucket — allyDamage's existing "an HP off
+  // us is worth exactly as much as an HP off them" scoring is exactly "the party wants this
+  // protected," no new term needed — while never appearing in a party evaluation's enemies bucket,
+  // where enemyDamage would otherwise price the party as WANTING its HP down.
+  const { allies, enemies } = splitByRelation({ id: null, side }, all);
 
   let score = 0;
 
@@ -161,6 +203,19 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
   // up against a wall for a shot that could never actually be taken — the real cause of the
   // infinite oscillation effectiveDistance() alone didn't fix. Gated the same way: a cheap
   // lineOfEffect check first, only paid at all when a scenario actually defines walls.
+  //
+  // FIX (design doc §16, stress-test mission): offensiveReach used to credit an ally with a
+  // target's FULL weapon-damage potential regardless of how much HP that target actually had
+  // left — "I could hit it for 24" scored the same whether the target had 100 HP or 7. With
+  // several allies simultaneously in range of the SAME nearly-dead target (only possible in a
+  // scenario with enough combatants clustered together — every prior scenario had too few),
+  // that phantom overkill credit is counted once per ally and can dwarf the real value of the
+  // kill: measured on a real transcript, killing a 7-HP Claimant that 3+ allies could all reach
+  // dropped offensiveReach by 44 points — MORE than enemyDamage (+7, capped at the 7 HP it
+  // actually had) and actionDenial (+8) combined gained back, so the evaluator ranked finishing
+  // off an already-doomed target BELOW spending the action on Spot. Capping the credited amount
+  // at the target's actual remaining HP removes the phantom: reach against a full-health enemy
+  // is unaffected, reach against a nearly-dead one is worth only what's actually left to take.
   for (const ally of allies) {
     if (ally.currentHP <= 0) continue;
     const allyPos = state.positions.get(ally.id);
@@ -170,7 +225,8 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
       const enemyPos = state.positions.get(enemy.id);
       if (!enemyPos) continue;
       if (state.walls?.length && !lineOfEffect(allyPos, enemyPos, state.walls)) continue; // no real shot exists from here
-      score += weights.offensiveReach * bestExpectedDamage(ally, allyPos, enemy, enemyPos);
+      const reach = Math.min(bestExpectedDamage(ally, allyPos, enemy, enemyPos), enemy.currentHP);
+      score += weights.offensiveReach * reach;
       score -= weights.threatExposure * bestExpectedDamage(enemy, enemyPos, ally, allyPos);
     }
   }
@@ -193,7 +249,7 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
     if (ally.currentHP <= 0) continue;
     const allyPos = state.positions.get(ally.id);
     if (!allyPos) continue;
-    const ranges = attackOptions(ally).map(usefulRangeFeet).filter((r) => Number.isFinite(r));
+    const ranges = proactiveAttackOptions(ally).map(usefulRangeFeet).filter((r) => Number.isFinite(r));
     if (!ranges.length) continue;
     const reach = Math.max(...ranges);
     let nearest = Infinity;
@@ -209,8 +265,19 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
   // Objective progress. A combatant with a scripted `objective` is trying to reach
   // it; its own side gains as it closes, the other side loses. Measured in squares
   // so the term does not swamp everything at this map's 50ft scale.
+  //
+  // FIX (design doc §16, stress-test mission): this used to also skip DEAD combatants
+  // (`|| c.currentHP <= 0`), which meant killing an objective-pursuing enemy DELETED the
+  // credit for however far it still was from that objective, rather than locking it in — on a
+  // real transcript this cost the party 27.5 points for killing a 7-HP Claimant, on top of the
+  // offensiveReach overkill problem fixed just above, together enough to make finishing it off
+  // score worse than Spot. A dead combatant's position is frozen forever, so its distance from
+  // an objective it will now never reach again is not a fact that should vanish — if anything
+  // it is the BEST possible version of "still far away," permanently. Keeping the term (using
+  // wherever it died) means killing an objective-holder can never score worse than leaving it
+  // alive at that same position, which is the actual invariant this term should guarantee.
   for (const c of all) {
-    if (!c.objective || c.currentHP <= 0) continue;
+    if (!c.objective) continue;
     const pos = state.positions.get(c.id);
     if (!pos) continue;
     const squaresAway = distanceFeet(pos, c.objective) / 50;

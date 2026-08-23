@@ -33,7 +33,8 @@
 import { forkTurnSandbox } from "../engine/engine.mjs";
 import { makeRng } from "../engine/rng.mjs";
 import { distanceFeet, isInBounds, isOccupied, FEET_PER_SQUARE } from "../engine/grid.mjs";
-import { evaluateState, attackOptions, usefulRangeFeet } from "./evaluate/state-value.mjs";
+import { splitByRelation } from "../engine/factions.mjs";
+import { evaluateState, attackOptions, proactiveAttackOptions, usefulRangeFeet } from "./evaluate/state-value.mjs";
 import { reachableCells } from "./world/pathfind.mjs";
 import { refreshBelief, believedEnemies } from "./knowledge/belief.mjs";
 
@@ -162,23 +163,47 @@ function stepAway(state, moverId, from, threat, maxFeet) {
  * an obstacle, which is what makes each turn's fresh candidate generation converge instead of
  * getting stuck re-discovering the same "locally best by the wrong metric" dead end.
  */
-function trueDistanceField(state, moverId, to, others) {
-  const span = Math.max(state.gridSize.cols, state.gridSize.rows) * FEET_PER_SQUARE * 4; // generous — covers any plausible detour on this map
-  return reachableCells({ from: to, maxFeet: span, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls });
+// MEASURED PERFORMANCE FIX (design doc §16, stress-test mission's first real run): reachableCells
+// is a full-grid Dijkstra flood — cheap in isolation (~ms), catastrophic uncached. generateProposals
+// calls bestDestinationToward/Away up to ~4 times PER ENEMY (per useful range, close-to-contact,
+// point-blank, disengage), and a scenario with a wider enemies list (engine/factions.mjs — opposition
+// now also treats neutral as hostile) multiplies that further. MEASURED on the 11-combatant, 2-wall-
+// cluster stress-test scenario: 5-15 SECONDS per single decide() call, entirely inside these two
+// functions, before caching. `others` (occupancy) is constant across every call within one
+// generateProposals invocation — state never mutates mid-generation — so the flood-fill result only
+// needs to be keyed on (moverId, origin cell, budget), not recomputed per destination candidate.
+// `cache` is created fresh once per generateProposals call (see below) and never persisted onto
+// `state` itself, so a stale flood-field can never leak across turns or into the sandbox.
+function cachedReachableCells(cache, key, args) {
+  if (cache.has(key)) return cache.get(key);
+  const result = reachableCells(args);
+  cache.set(key, result);
+  return result;
 }
 
-function pathfindingDestinationToward(state, moverId, from, to, maxFeet, standoffFeet) {
+function trueDistanceField(state, moverId, to, others, cache) {
+  const span = Math.max(state.gridSize.cols, state.gridSize.rows) * FEET_PER_SQUARE * 4; // generous — covers any plausible detour on this map
+  const key = `field|${moverId}|${to.col},${to.row}`;
+  return cachedReachableCells(cache, key, { from: to, maxFeet: span, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls });
+}
+
+function pathfindingDestinationToward(state, moverId, from, to, maxFeet, standoffFeet, cache) {
   const others = [...state.positions.entries()].filter(([id]) => id !== moverId).map(([, p]) => p);
-  const reachable = reachableCells({ from, maxFeet, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls });
-  const distField = trueDistanceField(state, moverId, to, others);
+  const reachableKey = `reach|${moverId}|${from.col},${from.row}|${maxFeet}`;
+  const reachable = cachedReachableCells(cache, reachableKey, { from, maxFeet, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls });
+  const distField = trueDistanceField(state, moverId, to, others, cache);
   const trueDist = (col, row) => distField.get(`${col},${row}`)?.cost ?? distanceFeet({ col, row }, to) * 10; // unreachable at all — treat as very far, not infinite
 
   let best = null, bestScore = Math.max(trueDist(from.col, from.row), standoffFeet), bestCost = 0;
-  for (const [cellKey, { cost }] of reachable) {
+  // FIX (design doc §16): carry the REAL Dijkstra-found route along with the winning cell, not
+  // just the cell itself. checkMoveLegality used to re-derive a straight line to validate a move
+  // against — wrong for a destination reached by a real detour, which got rejected forever (the
+  // straight line crosses whatever the detour was routing around). See legality.mjs's `path` param.
+  for (const [cellKey, { cost, path }] of reachable) {
     const [col, row] = cellKey.split(",").map(Number);
     const score = Math.max(trueDist(col, row), standoffFeet);
     if (score < bestScore || (score === bestScore && cost < bestCost)) {
-      best = { col, row }; bestScore = score; bestCost = cost;
+      best = { col, row, path }; bestScore = score; bestCost = cost;
     }
   }
   return best;
@@ -191,23 +216,29 @@ function pathfindingDestinationToward(state, moverId, from, to, maxFeet, standof
  * real pathfinding is reserved for when a scenario genuinely defines walls, which is rare and
  * deliberately opt-in.
  */
-function bestDestinationToward(state, moverId, from, to, maxFeet, standoffFeet) {
-  if (state.walls?.length) return pathfindingDestinationToward(state, moverId, from, to, maxFeet, standoffFeet);
+// Exported (design doc §16): ai/neutral-ai.mjs reuses this directly for a fleeing civilian
+// convoy's own movement rather than reimplementing wall-aware "walk toward a point" from scratch.
+// `cache` is optional — a caller making one-off calls (a direct test, neutral-ai.mjs's single
+// query per combatant) gets a fresh, single-use Map, identical to the old uncached behaviour;
+// generateProposals creates and threads one shared cache through its whole burst of calls.
+export function bestDestinationToward(state, moverId, from, to, maxFeet, standoffFeet, cache = new Map()) {
+  if (state.walls?.length) return pathfindingDestinationToward(state, moverId, from, to, maxFeet, standoffFeet, cache);
   return stepToward(state, moverId, from, to, maxFeet, standoffFeet);
 }
 
-function pathfindingDestinationAway(state, moverId, from, threat, maxFeet) {
+function pathfindingDestinationAway(state, moverId, from, threat, maxFeet, cache) {
   const others = [...state.positions.entries()].filter(([id]) => id !== moverId).map(([, p]) => p);
-  const reachable = reachableCells({ from, maxFeet, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls });
-  const distField = trueDistanceField(state, moverId, threat, others);
+  const reachableKey = `reach|${moverId}|${from.col},${from.row}|${maxFeet}`;
+  const reachable = cachedReachableCells(cache, reachableKey, { from, maxFeet, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls });
+  const distField = trueDistanceField(state, moverId, threat, others, cache);
   const trueDist = (col, row) => distField.get(`${col},${row}`)?.cost ?? distanceFeet({ col, row }, threat) * 10;
 
   let best = null, bestDist = trueDist(from.col, from.row), bestCost = 0;
-  for (const [cellKey, { cost }] of reachable) {
+  for (const [cellKey, { cost, path }] of reachable) { // path: see pathfindingDestinationToward's own note
     const [col, row] = cellKey.split(",").map(Number);
     const dist = trueDist(col, row);
     if (dist > bestDist || (dist === bestDist && cost < bestCost)) {
-      best = { col, row }; bestDist = dist; bestCost = cost;
+      best = { col, row, path }; bestDist = dist; bestCost = cost;
     }
   }
   return best;
@@ -228,8 +259,8 @@ function pathfindingDestinationAway(state, moverId, from, threat, maxFeet) {
  * ("the Frame got stuck at spawn for multiple rounds") — a slightly weaker disengage option in an
  * edge-adjacent position has no comparable cost to justify paying for it here.
  */
-function bestDestinationAway(state, moverId, from, threat, maxFeet) {
-  if (state.walls?.length) return pathfindingDestinationAway(state, moverId, from, threat, maxFeet);
+function bestDestinationAway(state, moverId, from, threat, maxFeet, cache = new Map()) {
+  if (state.walls?.length) return pathfindingDestinationAway(state, moverId, from, threat, maxFeet, cache);
   return stepAway(state, moverId, from, threat, maxFeet);
 }
 
@@ -246,8 +277,10 @@ export function generateProposals(state, combatantId, turn) {
 
   const speed = turn.effective?.speed ?? me.speed ?? 0;
   const living = [...state.combatants.values()].filter((c) => c.currentHP > 0);
-  const enemies = living.filter((c) => c.side !== me.side);
-  const allies = living.filter((c) => c.side === me.side && c.id !== combatantId);
+  // Faction-aware, not a raw side inequality (engine/factions.mjs) — a scenario with a neutral
+  // side (a civilian convoy, say) must never let "opposition" generate a legal party-side Strike
+  // proposal against it, and must never let party treat protecting it as "attack this enemy".
+  const { allies, enemies } = splitByRelation(me, living);
 
   // Belief (design doc §15s): refreshed from the WHOLE side's combined current vision, not just
   // this one combatant — a Sensor Operator's good vision covers for a near-blind Frame teammate.
@@ -261,7 +294,14 @@ export function generateProposals(state, combatantId, turn) {
   );
 
   // --- Attacks: every option against every living enemy ---
-  (me.strikes ?? []).forEach((_, i) => {
+  // reactionOnly (design doc §16, the Claimant's Sweep/Claim) is excluded from standalone
+  // proposals on purpose: some creatures' whole design is "it does not choose to fight you," and
+  // a strike that only exists to fire off a reaction trigger must never appear as something the
+  // AI can pick on its own turn. bestExpectedDamage/attackOptions still see it — everyone ELSE's
+  // threatExposure must still respect that standing near it is genuinely dangerous — only the
+  // owner's own proactive choice is blocked. See ai/evaluate/state-value.mjs's proactiveAttackOptions.
+  (me.strikes ?? []).forEach((s, i) => {
+    if (s.reactionOnly) return;
     for (const e of enemies) proposals.push({ type: "strike", targetId: e.id, strikeIndex: i });
   });
   (me.spells ?? []).forEach((_, i) => {
@@ -286,7 +326,11 @@ export function generateProposals(state, combatantId, turn) {
   const destinations = new Map(); // keyed by cell so duplicates collapse
   const addDest = (d) => { if (d) destinations.set(`${d.col},${d.row}`, d); };
 
-  const myRanges = [...new Set(attackOptions(me).map(usefulRangeFeet).filter((r) => Number.isFinite(r)))];
+  // proactiveAttackOptions, not attackOptions: a reactionOnly weapon (the Claimant's Sweep) is a
+  // real threat to everyone ELSE's threatExposure calc, but it is never a reason for ITS OWN owner
+  // to go seek range — that would have the Claimant closing distance to "use" a strike it can
+  // never actually choose, which is exactly the stalking behavior the design explicitly rules out.
+  const myRanges = [...new Set(proactiveAttackOptions(me).map(usefulRangeFeet).filter((r) => Number.isFinite(r)))];
   // Step (design doc §15o): a one-square hop that never provokes a reaction, offered ONLY for the
   // specific case Step actually exists for — closing the last square onto a reaction-capable
   // (Large+, per the engine's own reaction-eligibility check) enemy. The sandbox evaluator prices
@@ -294,6 +338,10 @@ export function generateProposals(state, combatantId, turn) {
   // Claim reaction fire inside the sandbox, so its evaluated score already reflects that
   // risk — offering Step alongside it is what lets the AI discover "close via Step instead" as
   // the better play, rather than something hardcoded to always prefer one over the other.
+  // Shared across every destination query this ONE generateProposals call makes (design doc §16 —
+  // see cachedReachableCells above). `from`/`walls`/occupancy are all constant for the whole burst,
+  // so the up-to-~4-per-enemy calls below no longer each pay for their own full-grid Dijkstra flood.
+  const destCache = new Map();
   const stepCandidates = [];
   for (const e of enemies) {
     // Believed position, not ground truth (design doc §15s) — an enemy with no belief entry at
@@ -305,21 +353,21 @@ export function generateProposals(state, combatantId, turn) {
     // illegal proposal.
     const ePos = believedPositions.get(e.id);
     if (!ePos) continue;
-    for (const r of myRanges) addDest(bestDestinationToward(state, combatantId, myPos, ePos, speed, r));
-    addDest(bestDestinationToward(state, combatantId, myPos, ePos, speed, FEET_PER_SQUARE)); // close to contact
-    addDest(bestDestinationToward(state, combatantId, myPos, ePos, speed, 0));
-    addDest(bestDestinationAway(state, combatantId, myPos, ePos, speed));                    // disengage
+    for (const r of myRanges) addDest(bestDestinationToward(state, combatantId, myPos, ePos, speed, r, destCache));
+    addDest(bestDestinationToward(state, combatantId, myPos, ePos, speed, FEET_PER_SQUARE, destCache)); // close to contact
+    addDest(bestDestinationToward(state, combatantId, myPos, ePos, speed, 0, destCache));
+    addDest(bestDestinationAway(state, combatantId, myPos, ePos, speed, destCache));                    // disengage
 
     if (["large", "huge", "gargantuan"].includes(e.size)) {
-      const hop = bestDestinationToward(state, combatantId, myPos, ePos, FEET_PER_SQUARE, 0);
+      const hop = bestDestinationToward(state, combatantId, myPos, ePos, FEET_PER_SQUARE, 0, destCache);
       if (hop) stepCandidates.push(hop);
     }
   }
   for (const a of allies) {
     const aPos = state.positions.get(a.id);
-    if (aPos && a.currentHP < a.maxHP) addDest(bestDestinationToward(state, combatantId, myPos, aPos, speed, FEET_PER_SQUARE));
+    if (aPos && a.currentHP < a.maxHP) addDest(bestDestinationToward(state, combatantId, myPos, aPos, speed, FEET_PER_SQUARE, destCache));
   }
-  if (me.objective) addDest(bestDestinationToward(state, combatantId, myPos, me.objective, speed, 0));
+  if (me.objective) addDest(bestDestinationToward(state, combatantId, myPos, me.objective, speed, 0, destCache));
 
   for (const d of destinations.values()) proposals.push({ type: "move", to: d });
   for (const d of stepCandidates) proposals.push({ type: "step", to: d });

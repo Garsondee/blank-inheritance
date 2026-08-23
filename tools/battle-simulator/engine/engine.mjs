@@ -417,27 +417,36 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
   const pos = state.positions.get(combatantId);
 
   if (proposal.type === "move") {
+    // proposal.to may carry a `path` (design doc §16, ai/decide.mjs's wall-aware pathfinding) —
+    // real routing data checkMoveLegality needs but which must never leak into state.positions or
+    // the battle log as if it were part of a combatant's position. `to` below is the clean
+    // {col,row} used everywhere else; `path` is threaded to the legality check alone.
+    const { path, ...to } = proposal.to;
     const check = checkMoveLegality({
       combatant,
       from: pos,
-      to: proposal.to,
+      to,
       effectiveSpeed: effective.speed,
       feetAlreadyMovedThisTurn: turnProgress.feetMoved,
       allPositions: [...state.positions.entries()].map(([id, p]) => ({ combatantId: id, pos: p })),
       gridSize: state.gridSize,
       turnState: turnProgress, // FIX: checkMoveLegality now checks the action budget itself — "move" was
       // previously the one proposal type exempt from budget enforcement.
-      walls: state.walls // design doc §15p — undefined for every scenario today; moveBlockedBetween
+      walls: state.walls, // design doc §15p — undefined for every scenario today; moveBlockedBetween
       // treats that identically to an empty array, so this is a no-op until real terrain exists.
+      // FIX (design doc §16): when the proposal carries the real route the AI planned against
+      // (ai/decide.mjs's wall-aware pathfindingDestinationToward/Away), validate THAT rather than
+      // re-deriving a straight line — see checkMoveLegality's own note for the bug this closes.
+      path
     });
-    if (!check.legal) return { type: "move", to: proposal.to, legal: false, reason: check.reason };
+    if (!check.legal) return { type: "move", to, legal: false, reason: check.reason };
 
-    const stepDistance = distanceFeet(pos, proposal.to);
-    state.positions.set(combatantId, { ...proposal.to });
+    const stepDistance = distanceFeet(pos, to);
+    state.positions.set(combatantId, { ...to });
     turnProgress.feetMoved += stepDistance;
     turnProgress.actionsUsed += 1;
 
-    const result = { type: "move", from: { ...pos }, to: { ...proposal.to }, feet: stepDistance, legal: true, actionsCost: 1, decisionReason: proposal.reason ?? null };
+    const result = { type: "move", from: { ...pos }, to: { ...to }, feet: stepDistance, legal: true, actionsCost: 1, decisionReason: proposal.reason ?? null };
 
     const reactions = checkReactionTriggers({ state, rng, moverId: combatantId, outcomes });
     if (reactions.length) result.triggeredReactions = reactions;
@@ -450,19 +459,24 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
   // trigger reactions, such as Reactive Strike," which for this engine specifically means it
   // never provokes the Claimant's Claim. This is the one deliberate divergence from "move" below.
   if (proposal.type === "step") {
+    // Same `path` stripping as "move" above (design doc §16): a Step candidate can come from
+    // bestDestinationToward's wall-aware branch too (generateProposals' stepCandidates), which
+    // now attaches a route to its result. Step is capped at one square, so there's no detour
+    // legality question here — just the same leak-into-state hygiene issue.
+    const { path: _stepPath, ...to } = proposal.to;
     const check = checkStepLegality({
-      combatant, from: pos, to: proposal.to, effectiveSpeed: effective.speed,
+      combatant, from: pos, to, effectiveSpeed: effective.speed,
       allPositions: [...state.positions.entries()].map(([id, p]) => ({ combatantId: id, pos: p })),
       gridSize: state.gridSize, turnState: turnProgress, walls: state.walls
     });
-    if (!check.legal) return { type: "step", to: proposal.to, legal: false, reason: check.reason };
+    if (!check.legal) return { type: "step", to, legal: false, reason: check.reason };
 
-    const stepDistance = distanceFeet(pos, proposal.to);
-    state.positions.set(combatantId, { ...proposal.to });
+    const stepDistance = distanceFeet(pos, to);
+    state.positions.set(combatantId, { ...to });
     turnProgress.feetMoved += stepDistance;
     turnProgress.actionsUsed += 1;
 
-    return { type: "step", from: { ...pos }, to: { ...proposal.to }, feet: stepDistance, legal: true, actionsCost: 1, decisionReason: proposal.reason ?? null };
+    return { type: "step", from: { ...pos }, to: { ...to }, feet: stepDistance, legal: true, actionsCost: 1, decisionReason: proposal.reason ?? null };
   }
 
   if (proposal.type === "strike") {

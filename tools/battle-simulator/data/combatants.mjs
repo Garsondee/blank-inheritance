@@ -129,7 +129,16 @@ export function loadClaimant(overrides = {}) {
     saves: { fort: raw.savingThrows.fortitude.modifier, ref: raw.savingThrows.reflex.modifier, will: raw.savingThrows.will.modifier },
     initiativeModifier: raw.savingThrows.reflex.modifier, // no fictional reason to diverge from its own (Low) Reflex
     speed: raw.speed.land, // already 10x'd at the source (data/antagonists/claimants/contact-unclassified.json)
-    strikes: [{ name: sweep.name, strikeType: sweep.strikeType, attackBonus: sweep.attackBonus, traits: sweep.traits, damage: sweep.damage }],
+    // reactionOnly (design doc §16, FIX — found by running mystic-frame-solo@555 and reading the
+    // transcript through a narrative lens: the Claimant attacked proactively every round it wasn't
+    // stunned, landing 219 damage across a 3-6 round fight the design scripts it to lose on points.
+    // Without this flag, generateProposals offered Sweep as an ordinary standalone action, which
+    // directly contradicts the statblock's own Claim/Advance text — "It is not fighting the
+    // Frame... It only Strikes via its Claim reaction." attackOptions() (unfiltered) still returns
+    // this for anyone ELSE's threatExposure calc, so standing adjacent is still correctly priced as
+    // dangerous — only the Claimant's OWN proactive choice is blocked. See ai/decide.mjs and
+    // ai/evaluate/state-value.mjs's proactiveAttackOptions.
+    strikes: [{ name: sweep.name, strikeType: sweep.strikeType, attackBonus: sweep.attackBonus, traits: sweep.traits, damage: sweep.damage, reactionOnly: true }],
     reactions: [{ name: "Claim", strikeIndex: 0 }],
     scaleBlind: true,
     stunnedRounds: 0,
@@ -356,6 +365,81 @@ export function makeVesper(overrides = {}) {
       { name: "Rocket Pod", strikeType: "ranged", attackBonus: LONG_RANGE_ATTACK, rangeIncrement: LONG_RANGE_INCREMENT, traits: ["mounted"], damage: [LONG_RANGE_DAMAGE], usesRemaining: 1, usesPerEncounter: 1 }
     ],
     position: { col: DEPLOYMENT_CENTER.col, row: DEPLOYMENT_CENTER.row - 2 },
+    ...overrides
+  };
+}
+
+// ---------------------------------------------------------------------------
+// STRESS-TEST FIXTURES (design doc §16) — a hostile third faction and a
+// neutral one, built specifically to exercise engine/factions.mjs's new
+// "opposition is hostile to party AND neutral; party protects neutral"
+// relations. Scavenger stats reuse the SAME GM Core level-12 Low-tier
+// vehicle-weapon numbers as the escort fleet above (VEHICLE_WEAPON_ATTACK/
+// DAMAGE) — a real, comparable threat, not padding. Not campaign canon: a
+// synthetic opportunist faction invented for this test only, same
+// TEST-FIXTURE convention as everything else in this file.
+// ---------------------------------------------------------------------------
+
+export function makeScavengerRaider(overrides = {}) {
+  return {
+    id: "scavenger-raider",
+    name: "TEST FIXTURE — Scavenger Raider (synthetic opposition, stress-test only)",
+    kind: "chassis",
+    side: "opposition",
+    size: "large",
+    maxHP: 70,
+    currentHP: 70,
+    ac: 29,
+    hardness: 12,
+    saves: { fort: 19, ref: 25, will: 0 },
+    initiativeModifier: 25,
+    speed: 1200,
+    scaleBlind: false,
+    strikes: [{ name: "Salvaged Autogun", strikeType: "ranged", attackBonus: VEHICLE_WEAPON_ATTACK, rangeIncrement: 60, traits: ["mounted"], damage: [VEHICLE_WEAPON_DAMAGE] }],
+    ...overrides
+  };
+}
+
+export function makeScavengerTechnical(overrides = {}) {
+  return {
+    id: "scavenger-technical",
+    name: "TEST FIXTURE — Scavenger Technical (synthetic opposition, stress-test only)",
+    kind: "chassis",
+    side: "opposition",
+    size: "huge",
+    maxHP: 150,
+    currentHP: 150,
+    ac: 27,
+    hardness: 16,
+    saves: { fort: 25, ref: 16, will: 0 },
+    initiativeModifier: 16,
+    speed: 400,
+    scaleBlind: false,
+    strikes: [{ name: "Twin-Mounted Cannon", strikeType: "ranged", attackBonus: VEHICLE_WEAPON_ATTACK, rangeIncrement: 100, traits: ["mounted"], damage: [VEHICLE_WEAPON_DAMAGE] }],
+    ...overrides
+  };
+}
+
+/**
+ * A neutral civilian vehicle — never runs the general decide() AI (see
+ * ai/neutral-ai.mjs), has no strikes, and exists purely as an asset the
+ * party's evaluator now values via engine/factions.mjs's isAlliedWith
+ * carve-out and the opposition's evaluator threatens via isHostileTo's
+ * widened rule. `extractionPoint` is this fixture's own field (not a
+ * general combatant concept) — read only by ai/neutral-ai.mjs.
+ */
+export function makeConvoyVehicle(overrides = {}) {
+  return {
+    kind: "civilian-vehicle",
+    side: "neutral",
+    size: "large",
+    ac: 18,
+    hardness: 4,
+    saves: { fort: 10, ref: 12, will: 0 },
+    initiativeModifier: 8,
+    speed: 350,
+    scaleBlind: false,
+    strikes: [],
     ...overrides
   };
 }

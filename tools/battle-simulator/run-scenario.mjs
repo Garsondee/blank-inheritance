@@ -34,6 +34,7 @@ import { buildScenario as buildEscort } from "./scenarios/five-vehicles-one-fram
 import { buildScenario as buildMeleeDrawsFire } from "./scenarios/melee-draws-fire.mjs";
 import { buildScenario as buildMysticFrameSolo } from "./scenarios/mystic-frame-solo.mjs";
 import { buildScenario as buildReducedForce } from "./scenarios/reduced-force.mjs";
+import { buildScenario as buildStressTestMissionOne } from "./scenarios/stress-test-mission-one.mjs";
 import { runFileName, buildIndexEntry, mergeIndexEntry, trimRunPayload } from "./analysis/run-log-store.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -47,7 +48,8 @@ const SCENARIOS = {
   // Wired in 2026-08-23 (design doc §15m) — built earlier (design bible's "test different
   // approaches" comparison set) but never reachable from this CLI, so it never accumulated any
   // logs and the reader had nothing of its to show.
-  "reduced-force": { build: buildReducedForce, label: "Reduced force — Frame + Hod + Ladle only, no five-vehicle firepower", defaultSeed: 20260822, fieldBreaksAtRound: 3, roundLimit: 10 }
+  "reduced-force": { build: buildReducedForce, label: "Reduced force — Frame + Hod + Ladle only, no five-vehicle firepower", defaultSeed: 20260822, fieldBreaksAtRound: 3, roundLimit: 10 },
+  "stress-test-mission-one": { build: buildStressTestMissionOne, label: "Stress-test Mission One — 2 Frames + 5-vehicle escort vs Claimant + 3 raiders, 3-vehicle neutral convoy, terrain", defaultSeed: 20260823, roundLimit: 12 }
 };
 
 /** `1000-1019` -> [1000..1019]; `1,2,3` -> [1,2,3]; `1000` -> [1000]. */

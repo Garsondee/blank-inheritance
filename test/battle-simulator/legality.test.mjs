@@ -150,6 +150,47 @@ test("checkMoveLegality: a move whose path does NOT cross an occupied square is 
   assert.equal(result.legal, true);
 });
 
+// design doc §16 — FIX found running the stress-test scenario: a neutral convoy fixture proposed
+// the exact same illegal move every round of a whole 6-round battle and never moved once. Root
+// cause: ai/decide.mjs's wall-aware pathfinding finds a real DETOUR around an obstacle (respecting
+// occupancy, same as this function), but until now only returned the destination cell — this
+// function then re-derived a STRAIGHT line to validate it, which is simply the wrong path to check
+// for a move that was planned as a detour, and rejected it forever with no way to ever succeed.
+test("checkMoveLegality: an explicit `path` that detours AROUND a blocker sitting on the straight line is legal — the whole point of it", () => {
+  const detour = [{ col: 0, row: 0 }, { col: 1, row: 1 }, { col: 2, row: 1 }, { col: 3, row: 1 }, { col: 4, row: 0 }]; // steps around (4,0)'s straight-line obstacle
+  const result = checkMoveLegality({
+    combatant: { id: "a" }, from: { col: 0, row: 0 }, to: { col: 4, row: 0 },
+    effectiveSpeed: 999, feetAlreadyMovedThisTurn: 0,
+    allPositions: [{ combatantId: "blocker", pos: { col: 2, row: 0 } }], // sits ON the straight line, off the supplied detour
+    gridSize, turnState: openBudget, path: detour
+  });
+  assert.equal(result.legal, true, `expected the detour to be accepted: ${result.reason}`);
+});
+
+test("checkMoveLegality: an explicit `path` is still rejected if IT is actually blocked (the fix trusts the supplied path, it doesn't skip checking it)", () => {
+  const path = [{ col: 0, row: 0 }, { col: 1, row: 0 }, { col: 2, row: 0 }, { col: 3, row: 0 }, { col: 4, row: 0 }];
+  const result = checkMoveLegality({
+    combatant: { id: "a" }, from: { col: 0, row: 0 }, to: { col: 4, row: 0 },
+    effectiveSpeed: 999, feetAlreadyMovedThisTurn: 0,
+    allPositions: [{ combatantId: "blocker", pos: { col: 2, row: 0 } }], // on the supplied path itself this time
+    gridSize, turnState: openBudget, path
+  });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /passes through an occupied square/);
+});
+
+test("checkMoveLegality: an explicit `path` crossing a wall is rejected, same as the straight-line check would be", () => {
+  const path = [{ col: 0, row: 0 }, { col: 1, row: 0 }, { col: 2, row: 0 }];
+  const result = checkMoveLegality({
+    combatant: { id: "a" }, from: { col: 0, row: 0 }, to: { col: 2, row: 0 },
+    effectiveSpeed: 999, feetAlreadyMovedThisTurn: 0,
+    allPositions: [], gridSize, turnState: openBudget, path,
+    walls: [{ c: [1, 0, 1, 1], move: 20, sight: 20 }] // the shared edge between (0,0) and (1,0) — the path's first step
+  });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /blocked by a wall/);
+});
+
 // ---------------------------------------------------------------------------
 // checkStepLegality (Player Core pg. 410, design doc §15o) — a real SF2E
 // basic action added on its own merits: it needs no terrain and no

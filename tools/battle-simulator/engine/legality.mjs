@@ -99,7 +99,7 @@ function firstWallBlockedEdge(from, to, walls) {
   return null;
 }
 
-export function checkMoveLegality({ combatant, from, to, effectiveSpeed, feetAlreadyMovedThisTurn, allPositions, gridSize, turnState, walls }) {
+export function checkMoveLegality({ combatant, from, to, effectiveSpeed, feetAlreadyMovedThisTurn, allPositions, gridSize, turnState, walls, path }) {
   const budget = checkActionBudget(turnState, 1);
   if (!budget.legal) return budget;
 
@@ -110,13 +110,37 @@ export function checkMoveLegality({ combatant, from, to, effectiveSpeed, feetAlr
   if (isOccupied(to, otherPositions)) {
     return { legal: false, reason: `(${to.col},${to.row}) is already occupied — can't move through/onto another combatant.` };
   }
-  const blocked = firstBlockedIntermediateSquare(from, to, otherPositions);
-  if (blocked) {
-    return { legal: false, reason: `Path from (${from.col},${from.row}) to (${to.col},${to.row}) passes through an occupied square at (${blocked.col},${blocked.row}) — can't move through another combatant to reach a legal destination.` };
-  }
-  const wallBlocked = firstWallBlockedEdge(from, to, walls);
-  if (wallBlocked) {
-    return { legal: false, reason: `Path from (${from.col},${from.row}) to (${to.col},${to.row}) is blocked by a wall between (${wallBlocked.from.col},${wallBlocked.from.row}) and (${wallBlocked.to.col},${wallBlocked.to.row}).` };
+  // FIX (design doc §16, found running the stress-test scenario — a fixture never once moved
+  // across an entire 6-round battle): ai/world/pathfind.mjs's reachableCells finds a REAL route
+  // around obstacles (respecting the same occupancy/walls this function checks), but until now
+  // only ever handed back the destination CELL — a proposal carrying no path. Re-deriving a
+  // straight line here to validate it (below) is correct for the vast majority of moves, which
+  // genuinely traveled in a straight line, but is simply the WRONG check for a move that was
+  // planned as a detour: the straight line from A to B can cross a cell the real path deliberately
+  // routed around, so a mover blocked on its direct line — even with a perfectly legal path
+  // available — was rejected every single time, forever, with no way to ever succeed. When the
+  // proposal supplies the actual path it was planned against (ai/decide.mjs's
+  // pathfindingDestinationToward/Away, wall-aware branch only), validate THAT instead of guessing.
+  if (path?.length) {
+    for (let i = 1; i < path.length; i++) {
+      const cell = path[i];
+      const isDestination = cell.col === to.col && cell.row === to.row;
+      if (!isDestination && isOccupied(cell, otherPositions)) {
+        return { legal: false, reason: `Path from (${from.col},${from.row}) to (${to.col},${to.row}) passes through an occupied square at (${cell.col},${cell.row}) — can't move through another combatant to reach a legal destination.` };
+      }
+      if (walls?.length && moveBlockedBetween(path[i - 1], cell, walls)) {
+        return { legal: false, reason: `Path from (${from.col},${from.row}) to (${to.col},${to.row}) is blocked by a wall between (${path[i - 1].col},${path[i - 1].row}) and (${cell.col},${cell.row}).` };
+      }
+    }
+  } else {
+    const blocked = firstBlockedIntermediateSquare(from, to, otherPositions);
+    if (blocked) {
+      return { legal: false, reason: `Path from (${from.col},${from.row}) to (${to.col},${to.row}) passes through an occupied square at (${blocked.col},${blocked.row}) — can't move through another combatant to reach a legal destination.` };
+    }
+    const wallBlocked = firstWallBlockedEdge(from, to, walls);
+    if (wallBlocked) {
+      return { legal: false, reason: `Path from (${from.col},${from.row}) to (${to.col},${to.row}) is blocked by a wall between (${wallBlocked.from.col},${wallBlocked.from.row}) and (${wallBlocked.to.col},${wallBlocked.to.row}).` };
+    }
   }
   // SF2E ACTION ECONOMY (design doc §15h, fixed 2026-08-23). Stride is ONE action for up to
   // your full Speed, and it is repeatable — three Strides is three times your Speed. This used
