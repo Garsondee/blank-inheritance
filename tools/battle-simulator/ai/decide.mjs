@@ -63,11 +63,8 @@ export function decisionRng(state, combatantId, decisionIndex) {
  * validates a move as ONE straight hop from the turn's start position, so a bent
  * path would be generated and then rejected — a bug this project has already hit.
  */
-function stepToward(state, moverId, from, to, maxFeet, standoffFeet) {
-  const others = [...state.positions.entries()].filter(([id]) => id !== moverId).map(([, p]) => p);
-  const dx = Math.sign(to.col - from.col);
-  const dy = Math.sign(to.row - from.row);
-  if (dx === 0 && dy === 0) return null;
+/** Walk a SINGLE fixed (dx,dy) direction from `from`, stopping at bounds/occupied/budget/standoff/overshoot. */
+function extend(state, others, from, to, dx, dy, maxFeet, standoffFeet) {
   let cur = { ...from };
   let curDist = distanceFeet(cur, to);
   for (;;) {
@@ -77,10 +74,43 @@ function stepToward(state, moverId, from, to, maxFeet, standoffFeet) {
     if (isOccupied(next, others)) break;
     if (distanceFeet(from, next) > maxFeet) break;
     const nextDist = distanceFeet(next, to);
-    if (nextDist >= curDist) break;
+    if (nextDist >= curDist) break; // never overshoot past the closest approach (design doc §14i)
     cur = next; curDist = nextDist;
   }
   return (cur.col === from.col && cur.row === from.row) ? null : cur;
+}
+
+/**
+ * REGRESSION (found migrating this project's test suite, not by inspection): a single-heading-only
+ * version of this function returns null the instant its ONE direction is blocked on the very first
+ * step — a teammate parked directly on the heading toward the only target on the map left a
+ * combatant with zero move candidates ("the Frame got stuck at spawn for multiple rounds," §14h's
+ * own documented bug). A full Dijkstra fallback was tried and MEASURED to be far too expensive to
+ * use this often: generateProposals calls this once per weapon-range per enemy plus contact/melee,
+ * and a full flow-field search averages ~17ms — a 20-seed sweep that normally runs in ~800ms took
+ * over 90 SECONDS once nearly every "already adjacent, standoff=0 wants the literal same occupied
+ * square" call triggered it. Fixed instead with the same cheap, proven approach this project's
+ * original computeDestination used before decide.mjs replaced it: try up to 7 nearby compass
+ * headings, not just the one exact bearing to the target, and take the first that makes real
+ * progress. A handful of straight-line walks costs microseconds, not milliseconds — reserving the
+ * expensive real-pathfinding path (bestDestinationToward's OWN wall-gated branch, still Dijkstra
+ * where it's genuinely needed) for when a scenario actually defines walls.
+ */
+function stepToward(state, moverId, from, to, maxFeet, standoffFeet) {
+  const others = [...state.positions.entries()].filter(([id]) => id !== moverId).map(([, p]) => p);
+  const primaryDx = Math.sign(to.col - from.col);
+  const primaryDy = Math.sign(to.row - from.row);
+  if (primaryDx === 0 && primaryDy === 0) return null;
+  const headings = [
+    [primaryDx, primaryDy], [primaryDx, 0], [0, primaryDy],
+    [primaryDx, 1], [primaryDx, -1], [1, primaryDy], [-1, primaryDy]
+  ];
+  for (const [dx, dy] of headings) {
+    if (dx === 0 && dy === 0) continue;
+    const result = extend(state, others, from, to, dx, dy, maxFeet, standoffFeet);
+    if (result) return result;
+  }
+  return null;
 }
 
 /** Straight line directly AWAY from a point, for disengaging. */
@@ -137,8 +167,7 @@ function trueDistanceField(state, moverId, to, others) {
   return reachableCells({ from: to, maxFeet: span, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls });
 }
 
-function bestDestinationToward(state, moverId, from, to, maxFeet, standoffFeet) {
-  if (!state.walls?.length) return stepToward(state, moverId, from, to, maxFeet, standoffFeet);
+function pathfindingDestinationToward(state, moverId, from, to, maxFeet, standoffFeet) {
   const others = [...state.positions.entries()].filter(([id]) => id !== moverId).map(([, p]) => p);
   const reachable = reachableCells({ from, maxFeet, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls });
   const distField = trueDistanceField(state, moverId, to, others);
@@ -155,9 +184,19 @@ function bestDestinationToward(state, moverId, from, to, maxFeet, standoffFeet) 
   return best;
 }
 
-/** The wall-aware sibling of stepAway — see bestDestinationToward's header for why this is gated and why it needs the true-distance field. */
-function bestDestinationAway(state, moverId, from, threat, maxFeet) {
-  if (!state.walls?.length) return stepAway(state, moverId, from, threat, maxFeet);
+/**
+ * Wall-gated only — see stepToward's own header for why a Dijkstra-on-null fallback here was
+ * tried, measured, and reverted (a 20-seed sweep going from ~800ms to 90+ seconds). stepToward's
+ * 7-heading retry handles ordinary sidestepping-around-an-occupied-cell cheaply on its own now;
+ * real pathfinding is reserved for when a scenario genuinely defines walls, which is rare and
+ * deliberately opt-in.
+ */
+function bestDestinationToward(state, moverId, from, to, maxFeet, standoffFeet) {
+  if (state.walls?.length) return pathfindingDestinationToward(state, moverId, from, to, maxFeet, standoffFeet);
+  return stepToward(state, moverId, from, to, maxFeet, standoffFeet);
+}
+
+function pathfindingDestinationAway(state, moverId, from, threat, maxFeet) {
   const others = [...state.positions.entries()].filter(([id]) => id !== moverId).map(([, p]) => p);
   const reachable = reachableCells({ from, maxFeet, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls });
   const distField = trueDistanceField(state, moverId, threat, others);
@@ -172,6 +211,26 @@ function bestDestinationAway(state, moverId, from, threat, maxFeet) {
     }
   }
   return best;
+}
+
+/**
+ * The wall-aware sibling of stepAway — gated on walls ONLY, deliberately NOT given the same
+ * null-triggers-a-fallback behavior bestDestinationToward has.
+ *
+ * MEASURED, NOT ASSUMED: stepAway has no cheap "already satisfied" exit the way stepToward does
+ * (standoffFeet) — it unconditionally tries to move as far away as budget allows, so its ONLY
+ * null case is "the very first step in the away direction is blocked" (an edge or an occupied
+ * cell). That turned out to be common in ordinary, non-adversarial positions — a combatant near
+ * any map boundary fleeing toward it hits this on nearly every disengage candidate, of which
+ * generateProposals generates one per living enemy per decision. Falling back to a full Dijkstra
+ * flood-fill on every one of those took a 20-seed sweep from ~800ms to well over 90 SECONDS.
+ * Unlike bestDestinationToward's fallback — which fixes a real, previously-documented bug
+ * ("the Frame got stuck at spawn for multiple rounds") — a slightly weaker disengage option in an
+ * edge-adjacent position has no comparable cost to justify paying for it here.
+ */
+function bestDestinationAway(state, moverId, from, threat, maxFeet) {
+  if (state.walls?.length) return pathfindingDestinationAway(state, moverId, from, threat, maxFeet);
+  return stepAway(state, moverId, from, threat, maxFeet);
 }
 
 /**

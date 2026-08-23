@@ -1,10 +1,9 @@
 /**
  * Tests for the party side's tactical policy (partyAI). As of design doc
- * §14h, partyAI is a thin wrapper over the shared utility-AI framework —
- * these tests exercise that framework end-to-end from the party's
- * perspective (Vesper's dual-weapon choice specifically), rather than
- * testing partyAI's own logic in isolation, since it no longer has any.
- * computeDestination's tests moved to candidates.test.mjs (its new home).
+ * §15j, partyAI is a thin wrapper over the shared decide() decision layer —
+ * these tests exercise that layer end-to-end from the party's perspective
+ * (Vesper's dual-weapon conservation specifically), rather than testing
+ * partyAI's own logic in isolation, since it no longer has any.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";

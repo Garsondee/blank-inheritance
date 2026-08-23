@@ -19,8 +19,8 @@
  * options because its action vocabulary is too narrow (e.g. no spells, no
  * class abilities, nothing to do but Repair when nobody's hurt) is
  * exactly the gap this audit exists to surface, not paper over — the fix
- * belongs in giving that combatant more real options
- * (candidates.mjs/considerations.mjs), not in excusing the hold here.
+ * belongs in giving that combatant more real options (ai/decide.mjs's
+ * generateProposals), not in excusing the hold here.
  */
 
 /** Every heldReason string engine.mjs actually produces, sorted into what it means. */

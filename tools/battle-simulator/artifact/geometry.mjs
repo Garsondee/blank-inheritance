@@ -50,10 +50,11 @@ export function reachFeetForStrikeLocal(strike) {
  * rangeIncrement (via reachFeetForStrikeLocal above), a melee Strike's
  * reach, or a spell/ability's own flat `.range` (design doc §14k — checked
  * FIRST, since a spell has no strikeType at all and would otherwise fall
- * through to rangeIncrement and read as null). Mirrors ai/candidates.mjs's
- * cleanRangeFeet exactly, for the same "don't let the visual silently
- * drift from what the AI actually reasoned about" reason the rest of this
- * module exists.
+ * through to rangeIncrement and read as null). Mirrors the same
+ * range-then-reach logic ai/evaluate/state-value.mjs's usefulRangeFeet
+ * uses for the AI's own candidate generation, for the same "don't let the
+ * visual silently drift from what the AI actually reasoned about" reason
+ * the rest of this module exists.
  */
 export function cleanRangeFeetLocal(item) {
   if (item.range != null) return item.range;
