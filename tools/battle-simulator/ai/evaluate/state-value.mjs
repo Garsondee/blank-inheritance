@@ -151,7 +151,25 @@ export const DEFAULT_WEIGHTS = {
   // now." It is a probabilistic future cost against one of several possible targets,
   // and belongs heavily discounted.
   threatExposure: 0.12,
-  offensiveReach: 0.75,    // expected outgoing damage available from here — the whole reason to reposition
+  // MEASURED CORRECTION (design doc §17). This was 0.75, and at that value the AI would not fight.
+  // Head-to-head against a trivial "always take the best attack" baseline, the real AI lost 0-12 in
+  // the swarm archetype; the action mix showed why — on one seed it spent 37 of 42 actions moving,
+  // took TWO attacks in a nine-round battle, and dealt 16 total damage against the baseline's 959.
+  //
+  // The cause is a currency error, not a movement bug. offensiveReach pays for *being able to deal*
+  // damage, and enemyDamage pays for *actually dealing* it. At 0.75-vs-1.0 those are nearly the
+  // same price — but threatening is far cheaper to buy, because one reposition can bring several
+  // enemies into range at once while an attack can only ever hurt one. Worse, once an enemy's
+  // remaining HP is the binding constraint (the monotonicity cap above), an attack's NET value
+  // falls to (enemyDamage - offensiveReach) = 0.25 per point of damage, while a move that opens a
+  // new firing line still pays the full 0.75. Repositioning therefore dominated attacking by
+  // roughly 3:1 in exactly the situations where attacking was the whole point.
+  //
+  // 0.2 restores the intended hierarchy: dealing damage is the primary currency, and position is a
+  // tiebreaker that decides WHERE to be when two options are otherwise close. The closing gradient
+  // below — which is gated and vanishes on arrival — remains the term responsible for making the
+  // AI approach at all, which is the job offensiveReach was wrongly being asked to share.
+  offensiveReach: 0.2,     // positional tiebreaker: expected outgoing damage available from here
   actionDenial: 8.0,       // ~HP-equivalent of costing an enemy one action per round via a damage-state breakpoint
   objective: 2.5,          // per square of progress toward/away from a scripted objective — the party's real win condition
   civilians: 2.5,          // HP-equivalent of one civilian evacuated; explicit and arguable, not hidden in a curve
@@ -204,18 +222,42 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
   // infinite oscillation effectiveDistance() alone didn't fix. Gated the same way: a cheap
   // lineOfEffect check first, only paid at all when a scenario actually defines walls.
   //
-  // FIX (design doc §16, stress-test mission): offensiveReach used to credit an ally with a
-  // target's FULL weapon-damage potential regardless of how much HP that target actually had
-  // left — "I could hit it for 24" scored the same whether the target had 100 HP or 7. With
-  // several allies simultaneously in range of the SAME nearly-dead target (only possible in a
-  // scenario with enough combatants clustered together — every prior scenario had too few),
-  // that phantom overkill credit is counted once per ally and can dwarf the real value of the
-  // kill: measured on a real transcript, killing a 7-HP Claimant that 3+ allies could all reach
-  // dropped offensiveReach by 44 points — MORE than enemyDamage (+7, capped at the 7 HP it
-  // actually had) and actionDenial (+8) combined gained back, so the evaluator ranked finishing
-  // off an already-doomed target BELOW spending the action on Spot. Capping the credited amount
-  // at the target's actual remaining HP removes the phantom: reach against a full-health enemy
-  // is unaffected, reach against a nearly-dead one is worth only what's actually left to take.
+  // THE MONOTONICITY REQUIREMENT (design doc §17) — the single most important structural property
+  // in this file, and the one two separate measured bugs have now violated:
+  //
+  //     Reducing an enemy's HP must NEVER reduce this side's score.
+  //
+  // offensiveReach is the term that keeps breaking it, because it pays for *having a live enemy
+  // in range* — so anything that kills enemies destroys its own reward. Formally, the requirement
+  // is d(score)/d(enemyHP) <= 0, and the enemy-HP-dependent terms are:
+  //     -weights.enemyDamage * HP        (gradient -1.0)
+  //     +offensiveReach contribution     (gradient +? — this is the dangerous one)
+  //
+  // FIRST BUG (§16): offensiveReach credited each ally with the target's FULL damage potential
+  // regardless of remaining HP, so killing a 7-HP Claimant three allies could reach destroyed 44
+  // points of phantom overkill credit against +7 enemyDamage and +8 actionDenial. Striking scored
+  // -24.47 versus +4.00 for a pointless Spot. Fixed by capping each pair's credit at the enemy's
+  // currentHP.
+  //
+  // SECOND BUG (§17, found by the tactical benchmark, NOT by that fix's own tests): capping
+  // PER PAIR is still wrong, because the caps then sum. With N allies in range of one enemy the
+  // gradient is +weights.offensiveReach * N, which beats enemyDamage's -1.0 as soon as N >= 2.
+  // At the 0.75 weight that means every fight with two or more allies converging on one target
+  // still punished hurting it — precisely the multi-unit case the archetype battery exercises,
+  // and precisely why the AI spread damage (61% mid-turn target-switch rate in the swarm
+  // archetype) and lost head-to-head to a trivial "attack the nearest thing" baseline.
+  //
+  // THE FIX: cap the TOTAL offensiveReach credit for each enemy at that enemy's remaining HP,
+  // once, after summing across allies. The gradient is then at most +weights.offensiveReach
+  // (0.75) regardless of how many allies are in range, which is strictly less than enemyDamage's
+  // 1.0 — so the invariant holds by construction for any party size, and continues to hold at the
+  // moment of death (the credit tends to 0 as HP does, so there is no discontinuity to exploit).
+  // value-function-sanity.test.mjs asserts the invariant directly rather than trusting this note.
+  //
+  // threatExposure keeps its per-pair SUM deliberately: being shot at by four enemies really is
+  // four times as dangerous as one, and that term shrinking when an enemy dies is a *gain*, so it
+  // pushes in the right direction already and cannot violate the requirement above.
+  const reachByEnemy = new Map();
   for (const ally of allies) {
     if (ally.currentHP <= 0) continue;
     const allyPos = state.positions.get(ally.id);
@@ -225,10 +267,14 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
       const enemyPos = state.positions.get(enemy.id);
       if (!enemyPos) continue;
       if (state.walls?.length && !lineOfEffect(allyPos, enemyPos, state.walls)) continue; // no real shot exists from here
-      const reach = Math.min(bestExpectedDamage(ally, allyPos, enemy, enemyPos), enemy.currentHP);
-      score += weights.offensiveReach * reach;
+      reachByEnemy.set(enemy.id, (reachByEnemy.get(enemy.id) ?? 0) + bestExpectedDamage(ally, allyPos, enemy, enemyPos));
       score -= weights.threatExposure * bestExpectedDamage(enemy, enemyPos, ally, allyPos);
     }
+  }
+  for (const enemy of enemies) {
+    const raw = reachByEnemy.get(enemy.id);
+    if (!raw) continue;
+    score += weights.offensiveReach * Math.min(raw, enemy.currentHP);
   }
 
   // CLOSING GRADIENT (design doc §15k) — the fix for a flat evaluator.

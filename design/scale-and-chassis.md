@@ -743,3 +743,94 @@ Net effect, measured directly: striking the Claimant scored **-24.47** against S
 **What this mission proved, taken together.** Every one of the six findings above needed real scale — more combatants, real terrain, a genuinely mixed-HP battlefield — to become visible at all; every prior, smaller scenario was silently passing through the exact same code paths without ever exercising the conditions that broke them. That is the actual argument for building "maximum complexity" on purpose rather than incrementally: a system that only gets tested at the scale it was designed for never learns what it does at the scale it will actually face.
 
 312 battle-simulator tests / 468 across the full repo, all passing.
+
+## 17. The tactical benchmark — and the finding that the AI is not yet good
+
+Built to answer Ingram's question directly: *"What would it take to convince you that we had strong AI working for turn taking decisions? How can we make tests that prove that we're getting closer towards a good system?"* Predictions were written down **before** any of it was run (reproduced in the scorecard below), because a battery whose expectations are set after seeing the results proves nothing.
+
+### The honest answer to "what would convince me"
+
+There is no ground truth for "the correct move" — nobody can write `assert.equal(decide(state), OPTIMAL)`. So conviction has to be assembled from tiers of evidence, each of which fails differently:
+
+| Tier | Question | Strength | Status |
+|---|---|---|---|
+| 0. Legality/utilization | Does it act at all, legally? | Necessary, very weak — **a uniformly random bot scores ~100%** | passing since §15 |
+| 1. Value-function sanity | Is the scoring function internally coherent? | Strong, cheap, deterministic | **built here**, found 1 major bug |
+| 2. Behavioural signatures | Does it focus fire, respect MAP, prioritise threat? | Medium — measures style, not success | **built here**, 3 of 5 signatures poor |
+| 3. Head-to-head vs baselines | Is any of that worth anything? | **Strongest available** — cannot be gamed | **built here, and it says NO** |
+| 4. Distributional | Mirror matches ~50/50? Robust across shapes? | Strong for bias detection | partially built |
+| 5. Qualitative | Do transcripts read like competent play? | Weak alone, essential as a cross-check | ongoing practice since §15 |
+
+**Tier 3 is the one that matters, and it is the one this project did not have.** Everything through §16 was tier 0 and tier 5. That is precisely how an evaluator that scored *hurting an enemy* as bad for you survived a fully green 335-test suite twice.
+
+### The apparatus
+
+- **`analysis/tactical-metrics.mjs`** — six malfunction detectors, each with a named broken pole: focus fire (damage spreading), MAP discipline (swinging three times at a wall), oscillation (dithering), resource use (hoarding one-shot weapons), threat priority (proximity bias), engagement (passivity). A metric with no broken pole is a vanity metric and none were kept.
+- **`ai/baselines.mjs`** — three deliberately naive policies (`random`, `nearest`, `greedy`) that reuse the real `generateProposals` and the real engine sandbox for legality, so the **only** variable is the selection rule. This isolates the sandbox-scored evaluator's contribution rather than confounding it with candidate generation.
+- **`scenarios/archetypes.mjs`** — five encounter shapes, each costed against `reference/tables/encounter-and-rewards-math.json`'s real XP budget: swarm (8x level-8 lackeys, 80 XP moderate), solo boss (1x level-16, 160 XP extreme), mixed levels (level-14 artillery + 4x level-9 chaff, 140 XP), mirror, and range asymmetry. Deliberately **no walls** — terrain is covered by §16, and including it here would multiply runtime ~1000x and confound "chose well" with "pathed well".
+- **`run-tactical-benchmark.mjs`** — behaviour mode and head-to-head mode, the latter with a **side-swap control**: every matchup is played twice, once with the real AI on each side. Without that control, a scenario's own side bias is indistinguishable from AI quality.
+
+### The headline finding
+
+**The real AI loses decisively to "attack whatever is nearest."**
+
+| Archetype | vs random | vs nearest | vs greedy |
+|---|---|---|---|
+| swarm | 100% | **13%** | **13%** |
+| mirror | 100% | **25%** | **8%** |
+
+It comfortably beats uniform-random — so the machinery is doing *something* — and is then beaten roughly 4:1 by a policy that fits in ten lines. Two rounds of principled fixes (below) moved swarm from **0%** and mirror from **8%**, which is real progress and still nowhere near parity.
+
+The other three archetypes turned out to have **no discriminating power at all**: solo-boss, mixed-levels and range-asymmetry each produced the exact pattern `real-as-party 0W-6L / real-as-opposition 6W-0L`, meaning the outcome was determined entirely by which side you were on, regardless of policy. That is a finding about **the scenario design**, not about the AI, and it is exactly what the side-swap control exists to expose. Mixed-levels in particular is unwinnable as built: the artillery outranges every party weapon except two single-use ordnance rounds, so the party cannot engage it at all. Those three need rebuilding before their numbers mean anything.
+
+### Two real bugs found, both in the value function
+
+**1. The monotonicity violation (the important one).** §16 had capped `offensiveReach`'s credit at the target's remaining HP, which fixed the single-attacker case and shipped with a test that passed. The cap was applied **per attacker-target pair**, so the caps summed: with N allies in range of one enemy, the score's gradient with respect to that enemy's HP is `+offensiveReach x N`, which beats `enemyDamage`'s `-1.0` as soon as N >= 2. Every multi-unit fight therefore still punished hurting a target — the direct cause of the 61% mid-turn target-switch rate and the 0-12 head-to-head loss. Fixed by capping the **total** credit per enemy, once, after summing across allies, which bounds the gradient at `offensiveReach` regardless of party size.
+
+The property this violates is worth stating as a rule, because two separate bugs have now broken it:
+
+> **Reducing an enemy's HP must never reduce your side's score.**
+
+`test/battle-simulator/value-function-sanity.test.mjs` now asserts it directly, swept across ally counts 1-5 — the sweep is the test, since the single-ally case passed while the bug was live.
+
+**2. The currency error.** With monotonicity fixed the AI still lost, and the action mix showed why: on one seed it spent **37 of 42 actions moving, took two attacks in a nine-round battle, and dealt 16 total damage** against the baseline's 959. `offensiveReach` at 0.75 priced *being able to* deal damage at three-quarters of *actually* dealing it — but threatening is far cheaper to buy, since one reposition can open several firing lines at once while an attack only ever hurts one target. Worse, once remaining HP is the binding constraint, an attack's net value falls to `(1.0 - 0.75) = 0.25` per point while a move that opens a new line still pays 0.75. Repositioning dominated attacking roughly 3:1. Lowering the weight to **0.2** restored the hierarchy — damage is the currency, position is a tiebreaker — and roughly tripled damage output.
+
+### Prediction scorecard
+
+Recorded before running, scored after. The meta-prediction was "at least two of eight will fail"; five did.
+
+| # | Prediction | Result |
+|---|---|---|
+| P1 | Swarm focus-fire switchRate < 30% | **FAILED** — 61%, now 44% after fixes. Still spreading damage. |
+| P2 | Third-attack share lower vs a high-AC boss than vs a low-AC swarm | **FAILED** — 11.7% vs 9.8%, i.e. slightly *higher*. No MAP awareness differential. |
+| P3 | Threat-priority correlation > +0.3 | **FAILED HARD** — measured **-0.72**, actively preferring the harmless targets. Partly confounded (3 of 4 party units cannot reach the artillery at all), but the two units that *could* fire on it never did. |
+| P4 | Mirror match ~50/50 | **PASSED, provisionally** — 4W/2L, then 6W/0L after the fixes. Six seeds is too few; 6/0 is ~3% under a fair coin and warrants a larger sweep. |
+| P5 | Beats random >70%, nearest >60%, greedy >55% | **PARTIAL** — random 100% (passed decisively), nearest 13-25% (failed), greedy 8-13% (failed). |
+| P6 | Limited-use resources spent >50% of the time | **FAILED, then FIXED** — 6/18 before, 14/18 in the swarm archetype after the monotonicity fix. Hoarding was a symptom of the same bug. |
+| P7 | No oscillation (explorationRatio > 0.5) | **PASSED** — 0.50-0.75 across all archetypes. |
+| P8 | Engages by round 3, always | **PASSED** — first damage on round 1 in every archetype, every seed. |
+
+Confidence was highest that P5-vs-greedy would be a coin flip and lowest on P3; P3 was the worse failure and P5 came out worse than a coin flip. Both directions of error are recorded rather than smoothed, because the point of pre-registering is to be able to notice them.
+
+### What is still wrong, stated as hypotheses rather than conclusions
+
+The AI's attack share is 41-51% of actions against the baselines' 72-88%. It is still under-fighting, and the remaining suspects are **not yet tested**, so they are listed as hypotheses:
+
+1. **`closing` at 3.0/square may still over-reward approach.** It is gated to vanish on arrival, but a melee unit's gate is only satisfied at 2 squares, so it pays a large gradient for most of the map.
+2. **`spotted` at 4.0 is a risk-free, always-available filler.** An attack's value is variable and can score below 4; Spot's never does. That is the classic "safe small gain crowds out the correct risky play" shape.
+3. **No kill-threshold term.** Expected value treats "guaranteed 10 damage" and "10% of 100" identically, so the evaluator cannot see that a specific attack would *finish* a target — which is exactly the judgement focus fire requires.
+
+The right way to settle these is an **ablation sweep** — vary one weight at a time, measure head-to-head win rate against `greedy`, keep what wins — not more hand-tuning. That is the natural next piece of work and it is now cheap, because the apparatus to measure it exists.
+
+### What would actually convince me
+
+Concretely, and stated so it can be held to:
+
+1. **Beats `greedy` above 60% across both directions on at least three discriminating archetypes.** Currently 8-13%. This is the single number that matters.
+2. **Mirror matches land within statistical noise of 50/50 over 40+ seeds.** Currently untested at that sample size.
+3. **Monotonicity and the other value-function invariants hold** — automated, and they now are.
+4. **Focus-fire switch rate below ~25% in the swarm archetype**, with the baselines scoring worse on the same metric.
+5. **Ablation shows every layer earns its place** — turn off belief, or the sandbox, or the closing gradient, and the win rate measurably drops. Any layer that can be removed for free is not paying for its complexity.
+6. **Transcripts read as competent** to a human, as a cross-check that the numbers are not being satisfied in some degenerate way.
+
+Right now items 1, 2, 4 and 5 are unmet. The system is **not** yet a strong turn-taking AI, and the honest summary is that it took building tier 3 to find that out — which is the strongest possible argument for having built it.
