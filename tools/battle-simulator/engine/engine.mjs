@@ -147,6 +147,11 @@ export function runBattle(scenario) {
     seed: scenario.seed,
     initiativeOrder: null, // filled immediately below, once the roll has happened
     civiliansEvacuated: 0, // running objective tally; the evaluator cannot price Evacuate without it
+    // Terrain (design doc §15p) — an opt-in scenario field. No scenario in this project defines
+    // any today (real city terrain is a separate, ongoing effort); every wall-consuming function
+    // treats undefined identically to an empty array, so this line changes nothing until a
+    // scenario actually sets `walls`.
+    walls: scenario.walls,
     combatants: new Map(scenario.combatants.map((c) => [c.id, structuredClone(c)])),
     positions: new Map(scenario.combatants.map((c) => [c.id, { ...c.position }])),
     reactionAvailable: new Map(scenario.combatants.map((c) => [c.id, true]))
@@ -420,8 +425,10 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
       feetAlreadyMovedThisTurn: turnProgress.feetMoved,
       allPositions: [...state.positions.entries()].map(([id, p]) => ({ combatantId: id, pos: p })),
       gridSize: state.gridSize,
-      turnState: turnProgress // FIX: checkMoveLegality now checks the action budget itself — "move" was
+      turnState: turnProgress, // FIX: checkMoveLegality now checks the action budget itself — "move" was
       // previously the one proposal type exempt from budget enforcement.
+      walls: state.walls // design doc §15p — undefined for every scenario today; moveBlockedBetween
+      // treats that identically to an empty array, so this is a no-op until real terrain exists.
     });
     if (!check.legal) return { type: "move", to: proposal.to, legal: false, reason: check.reason };
 
@@ -446,7 +453,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     const check = checkStepLegality({
       combatant, from: pos, to: proposal.to, effectiveSpeed: effective.speed,
       allPositions: [...state.positions.entries()].map(([id, p]) => ({ combatantId: id, pos: p })),
-      gridSize: state.gridSize, turnState: turnProgress
+      gridSize: state.gridSize, turnState: turnProgress, walls: state.walls
     });
     if (!check.legal) return { type: "step", to: proposal.to, legal: false, reason: check.reason };
 
@@ -468,7 +475,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     // the one caller most likely to probe blindly: a lookahead planner enumerating options.
     if (!strike) return { type: "strike", targetId: proposal.targetId, legal: false, reason: `No strike at index ${proposal.strikeIndex ?? 0} — ${combatant.name} has ${(combatant.strikes ?? []).length}.` };
 
-    const check = checkStrikeLegal({ attacker: combatant, attackerPos: pos, target, targetPos, strike, turnState: turnProgress });
+    const check = checkStrikeLegal({ attacker: combatant, attackerPos: pos, target, targetPos, strike, turnState: turnProgress, walls: state.walls });
     if (!check.legal) return { type: "strike", targetId: proposal.targetId, legal: false, reason: check.reason };
 
     turnProgress.strikesAttempted += 1;
@@ -524,7 +531,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     const spell = (combatant.spells ?? [])[proposal.spellIndex ?? 0];
     if (!spell) return { type: "spellAttack", targetId: proposal.targetId, legal: false, reason: `No spell at index ${proposal.spellIndex ?? 0} — ${combatant.name} has ${(combatant.spells ?? []).length}.` };
 
-    const check = checkSpellAttackLegal({ caster: combatant, casterPos: pos, target, targetPos, spell, turnState: turnProgress });
+    const check = checkSpellAttackLegal({ caster: combatant, casterPos: pos, target, targetPos, spell, turnState: turnProgress, walls: state.walls });
     if (!check.legal) return { type: "spellAttack", targetId: proposal.targetId, legal: false, reason: check.reason };
 
     turnProgress.strikesAttempted += 1;
@@ -833,6 +840,7 @@ export function cloneStateForPlanning(state) {
     seed: state.seed,
     civiliansEvacuated: state.civiliansEvacuated ?? 0,
     initiativeOrder: state.initiativeOrder,
+    walls: state.walls, // static terrain — never mutated in a battle, safe (and cheap) to share by reference
     combatants,
     positions,
     reactionAvailable: new Map(state.reactionAvailable)

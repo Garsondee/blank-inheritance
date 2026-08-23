@@ -34,6 +34,7 @@ import { forkTurnSandbox } from "../engine/engine.mjs";
 import { makeRng } from "../engine/rng.mjs";
 import { distanceFeet, isInBounds, isOccupied, FEET_PER_SQUARE } from "../engine/grid.mjs";
 import { evaluateState, attackOptions, usefulRangeFeet } from "./evaluate/state-value.mjs";
+import { reachableCells } from "./world/pathfind.mjs";
 
 /**
  * A per-decision RNG derived from (battle seed, round, combatant, decision index).
@@ -98,6 +99,81 @@ function stepAway(state, moverId, from, threat, maxFeet) {
 }
 
 /**
+ * Wall-aware destination selection (design doc §15q). stepToward's straight-line walk simply
+ * gives up — returns null — the moment a wall blocks its one path, even when a route exists two
+ * squares to the side; that degrades gracefully (this destination candidate just doesn't appear)
+ * rather than crashing, but it can't discover a route that requires going around something.
+ *
+ * Real Dijkstra fixes that, so this reaches for it — but ONLY when the scenario actually defines
+ * walls. Every scenario in this project has none today, and pathfind.mjs's flood-fill is
+ * meaningfully more expensive than a straight-line walk, so paying that cost on every single
+ * candidate for the overwhelming common case would be waste for zero behavioural benefit. The
+ * gate keeps stepToward/stepAway themselves completely untouched — zero risk to the path every
+ * existing scenario actually runs.
+ */
+/**
+ * REGRESSION (found running a real synthetic-wall battle, not by inspection): the first version
+ * of this function found reachable cells correctly (real Dijkstra) but still SCORED them by
+ * straight-line distanceFeet — which stops correlating with true proximity right next to a wall,
+ * where the straight-line-closest reachable cell can be a dead end. That produced a genuine
+ * infinite oscillation: two combatants cycling the exact same position sequence forever, because
+ * each turn's fresh candidate generation, from a position where the straight-line metric was
+ * already "locally best," found nothing better and returned null — leaving stepAway's
+ * flee-to-the-farthest-reachable-corner as the only other candidate on offer, which the AI (by
+ * design, see decide()'s no-hold-gate) then had to take even though it scored deeply negative.
+ *
+ * Fixed with a proper flow field: a SECOND Dijkstra run, from the TARGET this time, gives true
+ * path-distance-to-target for every cell in one search — movement/occupancy blocking is
+ * direction-agnostic (moveBlockedBetween and isOccupied are both symmetric, verified in
+ * terrain.test.mjs), so "distance from X to the target" computed this way is exactly the number
+ * "distance from the target to X" would be. Candidates are then scored by TRUE path distance,
+ * not straight-line — the metric now actually decreases as a mover makes real progress around
+ * an obstacle, which is what makes each turn's fresh candidate generation converge instead of
+ * getting stuck re-discovering the same "locally best by the wrong metric" dead end.
+ */
+function trueDistanceField(state, moverId, to, others) {
+  const span = Math.max(state.gridSize.cols, state.gridSize.rows) * FEET_PER_SQUARE * 4; // generous — covers any plausible detour on this map
+  return reachableCells({ from: to, maxFeet: span, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls });
+}
+
+function bestDestinationToward(state, moverId, from, to, maxFeet, standoffFeet) {
+  if (!state.walls?.length) return stepToward(state, moverId, from, to, maxFeet, standoffFeet);
+  const others = [...state.positions.entries()].filter(([id]) => id !== moverId).map(([, p]) => p);
+  const reachable = reachableCells({ from, maxFeet, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls });
+  const distField = trueDistanceField(state, moverId, to, others);
+  const trueDist = (col, row) => distField.get(`${col},${row}`)?.cost ?? distanceFeet({ col, row }, to) * 10; // unreachable at all — treat as very far, not infinite
+
+  let best = null, bestScore = Math.max(trueDist(from.col, from.row), standoffFeet), bestCost = 0;
+  for (const [cellKey, { cost }] of reachable) {
+    const [col, row] = cellKey.split(",").map(Number);
+    const score = Math.max(trueDist(col, row), standoffFeet);
+    if (score < bestScore || (score === bestScore && cost < bestCost)) {
+      best = { col, row }; bestScore = score; bestCost = cost;
+    }
+  }
+  return best;
+}
+
+/** The wall-aware sibling of stepAway — see bestDestinationToward's header for why this is gated and why it needs the true-distance field. */
+function bestDestinationAway(state, moverId, from, threat, maxFeet) {
+  if (!state.walls?.length) return stepAway(state, moverId, from, threat, maxFeet);
+  const others = [...state.positions.entries()].filter(([id]) => id !== moverId).map(([, p]) => p);
+  const reachable = reachableCells({ from, maxFeet, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls });
+  const distField = trueDistanceField(state, moverId, threat, others);
+  const trueDist = (col, row) => distField.get(`${col},${row}`)?.cost ?? distanceFeet({ col, row }, threat) * 10;
+
+  let best = null, bestDist = trueDist(from.col, from.row), bestCost = 0;
+  for (const [cellKey, { cost }] of reachable) {
+    const [col, row] = cellKey.split(",").map(Number);
+    const dist = trueDist(col, row);
+    if (dist > bestDist || (dist === bestDist && cost < bestCost)) {
+      best = { col, row }; bestDist = dist; bestCost = cost;
+    }
+  }
+  return best;
+}
+
+/**
  * Every action worth considering. Deliberately generous — the evaluator decides
  * what is good, this only decides what is *conceivable*. A starved generator
  * cannot be rescued by any amount of clever scoring downstream.
@@ -151,21 +227,21 @@ export function generateProposals(state, combatantId, turn) {
   for (const e of enemies) {
     const ePos = state.positions.get(e.id);
     if (!ePos) continue;
-    for (const r of myRanges) addDest(stepToward(state, combatantId, myPos, ePos, speed, r));
-    addDest(stepToward(state, combatantId, myPos, ePos, speed, FEET_PER_SQUARE)); // close to contact
-    addDest(stepToward(state, combatantId, myPos, ePos, speed, 0));
-    addDest(stepAway(state, combatantId, myPos, ePos, speed));                    // disengage
+    for (const r of myRanges) addDest(bestDestinationToward(state, combatantId, myPos, ePos, speed, r));
+    addDest(bestDestinationToward(state, combatantId, myPos, ePos, speed, FEET_PER_SQUARE)); // close to contact
+    addDest(bestDestinationToward(state, combatantId, myPos, ePos, speed, 0));
+    addDest(bestDestinationAway(state, combatantId, myPos, ePos, speed));                    // disengage
 
     if (["large", "huge", "gargantuan"].includes(e.size)) {
-      const hop = stepToward(state, combatantId, myPos, ePos, FEET_PER_SQUARE, 0);
+      const hop = bestDestinationToward(state, combatantId, myPos, ePos, FEET_PER_SQUARE, 0);
       if (hop) stepCandidates.push(hop);
     }
   }
   for (const a of allies) {
     const aPos = state.positions.get(a.id);
-    if (aPos && a.currentHP < a.maxHP) addDest(stepToward(state, combatantId, myPos, aPos, speed, FEET_PER_SQUARE));
+    if (aPos && a.currentHP < a.maxHP) addDest(bestDestinationToward(state, combatantId, myPos, aPos, speed, FEET_PER_SQUARE));
   }
-  if (me.objective) addDest(stepToward(state, combatantId, myPos, me.objective, speed, 0));
+  if (me.objective) addDest(bestDestinationToward(state, combatantId, myPos, me.objective, speed, 0));
 
   for (const d of destinations.values()) proposals.push({ type: "move", to: d });
   for (const d of stepCandidates) proposals.push({ type: "step", to: d });

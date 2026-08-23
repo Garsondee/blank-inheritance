@@ -33,6 +33,28 @@
 import { resolveEffectiveStats, damageStateFor, DAMAGE_STATES } from "../../engine/combatant.mjs";
 import { expectedStrikeDamage } from "../../engine/resolve.mjs";
 import { distanceFeet, reachFeetForStrike, FEET_PER_SQUARE } from "../../engine/grid.mjs";
+import { lineOfEffect } from "../../engine/terrain.mjs";
+import { pathCost } from "../world/pathfind.mjs";
+
+/**
+ * REGRESSION (design doc §15q, found by running a real synthetic-wall battle, not by
+ * inspection): straight-line distanceFeet becomes actively MISLEADING once a wall sits
+ * between two combatants — it reports them as nearly touching through a wall that fully
+ * separates them, which sent the closing-gradient term below into genuine infinite
+ * oscillation (verified: two combatants cycling the exact same four-round position
+ * sequence forever, never converging, every synthetic-wall battle timing out).
+ *
+ * The fix is gated on a CHEAP check first: lineOfEffect is a handful of line-segment
+ * intersection tests, not a search. Only when it reports the direct line is actually
+ * blocked does this reach for real Dijkstra path cost — expensive, but rare, and only
+ * ever paid when a scenario defines walls at all (every scenario in this project does
+ * not, today, so this function is a straight distanceFeet passthrough for all of them).
+ */
+function effectiveDistance(state, from, to) {
+  if (!state.walls?.length || lineOfEffect(from, to, state.walls)) return distanceFeet(from, to);
+  const cost = pathCost({ from, to, maxFeet: 100000, gridSize: state.gridSize, occupiedPositions: [], walls: state.walls });
+  return Number.isFinite(cost) ? cost : distanceFeet(from, to) * 10; // unreachable at all — treat as very far, not infinite (keeps the term finite and comparable)
+}
 
 /** Every attack option a combatant has, strikes and attack spells alike. */
 export function attackOptions(combatant) {
@@ -130,6 +152,15 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
 
   // Positional terms — computed for LIVING combatants only, and always as a
   // symmetric pair so "I can hit them" and "they can hit me" share one scale.
+  //
+  // REGRESSION (design doc §15q): bestExpectedDamage is range-only — it has no idea a wall
+  // sits between the two positions. That let the evaluator see a phantom "I can hit them!"
+  // through solid terrain (the real sandbox/legality layer would correctly reject the strike,
+  // but the STATIC evaluation driving move selection never got that far), which combined with
+  // offensiveReach's high weight (0.75) to actively pull combatants toward positions pressed
+  // up against a wall for a shot that could never actually be taken — the real cause of the
+  // infinite oscillation effectiveDistance() alone didn't fix. Gated the same way: a cheap
+  // lineOfEffect check first, only paid at all when a scenario actually defines walls.
   for (const ally of allies) {
     if (ally.currentHP <= 0) continue;
     const allyPos = state.positions.get(ally.id);
@@ -138,6 +169,7 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
       if (enemy.currentHP <= 0) continue;
       const enemyPos = state.positions.get(enemy.id);
       if (!enemyPos) continue;
+      if (state.walls?.length && !lineOfEffect(allyPos, enemyPos, state.walls)) continue; // no real shot exists from here
       score += weights.offensiveReach * bestExpectedDamage(ally, allyPos, enemy, enemyPos);
       score -= weights.threatExposure * bestExpectedDamage(enemy, enemyPos, ally, allyPos);
     }
@@ -168,7 +200,7 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
     for (const enemy of enemies) {
       if (enemy.currentHP <= 0) continue;
       const ePos = state.positions.get(enemy.id);
-      if (ePos) nearest = Math.min(nearest, distanceFeet(allyPos, ePos));
+      if (ePos) nearest = Math.min(nearest, effectiveDistance(state, allyPos, ePos));
     }
     if (nearest === Infinity || nearest <= reach) continue; // in range already — no credit to farm
     score -= weights.closing * ((nearest - reach) / FEET_PER_SQUARE); // squares still short of a shot

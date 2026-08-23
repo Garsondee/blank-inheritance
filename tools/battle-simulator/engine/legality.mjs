@@ -16,6 +16,7 @@
  */
 
 import { distanceFeet, isOccupied, isInBounds, reachFeetForStrike, isAdjacent, FEET_PER_SQUARE } from "./grid.mjs";
+import { moveBlockedBetween, lineOfEffect } from "./terrain.mjs";
 
 export function checkActionBudget(turnState, actionCost) {
   const remaining = turnState.actionsAvailable - turnState.actionsUsed;
@@ -61,7 +62,29 @@ function firstBlockedIntermediateSquare(from, to, otherPositions) {
   return null;
 }
 
-export function checkMoveLegality({ combatant, from, to, effectiveSpeed, feetAlreadyMovedThisTurn, allPositions, gridSize, turnState }) {
+/**
+ * Walk the SAME straight-line path firstBlockedIntermediateSquare walks, checking wall-crossing
+ * at EVERY step — including the final one into `to`. That's a real difference from the occupancy
+ * check above: occupancy only cares whether the DESTINATION cell has someone standing in it, but
+ * a wall on the edge leading into an otherwise-empty destination must still block the mover from
+ * crossing it. An empty `walls` array short-circuits immediately, so a scenario that never
+ * defines terrain (every scenario in this project, today) pays zero cost and gets zero behavior
+ * change — see design doc §15p.
+ */
+function firstWallBlockedEdge(from, to, walls) {
+  if (!walls?.length) return null;
+  let cur = { ...from };
+  while (cur.col !== to.col || cur.row !== to.row) {
+    const dx = Math.sign(to.col - cur.col);
+    const dy = Math.sign(to.row - cur.row);
+    const next = { col: cur.col + dx, row: cur.row + dy };
+    if (moveBlockedBetween(cur, next, walls)) return { from: cur, to: next };
+    cur = next;
+  }
+  return null;
+}
+
+export function checkMoveLegality({ combatant, from, to, effectiveSpeed, feetAlreadyMovedThisTurn, allPositions, gridSize, turnState, walls }) {
   const budget = checkActionBudget(turnState, 1);
   if (!budget.legal) return budget;
 
@@ -75,6 +98,10 @@ export function checkMoveLegality({ combatant, from, to, effectiveSpeed, feetAlr
   const blocked = firstBlockedIntermediateSquare(from, to, otherPositions);
   if (blocked) {
     return { legal: false, reason: `Path from (${from.col},${from.row}) to (${to.col},${to.row}) passes through an occupied square at (${blocked.col},${blocked.row}) — can't move through another combatant to reach a legal destination.` };
+  }
+  const wallBlocked = firstWallBlockedEdge(from, to, walls);
+  if (wallBlocked) {
+    return { legal: false, reason: `Path from (${from.col},${from.row}) to (${to.col},${to.row}) is blocked by a wall between (${wallBlocked.from.col},${wallBlocked.from.row}) and (${wallBlocked.to.col},${wallBlocked.to.row}).` };
   }
   // SF2E ACTION ECONOMY (design doc §15h, fixed 2026-08-23). Stride is ONE action for up to
   // your full Speed, and it is repeatable — three Strides is three times your Speed. This used
@@ -119,7 +146,7 @@ export function checkMoveLegality({ combatant, from, to, effectiveSpeed, feetAlr
  * budget check — is IDENTICAL to an ordinary move, so this delegates to checkMoveLegality rather
  * than re-deriving those rules a second time; it only adds the one-square cap Step alone has.
  */
-export function checkStepLegality({ combatant, from, to, effectiveSpeed, allPositions, gridSize, turnState }) {
+export function checkStepLegality({ combatant, from, to, effectiveSpeed, allPositions, gridSize, turnState, walls }) {
   if (effectiveSpeed < FEET_PER_SQUARE) {
     return { legal: false, reason: `Speed ${effectiveSpeed}ft is too low to complete even one square via Step.` };
   }
@@ -127,7 +154,7 @@ export function checkStepLegality({ combatant, from, to, effectiveSpeed, allPosi
   if (distance > FEET_PER_SQUARE) {
     return { legal: false, reason: `Step moves exactly one square (${FEET_PER_SQUARE}ft) — (${from.col},${from.row})->(${to.col},${to.row}) is ${distance}ft.` };
   }
-  return checkMoveLegality({ combatant, from, to, effectiveSpeed, feetAlreadyMovedThisTurn: 0, allPositions, gridSize, turnState });
+  return checkMoveLegality({ combatant, from, to, effectiveSpeed, feetAlreadyMovedThisTurn: 0, allPositions, gridSize, turnState, walls });
 }
 
 /**
@@ -194,7 +221,7 @@ export function checkTargetAlive(target) {
  * so engine.mjs (and any AI) has exactly one function to call and cannot
  * accidentally skip one of the checks by calling sub-functions directly.
  */
-export function checkStrikeLegal({ attacker, attackerPos, target, targetPos, strike, turnState }) {
+export function checkStrikeLegal({ attacker, attackerPos, target, targetPos, strike, turnState, walls }) {
   const actorAlive = checkActorAlive(attacker);
   if (!actorAlive.legal) return actorAlive;
 
@@ -209,6 +236,13 @@ export function checkStrikeLegal({ attacker, attackerPos, target, targetPos, str
 
   const range = checkStrikeRange({ attackerPos, targetPos, strike });
   if (!range.legal) return range;
+
+  // Line of Effect (Player Core pg. 418, design doc §15p): "You have line of effect unless a
+  // creature is entirely behind a solid physical barrier." An empty/undefined `walls` makes
+  // lineOfEffect() always return true, so this is a no-op for every scenario without terrain.
+  if (!lineOfEffect(attackerPos, targetPos, walls)) {
+    return { legal: false, reason: `No line of effect to ${target.name} — a wall entirely blocks the shot.` };
+  }
 
   // Limited-use ordnance (design doc §14g): a strike carrying a usesRemaining
   // count (e.g. a vehicle's long-range missile) simply isn't available once
@@ -349,7 +383,7 @@ export function checkSpellRange({ casterPos, targetPos, spell }) {
  * Disparity, limited-use slots via the same usesRemaining mechanism
  * vehicle ordnance already uses) is identical in spirit to checkStrikeLegal.
  */
-export function checkSpellAttackLegal({ caster, casterPos, target, targetPos, spell, turnState }) {
+export function checkSpellAttackLegal({ caster, casterPos, target, targetPos, spell, turnState, walls }) {
   const actorAlive = checkActorAlive(caster);
   if (!actorAlive.legal) return actorAlive;
 
@@ -364,6 +398,10 @@ export function checkSpellAttackLegal({ caster, casterPos, target, targetPos, sp
 
   const range = checkSpellRange({ casterPos, targetPos, spell });
   if (!range.legal) return range;
+
+  if (!lineOfEffect(casterPos, targetPos, walls)) {
+    return { legal: false, reason: `No line of effect to ${target.name} — a wall entirely blocks the spell.` };
+  }
 
   if (spell.usesRemaining != null && spell.usesRemaining <= 0) {
     return { legal: false, reason: `${spell.name} is out of prepared slots — ${spell.usesPerEncounter ?? "its limited"} use(s) already spent this encounter.` };
