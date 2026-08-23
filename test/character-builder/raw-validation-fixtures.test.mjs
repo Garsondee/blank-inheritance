@@ -11,7 +11,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { listLevel1Pregens, toIngredients } from "../../tools/character-builder/extract-pregen.mjs";
 import { deriveAbilityModifiers, deriveHP, deriveArmorClass } from "../../tools/character-builder/derive.mjs";
-import { deriveStrikes, deriveSpells, deriveTransferVitality } from "../../tools/character-builder/build-combat-pregen.mjs";
+import { deriveStrikes, deriveSpells, deriveTransferVitality, deriveSaveAttacks, deriveSkillModifier } from "../../tools/character-builder/build-combat-pregen.mjs";
 import { findNPC, toCombatant } from "../../tools/pack-extractor/extract-npc.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -37,6 +37,8 @@ test("lunar-17.json: checked-in strikes/spell/heal-ability match a fresh live re
   assert.deepEqual(fixture.strikes, deriveStrikes(ingredients, ["Zero Knife", "Arc Pistol", "Semi-Auto Pistol"], mods));
   assert.deepEqual(fixture.spells, deriveSpells(ingredients, ["Eldritch Lance"], mods));
   assert.deepEqual(fixture.healAbilities, [deriveTransferVitality(ingredients)]);
+  assert.deepEqual(fixture.saveAttacks, deriveSaveAttacks(ingredients, [{ name: "Incendiary Grenade (Commercial)", saveType: "reflex" }], mods));
+  assert.equal(fixture.intimidationModifier, deriveSkillModifier(ingredients, "intimidation", mods));
   assert.equal(fixture.side, "party");
 });
 
@@ -53,6 +55,7 @@ test("security-goon.json: checked-in strikes/reactions/actions match a fresh liv
   assert.deepEqual(fixture.reactions, combatant.reactions);
   assert.deepEqual(fixture.actions, combatant.actions);
   assert.deepEqual(fixture.lore, combatant.lore);
+  assert.equal(fixture.intimidationModifier, combatant.skills.intimidation);
   assert.equal(fixture.side, "opposition");
 });
 

@@ -88,3 +88,9 @@ test("toCombatant: Legal Lore is captured with its real modifier", () => {
   assert.ok(legalLore);
   assert.equal(legalLore.modifier, 2);
 });
+
+test("toCombatant: skills carries the real, final modifiers actually listed on the NPC — Athletics 8, Intimidation 6, nothing invented for the other 16 unlisted skills", () => {
+  const goon = findNPC(bestiaryDir, "Security Goon");
+  const combatant = toCombatant(goon, { strikeNames: [] });
+  assert.deepEqual(combatant.skills, { athletics: 8, intimidation: 6 });
+});

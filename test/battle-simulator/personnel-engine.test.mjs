@@ -293,3 +293,118 @@ test("every legal action's result carries an actionsCost field matching what was
   assert.equal(actions.find((a) => a.type === "spellAttack").actionsCost, 2);
   assert.equal(actions.find((a) => a.type === "strike").actionsCost, 1);
 });
+
+// ---------------------------------------------------------------------------
+// saveAttack / demoralize — the skill-actions-in-combat expansion (design doc §19)
+// ---------------------------------------------------------------------------
+
+function makeThrower(overrides = {}) {
+  return {
+    id: "thrower", name: "Thrower", side: "party", maxHP: 15, currentHP: 15, ac: 17,
+    saves: { fort: 4, ref: 6, will: 9 }, speed: 25,
+    saveAttacks: [{ name: "Grenade", saveType: "reflex", dc: 17, range: 70, actions: 1, damage: [{ dice: "1d8", bonus: 0, damageType: "fire" }] }],
+    position: { col: 0, row: 0 },
+    ...overrides
+  };
+}
+function makeGoon(overrides = {}) {
+  return {
+    id: "goon", name: "Goon", side: "opposition", maxHP: 25, currentHP: 25, ac: 14,
+    saves: { fort: 9, ref: 5, will: 4 }, speed: 20,
+    strikes: [{ name: "Baton", strikeType: "melee", attackBonus: 9, traits: [], damage: [{ dice: "1d6", bonus: 3, damageType: "bludgeoning" }] }],
+    intimidationModifier: 6, position: { col: 0, row: 0 },
+    ...overrides
+  };
+}
+
+test("saveAttack: the TARGET rolls (not the attacker), resolves via a real basic save, and decrements usesRemaining", () => {
+  const thrower = makeThrower();
+  thrower.saveAttacks[0].usesRemaining = 1;
+  const target = makeGoon({ position: { col: 1, row: 0 } });
+  function ai(state, id, turn) { return id === "thrower" && turn.actionsUsed === 0 ? { type: "saveAttack", targetId: "goon", saveAttackIndex: 0 } : null; }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [thrower, target], ai });
+  const action = log.rounds[0].turns.find((t) => t.combatantId === "thrower").actions.find((a) => a.type === "saveAttack");
+  assert.equal(action.legal, true);
+  assert.ok(["criticalSuccess", "success", "failure", "criticalFailure"].includes(action.roll.degree));
+  assert.equal(action.roll.saveBonus, target.saves.reflex, "the roll must use the TARGET's own Reflex save, never the thrower's");
+  assert.equal(action.usesRemaining, 0);
+});
+
+test("saveAttack: never increments the shared Multiple Attack Penalty counter — no attack roll happens at all", () => {
+  const thrower = makeThrower();
+  thrower.strikes = [{ name: "Fallback Strike", strikeType: "melee", attackBonus: 100, traits: [], damage: [{ dice: "1d1", bonus: 0 }] }];
+  const target = makeGoon({ position: { col: 0, row: 0 } });
+  function ai(state, id, turn) {
+    if (id !== "thrower") return null;
+    if (turn.actionsUsed === 0) return { type: "saveAttack", targetId: "goon", saveAttackIndex: 0 };
+    if (turn.actionsUsed === 1) return { type: "strike", targetId: "goon", strikeIndex: 0 };
+    return null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [thrower, target], ai });
+  const strike = log.rounds[0].turns.find((t) => t.combatantId === "thrower").actions.find((a) => a.type === "strike");
+  assert.equal(strike.roll.mapPenalty, 0, "the Strike immediately after a saveAttack must carry 0 MAP — saveAttack never counts as an attack roll");
+});
+
+test("demoralize: on success, applies real Frightened per the mirrored SRD table (crit success -> 2, success -> 1), and marks the target as attempted regardless of outcome", () => {
+  const goon = makeGoon(); // intimidationModifier 6, overwhelming vs a low-Will target
+  const target = makeThrower({ id: "victim", saves: { fort: 4, ref: 6, will: -10 }, position: { col: 1, row: 0 } });
+  function ai(state, id, turn) { return id === "goon" && turn.actionsUsed === 0 ? { type: "demoralize", targetId: "victim" } : null; }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [goon, target], ai });
+  const action = log.rounds[0].turns.find((t) => t.combatantId === "goon").actions.find((a) => a.type === "demoralize");
+  assert.equal(action.legal, true);
+  assert.ok(action.frightenedApplied > 0, `expected a real Frightened value against a Will -10 target, got ${action.frightenedApplied}`);
+  assert.equal(action.targetFrightenedAfter, action.frightenedApplied);
+});
+
+test("demoralize: never increments the shared Multiple Attack Penalty counter — it's a skill check, not an attack roll (THE mechanism behind 'demoralize costs nothing extra even after two Strikes')", () => {
+  const goon = makeGoon();
+  goon.strikes = [{ name: "Baton", strikeType: "melee", attackBonus: 9, traits: [], damage: [{ dice: "1d6", bonus: 3 }] }];
+  // High HP on purpose: max possible damage from 2 Baton hits is 2*(6+3)=18, so 30 HP guarantees
+  // the target survives to be legally Demoralized regardless of how this seed's dice land — the
+  // point under test is MAP accounting, not a fragile "did the target happen to survive" race.
+  const target = makeThrower({ currentHP: 30, maxHP: 30, position: { col: 0, row: 0 } });
+  function ai(state, id, turn) {
+    if (id !== "goon") return null;
+    if (turn.actionsUsed === 0) return { type: "strike", targetId: "thrower", strikeIndex: 0 }; // 1st Strike, 0 MAP
+    if (turn.actionsUsed === 1) return { type: "strike", targetId: "thrower", strikeIndex: 0 }; // 2nd Strike, -5 MAP
+    if (turn.actionsUsed === 2) return { type: "demoralize", targetId: "thrower" }; // 3rd action, but a skill check
+    return null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [goon, target], ai });
+  const actions = log.rounds[0].turns.find((t) => t.combatantId === "goon").actions;
+  const strikes = actions.filter((a) => a.type === "strike");
+  assert.equal(strikes[0].roll.mapPenalty, 0);
+  assert.equal(strikes[1].roll.mapPenalty, -5);
+  const demoralize = actions.find((a) => a.type === "demoralize");
+  assert.equal(demoralize.legal, true, "Demoralize must still be a fully legal 3rd action even after two real Strikes");
+});
+
+test("Frightened reduces the FRIGHTENED creature's own AC — a real, live cross-check via checkStrikeLegal-driven combat, not just the isolated combatant.mjs unit", () => {
+  const attacker = makeGoon({ id: "attacker", strikes: [{ name: "Baton", strikeType: "melee", attackBonus: 9, traits: [], damage: [{ dice: "1d1", bonus: 0 }] }] });
+  // AC 17 vs attackBonus 9: needs a 8+ to hit normally. Frightened 2 drops effective AC to 15,
+  // needing only a 6+ — the difference is directly visible in the logged targetAc.
+  const frightenedTarget = makeThrower({ frightened: 2, position: { col: 0, row: 0 } });
+  function ai(state, id, turn) { return id === "attacker" && turn.actionsUsed === 0 ? { type: "strike", targetId: "thrower", strikeIndex: 0 } : null; }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [attacker, frightenedTarget], ai });
+  const strike = log.rounds[0].turns.find((t) => t.combatantId === "attacker").actions.find((a) => a.type === "strike");
+  assert.equal(strike.roll.targetAc, 15, "Frightened 2 must reduce the target's effective AC from 17 to 15 (a status penalty to their own DCs)");
+});
+
+test("Frightened reduces the FRIGHTENED creature's OWN attack rolls — a status penalty to their own checks too", () => {
+  const frightenedAttacker = makeGoon({ frightened: 2, strikes: [{ name: "Baton", strikeType: "melee", attackBonus: 9, traits: [], damage: [{ dice: "1d1", bonus: 0 }] }] });
+  const target = makeThrower({ position: { col: 0, row: 0 } });
+  function ai(state, id, turn) { return id === "goon" && turn.actionsUsed === 0 ? { type: "strike", targetId: "thrower", strikeIndex: 0 } : null; }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [frightenedAttacker, target], ai });
+  const strike = log.rounds[0].turns.find((t) => t.combatantId === "goon").actions.find((a) => a.type === "strike");
+  assert.equal(strike.roll.mapPenalty, -2, "a frightened 2 attacker's own attack roll must carry a -2 penalty folded into mapPenalty (no separate frightenedPenalty field — same aggregate MAP/range/frightened already use)");
+});
+
+test("Frightened decays by exactly 1 at the end of the frightened combatant's own turn, per the real mirrored condition text", () => {
+  const frightenedGoon = makeGoon({ frightened: 3 });
+  const bystander = makeThrower({ position: { col: 10, row: 10 } }); // far away, never interacts
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 3, combatants: [frightenedGoon, bystander], ai: () => null });
+  const goonTurns = log.rounds.flatMap((r) => r.turns).filter((t) => t.combatantId === "goon");
+  assert.equal(goonTurns[0].snapshot.goon.frightened, 2, "after round 1's turn, 3 -> 2");
+  assert.equal(goonTurns[1].snapshot.goon.frightened, 1, "after round 2's turn, 2 -> 1");
+  assert.equal(goonTurns[2].snapshot.goon.frightened, 0, "after round 3's turn, 1 -> 0");
+});

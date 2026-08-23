@@ -19,7 +19,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { listLevel1Pregens, toIngredients } from "./extract-pregen.mjs";
 import { deriveAbilityModifiers, deriveHP, derivePerception, deriveSavingThrows, deriveArmorClass } from "./derive.mjs";
-import { deriveStrikes, deriveSpells, deriveTransferVitality } from "./build-combat-pregen.mjs";
+import { deriveStrikes, deriveSpells, deriveTransferVitality, deriveSaveAttacks, deriveSkillModifier } from "./build-combat-pregen.mjs";
 import { findNPC, toCombatant } from "../pack-extractor/extract-npc.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -47,6 +47,8 @@ function buildLunar17() {
   const strikes = deriveStrikes(ingredients, ["Zero Knife", "Arc Pistol", "Semi-Auto Pistol"], mods);
   const spells = deriveSpells(ingredients, ["Eldritch Lance"], mods);
   const healAbilities = [deriveTransferVitality(ingredients)];
+  const saveAttacks = deriveSaveAttacks(ingredients, [{ name: "Incendiary Grenade (Commercial)", saveType: "reflex" }], mods);
+  const intimidationModifier = deriveSkillModifier(ingredients, "intimidation", mods);
 
   return {
     id: "raw-validation-lunar-17",
@@ -61,7 +63,9 @@ function buildLunar17() {
     strikes,
     spells,
     healAbilities,
-    notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §19. Transfer Vitality's healing amount (10, minimum 1) is hand-transcribed from real rule prose since no structured field exists for it — see build-combat-pregen.mjs's own citation."
+    saveAttacks,
+    intimidationModifier, // real, untrained (+0) — her cha modifier is +0 and Intimidation isn't one of her trained skills
+    notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §19. Transfer Vitality's healing amount (10, minimum 1) is hand-transcribed from real rule prose since no structured field exists for it — see build-combat-pregen.mjs's own citation. The Incendiary Grenade's DC (17) is her real Class DC, matching the raw item's own @Check[reflex|against:class] text exactly."
   };
 }
 
@@ -74,6 +78,7 @@ function buildSecurityGoon() {
     id: "raw-validation-security-goon",
     name: "Security Goon (level-1 NPC, design doc §19 Pure RAW SF2E Validation — real rulebook-bestiaries statblock)",
     ...combatant,
+    intimidationModifier: combatant.skills.intimidation, // real, trained (+6) — she's one of the two skills actually listed on her real sheet
     notes: "Every number here is a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/rulebook-bestiaries) — NPCs store final, precomputed combat numbers, so no derivation was needed. See test/character-builder/extract-npc.test.mjs and design/scale-and-chassis.md §19. \"License to Break Bones\" (a Fortitude-save, Prone-requiring action) is captured under `actions` for transcript honesty but is NOT a usable strike — this engine has no saving-throw mechanism."
   };
 }
@@ -84,5 +89,5 @@ const securityGoon = buildSecurityGoon();
 writeFileSync(path.join(outDir, "lunar-17.json"), JSON.stringify(lunar17, null, 2) + "\n");
 writeFileSync(path.join(outDir, "security-goon.json"), JSON.stringify(securityGoon, null, 2) + "\n");
 
-console.log(`wrote lunar-17.json (AC ${lunar17.ac}, HP ${lunar17.maxHP}, ${lunar17.strikes.length} strikes, ${lunar17.spells.length} spell, ${lunar17.healAbilities.length} heal ability)`);
-console.log(`wrote security-goon.json (AC ${securityGoon.ac}, HP ${securityGoon.maxHP}, ${securityGoon.strikes.length} strikes, ${securityGoon.reactions.length} reaction, ${securityGoon.actions.length} other action)`);
+console.log(`wrote lunar-17.json (AC ${lunar17.ac}, HP ${lunar17.maxHP}, ${lunar17.strikes.length} strikes, ${lunar17.spells.length} spell, ${lunar17.healAbilities.length} heal ability, ${lunar17.saveAttacks.length} saveAttack, intimidation +${lunar17.intimidationModifier})`);
+console.log(`wrote security-goon.json (AC ${securityGoon.ac}, HP ${securityGoon.maxHP}, ${securityGoon.strikes.length} strikes, ${securityGoon.reactions.length} reaction, ${securityGoon.actions.length} other action, intimidation +${securityGoon.intimidationModifier})`);

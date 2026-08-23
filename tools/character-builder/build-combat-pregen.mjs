@@ -7,19 +7,22 @@
  * derived math, cited against reference/tables/dc-and-check-math.json and
  * reference/srd/player-core/349-damage-rolls.json — nothing hand-picked.
  *
- * SCOPE, DELIBERATELY NARROW (matches the approved plan's own explicit scoping): only derives
- * ATTACK-ROLL Strikes and attack-roll spells, plus one hand-identified heal ability. Save-based
- * attacks (a Reflex-basic-save grenade, a Fortitude-save special action) are SKIPPED, not
- * guessed-at — personnel-engine's legality/engine layer has no mechanism for a saving-throw-based
- * action at all (checkStrikeLegal/checkSpellAttackLegal are both attack-roll-vs-AC only), and nothing
- * in the raw weapon/spell data structurally distinguishes "attack roll" from "target saves" — the
- * Incendiary Grenade's system.damage shape is IDENTICAL to Zero Knife's, the difference is only
- * visible in free-text description prose ("...with a @Check[reflex...] save"). Building automatic
- * detection for a single one-off case would be exactly the kind of fragile inference this project's
- * "don't invent" conventions warn against; hand-identifying by name with a citation is the honest
- * alternative.
+ * SCOPE (updated for design doc §19's skill-actions-in-combat expansion — saving throws are no
+ * longer unsupported): derives ATTACK-ROLL Strikes, attack-roll spells, save-based attacks (once
+ * personnel-engine gained a real saving-throw mechanism), one hand-identified heal ability, and
+ * skill-check modifiers for skill actions (Demoralize). What's still deliberately SKIPPED: a
+ * Fortitude-save special action requiring a prerequisite condition this project doesn't model
+ * (Prone) — that's a genuinely different kind of gap (a missing prerequisite mechanism, not a
+ * missing resolution mechanism) and stays out of scope on its own terms.
+ *
+ * Every save-based item is still hand-identified BY NAME, not auto-detected — nothing in the raw
+ * weapon data structurally distinguishes "this is a save-based attack" from an ordinary Strike
+ * (the Incendiary Grenade's system.damage shape is IDENTICAL to Zero Knife's; the difference is
+ * only visible in free-text description prose, "...with a @Check[reflex...] save"). Building
+ * automatic detection for what's still a small, known set of cases would be exactly the kind of
+ * fragile inference this project's "don't invent" conventions warn against.
  */
-import { deriveStrikeAttackBonus, abilityForStrikeAttack, deriveStrikeDamageBonus, deriveSpellAttack, deriveSpellDC } from "./derive.mjs";
+import { deriveStrikeAttackBonus, abilityForStrikeAttack, deriveStrikeDamageBonus, deriveSpellAttack, deriveSpellDC, deriveClassDC, proficiency, SKILL_KEY_ABILITY } from "./derive.mjs";
 
 const RANK_INDEX = { untrained: 0, trained: 1, expert: 2, master: 3, legendary: 4 };
 function rankIndexOf(value) {
@@ -100,6 +103,61 @@ export function deriveSpells(ingredients, spellNames, abilityModifiers) {
       ...(damage ? { damage: [damage] } : {})
     };
   });
+}
+
+/**
+ * Derive real save-based attacks (design doc §19's skill-actions-in-combat expansion) — e.g. a
+ * thrown grenade with a basic Reflex save. `items` is `[{name, saveType}, ...]`, not just names:
+ * nothing in the raw weapon data says WHICH save a given item's effect targets (that's only in
+ * free-text description prose — "...with a @Check[reflex...] save" — so it's supplied by the
+ * caller, hand-read from that same prose, same discipline as this file's other hand-identified
+ * cases). DC is the wielder's real Class DC (deriveClassDC) — confirmed against the Incendiary
+ * Grenade's own raw description, `@Check[reflex|against:class|basic]`: "against:class" means
+ * literally the thrower's Class DC, not a separate flat number on the item.
+ *
+ * `actions: 1` is NOT read from any raw field — no explicit action-cost field exists on this raw
+ * weapon item to read instead. A thrown weapon Strike is a real, single-action SF2E activity, so
+ * this is the correct value, just not one this function derives from structured data.
+ */
+export function deriveSaveAttacks(ingredients, items, abilityModifiers) {
+  const { weapons, level, classKeyAbility } = ingredients;
+  const dc = deriveClassDC({ level, keyAbilityModifier: abilityModifiers[classKeyAbility] }).modifier;
+  return items.map(({ name: wantedName, saveType }) => {
+    const weapon = weapons.find((w) => w.name === wantedName);
+    if (!weapon) throw new Error(`No weapon named "${wantedName}" in this pregen's raw weapon list.`);
+    return {
+      name: weapon.name,
+      saveType,
+      dc,
+      range: weapon.system.range,
+      actions: 1,
+      traits: weapon.system.traits?.value ?? [],
+      damage: [{ dice: diceString(weapon.system.damage), bonus: 0, damageType: weapon.system.damage.damageType }],
+      // A saveAttack is, by construction, a one-off thrown consumable effect (unlike deriveStrikes'
+      // reusable melee/ranged weapons) — REGRESSION caught by measurement, not inspection: without
+      // this, the AI correctly discovered it could throw an "infinite" single grenade over and over
+      // (system.quantity was never read), which skewed a real 10-seed behavior sample so hard the
+      // grenade outnumbered Eldritch Lance 31-to-4 despite Lunar-17's real sheet carrying exactly
+      // ONE (system.quantity: 1, confirmed directly against her raw pack data).
+      usesRemaining: weapon.system.quantity ?? 1
+    };
+  });
+}
+
+/**
+ * A skill-check modifier for a skill action (Demoralize's Intimidation check). Reuses the same
+ * proficiency() formula every other check in derive.mjs already does — a skill modifier IS a
+ * proficiency check, nothing save/spell/Strike-specific about it. `ingredients.skillRanks` only
+ * lists skills the pregen actually trained (matching how NPC system.skills only lists trained
+ * skills too — see extract-npc.mjs) — an absent key correctly resolves to untrained (rank 0), not
+ * an error, since untrained is a real, legal, complete answer (a real level-1 sheet always has
+ * plenty of untrained skills).
+ */
+export function deriveSkillModifier(ingredients, skillName, abilityModifiers) {
+  const rankIndex = rankIndexOf(ingredients.skillRanks?.[skillName] ?? 0);
+  const abilityKey = SKILL_KEY_ABILITY[skillName];
+  if (!abilityKey) throw new Error(`"${skillName}" is not one of the 18 real SF2E skills (SKILL_KEY_ABILITY has no entry for it).`);
+  return proficiency(rankIndex, ingredients.level, abilityModifiers[abilityKey]).modifier;
 }
 
 /**

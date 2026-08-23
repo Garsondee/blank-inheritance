@@ -19,6 +19,8 @@ import {
   checkSpellRange,
   checkSpellAttackLegal,
   checkHealAbilityLegal,
+  checkSaveAttackLegal,
+  checkDemoralizeLegal,
   multipleAttackPenalty,
   rangeIncrementPenalty
 } from "../../tools/battle-simulator/personnel-engine/legality.mjs";
@@ -411,4 +413,79 @@ test("checkHealAbilityLegal: a depleted ability (usesRemaining 0) is rejected", 
     ability: { ...transferVitality, usesRemaining: 0 }, turnState: openBudget
   });
   assert.equal(result.legal, false);
+});
+
+// ---------------------------------------------------------------------------
+// checkSaveAttackLegal / checkDemoralizeLegal — the skill-actions-in-combat expansion
+// (design doc §19). The grenade's real range (70ft) is Lunar-17's own real extracted number.
+// ---------------------------------------------------------------------------
+
+const grenade = { name: "Incendiary Grenade (Commercial)", saveType: "reflex", dc: 17, range: 70, actions: 1, traits: ["consumable", "fire"], damage: [{ dice: "1d8", bonus: 0, damageType: "fire" }] };
+
+test("checkSaveAttackLegal: legal for a real in-range target with enough actions", () => {
+  const attacker = { id: "a", name: "Thrower", currentHP: 15 };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkSaveAttackLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 10, row: 0 }, saveAttack: grenade, turnState: openBudget });
+  assert.equal(result.legal, true);
+});
+
+test("checkSaveAttackLegal: rejects out of range (beyond the grenade's real 70ft)", () => {
+  const attacker = { id: "a", name: "Thrower", currentHP: 15 };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkSaveAttackLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 20, row: 0 }, saveAttack: grenade, turnState: openBudget }); // 100ft
+  assert.equal(result.legal, false);
+});
+
+test("checkSaveAttackLegal: also respects Line of Effect, same as a Strike/spell attack", () => {
+  const wall = [{ c: [1, 0, 1, 1], move: 20, sight: 20 }];
+  const attacker = { id: "a", name: "Thrower", currentHP: 15 };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkSaveAttackLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 1, row: 0 }, saveAttack: grenade, turnState: openBudget, walls: wall });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /line of effect/i);
+});
+
+test("checkSaveAttackLegal: a depleted saveAttack (usesRemaining 0) is rejected, same mechanism as limited-use Strikes", () => {
+  const attacker = { id: "a", name: "Thrower", currentHP: 15 };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkSaveAttackLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, saveAttack: { ...grenade, usesRemaining: 0 }, turnState: openBudget });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /out of uses/);
+});
+
+test("checkDemoralizeLegal: legal on a real in-range (30ft), never-before-demoralized target", () => {
+  const attacker = { id: "a", name: "Goon", currentHP: 25 };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkDemoralizeLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 6, row: 0 }, turnState: openBudget }); // 30ft
+  assert.equal(result.legal, true);
+});
+
+test("checkDemoralizeLegal: rejects beyond the real 30ft range", () => {
+  const attacker = { id: "a", name: "Goon", currentHP: 25 };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkDemoralizeLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 7, row: 0 }, turnState: openBudget }); // 35ft
+  assert.equal(result.legal, false);
+});
+
+test("checkDemoralizeLegal: respects Line of Effect — can't threaten someone through a wall", () => {
+  const wall = [{ c: [1, 0, 1, 1], move: 20, sight: 20 }];
+  const attacker = { id: "a", name: "Goon", currentHP: 25 };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkDemoralizeLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 1, row: 0 }, turnState: openBudget, walls: wall });
+  assert.equal(result.legal, false);
+});
+
+test("checkDemoralizeLegal: rejects a target this attacker has already tried to Demoralize this encounter (the real 10-minute cooldown, functionally 'never again' within a combat this short)", () => {
+  const attacker = { id: "a", name: "Goon", currentHP: 25, demoralizedTargets: ["t"] };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkDemoralizeLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, turnState: openBudget });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /already tried/);
+});
+
+test("checkDemoralizeLegal: a DIFFERENT attacker who hasn't tried yet can still Demoralize the same target", () => {
+  const freshAttacker = { id: "b", name: "Other Goon", currentHP: 25, demoralizedTargets: [] };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkDemoralizeLegal({ attacker: freshAttacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, turnState: openBudget });
+  assert.equal(result.legal, true);
 });

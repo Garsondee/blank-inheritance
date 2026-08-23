@@ -42,7 +42,7 @@
  * pre-emptively re-tuned now without data.
  */
 import { resolveEffectiveStats } from "../combatant.mjs";
-import { expectedStrikeDamage } from "../../engine/resolve.mjs";
+import { expectedStrikeDamage, expectedSaveDamage } from "../../engine/resolve.mjs";
 import { distanceFeet, reachFeetForStrike, FEET_PER_SQUARE } from "../grid.mjs";
 import { lineOfEffect } from "../terrain.mjs";
 import { pathCost } from "../world/pathfind.mjs";
@@ -78,11 +78,12 @@ function effectiveDistance(state, from, to) {
   return result;
 }
 
-/** Every attack option a combatant has, strikes and attack spells alike. */
+/** Every attack option a combatant has — Strikes, attack spells, and save-based attacks (a saveAttack is distinguished by carrying `saveType`, never `attackBonus`; see bestExpectedDamage below). */
 export function attackOptions(combatant) {
   const out = [];
   for (const s of combatant.strikes ?? []) if (s.usesRemaining == null || s.usesRemaining > 0) out.push(s);
   for (const s of combatant.spells ?? []) if (s.usesRemaining == null || s.usesRemaining > 0) out.push(s);
+  for (const s of combatant.saveAttacks ?? []) if (s.usesRemaining == null || s.usesRemaining > 0) out.push(s);
   return out;
 }
 
@@ -108,6 +109,24 @@ export function usefulRangeFeet(item) {
  * attack-penalty. Used both for "what can I threaten from here" and "what can they threaten me
  * with" — the same function, arguments swapped, so threat and opportunity can never be priced on
  * different scales.
+ *
+ * Branches on shape, not a `type` field — an attack-roll option (Strike/spell) carries
+ * `attackBonus`; a save-based option (saveAttack) carries `saveType`/`dc` and no `attackBonus` at
+ * all, since the TARGET rolls, not the attacker (see personnel-engine/engine.mjs's own header on
+ * why this also means it's never subject to MAP).
+ *
+ * The attacker's own Frightened value IS folded in here (unlike MAP, which bestExpectedDamage
+ * deliberately excludes as a transient per-attempt penalty) because Frightened is a genuinely
+ * persistent state change — "how good is this combatant right now" — that the evaluator needs to
+ * see to correctly value inflicting it on an enemy (or suffering it on an ally). This is the whole
+ * mechanism behind the Demoralize-then-attack tactic scoring correctly: the moment a target's
+ * `frightened` is set, EVERY subsequent evaluateState call sees their AC drop (combatant.mjs's
+ * resolveEffectiveStats) and their own outgoing attackModifier drop (here) — both directions
+ * automatically, with no separate weight term needed. NOT threaded into a saveAttack's own `dc`,
+ * even though a frightened attacker's DC should technically also drop ("a penalty to all your
+ * checks and DCs") — a deliberate, small, stated scope cut: saveAttack DCs are precomputed at
+ * fixture-generation time (deriveClassDC), not re-derived live from a rank+ability pair, and
+ * neither real fixture in play depends on this edge case.
  */
 export function bestExpectedDamage(attacker, fromPos, target, targetPos) {
   const targetEffective = resolveEffectiveStats(target);
@@ -115,11 +134,16 @@ export function bestExpectedDamage(attacker, fromPos, target, targetPos) {
   const dist = distanceFeet(fromPos, targetPos);
   for (const option of attackOptions(attacker)) {
     if (dist > usefulRangeFeet(option)) continue; // out of useful range from here
-    const value = expectedStrikeDamage({
-      attackModifier: option.attackBonus,
-      targetAc: targetEffective.ac,
-      strike: option, target, targetEffective
-    });
+    const value = option.saveType != null
+      ? expectedSaveDamage({
+          saveBonus: target.saves[option.saveType], dc: option.dc,
+          damage: option.damage, target, targetEffective
+        })
+      : expectedStrikeDamage({
+          attackModifier: option.attackBonus - (attacker.frightened ?? 0),
+          targetAc: targetEffective.ac,
+          strike: option, target, targetEffective
+        });
     if (value > best) best = value;
   }
   return best;
@@ -151,7 +175,7 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
 
   for (const ally of allies) {
     score += weights.allyDamage * ally.currentHP;
-    for (const s of [...(ally.strikes ?? []), ...(ally.spells ?? []), ...(ally.healAbilities ?? [])]) {
+    for (const s of [...(ally.strikes ?? []), ...(ally.spells ?? []), ...(ally.healAbilities ?? []), ...(ally.saveAttacks ?? [])]) {
       if (s.usesRemaining != null) score += weights.resource * s.usesRemaining;
     }
   }

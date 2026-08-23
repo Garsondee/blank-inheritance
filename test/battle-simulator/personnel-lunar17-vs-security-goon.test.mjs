@@ -80,3 +80,47 @@ test("Lunar-17's Eldritch Lance is her real, primary damage tool — cast in mos
 test("buildScenario: rejects an unknown setup name rather than silently falling back to something else", () => {
   assert.throws(() => buildScenario({ seed: 1, setup: "NOT_A_REAL_SETUP" }), /Unknown setup/);
 });
+
+/**
+ * REGRESSION (design doc §19, skill-actions-in-combat expansion, found by MEASURING real behavior
+ * across 10 seeds, not by inspection): deriveSaveAttacks originally never read a weapon's real
+ * system.quantity, so Lunar-17's real single Incendiary Grenade (system.quantity: 1, confirmed
+ * against her raw pack data) was treated as infinitely reusable — she threw it 31 times across 10
+ * seeds and Eldritch Lance usage collapsed from 37 to 4. Fixed by reading the real quantity into
+ * usesRemaining; this pins the fix so it can't silently regress.
+ */
+test("the real Incendiary Grenade is thrown AT MOST once per fight, per side, matching her real sheet's system.quantity: 1 — never treated as infinite ordnance", () => {
+  for (let seed = 1; seed <= 10; seed++) {
+    const log = runBattle(buildScenario({ seed, setup: "SAME_ROOM", roundLimit: 15 }));
+    const grenadeThrows = log.rounds.flatMap((r) => r.turns).filter((t) => t.combatantId === "raw-validation-lunar-17")
+      .flatMap((t) => t.actions ?? []).filter((a) => a.legal && a.type === "saveAttack");
+    assert.ok(grenadeThrows.length <= 1, `seed ${seed}: expected at most 1 real grenade throw, saw ${grenadeThrows.length}`);
+  }
+});
+
+/**
+ * AN HONEST, MEASURED FINDING, not silently patched over (design doc §19): under the CURRENT
+ * DEFAULT_WEIGHTS (unchanged from Frame-scale, see evaluate/state-value.mjs's own header — this
+ * file itself already flags `closing` as "NOT YET RE-MEASURED at this scale"), Demoralize is
+ * mechanically correct — real dice, real Frightened application, verified in personnel-engine.test.mjs
+ * — but its evaluator-scored value is too small to ever beat a direct attack in THIS specific 1v1
+ * matchup, even a heavily MAP-penalized one. Measured directly (not assumed): a fresh-turn Strike
+ * scored 5.2 vs Demoralize's 0.13 in a representative position; even a 3rd Strike at -10 MAP still
+ * scored 1.3, ~10x Demoralize's value. The mechanism is real and channels correctly through
+ * offensiveReach/threatExposure (both scale up with more allies, confirmed by direct measurement),
+ * but with only ONE attacker on the party side, the credit is structurally small. This is exactly
+ * the kind of thing the ablation-harness/tactical-benchmark discipline (§17-18) exists to catch —
+ * flagged here rather than either quietly re-tuning a weight without real justification, or hiding
+ * the gap. Pinned as a real, current-state assertion so a future change to this either intentionally
+ * updates the assertion (with real measurement behind it) or the test itself proves things changed.
+ */
+test("HONEST FINDING: Demoralize is never actually chosen in this specific 1v1 matchup under current weights — mechanically correct, but not yet competitively valued (see this test's own comment)", () => {
+  let sawDemoralize = 0;
+  for (let seed = 1; seed <= 10; seed++) {
+    const log = runBattle(buildScenario({ seed, setup: "SAME_ROOM", roundLimit: 15 }));
+    for (const round of log.rounds) for (const turn of round.turns) for (const action of turn.actions ?? []) {
+      if (action.legal && action.type === "demoralize") sawDemoralize += 1;
+    }
+  }
+  assert.equal(sawDemoralize, 0, "if this ever becomes nonzero, that's real news — a weight change or a smarter evaluator finally made Demoralize competitive in a 1v1; update this test's assertion (and its comment) to match, don't just delete it");
+});

@@ -180,6 +180,10 @@
   .map-wrap img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
   .map-wrap svg { position: absolute; inset: 0; width: 100%; height: 100%; }
   .grid-line { stroke: rgba(20,20,15,0.16); stroke-width: 1; }
+  /* Walls (design doc §19 Phase 1b) — solid and dark, deliberately much more prominent than the
+     faint grid: a personnel-scale run with no background photo depends on this line alone to make
+     Phase 1b's rooms/doorways visually legible at all. */
+  .wall-line { stroke: var(--ink); stroke-width: 4; stroke-linecap: round; }
 
   /* Token animation (design doc §15n). Tokens are PERSISTENT elements, created once per run and
      updated in place — the previous build tore down and rebuilt the whole SVG (innerHTML) on
@@ -405,6 +409,7 @@
             <marker id="arrowHeal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--success)"/></marker>
           </defs>
           <g id="gridLayer"></g>
+          <g id="wallLayer"></g>
           <g id="overlayLayer"></g>
           <g id="tokenLayer"></g>
         </svg>
@@ -690,14 +695,44 @@ function renderDecisionOverlay(run, step, stepIdx) {
   return markup;
 }
 
+/**
+ * Re-renders the SVG viewBox + grid lines for whatever scale/dimensions are CURRENTLY active
+ * (geometry.mjs's setMapScale must be called first — see selectRun). No longer "runs once" the
+ * way the old fixed-44x44 comment here used to claim (design doc §19): the library can hold runs
+ * at genuinely different grid sizes now, so this must re-run on every run switch, not just at
+ * page load.
+ */
 function renderGridLines() {
+  document.getElementById("mapSvg").setAttribute("viewBox", `0 0 ${MAP_PX_W} ${MAP_PX_H}`);
   const layer = document.getElementById("gridLayer");
   let gridLines = "";
-  for (let i = 0; i <= GRID; i++) {
-    const p = i * CELL;
-    gridLines += `<line class="grid-line" x1="${p}" y1="0" x2="${p}" y2="1320"/><line class="grid-line" x1="0" y1="${p}" x2="1320" y2="${p}"/>`;
+  for (let c = 0; c <= COLS; c++) {
+    const x = c * CELL;
+    gridLines += `<line class="grid-line" x1="${x}" y1="0" x2="${x}" y2="${MAP_PX_H}"/>`;
   }
-  layer.innerHTML = gridLines; // static — the grid never changes, so this runs once, not per render
+  for (let r = 0; r <= ROWS; r++) {
+    const y = r * CELL;
+    gridLines += `<line class="grid-line" x1="0" y1="${y}" x2="${MAP_PX_W}" y2="${y}"/>`;
+  }
+  layer.innerHTML = gridLines;
+}
+
+/**
+ * Foundry Wall schema segments (design doc §19 Phase 1b) — `c:[x0,y0,x1,y1]` in grid-VERTEX
+ * coordinates, `move`/`sight` as CONST.EDGE_SENSE_TYPES values, exactly matching how
+ * personnel-engine/terrain.mjs (itself a re-export of engine/terrain.mjs) already interprets them.
+ * A run with no walls at all (every Frame-scale run) renders an empty layer — cheap, correct no-op.
+ */
+function renderWalls(run) {
+  const layer = document.getElementById("wallLayer");
+  const walls = run.log.walls ?? [];
+  let markup = "";
+  for (const wall of walls) {
+    const a = vertexToPx([wall.c[0], wall.c[1]]);
+    const b = vertexToPx([wall.c[2], wall.c[3]]);
+    markup += `<line class="wall-line" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`;
+  }
+  layer.innerHTML = markup;
 }
 
 function getOrCreateToken(id, info) {
@@ -1044,7 +1079,7 @@ function renderSheet(run, step) {
       <div class="cc-badge" style="background:${SIDE_COLOR[info.side]}">${initials(info.name)}</div>
       <div class="sheet-name">${shortName(info.name)}</div>
       <span class="chip" style="background:${dsColor}">${DAMAGE_STATE_LABEL[s.damageState] || ""}</span>
-      <span class="chip" style="background:var(--ink-muted)">${info.kind} · ${info.size}${info.scaleBlind ? " · Scale-Blind" : ""}</span>
+      ${info.kind || info.size ? `<span class="chip" style="background:var(--ink-muted)">${[info.kind, info.size].filter(Boolean).join(" · ")}${info.scaleBlind ? " · Scale-Blind" : ""}</span>` : ""}
     </div>
     <div class="sheet-grid">
       <div class="sheet-stat"><div class="k">AC</div><div class="v">${eff ? eff.ac : info.ac}</div></div>
@@ -1105,7 +1140,15 @@ function render() {
   renderGeneration += 1;
 
   document.getElementById("scenarioNote").textContent = run.label;
-  document.getElementById("mapImg").src = MAP_DATA_URI;
+  // The embedded city-district photo is a Frame-scale-only asset (design doc §19) — a personnel-
+  // scale run (identified by carrying real wall data) shows the wall-line rendering instead
+  // (renderWalls, called from selectRun) rather than an unrelated satellite photo sized for a
+  // completely different map and scale.
+  const mapImgEl = document.getElementById("mapImg");
+  const isWalledRun = (run.log.walls ?? []).length > 0;
+  mapImgEl.style.display = isWalledRun ? "none" : "";
+  mapImgEl.src = isWalledRun ? "" : MAP_DATA_URI;
+  mapImgEl.alt = isWalledRun ? "" : "City district battle map, 44x44 grid";
 
   document.getElementById("overlayLayer").innerHTML = renderDecisionOverlay(run, step, stepIndex);
   updateMapTokens(run, step, activeId, { waypoints: combatantWaypoints(step, stepIndex), jump });
@@ -1149,6 +1192,13 @@ function selectRun(id) {
   lastRenderedRunId = null;
   document.getElementById("tokenLayer").innerHTML = "";
   tokenEls.clear();
+  const run = id ? getRun(id) : null;
+  // Rescale BEFORE any geometry-dependent render happens (design doc §19) — the library can hold
+  // runs at genuinely different grid sizes/feet-per-square, so this must happen on every switch,
+  // not once at page load.
+  setMapScale({ cols: run?.log.gridSize.cols ?? 44, rows: run?.log.gridSize.rows ?? 44, feetPerSquare: run?.log.feetPerSquare });
+  renderGridLines();
+  if (run) renderWalls(run);
   renderLibrary();
   render();
 }
@@ -1231,7 +1281,7 @@ document.addEventListener("keydown", (e) => {
   else if (e.key === " ") { e.preventDefault(); togglePlay(); }
 });
 
-renderGridLines();
+renderGridLines(); // fallback default-scale paint for the "zero runs embedded" case — selectRun(null) below no-ops immediately (currentRunId already starts null), so nothing else would ever draw a grid at all
 renderLibraryFilterOptions();
 selectRun(RUNS.runs[0]?.id ?? null);
 </script>

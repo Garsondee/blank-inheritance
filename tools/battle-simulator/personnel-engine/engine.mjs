@@ -44,13 +44,32 @@
  * Reused directly, unmodified: ../engine/resolve.mjs (dice/degree-of-success/damage math) and
  * ../engine/rng.mjs (the seeded PRNG) — both verified scale-agnostic during planning, same
  * precedent ground-layer/ already established for exactly this kind of reuse.
+ *
+ * EXTENDED (skill-actions-in-combat expansion, requested directly: "expand to saving throws...
+ * keep expanding the list of things that PCs and NPCs can do"): two new action types.
+ *  - "saveAttack" — a basic saving throw the TARGET rolls (e.g. a thrown grenade), using
+ *    ../engine/resolve.mjs's resolveSave/basicSaveDamage/expectedSaveDamage (also reused
+ *    unmodified — this is exactly as scale-agnostic as resolveStrike's own dice math, and already
+ *    proven by ground-layer/'s own reuse of resolveSave/basicSaveDamage for its hazard saves).
+ *  - "demoralize" — Intimidation's Demoralize action (Player Core pg. 200, mirrored verbatim at
+ *    reference/srd/player-core/skill-8-intimidation.json): an Intimidation check against the
+ *    target's Will DC, applying the Frightened condition (mirrored at
+ *    reference/srd/player-core/condition-18-frightened.json) on success/critical success.
+ * Neither counts toward Multiple Attack Penalty or increments turnProgress.strikesAttempted — MAP
+ * is specifically an attack-ROLL penalty (Player Core), and neither of these involves the ATTACKER
+ * rolling an attack at all. This is the actual mechanism behind the tactic Ingram named directly:
+ * Demoralize costs 0 extra penalty regardless of how many Strikes came before it in the same turn,
+ * unlike a 2nd/3rd Strike's real -5/-10.
  */
 
-import { makeRng, rollD20 } from "../engine/rng.mjs";
+import { makeRng, rollD20, rollFormula } from "../engine/rng.mjs";
 import { resolveEffectiveStats } from "./combatant.mjs";
-import { checkMoveLegality, checkStepLegality, checkStrikeLegal, checkSpellAttackLegal, checkHealAbilityLegal, multipleAttackPenalty, rangeIncrementPenalty } from "./legality.mjs";
-import { resolveStrike, mitigateDamage, expectedStrikeDamage } from "../engine/resolve.mjs";
-import { distanceFeet } from "./grid.mjs";
+import {
+  checkMoveLegality, checkStepLegality, checkStrikeLegal, checkSpellAttackLegal, checkHealAbilityLegal,
+  checkSaveAttackLegal, checkDemoralizeLegal, multipleAttackPenalty, rangeIncrementPenalty
+} from "./legality.mjs";
+import { resolveStrike, mitigateDamage, expectedStrikeDamage, resolveSave, basicSaveDamage, expectedSaveDamage, degreeProbabilities, degreeOfSuccess } from "../engine/resolve.mjs";
+import { distanceFeet, FEET_PER_SQUARE } from "./grid.mjs";
 
 /**
  * OUTCOME TABLES (design doc §15f) — the ONE seam where a real battle and a lookahead sandbox
@@ -62,6 +81,27 @@ const REAL_OUTCOMES = {
     const roll = resolveStrike(rng, { attacker, strike, targetAc: targetEffective.ac, mapPenalty });
     const { appliedDamage } = applyStrikeDamage(roll, target, targetEffective, strike);
     return { roll, appliedDamage, immune: false };
+  },
+  /** A basic saving throw (e.g. a thrown grenade) — the TARGET rolls, not the attacker. */
+  saveAttack(rng, { saveAttack, target, targetEffective }) {
+    const saveBonus = target.saves[saveAttack.saveType];
+    const saveRoll = resolveSave(rng, { saveBonus, dc: saveAttack.dc });
+    const damageEntries = (saveAttack.damage ?? []).map((d) => rollFormula(rng, `${d.dice}${d.bonus >= 0 ? "+" : ""}${d.bonus}`));
+    const rawDamage = damageEntries.reduce((sum, e) => sum + e.total, 0);
+    const afterSave = basicSaveDamage(rawDamage, saveRoll.degree);
+    const appliedDamage = mitigateDamage(afterSave, { target, targetEffective, strike: saveAttack });
+    target.currentHP = Math.max(0, target.currentHP - appliedDamage);
+    return { roll: { ...saveRoll, damage: { entries: damageEntries, raw: rawDamage, afterSave } }, appliedDamage };
+  },
+  /** Demoralize (Intimidation): an Intimidation check against the target's Will DC (10 + their Will save). */
+  demoralize(rng, { attacker, target }) {
+    const modifier = (attacker.intimidationModifier ?? 0) - (attacker.frightened ?? 0); // Frightened penalizes ALL of your own checks, including this one
+    const willDC = 10 + target.saves.will;
+    const d20 = rollD20(rng);
+    const total = d20 + modifier;
+    const degree = degreeOfSuccess(d20, total, willDC);
+    const appliedFrightened = { criticalSuccess: 2, success: 1, failure: 0, criticalFailure: 0 }[degree];
+    return { roll: { d20, modifier, total, dc: willDC, degree }, appliedFrightened };
   }
 };
 
@@ -84,6 +124,23 @@ const EXPECTED_OUTCOMES = {
       appliedDamage: expected,
       immune: false
     };
+  },
+  saveAttack(_rng, { saveAttack, target, targetEffective }) {
+    const saveBonus = target.saves[saveAttack.saveType];
+    const expected = expectedSaveDamage({ saveBonus, dc: saveAttack.dc, damage: saveAttack.damage, target, targetEffective });
+    if (expected > 0) target.currentHP = Math.max(0, target.currentHP - expected);
+    return {
+      roll: { expected: true, d20: null, degree: null, total: null, saveBonus, dc: saveAttack.dc, damage: expected > 0 ? { raw: expected, entries: [] } : null },
+      appliedDamage: expected
+    };
+  },
+  /** Expected frightened value applied — a fractional "how frightened, on average" number, exactly the same expected-value philosophy expectedStrikeDamage already uses for fractional HP. */
+  demoralize(_rng, { attacker, target }) {
+    const modifier = (attacker.intimidationModifier ?? 0) - (attacker.frightened ?? 0);
+    const willDC = 10 + target.saves.will;
+    const probs = degreeProbabilities(modifier, willDC);
+    const appliedFrightened = probs.criticalSuccess * 2 + probs.success * 1;
+    return { roll: { expected: true, d20: null, modifier, total: null, dc: willDC, degree: null }, appliedFrightened };
   }
 };
 
@@ -145,12 +202,19 @@ export function runBattle(scenario) {
         // Real authored data, shown for transcript honesty — NOT fired by anything in this file.
         // See this file's own header for why reactions are deliberately not wired up in Phase 1.
         reactions: c.reactions ?? [],
-        spells: c.spells ?? [], healAbilities: c.healAbilities ?? []
+        spells: c.spells ?? [], healAbilities: c.healAbilities ?? [],
+        saveAttacks: c.saveAttacks ?? [], intimidationModifier: c.intimidationModifier ?? null
       }];
     })
   );
   const log = {
-    seed: scenario.seed, gridSize: scenario.gridSize, initiativeOrder, initiativeRolls, roster,
+    seed: scenario.seed, gridSize: scenario.gridSize,
+    // Both new for the artifact viewer (design doc §19): feetPerSquare so a shared renderer can
+    // correctly scale range rings at 5ft instead of assuming the Frame-scale 50ft it was built for
+    // (tools/battle-simulator/artifact/geometry.mjs's own former hardcoded constant), and walls so
+    // Phase 1b's building actually becomes visible rather than invisible structure nobody can see.
+    feetPerSquare: FEET_PER_SQUARE, walls: scenario.walls ?? [],
+    initiativeOrder, initiativeRolls, roster,
     deployment: { round: 0, snapshot: snapshotState(state) }, // "Round 0" — every combatant is positioned before the clock starts
     initialSnapshot: snapshotState(state), rounds: [], outcome: null
   };
@@ -175,6 +239,13 @@ export function runBattle(scenario) {
       }
 
       const turnLog = runTurn({ state, rng, scenario, combatantId });
+
+      // Frightened decay (reference/srd/player-core/condition-18-frightened.json, mirrored
+      // verbatim): "at the end of each of your turns, the value... decreases by 1." Placed here,
+      // after the combatant's own turn fully resolves, matching the real rule's own timing exactly
+      // — NOT at the start of their next turn, and NOT decremented on anyone else's turn.
+      if (combatant.frightened > 0) combatant.frightened -= 1;
+
       turnLog.snapshot = snapshotState(state);
       roundLog.turns.push(turnLog);
 
@@ -349,10 +420,11 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     turnProgress.strikesAttempted += 1;
     const mapPenalty = multipleAttackPenalty(turnProgress.strikesAttempted, (strike.traits ?? []).includes("agile"));
     const rangePenalty = rangeIncrementPenalty(strike, distanceFeet(pos, targetPos));
+    const frightenedPenalty = -(combatant.frightened ?? 0); // Frightened penalizes ALL your own checks — an attack roll is a check
     const targetEffective = resolveEffectiveStats(target);
 
     const { roll: strikeResult, appliedDamage } = outcomes.strike(rng, {
-      attacker: combatant, strike, target, targetEffective, mapPenalty: mapPenalty + rangePenalty
+      attacker: combatant, strike, target, targetEffective, mapPenalty: mapPenalty + rangePenalty + frightenedPenalty
     });
     strikeResult.rangePenalty = rangePenalty;
     turnProgress.actionsUsed += 1;
@@ -387,10 +459,11 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
 
     turnProgress.strikesAttempted += 1;
     const mapPenalty = multipleAttackPenalty(turnProgress.strikesAttempted, (spell.traits ?? []).includes("agile"));
+    const frightenedPenalty = -(combatant.frightened ?? 0);
     const targetEffective = resolveEffectiveStats(target);
 
     const { roll: spellResult, appliedDamage } = outcomes.strike(rng, {
-      attacker: combatant, strike: spell, target, targetEffective, mapPenalty
+      attacker: combatant, strike: spell, target, targetEffective, mapPenalty: mapPenalty + frightenedPenalty
     });
     turnProgress.actionsUsed += spell.actions ?? 1;
 
@@ -427,6 +500,59 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     };
   }
 
+  // Save-based attack (e.g. a thrown grenade, Player Core pg. 398's basic-save shape): the TARGET
+  // rolls, not the attacker — no attack roll at all, so this does NOT increment
+  // turnProgress.strikesAttempted and is never subject to Multiple Attack Penalty (MAP only
+  // applies to attack ROLLS, Player Core's own rule — see rangeIncrementPenalty's sibling
+  // multipleAttackPenalty for the ordinary-Strike case this deliberately does NOT share).
+  if (proposal.type === "saveAttack") {
+    const target = state.combatants.get(proposal.targetId);
+    const targetPos = state.positions.get(proposal.targetId);
+    const saveAttackAbility = (combatant.saveAttacks ?? [])[proposal.saveAttackIndex ?? 0];
+    if (!saveAttackAbility) return { type: "saveAttack", targetId: proposal.targetId, legal: false, reason: `No saveAttack at index ${proposal.saveAttackIndex ?? 0} — ${combatant.name} has ${(combatant.saveAttacks ?? []).length}.` };
+
+    const check = checkSaveAttackLegal({ attacker: combatant, attackerPos: pos, target, targetPos, saveAttack: saveAttackAbility, turnState: turnProgress, walls: state.walls });
+    if (!check.legal) return { type: "saveAttack", targetId: proposal.targetId, legal: false, reason: check.reason };
+
+    const targetEffective = resolveEffectiveStats(target);
+    const { roll: saveResult, appliedDamage } = outcomes.saveAttack(rng, { saveAttack: saveAttackAbility, target, targetEffective });
+    turnProgress.actionsUsed += saveAttackAbility.actions ?? 1;
+
+    if (saveAttackAbility.usesRemaining != null) saveAttackAbility.usesRemaining -= 1;
+
+    return {
+      type: "saveAttack", saveAttackName: saveAttackAbility.name, targetId: proposal.targetId, legal: true, actionsCost: saveAttackAbility.actions ?? 1,
+      roll: saveResult, hardnessApplied: targetEffective.hardness,
+      damageApplied: appliedDamage, targetHPAfter: target.currentHP,
+      usesRemaining: saveAttackAbility.usesRemaining ?? null, decisionReason: proposal.reason ?? null
+    };
+  }
+
+  // Demoralize (Intimidation, Player Core pg. 200): an Intimidation check, not an attack roll —
+  // also never subject to MAP, for the same reason as saveAttack above. This is the actual
+  // mechanism behind "Demoralize is a reliable way to spend an action when your remaining attacks
+  // would carry a heavy MAP penalty" (Ingram's own framing, design doc §19): a 3rd Strike eats -10,
+  // Demoralize eats 0, regardless of how many Strikes came before it this turn.
+  if (proposal.type === "demoralize") {
+    const target = state.combatants.get(proposal.targetId);
+    const check = checkDemoralizeLegal({ attacker: combatant, attackerPos: pos, target, targetPos: state.positions.get(proposal.targetId), turnState: turnProgress, walls: state.walls });
+    if (!check.legal) return { type: "demoralize", targetId: proposal.targetId, legal: false, reason: check.reason };
+
+    const { roll: demoralizeRoll, appliedFrightened } = outcomes.demoralize(rng, { attacker: combatant, target });
+    // "Keep the worse (higher) value, don't stack" — the standard SF2E rule for reapplying a
+    // condition value you already have (well-established system knowledge; the specific stacking
+    // rule text wasn't found verbatim in the mirrored SRD pages checked — see design doc §19).
+    target.frightened = Math.max(target.frightened ?? 0, appliedFrightened);
+    combatant.demoralizedTargets = [...(combatant.demoralizedTargets ?? []), proposal.targetId];
+    turnProgress.actionsUsed += 1;
+
+    return {
+      type: "demoralize", targetId: proposal.targetId, legal: true, actionsCost: 1,
+      roll: demoralizeRoll, frightenedApplied: appliedFrightened, targetFrightenedAfter: target.frightened,
+      decisionReason: proposal.reason ?? null
+    };
+  }
+
   return { type: proposal.type, legal: false, reason: `Unknown action type "${proposal.type}".` };
 }
 
@@ -443,7 +569,8 @@ function snapshotState(state) {
       position: { ...pos },
       currentHP: combatant.currentHP,
       maxHP: combatant.maxHP,
-      stunnedRounds: combatant.stunnedRounds ?? 0
+      stunnedRounds: combatant.stunnedRounds ?? 0,
+      frightened: combatant.frightened ?? 0
     };
   }
   return snapshot;
@@ -470,12 +597,20 @@ function checkOutcome(state) {
  * A clone purpose-built for planning, NOT structuredClone — copies exactly the fields the engine
  * ever mutates and shares the rest by reference. The ability arrays MUST be copied element-wise,
  * not shared: attemptAction does `strike.usesRemaining -= 1`, so a shallow `{...combatant}` would
- * let merely *planning* a shot spend a real limited use.
+ * let merely *planning* a shot spend a real limited use. Same reasoning for `demoralizedTargets`
+ * (attemptAction's demoralize branch does `combatant.demoralizedTargets = [...]`, a REASSIGNMENT
+ * not a mutation, so it happens to be safe either way this time — but a `.push()` would not be,
+ * so it's still deep-copied here defensively, matching the array-of-arrays pattern below rather
+ * than relying on this one branch never being rewritten to mutate in place later).
+ *
+ * `frightened` needs NO special handling here — see combatant.mjs's own header for why it's a flat
+ * scalar rather than a nested `conditions` object specifically to make the plain `{...c}` shallow
+ * copy below already correct for it, by construction.
  *
  * Mutable surface at personnel scale: state.round; state.combatants.<id>.{currentHP,
- * stunnedRounds}; state.combatants.<id>.{strikes,spells,healAbilities}[i].usesRemaining;
- * state.positions.<id>.{col,row}. (No reactionAvailable map — this tree fires no reactions, see
- * this file's own header.)
+ * stunnedRounds, frightened, demoralizedTargets}; state.combatants.<id>.{strikes,spells,
+ * healAbilities,saveAttacks}[i].usesRemaining; state.positions.<id>.{col,row}. (No
+ * reactionAvailable map — this tree fires no reactions, see this file's own header.)
  */
 export function cloneStateForPlanning(state) {
   const combatants = new Map();
@@ -484,6 +619,8 @@ export function cloneStateForPlanning(state) {
     if (c.strikes) copy.strikes = c.strikes.map((s) => ({ ...s }));
     if (c.spells) copy.spells = c.spells.map((s) => ({ ...s }));
     if (c.healAbilities) copy.healAbilities = c.healAbilities.map((a) => ({ ...a }));
+    if (c.saveAttacks) copy.saveAttacks = c.saveAttacks.map((s) => ({ ...s }));
+    if (c.demoralizedTargets) copy.demoralizedTargets = [...c.demoralizedTargets];
     combatants.set(id, copy);
   }
   const positions = new Map();

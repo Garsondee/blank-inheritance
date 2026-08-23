@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { makeRng } from "../../tools/battle-simulator/engine/rng.mjs";
 import {
   degreeOfSuccess, resolveStrike, applyHardness, mitigateDamage, resolveSave, basicSaveDamage, resolveFieldRepair, resolveEvacuation,
-  averageDamage, averageStrikeDamage, degreeProbabilities, expectedStrikeDamage, hitProbability, expectedRepairHealing, expectedEvacuationCivilians
+  averageDamage, averageStrikeDamage, degreeProbabilities, expectedStrikeDamage, expectedSaveDamage, hitProbability, expectedRepairHealing, expectedEvacuationCivilians
 } from "../../tools/battle-simulator/engine/resolve.mjs";
 
 test("degreeOfSuccess: the four bands, no natural-roll shift", () => {
@@ -58,6 +58,38 @@ test("resolveSave + basicSaveDamage: the four standard multipliers", () => {
   assert.equal(basicSaveDamage(41, "success"), 20, "half rounds down");
   assert.equal(basicSaveDamage(40, "failure"), 40);
   assert.equal(basicSaveDamage(40, "criticalFailure"), 80);
+});
+
+test("expectedSaveDamage: is exactly 0 against an immune target or an already-dead one", () => {
+  const dyingTarget = { currentHP: 0, maxHP: 10 };
+  const immuneTarget = { currentHP: 10, maxHP: 10, immuneToAllDamage: true };
+  const args = { saveBonus: 0, dc: 15, damage: [{ dice: "1d8", bonus: 0 }] };
+  assert.equal(expectedSaveDamage({ ...args, target: dyingTarget }), 0);
+  assert.equal(expectedSaveDamage({ ...args, target: immuneTarget }), 0);
+});
+
+test("expectedSaveDamage: a guaranteed critical success (an overwhelming save bonus) is very close to 0 — only the sliver a natural 1 costs", () => {
+  const target = { currentHP: 100, maxHP: 100 };
+  const expected = expectedSaveDamage({ saveBonus: 100, dc: 15, damage: [{ dice: "1d8", bonus: 0 }], target });
+  // With saveBonus 100 every roll but a natural 1 crit-succeeds (0 damage); a natural 1 shifts down to
+  // a plain success (half of avg 4.5 -> floor(4.5/2)=2), so expected = (1/20)*2 = 0.1.
+  assert.ok(expected > 0 && expected < 0.5, `expected a tiny near-zero value from the nat-1 sliver, got ${expected}`);
+});
+
+test("expectedSaveDamage: a guaranteed critical failure (an impossible save bonus) is close to double the average raw damage", () => {
+  const target = { currentHP: 100, maxHP: 100 };
+  const expected = expectedSaveDamage({ saveBonus: -100, dc: 15, damage: [{ dice: "1d8", bonus: 0 }], target });
+  // avg 1d8 = 4.5, doubled on a critical failure = 9; a natural 20 shifts the one roll that would
+  // otherwise crit-fail up to a plain failure (full damage, 4.5) instead, pulling the expectation down slightly.
+  assert.ok(expected > 8 && expected <= 9, `expected close to double the average (9), got ${expected}`);
+});
+
+test("expectedSaveDamage: Hardness reduces it exactly like an ordinary Strike's expected damage does", () => {
+  const target = { currentHP: 100, maxHP: 100 };
+  const targetEffective = { hardness: 3 };
+  const withoutHardness = expectedSaveDamage({ saveBonus: -100, dc: 15, damage: [{ dice: "1d8", bonus: 0 }], target });
+  const withHardness = expectedSaveDamage({ saveBonus: -100, dc: 15, damage: [{ dice: "1d8", bonus: 0 }], target, targetEffective });
+  assert.ok(withHardness < withoutHardness, "Hardness must reduce expected save-attack damage");
 });
 
 test("resolveFieldRepair: healing amount matches design/scale-and-chassis.md §6 exactly per degree", () => {

@@ -7,6 +7,12 @@
  * NPC — Scale Disparity/scaleBlind targeting, Field Repair (the Ladle), Spot, Evacuate. Ordinary
  * SF2E creatures don't have any of those mechanics; a level-1 Mystic and a Security Goon can
  * always see and target each other, subject only to real perception/range/Line of Effect.
+ *
+ * EXTENDED (skill-actions-in-combat expansion): checkSaveAttackLegal (a target rolls a saving
+ * throw instead of the attacker rolling to hit — the mechanism explicitly out of scope through
+ * Phase 3, per design/scale-and-chassis.md §19's own "no saving-throw mechanism" note) and
+ * checkDemoralizeLegal (Intimidation's Demoralize action, Player Core pg. 200, mirrored verbatim
+ * at reference/srd/player-core/skill-8-intimidation.json).
  */
 
 import { distanceFeet, isOccupied, isInBounds, reachFeetForStrike, FEET_PER_SQUARE } from "./grid.mjs";
@@ -238,6 +244,82 @@ export function checkHealAbilityLegal({ healer, healerPos, target, targetPos, ab
 
   if (ability.usesRemaining != null && ability.usesRemaining <= 0) {
     return { legal: false, reason: `${ability.name} has no uses remaining this encounter.` };
+  }
+
+  return { legal: true, reason: null };
+}
+
+/**
+ * A saving-throw-based attack (e.g. a thrown grenade with a basic Reflex save): the TARGET rolls,
+ * not the attacker. Same shape as checkStrikeLegal/checkSpellAttackLegal — actor/target alive,
+ * budget, range (a flat max, matching how this project's real extracted grenade data represents
+ * `range` as a single throw-distance number, not an incrementing gun-style range), perception, LOS,
+ * limited uses.
+ */
+export function checkSaveAttackLegal({ attacker, attackerPos, target, targetPos, saveAttack, turnState, walls }) {
+  const actorAlive = checkActorAlive(attacker);
+  if (!actorAlive.legal) return actorAlive;
+
+  const budget = checkActionBudget(turnState, saveAttack.actions ?? 1);
+  if (!budget.legal) return budget;
+
+  const alive = checkTargetAlive(target);
+  if (!alive.legal) return alive;
+
+  const dist = distanceFeet(attackerPos, targetPos);
+  const maxRange = saveAttack.range ?? FEET_PER_SQUARE;
+  if (dist > maxRange) {
+    return { legal: false, reason: `Target is ${dist}ft away, beyond ${saveAttack.name}'s range (${maxRange}ft).` };
+  }
+
+  const perception = checkPerceptionRange({ attacker, attackerPos, targetPos });
+  if (!perception.legal) return perception;
+
+  if (!lineOfEffect(attackerPos, targetPos, walls)) {
+    return { legal: false, reason: `No line of effect to ${target.name} — a wall entirely blocks it.` };
+  }
+
+  if (saveAttack.usesRemaining != null && saveAttack.usesRemaining <= 0) {
+    return { legal: false, reason: `${saveAttack.name} is out of uses this encounter.` };
+  }
+
+  return { legal: true, reason: null };
+}
+
+/**
+ * Demoralize (Intimidation, Player Core pg. 200, one action, real range 30ft): an Intimidation
+ * check against the target's Will DC. "Regardless of the outcome, you can't Demoralize the same
+ * creature again for 10 minutes" — in a combat this short (SF2E rounds are 6 seconds; 10 minutes
+ * is 100 rounds), that cooldown is functionally "never again this battle", so it's modeled as a
+ * flat per-attacker per-target attempted-once gate (`attacker.demoralizedTargets`) rather than a
+ * numeric timer nothing in this engine would ever see expire.
+ */
+const DEMORALIZE_RANGE_FEET = 30;
+
+export function checkDemoralizeLegal({ attacker, attackerPos, target, targetPos, turnState, walls }) {
+  const actorAlive = checkActorAlive(attacker);
+  if (!actorAlive.legal) return actorAlive;
+
+  const budget = checkActionBudget(turnState, 1);
+  if (!budget.legal) return budget;
+
+  const alive = checkTargetAlive(target);
+  if (!alive.legal) return alive;
+
+  const dist = distanceFeet(attackerPos, targetPos);
+  if (dist > DEMORALIZE_RANGE_FEET) {
+    return { legal: false, reason: `Target is ${dist}ft away, beyond Demoralize's ${DEMORALIZE_RANGE_FEET}ft range.` };
+  }
+
+  const perception = checkPerceptionRange({ attacker, attackerPos, targetPos });
+  if (!perception.legal) return perception;
+
+  if (!lineOfEffect(attackerPos, targetPos, walls)) {
+    return { legal: false, reason: `No line of effect to ${target.name} — can't be seen/heard through a wall.` };
+  }
+
+  if (attacker.demoralizedTargets?.includes(target.id)) {
+    return { legal: false, reason: `${attacker.name} has already tried to Demoralize ${target.name} this encounter — can't attempt it again for 10 minutes.` };
   }
 
   return { legal: true, reason: null };

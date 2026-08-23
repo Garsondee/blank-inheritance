@@ -92,6 +92,13 @@ export function toCombatant(npc, { strikeNames, side = "opposition" } = {}) {
     strikes,
     reactions: actionItems.filter((a) => a.system.actionType.value === "reaction").map(describeAction),
     actions: actionItems.filter((a) => a.system.actionType.value !== "reaction").map(describeAction),
-    lore: loreItems.map((l) => ({ name: l.name, modifier: l.system.mod.value }))
+    lore: loreItems.map((l) => ({ name: l.name, modifier: l.system.mod.value })),
+    // Real, final skill modifiers — an NPC's system.skills only lists the skills it's actually
+    // trained in (design doc §19's skill-actions-in-combat expansion); every other of the 18 real
+    // skills is implicitly untrained with no listed bonus, so this is deliberately NOT padded out
+    // to all 18 with a guessed untrained-plus-ability-mod number this file has no ability score to
+    // compute from anyway (NPC system.abilities.*.mod exists but deriving "untrained skill X" from
+    // it for a skill nobody bothered to list is inventing a number nothing in the raw data asked for).
+    skills: Object.fromEntries(Object.entries(npc.actor.system.skills ?? {}).map(([name, s]) => [name, s.base]))
   };
 }

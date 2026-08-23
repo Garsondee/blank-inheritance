@@ -96,5 +96,29 @@
       "actions": 1
     }
   ],
-  "notes": "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §19. Transfer Vitality's healing amount (10, minimum 1) is hand-transcribed from real rule prose since no structured field exists for it — see build-combat-pregen.mjs's own citation."
+  "saveAttacks": [
+    {
+      "name": "Incendiary Grenade (Commercial)",
+      "saveType": "reflex",
+      "dc": 17,
+      "range": 70,
+      "actions": 1,
+      "traits": [
+        "consumable",
+        "fire",
+        "grenade",
+        "tech"
+      ],
+      "damage": [
+        {
+          "dice": "1d8",
+          "bonus": 0,
+          "damageType": "fire"
+        }
+      ],
+      "usesRemaining": 1
+    }
+  ],
+  "intimidationModifier": 0,
+  "notes": "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §19. Transfer Vitality's healing amount (10, minimum 1) is hand-transcribed from real rule prose since no structured field exists for it — see build-combat-pregen.mjs's own citation. The Incendiary Grenade's DC (17) is her real Class DC, matching the raw item's own @Check[reflex|against:class] text exactly."
 }

@@ -243,6 +243,28 @@ export function killProbability({ attackModifier, targetAc, strike, target, targ
   return p;
 }
 
+/**
+ * Expected damage of one basic-saving-throw attack (e.g. a thrown grenade), folding all four
+ * degrees of success together via their real basicSaveDamage multipliers — the save-based twin of
+ * expectedStrikeDamage. Added for the personnel-scale engine's skill-actions-in-combat expansion
+ * (design doc §19), but lives here rather than in personnel-engine/ since it's exactly as
+ * scale-agnostic as resolveSave/basicSaveDamage/degreeProbabilities already are — any future
+ * Frame-scale save-based hazard can reuse it too, same precedent as ground-layer/'s existing reuse
+ * of resolveSave/basicSaveDamage for its own hazard saves.
+ */
+export function expectedSaveDamage({ saveBonus, dc, damage, target, targetEffective }) {
+  if (target.immuneToAllDamage || target.currentHP <= 0) return 0;
+  const effective = targetEffective ?? { hardness: target.hardness ?? 0 };
+  const avgRaw = (damage ?? []).reduce((sum, d) => sum + averageDamage(d.dice, d.bonus), 0);
+  const probs = degreeProbabilities(saveBonus, dc);
+  let expected = 0;
+  for (const degree of ["criticalSuccess", "success", "failure", "criticalFailure"]) {
+    const afterSave = basicSaveDamage(avgRaw, degree);
+    expected += probs[degree] * mitigateDamage(afterSave, { target, targetEffective: effective, strike: null });
+  }
+  return expected;
+}
+
 /** Expected HP restored by one Field Repair — mirrors resolveFieldRepair's own healing table. */
 export function expectedRepairHealing({ repairBonus, handlingDC }) {
   const p = degreeProbabilities(repairBonus, handlingDC);

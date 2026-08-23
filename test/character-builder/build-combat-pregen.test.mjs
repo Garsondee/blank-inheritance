@@ -12,7 +12,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { listLevel1Pregens, toIngredients } from "../../tools/character-builder/extract-pregen.mjs";
 import { deriveAbilityModifiers } from "../../tools/character-builder/derive.mjs";
-import { deriveStrikes, deriveSpells, deriveTransferVitality } from "../../tools/character-builder/build-combat-pregen.mjs";
+import { deriveStrikes, deriveSpells, deriveTransferVitality, deriveSaveAttacks, deriveSkillModifier } from "../../tools/character-builder/build-combat-pregen.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..", "..");
@@ -94,4 +94,45 @@ test("deriveTransferVitality: real 1-action, 60ft heal ability, granted via Luna
 test("all three weapons' category (simple) is trained per the Mystic class's real system.attacks table — proficiency isn't a guess", () => {
   const ingredients = lunar17Ingredients();
   assert.equal(ingredients.classAttacks.simple, 1, "expected Mystic's real class data to show simple weapons as trained (rank 1)");
+});
+
+// ---------------------------------------------------------------------------
+// deriveSaveAttacks / deriveSkillModifier — the skill-actions-in-combat expansion (design doc §19)
+// ---------------------------------------------------------------------------
+
+test("deriveSaveAttacks: her real Incendiary Grenade — DC 17 (her real Class DC, matching the raw data's own @Check[reflex|against:class]), real 70ft range, real 1d8 fire damage", () => {
+  const ingredients = lunar17Ingredients();
+  const mods = deriveAbilityModifiers(ingredients);
+  const [grenade] = deriveSaveAttacks(ingredients, [{ name: "Incendiary Grenade (Commercial)", saveType: "reflex" }], mods);
+  assert.equal(grenade.saveType, "reflex");
+  assert.equal(grenade.dc, 17, "her Class DC (Mystic, wis+4, trained, level 1): 10 + 3 + 4");
+  assert.equal(grenade.range, 70);
+  assert.deepEqual(grenade.damage, [{ dice: "1d8", bonus: 0, damageType: "fire" }]);
+  assert.ok(grenade.traits.includes("grenade"));
+  assert.equal(grenade.usesRemaining, 1, "her real sheet carries exactly system.quantity:1 of this consumable — not infinite");
+});
+
+test("deriveSaveAttacks: throws a clear error for a weapon name that doesn't exist", () => {
+  const ingredients = lunar17Ingredients();
+  const mods = deriveAbilityModifiers(ingredients);
+  assert.throws(() => deriveSaveAttacks(ingredients, [{ name: "Not A Real Grenade", saveType: "reflex" }], mods), /No weapon named/);
+});
+
+test("deriveSkillModifier: Lunar-17's real Intimidation is untrained (+0) — her cha modifier is +0 and intimidation isn't in her real skillRanks at all", () => {
+  const ingredients = lunar17Ingredients();
+  const mods = deriveAbilityModifiers(ingredients);
+  assert.equal(deriveSkillModifier(ingredients, "intimidation", mods), 0);
+});
+
+test("deriveSkillModifier: a real TRAINED skill (Stealth, rank 1 in her real skillRanks) comes back correctly proficiency-bonused", () => {
+  const ingredients = lunar17Ingredients();
+  const mods = deriveAbilityModifiers(ingredients);
+  // trained (level 1 -> +3 proficiency) + her real dex modifier (+3, confirmed in derive.test.mjs's own worked example)
+  assert.equal(deriveSkillModifier(ingredients, "stealth", mods), 6);
+});
+
+test("deriveSkillModifier: throws for a name that isn't one of the 18 real SF2E skills", () => {
+  const ingredients = lunar17Ingredients();
+  const mods = deriveAbilityModifiers(ingredients);
+  assert.throws(() => deriveSkillModifier(ingredients, "not-a-real-skill", mods), /not one of the 18 real SF2E skills/);
 });

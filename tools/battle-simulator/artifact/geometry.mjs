@@ -15,14 +15,43 @@
  * script references) — this file is the source of truth either way.
  */
 
-export const GRID = 44;
-export const MAP_PX = 1320;
-export const CELL = MAP_PX / GRID;
-export const FEET_PER_SQUARE = 50; // must match tools/battle-simulator/engine/grid.mjs
+// MUTABLE on purpose (design doc §19): the reader's "Simulation Library" can hold BOTH Frame-scale
+// runs (50ft/square, the 44x44 city-district map) and personnel-scale runs (5ft/square, a small
+// synthetic building, non-square grids) side by side, and a viewer scrubs between them freely — so
+// these can no longer be baked-in constants fixed at page-parse time. setMapScale() recomputes them
+// whenever selectRun() switches to a run at a different scale/size; CELL itself stays fixed (every
+// grid square always renders at the same pixel size) so only the map's overall canvas grows/shrinks
+// per run, never the per-square zoom level.
+export let CELL = 30;
+export let COLS = 44;
+export let ROWS = 44;
+export let MAP_PX_W = COLS * CELL;
+export let MAP_PX_H = ROWS * CELL;
+export let FEET_PER_SQUARE = 50; // must match tools/battle-simulator/engine/grid.mjs's default
+
+/**
+ * Recompute every geometry constant for the run about to be rendered. `feetPerSquare` defaults to
+ * 50 when absent (every Frame-scale log written before this field existed) — real backward
+ * compatibility for the run library's existing pre-§19 files, not a guess.
+ */
+export function setMapScale({ cols, rows, feetPerSquare }) {
+  COLS = cols; ROWS = rows;
+  MAP_PX_W = COLS * CELL; MAP_PX_H = ROWS * CELL;
+  FEET_PER_SQUARE = feetPerSquare ?? 50;
+}
 
 /** Grid cell {col,row} -> pixel {x,y} at the center of that cell. */
 export function posToPx(pos) {
   return { x: (pos.col + 0.5) * CELL, y: (pos.row + 0.5) * CELL };
+}
+
+/**
+ * A wall's grid-VERTEX coordinate (a cell CORNER, e.g. Foundry Wall schema's `c:[x0,y0,x1,y1]` —
+ * design doc §19 Phase 1b) -> pixel {x,y}. Deliberately NOT posToPx's +0.5 cell-center offset —
+ * vertex (c,r) sits at the shared corner of up to four cells, exactly at pixel (c*CELL, r*CELL).
+ */
+export function vertexToPx(v) {
+  return { x: v[0] * CELL, y: v[1] * CELL };
 }
 
 /** A real-world feet distance -> the equivalent pixel length on the map, at this map's scale. */

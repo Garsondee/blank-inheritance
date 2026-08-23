@@ -217,6 +217,20 @@ export function generateProposals(state, combatantId, turn) {
   (me.spells ?? []).forEach((_, i) => {
     for (const e of enemies) proposals.push({ type: "spellAttack", targetId: e.id, spellIndex: i });
   });
+  (me.saveAttacks ?? []).forEach((_, i) => {
+    for (const e of enemies) proposals.push({ type: "saveAttack", targetId: e.id, saveAttackIndex: i });
+  });
+
+  // --- Demoralize (Intimidation): only offered if this combatant actually has an Intimidation
+  // modifier extracted (opt-in, matching vision/walls' own pattern) and hasn't already tried this
+  // specific target this battle (checkDemoralizeLegal would reject it anyway, but filtering here
+  // keeps the candidate list honest rather than generating a proposal doomed to fail). ---
+  if (me.intimidationModifier != null) {
+    for (const e of enemies) {
+      if (me.demoralizedTargets?.includes(e.id)) continue;
+      proposals.push({ type: "demoralize", targetId: e.id });
+    }
+  }
 
   // --- Support ---
   (me.healAbilities ?? []).forEach((_, i) => {
@@ -321,6 +335,8 @@ function describe(proposal, result) {
     case "step": return `Step to (${proposal.to.col},${proposal.to.row}) — no reaction provoked`;
     case "strike": return `Strike with ${result?.strikeName ?? "weapon " + (proposal.strikeIndex ?? 0)}`;
     case "spellAttack": return `Cast ${result?.spellName ?? "spell " + (proposal.spellIndex ?? 0)}`;
+    case "saveAttack": return `Use ${result?.saveAttackName ?? "ability " + (proposal.saveAttackIndex ?? 0)} against ${proposal.targetId}`;
+    case "demoralize": return `Demoralize ${proposal.targetId}`;
     case "healAbility": return `Heal ${proposal.targetId} with ${result?.abilityName ?? "ability"}`;
     default: return proposal.type;
   }
