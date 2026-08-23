@@ -87,6 +87,30 @@ test("a move-only wall (sight: NONE) still blocks pathfinding — pathfinding ca
   assert.equal(cost, Infinity, "sight:NONE must not exempt a move-blocking wall from blocking movement");
 });
 
+// --- Faction-aware occupancy (design doc §24 — Ingram's own direct correction: "Characters can
+// move through friendly character spaces per the rules") ---
+
+test("reachableCells: a DIFFERENT-side occupant still fully blocks — both unreachable itself AND unpassable (exactly the pre-existing rule, now scoped to real enemies only)", () => {
+  const cells = reachableCells({ from: { col: 0, row: 0 }, maxFeet: 50, gridSize, occupiedPositions: [{ col: 1, row: 0, side: "opposition" }], moverSide: "party", walls: [] });
+  assert.ok(!cells.has("1,0"), "an enemy-occupied cell must not appear as reachable");
+  assert.ok(cells.has("2,0"), "a route around the enemy must still be found");
+});
+
+test("reachableCells: a SAME-side occupant's cell is never itself a valid destination, but cells BEYOND it are reachable at the true (through-the-ally) cost, not routed around", () => {
+  // A single ally sits directly between (0,0) and (2,0) — with the old any-occupant-blocks rule,
+  // reaching (2,0) required detouring around; the real rule says walking straight through costs
+  // exactly the straight-line distance.
+  const cells = reachableCells({ from: { col: 0, row: 0 }, maxFeet: 50, gridSize, occupiedPositions: [{ col: 1, row: 0, side: "party" }], moverSide: "party", walls: [] });
+  assert.ok(!cells.has("1,0"), "the ally's own square must never be a selectable destination");
+  assert.ok(cells.has("2,0"), "the cell beyond the ally must be reachable");
+  assert.equal(cells.get("2,0").cost, distanceFeet({ col: 0, row: 0 }, { col: 2, row: 0 }), "walking straight through an ally costs the true straight-line distance, not a detour");
+});
+
+test("reachableCells: with no moverSide supplied, an occupant blocks regardless of its own side — the safe default, matching isOccupied's original behavior", () => {
+  const cells = reachableCells({ from: { col: 0, row: 0 }, maxFeet: 50, gridSize, occupiedPositions: [{ col: 1, row: 0, side: "party" }], walls: [] }); // no moverSide
+  assert.ok(!cells.has("1,0"));
+});
+
 test("an open doorway (a gap in an otherwise-solid wall run) IS traversable through the gap — the actual mechanism Phase 1b's rooms use", () => {
   // A wall spanning columns 0-10 at row=5, except a 1-square gap at column 5 (the "doorway").
   const walls = [];

@@ -153,18 +153,18 @@ test("bestExpectedDamage: a real cover object between attacker and a REFLEX save
 test("MONOTONICITY: a stunned enemy is worth strictly more to the party than the same enemy un-stunned, all else equal", () => {
   const base = makeState({ allyCount: 2, enemyCount: 1 });
   const stunned = { ...base, combatants: new Map(base.combatants) };
-  stunned.combatants.set("enemy-0", { ...base.combatants.get("enemy-0"), stunnedRounds: 2 });
+  stunned.combatants.set("enemy-0", { ...base.combatants.get("enemy-0"), stunnedValue: 2 });
   assert.ok(evaluateState(stunned, "party") > evaluateState(base, "party"), "stunning an enemy must raise the party's score");
 });
 
 test("MONOTONICITY: the same holds symmetrically — a stunned ALLY is worth strictly less, and the two sides' views stay zero-sum-consistent", () => {
   const base = makeState({ allyCount: 2, enemyCount: 1 });
   const allyStunned = { ...base, combatants: new Map(base.combatants) };
-  allyStunned.combatants.set("ally-0", { ...base.combatants.get("ally-0"), stunnedRounds: 2 });
+  allyStunned.combatants.set("ally-0", { ...base.combatants.get("ally-0"), stunnedValue: 2 });
   assert.ok(evaluateState(allyStunned, "party") < evaluateState(base, "party"), "an ally being stunned must lower the party's own score");
 
   const enemyStunned = { ...base, combatants: new Map(base.combatants) };
-  enemyStunned.combatants.set("enemy-0", { ...base.combatants.get("enemy-0"), stunnedRounds: 2 });
+  enemyStunned.combatants.set("enemy-0", { ...base.combatants.get("enemy-0"), stunnedValue: 2 });
   const partyDelta = evaluateState(enemyStunned, "party") - evaluateState(base, "party");
   const oppositionDelta = evaluateState(enemyStunned, "opposition") - evaluateState(base, "opposition");
   assert.ok(partyDelta > 0 && oppositionDelta < 0, `stunning the enemy must be good for the party and bad for the opposition (party: ${partyDelta.toFixed(2)}, opposition: ${oppositionDelta.toFixed(2)})`);
@@ -174,9 +174,9 @@ test("stunDenial scales with the real number of rounds stunned — 2 rounds is w
   const base = makeState({ allyCount: 1, enemyCount: 1 });
   const before = evaluateState(base, "party");
   const one = { ...base, combatants: new Map(base.combatants) };
-  one.combatants.set("enemy-0", { ...base.combatants.get("enemy-0"), stunnedRounds: 1 });
+  one.combatants.set("enemy-0", { ...base.combatants.get("enemy-0"), stunnedValue: 1 });
   const two = { ...base, combatants: new Map(base.combatants) };
-  two.combatants.set("enemy-0", { ...base.combatants.get("enemy-0"), stunnedRounds: 2 });
+  two.combatants.set("enemy-0", { ...base.combatants.get("enemy-0"), stunnedValue: 2 });
   const gainOne = evaluateState(one, "party") - before;
   const gainTwo = evaluateState(two, "party") - before;
   assert.ok(Math.abs(gainTwo - 2 * gainOne) < 1e-9, `expected exactly linear scaling (1 round: +${gainOne.toFixed(3)}, 2 rounds: +${gainTwo.toFixed(3)})`);

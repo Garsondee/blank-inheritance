@@ -216,7 +216,7 @@ function buildBennit() {
  * Frightened/Stunned, not damage — requiring a genuinely new engine mechanism (personnel-engine/
  * legality.mjs's checkConditionSaveLegal, engine.mjs's "conditionSave" action type, decide.mjs's
  * candidate generation, and evaluate/state-value.mjs's new stunDenial term, since nothing anywhere
- * priced `stunnedRounds` before this). Her real Strikes (Ribbon/Fist/Light Ray) derive through the
+ * priced `stunnedValue` before this). Her real Strikes (Ribbon/Fist/Light Ray) derive through the
  * existing toCombatant unmodified.
  */
 function buildErabryth() {
@@ -235,8 +235,8 @@ function buildErabryth() {
     outcomes: {
       criticalSuccess: {},
       success: { frightened: 1 },
-      failure: { stunnedRounds: 1, frightened: 1 },
-      criticalFailure: { stunnedRounds: 2, frightened: 2 }
+      failure: { stunnedValue: 1, frightened: 1 },
+      criticalFailure: { stunnedValue: 2, frightened: 2 }
     }
   })];
   return {

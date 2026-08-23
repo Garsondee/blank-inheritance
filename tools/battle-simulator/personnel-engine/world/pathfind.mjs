@@ -23,7 +23,7 @@
  * nodes — verified in the test suite to reproduce distanceFeet EXACTLY for the no-obstacle case,
  * which is the trusted reference.
  */
-import { isInBounds, isOccupied, FEET_PER_SQUARE } from "../grid.mjs";
+import { isInBounds, isOccupied, blocksPassage, FEET_PER_SQUARE } from "../grid.mjs";
 import { moveBlockedBetween } from "../terrain.mjs";
 
 /**
@@ -73,17 +73,23 @@ const DIRECTIONS = [
 function key(col, row, parity) { return `${col},${row},${parity}`; }
 
 /**
- * Dijkstra from `from`, respecting bounds, occupancy (every OTHER combatant's current position
- * blocks a cell, matching isOccupied elsewhere), wall move-blocking, and the real alternating-
+ * Dijkstra from `from`, respecting bounds, occupancy, wall move-blocking, and the real alternating-
  * diagonal cost.
+ *
+ * Occupancy is faction-aware (design doc §24): a DIFFERENT-side occupant fully blocks a cell, same
+ * as ever, but a SAME-side occupant (`moverSide`, matched against each `occupiedPositions` entry's
+ * own `.side`) only blocks STOPPING there — the search still explores past/through it, since real
+ * SF2E lets you move through an ally's space, you just can't end your turn on it. `moverSide ==
+ * null` (no side info supplied) falls back to the original any-occupant-blocks-everything rule.
  *
  * Returns a Map keyed by "col,row" (the CHEAPER of the two parity-states reaching that cell) to
  * `{ cost, path }`, where `path` is the full ordered list of cells from `from` to that cell
- * inclusive — for every cell reachable within `maxFeet`. Only cells within `maxFeet` are explored,
- * so this stays cheap even on a large grid: it's bounded by a combatant's own Speed, not the whole
- * map.
+ * inclusive — for every cell reachable within `maxFeet` THAT ISN'T ITSELF OCCUPIED (an ally's own
+ * square is a real waypoint on the way to somewhere else, never a valid destination in its own
+ * right). Only cells within `maxFeet` are explored, so this stays cheap even on a large grid: it's
+ * bounded by a combatant's own Speed, not the whole map.
  */
-export function reachableCells({ from, maxFeet, gridSize, occupiedPositions = [], walls = [] }) {
+export function reachableCells({ from, maxFeet, gridSize, occupiedPositions = [], walls = [], moverSide = null }) {
   const heap = new MinHeap();
   const best = new Map(); // key(col,row,parity) -> cost
   const cameFrom = new Map(); // key -> {col,row,parity} of the predecessor
@@ -99,7 +105,7 @@ export function reachableCells({ from, maxFeet, gridSize, occupiedPositions = []
     for (const { dc, dr } of DIRECTIONS) {
       const next = { col: node.col + dc, row: node.row + dr };
       if (!isInBounds(next, gridSize)) continue;
-      if (isOccupied(next, occupiedPositions)) continue;
+      if (blocksPassage(next, occupiedPositions, moverSide)) continue;
       if (moveBlockedBetween(node, next, walls)) continue;
 
       const isDiagonal = dc !== 0 && dr !== 0;
@@ -128,6 +134,9 @@ export function reachableCells({ from, maxFeet, gridSize, occupiedPositions = []
   for (const [k, cost] of best) {
     const [col, row, parity] = k.split(",").map(Number);
     const cellKey = `${col},${row}`;
+    // An ally's own square was legitimately explored/passed through above, but it's still someone
+    // else's square right now — never a valid place for THIS combatant to end its own move.
+    if (isOccupied({ col, row }, occupiedPositions)) continue;
     const existing = result.get(cellKey);
     if (existing && existing.cost <= cost) continue;
     const path = [{ col, row }];

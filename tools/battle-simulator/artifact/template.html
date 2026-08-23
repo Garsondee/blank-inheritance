@@ -422,7 +422,7 @@
 
   <div class="stage">
     <div class="panel map-panel">
-      <div class="map-wrap">
+      <div class="map-wrap" id="mapWrap">
         <img id="mapImg" alt="City district battle map, 44x44 grid">
         <svg id="mapSvg" viewBox="0 0 1320 1320" preserveAspectRatio="none">
           <defs>
@@ -971,9 +971,12 @@ function renderRoundOverview(run, step, stepIdx) {
   const rows = roundSteps.map((s) => {
     const info = roster[s.combatantId] || {};
     const boxes = [];
-    if (s.stunned) {
-      boxes.push({ cls: "held", grow: 3, label: "Stunned — turn forfeit", why: "" });
+    if (s.stunned && !(s.actions || []).length) {
+      // A genuine full forfeit (design doc §24: Stunned's real VALUE was >= the turn's own action
+      // budget, Player Core pg. 421) — the ONLY case where nothing was even attempted this turn.
+      boxes.push({ cls: "held", grow: 3, label: `Stunned — lost all ${s.stunnedActionsLost ?? 3} action(s)`, why: "" });
     } else {
+      if (s.stunned) boxes.push({ cls: "held", grow: s.stunnedActionsLost ?? 0, label: `Stunned — lost ${s.stunnedActionsLost}`, why: "" });
       for (const action of s.actions || []) {
         const cost = actionCost(action);
         if (!action.legal) {
@@ -1022,11 +1025,14 @@ function renderScreen(run, step) {
     }
   } else if (step.kind === "outcome") {
     lines.push({ cls: "event", text: `— ${step.outcome.result.toUpperCase().replace("-", " ")} — ${step.outcome.detail}` });
-  } else if (step.stunned) {
+  } else if (step.stunned && !step.actions.length) {
+    // A genuine full forfeit only (design doc §24) — a partially-stunned turn falls through to the
+    // normal branch below instead, so its real actions still render.
     const name = shortName(roster[step.combatantId]?.name || step.combatantId);
-    lines.push({ cls: "dim", text: `${name} is Stunned — loses this turn.` });
+    lines.push({ cls: "dim", text: `${name} is Stunned — loses all ${step.stunnedActionsLost ?? 3} action(s) this turn.` });
   } else {
     const name = shortName(roster[step.combatantId]?.name || step.combatantId);
+    if (step.stunned) lines.push({ cls: "dim", text: `${name} lost ${step.stunnedActionsLost} action(s) to Stunned this turn.` });
     if (!step.actions.length) lines.push({ cls: "dim", text: `${name}: no legal action available this turn.` });
     for (const action of step.actions) {
       const n = narrateAction(name, action);
@@ -1266,6 +1272,14 @@ function selectRun(id) {
   // runs at genuinely different grid sizes/feet-per-square, so this must happen on every switch,
   // not once at page load.
   setMapScale({ cols: run?.log.gridSize.cols ?? 44, rows: run?.log.gridSize.rows ?? 44, feetPerSquare: run?.log.feetPerSquare });
+  // design doc §24 (a small UI bug, Ingram's own report): .map-wrap's CSS aspect-ratio was a
+  // hardcoded 1/1, so any non-square grid (e.g. the personnel-scale complex map's 44x30) got
+  // stretched to fit a square box regardless of its own real shape — squashing the whole map AND
+  // every circular token into an oval along whichever axis was compressed. The SVG's own
+  // viewBox/preserveAspectRatio="none" already scales correctly to WHATEVER box it's given; the
+  // real bug was the box itself never matching the grid's own proportions. Set here, not in CSS,
+  // because the real shape isn't known until a run is actually selected.
+  document.getElementById("mapWrap").style.aspectRatio = `${COLS} / ${ROWS}`;
   renderGridLines();
   if (run) renderWalls(run);
   renderLibrary();

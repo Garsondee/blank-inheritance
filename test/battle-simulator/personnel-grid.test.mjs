@@ -5,7 +5,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { distanceFeet, isAdjacent, isOccupied, isInBounds, reachFeetForStrike, FEET_PER_SQUARE } from "../../tools/battle-simulator/personnel-engine/grid.mjs";
+import { distanceFeet, isAdjacent, isOccupied, blocksPassage, isInBounds, reachFeetForStrike, FEET_PER_SQUARE } from "../../tools/battle-simulator/personnel-engine/grid.mjs";
 
 test("FEET_PER_SQUARE is the real, unscaled SF2E grid (5ft), not this project's 10x campaign rescale", () => {
   assert.equal(FEET_PER_SQUARE, 5);
@@ -59,4 +59,28 @@ test("reachFeetForStrike: default melee reach is exactly one 5ft square (real SF
 test("reachFeetForStrike: an explicit reach-N trait overrides the default with its own real feet value", () => {
   assert.equal(reachFeetForStrike({ traits: ["reach-10"] }), 10, "e.g. a real SF2E reach weapon's +5ft over standard melee");
   assert.equal(reachFeetForStrike({ traits: ["reach-15"] }), 15);
+});
+
+// --- blocksPassage (design doc §24 — Ingram's own direct correction: "Characters can move through
+// friendly character spaces per the rules") ---
+
+test("blocksPassage: a DIFFERENT-side occupant blocks passage, same as isOccupied", () => {
+  const others = [{ col: 4, row: 0, side: "opposition" }];
+  assert.equal(blocksPassage({ col: 4, row: 0 }, others, "party"), true);
+});
+
+test("blocksPassage: a SAME-side occupant does NOT block passage — the whole point of the fix", () => {
+  const others = [{ col: 4, row: 0, side: "party" }];
+  assert.equal(blocksPassage({ col: 4, row: 0 }, others, "party"), false);
+});
+
+test("blocksPassage: an empty square never blocks, regardless of side", () => {
+  const others = [{ col: 4, row: 0, side: "party" }];
+  assert.equal(blocksPassage({ col: 9, row: 9 }, others, "party"), false);
+});
+
+test("blocksPassage: with moverSide == null (no side info supplied anywhere), falls back to isOccupied's original any-occupant rule rather than silently treating every occupant as passable", () => {
+  const others = [{ col: 4, row: 0, side: "party" }];
+  assert.equal(blocksPassage({ col: 4, row: 0 }, others, null), true, "no side info must not silently become 'nothing ever blocks'");
+  assert.equal(blocksPassage({ col: 4, row: 0 }, others, undefined), true);
 });

@@ -130,8 +130,8 @@ test("deriveSpellAttacks: throws for a real spell that has no \"attack\" trait (
 const FORCED_REFLECTION_OUTCOMES = {
   criticalSuccess: {},
   success: { frightened: 1 },
-  failure: { stunnedRounds: 1, frightened: 1 },
-  criticalFailure: { stunnedRounds: 2, frightened: 2 }
+  failure: { stunnedValue: 1, frightened: 1 },
+  criticalFailure: { stunnedValue: 2, frightened: 2 }
 };
 
 test("deriveConditionSave: Forced Reflection on Erabryth — DC comes straight off her real spellcastingEntry (matching the @Check[will|dc:17] embedded in her own description exactly, two independent sources agreeing), real 1 action", () => {

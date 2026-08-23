@@ -31,7 +31,7 @@
  */
 import { forkTurnSandbox } from "./engine.mjs";
 import { makeRng } from "../engine/rng.mjs";
-import { distanceFeet, isInBounds, isOccupied, FEET_PER_SQUARE } from "./grid.mjs";
+import { distanceFeet, isInBounds, isOccupied, blocksPassage, FEET_PER_SQUARE } from "./grid.mjs";
 import { splitByRelation } from "./factions.mjs";
 import { evaluateState, attackOptions, proactiveAttackOptions, usefulRangeFeet } from "./evaluate/state-value.mjs";
 import { reachableCells } from "./world/pathfind.mjs";
@@ -61,27 +61,33 @@ export function decisionRng(state, combatantId, decisionIndex) {
  * (engine.mjs) would not have been enough on its own — the AI's own route-planning here independently
  * decides what to even PROPOSE, so it needed the identical fix.
  */
+/** Every OTHER living combatant's position, each carrying its own `.side` — design doc §24: a
+ * SAME-side occupant no longer fully blocks passage (blocksPassage, grid.mjs), only a different-
+ * side one does; the final destination square still can't be occupied by anyone at all (still a
+ * plain isOccupied check, unaffected by side). */
 function otherLivingPositions(state, excludeId) {
   return [...state.positions.entries()]
     .filter(([id]) => id !== excludeId && (state.combatants.get(id)?.currentHP ?? 0) > 0)
-    .map(([, p]) => p);
+    .map(([id, p]) => ({ ...p, side: state.combatants.get(id).side }));
 }
 
 /** Walk a SINGLE fixed (dx,dy) direction from `from`, stopping at bounds/occupied/budget/standoff/overshoot. */
-function extend(state, others, from, to, dx, dy, maxFeet, standoffFeet) {
+function extend(state, others, moverSide, from, to, dx, dy, maxFeet, standoffFeet) {
   let cur = { ...from };
   let curDist = distanceFeet(cur, to);
+  let lastOpen = null; // walking THROUGH an ally's square is fine; stopping there never is
   for (;;) {
     if (curDist <= standoffFeet) break;
     const next = { col: cur.col + dx, row: cur.row + dy };
     if (!isInBounds(next, state.gridSize)) break;
-    if (isOccupied(next, others)) break;
+    if (blocksPassage(next, others, moverSide)) break;
     if (distanceFeet(from, next) > maxFeet) break;
     const nextDist = distanceFeet(next, to);
     if (nextDist >= curDist) break; // never overshoot past the closest approach
     cur = next; curDist = nextDist;
+    if (!isOccupied(cur, others)) lastOpen = cur;
   }
-  return (cur.col === from.col && cur.row === from.row) ? null : cur;
+  return lastOpen;
 }
 
 /**
@@ -92,6 +98,7 @@ function extend(state, others, from, to, dx, dy, maxFeet, standoffFeet) {
  */
 function stepToward(state, moverId, from, to, maxFeet, standoffFeet) {
   const others = otherLivingPositions(state, moverId);
+  const moverSide = state.combatants.get(moverId).side;
   const primaryDx = Math.sign(to.col - from.col);
   const primaryDy = Math.sign(to.row - from.row);
   if (primaryDx === 0 && primaryDy === 0) return null;
@@ -101,7 +108,7 @@ function stepToward(state, moverId, from, to, maxFeet, standoffFeet) {
   ];
   for (const [dx, dy] of headings) {
     if (dx === 0 && dy === 0) continue;
-    const result = extend(state, others, from, to, dx, dy, maxFeet, standoffFeet);
+    const result = extend(state, others, moverSide, from, to, dx, dy, maxFeet, standoffFeet);
     if (result) return result;
   }
   return null;
@@ -110,17 +117,20 @@ function stepToward(state, moverId, from, to, maxFeet, standoffFeet) {
 /** Straight line directly AWAY from a point, for disengaging. */
 function stepAway(state, moverId, from, threat, maxFeet) {
   const others = otherLivingPositions(state, moverId);
+  const moverSide = state.combatants.get(moverId).side;
   const dx = Math.sign(from.col - threat.col) || 1;
   const dy = Math.sign(from.row - threat.row) || 0;
   let cur = { ...from };
+  let lastOpen = null;
   for (;;) {
     const next = { col: cur.col + dx, row: cur.row + dy };
     if (!isInBounds(next, state.gridSize)) break;
-    if (isOccupied(next, others)) break;
+    if (blocksPassage(next, others, moverSide)) break;
     if (distanceFeet(from, next) > maxFeet) break;
     cur = next;
+    if (!isOccupied(cur, others)) lastOpen = cur; // walk THROUGH an ally's square, but only ever stop on an empty one
   }
-  return (cur.col === from.col && cur.row === from.row) ? null : cur;
+  return lastOpen;
 }
 
 /**
@@ -143,13 +153,14 @@ function cachedReachableCells(cache, key, args) {
 function trueDistanceField(state, moverId, to, others, cache) {
   const span = Math.max(state.gridSize.cols, state.gridSize.rows) * FEET_PER_SQUARE * 4; // generous — covers any plausible detour on this map
   const key = `field|${moverId}|${to.col},${to.row}`;
-  return cachedReachableCells(cache, key, { from: to, maxFeet: span, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls });
+  return cachedReachableCells(cache, key, { from: to, maxFeet: span, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls, moverSide: state.combatants.get(moverId).side });
 }
 
 function pathfindingDestinationToward(state, moverId, from, to, maxFeet, standoffFeet, cache) {
   const others = otherLivingPositions(state, moverId);
+  const moverSide = state.combatants.get(moverId).side;
   const reachableKey = `reach|${moverId}|${from.col},${from.row}|${maxFeet}`;
-  const reachable = cachedReachableCells(cache, reachableKey, { from, maxFeet, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls });
+  const reachable = cachedReachableCells(cache, reachableKey, { from, maxFeet, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls, moverSide });
   const distField = trueDistanceField(state, moverId, to, others, cache);
   const trueDist = (col, row) => distField.get(`${col},${row}`)?.cost ?? distanceFeet({ col, row }, to) * 10; // unreachable at all — treat as very far, not infinite
 
@@ -181,8 +192,9 @@ export function bestDestinationToward(state, moverId, from, to, maxFeet, standof
 
 function pathfindingDestinationAway(state, moverId, from, threat, maxFeet, cache) {
   const others = otherLivingPositions(state, moverId);
+  const moverSide = state.combatants.get(moverId).side;
   const reachableKey = `reach|${moverId}|${from.col},${from.row}|${maxFeet}`;
-  const reachable = cachedReachableCells(cache, reachableKey, { from, maxFeet, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls });
+  const reachable = cachedReachableCells(cache, reachableKey, { from, maxFeet, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls, moverSide });
   const distField = trueDistanceField(state, moverId, threat, others, cache);
   const trueDist = (col, row) => distField.get(`${col},${row}`)?.cost ?? distanceFeet({ col, row }, threat) * 10;
 

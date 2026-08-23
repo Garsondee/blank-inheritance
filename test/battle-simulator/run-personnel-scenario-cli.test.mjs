@@ -53,9 +53,9 @@ test("planRuns against the REAL registry (no fake override): all three real Phas
   const plans = planRuns({}); // no second arg -> the module's own real SCENARIOS
   const names = plans.map((p) => p.scenario).sort();
   assert.deepEqual(names, [
-    "complex-3v3-across-the-complex",
-    "complex-3v3-same-building-far-rooms",
-    "complex-3v3-same-room",
+    "complex-3v3-diagonal-nw-se",
+    "complex-3v3-diagonal-sw-ne",
+    "complex-3v3-north-south-ends",
     "lunar17-vs-security-goon-adjacent-rooms",
     "lunar17-vs-security-goon-far-rooms",
     "lunar17-vs-security-goon-same-room"

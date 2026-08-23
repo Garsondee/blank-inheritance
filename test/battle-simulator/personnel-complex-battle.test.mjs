@@ -20,8 +20,8 @@ function illegalAttacks(log) {
 }
 
 test("buildScenario: a real 1-vs-1 fight on the complex map resolves cleanly with zero illegal attacks", () => {
-  for (const setup of ["SAME_ROOM", "SAME_BUILDING_FAR_ROOMS", "ACROSS_THE_COMPLEX"]) {
-    const log = runBattle(buildScenario({ seed: 1, partyFixtures: ["lunar-17.json"], oppositionFixtures: ["security-goon.json"], setup, roundLimit: 30 }));
+  for (const setup of ["NORTH_SOUTH_ENDS", "DIAGONAL_NW_SE", "DIAGONAL_SW_NE"]) {
+    const log = runBattle(buildScenario({ seed: 1, partyFixtures: ["lunar-17.json"], oppositionFixtures: ["security-goon.json"], setup, roundLimit: 40 }));
     assert.equal(illegalAttacks(log), 0, `setup ${setup}: an attack was proposed-and-committed illegally`);
   }
 });
@@ -32,12 +32,12 @@ test("buildScenario: rejects an unknown setup name", () => {
 
 test("buildScenario: rejects asking for more combatants on a side than the setup defines spawn points for, rather than silently reusing/colliding positions", () => {
   assert.throws(() => buildScenario({
-    seed: 1, partyFixtures: ["lunar-17.json", "tapkey.json", "bennit.json", "lunar-17.json"], oppositionFixtures: ["security-goon.json"], setup: "SAME_ROOM"
+    seed: 1, partyFixtures: ["lunar-17.json", "tapkey.json", "bennit.json", "lunar-17.json"], oppositionFixtures: ["security-goon.json"], setup: "NORTH_SOUTH_ENDS"
   }), /only defines 3 party spawn point/);
 });
 
 test("buildScenario: the SAME fixture file used twice on one side gets genuinely distinct ids AND positions — a real collision trap otherwise (runBattle keys its live combatant map by id, so a repeated id silently drops one combatant with no error)", () => {
-  const scenario = buildScenario({ seed: 1, partyFixtures: ["lunar-17.json", "lunar-17.json"], oppositionFixtures: ["security-goon.json"], setup: "SAME_ROOM" });
+  const scenario = buildScenario({ seed: 1, partyFixtures: ["lunar-17.json", "lunar-17.json"], oppositionFixtures: ["security-goon.json"], setup: "NORTH_SOUTH_ENDS" });
   const [p1, p2] = scenario.combatants;
   assert.notEqual(p1.id, p2.id, "two party combatants sharing a source fixture must still get distinct ids");
   assert.notDeepEqual(p1.position, p2.position, "two party combatants must never spawn on the same square");
@@ -54,8 +54,8 @@ const PARTY_3V3 = ["lunar-17.json", "tapkey.json", "bennit.json"];
 const OPPOSITION_3V3 = ["security-goon.json", "xenowarden-greenhorn.json", "erabryth.json"];
 
 test("buildScenario: a real 3-vs-3 fight (Lunar-17+Tapkey+Bennit vs. Security Goon+Xenowarden Greenhorn+Erabryth) resolves cleanly across all three setups, with all six combatants present and zero illegal attacks", () => {
-  for (const setup of ["SAME_ROOM", "SAME_BUILDING_FAR_ROOMS", "ACROSS_THE_COMPLEX"]) {
-    const log = runBattle(buildScenario({ seed: 1, partyFixtures: PARTY_3V3, oppositionFixtures: OPPOSITION_3V3, setup, roundLimit: 30 }));
+  for (const setup of ["NORTH_SOUTH_ENDS", "DIAGONAL_NW_SE", "DIAGONAL_SW_NE"]) {
+    const log = runBattle(buildScenario({ seed: 1, partyFixtures: PARTY_3V3, oppositionFixtures: OPPOSITION_3V3, setup, roundLimit: 40 }));
     assert.equal(Object.keys(log.roster).length, 6, `setup ${setup}: expected all 6 real combatants in the roster`);
     assert.equal(illegalAttacks(log), 0, `setup ${setup}: an attack was proposed-and-committed illegally in the real 3v3 fight`);
     assert.ok(["party-victory", "party-defeat", "timeout"].includes(log.outcome.result));
@@ -66,7 +66,7 @@ test("buildScenario: across many seeds, zero illegal attacks anywhere, and no mo
   let timeouts = 0;
   const total = 10;
   for (let seed = 1; seed <= total; seed++) {
-    const log = runBattle(buildScenario({ seed, partyFixtures: PARTY_3V3, oppositionFixtures: OPPOSITION_3V3, setup: "ACROSS_THE_COMPLEX", roundLimit: 30 }));
+    const log = runBattle(buildScenario({ seed, partyFixtures: PARTY_3V3, oppositionFixtures: OPPOSITION_3V3, setup: "DIAGONAL_SW_NE", roundLimit: 40 }));
     assert.equal(illegalAttacks(log), 0, `seed ${seed}: an attack was proposed-and-committed illegally`);
     if (log.outcome.result === "timeout") timeouts += 1;
   }
@@ -76,7 +76,7 @@ test("buildScenario: across many seeds, zero illegal attacks anywhere, and no mo
 test("buildScenario: the real 3-vs-3 fight exercises strike/spellAttack/saveAttack (Bennit's Thunderstrike)/conditionSave (Erabryth's Forced Reflection)/move across a handful of seeds — proving the roster's real diversity, including both new §22 mechanisms, actually gets used", () => {
   const seenTypes = new Set();
   for (let seed = 1; seed <= 10; seed++) {
-    const log = runBattle(buildScenario({ seed, partyFixtures: PARTY_3V3, oppositionFixtures: OPPOSITION_3V3, setup: "SAME_ROOM", roundLimit: 30 }));
+    const log = runBattle(buildScenario({ seed, partyFixtures: PARTY_3V3, oppositionFixtures: OPPOSITION_3V3, setup: "NORTH_SOUTH_ENDS", roundLimit: 40 }));
     for (const round of log.rounds) for (const turn of round.turns) for (const action of turn.actions ?? []) {
       seenTypes.add(action.type);
     }
@@ -87,9 +87,14 @@ test("buildScenario: the real 3-vs-3 fight exercises strike/spellAttack/saveAtta
 });
 
 test("buildScenario: real cover objects on the new map actually get crossed into during real 3v3 fights — at least one strike shows a nonzero coverBonus across several seeds", () => {
+  // DIAGONAL_SW_NE specifically (design doc §24), not NORTH_SOUTH_ENDS: the party's own spawn
+  // corner sits right next to Building A's SW-room cover block (and its new west garage opening),
+  // so a route toward the opposition passes real cover early. NORTH_SOUTH_ENDS, by deliberate
+  // design, keeps both sides in the wide-open courtyard — genuinely useful for testing "no cover
+  // needed" tactical variety, but the wrong setup to prove cover gets used AT ALL.
   let sawCover = false;
   for (let seed = 1; seed <= 10 && !sawCover; seed++) {
-    const log = runBattle(buildScenario({ seed, partyFixtures: PARTY_3V3, oppositionFixtures: OPPOSITION_3V3, setup: "SAME_ROOM", roundLimit: 30 }));
+    const log = runBattle(buildScenario({ seed, partyFixtures: PARTY_3V3, oppositionFixtures: OPPOSITION_3V3, setup: "DIAGONAL_SW_NE", roundLimit: 40 }));
     for (const round of log.rounds) for (const turn of round.turns) for (const action of turn.actions ?? []) {
       if ((action.type === "strike" || action.type === "saveAttack") && action.coverBonus > 0) sawCover = true;
     }

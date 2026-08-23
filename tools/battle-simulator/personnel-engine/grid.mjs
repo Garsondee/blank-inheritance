@@ -47,6 +47,22 @@ export function isOccupied(pos, occupiedPositions) {
   return occupiedPositions.some((p) => p.col === pos.col && p.row === pos.row);
 }
 
+/**
+ * Like isOccupied, but an occupant on the SAME side as `moverSide` doesn't block PASSING through
+ * their square — a real SF2E movement rule (Player Core, general movement — Ingram's own direct
+ * correction, design doc §24: "Characters can move through friendly character spaces per the
+ * rules"). Only blocks when a DIFFERENT-side occupant is there. The "can't stop there" half of the
+ * real rule is unaffected — that's still a plain isOccupied check against the actual destination
+ * square, checked separately, since you can never END your move on top of anyone, ally included.
+ * `occupiedPositions` entries need a `.side` field for this to mean anything; `moverSide == null`
+ * (no side info supplied) falls back to isOccupied's original any-occupant rule rather than
+ * silently treating every entry as passable.
+ */
+export function blocksPassage(pos, occupiedPositions, moverSide) {
+  if (moverSide == null) return isOccupied(pos, occupiedPositions);
+  return occupiedPositions.some((p) => p.col === pos.col && p.row === pos.row && p.side !== moverSide);
+}
+
 export function isInBounds(pos, gridSize) {
   return pos.col >= 0 && pos.row >= 0 && pos.col < gridSize.cols && pos.row < gridSize.rows;
 }

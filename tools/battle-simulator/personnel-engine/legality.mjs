@@ -20,7 +20,7 @@
  * plus a per-attacker-per-ability-per-target one-time gate.
  */
 
-import { distanceFeet, isOccupied, isInBounds, reachFeetForStrike, FEET_PER_SQUARE } from "./grid.mjs";
+import { distanceFeet, isOccupied, blocksPassage, isInBounds, reachFeetForStrike, FEET_PER_SQUARE } from "./grid.mjs";
 import { moveBlockedBetween, lineOfEffect } from "./terrain.mjs";
 
 /** Vision range (ported from engine/vision.mjs's own perception concept) — opt-in, no field = unlimited. */
@@ -47,15 +47,18 @@ export function checkActorAlive(actor) {
   return { legal: true, reason: null };
 }
 
-/** Straight-line intermediate-occupancy check — used only when a proposal supplies no real path. */
-function firstBlockedIntermediateSquare(from, to, otherPositions) {
+/** Straight-line intermediate-occupancy check — used only when a proposal supplies no real path.
+ * Faction-aware (design doc §24 — Ingram's own correction: "Characters can move through friendly
+ * character spaces per the rules"): an ally's square only blocks PASSING through when moverSide
+ * isn't given at all; otherwise a same-side occupant is a real waypoint, not a wall. */
+function firstBlockedIntermediateSquare(from, to, positionEntries, moverSide) {
   let cur = { ...from };
   while (cur.col !== to.col || cur.row !== to.row) {
     const dx = Math.sign(to.col - cur.col);
     const dy = Math.sign(to.row - cur.row);
     cur = { col: cur.col + dx, row: cur.row + dy };
     if (cur.col === to.col && cur.row === to.row) break;
-    if (isOccupied(cur, otherPositions)) return cur;
+    if (blocksPassage(cur, positionEntries, moverSide)) return cur;
   }
   return null;
 }
@@ -86,25 +89,28 @@ export function checkMoveLegality({ combatant, from, to, effectiveSpeed, allPosi
   if (!isInBounds(to, gridSize)) {
     return { legal: false, reason: `(${to.col},${to.row}) is off the map (${gridSize.cols}x${gridSize.rows}).` };
   }
-  const otherPositions = allPositions.filter((p) => p.combatantId !== combatant.id).map((p) => p.pos);
+  // Flattened to {col,row,side} — `side` is what makes the INTERMEDIATE checks below faction-aware
+  // (design doc §24: an ally's square is a real waypoint, not a wall); the DESTINATION check just
+  // below never looks at side at all — you can never end your move on top of anyone, ally included.
+  const otherPositions = allPositions.filter((p) => p.combatantId !== combatant.id).map((p) => ({ ...p.pos, side: p.side }));
   if (isOccupied(to, otherPositions)) {
-    return { legal: false, reason: `(${to.col},${to.row}) is already occupied — can't move through/onto another combatant.` };
+    return { legal: false, reason: `(${to.col},${to.row}) is already occupied — can't end a move there, even on an ally's square (Player Core's own movement rule: you can move THROUGH an ally, you can't stop there).` };
   }
   if (path?.length) {
     for (let i = 1; i < path.length; i++) {
       const cell = path[i];
       const isDestination = cell.col === to.col && cell.row === to.row;
-      if (!isDestination && isOccupied(cell, otherPositions)) {
-        return { legal: false, reason: `Path from (${from.col},${from.row}) to (${to.col},${to.row}) passes through an occupied square at (${cell.col},${cell.row}).` };
+      if (!isDestination && blocksPassage(cell, otherPositions, combatant.side)) {
+        return { legal: false, reason: `Path from (${from.col},${from.row}) to (${to.col},${to.row}) passes through a square at (${cell.col},${cell.row}) occupied by a different-side combatant.` };
       }
       if (walls?.length && moveBlockedBetween(path[i - 1], cell, walls)) {
         return { legal: false, reason: `Path from (${from.col},${from.row}) to (${to.col},${to.row}) is blocked by a wall between (${path[i - 1].col},${path[i - 1].row}) and (${cell.col},${cell.row}).` };
       }
     }
   } else {
-    const blocked = firstBlockedIntermediateSquare(from, to, otherPositions);
+    const blocked = firstBlockedIntermediateSquare(from, to, otherPositions, combatant.side);
     if (blocked) {
-      return { legal: false, reason: `Path from (${from.col},${from.row}) to (${to.col},${to.row}) passes through an occupied square at (${blocked.col},${blocked.row}).` };
+      return { legal: false, reason: `Path from (${from.col},${from.row}) to (${to.col},${to.row}) passes through a square at (${blocked.col},${blocked.row}) occupied by a different-side combatant.` };
     }
     const wallBlocked = firstWallBlockedEdge(from, to, walls);
     if (wallBlocked) {

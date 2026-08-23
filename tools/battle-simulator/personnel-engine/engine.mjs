@@ -119,7 +119,7 @@ const REAL_OUTCOMES = {
   },
   /**
    * A condition-only save (design doc §22): the TARGET rolls, same basic shape as saveAttack, but
-   * `conditionSave.outcomes[degree]` is a per-degree CONDITION table (e.g. {frightened, stunnedRounds})
+   * `conditionSave.outcomes[degree]` is a per-degree CONDITION table (e.g. {frightened, stunnedValue})
    * hand-transcribed from the real ability's own description — nothing structural distinguishes
    * which conditions a given degree applies, same "hand-identify, don't infer" discipline as every
    * other prose-only case in this project (extract-npc.mjs's deriveConditionSave is where that
@@ -171,16 +171,16 @@ const EXPECTED_OUTCOMES = {
     const appliedFrightened = probs.criticalSuccess * 2 + probs.success * 1;
     return { roll: { expected: true, d20: null, modifier, total: null, dc: willDC, degree: null }, appliedFrightened };
   },
-  /** Probability-weighted expected value across all four degrees, same shape as demoralize's own expected twin — folds BOTH condition axes (frightened, stunnedRounds) since Forced Reflection's table sets both together on some degrees. */
+  /** Probability-weighted expected value across all four degrees, same shape as demoralize's own expected twin — folds BOTH condition axes (frightened, stunnedValue) since Forced Reflection's table sets both together on some degrees. */
   conditionSave(_rng, { conditionSave, target }) {
     const probs = degreeProbabilities(target.saves[conditionSave.saveType], conditionSave.dc);
-    let frightened = 0, stunnedRounds = 0;
+    let frightened = 0, stunnedValue = 0;
     for (const [degree, p] of Object.entries(probs)) {
       const outcome = conditionSave.outcomes[degree] ?? {};
       frightened += p * (outcome.frightened ?? 0);
-      stunnedRounds += p * (outcome.stunnedRounds ?? 0);
+      stunnedValue += p * (outcome.stunnedValue ?? 0);
     }
-    return { roll: { expected: true, d20: null, degree: null, total: null, dc: conditionSave.dc }, applied: { frightened, stunnedRounds } };
+    return { roll: { expected: true, d20: null, degree: null, total: null, dc: conditionSave.dc }, applied: { frightened, stunnedValue } };
   }
 };
 
@@ -267,18 +267,47 @@ export function runBattle(scenario) {
       const combatant = state.combatants.get(combatantId);
       if (combatant.currentHP <= 0) continue;
 
-      if (combatant.stunnedRounds > 0) {
-        combatant.stunnedRounds -= 1;
-        const stunnedAvailable = resolveEffectiveStats(combatant).actionsAvailable;
-        roundLog.turns.push({
-          combatantId, stunned: true, actions: [],
-          actionAccounting: accountForActions({ available: stunnedAvailable, spent: 0, heldReason: stunnedAvailable > 0 ? "Stunned — the whole turn is forfeit" : null }),
-          snapshot: snapshotState(state)
-        });
-        continue;
+      // Stunned (Player Core pg. 421, quoted verbatim in design doc §24 — this is a direct fix of
+      // a real, previously-shipped bug, not a first implementation): "Stunned usually includes a
+      // VALUE, which indicates how many total actions you lose, possibly over multiple turns...
+      // Each time you regain actions, reduce the number you regain by your stunned value, then
+      // reduce your stunned value by the number of actions you lost." NOT "skip N whole turns" —
+      // the previous code forfeited the ENTIRE turn for ANY stunnedValue > 0 and decremented by
+      // exactly 1 per turn regardless of the real value, so a real "Stunned 2" (which should cost
+      // exactly 2 of 3 actions, leaving 1 to use immediately) instead lost 6 actions across two
+      // fully-forfeited turns — triple the real cost, and Erabryth's real "Stunned 1" (Forced
+      // Reflection, failure) lost all 3 instead of exactly 1.
+      let actionsAvailableOverride, stunnedActionsLost;
+      if (combatant.stunnedValue > 0) {
+        const fullAvailable = resolveEffectiveStats(combatant).actionsAvailable;
+        const lost = Math.min(fullAvailable, combatant.stunnedValue);
+        combatant.stunnedValue -= lost;
+        const remaining = fullAvailable - lost;
+        stunnedActionsLost = lost;
+        if (remaining <= 0) {
+          // The stun value was big enough to consume the WHOLE turn (Player Core's own worked
+          // example: stunned 4 loses all 3 actions of a turn, carrying 1 over) — a real, if rarer,
+          // case, not the automatic outcome of any nonzero value the old code assumed.
+          roundLog.turns.push({
+            combatantId, stunned: true, stunnedActionsLost: lost, actions: [],
+            actionAccounting: accountForActions({
+              available: fullAvailable, spent: 0,
+              heldReason: `Stunned — lost all ${lost} of ${fullAvailable} action(s) this turn${combatant.stunnedValue > 0 ? ` (${combatant.stunnedValue} more carries to next turn)` : ""}`
+            }),
+            snapshot: snapshotState(state)
+          });
+          const outcome = checkOutcome(state);
+          if (outcome) { log.outcome = outcome; break; }
+          continue;
+        }
+        actionsAvailableOverride = remaining;
       }
 
-      const turnLog = runTurn({ state, rng, scenario, combatantId });
+      const turnLog = runTurn({ state, rng, scenario, combatantId, actionsAvailableOverride });
+      if (actionsAvailableOverride != null) {
+        turnLog.stunned = true;
+        turnLog.stunnedActionsLost = stunnedActionsLost;
+      }
 
       // Frightened decay (reference/srd/player-core/condition-18-frightened.json, mirrored
       // verbatim): "at the end of each of your turns, the value... decreases by 1." Placed here,
@@ -338,9 +367,22 @@ function makeTurnProgress(startEffective) {
   };
 }
 
-function runTurn({ state, rng, scenario, combatantId }) {
+/**
+ * `actionsAvailableOverride` (design doc §24): a partially-stunned turn (Player Core pg. 421 —
+ * Stunned carries a VALUE, the number of actions lost, not a number of whole turns skipped) still
+ * plays out as a real turn once its stun value is smaller than the actions it would otherwise
+ * receive — it just starts with fewer of them. Threading a smaller number through here (rather than
+ * teaching resolveEffectiveStats about a transient per-turn deduction) keeps that function a pure
+ * read of persistent combatant state, safe to call from anywhere including the AI's own sandboxed
+ * lookahead — the existing `Math.min(effective.actionsAvailable, startEffective.actionsAvailable)`
+ * cap a few lines below already respects a smaller startEffective with no further change needed.
+ */
+function runTurn({ state, rng, scenario, combatantId, actionsAvailableOverride }) {
   const combatant = state.combatants.get(combatantId);
-  const startEffective = resolveEffectiveStats(combatant);
+  const baseEffective = resolveEffectiveStats(combatant);
+  const startEffective = actionsAvailableOverride != null
+    ? { ...baseEffective, actionsAvailable: Math.min(baseEffective.actionsAvailable, actionsAvailableOverride) }
+    : baseEffective;
   const turnProgress = makeTurnProgress(startEffective);
   const turnLog = { combatantId, effectiveStats: startEffective, feetMoved: 0, strikesAttempted: 0, actions: [] };
 
@@ -423,7 +465,7 @@ function applyStrikeDamage(strikeResult, target, targetEffective, strike) {
 function livingPositions(state) {
   return [...state.positions.entries()]
     .filter(([id]) => (state.combatants.get(id)?.currentHP ?? 0) > 0)
-    .map(([id, p]) => ({ combatantId: id, pos: p }));
+    .map(([id, p]) => ({ combatantId: id, pos: p, side: state.combatants.get(id).side }));
 }
 
 /** The ONLY function in this codebase permitted to mutate combatant position/HP/flags. */
@@ -645,13 +687,13 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     // own Frightened application, extended here to Stunned too (both are numeric conditions with
     // the identical "higher value wins" rule — Conditions Appendix, Player Core).
     if (applied.frightened != null) target.frightened = Math.max(target.frightened ?? 0, applied.frightened);
-    if (applied.stunnedRounds != null) target.stunnedRounds = Math.max(target.stunnedRounds ?? 0, applied.stunnedRounds);
+    if (applied.stunnedValue != null) target.stunnedValue = Math.max(target.stunnedValue ?? 0, applied.stunnedValue);
     combatant.conditionSaveTargets = [...(combatant.conditionSaveTargets ?? []), `${conditionSaveAbility.name}|${proposal.targetId}`];
     turnProgress.actionsUsed += conditionSaveAbility.actions ?? 1;
 
     return {
       type: "conditionSave", conditionSaveName: conditionSaveAbility.name, targetId: proposal.targetId, legal: true, actionsCost: conditionSaveAbility.actions ?? 1,
-      roll: saveResult, applied, targetFrightenedAfter: target.frightened, targetStunnedRoundsAfter: target.stunnedRounds ?? 0,
+      roll: saveResult, applied, targetFrightenedAfter: target.frightened, targetStunnedValueAfter: target.stunnedValue ?? 0,
       decisionReason: proposal.reason ?? null
     };
   }
@@ -672,7 +714,7 @@ function snapshotState(state) {
       position: { ...pos },
       currentHP: combatant.currentHP,
       maxHP: combatant.maxHP,
-      stunnedRounds: combatant.stunnedRounds ?? 0,
+      stunnedValue: combatant.stunnedValue ?? 0,
       frightened: combatant.frightened ?? 0
     };
   }
@@ -711,7 +753,7 @@ function checkOutcome(state) {
  * copy below already correct for it, by construction.
  *
  * Mutable surface at personnel scale: state.round; state.combatants.<id>.{currentHP,
- * stunnedRounds, frightened, demoralizedTargets, conditionSaveTargets}; state.combatants.<id>.
+ * stunnedValue, frightened, demoralizedTargets, conditionSaveTargets}; state.combatants.<id>.
  * {strikes,spells,healAbilities,saveAttacks,conditionSaves}[i].usesRemaining; state.positions.<id>.
  * {col,row}. (No reactionAvailable map — this tree fires no reactions, see this file's own header.)
  */

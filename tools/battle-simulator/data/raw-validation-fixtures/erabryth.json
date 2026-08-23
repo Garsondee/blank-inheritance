@@ -131,11 +131,11 @@
           "frightened": 1
         },
         "failure": {
-          "stunnedRounds": 1,
+          "stunnedValue": 1,
           "frightened": 1
         },
         "criticalFailure": {
-          "stunnedRounds": 2,
+          "stunnedValue": 2,
           "frightened": 2
         }
       }

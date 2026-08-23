@@ -41,8 +41,10 @@
  * personnel-scale fight exists to test against (§17-§18's ablation-harness discipline) — not
  * pre-emptively re-tuned now without data.
  *
- * ADDED, not a port of anything Frame-scale: `stunDenial` (design doc §22, Erabryth's Forced
- * Reflection) prices a stunned combatant's lost round, symmetric for allies/enemies. `lowHpCaution`
+ * ADDED, not a port of anything Frame-scale: `stunDenial` (design doc §22/§24, Erabryth's Forced
+ * Reflection) prices a stunned combatant's still-owed actions (Player Core pg. 421's real Stunned
+ * VALUE, not a number of whole rounds — see engine.mjs's own header for the bug this corrected),
+ * symmetric for allies/enemies. `lowHpCaution`
  * and `outnumberedCaution` (also §22, Ingram's direct ask about retreating when hurt/outnumbered)
  * are MULTIPLIERS applied to threatExposure at the point of use in evaluateState, not new additive
  * terms of their own — see the comment there for why.
@@ -177,7 +179,11 @@ export const DEFAULT_WEIGHTS = {
   // roughly the same order of magnitude as `resource` (a comparably "temporary tactical value, not
   // permanent HP" concept), well below what a real kill is worth. Flagged exactly like `closing`
   // above so a future ablation pass has something concrete to correct rather than silently drift.
-  stunDenial: 3.0,         // HP-equivalent of denying/suffering one full round of stun
+  // Priced PER ACTION lost, not per round (design doc §24 — Stunned carries a VALUE, the number of
+  // actions lost, Player Core pg. 421; a real "Stunned 2" costs exactly 2 actions, not two whole
+  // rounds). Rescaled from an earlier 3.0-per-ROUND figure to keep the same rough magnitude at the
+  // unit that actually matters now — 3 actions lost (≈ one full round) still prices out to ≈3.0.
+  stunDenial: 1.0,         // HP-equivalent of denying/suffering one lost action
   // NOT YET MEASURED (design doc §22 — Ingram's direct ask: "give PCs a greater reason to get out
   // of line of sight of baddies" when hurt, "and the same logic could apply to enemies"). Both are
   // MULTIPLIERS on threatExposure, not separate additive terms — see evaluateState's own comment at
@@ -202,14 +208,14 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
 
   for (const ally of allies) {
     score += weights.allyDamage * ally.currentHP;
-    score -= weights.stunDenial * (ally.stunnedRounds ?? 0); // a stunned ally loses their whole next turn — a real, if temporary, cost
+    score -= weights.stunDenial * (ally.stunnedValue ?? 0); // each action a stunned ally still owes is a real, if temporary, cost
     for (const s of [...(ally.strikes ?? []), ...(ally.spells ?? []), ...(ally.healAbilities ?? []), ...(ally.saveAttacks ?? []), ...(ally.conditionSaves ?? [])]) {
       if (s.usesRemaining != null) score += weights.resource * s.usesRemaining;
     }
   }
   for (const enemy of enemies) {
     score -= weights.enemyDamage * enemy.currentHP;
-    score += weights.stunDenial * (enemy.stunnedRounds ?? 0); // symmetric: an enemy's stunned round is exactly as valuable to us as our own would be costly
+    score += weights.stunDenial * (enemy.stunnedValue ?? 0); // symmetric: an enemy's still-owed stunned action is exactly as valuable to us as our own would be costly
   }
 
   // Positional terms — computed for LIVING combatants only, and always as a symmetric pair so

@@ -28,10 +28,10 @@ function ai(state, combatantId, turnState) {
  * @param {number} args.seed
  * @param {string[]} args.partyFixtures - real fixture filenames, e.g. ["lunar-17.json", "..."]
  * @param {string[]} args.oppositionFixtures - real fixture filenames
- * @param {"SAME_ROOM"|"SAME_BUILDING_FAR_ROOMS"|"ACROSS_THE_COMPLEX"} [args.setup]
+ * @param {"DIAGONAL_SW_NE"|"DIAGONAL_NW_SE"|"NORTH_SOUTH_ENDS"} [args.setup]
  * @param {number} [args.roundLimit]
  */
-export function buildScenario({ seed, partyFixtures, oppositionFixtures, setup = "ACROSS_THE_COMPLEX", roundLimit = 30 } = {}) {
+export function buildScenario({ seed, partyFixtures, oppositionFixtures, setup = "DIAGONAL_SW_NE", roundLimit = 40 } = {}) {
   const positions = SETUPS[setup];
   if (!positions) throw new Error(`Unknown setup "${setup}" — expected one of ${Object.keys(SETUPS).join(", ")}.`);
   if (partyFixtures.length > positions.partyPositions.length) {

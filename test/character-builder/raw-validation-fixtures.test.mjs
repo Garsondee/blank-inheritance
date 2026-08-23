@@ -123,8 +123,8 @@ test("erabryth.json: checked-in strikes/conditionSave match a fresh live re-extr
     outcomes: {
       criticalSuccess: {},
       success: { frightened: 1 },
-      failure: { stunnedRounds: 1, frightened: 1 },
-      criticalFailure: { stunnedRounds: 2, frightened: 2 }
+      failure: { stunnedValue: 1, frightened: 1 },
+      criticalFailure: { stunnedValue: 2, frightened: 2 }
     }
   })];
 

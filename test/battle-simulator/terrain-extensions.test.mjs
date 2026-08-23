@@ -53,6 +53,13 @@ test("STANDARD_COVER_AC_BONUS is the real Player Core number (+2), not an invent
   assert.equal(STANDARD_COVER_AC_BONUS, 2);
 });
 
+test("hasCover: real cover, authored the way the actual map now does (move:0 — design doc §24), does NOT block movement — the fix for a real bug where a 4-sided cover perimeter with move:20 sealed a spawn point inside it with no way out", () => {
+  const realCover = [{ c: [2, 0, 2, 1], move: 0, sight: 0, cover: true }]; // unit edge, matching the actual coverBlock() shape
+  assert.equal(moveBlockedBetween({ col: 1, row: 0 }, { col: 2, row: 0 }, realCover), false, "cover must be walkable through, unlike a window or a wall");
+  assert.equal(wallBlocksMove(realCover[0]), false);
+  assert.equal(hasCover({ col: 0, row: 0 }, { col: 5, row: 0 }, realCover), true, "still grants the circumstance bonus — cover blocks neither movement nor sight, only makes you harder to hit");
+});
+
 // --- moveBlockedBetween performance fix: correctness of the cached index, not just its speed ---
 
 test("moveBlockedBetween: the cached index produces identical answers across repeated calls with the SAME walls array reference, including for edges added conceptually 'after' an earlier call already built the cache", () => {

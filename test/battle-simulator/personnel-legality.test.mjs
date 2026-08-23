@@ -101,13 +101,41 @@ test("checkMoveLegality: rejects when the action budget doesn't allow it", () =>
   assert.match(result.reason, /Not enough actions/);
 });
 
-test("checkMoveLegality: rejects a move whose straight-line PATH passes through an occupied square, not just the destination", () => {
+test("checkMoveLegality: rejects a move whose straight-line PATH passes through a DIFFERENT-side occupant's square, not just the destination", () => {
   const result = checkMoveLegality({
-    combatant: { id: "a" }, from: { col: 0, row: 0 }, to: { col: 8, row: 0 }, // 40ft, straight line
-    effectiveSpeed: 999, allPositions: [{ combatantId: "blocker", pos: { col: 4, row: 0 } }], gridSize, turnState: openBudget
+    combatant: { id: "a", side: "party" }, from: { col: 0, row: 0 }, to: { col: 8, row: 0 }, // 40ft, straight line
+    effectiveSpeed: 999, allPositions: [{ combatantId: "blocker", pos: { col: 4, row: 0 }, side: "opposition" }], gridSize, turnState: openBudget
   });
   assert.equal(result.legal, false);
-  assert.match(result.reason, /passes through an occupied square/);
+  assert.match(result.reason, /occupied by a different-side combatant/);
+});
+
+// --- Move through allies (design doc §24 — Ingram's own direct correction: "Characters can move
+// through friendly character spaces per the rules") ---
+
+test("checkMoveLegality: a SAME-side occupant's square does NOT block passing through it — a real SF2E movement rule, not a wall", () => {
+  const result = checkMoveLegality({
+    combatant: { id: "a", side: "party" }, from: { col: 0, row: 0 }, to: { col: 8, row: 0 },
+    effectiveSpeed: 999, allPositions: [{ combatantId: "ally", pos: { col: 4, row: 0 }, side: "party" }], gridSize, turnState: openBudget
+  });
+  assert.equal(result.legal, true, `expected passing through an ally's square to be legal, got: ${result.reason}`);
+});
+
+test("checkMoveLegality: an ally's square still can't be the DESTINATION — you can move through, you can't stop there", () => {
+  const result = checkMoveLegality({
+    combatant: { id: "a", side: "party" }, from: { col: 0, row: 0 }, to: { col: 4, row: 0 },
+    effectiveSpeed: 999, allPositions: [{ combatantId: "ally", pos: { col: 4, row: 0 }, side: "party" }], gridSize, turnState: openBudget
+  });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /can't stop there/);
+});
+
+test("checkMoveLegality: with no side info at all on the mover, falls back to the original any-occupant-blocks rule rather than silently treating every occupant as passable", () => {
+  const result = checkMoveLegality({
+    combatant: { id: "a" }, from: { col: 0, row: 0 }, to: { col: 8, row: 0 },
+    effectiveSpeed: 999, allPositions: [{ combatantId: "blocker", pos: { col: 4, row: 0 } }], gridSize, turnState: openBudget
+  });
+  assert.equal(result.legal, false, "no side info anywhere must not silently become 'nothing blocks'");
 });
 
 // ---------------------------------------------------------------------------

@@ -20,7 +20,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { generateProposals, decide } from "../../tools/battle-simulator/personnel-engine/decide.mjs";
+import { generateProposals, decide, bestDestinationToward } from "../../tools/battle-simulator/personnel-engine/decide.mjs";
 
 function makeState({ mePos = { col: 0, row: 0 }, enemyPos = { col: 0, row: 2 }, walls = [] } = {}) {
   const me = {
@@ -99,6 +99,40 @@ test("an enemy with NO belief entry at all (never perceived, not even at deploym
   const proposals = generateProposals(state, "me", turn);
   const movesTowardEnemy = proposals.filter((p) => p.type === "move" && p.to.col > 5); // any destination heading toward (10,10)
   assert.equal(movesTowardEnemy.length, 0, "no destination candidate should reference an enemy this side has no belief about at all");
+});
+
+// --- Move through allies (design doc §24 — Ingram's own direct correction: "Characters can move
+// through friendly character spaces per the rules"), proven through the REAL pathfinding entry
+// points the AI actually calls, not just the lower-level reachableCells/blocksPassage unit tests. ---
+
+test("bestDestinationToward: routes STRAIGHT PAST an ally standing directly in the way, at the real straight-line cost — no detour needed, matching what a real player could do", () => {
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([
+      ["me", { id: "me", side: "party", currentHP: 16, maxHP: 16, speed: 25 }],
+      ["ally", { id: "ally", side: "party", currentHP: 16, maxHP: 16, speed: 25 }]
+    ]),
+    positions: new Map([["me", { col: 0, row: 0 }], ["ally", { col: 2, row: 0 }]])
+  };
+  const dest = bestDestinationToward(state, "me", { col: 0, row: 0 }, { col: 5, row: 0 }, 999, 0);
+  assert.ok(dest, "expected a real destination toward (5,0)");
+  assert.notDeepEqual({ col: dest.col, row: dest.row }, { col: 2, row: 0 }, "must never select the ally's own square as a destination");
+  assert.equal(dest.col, 5, "with the ally passable, the mover should reach all the way to (5,0), not stop short to detour around it");
+});
+
+test("bestDestinationToward: a DIFFERENT-side occupant in the same spot still forces a real detour (or a shorter stop), unlike an ally", () => {
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([
+      ["me", { id: "me", side: "party", currentHP: 16, maxHP: 16, speed: 25 }],
+      ["foe", { id: "foe", side: "opposition", currentHP: 16, maxHP: 16, speed: 25 }]
+    ]),
+    positions: new Map([["me", { col: 0, row: 0 }], ["foe", { col: 2, row: 0 }]])
+  };
+  const dest = bestDestinationToward(state, "me", { col: 0, row: 0 }, { col: 5, row: 0 }, 999, 0);
+  assert.ok(dest, "expected SOME destination toward (5,0)");
+  assert.notDeepEqual({ col: dest.col, row: dest.row }, { col: 2, row: 0 }, "must never select the enemy's own square as a destination");
+  assert.ok(!(dest.col === 5 && dest.row === 0), "an enemy in the way must genuinely change the reachable outcome versus the ally case above (a real detour or a short stop, not a free pass through)");
 });
 
 // --- lowHpCaution / outnumberedCaution END-TO-END (design doc §22): unlike personnel-state-value's

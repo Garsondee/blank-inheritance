@@ -75,16 +75,41 @@ test("runBattle: HP never goes negative and never exceeds max, across an entire 
   }
 });
 
-test("a Stunned combatant is skipped and its stun counter decrements", () => {
-  const caster = makeCaster({ stunnedRounds: 2 });
+// --- Stunned (Player Core pg. 421, design doc §24 — a real, previously-shipped bug, not a first
+// implementation: the OLD code forfeited the WHOLE turn for ANY stunnedValue > 0 and decremented
+// by exactly 1 per turn regardless of the real value, so "Stunned 2" cost 6 actions across two
+// fully-forfeited turns instead of the real rule's exactly 2. Both tests below encode the rule's
+// OWN worked examples directly, not just a made-up scenario. ---
+
+test("Stunned 1 (Erabryth's Forced Reflection, real \"failure\" outcome): costs EXACTLY 1 of 3 actions this turn, not the whole turn — the specific bug Ingram reported (\"Stunned is currently knocking out three actions\")", () => {
+  const caster = makeCaster({ stunnedValue: 1 });
+  const target = makeTarget({ position: { col: 1, row: 0 } });
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 2, combatants: [caster, target], ai: () => null });
+  const r1 = log.rounds.find((r) => r.round === 1)?.turns.find((t) => t.combatantId === "caster");
+  const r2 = log.rounds.find((r) => r.round === 2)?.turns.find((t) => t.combatantId === "caster");
+  assert.equal(r1.stunned, true, "round 1: under Stunned 1");
+  assert.equal(r1.stunnedActionsLost, 1, "exactly 1 action lost, not all 3");
+  assert.equal(r1.actionAccounting.available, 2, "2 of the normal 3 actions were actually available this turn — 1 was already spent on being stunned");
+  assert.equal(r2.stunned, undefined, "round 2: Stunned 1 fully resolved in round 1 (1 of 1 owed action already lost) — no carryover");
+});
+
+test("Stunned 4 (Player Core's own worked example, quoted verbatim): loses all 3 actions turn 1 (reducing to Stunned 1), then loses exactly 1 more action turn 2 and keeps the remaining 2 to use normally", () => {
+  const caster = makeCaster({ stunnedValue: 4 });
   const target = makeTarget({ position: { col: 1, row: 0 } });
   const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 3, combatants: [caster, target], ai: () => null });
   const r1 = log.rounds.find((r) => r.round === 1)?.turns.find((t) => t.combatantId === "caster");
   const r2 = log.rounds.find((r) => r.round === 2)?.turns.find((t) => t.combatantId === "caster");
   const r3 = log.rounds.find((r) => r.round === 3)?.turns.find((t) => t.combatantId === "caster");
-  if (r1) assert.equal(r1.stunned, true, "round 1: still under the initial Stunned 2");
-  if (r2) assert.equal(r2.stunned, true, "round 2: stun counter was 2, decrements to 1 then 0 — still stunned this turn");
-  if (r3) assert.equal(r3.stunned, undefined, "round 3: stun should have worn off");
+
+  assert.equal(r1.stunned, true, "round 1: under Stunned 4");
+  assert.equal(r1.stunnedActionsLost, 3, "round 1: loses ALL 3 actions (Stunned 4 exceeds the turn's own 3-action budget)");
+  assert.equal(r1.actions.length, 0, "round 1: a genuinely full forfeit — the AI is never even consulted");
+
+  assert.equal(r2.stunned, true, "round 2: 1 of the original 4 carries over (4 - 3 = 1)");
+  assert.equal(r2.stunnedActionsLost, 1, "round 2: loses exactly the 1 remaining owed action");
+  assert.equal(r2.actionAccounting.available, 2, "round 2: 2 real actions were available this turn, not 0 and not 3");
+
+  assert.equal(r3.stunned, undefined, "round 3: fully resolved (1 action owed, already lost in round 2) — back to normal");
 });
 
 test("accountForActions: throws if points go unaccounted for with no reason", () => {
@@ -450,8 +475,8 @@ function makeErabryth(overrides = {}) {
       outcomes: {
         criticalSuccess: {},
         success: { frightened: 1 },
-        failure: { stunnedRounds: 1, frightened: 1 },
-        criticalFailure: { stunnedRounds: 2, frightened: 2 }
+        failure: { stunnedValue: 1, frightened: 1 },
+        criticalFailure: { stunnedValue: 2, frightened: 2 }
       }
     }],
     position: { col: 0, row: 0 },
@@ -484,9 +509,9 @@ test("conditionSave: applies the REAL per-degree table exactly — failure sets 
   // not asserting every seed must land here (a fixed modifier can never force EVERY d20 into one
   // narrow degree band, so this test relies on one known-good seed rather than a false "guaranteed" claim).
   assert.equal(action.roll.degree, "failure");
-  assert.deepEqual(action.applied, { stunnedRounds: 1, frightened: 1 });
+  assert.deepEqual(action.applied, { stunnedValue: 1, frightened: 1 });
   assert.equal(action.targetFrightenedAfter, 1);
-  assert.equal(action.targetStunnedRoundsAfter, 1);
+  assert.equal(action.targetStunnedValueAfter, 1);
 });
 
 test("conditionSave: never increments the shared Multiple Attack Penalty counter — no attack roll happens at all, same as saveAttack/demoralize", () => {
@@ -516,13 +541,16 @@ test("conditionSave: a target already tried with this ability is rejected on a s
   }
 });
 
-test("conditionSave: a stunned target really does skip its own next turn — the round loop's existing stunnedRounds mechanism, now reachable from a real in-combat action for the first time", () => {
-  const erabryth = makeErabryth({ conditionSaves: [{ name: "Forced Reflection", saveType: "will", dc: 50, range: 60, actions: 1, traits: [], outcomes: { criticalSuccess: {}, success: {}, failure: { stunnedRounds: 1 }, criticalFailure: { stunnedRounds: 1 } } }] }); // guaranteed failure or worse
+test("conditionSave: a real Stunned 1 applied in combat costs the target EXACTLY 1 of its next turn's 3 actions, not the whole turn (design doc §24 — the round loop's corrected stunnedValue mechanism, reachable from a real in-combat action)", () => {
+  const erabryth = makeErabryth({ conditionSaves: [{ name: "Forced Reflection", saveType: "will", dc: 50, range: 60, actions: 1, traits: [], outcomes: { criticalSuccess: {}, success: {}, failure: { stunnedValue: 1 }, criticalFailure: { stunnedValue: 1 } } }] }); // guaranteed failure or worse
   const target = makeGoon({ id: "target", side: "party", position: { col: 5, row: 0 } }); // must be on the OTHER side, or checkOutcome ends the battle at round 1 with no real party at all
   function ai(state, id, turn) { return id === "erabryth" && turn.actionsUsed === 0 ? { type: "conditionSave", targetId: "target", conditionSaveIndex: 0 } : null; }
   const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 2, combatants: [erabryth, target], ai });
   const targetTurns = log.rounds.flatMap((r) => r.turns).filter((t) => t.combatantId === "target");
-  assert.ok(targetTurns.some((t) => t.stunned === true), `expected the target to show stunned:true on some later turn, got: ${JSON.stringify(targetTurns.map((t) => t.stunned))}`);
+  const stunnedTurn = targetTurns.find((t) => t.stunned === true);
+  assert.ok(stunnedTurn, `expected the target to show stunned:true on some turn, got: ${JSON.stringify(targetTurns.map((t) => t.stunned))}`);
+  assert.equal(stunnedTurn.stunnedActionsLost, 1, "Stunned 1 must cost exactly 1 action, never a full 3-action forfeit");
+  assert.equal(stunnedTurn.actionAccounting.available, 2, "2 real actions must still be available that turn");
 });
 
 // --- Standard cover (design doc §22, Player Core pg. 416) ---

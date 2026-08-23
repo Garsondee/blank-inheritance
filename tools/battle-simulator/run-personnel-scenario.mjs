@@ -70,21 +70,24 @@ const SCENARIOS = {
   // Design doc §22's 3v3 expansion: Lunar-17+Tapkey+Bennit vs. Security Goon+Xenowarden Greenhorn+
   // Erabryth, on the redesigned complex (windows, cover, asymmetric rooms). Supersedes the earlier
   // §21 2v2 scenarios of the same shape — same real-fixtures-only discipline, three combatants a
-  // side now instead of two.
-  "complex-3v3-same-room": {
-    build: (args) => buildComplexBattle({ ...args, partyFixtures: ["lunar-17.json", "tapkey.json", "bennit.json"], oppositionFixtures: ["security-goon.json", "xenowarden-greenhorn.json", "erabryth.json"], setup: "SAME_ROOM" }),
-    label: "3v3: Lunar-17+Tapkey+Bennit vs. Security Goon+Xenowarden Greenhorn+Erabryth — same room, open sightline across the courtyard doorways",
-    defaultSeed: 1, roundLimit: 30
+  // side now instead of two. Setup names/keys renamed under design doc §24's spawn redesign
+  // (opposite map corners/ends, not inside specific rooms — SAME_ROOM/SAME_BUILDING_FAR_ROOMS/
+  // ACROSS_THE_COMPLEX no longer describe anything real) — roundLimit raised from 30 to 40 since
+  // opposite-corner spawns require substantially more real travel before any shot is possible.
+  "complex-3v3-diagonal-sw-ne": {
+    build: (args) => buildComplexBattle({ ...args, partyFixtures: ["lunar-17.json", "tapkey.json", "bennit.json"], oppositionFixtures: ["security-goon.json", "xenowarden-greenhorn.json", "erabryth.json"], setup: "DIAGONAL_SW_NE" }),
+    label: "3v3: Lunar-17+Tapkey+Bennit vs. Security Goon+Xenowarden Greenhorn+Erabryth — opposite corners (SW/NE), no initial line of effect",
+    defaultSeed: 1, roundLimit: 40
   },
-  "complex-3v3-same-building-far-rooms": {
-    build: (args) => buildComplexBattle({ ...args, partyFixtures: ["lunar-17.json", "tapkey.json", "bennit.json"], oppositionFixtures: ["security-goon.json", "xenowarden-greenhorn.json", "erabryth.json"], setup: "SAME_BUILDING_FAR_ROOMS" }),
-    label: "3v3: Lunar-17+Tapkey+Bennit vs. Security Goon+Xenowarden Greenhorn+Erabryth — opposite corners of Building A",
-    defaultSeed: 1, roundLimit: 30
+  "complex-3v3-diagonal-nw-se": {
+    build: (args) => buildComplexBattle({ ...args, partyFixtures: ["lunar-17.json", "tapkey.json", "bennit.json"], oppositionFixtures: ["security-goon.json", "xenowarden-greenhorn.json", "erabryth.json"], setup: "DIAGONAL_NW_SE" }),
+    label: "3v3: Lunar-17+Tapkey+Bennit vs. Security Goon+Xenowarden Greenhorn+Erabryth — opposite corners (NW/SE), no initial line of effect",
+    defaultSeed: 1, roundLimit: 40
   },
-  "complex-3v3-across-the-complex": {
-    build: (args) => buildComplexBattle({ ...args, partyFixtures: ["lunar-17.json", "tapkey.json", "bennit.json"], oppositionFixtures: ["security-goon.json", "xenowarden-greenhorn.json", "erabryth.json"], setup: "ACROSS_THE_COMPLEX" }),
-    label: "3v3: Lunar-17+Tapkey+Bennit vs. Security Goon+Xenowarden Greenhorn+Erabryth — across the whole complex, farthest rooms in opposite buildings",
-    defaultSeed: 1, roundLimit: 30
+  "complex-3v3-north-south-ends": {
+    build: (args) => buildComplexBattle({ ...args, partyFixtures: ["lunar-17.json", "tapkey.json", "bennit.json"], oppositionFixtures: ["security-goon.json", "xenowarden-greenhorn.json", "erabryth.json"], setup: "NORTH_SOUTH_ENDS" }),
+    label: "3v3: Lunar-17+Tapkey+Bennit vs. Security Goon+Xenowarden Greenhorn+Erabryth — opposite ends of the open courtyard, real line of effect but a long, open approach",
+    defaultSeed: 1, roundLimit: 40
   }
 };
 
