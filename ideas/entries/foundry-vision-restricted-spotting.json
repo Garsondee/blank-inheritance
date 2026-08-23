@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "foundry-vision-restricted-spotting",
+  "type": "idea",
+  "title": "Foundry scene vision restricted per-player, plus a recon point-and-highlight tool",
+  "status": "accepted",
+  "domains": ["mechanics", "tooling", "ui", "narrative"],
+  "summary": "In the actual Foundry module, restrict each player's visible map to what their own token can currently see (per vision-as-chassis-axis's range/detection profile), and give recon-capable units a real tool to mark/highlight specific grid tiles for teammates — making spotting a literal player-to-player information-relay mechanic, not just an abstract stat bonus.",
+  "description": "Raised directly, mid-session, while the battle-simulator's own fog-of-war/belief-state engine (design/scale-and-chassis.md §15r-15s) was being built and verified: 'We should limit players in the Foundry scene to the visible areas their mech can see. We should give recon units points that mean they can point to tiles on the map and highlight grid tiles, we literally build the spotting and recon actions into the information which gets to Frame pilots who then have to trust their team and move into a position that is ideal.'\n\nThis is the concrete, player-facing answer to a question vision-as-chassis-axis left explicitly open: 'How spotting is communicated between players in practice — does a recon player literally see tokens the Frame player doesn't, and have to describe them?' The answer given here is yes, AND more: not just passive not-seeing, but an active tool — a recon unit spends something ('points') to mark specific tiles, and that mark is what a blind Frame pilot actually has to act on. That is a direct real-Foundry-table analogue of what the battle simulator's belief.mjs now does mechanically for AI decision-making: a side's belief is refreshed from the WHOLE team's combined vision, not any one unit's own — a Sensor Operator's good eyes cover for an otherwise-blind Frame teammate. Here the same idea plays out as actual human trust and communication at the table, which is the more dramatically interesting version of it (matches the sourceContext idea's own framing: 'does a recon player literally see tokens the Frame player doesn't... that is dramatically excellent but needs a real UI answer' — this is that answer).\n\nMechanically this needs, at minimum: Foundry's native per-token vision/detection restriction (already the intended mechanism per vision-as-chassis-axis — token vision modes, detection modes, sight ranges/angles), applied so a Frame player's own client genuinely cannot see tokens/terrain outside their pilot's sight; and some kind of GM- or player-triggered marking/annotation tool (Foundry Notes, a custom flag-driven overlay, or a module-side ping/ruler-drawing feature) that a recon-capable player can use to place a persistent, visible-to-teammates marker on a specific tile — the 'points' framing suggests a limited resource (spend to mark, not unlimited pinging), though the exact economy (how many points, refreshed how often, per-encounter or per-day) is not specified and should not be invented here.\n\nConnects directly to the battle simulator's now-built belief-state engine (design/scale-and-chassis.md §15r-15s): that system already encodes 'the whole side's combined vision' as the belief-refresh unit, and a scarce recon-marking resource is a natural gameplay-side analogue of that same idea — worth keeping the two consistent in spirit even though the simulator and the real Foundry module are separate codebases with no shared implementation.",
+  "capturedDate": "2026-08-23",
+  "lastTouchedDate": "2026-08-23",
+  "sourceContext": "User message, mid-session, immediately following the battle-simulator's fog-of-war/belief-state work (design/scale-and-chassis.md §15r-15s) — framed as 'a fun idea before you continue your work,' proposed with clear intent ('We should...') rather than as a tentative maybe.",
+  "openSubQuestions": [
+    "The exact 'points' economy for recon marking — how many, refreshed how often, spent per-mark or per-scene. Not specified by the user; not to be invented.",
+    "The concrete Foundry mechanism for the marking/highlight tool itself — a Note, a custom canvas overlay layer, a ping-and-persist feature — needs checking against the local foundryvtt/ source tree (per design/foundry-technical-reference.md's own established pattern) before being treated as designed rather than intended.",
+    "Whether a mark decays over time (matching the battle simulator's belief.mjs, where an unconfirmed position goes stale but isn't deleted) or persists until explicitly updated/cleared.",
+    "How this interacts with vision-as-chassis-axis's own still-open question of whether Frame blindness is a range limit, angle restriction, or detection-mode restriction — the marking tool's UX may differ depending on which."
+  ],
+  "relatedRefs": [
+    "vision-as-chassis-axis",
+    "design/scale-and-chassis.md#15r-15s",
+    "design/foundry-module-design.md",
+    "design/foundry-technical-reference.md"
+  ],
+  "resolution": null
+}

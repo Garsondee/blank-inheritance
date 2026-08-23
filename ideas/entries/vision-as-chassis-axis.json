@@ -8,14 +8,16 @@
   "summary": "Use Foundry VTT's native vision/detection system as a real mechanical axis on the campaign map: Frames have poor vision, vehicles range from equally poor to extremely good, and the trade is physical — a sports car sees well precisely because it isn't armoured, while recon vehicles and helicopters have the best sensing of anything on the field. Makes vehicles matter for reasons beyond survivability and gives the Sensor Operator ground role an actual chassis.",
   "description": "Stated directly while accepting the scale-and-chassis proposal: 'a key element of this would be that we use Foundry VTT's vision related stuff so that we create a campaign map where Frames have poor vision, vehicles range from equally poor to extremely good. A sports car has good wide vision because it's not armoured, a recon vehicle has by far the best vision capabilities alongside things like helicopters.'\n\nWhy this is more than flavour: the scale-and-chassis model (design/scale-and-chassis.md) balances chassis on survivability, speed, and capacity. Vision adds a fourth axis that is genuinely orthogonal to all three, and it inverts the armour trade — the *least* protected chassis often sees best, because vision loss is a direct physical consequence of armour (slits, hatches, hull). That means a player choosing the fragile option gets a real, non-consolation reward rather than just 'you go fast.'\n\nThe resulting battlefield dynamic is strong and thematically on-point: **Frames are enormously powerful and nearly blind.** They physically cannot see what is happening at ground level (which the Day 1 episode already requires — the interdiction field's weak point is 'only visible from ground level'). So a Frame without spotters is a giant swinging at what it's told about. That makes the vehicle layer, and the Sensor Operator ground role, structurally necessary rather than merely supportive — the exact 'non-pilot students must not be second-line' goal, expressed through the map rather than through numbers.\n\nFoundry-side, this is well-supported natively and is a real reason to invest in the module's scene generation: token vision modes, detection modes, sight ranges/angles, and per-token light. A wide-angle low-range configuration (sports car), a narrow-angle long-range configuration (recon/helicopter), and a heavily restricted configuration (buttoned-up Frame or APC) are all expressible in the Token document without custom code. Needs confirming against the local foundryvtt/ tree before it is treated as designed rather than intended.\n\nConnects to the already-accepted world-map-satellite-combat idea (a zoomed-out city map is exactly where limited vision creates fog-of-war decisions) and to automated-recall-knowledge-system (both are about controlling what information reaches which player and when).",
   "capturedDate": "2026-08-22",
-  "lastTouchedDate": "2026-08-22",
+  "lastTouchedDate": "2026-08-23",
   "sourceContext": "User message accepting the scale-and-chassis proposal, 2026-08-22, alongside three chassis decisions (auto-levelling, reserve chassis allowed, vehicles as a full parallel progression path).",
   "openSubQuestions": [
     "Exact Foundry vision/detection configuration per chassis class — needs verifying against the local foundryvtt/ source tree, not assumed.",
-    "Whether Frames' poor vision is a flat sight-range limit, an angle restriction, or a detection-mode restriction (can't detect Medium-or-smaller creatures at all) — the third option would mechanically encode the Scale Disparity rule from design/scale-and-chassis.md §8.",
-    "How spotting is communicated between players in practice — does a recon player literally see tokens the Frame player doesn't, and have to describe them? That is dramatically excellent but needs a real UI answer.",
+    "Whether Frames' poor vision is a flat sight-range limit, an angle restriction, or a detection-mode restriction (can't detect Medium-or-smaller creatures at all) — the third option would mechanically encode the Scale Disparity rule from design/scale-and-chassis.md §8. (The battle simulator's own engine/vision.mjs, §15r, took exactly this approach for its AI-facing model — reusing the existing scaleBlind flag — but that is a simulator implementation choice, not a decision about what the real Foundry module does for human players.)",
     "Whether vision degrades as a chassis takes damage (a Broken vehicle losing sensors would be thematically strong and mechanically punishing).",
     "How this interacts with night/weather Contacts and with the Claimants' own senses."
+  ],
+  "resolvedSubQuestions": [
+    "How spotting is communicated between players in practice, answered 2026-08-23: not just passive not-seeing — an active tool. 'We should limit players in the Foundry scene to the visible areas their mech can see. We should give recon units points that mean they can point to tiles on the map and highlight grid tiles, we literally build the spotting and recon actions into the information which gets to Frame pilots who then have to trust their team and move into a position that is ideal.' Captured as its own idea, foundry-vision-restricted-spotting, since it's a concrete enough mechanic (per-player scene vision restriction + a recon marking tool) to track and design separately from this idea's broader vision-as-an-axis framing."
   ],
   "relatedRefs": [
     "scale-and-chassis-model",
@@ -25,7 +27,8 @@
     "mech-physical-classification-and-equipment",
     "data/campaign/ground-roles.json",
     "data/episodes/episode-01-contact-unclassified.json",
-    "design/foundry-technical-reference.md"
+    "design/foundry-technical-reference.md",
+    "foundry-vision-restricted-spotting"
   ],
   "resolution": null
 }
