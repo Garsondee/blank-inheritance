@@ -212,6 +212,7 @@
      line, drawn for the CURRENT step's actions only, so a viewer can visually confirm a proposed
      action actually lands where the numbers say it should rather than trusting the log text alone. */
   .decision-line.move { stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: 6 4; fill: none; }
+  .decision-line.step { stroke: var(--success); stroke-width: 2; stroke-dasharray: 1 3; stroke-linecap: round; fill: none; }
   .decision-line.strike-hit { stroke: var(--success); stroke-width: 2.5; fill: none; }
   .decision-line.strike-crit { stroke: var(--amber); stroke-width: 3.5; fill: none; }
   .decision-line.strike-miss { stroke: var(--ink-muted); stroke-width: 2; stroke-dasharray: 2 3; fill: none; }
@@ -397,6 +398,7 @@
         <svg id="mapSvg" viewBox="0 0 1320 1320" preserveAspectRatio="none">
           <defs>
             <marker id="arrowMove" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker>
+            <marker id="arrowStep" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--success)"/></marker>
             <marker id="arrowHit" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--success)"/></marker>
             <marker id="arrowCrit" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--amber)"/></marker>
             <marker id="arrowMiss" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink-muted)"/></marker>
@@ -537,6 +539,9 @@ function narrateAction(name, action) {
     let t = `${name} moves ${action.feet}ft.`;
     return { cls: "", text: t, reactions: action.triggeredReactions };
   }
+  if (action.type === "step") {
+    return { cls: "", text: `${name} Steps ${action.feet}ft — carefully, no reaction provoked.` };
+  }
   if (action.type === "advance") {
     return { cls: "", text: `${name} Advances toward its objective.`, reactions: action.triggeredReactions };
   }
@@ -613,7 +618,7 @@ function combatantWaypoints(step, stepIdx) {
   const waypoints = [startPos];
   for (const action of step.actions || []) {
     if (action.legal === false) continue;
-    if (action.type === "move" || action.type === "advance") waypoints.push(action.to);
+    if (action.type === "move" || action.type === "advance" || action.type === "step") waypoints.push(action.to);
   }
   return waypoints;
 }
@@ -640,11 +645,14 @@ function renderDecisionOverlay(run, step, stepIdx) {
   for (const action of step.actions) {
     if (action.legal === false) continue;
 
-    if (action.type === "move" || action.type === "advance") {
+    if (action.type === "move" || action.type === "advance" || action.type === "step") {
       leg += 1;
       const from = posToPx(currentPos);
       const to = posToPx(waypoints[leg]);
-      markup += `<line class="decision-line move" x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" marker-end="url(#arrowMove)"/>`;
+      // Step gets its own line style — a viewer should be able to see AT A GLANCE that this leg
+      // was a careful Step (never provokes a reaction) rather than a Stride (which can).
+      const isStep = action.type === "step";
+      markup += `<line class="decision-line ${isStep ? "step" : "move"}" x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" marker-end="url(#${isStep ? "arrowStep" : "arrowMove"})"/>`;
       currentPos = waypoints[leg];
     } else if (action.type === "strike" || action.type === "spellAttack") {
       const targetSnapshot = step.snapshot[action.targetId];
@@ -821,6 +829,7 @@ function renderRoster(run, snapshot, activeId) {
 /** A short, glanceable label for one action box — the WHAT half of "what and why". */
 function actionShortLabel(action) {
   if (action.type === "move") return `Move ${action.feet ?? "?"}ft`;
+  if (action.type === "step") return `Step ${action.feet ?? "?"}ft`;
   if (action.type === "advance") return `Advance ${action.feet ?? "?"}ft`;
   if (action.type === "strike") return `Strike: ${action.strikeName || "?"}`;
   if (action.type === "spellAttack") return `Cast: ${action.spellName || "?"}`;
@@ -961,6 +970,7 @@ function actionCost(action) {
 function describeAction(action) {
   if (action.type === "strike") return `Strike — ${action.strikeName || "?"} (${action.roll ? degreeLabel(action.roll.degree) : "?"})`;
   if (action.type === "move") return `Move (${action.feet}ft)`;
+  if (action.type === "step") return `Step (${action.feet}ft, no reaction)`;
   if (action.type === "advance") return `Advance (${action.feet}ft)`;
   if (action.type === "spot") return `Spot → ${action.targetName || action.targetId}`;
   if (action.type === "evacuate") return `Evacuate (${action.civilians} civilians)`;

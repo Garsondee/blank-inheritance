@@ -39,7 +39,7 @@
 
 import { makeRng, rollD20 } from "./rng.mjs";
 import { resolveEffectiveStats } from "./combatant.mjs";
-import { checkMoveLegality, checkStrikeLegal, checkFieldRepairLegal, checkActionBudget, checkTargetAlive, checkSpotLegal, checkEvacuateLegal, checkSpellAttackLegal, checkHealAbilityLegal, multipleAttackPenalty, rangeIncrementPenalty } from "./legality.mjs";
+import { checkMoveLegality, checkStepLegality, checkStrikeLegal, checkFieldRepairLegal, checkActionBudget, checkTargetAlive, checkSpotLegal, checkEvacuateLegal, checkSpellAttackLegal, checkHealAbilityLegal, multipleAttackPenalty, rangeIncrementPenalty } from "./legality.mjs";
 import {
   resolveStrike, applyHardness, mitigateDamage, resolveFieldRepair, resolveEvacuation,
   expectedStrikeDamage, expectedRepairHealing, expectedEvacuationCivilians
@@ -436,6 +436,26 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     if (reactions.length) result.triggeredReactions = reactions;
 
     return result;
+  }
+
+  // Step (Player Core pg. 410, design doc §15o): identical to a move in every way EXCEPT it is
+  // capped at one square and, critically, never calls checkReactionTriggers — "Stepping doesn't
+  // trigger reactions, such as Reactive Strike," which for this engine specifically means it
+  // never provokes the Claimant's Claim. This is the one deliberate divergence from "move" below.
+  if (proposal.type === "step") {
+    const check = checkStepLegality({
+      combatant, from: pos, to: proposal.to, effectiveSpeed: effective.speed,
+      allPositions: [...state.positions.entries()].map(([id, p]) => ({ combatantId: id, pos: p })),
+      gridSize: state.gridSize, turnState: turnProgress
+    });
+    if (!check.legal) return { type: "step", to: proposal.to, legal: false, reason: check.reason };
+
+    const stepDistance = distanceFeet(pos, proposal.to);
+    state.positions.set(combatantId, { ...proposal.to });
+    turnProgress.feetMoved += stepDistance;
+    turnProgress.actionsUsed += 1;
+
+    return { type: "step", from: { ...pos }, to: { ...proposal.to }, feet: stepDistance, legal: true, actionsCost: 1, decisionReason: proposal.reason ?? null };
   }
 
   if (proposal.type === "strike") {

@@ -17,6 +17,7 @@ import {
   checkActionBudget,
   checkActorAlive,
   checkMoveLegality,
+  checkStepLegality,
   checkScaleTargeting,
   checkStrikeRange,
   checkTargetAlive,
@@ -147,6 +148,61 @@ test("checkMoveLegality: a move whose path does NOT cross an occupied square is 
     gridSize, turnState: openBudget
   });
   assert.equal(result.legal, true);
+});
+
+// ---------------------------------------------------------------------------
+// checkStepLegality (Player Core pg. 410, design doc §15o) — a real SF2E
+// basic action added on its own merits: it needs no terrain and no
+// fog-of-war, and it interacts directly with this engine's existing Claim
+// reaction (closing the last square via Step never provokes it).
+// ---------------------------------------------------------------------------
+
+test("checkStepLegality: allows a one-square hop with ordinary Speed", () => {
+  const result = checkStepLegality({
+    combatant: { id: "a" }, from: { col: 5, row: 5 }, to: { col: 6, row: 5 },
+    effectiveSpeed: 300, allPositions: [], gridSize, turnState: openBudget
+  });
+  assert.equal(result.legal, true);
+});
+
+test("checkStepLegality: rejects a hop longer than one square, even if Speed could cover it", () => {
+  const result = checkStepLegality({
+    combatant: { id: "a" }, from: { col: 5, row: 5 }, to: { col: 7, row: 5 }, // 2 squares
+    effectiveSpeed: 999, allPositions: [], gridSize, turnState: openBudget
+  });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /exactly one square/);
+});
+
+test("checkStepLegality: rejects a Step when effective Speed can't even complete one square", () => {
+  const result = checkStepLegality({
+    combatant: { id: "a" }, from: { col: 5, row: 5 }, to: { col: 6, row: 5 },
+    effectiveSpeed: 10, allPositions: [], gridSize, turnState: openBudget // far below FEET_PER_SQUARE (50)
+  });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /too low/);
+});
+
+test("checkStepLegality: still respects occupancy and bounds, exactly like an ordinary move", () => {
+  const occupied = checkStepLegality({
+    combatant: { id: "a" }, from: { col: 5, row: 5 }, to: { col: 6, row: 5 },
+    effectiveSpeed: 300, allPositions: [{ combatantId: "b", pos: { col: 6, row: 5 } }], gridSize, turnState: openBudget
+  });
+  assert.equal(occupied.legal, false);
+
+  const outOfBounds = checkStepLegality({
+    combatant: { id: "a" }, from: { col: 19, row: 5 }, to: { col: 25, row: 5 },
+    effectiveSpeed: 300, allPositions: [], gridSize, turnState: openBudget
+  });
+  assert.equal(outOfBounds.legal, false);
+});
+
+test("checkStepLegality: respects the action budget like any other action", () => {
+  const result = checkStepLegality({
+    combatant: { id: "a" }, from: { col: 5, row: 5 }, to: { col: 6, row: 5 },
+    effectiveSpeed: 300, allPositions: [], gridSize, turnState: { actionsAvailable: 3, actionsUsed: 3 }
+  });
+  assert.equal(result.legal, false);
 });
 
 test("checkScaleTargeting: a Scale-Blind attacker cannot target Medium or smaller", () => {

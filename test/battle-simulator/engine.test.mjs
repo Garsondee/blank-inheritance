@@ -194,6 +194,77 @@ test("REGRESSION: Advance and a follow-up move are each individually capped at S
   }
 });
 
+// ---------------------------------------------------------------------------
+// Step (Player Core pg. 410, design doc §15o) — the one piece of its rule
+// text that actually matters here: "Stepping doesn't trigger reactions." The
+// SAME reactor/mover shapes as the immuneToAllDamage regression just above,
+// so an ordinary move ending adjacent is independently proven to provoke
+// Claim, and a Step covering the identical ground is proven not to.
+// ---------------------------------------------------------------------------
+
+function makeClaimFixture() {
+  const reactor = {
+    id: "reactor", name: "Reactor", kind: "claimant", side: "opposition", size: "gargantuan",
+    maxHP: 50, currentHP: 50, ac: 10, hardness: 0, saves: { fort: 10, ref: 10, will: 10 }, speed: 0,
+    strikes: [{ name: "Claim Strike", strikeType: "melee", attackBonus: 100, traits: [], damage: [{ dice: "10d6", bonus: 100 }] }],
+    reactions: [{ name: "Claim", strikeIndex: 0 }], scaleBlind: false, immuneToAllDamage: false, position: { col: 10, row: 10 }
+  };
+  const mover = {
+    id: "mover", name: "Mover", kind: "claimant", side: "party", size: "huge",
+    maxHP: 100, currentHP: 100, ac: 10, hardness: 0, saves: { fort: 10, ref: 10, will: 10 }, speed: 300,
+    strikes: [], scaleBlind: false, immuneToAllDamage: false, position: { col: 10, row: 9 } // already one square (50ft) from the reactor
+  };
+  return { reactor, mover };
+}
+
+test("REGRESSION-GUARD: an ordinary move ending adjacent to a Large+ reactor DOES provoke Claim (establishes the baseline the Step test below is contrasted against)", () => {
+  const { reactor, mover } = makeClaimFixture();
+  // mover starts adjacent already (10,9) — move it one square away, then move it back adjacent,
+  // so there is a real "move" action (not just the starting position) that ends adjacent.
+  function ai(state, combatantId, turnState) {
+    if (combatantId !== "mover") return null;
+    const pos = state.positions.get("mover");
+    if (turnState.actionsUsed === 0 && pos.col === 10) return { type: "move", to: { col: 11, row: 9 } };
+    if (turnState.actionsUsed === 1) return { type: "move", to: { col: 10, row: 9 } };
+    return null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [mover, reactor], ai });
+  const moves = log.rounds[0].turns.find((t) => t.combatantId === "mover").actions.filter((a) => a.type === "move" && a.legal);
+  const provoked = moves.some((m) => m.triggeredReactions?.length);
+  assert.ok(provoked, "expected at least one ordinary move ending adjacent to provoke Claim — if this fails, the test fixture itself is wrong, not the engine");
+});
+
+test("Step never provokes a reaction, even when it ends adjacent to a Large+ combatant with an unspent reaction", () => {
+  const { reactor, mover } = makeClaimFixture();
+  // mover starts at (10,9) — already one square from the reactor at (10,10). Step it away and
+  // then back via Step, ending adjacent again, entirely through Step actions.
+  function ai(state, combatantId, turnState) {
+    if (combatantId !== "mover") return null;
+    const pos = state.positions.get("mover");
+    if (turnState.actionsUsed === 0 && pos.row === 9) return { type: "step", to: { col: 10, row: 8 } };
+    if (turnState.actionsUsed === 1) return { type: "step", to: { col: 10, row: 9 } }; // back to adjacent, via Step
+    return null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [mover, reactor], ai });
+  const turn = log.rounds[0].turns.find((t) => t.combatantId === "mover");
+  const steps = turn.actions.filter((a) => a.type === "step");
+  assert.equal(steps.length, 2, "expected both Step proposals to be legal");
+  assert.ok(steps.every((s) => s.legal), `a Step was rejected: ${JSON.stringify(steps)}`);
+  assert.ok(steps.every((s) => !s.triggeredReactions?.length), `Step provoked a reaction it should never provoke: ${JSON.stringify(steps)}`);
+  assert.equal(turn.snapshot["mover"].currentHP, 100, "the mover must have taken zero damage — Step is never a Claim trigger");
+});
+
+test("Step is capped at exactly one square — a proposal further than that is illegal, not silently clamped", () => {
+  const { reactor, mover } = makeClaimFixture();
+  function ai(state, combatantId, turnState) {
+    if (combatantId === "mover" && turnState.actionsUsed === 0) return { type: "step", to: { col: 10, row: 5 } }; // 4 squares
+    return null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [mover, reactor], ai });
+  const step = log.rounds[0].turns.find((t) => t.combatantId === "mover").actions.find((a) => a.type === "step");
+  assert.equal(step.legal, false);
+});
+
 test("REGRESSION: a reaction Strike respects immuneToAllDamage — a target's Interdiction Field-style immunity can't be bypassed by provoking a reaction instead of taking an ordinary Strike", () => {
   const reactor = {
     id: "reactor", name: "Reactor", kind: "claimant", side: "opposition", size: "gargantuan",

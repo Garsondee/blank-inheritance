@@ -100,6 +100,37 @@ export function checkMoveLegality({ combatant, from, to, effectiveSpeed, feetAlr
 }
 
 /**
+ * Step (Player Core pg. 410, design doc §15o): "You carefully move 5 feet... Stepping doesn't
+ * trigger reactions, such as Reactive Strike." A real, self-contained SF2E action worth adding
+ * NOW (unlike Take Cover/Seek/Point Out/Aid, all deferred — see §15o for why each one specifically
+ * doesn't fit yet) because it needs no terrain and no fog-of-war, and it interacts directly with
+ * this engine's one existing reaction: closing the LAST square via Step, instead of Stride, is a
+ * real way to reach melee range of the Claimant without provoking Claim.
+ *
+ * "5 feet" is one square in real SF2E's 5ft grid; at this project's 10x-rescaled 50ft grid
+ * (design doc §14f — every distance multiplied by 10 so square-counts-per-turn stay identical),
+ * the faithful equivalent is exactly one square, i.e. FEET_PER_SQUARE — not a literal "5 feet",
+ * which would be less than one square here and move nothing. "Your Speed is at least 10 feet" is,
+ * in real SF2E, really just "you're not immobilized (Speed 0)" — 10ft is not a meaningful
+ * threshold on its own terms, so the faithful equivalent is simply "you can complete one square
+ * of movement": effectiveSpeed >= FEET_PER_SQUARE.
+ *
+ * Everything else about a Step — occupancy, bounds, blocked intermediate squares, the per-action
+ * budget check — is IDENTICAL to an ordinary move, so this delegates to checkMoveLegality rather
+ * than re-deriving those rules a second time; it only adds the one-square cap Step alone has.
+ */
+export function checkStepLegality({ combatant, from, to, effectiveSpeed, allPositions, gridSize, turnState }) {
+  if (effectiveSpeed < FEET_PER_SQUARE) {
+    return { legal: false, reason: `Speed ${effectiveSpeed}ft is too low to complete even one square via Step.` };
+  }
+  const distance = distanceFeet(from, to);
+  if (distance > FEET_PER_SQUARE) {
+    return { legal: false, reason: `Step moves exactly one square (${FEET_PER_SQUARE}ft) — (${from.col},${from.row})->(${to.col},${to.row}) is ${distance}ft.` };
+  }
+  return checkMoveLegality({ combatant, from, to, effectiveSpeed, feetAlreadyMovedThisTurn: 0, allPositions, gridSize, turnState });
+}
+
+/**
  * Scale Disparity (design/scale-and-chassis.md §8/§10, encoded on the
  * Claimant itself as the Scale-Blind ability): a Frame-scale creature's
  * Strikes can only target Large-or-larger creatures/objects. This is

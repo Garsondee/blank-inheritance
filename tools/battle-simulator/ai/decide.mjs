@@ -140,6 +140,14 @@ export function generateProposals(state, combatantId, turn) {
   const addDest = (d) => { if (d) destinations.set(`${d.col},${d.row}`, d); };
 
   const myRanges = [...new Set(attackOptions(me).map(usefulRangeFeet).filter((r) => Number.isFinite(r)))];
+  // Step (design doc §15o): a one-square hop that never provokes a reaction, offered ONLY for the
+  // specific case Step actually exists for — closing the last square onto a reaction-capable
+  // (Large+, per the engine's own reaction-eligibility check) enemy. The sandbox evaluator prices
+  // the alternative honestly: a plain "move" candidate that ends adjacent already has the real
+  // Claim reaction fire inside the sandbox, so its evaluated score already reflects that
+  // risk — offering Step alongside it is what lets the AI discover "close via Step instead" as
+  // the better play, rather than something hardcoded to always prefer one over the other.
+  const stepCandidates = [];
   for (const e of enemies) {
     const ePos = state.positions.get(e.id);
     if (!ePos) continue;
@@ -147,6 +155,11 @@ export function generateProposals(state, combatantId, turn) {
     addDest(stepToward(state, combatantId, myPos, ePos, speed, FEET_PER_SQUARE)); // close to contact
     addDest(stepToward(state, combatantId, myPos, ePos, speed, 0));
     addDest(stepAway(state, combatantId, myPos, ePos, speed));                    // disengage
+
+    if (["large", "huge", "gargantuan"].includes(e.size)) {
+      const hop = stepToward(state, combatantId, myPos, ePos, FEET_PER_SQUARE, 0);
+      if (hop) stepCandidates.push(hop);
+    }
   }
   for (const a of allies) {
     const aPos = state.positions.get(a.id);
@@ -155,6 +168,7 @@ export function generateProposals(state, combatantId, turn) {
   if (me.objective) addDest(stepToward(state, combatantId, myPos, me.objective, speed, 0));
 
   for (const d of destinations.values()) proposals.push({ type: "move", to: d });
+  for (const d of stepCandidates) proposals.push({ type: "step", to: d });
 
   return proposals;
 }
@@ -237,6 +251,7 @@ function sampleByCompetence(scored, competence, state, combatantId, turn) {
 function describe(proposal, result) {
   switch (proposal.type) {
     case "move": return `Move to (${proposal.to.col},${proposal.to.row})`;
+    case "step": return `Step to (${proposal.to.col},${proposal.to.row}) — no reaction provoked`;
     case "advance": return "Advance toward the objective";
     case "strike": return `Strike with ${result?.strikeName ?? "weapon " + (proposal.strikeIndex ?? 0)}`;
     case "spellAttack": return `Cast ${result?.spellName ?? "spell " + (proposal.spellIndex ?? 0)}`;
