@@ -101,17 +101,46 @@
     letter-spacing: 0.01em;
   }
   .masthead .subtitle { color: var(--ink-muted); font-size: 13.5px; margin-top: 2px; }
-  .scenario-tabs { display: flex; gap: 2px; background: var(--surface-2); padding: 3px; border-radius: 8px; border: 1px solid var(--border); }
-  .scenario-tab {
-    font-family: "Oswald", sans-serif; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500;
-    font-size: 12px; padding: 8px 14px; border-radius: 6px; border: none; cursor: pointer;
-    background: transparent; color: var(--ink-muted);
-  }
-  .scenario-tab[aria-pressed="true"] { background: var(--accent); color: #fff; }
-  :root[data-theme="dark"] .scenario-tab[aria-pressed="true"],
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .scenario-tab[aria-pressed="true"] { color: #0C2224; } }
+  .current-run { text-align: right; }
+  .current-run .cr-label { font-family: "Oswald", sans-serif; font-weight: 600; font-size: 14px; }
+  .current-run .cr-meta { font-size: 11.5px; color: var(--ink-muted); margin-top: 2px; }
+  .current-run .badge { margin-left: 6px; }
 
   .scenario-note { font-size: 12.5px; color: var(--ink-muted); max-width: 62ch; }
+
+  /* ---------- Simulation library (design doc §15m) ---------- */
+  .library-panel { padding: 12px 14px; }
+  .library-header { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .library-header .label { margin: 0; }
+  .library-count { font-size: 11.5px; color: var(--ink-muted); }
+  .library-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .library-controls select {
+    font-family: "IBM Plex Sans", sans-serif; font-size: 12px; color: var(--ink); background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; cursor: pointer;
+  }
+  .library-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px;
+    max-height: 340px; overflow-y: auto; padding-right: 2px;
+  }
+  .library-empty { color: var(--ink-muted); font-size: 12.5px; padding: 10px 2px; grid-column: 1 / -1; }
+  .run-card {
+    text-align: left; font-family: inherit; color: var(--ink); background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; cursor: pointer;
+  }
+  .run-card:hover { border-color: var(--accent); }
+  .run-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .run-card.active { border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber) inset; }
+  .rc-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 3px; }
+  .rc-scenario { font-family: "Oswald", sans-serif; font-weight: 600; font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rc-meta { font-size: 11px; color: var(--ink-muted); }
+  .rc-date { font-size: 10.5px; color: var(--ink-muted); margin-top: 2px; }
+  .badge {
+    font-family: "Oswald", sans-serif; text-transform: uppercase; letter-spacing: 0.04em; font-size: 9px; font-weight: 600;
+    padding: 2px 6px; border-radius: 4px; white-space: nowrap; flex-shrink: 0;
+    background: var(--surface); color: var(--ink-muted); border: 1px solid var(--border);
+  }
+  .badge.win { background: color-mix(in srgb, var(--success) 20%, var(--surface-2)); color: var(--success); border-color: var(--success); }
+  .badge.loss { background: color-mix(in srgb, var(--danger) 20%, var(--surface-2)); color: var(--danger); border-color: var(--danger); }
 
   /* ---------- Initiative strip ---------- */
   .initiative-strip {
@@ -151,17 +180,33 @@
   .map-wrap img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
   .map-wrap svg { position: absolute; inset: 0; width: 100%; height: 100%; }
   .grid-line { stroke: rgba(20,20,15,0.16); stroke-width: 1; }
-  .token { cursor: default; }
+
+  /* Token animation (design doc §15n). Tokens are PERSISTENT elements, created once per run and
+     updated in place — the previous build tore down and rebuilt the whole SVG (innerHTML) on
+     every render, which made CSS transitions structurally impossible (a transition needs the
+     SAME element to persist across a value change). Position now lives entirely in the group's
+     own `transform`, so retargeting it is what animates. */
+  .token { cursor: default; transition: transform 0.42s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease; }
+  .token.no-anim { transition: none; }
+  .token.dead { opacity: 0.3; }
   .token circle.body { stroke: rgba(0,0,0,0.35); stroke-width: 1.5; }
   .token text { font-family: "IBM Plex Mono", monospace; font-weight: 600; fill: #fff; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
-  .token .ring { fill: none; stroke-width: 2.5; }
+  .token .ring { fill: none; stroke-width: 2.5; opacity: 0; }
   /* FIX (2026-08-22): transform-origin:center on an SVG element without transform-box defaults
      to the SVG VIEWPORT's origin (0,0 of the whole 1320x1320 canvas), not the circle's own
      center — so the ring swept a huge arc across the map instead of spinning in place.
      transform-box:fill-box makes transform-origin resolve against the ring's own bounding box. */
-  .token.active .ring { stroke: var(--amber); stroke-dasharray: 3 2; animation: spin 3.5s linear infinite; transform-box: fill-box; transform-origin: center; }
+  .token.active .ring { opacity: 1; stroke: var(--amber); stroke-dasharray: 3 2; animation: spin 3.5s linear infinite; transform-box: fill-box; transform-origin: center; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  @media (prefers-reduced-motion: reduce) { .token.active .ring { animation: none; } }
+  @keyframes hitFlash { 0%, 100% { filter: none; } 50% { filter: brightness(1.55) saturate(1.3); } }
+  @keyframes healFlash { 0%, 100% { filter: none; } 50% { filter: brightness(1.4) hue-rotate(-8deg); } }
+  .token.hit-flash .body { animation: hitFlash 0.5s ease; }
+  .token.heal-flash .body { animation: healFlash 0.5s ease; }
+  @media (prefers-reduced-motion: reduce) {
+    .token, .token.no-anim { transition: none; }
+    .token.active .ring { animation: none; }
+    .token.hit-flash .body, .token.heal-flash .body { animation: none; }
+  }
 
   /* Decision overlay (design doc §14h): a move's start->end path and a strike's attacker->target
      line, drawn for the CURRENT step's actions only, so a viewer can visually confirm a proposed
@@ -198,7 +243,7 @@
 
   /* ---------- Controls ---------- */
   .controls { display: flex; align-items: center; gap: 10px; padding: 12px 14px; flex-wrap: wrap; }
-  .transport { display: flex; gap: 6px; }
+  .transport { display: flex; gap: 6px; align-items: center; }
   .btn {
     font-family: "Oswald", sans-serif; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500;
     font-size: 12.5px; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border);
@@ -207,10 +252,15 @@
   .btn:hover { border-color: var(--accent); }
   .btn:active { transform: translateY(1px); }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .btn:focus-visible, .scenario-tab:focus-visible, input[type=range]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn:focus-visible, .run-card:focus-visible, input[type=range]:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .btn.primary { background: var(--accent); color: #fff; border-color: transparent; }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.primary { color: #0C2224; } }
   :root[data-theme="dark"] .btn.primary { color: #0C2224; }
+
+  .speed-select {
+    font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--ink); background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 7px; padding: 8px 8px; cursor: pointer;
+  }
 
   .readout { font-family: "IBM Plex Mono", monospace; font-size: 13px; color: var(--ink-muted); white-space: nowrap; }
   .readout b { color: var(--ink); font-weight: 600; }
@@ -234,7 +284,7 @@
   .cc-name { font-size: 12.5px; font-weight: 600; }
   .cc-meta { display: flex; align-items: center; gap: 6px; font-size: 11px; }
   .hp-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; }
-  .hp-bar-fill { height: 100%; border-radius: 3px; }
+  .hp-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, background 0.4s ease; }
   .hp-text { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--ink-muted); white-space: nowrap; }
   .chip {
     font-family: "Oswald", sans-serif; text-transform: uppercase; letter-spacing: 0.04em; font-size: 9.5px; font-weight: 600;
@@ -309,11 +359,32 @@
   <div class="masthead">
     <div>
       <h1>Contact Simulation</h1>
-      <div class="subtitle">Scale-and-chassis battle engine — real dice, legality-enforced, seed <span class="mono" id="seedLabel">—</span></div>
+      <div class="subtitle">Scale-and-chassis battle engine — real dice, legality-enforced</div>
     </div>
-    <div class="scenario-tabs" role="tablist" aria-label="Scenario" id="scenarioTabs"></div>
+    <div class="current-run" id="currentRun"></div>
   </div>
   <div class="scenario-note" id="scenarioNote"></div>
+
+  <div class="panel library-panel">
+    <div class="library-header">
+      <div class="label">Simulation Library</div>
+      <div class="library-count" id="libraryCount"></div>
+    </div>
+    <div class="library-controls">
+      <select id="libScenario" aria-label="Filter by scenario"></select>
+      <select id="libOutcome" aria-label="Filter by outcome"></select>
+      <select id="libSort" aria-label="Sort runs">
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="scenario">By scenario</option>
+        <option value="seed">By seed</option>
+        <option value="utilization">By utilization</option>
+        <option value="rounds">By rounds</option>
+      </select>
+    </div>
+    <div class="library-grid" id="libraryGrid"></div>
+  </div>
+
   <div class="panel initiative-strip">
     <span class="label">Initiative</span>
     <span id="initiativeList"></span>
@@ -323,7 +394,18 @@
     <div class="panel map-panel">
       <div class="map-wrap">
         <img id="mapImg" alt="City district battle map, 44x44 grid">
-        <svg id="mapSvg" viewBox="0 0 1320 1320" preserveAspectRatio="none"></svg>
+        <svg id="mapSvg" viewBox="0 0 1320 1320" preserveAspectRatio="none">
+          <defs>
+            <marker id="arrowMove" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker>
+            <marker id="arrowHit" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--success)"/></marker>
+            <marker id="arrowCrit" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--amber)"/></marker>
+            <marker id="arrowMiss" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink-muted)"/></marker>
+            <marker id="arrowHeal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--success)"/></marker>
+          </defs>
+          <g id="gridLayer"></g>
+          <g id="overlayLayer"></g>
+          <g id="tokenLayer"></g>
+        </svg>
       </div>
     </div>
 
@@ -338,9 +420,16 @@
       <div class="transport">
         <button class="btn" id="btnStart" title="Jump to start">⏮ Start</button>
         <button class="btn" id="btnPrev" title="Previous turn">◀ Prev</button>
-        <button class="btn primary" id="btnNext" title="Next turn">Next ▶</button>
+        <button class="btn primary" id="btnPlay" title="Play (space)">▶ Play</button>
+        <button class="btn" id="btnNext" title="Next turn">Next ▶</button>
         <button class="btn" id="btnEnd" title="Jump to end">End ⏭</button>
       </div>
+      <select class="speed-select" id="speedSelect" aria-label="Playback speed">
+        <option value="0.5">0.5×</option>
+        <option value="1" selected>1×</option>
+        <option value="2">2×</option>
+        <option value="4">4×</option>
+      </select>
       <div class="scrubber"><input type="range" id="scrubRange" min="0" max="0" value="0" aria-label="Scrub through the battle"></div>
       <div class="readout">Round <b id="roundLabel">—</b> · Step <b id="stepLabel">—</b>/<span id="stepTotal">—</span></div>
     </div>
@@ -374,6 +463,8 @@
 <script>
 const RUNS = __RUNS_JSON__;
 const MAP_DATA_URI = "data:image/jpeg;base64,__MAP_BASE64__";
+const SVG_NS = "http://www.w3.org/2000/svg";
+const TOKEN_GLIDE_MS = 420; // must match the CSS .token transition duration (0.42s)
 
 const SIDE_COLOR = { party: "var(--token-party)", opposition: "var(--token-opposition)" };
 const DAMAGE_STATE_COLOR = {
@@ -385,14 +476,32 @@ const DAMAGE_STATE_COLOR = {
 const DAMAGE_STATE_LABEL = { operational: "Operational", degraded: "Degraded", critical: "Critical", hulked: "Hulked" };
 
 // GRID/MAP_PX/CELL/FEET_PER_SQUARE/posToPx/feetToPx/reachFeetForStrikeLocal/cleanRangeFeetLocal come from
-// geometry.mjs, spliced in here by build.mjs (see tools/battle-simulator/artifact/build.mjs and
-// test/battle-simulator/artifact-geometry.test.mjs) — real, independently-tested logic, not
-// re-authored inline.
+// geometry.mjs; buildSteps from steps.mjs; the library filter/sort helpers from library.mjs — all spliced
+// in here by build.mjs (see tools/battle-simulator/artifact/build.mjs) as real, independently
+// node:test-tested ES modules, not re-authored inline.
 __GEOMETRY_JS__
+__STEPS_JS__
+__LIBRARY_JS__
 
-let currentRunKey = "escort";
+function prefersReducedMotion() {
+  return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+let currentRunId = null;
 let steps = [];
 let stepIndex = 0;
+let lastRenderedIndex = null;
+let lastRenderedRunId = null;
+let renderGeneration = 0;
+
+let libraryFilter = { scenario: "all", outcome: "all", sortKey: "newest" };
+let playing = false;
+let playTimer = null;
+let playSpeed = 1;
+
+const tokenEls = new Map(); // combatantId -> persistent <g class="token"> SVG element, cleared on run switch
+
+function getRun(id) { return RUNS.runs.find((r) => r.id === id); }
 
 /** Full disclosure lives once in the roster panel; every repeated per-turn mention uses this instead. */
 function shortName(name) {
@@ -401,26 +510,19 @@ function shortName(name) {
 function initials(name) {
   return shortName(name).split(/[\s—]+/).filter(Boolean).slice(0, 2).map(w => w[0]).join("").toUpperCase();
 }
-
-function buildSteps(run) {
-  const out = [{ kind: "deployment", round: 0, snapshot: (run.log.deployment || { snapshot: run.log.initialSnapshot }).snapshot, scriptedEvents: [] }];
-  for (const round of run.log.rounds) {
-    round.turns.forEach((turn, i) => {
-      out.push({
-        kind: "turn",
-        round: round.round,
-        combatantId: turn.combatantId,
-        stunned: !!turn.stunned,
-        actions: turn.actions || [],
-        actionAccounting: turn.actionAccounting || null,
-        effectiveStats: turn.effectiveStats || null,
-        snapshot: turn.snapshot,
-        scriptedEvents: i === 0 ? round.scriptedEvents : []
-      });
-    });
-  }
-  out.push({ kind: "outcome", round: out[out.length - 1].round, snapshot: out[out.length - 1].snapshot, outcome: run.log.outcome });
-  return out;
+function titleCaseKey(key) {
+  return key.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+}
+function outcomeLabel(outcome) {
+  return (outcome || "").replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+function outcomeBadgeClass(outcome) {
+  return outcome === "party-victory" ? "win" : outcome === "party-defeat" ? "loss" : "";
+}
+function formatDate(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 }
 
 function degreeLabel(d) {
@@ -488,13 +590,33 @@ function narrateReactionLine(roster, r) {
   return { cls: "event", text: `↳ ${clean} reacts — ${r.reactionName}! ${r.damageApplied} dmg → ${r.targetHPAfter} HP.` };
 }
 
-const DECISION_MARKERS = `<defs>
-  <marker id="arrowMove" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker>
-  <marker id="arrowHit" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--success)"/></marker>
-  <marker id="arrowCrit" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--amber)"/></marker>
-  <marker id="arrowMiss" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink-muted)"/></marker>
-  <marker id="arrowHeal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--success)"/></marker>
-</defs>`;
+/**
+ * The sequence of grid positions the acting combatant occupies THIS step, start to finish —
+ * shared by the decision overlay (which draws a line per leg) and the token animator (which
+ * glides through the same waypoints), so the two can never show a different path for the same
+ * turn. Returns null when there's nothing to animate (not a turn step, or no prior step to
+ * anchor the starting position to).
+ *
+ * Correct WITHOUT the engine logging a path: every move/advance this engine's movement
+ * generators ever produce walks a single FIXED (dx,dy) direction from start to end (verified —
+ * computeDestination/stepToward and the Advance handler are all constant-direction lattice
+ * walks, never bent multi-segment paths), so the lattice points of one such action lie exactly
+ * on the straight line between its own from/to. A turn with two SEPARATE move-type actions in
+ * different directions is still shown correctly, because each leg is interpolated separately
+ * rather than the whole turn being collapsed into one net displacement.
+ */
+function combatantWaypoints(step, stepIdx) {
+  if (step.kind !== "turn") return null;
+  const priorStep = steps[stepIdx - 1];
+  const startPos = priorStep?.snapshot?.[step.combatantId]?.position;
+  if (!startPos) return null;
+  const waypoints = [startPos];
+  for (const action of step.actions || []) {
+    if (action.legal === false) continue;
+    if (action.type === "move" || action.type === "advance") waypoints.push(action.to);
+  }
+  return waypoints;
+}
 
 /**
  * Decision overlay (design doc §14h): draw THIS step's move path(s), strike line(s), and the
@@ -503,20 +625,15 @@ const DECISION_MARKERS = `<defs>
  * aren't within reach?"), so a viewer can visually confirm an action lands where the numbers say
  * it should rather than trusting the log text alone. Only LEGAL actions are drawn — a rejected
  * proposal never moved or struck anything, so it has no line to show.
- *
- * Positions are replayed incrementally through step.actions (starting from the combatant's
- * position at the END of the previous step, i.e. the start of this turn) rather than read once
- * from this step's final snapshot — a turn that moves then strikes needs the attacker's position
- * AT THE TIME of the strike, which is only the final snapshot position if nothing moves it again
- * afterward.
  */
 function renderDecisionOverlay(run, step, stepIdx) {
   if (step.kind !== "turn" || !step.actions?.length) return "";
   const roster = run.log.roster;
   const combatantId = step.combatantId;
-  const priorStep = steps[stepIdx - 1];
-  let currentPos = priorStep?.snapshot?.[combatantId]?.position;
-  if (!currentPos) return "";
+  const waypoints = combatantWaypoints(step, stepIdx);
+  if (!waypoints) return "";
+  let currentPos = waypoints[0];
+  let leg = 0;
 
   let markup = "";
   const ringsDrawn = new Set();
@@ -524,10 +641,11 @@ function renderDecisionOverlay(run, step, stepIdx) {
     if (action.legal === false) continue;
 
     if (action.type === "move" || action.type === "advance") {
-      const from = posToPx(action.from);
-      const to = posToPx(action.to);
+      leg += 1;
+      const from = posToPx(currentPos);
+      const to = posToPx(waypoints[leg]);
       markup += `<line class="decision-line move" x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" marker-end="url(#arrowMove)"/>`;
-      currentPos = action.to;
+      currentPos = waypoints[leg];
     } else if (action.type === "strike" || action.type === "spellAttack") {
       const targetSnapshot = step.snapshot[action.targetId];
       if (!targetSnapshot) continue;
@@ -564,33 +682,120 @@ function renderDecisionOverlay(run, step, stepIdx) {
   return markup;
 }
 
-function renderMapTokens(run, step, activeId) {
-  const svg = document.getElementById("mapSvg");
-  const roster = run.log.roster;
-  const snapshot = step.snapshot;
+function renderGridLines() {
+  const layer = document.getElementById("gridLayer");
   let gridLines = "";
   for (let i = 0; i <= GRID; i++) {
     const p = i * CELL;
     gridLines += `<line class="grid-line" x1="${p}" y1="0" x2="${p}" y2="1320"/><line class="grid-line" x1="0" y1="${p}" x2="1320" y2="${p}"/>`;
   }
-  const overlay = renderDecisionOverlay(run, step, stepIndex);
-  let tokens = "";
+  layer.innerHTML = gridLines; // static — the grid never changes, so this runs once, not per render
+}
+
+function getOrCreateToken(id, info) {
+  if (tokenEls.has(id)) return tokenEls.get(id);
+  const r = info.kind === "claimant" ? 22 : info.kind === "frame" ? 17 : 14;
+  const g = document.createElementNS(SVG_NS, "g");
+  g.setAttribute("class", "token no-anim");
+  g.dataset.id = id;
+  const ring = document.createElementNS(SVG_NS, "circle");
+  ring.setAttribute("class", "ring");
+  ring.setAttribute("r", r + 5);
+  const body = document.createElementNS(SVG_NS, "circle");
+  body.setAttribute("class", "body");
+  body.setAttribute("r", r);
+  body.setAttribute("fill", SIDE_COLOR[info.side]);
+  const text = document.createElementNS(SVG_NS, "text");
+  text.setAttribute("font-size", r < 15 ? 9 : 10.5);
+  text.setAttribute("y", 1);
+  text.textContent = initials(info.name);
+  g.append(ring, body, text);
+  document.getElementById("tokenLayer").appendChild(g);
+  tokenEls.set(id, g);
+  return g;
+}
+
+function setTokenTransform(g, pos, { instant } = {}) {
+  if (instant) g.classList.add("no-anim"); else g.classList.remove("no-anim");
+  const px = posToPx(pos);
+  g.setAttribute("transform", `translate(${px.x},${px.y})`);
+  if (instant) void g.getBoundingClientRect(); // force layout so a later removal of no-anim can't retroactively animate this jump
+}
+
+/**
+ * Glide one token through a waypoint sequence, one CSS-transitioned leg at a time.
+ *
+ * REGRESSION (found via real in-browser testing, design doc §15n): the first leg used to be
+ * kicked off via requestAnimationFrame, on the assumption that a paint-frame boundary was needed
+ * between "snap instantly to the start position" and "set the first animated target" so the
+ * browser wouldn't coalesce the two into one paint and skip the transition. That's unnecessary —
+ * setTokenTransform's forced reflow (getBoundingClientRect) already commits the instant style on
+ * its own — and it actively BROKE animation for any tab that isn't currently being composited
+ * (backgrounded/hidden tabs commonly suspend rAF entirely, which this project's own preview
+ * tooling made obvious: a token would silently stick at its start-of-turn position forever).
+ * Calling the first leg synchronously, right after the forced reflow, fixes it and needs no timer.
+ */
+function glideToken(g, waypoints, gen) {
+  setTokenTransform(g, waypoints[0], { instant: true }); // forces a reflow internally — see setTokenTransform
+  let i = 1;
+  const legMs = Math.max(60, TOKEN_GLIDE_MS / playSpeed);
+  function nextLeg() {
+    if (gen !== renderGeneration || i >= waypoints.length) return; // superseded by a newer render — stop
+    setTokenTransform(g, waypoints[i]);
+    i += 1;
+    if (i < waypoints.length) setTimeout(nextLeg, legMs);
+  }
+  nextLeg();
+}
+
+/**
+ * Flash a token briefly when it takes damage or is healed this step — the map's only feedback
+ * that something actually happened here, beyond the roster HP bar and the screen log text.
+ */
+function flashToken(g, cls) {
+  if (prefersReducedMotion()) return;
+  g.classList.remove("hit-flash", "heal-flash");
+  void g.getBoundingClientRect();
+  g.classList.add(cls);
+  setTimeout(() => g.classList.remove(cls), 550);
+}
+
+function updateMapTokens(run, step, activeId, { waypoints, jump }) {
+  const roster = run.log.roster;
+  const snapshot = step.snapshot;
+  const gen = renderGeneration;
+  const reduced = prefersReducedMotion();
+
+  const hitIds = new Set(), healIds = new Set();
+  if (step.kind === "turn") {
+    for (const a of step.actions || []) {
+      if (a.legal === false) continue;
+      if ((a.type === "strike" || a.type === "spellAttack") && !a.immune && a.roll?.damage && a.targetId) hitIds.add(a.targetId);
+      if (a.type === "healAbility" && a.targetId) healIds.add(a.targetId);
+      if (a.type === "repair" && a.roll?.healing) healIds.add(a.targetId);
+    }
+  }
+
   for (const [id, info] of Object.entries(roster)) {
     const s = snapshot[id];
     if (!s) continue;
-    const cx = (s.position.col + 0.5) * CELL;
-    const cy = (s.position.row + 0.5) * CELL;
-    const dead = s.currentHP <= 0;
-    const r = info.kind === "claimant" ? 22 : info.kind === "frame" ? 17 : 14;
-    const color = SIDE_COLOR[info.side];
-    const isActive = id === activeId;
-    tokens += `<g class="token${isActive ? " active" : ""}" opacity="${dead ? 0.3 : 1}">
-      ${isActive ? `<circle class="ring" cx="${cx}" cy="${cy}" r="${r + 5}" stroke="var(--amber)"/>` : ""}
-      <circle class="body" cx="${cx}" cy="${cy}" r="${r}" fill="${color}"/>
-      <text x="${cx}" y="${cy + 1}" font-size="${r < 15 ? 9 : 10.5}">${initials(info.name)}</text>
-    </g>`;
+    const g = getOrCreateToken(id, info);
+    g.classList.toggle("active", id === activeId);
+    g.classList.toggle("dead", s.currentHP <= 0);
+
+    if (jump || reduced) {
+      setTokenTransform(g, s.position, { instant: true });
+    } else if (id === activeId && waypoints && waypoints.length > 1) {
+      glideToken(g, waypoints, gen);
+    } else {
+      setTokenTransform(g, s.position);
+    }
+
+    if (!jump && !reduced) {
+      if (hitIds.has(id)) flashToken(g, "hit-flash");
+      else if (healIds.has(id)) flashToken(g, "heal-flash");
+    }
   }
-  svg.innerHTML = DECISION_MARKERS + gridLines + overlay + tokens;
 }
 
 function renderRoster(run, snapshot, activeId) {
@@ -636,12 +841,6 @@ function actionShortLabel(action) {
  * server-side) so the order and shape of a whole round reads at a glance,
  * not just one combatant's turn at a time the way the character-sheet
  * ledger (renderLedger, actionCost — reused here directly) already did.
- *
- * Reuses decisionReason — real data that's existed on every legal action
- * since design doc §14h/§14k, threaded through engine.mjs, but never
- * actually surfaced in the UI until now. This is the fix for that gap,
- * not a new mechanism: the WHY was already being computed and logged,
- * just never shown to a reader.
  */
 function renderRoundOverview(run, step, stepIdx) {
   const overviewEl = document.getElementById("roundOverview");
@@ -669,7 +868,7 @@ function renderRoundOverview(run, step, stepIdx) {
           continue;
         }
         const cls = action.roll?.degree === "criticalSuccess" ? "crit" : "spent";
-        boxes.push({ cls, grow: cost, label: actionShortLabel(action), why: action.decisionReason || "" });
+        boxes.push({ cls, grow: cost, label: actionShortLabel(action), why: action.decisionReason || action.reason || "" });
       }
       const acc = s.actionAccounting;
       if (acc && acc.held > 0) boxes.push({ cls: "held", grow: acc.held, label: acc.held === (acc.available ?? 3) ? "Held — nothing to do" : "Held", why: acc.heldReason || "" });
@@ -748,19 +947,11 @@ function renderInitiativeStrip(run, activeId) {
   }).join(" ");
 }
 
-/** Action-point cost per proposal type — mirrors engine.mjs's attemptAction exactly. */
 /**
- * FIX (design doc §14m, 2026-08-22): this used to be a hardcoded
- * type->cost table, written before spellAttack/healAbility existed —
- * both have a genuinely VARIABLE cost (a spell/ability's own `actions`
- * field, not one fixed number per type), so the table silently reported
- * every spell/heal as costing 1 regardless of its real cost, undersizing
- * their box in the round-overview grid (a 2-action Eldritch Lance showed
- * exactly as wide as a 1-action Move). Fixed by reading the real cost
- * engine.mjs now logs directly on every legal action's own result
- * (actionsCost) — the hardcoded table survives only as a fallback for
- * results that don't carry it (illegal proposals, where the point is moot
- * since nothing was actually spent).
+ * Action-point cost per proposal type — mirrors engine.mjs's attemptAction exactly, preferring
+ * the real cost it now logs on every legal action (actionsCost, which is genuinely VARIABLE for
+ * spells/abilities) and falling back to a fixed table only for illegal proposals, where nothing
+ * was actually spent and the point is moot.
  */
 function actionCost(action) {
   if (action.actionsCost != null) return action.actionsCost;
@@ -879,20 +1070,36 @@ function renderOutcomeBanner(step) {
   const el = document.getElementById("outcomeBanner");
   if (step.kind !== "outcome") { el.style.display = "none"; return; }
   el.style.display = "block";
-  el.className = "outcome-banner " + (step.outcome.result === "party-victory" ? "win" : step.outcome.result === "party-defeat" ? "loss" : "");
+  el.className = "outcome-banner " + outcomeBadgeClass(step.outcome.result);
   el.textContent = step.outcome.result.replace("-", " ").toUpperCase() + " — " + step.outcome.detail;
 }
 
+function renderCurrentRun(run) {
+  const el = document.getElementById("currentRun");
+  el.innerHTML = `
+    <div class="cr-label">${titleCaseKey(run.scenario)} <span class="badge ${outcomeBadgeClass(run.outcome)}">${outcomeLabel(run.outcome)}</span></div>
+    <div class="cr-meta mono">seed ${run.seed} · ${run.rounds} round(s) · ${(run.utilization * 100).toFixed(0)}% utilization</div>
+  `;
+}
+
 function render() {
-  const run = RUNS.runs[currentRunKey];
+  const run = getRun(currentRunId);
+  if (!run) {
+    document.getElementById("scenarioNote").textContent = "No simulations logged yet — run tools/battle-simulator/run-scenario.mjs, then artifact/build.mjs.";
+    return;
+  }
   const step = steps[stepIndex];
   const activeId = step.kind === "turn" ? step.combatantId : null;
 
-  document.getElementById("seedLabel").textContent = run.config.seed;
+  const jump = lastRenderedRunId !== currentRunId || lastRenderedIndex === null || Math.abs(stepIndex - lastRenderedIndex) !== 1;
+  renderGeneration += 1;
+
   document.getElementById("scenarioNote").textContent = run.label;
   document.getElementById("mapImg").src = MAP_DATA_URI;
 
-  renderMapTokens(run, step, activeId);
+  document.getElementById("overlayLayer").innerHTML = renderDecisionOverlay(run, step, stepIndex);
+  updateMapTokens(run, step, activeId, { waypoints: combatantWaypoints(step, stepIndex), jump });
+  renderCurrentRun(run);
   renderRoster(run, step.snapshot, activeId);
   renderInitiativeStrip(run, activeId);
   renderSheet(run, step);
@@ -914,49 +1121,107 @@ function render() {
   document.getElementById("btnStart").disabled = stepIndex === 0;
   document.getElementById("btnNext").disabled = stepIndex === steps.length - 1;
   document.getElementById("btnEnd").disabled = stepIndex === steps.length - 1;
+  if (stepIndex === steps.length - 1) pause();
+
+  lastRenderedIndex = stepIndex;
+  lastRenderedRunId = currentRunId;
 }
 
 function goTo(i) { stepIndex = Math.max(0, Math.min(steps.length - 1, i)); render(); }
 
-function selectRun(key) {
-  currentRunKey = key;
-  steps = buildSteps(RUNS.runs[key]);
+function selectRun(id) {
+  if (id === currentRunId) return;
+  pause();
+  currentRunId = id;
+  steps = id ? buildSteps(getRun(id)) : [];
   stepIndex = 0;
-  for (const btn of document.querySelectorAll(".scenario-tab")) btn.setAttribute("aria-pressed", String(btn.dataset.runKey === key));
+  lastRenderedIndex = null;
+  lastRenderedRunId = null;
+  document.getElementById("tokenLayer").innerHTML = "";
+  tokenEls.clear();
+  renderLibrary();
   render();
 }
 
-/**
- * Scenario tabs are built from RUNS.runs' own keys rather than hardcoded —
- * FIX (design doc §14m, 2026-08-22): a third scenario (mystic-frame-solo,
- * §14k) was added to battle-log.json but the tab bar was still two
- * hardcoded buttons with hardcoded click handlers, so there was no way to
- * actually reach it from the UI at all (only via the browser console).
- * Building the tab list from Object.keys(RUNS.runs) means a future
- * scenario addition can never silently repeat this gap.
- */
-function titleCaseKey(key) {
-  return key.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+/** Play/pause — auto-advance through the scrubber at a speed-adjusted interval (design doc §15n). */
+function updatePlayButton() {
+  const btn = document.getElementById("btnPlay");
+  btn.textContent = playing ? "⏸ Pause" : "▶ Play";
+  btn.title = playing ? "Pause (space)" : "Play (space)";
+}
+function scheduleNextPlayStep() {
+  const BASE_STEP_MS = 1400;
+  const delay = Math.max(180, BASE_STEP_MS / playSpeed);
+  playTimer = setTimeout(() => {
+    if (!playing) return;
+    if (stepIndex >= steps.length - 1) { pause(); return; }
+    goTo(stepIndex + 1);
+    if (playing) scheduleNextPlayStep();
+  }, delay);
+}
+function play() {
+  if (playing || stepIndex >= steps.length - 1) return;
+  playing = true;
+  updatePlayButton();
+  scheduleNextPlayStep();
+}
+function pause() {
+  if (!playing) return;
+  playing = false;
+  clearTimeout(playTimer);
+  updatePlayButton();
+}
+function togglePlay() { playing ? pause() : play(); }
+
+/** The simulation library (design doc §15m) — browse, filter, and sort every accumulated run. */
+function renderLibraryFilterOptions() {
+  const scenarioSel = document.getElementById("libScenario");
+  const outcomeSel = document.getElementById("libOutcome");
+  scenarioSel.innerHTML = `<option value="all">All scenarios</option>` +
+    scenarioOptions(RUNS.runs).map((s) => `<option value="${s}">${titleCaseKey(s)}</option>`).join("");
+  outcomeSel.innerHTML = `<option value="all">All outcomes</option>` +
+    outcomeOptions(RUNS.runs).map((o) => `<option value="${o}">${outcomeLabel(o)}</option>`).join("");
+}
+function runCardHtml(r) {
+  return `<button class="run-card${r.id === currentRunId ? " active" : ""}" data-run-id="${r.id}" title="${r.label}">
+    <div class="rc-top"><span class="rc-scenario">${titleCaseKey(r.scenario)}</span><span class="badge ${outcomeBadgeClass(r.outcome)}">${outcomeLabel(r.outcome)}</span></div>
+    <div class="rc-meta mono">seed ${r.seed} · ${r.rounds}rd · ${(r.utilization * 100).toFixed(0)}% util</div>
+    <div class="rc-date">${formatDate(r.generatedAt)}</div>
+  </button>`;
+}
+function renderLibrary() {
+  const grid = document.getElementById("libraryGrid");
+  const view = applyLibraryView(RUNS.runs, libraryFilter);
+  grid.innerHTML = view.length ? view.map(runCardHtml).join("") : `<div class="library-empty">No runs match this filter.</div>`;
+  for (const el of grid.querySelectorAll(".run-card")) el.addEventListener("click", () => selectRun(el.dataset.runId));
+  document.getElementById("libraryCount").textContent = `${view.length} of ${RUNS.runs.length} run(s)`;
 }
 
-function renderScenarioTabs() {
-  const el = document.getElementById("scenarioTabs");
-  el.innerHTML = Object.entries(RUNS.runs).map(([key, run]) =>
-    `<button class="scenario-tab" role="tab" data-run-key="${key}" aria-pressed="${key === currentRunKey}" title="${run.label}">${titleCaseKey(key)}</button>`
-  ).join("");
-  for (const btn of el.querySelectorAll(".scenario-tab")) btn.addEventListener("click", () => selectRun(btn.dataset.runKey));
-}
-renderScenarioTabs();
+document.getElementById("libScenario").addEventListener("change", (e) => { libraryFilter.scenario = e.target.value; renderLibrary(); });
+document.getElementById("libOutcome").addEventListener("change", (e) => { libraryFilter.outcome = e.target.value; renderLibrary(); });
+document.getElementById("libSort").addEventListener("change", (e) => { libraryFilter.sortKey = e.target.value; renderLibrary(); });
+document.getElementById("speedSelect").addEventListener("change", (e) => { playSpeed = Number(e.target.value); });
 
-document.getElementById("btnStart").addEventListener("click", () => goTo(0));
-document.getElementById("btnEnd").addEventListener("click", () => goTo(steps.length - 1));
-document.getElementById("btnPrev").addEventListener("click", () => goTo(stepIndex - 1));
-document.getElementById("btnNext").addEventListener("click", () => goTo(stepIndex + 1));
-document.getElementById("scrubRange").addEventListener("input", (e) => goTo(Number(e.target.value)));
+document.getElementById("btnStart").addEventListener("click", () => { pause(); goTo(0); });
+document.getElementById("btnEnd").addEventListener("click", () => { pause(); goTo(steps.length - 1); });
+document.getElementById("btnPrev").addEventListener("click", () => { pause(); goTo(stepIndex - 1); });
+document.getElementById("btnNext").addEventListener("click", () => { pause(); goTo(stepIndex + 1); });
+document.getElementById("btnPlay").addEventListener("click", togglePlay);
+document.getElementById("scrubRange").addEventListener("input", (e) => { pause(); goTo(Number(e.target.value)); });
+
+// FIX (design doc §15n): the range input already handles ArrowLeft/ArrowRight natively when it
+// has focus — this global listener used to have no e.target guard, so one arrow-key press with
+// the scrubber focused advanced the step TWICE (once via the native slider, once via this
+// listener). Guarding on form-control focus fixes that and, as a side effect, is also what makes
+// a Spacebar-for-play/pause binding safe to add without it triggering while a <select> is open.
 document.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowRight") goTo(stepIndex + 1);
-  if (e.key === "ArrowLeft") goTo(stepIndex - 1);
+  if (e.target?.matches?.("input, select, textarea, button, [contenteditable]")) return;
+  if (e.key === "ArrowRight") { pause(); goTo(stepIndex + 1); }
+  else if (e.key === "ArrowLeft") { pause(); goTo(stepIndex - 1); }
+  else if (e.key === " ") { e.preventDefault(); togglePlay(); }
 });
 
-selectRun("escort");
+renderGridLines();
+renderLibraryFilterOptions();
+selectRun(RUNS.runs[0]?.id ?? null);
 </script>
