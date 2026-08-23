@@ -22,6 +22,7 @@
 
 import { distanceFeet, isOccupied, blocksPassage, isInBounds, reachFeetForStrike, FEET_PER_SQUARE } from "./grid.mjs";
 import { moveBlockedBetween, lineOfEffect } from "./terrain.mjs";
+import { isDead } from "./conditions.mjs";
 
 /** Vision range (ported from engine/vision.mjs's own perception concept) — opt-in, no field = unlimited. */
 function checkPerceptionRange({ attacker, attackerPos, targetPos }) {
@@ -160,9 +161,16 @@ export function rangeIncrementPenalty(strike, distanceFeetValue) {
   return -2 * (incrementNumber - 1);
 }
 
+/**
+ * Design doc §25: a downed PC is unconscious, not dead — Player Core is explicit that they remain
+ * a real, legal target (an easy one, thanks to Unconscious's own -4 AC/off-guard) until they
+ * actually reach dying 4. Only a genuinely dead combatant (any ordinary NPC at 0 HP; a PC who's
+ * reached dying 4) is excluded — see conditions.mjs's isDead for the real PC-vs-NPC asymmetry this
+ * reads off of.
+ */
 export function checkTargetAlive(target) {
   if (!target) return { legal: false, reason: "No such combatant — the target id does not exist." };
-  if (target.currentHP <= 0) return { legal: false, reason: `${target.name} is already at 0 HP — can't be the target of a new Strike.` };
+  if (isDead(target)) return { legal: false, reason: `${target.name} is dead — can't be the target of a new Strike.` };
   return { legal: true, reason: null };
 }
 
@@ -247,7 +255,11 @@ export function checkHealAbilityLegal({ healer, healerPos, target, targetPos, ab
   if (!budget.legal) return budget;
 
   if (!target) return { legal: false, reason: "No such combatant — the target id does not exist." };
-  if (target.currentHP <= 0) return { legal: false, reason: `${target.name} is at 0 HP — cannot be healed by ${ability.name}.` };
+  // Design doc §25: healing a downed-but-not-dead PC back to 1+ HP is the whole point of the real
+  // dying/unconscious rules (Player Core pg. 403 — "restored to 1 Hit Point or more via healing,
+  // you lose the dying and unconscious conditions") — a target at 0 HP must stay LEGAL to heal as
+  // long as they're not actually dead. Only a genuinely dead target (isDead) is excluded.
+  if (isDead(target)) return { legal: false, reason: `${target.name} is dead — cannot be healed by ${ability.name}.` };
   if (target.currentHP >= target.maxHP) return { legal: false, reason: `${target.name} is already at full HP.` };
 
   const range = checkSpellRange({ casterPos: healerPos, targetPos, spell: ability });

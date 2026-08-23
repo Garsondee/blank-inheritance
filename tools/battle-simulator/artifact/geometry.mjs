@@ -138,3 +138,61 @@ export function saveRollClass(prefix, degree) {
 export function demoralizeClass(degree) {
   return (degree === "criticalSuccess" || degree === "success") ? "demoralize-hit" : "demoralize-miss";
 }
+
+/**
+ * Design doc §28 — Ingram's own ask: "a very simple animation to show attacks, their result (hit,
+ * miss, crits etc above the target)... spells, grenades, AoE... lots of these things could be
+ * communicated on the map visually." One real action -> the floating result label the artifact
+ * viewer shows above its target (text + a CSS class reused DIRECTLY from this file's own
+ * attackRollClass/saveRollClass/demoralizeClass — same color language as the decision-line the
+ * action already draws, not a second, parallel taxonomy that could drift from it). Returns null for
+ * action types with no real "result" to show (move/step/advance).
+ */
+export function combatLabelFor(action) {
+  if (action.type === "strike" || action.type === "spellAttack") {
+    const dmg = action.damageApplied ?? 0;
+    const cls = attackRollClass(action.type === "spellAttack" ? "spell" : "strike", action.roll?.degree);
+    if (cls.endsWith("-crit")) return { text: `CRIT! -${dmg}`, cls };
+    if (cls.endsWith("-hit")) return { text: `-${dmg}`, cls };
+    return { text: "MISS", cls };
+  }
+  if (action.type === "saveAttack") {
+    // The TARGET rolls (Player Core's basic-save shape) — saveRollClass already inverts the
+    // polarity correctly. Label text: criticalFailure gets the same "CRIT!" marker a criticalSuccess
+    // attack roll does (a consistent "worst roll for the target" signal regardless of action type),
+    // success (half damage, still a real hit) is distinguished by TEXT from criticalSuccess (0
+    // damage, "SAVED") even though both share the de-emphasized spell-miss styling.
+    const dmg = action.damageApplied ?? 0;
+    const degree = action.roll?.degree;
+    const cls = saveRollClass("spell", degree);
+    if (degree === "criticalFailure") return { text: `CRIT! -${dmg}`, cls };
+    return { text: dmg > 0 ? `-${dmg}` : "SAVED", cls };
+  }
+  if (action.type === "conditionSave") {
+    const degree = action.roll?.degree;
+    const parts = [];
+    if (action.applied?.frightened) parts.push(`Frightened ${action.applied.frightened}`);
+    if (action.applied?.stunnedValue) parts.push(`Stunned ${action.applied.stunnedValue}`);
+    if (!parts.length) return { text: "SAVED", cls: "spell-miss" };
+    const prefix = degree === "criticalFailure" ? "CRIT! " : ""; // same consistent marker as strike/spellAttack/saveAttack above
+    return { text: `${prefix}${parts.join(", ")}`, cls: saveRollClass("spell", degree) };
+  }
+  if (action.type === "demoralize") {
+    const applied = action.frightenedApplied ?? 0;
+    return applied ? { text: `Frightened ${applied}`, cls: "demoralize-hit" } : { text: "RESISTED", cls: "demoralize-miss" };
+  }
+  if (action.type === "healAbility") {
+    return { text: `+${action.healing ?? 0}`, cls: "heal" };
+  }
+  return null;
+}
+
+/**
+ * Which of combatLabelFor's action types get the burst-ring treatment alongside their floating
+ * label — reserved for the save-based, explosive/area-flavored abilities (a thrown grenade, a
+ * Thunderstrike-style spell, a Forced-Reflection-style condition effect) that narratively read as
+ * "something went off here," distinct from an ordinary weapon Strike or a vocal Demoralize check.
+ */
+export function isBurstAction(action) {
+  return action.type === "saveAttack" || action.type === "conditionSave";
+}

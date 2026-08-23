@@ -11,6 +11,7 @@
  *
  * Pure functions only. No RNG, no mutation, no I/O.
  */
+import { isOffGuardFromConditions, isUnconscious } from "./conditions.mjs";
 
 /**
  * An ordinary SF2E combatant's effective stats for the current round — no degradation curve, but
@@ -22,12 +23,28 @@
  * everything except explicitly-deep-copied arrays) copies it correctly by value with no special
  * handling — a nested object would alias between the live state and a sandbox fork, letting mere
  * *planning* a Demoralize mutate the real battle's condition state.
+ *
+ * ALSO folds in Off-Guard (design doc §25, conditions.mjs's isOffGuardFromConditions) — a real
+ * -2 circumstance penalty to AC from Prone or Unconscious, universal (against every attacker, every
+ * attack type), unlike flanking's own off-guard grant, which is scoped to melee attacks from the
+ * specific flanking creatures and is therefore computed per-attack in engine.mjs, not here.
+ *
+ * ALSO folds in Unconscious's OWN separate -4 STATUS penalty to AC (condition-40-unconscious.json:
+ * "You take a -4 status penalty to AC, Perception, and Reflex saves, AND you have the... off-guard
+ * condition[s]" -- two distinct effects, a status penalty and a granted condition, not one). A
+ * status penalty and a circumstance penalty are different bonus types in SF2E and DO stack -- an
+ * unconscious combatant's real AC penalty is -6 total (-4 status, -2 circumstance from off-guard),
+ * not -2. Perception/Reflex aren't modeled here: this engine never rolls Perception mid-combat, and
+ * Reflex only ever matters through saveAttack's own cover-bonus path, a separate code path that
+ * reads target.saves directly rather than through this function.
  */
 export function resolveEffectiveStats(combatant) {
   const disabled = combatant.currentHP <= 0;
   const frightened = combatant.frightened ?? 0;
+  const offGuardPenalty = isOffGuardFromConditions(combatant) ? 2 : 0;
+  const unconsciousStatusPenalty = isUnconscious(combatant) ? 4 : 0;
   return {
-    ac: combatant.ac - frightened,
+    ac: combatant.ac - frightened - offGuardPenalty - unconsciousStatusPenalty,
     hardness: combatant.hardness ?? 0,
     speed: disabled ? 0 : combatant.speed,
     actionsAvailable: disabled ? 0 : 3, // standard SF2E action economy — Player Core pg. 406

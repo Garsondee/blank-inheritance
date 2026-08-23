@@ -660,3 +660,52 @@ test("a combatant who starts already dead in a one-row-tall corridor does not bl
   const reachedPastCorpse = moverMoves.some((a) => a.type === "move" && a.to.col >= 2);
   assert.ok(reachedPastCorpse, `expected the mover to reach col>=2 (through/onto the corpse's own square) — got: ${JSON.stringify(moverMoves)}`);
 });
+
+/**
+ * Design doc §26 — Ingram's own report: "tokens push straight through walls... special attention to
+ * moving accurately through doorways and around building corners." checkMoveLegality always
+ * validated a real wall-avoiding route when decide.mjs's pathfinding supplied one (the mechanic was
+ * never wrong) — the bug was that engine.mjs discarded that real `path` before logging it, so the
+ * artifact viewer had nothing but a straight line between endpoints to draw or animate, cutting
+ * visually through whatever wall/corner the real move had legitimately routed around. This proves
+ * the fix at the source: a move that genuinely needs to detour around a wall logs its own real,
+ * connected, wall-respecting route — not just its final destination.
+ *
+ * Layout: a 4x4 grid with a wall along the row1/row2 boundary blocking columns 0-2, leaving column
+ * 3's edge as the only doorway. The mover starts at (0,0) with an objective straight across the
+ * wall at (0,3) — the ONLY legal way there detours east to the doorway and back.
+ */
+test("a move that must detour around a wall corner logs its own real, connected path — not just [from,to]", () => {
+  const WALL_WITH_DOORWAY_AT_COL_3 = [
+    { c: [0, 2, 1, 2], move: 20, sight: 20 },
+    { c: [1, 2, 2, 2], move: 20, sight: 20 },
+    { c: [2, 2, 3, 2], move: 20, sight: 20 }
+    // column 3's own edge, [3,2,4,2], is deliberately left open as the doorway.
+  ];
+  const mover = {
+    id: "mover", name: "Mover", side: "party", maxHP: 16, currentHP: 16, ac: 15,
+    saves: { fort: 5, ref: 5, will: 5 }, speed: 200, strikes: [],
+    position: { col: 0, row: 0 }, objective: { col: 0, row: 3 }
+  };
+  function ai(state, combatantId, turnState) { return decide(state, combatantId, turnState); }
+  const log = runBattle({ seed: 1, gridSize: { cols: 4, rows: 4 }, roundLimit: 2, combatants: [mover], ai, walls: WALL_WITH_DOORWAY_AT_COL_3 });
+
+  const moves = log.rounds.flatMap((r) => r.turns).filter((t) => t.combatantId === "mover").flatMap((t) => t.actions ?? []).filter((a) => a.type === "move");
+  assert.ok(moves.length > 0, "expected the mover to actually attempt moving");
+  assert.ok(moves.every((a) => a.legal !== false), `every move must be legal: ${JSON.stringify(moves)}`);
+
+  const bentMove = moves.find((a) => a.path?.length > 2);
+  assert.ok(bentMove, `expected at least one move with a real multi-point path (not just [from,to]) — got: ${JSON.stringify(moves)}`);
+  assert.deepEqual(bentMove.path[0], bentMove.from, "the logged path must start at the action's own real origin");
+  assert.deepEqual(bentMove.path[bentMove.path.length - 1], bentMove.to, "the logged path must end at the action's own real destination");
+
+  for (let i = 1; i < bentMove.path.length; i++) {
+    const a = bentMove.path[i - 1], b = bentMove.path[i];
+    const stepDist = Math.max(Math.abs(a.col - b.col), Math.abs(a.row - b.row));
+    assert.equal(stepDist, 1, `every consecutive pair in a real path must be exactly one grid step apart — got ${JSON.stringify(a)} -> ${JSON.stringify(b)}`);
+    // The wall blocks the row1->row2 crossing everywhere except column 3 (the doorway) — a
+    // genuinely wall-respecting path must never cross that boundary anywhere else.
+    const crossesRow1To2 = (a.row === 1 && b.row === 2) || (a.row === 2 && b.row === 1);
+    if (crossesRow1To2) assert.ok(a.col === 3 && b.col === 3, `the only legal row1<->row2 crossing is at column 3 (the doorway) — got ${JSON.stringify(a)} -> ${JSON.stringify(b)}`);
+  }
+});

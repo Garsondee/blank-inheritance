@@ -17,7 +17,7 @@ import { reachFeetForStrike } from "../../tools/battle-simulator/engine/grid.mjs
 // they're mutable `let` exports now (design doc §19: the library holds both Frame- and
 // personnel-scale runs), and a destructured binding would freeze a stale value the moment
 // setMapScale() reassigns the module's own exports out from under it.
-const { setMapScale, posToPx, vertexToPx, feetToPx, reachFeetForStrikeLocal, cleanRangeFeetLocal, wallLineClass, attackRollClass, saveRollClass, demoralizeClass } = geometry;
+const { setMapScale, posToPx, vertexToPx, feetToPx, reachFeetForStrikeLocal, cleanRangeFeetLocal, wallLineClass, attackRollClass, saveRollClass, demoralizeClass, combatLabelFor, isBurstAction } = geometry;
 
 test("default scale (no setMapScale call yet): 44x44 at 30px/cell, 50ft/square — matches every Frame-scale run written before this field existed", () => {
   assert.equal(geometry.COLS, 44);
@@ -150,4 +150,85 @@ test("demoralizeClass: only 2 real tiers — criticalSuccess/success both land (
   assert.equal(demoralizeClass("success"), "demoralize-hit");
   assert.equal(demoralizeClass("failure"), "demoralize-miss");
   assert.equal(demoralizeClass("criticalFailure"), "demoralize-miss");
+});
+
+// --- combatLabelFor / isBurstAction (design doc §28 — the floating combat-result label shown
+// above a target, reusing attackRollClass/saveRollClass/demoralizeClass directly so the label's
+// color always matches its own action's decision-line color, never a second, driftable taxonomy) ---
+
+test("combatLabelFor: a strike criticalSuccess reads CRIT! plus the real applied damage, classed strike-crit", () => {
+  const label = combatLabelFor({ type: "strike", roll: { degree: "criticalSuccess" }, damageApplied: 12 });
+  assert.deepEqual(label, { text: "CRIT! -12", cls: "strike-crit" });
+});
+
+test("combatLabelFor: a strike success reads the plain damage number, classed strike-hit", () => {
+  const label = combatLabelFor({ type: "strike", roll: { degree: "success" }, damageApplied: 5 });
+  assert.deepEqual(label, { text: "-5", cls: "strike-hit" });
+});
+
+test("combatLabelFor: a strike failure or criticalFailure both read MISS, classed strike-miss", () => {
+  assert.deepEqual(combatLabelFor({ type: "strike", roll: { degree: "failure" }, damageApplied: 0 }), { text: "MISS", cls: "strike-miss" });
+  assert.deepEqual(combatLabelFor({ type: "strike", roll: { degree: "criticalFailure" }, damageApplied: 0 }), { text: "MISS", cls: "strike-miss" });
+});
+
+test("combatLabelFor: spellAttack uses the SAME shape as strike but the spell- class family, not strike-", () => {
+  const label = combatLabelFor({ type: "spellAttack", roll: { degree: "success" }, damageApplied: 4 });
+  assert.deepEqual(label, { text: "-4", cls: "spell-hit" });
+});
+
+test("combatLabelFor: saveAttack — the TARGET's own roll, correctly inverted via saveRollClass — criticalFailure (worst for them) reads CRIT!, classed spell-crit", () => {
+  const label = combatLabelFor({ type: "saveAttack", roll: { degree: "criticalFailure" }, damageApplied: 10 });
+  assert.deepEqual(label, { text: "CRIT! -10", cls: "spell-crit" });
+});
+
+test("combatLabelFor: saveAttack success (a real basic-save half-damage hit) shows the real reduced damage, not SAVED — even though its own CSS class is the de-emphasized spell-miss", () => {
+  const label = combatLabelFor({ type: "saveAttack", roll: { degree: "success" }, damageApplied: 3 });
+  assert.deepEqual(label, { text: "-3", cls: "spell-miss" }, "success still deals real half damage per Player Core's basic-save table — the text must show it even though the class de-emphasizes it");
+});
+
+test("combatLabelFor: saveAttack criticalSuccess (zero damage) shows SAVED, distinguished from success by TEXT even though both share spell-miss styling", () => {
+  const label = combatLabelFor({ type: "saveAttack", roll: { degree: "criticalSuccess" }, damageApplied: 0 });
+  assert.deepEqual(label, { text: "SAVED", cls: "spell-miss" });
+});
+
+test("combatLabelFor: conditionSave reports every real applied condition by name and value, classed by the target's own (inverted) degree, with the same CRIT! marker on a criticalFailure as every other action type", () => {
+  const label = combatLabelFor({ type: "conditionSave", roll: { degree: "criticalFailure" }, applied: { frightened: 2, stunnedValue: 1 } });
+  assert.deepEqual(label, { text: "CRIT! Frightened 2, Stunned 1", cls: "spell-crit" });
+});
+
+test("combatLabelFor: conditionSave on an ordinary failure (not critical) reports the applied conditions with no CRIT! marker", () => {
+  const label = combatLabelFor({ type: "conditionSave", roll: { degree: "failure" }, applied: { stunnedValue: 1 } });
+  assert.deepEqual(label, { text: "Stunned 1", cls: "spell-hit" });
+});
+
+test("combatLabelFor: conditionSave with nothing applied (a real success/criticalSuccess outcome) reads SAVED", () => {
+  const label = combatLabelFor({ type: "conditionSave", roll: { degree: "success" }, applied: {} });
+  assert.deepEqual(label, { text: "SAVED", cls: "spell-miss" });
+});
+
+test("combatLabelFor: demoralize reports the real applied Frightened value on a hit, RESISTED on a miss — the same 2-tier shape demoralizeClass itself uses", () => {
+  assert.deepEqual(combatLabelFor({ type: "demoralize", frightenedApplied: 1 }), { text: "Frightened 1", cls: "demoralize-hit" });
+  assert.deepEqual(combatLabelFor({ type: "demoralize", frightenedApplied: 0 }), { text: "RESISTED", cls: "demoralize-miss" });
+});
+
+test("combatLabelFor: healAbility reports the real healing amount, classed heal", () => {
+  assert.deepEqual(combatLabelFor({ type: "healAbility", healing: 10 }), { text: "+10", cls: "heal" });
+});
+
+test("combatLabelFor: move/step/advance (and any other non-combat action) return null — nothing floats above a target for a plain reposition", () => {
+  assert.equal(combatLabelFor({ type: "move" }), null);
+  assert.equal(combatLabelFor({ type: "step" }), null);
+  assert.equal(combatLabelFor({ type: "advance" }), null);
+});
+
+test("isBurstAction: true for saveAttack and conditionSave (the explosive/area-flavored save-based abilities — a grenade, Thunderstrike, Forced Reflection)", () => {
+  assert.equal(isBurstAction({ type: "saveAttack" }), true);
+  assert.equal(isBurstAction({ type: "conditionSave" }), true);
+});
+
+test("isBurstAction: false for an ordinary Strike, a spell ATTACK roll, Demoralize, and healing — none of these read as 'something exploded here'", () => {
+  assert.equal(isBurstAction({ type: "strike" }), false);
+  assert.equal(isBurstAction({ type: "spellAttack" }), false);
+  assert.equal(isBurstAction({ type: "demoralize" }), false);
+  assert.equal(isBurstAction({ type: "healAbility" }), false);
 });

@@ -18,6 +18,15 @@ export function buildSteps(run) {
         round: round.round,
         combatantId: turn.combatantId,
         stunned: !!turn.stunned,
+        // Real value, not just the boolean — was silently dropped before this fix, so every
+        // stunned-turn render fell back to its own hardcoded default (?? 3 / ?? 0) instead of the
+        // real lost-action count. Same-shaped gap as dying/recoveryCheck below; fixed together.
+        stunnedActionsLost: turn.stunnedActionsLost,
+        // design doc §25: a downed PC's own turn is a real recovery check (engine.mjs's
+        // isUnconscious branch), not a normal action turn — both fields must survive the flatten
+        // for the artifact viewer to render it as anything other than an empty "held" row.
+        dying: !!turn.dying,
+        recoveryCheck: turn.recoveryCheck || null,
         actions: turn.actions || [],
         actionAccounting: turn.actionAccounting || null,
         effectiveStats: turn.effectiveStats || null,

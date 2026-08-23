@@ -20,7 +20,11 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { generateProposals, decide, bestDestinationToward } from "../../tools/battle-simulator/personnel-engine/decide.mjs";
+import { generateProposals, decide, bestDestinationToward, bestDestinationAway } from "../../tools/battle-simulator/personnel-engine/decide.mjs";
+import { forkTurnSandbox } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
+import { evaluateState } from "../../tools/battle-simulator/personnel-engine/evaluate/state-value.mjs";
+import { hasCover, lineOfEffect } from "../../tools/battle-simulator/personnel-engine/terrain.mjs";
+import { GRID_SIZE as FACILITY_GRID_SIZE, WALLS as FACILITY_WALLS, SETUPS as FACILITY_SETUPS } from "../../tools/battle-simulator/data/personnel-test-facility.mjs";
 
 function makeState({ mePos = { col: 0, row: 0 }, enemyPos = { col: 0, row: 2 }, walls = [] } = {}) {
   const me = {
@@ -207,4 +211,199 @@ test("outnumberedCaution END TO END: the IDENTICAL combatant, at the SAME HP, re
   const { state, turn } = makeOutnumberedState(2);
   const chosen = decide(state, "me", turn, { competence: 1 });
   assert.equal(chosen.type, "move", `expected an outnumbered combatant to disengage rather than stand and trade with multiple melee attackers, chose: ${JSON.stringify(chosen)}`);
+});
+
+// --- Cover-seeking (design doc §26 — Ingram's own ask: "once in contact with the enemy it would
+// be smart for all AIs to consider the value of placing themselves behind cover if they are
+// ranged... this new being behind cover move would still allow them to be involved in the fight,
+// no point hiding behind cover if your enemy outranges you or is currently not visible to you.")
+// The EVALUATOR already priced a covered position as safer (state-value.mjs's own bestExpectedDamage
+// folds hasCover's +2 AC/Reflex into threatExposure) — what these tests cover is the missing half:
+// that a real covered destination actually gets PROPOSED, gated correctly, and — once proposed —
+// that the already-correct evaluator really does prefer it.
+//
+// Layout used throughout: a single cover wall at x=2 (row 0 only), the same shape as
+// personnel-engine.test.mjs's own COVER_WALL fixture — separates col<2 from col>=2. The enemy sits
+// at col 5 (east of the wall); "me" starts at col 4 (also east — genuinely uncovered from that
+// enemy at the start), so any covered destination found is a real result of crossing to col<2, not
+// a coincidence of the starting position already having cover.
+
+const COVER_WALL_AT_COL_2 = [{ c: [2, 0, 2, 1], cover: true }];
+
+function makeCoverState({ mePos = { col: 4, row: 0 }, enemyPos = { col: 5, row: 0 }, walls = COVER_WALL_AT_COL_2, myStrikes, speed = 100 } = {}) {
+  const me = {
+    id: "me", name: "Me", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 },
+    speed, strikes: myStrikes ?? [{ name: "Rifle", strikeType: "ranged", attackBonus: 8, rangeIncrement: 60, traits: [], damage: [{ dice: "1d6", bonus: 2, damageType: "piercing" }] }],
+    position: mePos
+  };
+  const enemy = {
+    id: "enemy", name: "Enemy", side: "opposition", currentHP: 20, maxHP: 20, ac: 14, saves: { fort: 5, ref: 5, will: 5 },
+    speed: 0, strikes: [{ name: "Cannon", strikeType: "ranged", attackBonus: 12, rangeIncrement: 60, traits: [], damage: [{ dice: "2d6", bonus: 4, damageType: "piercing" }] }],
+    position: enemyPos
+  };
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 10, rows: 3 }, walls,
+    combatants: new Map([["me", me], ["enemy", enemy]]),
+    positions: new Map([["me", { ...mePos }], ["enemy", { ...enemyPos }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed } };
+  return { state, turn };
+}
+
+test("generateProposals: a ranged combatant with real cover reachable within its own weapon range gets a move proposal that lands behind it", () => {
+  const { state, turn } = makeCoverState();
+  const proposals = generateProposals(state, "me", turn);
+  const moveDestinations = proposals.filter((p) => p.type === "move").map((p) => p.to);
+  const coverMoves = moveDestinations.filter((to) => hasCover(to, state.positions.get("enemy"), state.walls));
+  assert.ok(coverMoves.length > 0, `expected at least one move proposal landing behind cover — got moves: ${JSON.stringify(moveDestinations)}`);
+});
+
+test("generateProposals: a MELEE-ONLY combatant never gets a cover-seeking move proposal, even though the exact same cover is reachable — 'if they are ranged' is a real gate, not a suggestion", () => {
+  const { state, turn } = makeCoverState({ myStrikes: [{ name: "Knife", strikeType: "melee", attackBonus: 8, traits: [], damage: [{ dice: "1d4", bonus: 0 }] }] });
+  const proposals = generateProposals(state, "me", turn);
+  const coverMoves = proposals.filter((p) => p.type === "move" && hasCover(p.to, state.positions.get("enemy"), state.walls));
+  assert.equal(coverMoves.length, 0, `a melee-only combatant should never get a cover-seeking candidate — got: ${JSON.stringify(coverMoves)}`);
+});
+
+test("generateProposals: with no walls in the scenario at all, no cover-seeking candidate is ever generated (hasCover is unconditionally false with no walls)", () => {
+  const { state, turn } = makeCoverState({ walls: [] });
+  const proposals = generateProposals(state, "me", turn);
+  const coverMoves = proposals.filter((p) => p.type === "move" && hasCover(p.to, state.positions.get("enemy"), state.walls));
+  assert.equal(coverMoves.length, 0);
+});
+
+test("generateProposals: cover reachable by movement but beyond the combatant's own REAL LEGAL max range is never proposed — 'still allow them to be involved in the fight'", () => {
+  const { state, turn } = makeCoverState({
+    // design doc §27: the gate is the true legal max (rangeIncrement*6 = 18ft here), not just the
+    // no-penalty first increment — col 0/1 (4-5 squares = 20-25ft from the enemy at col 5) is
+    // beyond even that real cap, not just beyond a no-penalty increment.
+    myStrikes: [{ name: "Pistol", strikeType: "ranged", attackBonus: 8, rangeIncrement: 3, traits: [], damage: [{ dice: "1d6", bonus: 2 }] }]
+  });
+  const proposals = generateProposals(state, "me", turn);
+  const coverMoves = proposals.filter((p) => p.type === "move" && hasCover(p.to, state.positions.get("enemy"), state.walls));
+  assert.equal(coverMoves.length, 0, `cover reachable only by leaving the real legal max range must never be proposed — got: ${JSON.stringify(coverMoves)}`);
+});
+
+test("generateProposals: cover WITHIN the real legal max range but beyond the no-penalty first increment IS now proposed — design doc §27's own fix, distinct from the test above", () => {
+  const { state, turn } = makeCoverState({
+    // rangeIncrement 10 -> no-penalty range 10ft, but real legal max is 60ft — the cover object
+    // (~20-25ft away) sits beyond the first increment but comfortably inside the real cap, exactly
+    // the gap §27 closes: the AI fires 2nd-increment shots elsewhere, so it should walk this far too.
+    myStrikes: [{ name: "Pistol", strikeType: "ranged", attackBonus: 8, rangeIncrement: 10, traits: [], damage: [{ dice: "1d6", bonus: 2 }] }]
+  });
+  const proposals = generateProposals(state, "me", turn);
+  const coverMoves = proposals.filter((p) => p.type === "move" && hasCover(p.to, state.positions.get("enemy"), state.walls));
+  assert.ok(coverMoves.length > 0, `expected cover within the real legal max range (beyond just the first increment) to be proposed — got moves: ${JSON.stringify(proposals.filter((p) => p.type === "move").map((p) => p.to))}`);
+});
+
+// NOTE: no separate "unknown enemy" test for cover-seeking specifically — decide.mjs's own
+// bestCoverDestination call sits inside the IDENTICAL `if (!ePos) continue;` belief guard as every
+// other move candidate in this same loop, which the pre-existing "an enemy with NO belief entry at
+// all... gets no move-toward-it candidate either" test above already proves for that shared gate.
+
+test("generateProposals + evaluator: among competing move-type destinations, the cover-seeking candidate outscores an equally-in-range alternative that lacks cover, once a real threat is visible", () => {
+  const { state, turn } = makeCoverState();
+  const enemyPos = state.positions.get("enemy");
+
+  const moveProposals = generateProposals(state, "me", turn).filter((p) => p.type === "move");
+  assert.ok(moveProposals.length > 1, "expected multiple real move destinations to compare");
+
+  const before = evaluateState(state, "party");
+  const scored = moveProposals.map((p) => {
+    const sandbox = forkTurnSandbox({ state, turn });
+    const result = sandbox.apply("me", p);
+    assert.equal(result.legal, true, `expected every generated move to be legal: ${JSON.stringify(result)}`);
+    return { p, gain: evaluateState(sandbox.state, "party") - before };
+  });
+  scored.sort((a, b) => b.gain - a.gain);
+  const winner = scored[0];
+  assert.ok(
+    hasCover(winner.p.to, enemyPos, state.walls),
+    `expected the top-scored move destination to have real cover — winner: ${JSON.stringify(winner.p.to)}, all scored: ${JSON.stringify(scored.map((s) => ({ to: s.p.to, gain: s.gain })))}`
+  );
+});
+
+test("decide() END TO END: facing multiple real ranged threats at once with only a weak shot of its own available, the combatant relocates to a real covered position rather than trade an unfavorable attack", () => {
+  // Three simultaneous attackers (mirroring makeOutnumberedState's own already-proven shape above)
+  // all shielded by the SAME cover run — a real, if modest, personal attack (attackBonus -10, a
+  // near-guaranteed miss) is clearly worse than cutting incoming damage from all three at once.
+  // Empirically verified (not just derived by hand) before writing this assertion — plain "flee
+  // away from the threat" and "flee toward the map edge" both happen to coincide with this specific
+  // small map's own covered region, so this test is deliberately paired with the PRECISE,
+  // unambiguously-attributed mechanism proof two tests above (sandbox-scoring move vs move
+  // directly) rather than claiming this end-to-end result is attributable to cover-seeking ALONE.
+  const walls = [{ c: [2, 0, 2, 1], cover: true }, { c: [2, 1, 2, 2], cover: true }, { c: [2, 2, 2, 3], cover: true }];
+  const me = {
+    id: "me", name: "Me", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 },
+    speed: 100, strikes: [{ name: "Rifle", strikeType: "ranged", attackBonus: -10, rangeIncrement: 60, traits: [], damage: [{ dice: "1d6", bonus: 2 }] }],
+    position: { col: 4, row: 1 }
+  };
+  const combatants = new Map([["me", me]]);
+  const positions = new Map([["me", { ...me.position }]]);
+  for (let i = 0; i < 3; i++) {
+    const enemy = {
+      id: `enemy-${i}`, name: `Enemy ${i}`, side: "opposition", currentHP: 20, maxHP: 20, ac: 14, saves: { fort: 5, ref: 5, will: 5 }, speed: 0,
+      strikes: [{ name: "Cannon", strikeType: "ranged", attackBonus: 12, rangeIncrement: 60, traits: [], damage: [{ dice: "2d6", bonus: 4 }] }],
+      position: { col: 5, row: i }
+    };
+    combatants.set(enemy.id, enemy);
+    positions.set(enemy.id, { ...enemy.position });
+  }
+  const state = { round: 1, seed: 1, gridSize: { cols: 10, rows: 3 }, walls, combatants, positions };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 100 } };
+
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.equal(chosen.type, "move", `expected repositioning under a multi-threat mismatch, chose: ${JSON.stringify(chosen)}`);
+  assert.ok(hasCover(chosen.to, { col: 5, row: 1 }, walls), `expected the chosen reposition to be a real covered destination, chose: ${JSON.stringify(chosen)}`);
+});
+
+// --- LOS-aware tiebreak for pathfindingDestinationToward/Away (design doc §27, adversarial-audit
+// finding #3 — Ingram's own report: "Nitpick ... they strike as their first action with no one in
+// range to strike, they then move to a valid spot and strike again", traced to a REAL, separate
+// battle: Lunar-17's entire opening turn on the adjacent-rooms map spent all 3 actions walking INTO
+// a dead-end pocket with no line of effect at all, because several reachable cells tied on real
+// walking distance to the target and the tiebreak fell through to cost, then to decide()'s own
+// final tiebreak — a plain string comparison on "Move to (COL,ROW)" — with zero awareness that one
+// tied cell actually opened a sightline and another was a blind dead end. Fixed by making "does this
+// cell see the target" a real tiebreaker, checked BEFORE cost, never overriding a strictly better
+// real distance. ---
+
+test("bestDestinationToward: on the real ADJACENT_ROOMS facility fixture (the exact map that exposed this bug), a Lunar-17-speed move from Room A's center toward Room B's center lands at the doorway with real line of effect — not the dead-end open space south of Room A", () => {
+  const { attacker, defender } = FACILITY_SETUPS.ADJACENT_ROOMS; // ROOM_A_CENTER (2,6) -> ROOM_B_CENTER (9,6)
+  const state = {
+    gridSize: FACILITY_GRID_SIZE, walls: FACILITY_WALLS,
+    combatants: new Map([["me", { id: "me", side: "party" }], ["enemy", { id: "enemy", side: "opposition" }]]),
+    positions: new Map([["me", { ...attacker }], ["enemy", { ...defender }]])
+  };
+  const dest = bestDestinationToward(state, "me", attacker, defender, 25, 0);
+  assert.ok(dest, "expected a real destination to be found");
+  assert.ok(lineOfEffect(dest, defender, FACILITY_WALLS), `expected the chosen destination to have real line of effect to the target — got ${JSON.stringify(dest)}, which does not see (${defender.col},${defender.row})`);
+});
+
+test("bestDestinationToward: a large standoff clamps several nearby cells to the identical score (the real tie shape this bug reproduces from) — the LOS-granting one among them still wins", () => {
+  // A room (cols 0-5) with its only exit a doorway at row 5 (x=6 boundary); open, unwalled space
+  // south of the room (rows 6+) is reachable but leads nowhere toward the target — the same "dead
+  // end that happens to tie on distance" shape as the real facility fixture above.
+  const walls = [];
+  for (let row = 0; row <= 4; row++) walls.push({ c: [6, row, 6, row + 1], move: 20, sight: 20 });
+  const from = { col: 3, row: 3 }, to = { col: 10, row: 5 };
+  const state = { gridSize: { cols: 12, rows: 12 }, walls, combatants: new Map([["me", { id: "me", side: "party" }], ["enemy", { id: "enemy", side: "opposition" }]]), positions: new Map([["me", from], ["enemy", to]]) };
+  // 60ft standoff clamps every cell within it to the SAME score, regardless of real progress —
+  // exactly the flat-plateau shape that let a meaningless tiebreak decide the real bug's outcome.
+  const dest = bestDestinationToward(state, "me", from, to, 25, 60);
+  assert.ok(dest, "expected a real destination to be found");
+  assert.ok(lineOfEffect(dest, to, walls), `expected the LOS-granting cell to win the tie — got ${JSON.stringify(dest)}`);
+});
+
+test("bestDestinationAway: the mirrored fix — on a real distance tie, a disengage candidate that actually breaks line of effect wins over one that merely stands equally far away in the open", () => {
+  // A small side room behind a wall at x=4 (gap at row 5) sits exactly as far from the threat as an
+  // equivalent open-ground retreat in the other direction — the same "flat plateau, meaningless
+  // tiebreak" shape as the toward-fix tests above, mirrored for disengaging.
+  const walls = [];
+  for (let row = 0; row <= 8; row++) if (row !== 5) walls.push({ c: [4, row, 4, row + 1], move: 20, sight: 20 });
+  const from = { col: 6, row: 5 }, threat = { col: 10, row: 5 };
+  const state = { gridSize: { cols: 12, rows: 12 }, walls, combatants: new Map([["me", { id: "me", side: "party" }], ["threat", { id: "threat", side: "opposition" }]]), positions: new Map([["me", from], ["threat", threat]]) };
+  const dest = bestDestinationAway(state, "me", from, threat, 25);
+  assert.ok(dest, "expected a real destination to be found");
+  assert.equal(lineOfEffect(dest, threat, walls), false, `expected the disengage candidate to actually break line of effect — got ${JSON.stringify(dest)}`);
 });

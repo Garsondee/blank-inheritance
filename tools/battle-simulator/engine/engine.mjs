@@ -446,7 +446,12 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     turnProgress.feetMoved += stepDistance;
     turnProgress.actionsUsed += 1;
 
-    const result = { type: "move", from: { ...pos }, to: { ...to }, feet: stepDistance, legal: true, actionsCost: 1, decisionReason: proposal.reason ?? null };
+    // design doc §26: preserve the real route (when one was computed) in the log itself — a
+    // straight [from,to] silently discarding a genuinely bent wall-aware path is exactly the bug
+    // found and fixed at personnel-scale (tokens visually cutting through walls/corners the real
+    // move legitimately routed around); no walled Frame-scale scenario exists yet to make this
+    // visible today, but the shared artifact-viewer code now expects this field from either engine.
+    const result = { type: "move", from: { ...pos }, to: { ...to }, path: path ?? null, feet: stepDistance, legal: true, actionsCost: 1, decisionReason: proposal.reason ?? null };
 
     const reactions = checkReactionTriggers({ state, rng, moverId: combatantId, outcomes });
     if (reactions.length) result.triggeredReactions = reactions;

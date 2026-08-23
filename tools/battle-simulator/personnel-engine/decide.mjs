@@ -33,9 +33,11 @@ import { forkTurnSandbox } from "./engine.mjs";
 import { makeRng } from "../engine/rng.mjs";
 import { distanceFeet, isInBounds, isOccupied, blocksPassage, FEET_PER_SQUARE } from "./grid.mjs";
 import { splitByRelation } from "./factions.mjs";
-import { evaluateState, attackOptions, proactiveAttackOptions, usefulRangeFeet } from "./evaluate/state-value.mjs";
+import { evaluateState, attackOptions, proactiveAttackOptions, usefulRangeFeet, maxLegalRangeFeet } from "./evaluate/state-value.mjs";
 import { reachableCells } from "./world/pathfind.mjs";
 import { refreshBelief, believedEnemies } from "./knowledge/belief.mjs";
+import { isDead } from "./conditions.mjs";
+import { hasCover, lineOfEffect } from "./terrain.mjs";
 
 /**
  * A per-decision RNG derived from (battle seed, round, combatant, decision index). Must NOT be the
@@ -156,6 +158,21 @@ function trueDistanceField(state, moverId, to, others, cache) {
   return cachedReachableCells(cache, key, { from: to, maxFeet: span, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls, moverSide: state.combatants.get(moverId).side });
 }
 
+/**
+ * design doc §27 (adversarial-audit finding #3): trueDist alone (real Dijkstra walking distance to
+ * `to`) routinely TIES between several reachable cells — most commonly right at the start of a
+ * fight, before anyone has line of effect at all, when threatExposure/offensiveReach are still zero
+ * everywhere and the closing gradient is the only live term, itself keyed off the SAME trueDist.
+ * Previously, a tie fell straight through to `cost` (cheapest to reach) and then, if THAT also tied,
+ * to decide()'s own final tiebreak — a plain string comparison on "Move to (COL,ROW)" — with zero
+ * awareness that one tied cell might actually open a sightline to the target and another might be a
+ * dead-end pocket with no LOS at all. A real battle log showed exactly this: an opening turn spent
+ * its whole 3-action budget walking INTO a windowless side room, away from the only doorway, purely
+ * because that room's own cells happened to tie on raw walking distance and sort earlier
+ * alphabetically. Fixed by making "does this cell actually see the target" a real tiebreaker,
+ * ahead of cost — ONLY a tiebreaker, never overriding a strictly better trueDist, so the existing,
+ * already-correct "get closer" behavior for the non-tied case is untouched.
+ */
 function pathfindingDestinationToward(state, moverId, from, to, maxFeet, standoffFeet, cache) {
   const others = otherLivingPositions(state, moverId);
   const moverSide = state.combatants.get(moverId).side;
@@ -165,14 +182,19 @@ function pathfindingDestinationToward(state, moverId, from, to, maxFeet, standof
   const trueDist = (col, row) => distField.get(`${col},${row}`)?.cost ?? distanceFeet({ col, row }, to) * 10; // unreachable at all — treat as very far, not infinite
 
   let best = null, bestScore = Math.max(trueDist(from.col, from.row), standoffFeet), bestCost = 0;
+  let bestHasLos = lineOfEffect(from, to, state.walls);
   // Carries the REAL Dijkstra-found route along with the winning cell — checkMoveLegality validates
   // THAT rather than re-deriving a straight line, which would wrongly reject a detour-reached
   // destination forever (the straight line crosses whatever the detour was routing around).
   for (const [cellKey, { cost, path }] of reachable) {
     const [col, row] = cellKey.split(",").map(Number);
     const score = Math.max(trueDist(col, row), standoffFeet);
-    if (score < bestScore || (score === bestScore && cost < bestCost)) {
-      best = { col, row, path }; bestScore = score; bestCost = cost;
+    const hasLos = lineOfEffect({ col, row }, to, state.walls);
+    const better = score < bestScore
+      || (score === bestScore && hasLos && !bestHasLos)
+      || (score === bestScore && hasLos === bestHasLos && cost < bestCost);
+    if (better) {
+      best = { col, row, path }; bestScore = score; bestCost = cost; bestHasLos = hasLos;
     }
   }
   return best;
@@ -190,6 +212,13 @@ export function bestDestinationToward(state, moverId, from, to, maxFeet, standof
   return stepToward(state, moverId, from, to, maxFeet, standoffFeet);
 }
 
+/**
+ * design doc §27: the same tie-breaking gap as pathfindingDestinationToward, mirrored — a
+ * disengage candidate that ACTUALLY BREAKS line of effect to the threat is a meaningfully better
+ * escape than one that merely stands farther away in the open, so it wins any tie on raw distance
+ * before falling through to cost/an arbitrary pick. Only a tiebreaker, same as above — never
+ * overrides a strictly farther cell.
+ */
 function pathfindingDestinationAway(state, moverId, from, threat, maxFeet, cache) {
   const others = otherLivingPositions(state, moverId);
   const moverSide = state.combatants.get(moverId).side;
@@ -199,20 +228,61 @@ function pathfindingDestinationAway(state, moverId, from, threat, maxFeet, cache
   const trueDist = (col, row) => distField.get(`${col},${row}`)?.cost ?? distanceFeet({ col, row }, threat) * 10;
 
   let best = null, bestDist = trueDist(from.col, from.row), bestCost = 0;
+  let bestBreaksLos = !lineOfEffect(from, threat, state.walls);
   for (const [cellKey, { cost, path }] of reachable) {
     const [col, row] = cellKey.split(",").map(Number);
     const dist = trueDist(col, row);
-    if (dist > bestDist || (dist === bestDist && cost < bestCost)) {
-      best = { col, row, path }; bestDist = dist; bestCost = cost;
+    const breaksLos = !lineOfEffect({ col, row }, threat, state.walls);
+    const better = dist > bestDist
+      || (dist === bestDist && breaksLos && !bestBreaksLos)
+      || (dist === bestDist && breaksLos === bestBreaksLos && cost < bestCost);
+    if (better) {
+      best = { col, row, path }; bestDist = dist; bestCost = cost; bestBreaksLos = breaksLos;
     }
   }
   return best;
 }
 
-/** The wall-aware sibling of stepAway — gated on walls ONLY, no fallback-on-null (see the Frame-scale file's own measured cost note: a full Dijkstra flood on every edge-adjacent disengage candidate is not worth paying for). */
-function bestDestinationAway(state, moverId, from, threat, maxFeet, cache = new Map()) {
+/** The wall-aware sibling of stepAway — gated on walls ONLY, no fallback-on-null (see the Frame-scale file's own measured cost note: a full Dijkstra flood on every edge-adjacent disengage candidate is not worth paying for). Exported for the same reason bestDestinationToward is (direct reuse / direct testing). */
+export function bestDestinationAway(state, moverId, from, threat, maxFeet, cache = new Map()) {
   if (state.walls?.length) return pathfindingDestinationAway(state, moverId, from, threat, maxFeet, cache);
   return stepAway(state, moverId, from, threat, maxFeet);
+}
+
+/**
+ * Design doc §26 — Ingram's own ask: "once in contact with the enemy it would be smart for all AIs
+ * to consider the value of placing themselves behind cover if they are ranged... this new being
+ * behind cover move would still allow them to be involved in the fight, no point hiding behind
+ * cover if your enemy outranges you or is currently not visible to you."
+ *
+ * The EVALUATOR already prices a covered position correctly (state-value.mjs's own bestExpectedDamage
+ * folds `hasCover`'s +2 AC/Reflex into threatExposure — a real, if quiet, existing mechanism). What
+ * was actually missing is that nothing ever PROPOSED a covered position as a move candidate in the
+ * first place — decide() can only ever choose among what generateProposals hands it. This is that
+ * missing candidate: the cheapest reachable cell that (a) still keeps `threat` within `myRangeFeet`
+ * — "still allow them to be involved in the fight" — (b) still has real line of effect to `threat` —
+ * the same requirement, from the other direction — and (c) actually grants real cover from `threat`
+ * specifically (terrain.mjs's own `hasCover`, the identical check engine.mjs applies at resolution
+ * time). Gated by the caller on `state.walls?.length` (hasCover is unconditionally false with no
+ * walls at all — nothing to search for) and on the mover actually having a ranged option (a
+ * melee-only combatant has no reason to fight from range in the first place).
+ */
+function bestCoverDestination(state, moverId, from, threatPos, maxFeet, myRangeFeet, cache) {
+  const others = otherLivingPositions(state, moverId);
+  const moverSide = state.combatants.get(moverId).side;
+  const reachableKey = `reach|${moverId}|${from.col},${from.row}|${maxFeet}`;
+  const reachable = cachedReachableCells(cache, reachableKey, { from, maxFeet, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls, moverSide });
+
+  let best = null, bestCost = Infinity;
+  for (const [cellKey, { cost, path }] of reachable) {
+    const [col, row] = cellKey.split(",").map(Number);
+    const cell = { col, row };
+    if (distanceFeet(cell, threatPos) > myRangeFeet) continue; // must stay within MY OWN useful range
+    if (!lineOfEffect(cell, threatPos, state.walls)) continue; // must still be able to see/hit them
+    if (!hasCover(cell, threatPos, state.walls)) continue; // must actually BE covered, not just nearby cover
+    if (cost < bestCost) { best = { col, row, path }; bestCost = cost; }
+  }
+  return best;
 }
 
 /**
@@ -226,7 +296,13 @@ export function generateProposals(state, combatantId, turn) {
   if (!me || !myPos) return proposals;
 
   const speed = turn.effective?.speed ?? me.speed ?? 0;
-  const living = [...state.combatants.values()].filter((c) => c.currentHP > 0);
+  // Design doc §25: a downed-but-not-dead PC (isDead false, currentHP<=0) is still a real target —
+  // both to an enemy looking to finish them off, and to an ally who might path over to heal them.
+  // Filtering on currentHP>0 here would silently make the entire dying/revival mechanic invisible
+  // to the AI's own candidate generation, the same shape of gap checkTargetAlive/
+  // checkHealAbilityLegal both had before this pass (an unconscious PC being a real, legal target
+  // is the actual point of the feature, not just an incidental detail).
+  const living = [...state.combatants.values()].filter((c) => !isDead(c));
   const { allies, enemies } = splitByRelation(me, living);
 
   // Belief (design doc §15s): refreshed from the WHOLE side's combined current vision, not just
@@ -279,6 +355,18 @@ export function generateProposals(state, combatantId, turn) {
   const addDest = (d) => { if (d) destinations.set(`${d.col},${d.row}`, d); };
 
   const myRanges = [...new Set(proactiveAttackOptions(me).map(usefulRangeFeet).filter((r) => Number.isFinite(r)))];
+  // design doc §26: "if they are ranged" — a real non-melee option (spells/saveAttacks have no
+  // strikeType at all, so they count as ranged here same as a gun would; a melee-only combatant has
+  // no ranged range to defend and never gets a cover-seeking candidate at all).
+  //
+  // design doc §27 (adversarial-audit finding #2): the cover-seeking gate itself uses the real
+  // LEGAL max range (maxLegalRangeFeet — up to the 6th increment, -2/increment penalty), not
+  // usefulRangeFeet's stricter no-penalty range — a combatant who's willing to fire a real,
+  // penalized 2nd/3rd-increment shot (which real logs show happening constantly) should be equally
+  // willing to WALK that same real distance for a reachable covered position, not refuse to search
+  // past a stricter bound it doesn't actually respect for its own attacks.
+  const rangedOptionRanges = proactiveAttackOptions(me).filter((o) => o.strikeType !== "melee").map(maxLegalRangeFeet).filter((r) => Number.isFinite(r));
+  const myRangedRange = rangedOptionRanges.length ? Math.max(...rangedOptionRanges) : 0;
   // Shared across every destination query this ONE generateProposals call makes — `from`/`walls`/
   // occupancy are all constant for the whole burst.
   const destCache = new Map();
@@ -293,6 +381,10 @@ export function generateProposals(state, combatantId, turn) {
     addDest(bestDestinationToward(state, combatantId, myPos, ePos, speed, FEET_PER_SQUARE, destCache)); // close to contact
     addDest(bestDestinationToward(state, combatantId, myPos, ePos, speed, 0, destCache));
     addDest(bestDestinationAway(state, combatantId, myPos, ePos, speed, destCache));                    // disengage
+    // design doc §26: cover-seeking — only searched when there's real terrain to hide behind and a
+    // real ranged option to protect; "still allow them to be involved in the fight" is enforced
+    // inside bestCoverDestination itself (myRangedRange + a real line of effect requirement).
+    if (state.walls?.length && myRangedRange > 0) addDest(bestCoverDestination(state, combatantId, myPos, ePos, speed, myRangedRange, destCache));
   }
   for (const a of allies) {
     const aPos = state.positions.get(a.id);

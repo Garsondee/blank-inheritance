@@ -81,6 +81,17 @@ import {
 import { resolveStrike, mitigateDamage, expectedStrikeDamage, resolveSave, basicSaveDamage, expectedSaveDamage, degreeProbabilities, degreeOfSuccess } from "../engine/resolve.mjs";
 import { distanceFeet, FEET_PER_SQUARE } from "./grid.mjs";
 import { hasCover, STANDARD_COVER_AC_BONUS } from "./terrain.mjs";
+import {
+  isDead, isUnconscious, isOffGuardFromConditions, attackerConditionPenalty,
+  applyKnockout, worsenDyingFromDamage, resolveRecoveryCheck, applyRevival
+} from "./conditions.mjs";
+import { isFlanking } from "./flanking.mjs";
+
+/** Off-Guard's -2 to AC (condition-28-off-guard.json) — the melee-flanking-scoped bonus applied
+ * per-attack, alongside the persistent (Prone/Unconscious) one resolveEffectiveStats already folds
+ * into the target's base AC. Never double-counted: this only adds the flanking-specific -2 on top
+ * when it ISN'T already covered by a persistent off-guard the target has for some other reason. */
+const OFF_GUARD_AC_PENALTY = 2;
 
 /**
  * OUTCOME TABLES (design doc §15f) — the ONE seam where a real battle and a lookahead sandbox
@@ -265,7 +276,25 @@ export function runBattle(scenario) {
 
     for (const combatantId of initiativeOrder) {
       const combatant = state.combatants.get(combatantId);
-      if (combatant.currentHP <= 0) continue;
+      if (isDead(combatant)) continue;
+
+      // Design doc §25 (Player Core pg. 402-403, reference/srd/player-core/
+      // 367-hit-points-healing-and-dying.json): a downed PC isn't dead, isn't skipped — they get a
+      // real recovery check at the start of each of their turns while unconscious, exactly like a
+      // real turn's "if you're dying, roll a recovery check" step. NOT a choice the AI proposes
+      // (there's nothing to decide), so this runs directly, before any of the normal stunned/action
+      // machinery below, which only applies to a combatant who's actually conscious and acting.
+      if (isUnconscious(combatant)) {
+        const before = resolveRecoveryCheck(rng, combatant);
+        roundLog.turns.push({
+          combatantId, dying: true, recoveryCheck: before, actions: [],
+          actionAccounting: accountForActions({ available: 0, spent: 0, heldReason: null }),
+          snapshot: snapshotState(state)
+        });
+        const outcome = checkOutcome(state);
+        if (outcome) { log.outcome = outcome; break; }
+        continue;
+      }
 
       // Stunned (Player Core pg. 421, quoted verbatim in design doc §24 — this is a direct fix of
       // a real, previously-shipped bug, not a first implementation): "Stunned usually includes a
@@ -443,6 +472,24 @@ function applyStrikeDamage(strikeResult, target, targetEffective, strike) {
 }
 
 /**
+ * Design doc §25 (Player Core pg. 402-403): the real dying spiral, checked after EVERY damage
+ * application, for strike/spellAttack/saveAttack alike — a shared hook rather than three copies,
+ * exactly the pattern this whole feature exists to establish. Only ever does anything for a
+ * `side: "party"` target (conditions.mjs's isDead/applyKnockout carry the real PC-vs-NPC asymmetry;
+ * an ordinary NPC reduced to 0 HP is just dead, nothing more to compute) and only when real damage
+ * was actually dealt (a miss, or a save's own criticalSuccess-so-no-damage case, changes nothing).
+ * `hpBefore` distinguishes the FIRST knockout (gain dying 1/2, Player Core's own "when you're
+ * reduced to 0 HP" trigger) from a follow-up hit on an already-downed target (dying increases by
+ * 1/2 INSTEAD of further HP loss, since HP is already floored at 0) — both real, both possible in
+ * the exact same combat, so both need covering, not just the first one.
+ */
+function applyDyingTransition({ target, hpBefore, appliedDamage, critical }) {
+  if (target.side !== "party" || appliedDamage <= 0) return;
+  if (hpBefore > 0 && target.currentHP <= 0) applyKnockout(target, { critical });
+  else if (hpBefore <= 0) worsenDyingFromDamage(target, { critical });
+}
+
+/**
  * Every combatant's position, for occupancy purposes — DEAD combatants excluded. A defeated
  * creature's square isn't an obstacle (nothing in Player Core treats a fallen creature as blocking
  * movement the way a standing one does), so it must never count as "occupied" for pathing/legality.
@@ -468,6 +515,15 @@ function livingPositions(state) {
     .map(([id, p]) => ({ combatantId: id, pos: p, side: state.combatants.get(id).side }));
 }
 
+/** Every OTHER living, same-side combatant — flanking.mjs's own candidate pool for "who could be
+ * flanking alongside me". An unconscious ally (currentHP<=0) can't act and can't attack, so can't
+ * help flank either — excluded the same way livingPositions already excludes anyone down. */
+function alliesWithPositions(state, combatant) {
+  return [...state.combatants.values()]
+    .filter((c) => c.id !== combatant.id && c.side === combatant.side && c.currentHP > 0)
+    .map((c) => ({ id: c.id, pos: state.positions.get(c.id), combatant: c }));
+}
+
 /** The ONLY function in this codebase permitted to mutate combatant position/HP/flags. */
 function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLog, effective, outcomes = REAL_OUTCOMES }) {
   const combatant = state.combatants.get(combatantId);
@@ -475,8 +531,8 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
 
   if (proposal.type === "move") {
     // proposal.to may carry a `path` (design doc §16, world/pathfind.mjs's wall-aware routing) —
-    // real routing data checkMoveLegality needs but which must never leak into state.positions or
-    // the battle log as if it were part of a combatant's position.
+    // real routing data checkMoveLegality needs but which must never leak into state.positions as
+    // if it were part of a combatant's position (positions are plain {col,row}).
     const { path, ...to } = proposal.to;
     const check = checkMoveLegality({
       combatant, from: pos, to, effectiveSpeed: effective.speed,
@@ -490,7 +546,14 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     turnProgress.feetMoved += stepDistance;
     turnProgress.actionsUsed += 1;
 
-    return { type: "move", from: { ...pos }, to: { ...to }, feet: stepDistance, legal: true, actionsCost: 1, decisionReason: proposal.reason ?? null };
+    // design doc §26: unlike state.positions, the LOG is exactly where this real route belongs —
+    // preserving it here is what lets the artifact viewer glide a token through its own actual
+    // wall-avoiding path instead of a straight line between endpoints, which visually cut through
+    // whatever corner/wall a genuinely bent route (decide.mjs's Dijkstra-based destination
+    // selection, ported from §16) had legitimately routed around. `path` includes the origin cell
+    // (world/pathfind.mjs's own documented shape) — null when no real path was computed at all
+    // (a wall-less scenario's straight-line fallback, where [from,to] already IS the real route).
+    return { type: "move", from: { ...pos }, to: { ...to }, path: path ?? null, feet: stepDistance, legal: true, actionsCost: 1, decisionReason: proposal.reason ?? null };
   }
 
   // Step (Player Core pg. 410): identical to a move in every way except it is capped at one
@@ -528,15 +591,25 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     turnProgress.strikesAttempted += 1;
     const mapPenalty = multipleAttackPenalty(turnProgress.strikesAttempted, (strike.traits ?? []).includes("agile"));
     const rangePenalty = rangeIncrementPenalty(strike, distanceFeet(pos, targetPos));
-    const frightenedPenalty = -(combatant.frightened ?? 0); // Frightened penalizes ALL your own checks — an attack roll is a check
+    const conditionPenalty = attackerConditionPenalty(combatant); // design doc §25: frightened + prone, replaces the old frightened-only inline snippet
     const coverBonus = hasCover(pos, targetPos, state.walls) ? STANDARD_COVER_AC_BONUS : 0;
+    // Flanking (design doc §25) is melee-only, and off-guard is never double-counted: if the
+    // target already has a PERSISTENT off-guard (prone/unconscious, already folded into
+    // baseEffective.ac by resolveEffectiveStats), flanking adds nothing further — same target,
+    // same -2, one source is enough.
+    const flankBonus = (strike.strikeType === "melee" && !isOffGuardFromConditions(target)
+      && isFlanking(combatant, pos, target, targetPos, alliesWithPositions(state, combatant), state.walls))
+      ? OFF_GUARD_AC_PENALTY : 0;
     const baseEffective = resolveEffectiveStats(target);
-    const targetEffective = coverBonus ? { ...baseEffective, ac: baseEffective.ac + coverBonus } : baseEffective;
+    const acBonus = coverBonus + flankBonus;
+    const targetEffective = acBonus ? { ...baseEffective, ac: baseEffective.ac + acBonus } : baseEffective;
 
+    const hpBefore = target.currentHP;
     const { roll: strikeResult, appliedDamage } = outcomes.strike(rng, {
-      attacker: combatant, strike, target, targetEffective, mapPenalty: mapPenalty + rangePenalty + frightenedPenalty
+      attacker: combatant, strike, target, targetEffective, mapPenalty: mapPenalty + rangePenalty + conditionPenalty
     });
     strikeResult.rangePenalty = rangePenalty;
+    applyDyingTransition({ target, hpBefore, appliedDamage, critical: strikeResult.degree === "criticalSuccess" });
     turnProgress.actionsUsed += 1;
 
     // Limited-use abilities (e.g. a strike granted by a consumable): decrement on a successful
@@ -545,7 +618,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
 
     return {
       type: "strike", strikeName: strike.name, targetId: proposal.targetId, legal: true, actionsCost: 1,
-      roll: strikeResult, hardnessApplied: targetEffective.hardness, coverBonus,
+      roll: strikeResult, hardnessApplied: targetEffective.hardness, coverBonus, flankBonus,
       damageApplied: appliedDamage, targetHPAfter: target.currentHP,
       usesRemaining: strike.usesRemaining ?? null, decisionReason: proposal.reason ?? null
     };
@@ -569,14 +642,16 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
 
     turnProgress.strikesAttempted += 1;
     const mapPenalty = multipleAttackPenalty(turnProgress.strikesAttempted, (spell.traits ?? []).includes("agile"));
-    const frightenedPenalty = -(combatant.frightened ?? 0);
+    const conditionPenalty = attackerConditionPenalty(combatant); // design doc §25 — no flanking bonus below: flanking's off-guard is melee-only, and no spell in this roster carries a melee strikeType
     const coverBonus = hasCover(pos, targetPos, state.walls) ? STANDARD_COVER_AC_BONUS : 0;
     const baseEffective = resolveEffectiveStats(target);
     const targetEffective = coverBonus ? { ...baseEffective, ac: baseEffective.ac + coverBonus } : baseEffective;
 
+    const hpBefore = target.currentHP;
     const { roll: spellResult, appliedDamage } = outcomes.strike(rng, {
-      attacker: combatant, strike: spell, target, targetEffective, mapPenalty: mapPenalty + frightenedPenalty
+      attacker: combatant, strike: spell, target, targetEffective, mapPenalty: mapPenalty + conditionPenalty
     });
+    applyDyingTransition({ target, hpBefore, appliedDamage, critical: spellResult.degree === "criticalSuccess" });
     turnProgress.actionsUsed += spell.actions ?? 1;
 
     if (spell.usesRemaining != null) spell.usesRemaining -= 1;
@@ -601,7 +676,11 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     if (!check.legal) return { type: "healAbility", targetId: proposal.targetId, legal: false, reason: check.reason };
 
     const healing = ability.healingAmount ?? 0;
+    const wasDownBeforeHealing = target.currentHP <= 0;
     target.currentHP = Math.min(target.maxHP, target.currentHP + healing);
+    // Player Core pg. 403: "restored to 1 Hit Point or more via healing, you lose the dying and
+    // unconscious conditions and can act normally on your next turn" — design doc §25.
+    if (wasDownBeforeHealing && target.currentHP > 0) applyRevival(target);
     turnProgress.actionsUsed += ability.actions ?? 1;
 
     if (ability.usesRemaining != null) ability.usesRemaining -= 1;
@@ -628,7 +707,12 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
 
     const coverBonus = hasCover(pos, targetPos, state.walls) ? STANDARD_COVER_AC_BONUS : 0;
     const targetEffective = resolveEffectiveStats(target);
+    const hpBefore = target.currentHP;
     const { roll: saveResult, appliedDamage } = outcomes.saveAttack(rng, { saveAttack: saveAttackAbility, target, targetEffective, coverBonus });
+    // Design doc §25: no attack roll here (the TARGET rolls), so the relevant "critical" for the
+    // real dying-value math is the target's own critical FAILURE of their save — Player Core's own
+    // "or the result of your critical failure" clause, not the attacker's (nonexistent) crit.
+    applyDyingTransition({ target, hpBefore, appliedDamage, critical: saveResult.degree === "criticalFailure" });
     turnProgress.actionsUsed += saveAttackAbility.actions ?? 1;
 
     if (saveAttackAbility.usesRemaining != null) saveAttackAbility.usesRemaining -= 1;
@@ -715,7 +799,13 @@ function snapshotState(state) {
       currentHP: combatant.currentHP,
       maxHP: combatant.maxHP,
       stunnedValue: combatant.stunnedValue ?? 0,
-      frightened: combatant.frightened ?? 0
+      frightened: combatant.frightened ?? 0,
+      // design doc §25 — real, not derived-and-hidden, so the artifact viewer can show them directly.
+      dyingValue: combatant.dyingValue ?? 0,
+      woundedValue: combatant.woundedValue ?? 0,
+      prone: !!combatant.prone,
+      unconscious: isUnconscious(combatant),
+      dead: isDead(combatant)
     };
   }
   return snapshot;
@@ -753,9 +843,12 @@ function checkOutcome(state) {
  * copy below already correct for it, by construction.
  *
  * Mutable surface at personnel scale: state.round; state.combatants.<id>.{currentHP,
- * stunnedValue, frightened, demoralizedTargets, conditionSaveTargets}; state.combatants.<id>.
- * {strikes,spells,healAbilities,saveAttacks,conditionSaves}[i].usesRemaining; state.positions.<id>.
- * {col,row}. (No reactionAvailable map — this tree fires no reactions, see this file's own header.)
+ * stunnedValue, frightened, dyingValue, woundedValue, prone, demoralizedTargets,
+ * conditionSaveTargets}; state.combatants.<id>.{strikes,spells,healAbilities,saveAttacks,
+ * conditionSaves}[i].usesRemaining; state.positions.<id>.{col,row}. (No reactionAvailable map —
+ * this tree fires no reactions, see this file's own header.) dyingValue/woundedValue/prone are
+ * design doc §25 additions, flat scalars for the exact same reason frightened/stunnedValue already
+ * are — see conditions.mjs's own header.
  */
 export function cloneStateForPlanning(state) {
   const combatants = new Map();

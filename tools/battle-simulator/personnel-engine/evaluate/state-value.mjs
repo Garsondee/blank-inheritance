@@ -113,6 +113,28 @@ export function usefulRangeFeet(item) {
 }
 
 /**
+ * The TRUE legal maximum range — as opposed to usefulRangeFeet's "worth using without a range
+ * penalty" — for a ranged Strike this is the real 6th-increment cap (Player Core pg. 254,
+ * legality.mjs's own checkStrikeRange: `increment * 6`), not just the first, no-penalty increment.
+ * Spells/saveAttacks/melee are identical to usefulRangeFeet (a flat `.range` or melee reach has no
+ * increment concept to widen).
+ *
+ * Design doc §27 (Ingram's adversarial-audit finding #2): decide.mjs's cover-seeking search
+ * (bestCoverDestination) used usefulRangeFeet as its own range gate, which is STRICTER than the
+ * range the AI is otherwise perfectly willing to fight at — real logs show 2nd-increment shots
+ * (a real, if -2-penalized, legal attack) fired constantly, while cover-seeking would refuse to
+ * walk that same real distance for a reachable covered position. Exists as its own function,
+ * not a usefulRangeFeet change, because usefulRangeFeet's OTHER callers (the closing gradient,
+ * bestExpectedDamage, the myRanges standoff candidates) are about "worth approaching to without a
+ * penalty," a genuinely different, already-correct question this fix must not disturb.
+ */
+export function maxLegalRangeFeet(item) {
+  if (item.range != null) return item.range;
+  if (item.strikeType === "melee") return reachFeetForStrike(item);
+  return item.rangeIncrement != null ? item.rangeIncrement * 6 : Infinity;
+}
+
+/**
  * Best expected damage this attacker could do to this target from `fromPos`, at zero multiple-
  * attack-penalty. Used both for "what can I threaten from here" and "what can they threaten me
  * with" — the same function, arguments swapped, so threat and opportunity can never be priced on

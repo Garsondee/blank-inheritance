@@ -35,6 +35,7 @@ function spliceModule(name) {
 const geometryJs = spliceModule("geometry.mjs");
 const stepsJs = spliceModule("steps.mjs");
 const libraryJs = spliceModule("library.mjs");
+const movementJs = spliceModule("movement.mjs");
 
 let index = [];
 try {
@@ -68,7 +69,8 @@ const output = template
   .replace("__MAP_BASE64__", mapBase64)
   .replace("__GEOMETRY_JS__", geometryJs)
   .replace("__STEPS_JS__", stepsJs)
-  .replace("__LIBRARY_JS__", libraryJs);
+  .replace("__LIBRARY_JS__", libraryJs)
+  .replace("__MOVEMENT_JS__", movementJs);
 
 writeFileSync(path.join(here, "contact-simulation.html"), output);
 
