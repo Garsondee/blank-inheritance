@@ -79,7 +79,7 @@
   .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
 
   .app {
-    max-width: 1320px;
+    max-width: 1760px; /* design doc §29 — Ingram's own ask: "make the display full width" */
     margin: 0 auto;
     padding: 22px 22px 40px;
     display: flex;
@@ -163,7 +163,7 @@
   /* ---------- Layout ---------- */
   .stage {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 300px;
+    grid-template-columns: minmax(0, 1fr) 220px; /* design doc §29 — roster narrowed so the map gets the freed width */
     gap: 16px;
     align-items: start;
   }
@@ -263,6 +263,35 @@
     .burst-ring.playing { animation: none; opacity: 0; }
   }
 
+  /* Thought bubbles (design doc §29 — Ingram's own ask: "have tokens create speech bubbles which
+     show what that unit is thinking and then what it does... comment on the next move, then the
+     move should play out"). An HTML overlay, not SVG — real multi-line word-wrap for a sentence of
+     decisionReason text is painless in HTML and painful in SVG (no native wrapping at all).
+     Positioned by PERCENTAGE of the map's own pixel size (MAP_PX_W/H), the same "works at whatever
+     size the container actually renders at" approach posToPx already relies on for the SVG layers,
+     so the bubble tracks correctly regardless of how wide the map panel happens to be. */
+  #bubbleLayer { position: absolute; inset: 0; pointer-events: none; }
+  .thought-bubble {
+    position: absolute; transform: translate(-50%, -100%); max-width: 200px; width: max-content;
+    background: var(--surface); border: 1.5px solid var(--ink); border-radius: 10px;
+    padding: 6px 10px; font-size: 12px; line-height: 1.35; color: var(--ink);
+    box-shadow: var(--shadow); opacity: 0; text-align: center;
+  }
+  .thought-bubble::after {
+    content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%);
+    border: 6px solid transparent; border-top-color: var(--ink);
+  }
+  .thought-bubble::before {
+    content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%); z-index: 1;
+    border: 4.5px solid transparent; border-top-color: var(--surface); margin-top: -1.5px;
+  }
+  .thought-bubble .tb-name { font-family: "Oswald", sans-serif; font-weight: 600; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-muted); margin-bottom: 2px; }
+  .thought-bubble.playing { animation: bubbleIn 0.22s ease-out forwards; }
+  @keyframes bubbleIn { from { opacity: 0; transform: translate(-50%, -88%); } to { opacity: 1; transform: translate(-50%, -100%); } }
+  @media (prefers-reduced-motion: reduce) {
+    .thought-bubble.playing { animation: none; opacity: 1; }
+  }
+
   /* Decision overlay (design doc §14h): a move's start->end path and a strike's attacker->target
      line, drawn for the CURRENT step's actions only, so a viewer can visually confirm a proposed
      action actually lands where the numbers say it should rather than trusting the log text alone. */
@@ -303,8 +332,6 @@
   .ro-box.crit { background: var(--amber); color: #fff; }
   .ro-box.illegal { background: var(--danger); color: #fff; }
   .ro-box.held, .ro-box.empty { background: transparent; border: 1px dashed var(--border); color: var(--ink-muted); font-weight: 500; }
-  .rp-why { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 12.5px; }
-  .rp-why-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-muted); margin-bottom: 6px; }
   .why-line { padding: 3px 0; line-height: 1.45; }
   .why-line b { color: var(--accent-ink); }
   .why-line.dim { color: var(--ink-muted); font-style: italic; }
@@ -337,21 +364,24 @@
   input[type=range] { width: 100%; accent-color: var(--accent); }
 
   /* ---------- Roster ---------- */
-  .roster-panel { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
-  .roster-title { padding: 2px 2px 6px; }
+  /* design doc §29 — roster narrowed (300px -> 220px) so the map gets the freed width; cards
+     tightened to match (smaller badge/padding, chips allowed to wrap onto their own line rather
+     than overflowing the now-tighter row). */
+  .roster-panel { padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .roster-title { padding: 2px 2px 4px; }
   .combatant-card {
-    display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; align-items: center;
-    padding: 9px 10px; border-radius: 8px; border: 1px solid transparent; background: var(--surface-2);
+    display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; align-items: center;
+    padding: 7px 8px; border-radius: 8px; border: 1px solid transparent; background: var(--surface-2);
   }
   .combatant-card.active { border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber) inset; }
   .combatant-card.dead { opacity: 0.45; }
   .combatant-card.unconscious { background: color-mix(in srgb, var(--danger) 12%, var(--surface-2)); }
   .cc-badge {
-    grid-row: span 2; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    font-family: "IBM Plex Mono", monospace; font-weight: 700; font-size: 11px; color: #fff;
+    grid-row: span 2; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-family: "IBM Plex Mono", monospace; font-weight: 700; font-size: 9.5px; color: #fff;
   }
-  .cc-name { font-size: 12.5px; font-weight: 600; }
-  .cc-meta { display: flex; align-items: center; gap: 6px; font-size: 11px; }
+  .cc-name { font-size: 11.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cc-meta { display: flex; align-items: center; gap: 5px; font-size: 11px; flex-wrap: wrap; }
   .hp-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; }
   .hp-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, background 0.4s ease; }
   .hp-text { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--ink-muted); white-space: nowrap; }
@@ -480,6 +510,7 @@
           <g id="tokenLayer"></g>
           <g id="effectLayer"></g>
         </svg>
+        <div id="bubbleLayer"></div>
       </div>
     </div>
 
@@ -499,7 +530,8 @@
         <button class="btn" id="btnEnd" title="Jump to end">End ⏭</button>
       </div>
       <select class="speed-select" id="speedSelect" aria-label="Playback speed">
-        <option value="0.5" selected>0.5×</option>
+        <option value="0.25" selected>0.25×</option>
+        <option value="0.5">0.5×</option>
         <option value="1">1×</option>
         <option value="2">2×</option>
         <option value="4">4×</option>
@@ -511,13 +543,9 @@
     <div class="panel rp-panel">
       <div class="rp-header">
         <div class="label">Roleplaying &amp; Decision-Making</div>
-        <div class="rp-subtitle">This round's turns so far — order, actions, and why</div>
+        <div class="rp-subtitle">This round's turns so far — order and action economy (hover a box for why)</div>
       </div>
       <div id="roundOverview"></div>
-      <div class="rp-why">
-        <div class="rp-why-title">Why this turn</div>
-        <div id="roundWhy"></div>
-      </div>
     </div>
 
     <div class="panel screen-panel">
@@ -539,7 +567,6 @@ const RUNS = __RUNS_JSON__;
 const MAP_DATA_URI = "data:image/jpeg;base64,__MAP_BASE64__";
 const SVG_NS = "http://www.w3.org/2000/svg";
 const TOKEN_GLIDE_MS = 420; // must match the CSS .token transition duration (0.42s)
-const COMBAT_BEAT_MS = 700; // design doc §28 — pacing between successive attack/heal effects within one turn, long enough to actually read each one
 
 const SIDE_COLOR = { party: "var(--token-party)", opposition: "var(--token-opposition)" };
 const DAMAGE_STATE_COLOR = {
@@ -573,8 +600,7 @@ let renderGeneration = 0;
 
 let libraryFilter = { scenario: "all", outcome: "all", sortKey: "newest" };
 let playing = false;
-let playTimer = null;
-let playSpeed = 0.5; // design doc §28 — Ingram's own ask: "Slow everything down to 1/2... to tell the full story"
+let playSpeed = 0.25; // design doc §29 — Ingram's own repeated ask, twice now: "slow play speed by 50%" on top of §28's own earlier halving
 
 const tokenEls = new Map(); // combatantId -> persistent <g class="token"> SVG element, cleared on run switch
 
@@ -868,13 +894,22 @@ function setTokenTransform(g, pos, { instant } = {}) {
  * tooling made obvious: a token would silently stick at its start-of-turn position forever).
  * Calling the first leg synchronously, right after the forced reflow, fixes it and needs no timer.
  */
-function glideToken(g, waypoints, gen) {
+/**
+ * `onDone` (design doc §29) fires once the LAST leg's own CSS transition has had time to actually
+ * finish, not just been kicked off — that's what lets the new sequential beat player (playTurnBeats)
+ * wait for a real movement action to visually complete before revealing the next reasoning bubble,
+ * instead of the old fixed-interval guess that was the actual root cause of the reported "jerky"
+ * cutoffs (a busy turn regularly needed more time than the guess allowed). Omitted by any caller
+ * that doesn't care (none currently do outside the new sequencer) for a no-op default.
+ */
+function glideToken(g, waypoints, gen, onDone) {
   const { positions, legWeights } = waypoints;
   setTokenTransform(g, positions[0], { instant: true }); // forces a reflow internally — see setTokenTransform
+  if (positions.length <= 1) { onDone?.(); return; }
   let i = 1;
   const baseMs = TOKEN_GLIDE_MS / playSpeed;
   function nextLeg() {
-    if (gen !== renderGeneration || i >= positions.length) return; // superseded by a newer render — stop
+    if (gen !== renderGeneration) return; // superseded by a newer render — stop, no onDone (a fresher sequence owns completion now)
     setTokenTransform(g, positions[i]);
     // design doc §26: a bent multi-segment path (real wall-avoiding routing) spends the SAME total
     // time as a single straight leg used to, split across however many real segments it needed —
@@ -883,6 +918,7 @@ function glideToken(g, waypoints, gen) {
     const legMs = Math.max(60, baseMs * (legWeights[i - 1] ?? 1));
     i += 1;
     if (i < positions.length) setTimeout(nextLeg, legMs);
+    else setTimeout(() => { if (gen === renderGeneration) onDone?.(); }, legMs);
   }
   nextLeg();
 }
@@ -899,10 +935,16 @@ function flashToken(g, cls) {
   setTimeout(() => g.classList.remove(cls), 550);
 }
 
-function updateMapTokens(run, step, activeId, { waypoints, jump }) {
+/**
+ * design doc §29: the active combatant's own token no longer glides straight to its end-of-turn
+ * position here — playTurnBeats drives it forward beat by beat instead, so it's positioned at the
+ * START of this turn (instant, no transition) and left there for the sequencer to animate. Every
+ * OTHER token (including the active one during a jump/scrub, or under reduced-motion) still just
+ * snaps/transitions straight to its real end-of-turn position, unchanged from before.
+ */
+function updateMapTokens(run, step, stepIdx, activeId, jump) {
   const roster = run.log.roster;
   const snapshot = step.snapshot;
-  const gen = renderGeneration;
   const reduced = prefersReducedMotion();
 
   for (const [id, info] of Object.entries(roster)) {
@@ -914,77 +956,202 @@ function updateMapTokens(run, step, activeId, { waypoints, jump }) {
 
     if (jump || reduced) {
       setTokenTransform(g, s.position, { instant: true });
-    } else if (id === activeId && waypoints && waypoints.positions.length > 1) {
-      glideToken(g, waypoints, gen);
+    } else if (id === activeId) {
+      const priorStep = steps[stepIdx - 1];
+      const startPos = priorStep?.snapshot?.[id]?.position ?? s.position;
+      setTokenTransform(g, startPos, { instant: true });
     } else {
       setTokenTransform(g, s.position);
     }
   }
+}
 
-  if (!jump && !reduced) scheduleCombatEffects(step, gen);
+// design doc §29 — base beat durations at 1x playback speed; every one scales by 1/playSpeed, so
+// the speed selector (now defaulting to 0.25x — Ingram's own repeated "slow it down further" ask)
+// remains the one real lever for pacing rather than these numbers compounding on top of it.
+const REASON_HOLD_MS = 1200;       // a normal "here's what I'm about to do and why" bubble
+const REASON_HOLD_ONLY_MS = 1600;  // a turn with no further action to play out (Stunned forfeit, Dying, fully held, a rejected proposal) — no act beat follows, so it earns a slightly longer look
+const ACT_EFFECT_HOLD_MS = 1000;   // how long a combat-result label/burst stays up once shown
+
+/**
+ * design doc §29 — Ingram's own ask: "comment on the next move, then the move should play out, then
+ * we comment on the next move whilst everything is paused, then the next move plays out." Builds an
+ * ordered list of beats for one turn: a REASON beat (a thought bubble over the acting combatant,
+ * showing the REAL decisionReason/heldReason/recovery-check text already in the log — never
+ * invented) immediately followed by the real ACT for that same action (a token glide for
+ * move/step/advance, or the §28 combat-effect display for anything else), one action at a time.
+ * Position is tracked as the list is built (`pos`) so each beat carries the real position it needs
+ * — the sequencer never has to re-derive "where is this combatant right now mid-turn."
+ */
+function buildTurnBeats(run, step, stepIdx) {
+  const beats = [];
+  if (step.kind !== "turn") return beats;
+  const roster = run.log.roster;
+  const combatantId = step.combatantId;
+  const name = shortName(roster[combatantId]?.name || combatantId);
+  const priorStep = steps[stepIdx - 1];
+  let pos = priorStep?.snapshot?.[combatantId]?.position;
+  if (!pos) return beats;
+
+  const pushReason = (text, holdOnly) => beats.push({ type: "reason", combatantId, name, text, pos: { ...pos }, holdOnly: !!holdOnly });
+
+  if (step.dying) {
+    const rc = step.recoveryCheck;
+    const outcome = rc.died ? "died — dying reached 4" : rc.stabilized ? "stabilized (gains/increases Wounded)" : `still dying (now ${rc.dyingValueAfter})`;
+    pushReason(`Unconscious — recovery check: d20 ${rc.d20} vs DC ${rc.dc} (${rc.degree}). ${outcome}.`, true);
+    return beats;
+  }
+  if (step.stunned && !(step.actions || []).length) {
+    pushReason(`Stunned — loses all ${step.stunnedActionsLost ?? 3} action(s) this turn.`, true);
+    return beats;
+  }
+  if (step.stunned) {
+    pushReason(`Stunned — loses ${step.stunnedActionsLost} action(s), acts with what's left.`, true);
+  }
+
+  const actions = step.actions || [];
+  if (!actions.length) {
+    pushReason(step.actionAccounting?.heldReason || "Nothing useful to do this turn.", true);
+    return beats;
+  }
+
+  for (const action of actions) {
+    if (action.legal === false) {
+      pushReason(`Considered it — rejected: ${action.reason}`, true);
+      continue; // a rejected proposal never moved or struck anything — nothing to actually play out
+    }
+    pushReason(action.decisionReason || "—");
+    if (action.type === "move" || action.type === "step" || action.type === "advance") {
+      beats.push({ type: "act-move", combatantId, fromPos: { ...pos }, action });
+      pos = action.to;
+    } else {
+      beats.push({ type: "act-effect", action, targetPos: step.snapshot[action.targetId]?.position });
+    }
+  }
+  return beats;
 }
 
 /**
- * Design doc §28 — Ingram's own ask: "a very simple animation to show attacks, their result (hit,
- * miss, crits etc above the target)... spells, grenades, AoE... communicated on the map visually...
- * Slow everything down... to tell the full story." Walks this turn's real actions in order and
- * staggers a flash + floating result label per action (COMBAT_BEAT_MS apart, scaled by the live
- * playback speed) — so a multi-action turn reads as a sequence of distinct events instead of every
- * result appearing on the map at once, the same problem this whole feature exists to fix. Purely
- * additive: never changes what data exists, only how it's revealed over time. Superseded-render
- * checks (`gen !== renderGeneration`) mean a mid-animation scrub cleanly cancels anything still
- * pending, matching glideToken's own established pattern.
+ * Plays one turn's beats strictly in sequence — the direct fix for the reported "jerky" cutoffs.
+ * The OLD auto-play driver advanced on a fixed interval (scheduleNextPlayStep's own BASE_STEP_MS)
+ * that had no idea how long a busy turn's own animation actually needed, so a multi-action turn
+ * regularly got cut off mid-sequence when the next turn's render() fired early. Now the NEXT turn
+ * simply never starts until `onDone` fires here, which only happens once every real beat has had
+ * its own full, real duration — no more guessing.
  */
-function scheduleCombatEffects(step, gen) {
-  if (step.kind !== "turn") return;
-  const beat = Math.max(150, COMBAT_BEAT_MS / playSpeed);
-  let cursor = 0;
-  for (const action of step.actions || []) {
-    if (action.legal === false) continue;
-    const label = combatLabelFor(action);
-    if (!label) continue; // move/step/advance — nothing to show here (the decision overlay already covers movement)
-    const delay = cursor;
-    cursor += beat;
-    const targetId = action.targetId;
-    setTimeout(() => {
-      if (gen !== renderGeneration) return; // superseded by a newer render — stop
-      const targetSnapshot = step.snapshot[targetId];
-      if (!targetSnapshot) return;
-      spawnFloatingLabel(targetSnapshot.position, label.text, label.cls);
-      const g = tokenEls.get(targetId);
-      if (g) {
-        // A real connect gets the bright impact pulse; a miss still shows its label but doesn't
-        // pretend something landed. Healing always "connects" — no roll involved.
-        if (action.type === "healAbility") flashToken(g, "heal-flash");
-        else if (label.cls.endsWith("-hit") || label.cls.endsWith("-crit")) flashToken(g, "hit-flash");
-      }
-      if (isBurstAction(action)) spawnBurst(targetSnapshot.position, label.cls.endsWith("-crit") ? "crit" : "hit");
-    }, delay);
+function playTurnBeats(run, step, stepIdx, gen, onDone) {
+  const beats = buildTurnBeats(run, step, stepIdx);
+  if (!beats.length) {
+    // Deployment/outcome steps carry no beats at all — still worth a real pause during auto-play
+    // so the round banner/outcome text isn't gone before it can be read.
+    setTimeout(() => { if (gen === renderGeneration) onDone?.(); }, Math.max(500, 1200 / playSpeed));
+    return;
   }
+  let i = 0;
+  function next() {
+    if (gen !== renderGeneration) return; // superseded by a newer render (scrub/jump/new step) — stop
+    if (i >= beats.length) { clearThoughtBubble(); onDone?.(); return; }
+    const beat = beats[i]; i++;
+    playBeat(beat, gen, next);
+  }
+  next();
 }
 
-function spawnFloatingLabel(pos, text, cls) {
+function playBeat(beat, gen, advance) {
+  if (beat.type === "reason") {
+    spawnThoughtBubble(beat.pos, beat.name, beat.text);
+    const holdMs = Math.max(400, (beat.holdOnly ? REASON_HOLD_ONLY_MS : REASON_HOLD_MS) / playSpeed);
+    setTimeout(() => { if (gen === renderGeneration) advance(); }, holdMs);
+    return;
+  }
+  if (beat.type === "act-move") {
+    const g = tokenEls.get(beat.combatantId);
+    if (!g) { advance(); return; }
+    const legs = actionLegs(beat.action);
+    glideToken(g, { positions: [beat.fromPos, ...legs], legWeights: legs.map(() => 1 / legs.length) }, gen, advance);
+    return;
+  }
+  if (beat.type === "act-effect") {
+    playCombatEffectBeat(beat.action, beat.targetPos, gen, advance);
+    return;
+  }
+  advance(); // unknown beat type — never hang the sequence over something unexpected
+}
+
+/** design doc §28's own flash/label/burst display, now driven by the sequencer's own beat clock
+ * instead of an independent staggered setTimeout burst — same visuals, real sequencing. */
+function playCombatEffectBeat(action, targetPos, gen, advance) {
+  const holdMs = Math.max(500, ACT_EFFECT_HOLD_MS / playSpeed);
+  const label = combatLabelFor(action);
+  if (label && targetPos) {
+    spawnFloatingLabel(targetPos, label.text, label.cls, holdMs);
+    const g = tokenEls.get(action.targetId);
+    if (g) {
+      // A real connect gets the bright impact pulse; a miss still shows its label but doesn't
+      // pretend something landed. Healing always "connects" — no roll involved.
+      if (action.type === "healAbility") flashToken(g, "heal-flash");
+      else if (label.cls.endsWith("-hit") || label.cls.endsWith("-crit")) flashToken(g, "hit-flash");
+    }
+    if (isBurstAction(action)) spawnBurst(targetPos, label.cls.endsWith("-crit") ? "crit" : "hit", Math.min(holdMs, 900));
+  }
+  setTimeout(() => { if (gen === renderGeneration) advance(); }, holdMs);
+}
+
+function spawnFloatingLabel(pos, text, cls, holdMs = 1300) {
   const px = posToPx(pos);
   const el = document.createElementNS(SVG_NS, "text");
   el.setAttribute("class", `combat-label ${cls}`);
   el.setAttribute("x", px.x);
   el.setAttribute("y", px.y - CELL * 0.6);
+  el.style.animationDuration = `${holdMs}ms`; // overrides just the duration from the class's own animation shorthand — floatUp's real keyframe shape stretches to fit whatever hold this beat needs
   el.textContent = text;
   document.getElementById("effectLayer").appendChild(el);
   requestAnimationFrame(() => el.classList.add("playing")); // same reflow-then-animate pattern setTokenTransform/glideToken already rely on
-  setTimeout(() => el.remove(), 1300);
+  setTimeout(() => el.remove(), holdMs);
 }
 
-function spawnBurst(pos, flavor) {
+function spawnBurst(pos, flavor, holdMs = 700) {
   const px = posToPx(pos);
   const el = document.createElementNS(SVG_NS, "circle");
   el.setAttribute("class", `burst-ring ${flavor}`);
   el.setAttribute("cx", px.x);
   el.setAttribute("cy", px.y);
   el.setAttribute("r", 3);
+  el.style.animationDuration = `${holdMs}ms`;
   document.getElementById("effectLayer").appendChild(el);
   requestAnimationFrame(() => el.classList.add("playing"));
-  setTimeout(() => el.remove(), 700);
+  setTimeout(() => el.remove(), holdMs);
+}
+
+/** A grid position -> percentage-of-container offset, the HTML equivalent of posToPx — the
+ * bubble layer is a plain HTML overlay (real word-wrap, painless), not SVG, so it can't use SVG
+ * pixel coordinates directly; percentages track correctly regardless of how wide the map panel
+ * actually renders, same "works at whatever size the container is" property posToPx relies on. */
+function posToPercent(pos) {
+  const px = posToPx(pos);
+  return { left: (px.x / MAP_PX_W) * 100, top: (px.y / MAP_PX_H) * 100 };
+}
+
+let currentBubbleEl = null;
+function clearThoughtBubble() {
+  if (currentBubbleEl) { currentBubbleEl.remove(); currentBubbleEl = null; }
+}
+function spawnThoughtBubble(pos, name, text) {
+  clearThoughtBubble();
+  const pct = posToPercent(pos);
+  const el = document.createElement("div");
+  el.className = "thought-bubble";
+  el.style.left = `${pct.left}%`;
+  el.style.top = `${pct.top}%`;
+  const nameEl = document.createElement("div");
+  nameEl.className = "tb-name";
+  nameEl.textContent = name;
+  const textEl = document.createElement("div");
+  textEl.textContent = text;
+  el.append(nameEl, textEl);
+  document.getElementById("bubbleLayer").appendChild(el);
+  requestAnimationFrame(() => el.classList.add("playing"));
+  currentBubbleEl = el;
 }
 
 /**
@@ -1024,7 +1191,7 @@ function renderRoster(run, snapshot, activeId) {
     const barColor = dead ? "var(--ink-muted)" : s.unconscious ? "var(--danger)" : dsColor;
     return `<div class="combatant-card${id === activeId ? " active" : ""}${dead ? " dead" : ""}${s.unconscious ? " unconscious" : ""}">
       <div class="cc-badge" style="background:${SIDE_COLOR[info.side]}">${initials(info.name)}</div>
-      <div class="cc-name">${info.name.replace(/^TEST FIXTURE — /, "")}</div>
+      <div class="cc-name" title="${info.name.replace(/^TEST FIXTURE — /, "").replace(/"/g, "&quot;")}">${shortName(info.name)}</div>
       <div class="cc-meta">
         <div class="hp-bar"><div class="hp-bar-fill" style="width:${pct}%; background:${barColor}"></div></div>
         <div class="hp-text">${s.currentHP ?? (dead ? "0" : "—")}/${info.maxHP}</div>
@@ -1061,11 +1228,9 @@ function actionShortLabel(action) {
  */
 function renderRoundOverview(run, step, stepIdx) {
   const overviewEl = document.getElementById("roundOverview");
-  const whyEl = document.getElementById("roundWhy");
-  if (!overviewEl || !whyEl) return;
+  if (!overviewEl) return;
   if (step.kind !== "turn") {
     overviewEl.innerHTML = `<div class="why-line dim">${step.kind === "deployment" ? "Round 0 — deployment. No turns taken yet." : "Battle over — see the outcome above."}</div>`;
-    whyEl.innerHTML = "";
     return;
   }
 
@@ -1106,6 +1271,10 @@ function renderRoundOverview(run, step, stepIdx) {
     return { combatantId: s.combatantId, name: shortName(info.name || s.combatantId), side: info.side, isActive: s === step, boxes };
   });
 
+  // design doc §29: the separate always-visible "Why this turn" text panel was retired — the SAME
+  // decisionReason text now appears directly on the map via the speech-bubble sequence (closer to
+  // where the action actually happens), and every box here still carries it as a hover title, so
+  // nothing is lost, just de-duplicated.
   overviewEl.innerHTML = rows.map((r) => `
     <div class="ro-row${r.isActive ? " active" : ""}">
       <div class="ro-name"><span class="side-dot" style="background:${SIDE_COLOR[r.side] || "var(--ink-muted)"}"></span>${r.name}</div>
@@ -1116,10 +1285,6 @@ function renderRoundOverview(run, step, stepIdx) {
       </div>
     </div>
   `).join("");
-
-  const activeRow = rows.find((r) => r.isActive);
-  const reasonLines = (activeRow?.boxes || []).filter((b) => b.why).map((b) => `<div class="why-line"><b>${b.label}:</b> ${b.why}</div>`);
-  whyEl.innerHTML = reasonLines.length ? reasonLines.join("") : `<div class="why-line dim">No specific reasoning recorded for this turn (a scripted or forced action, not a weighed choice).</div>`;
 }
 
 function renderScreen(run, step) {
@@ -1330,10 +1495,19 @@ function renderCurrentRun(run) {
   `;
 }
 
-function render() {
+/**
+ * `onStepDone` (design doc §29) fires once this step's real playback has genuinely finished —
+ * immediately for a hard jump/scrub (nothing to wait for) or reduced-motion, otherwise once
+ * playTurnBeats' own sequential reason/act chain completes. play() uses this to know when it's
+ * actually safe to advance to the NEXT step, replacing the old fixed-interval guess that regularly
+ * cut a busy turn's own animation off mid-sequence (the actual root cause of the reported "jerky"
+ * playback) with a real completion signal.
+ */
+function render(onStepDone) {
   const run = getRun(currentRunId);
   if (!run) {
     document.getElementById("scenarioNote").textContent = "No simulations logged yet — run tools/battle-simulator/run-scenario.mjs, then artifact/build.mjs.";
+    onStepDone?.();
     return;
   }
   const step = steps[stepIndex];
@@ -1341,6 +1515,7 @@ function render() {
 
   const jump = lastRenderedRunId !== currentRunId || lastRenderedIndex === null || Math.abs(stepIndex - lastRenderedIndex) !== 1;
   renderGeneration += 1;
+  const gen = renderGeneration;
 
   document.getElementById("scenarioNote").textContent = run.label;
   // The embedded city-district photo is a Frame-scale-only asset (design doc §19) — a personnel-
@@ -1354,12 +1529,12 @@ function render() {
   mapImgEl.alt = isWalledRun ? "" : "City district battle map, 44x44 grid";
 
   document.getElementById("overlayLayer").innerHTML = renderDecisionOverlay(run, step, stepIndex);
-  // A hard jump (far scrub, run switch) shouldn't leave a stale combat-result label from wherever
-  // the view WAS floating over the map — scheduleCombatEffects itself only runs on a real step-by-
-  // step advance (!jump), but any label/burst already mid-animation from before the jump needs an
-  // explicit clear here since, unlike #overlayLayer, this layer isn't rebuilt via innerHTML each render.
-  if (jump) document.getElementById("effectLayer").innerHTML = "";
-  updateMapTokens(run, step, activeId, { waypoints: combatantWaypoints(steps, stepIndex), jump });
+  // A hard jump (far scrub, run switch) shouldn't leave a stale combat-result label or thought
+  // bubble from wherever the view WAS — the sequencer itself only runs on a real step-by-step
+  // advance (!jump), but anything already mid-animation from before the jump needs an explicit
+  // clear here since, unlike #overlayLayer, these layers aren't rebuilt via innerHTML each render.
+  if (jump) { document.getElementById("effectLayer").innerHTML = ""; clearThoughtBubble(); }
+  updateMapTokens(run, step, stepIndex, activeId, jump);
   renderCurrentRun(run);
   renderRoster(run, step.snapshot, activeId);
   renderInitiativeStrip(run, activeId);
@@ -1386,9 +1561,13 @@ function render() {
 
   lastRenderedIndex = stepIndex;
   lastRenderedRunId = currentRunId;
+
+  const reduced = prefersReducedMotion();
+  if (!jump && !reduced) playTurnBeats(run, step, stepIndex, gen, onStepDone);
+  else onStepDone?.();
 }
 
-function goTo(i) { stepIndex = Math.max(0, Math.min(steps.length - 1, i)); render(); }
+function goTo(i, onDone) { stepIndex = Math.max(0, Math.min(steps.length - 1, i)); render(onDone); }
 
 function selectRun(id) {
   if (id === currentRunId) return;
@@ -1419,32 +1598,34 @@ function selectRun(id) {
   render();
 }
 
-/** Play/pause — auto-advance through the scrubber at a speed-adjusted interval (design doc §15n). */
+/**
+ * Play/pause (design doc §15n, restructured by §29). Previously advanced on a FIXED interval
+ * (BASE_STEP_MS) with no idea how long the CURRENT step's own animation actually needed — the real
+ * root cause of the reported "jerky" playback: a busy turn regularly took longer to play out than
+ * the guessed interval allowed, so the next turn's render() fired and cut it off mid-sequence. Now
+ * genuinely completion-driven: advancePlay() only moves to the next step once render()'s own
+ * onStepDone callback confirms the current one has actually finished (immediately for a step with
+ * no beats to play, like deployment/outcome; once playTurnBeats' real sequence completes otherwise).
+ */
 function updatePlayButton() {
   const btn = document.getElementById("btnPlay");
   btn.textContent = playing ? "⏸ Pause" : "▶ Play";
   btn.title = playing ? "Pause (space)" : "Play (space)";
 }
-function scheduleNextPlayStep() {
-  const BASE_STEP_MS = 1400;
-  const delay = Math.max(180, BASE_STEP_MS / playSpeed);
-  playTimer = setTimeout(() => {
-    if (!playing) return;
-    if (stepIndex >= steps.length - 1) { pause(); return; }
-    goTo(stepIndex + 1);
-    if (playing) scheduleNextPlayStep();
-  }, delay);
+function advancePlay() {
+  if (!playing) return;
+  if (stepIndex >= steps.length - 1) { pause(); return; }
+  goTo(stepIndex + 1, () => { if (playing) advancePlay(); });
 }
 function play() {
   if (playing || stepIndex >= steps.length - 1) return;
   playing = true;
   updatePlayButton();
-  scheduleNextPlayStep();
+  advancePlay();
 }
 function pause() {
   if (!playing) return;
   playing = false;
-  clearTimeout(playTimer);
   updatePlayButton();
 }
 function togglePlay() { playing ? pause() : play(); }
