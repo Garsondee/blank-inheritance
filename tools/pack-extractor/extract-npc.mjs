@@ -17,6 +17,15 @@
  * Reactions and other actions stay on the combatant as real, cited, DESCRIPTIVE data (name,
  * verbatim trigger/effect text) — not mechanically wired, matching personnel-engine/engine.mjs's
  * own stated stance on reactions until a real trigger condition is worth building.
+ *
+ * EXTENDED (design doc §21's "bigger battlefield" follow-up, first spellcasting NPC — Xenowarden
+ * Greenhorn): deriveSpellAttacks() below reads attack-roll spells the same read-and-rename way as
+ * everything else in this file. Unlike a PC's spell (build-combat-pregen.mjs's deriveSpells, which
+ * derives an attack bonus from proficiency rank + ability modifier), an NPC's spellcastingEntry
+ * already carries a FINAL, precomputed `system.spelldc.{value,dc}` pair — confirmed directly against
+ * Xenowarden Greenhorn's own raw data (`{"dc":14,"value":6}`) — so no ability-modifier math is
+ * needed at all, exactly the same "NPCs store final numbers" shape this file's header already
+ * documents for Strikes/AC/saves.
  */
 import { readPackDocuments } from "./read-pack.mjs";
 
@@ -101,4 +110,53 @@ export function toCombatant(npc, { strikeNames, side = "opposition" } = {}) {
     // it for a skill nobody bothered to list is inventing a number nothing in the raw data asked for).
     skills: Object.fromEntries(Object.entries(npc.actor.system.skills ?? {}).map(([name, s]) => [name, s.base]))
   };
+}
+
+/**
+ * Derive real attack-roll spells for an NPC, by explicit name (same "hand-identified, not
+ * auto-detected" discipline as build-combat-pregen.mjs's deriveSaveAttacks — nothing structurally
+ * marks a spell as combat-relevant vs. exploration/utility besides its own "attack" trait, which
+ * this function DOES check, but a caller must still choose which attack-roll spells are worth
+ * wiring in). Output shape matches the PC side's derived spell exactly ({name, attackBonus, range,
+ * actions, traits, damage?}) so personnel-engine/engine.mjs's spellAttack action — which only ever
+ * reads `combatant.spells`, never anything PC-specific — needs zero changes to accept it.
+ *
+ * Two real gaps handled here, both found by running this against Xenowarden Greenhorn's own raw
+ * data rather than assumed:
+ *  - RANGE: Gouging Claw's raw range is the string "touch", not a number of feet. A naive
+ *    `parseInt("touch", 10)` silently produces NaN, and personnel-engine/legality.mjs's
+ *    `checkSpellRange` computes `maxRange = spell.range ?? FEET_PER_SQUARE` — since `??` only falls
+ *    back on null/undefined, NOT NaN, a NaN range would silently survive into `dist > maxRange`,
+ *    which is ALWAYS false for any finite dist (NaN comparisons are always false) — meaning the
+ *    spell would be legally castable from literally anywhere on the map, the opposite of "touch".
+ *    Fixed here by mapping any non-numeric range string to `null`, matching checkSpellRange's own
+ *    documented convention ("no range field means touch/adjacent-only").
+ *  - PERSISTENT DAMAGE: Gouging Claw's real damage is TWO entries (2d6 untyped instant + 2
+ *    persistent bleed) — only the first (instant) entry is taken, same scope limit already
+ *    documented for the PC side's firstSpellDamage, and for the same reason: personnel-engine has
+ *    no persistent-damage-over-time mechanism to apply the second entry to. Not silently dropped
+ *    without a record — flagged here in code, same as every other honest gap in this project.
+ */
+export function deriveSpellAttacks(npc, spellNames) {
+  return spellNames.map((wantedName) => {
+    const spell = npc.items.find((i) => i.type === "spell" && i.name === wantedName);
+    if (!spell) throw new Error(`No spell named "${wantedName}" on ${npc.name}.`);
+    if (!(spell.system.traits?.value ?? []).includes("attack")) {
+      throw new Error(`"${wantedName}" is not an attack-roll spell (no "attack" trait) — deriveSpellAttacks only supports attack-roll spells, same as the PC side.`);
+    }
+    const entry = npc.items.find((i) => i.type === "spellcastingEntry" && i._id === spell.system.location.value);
+    if (!entry) throw new Error(`"${wantedName}" on ${npc.name}: no spellcastingEntry found matching its own system.location.value.`);
+
+    const parsedRange = parseInt(spell.system.range?.value, 10);
+    const [damageEntry] = Object.values(spell.system.damage ?? {}); // integer-like keys iterate first — always the instant entry, never a persistent one
+
+    return {
+      name: spell.name,
+      attackBonus: entry.system.spelldc.value,
+      range: Number.isFinite(parsedRange) ? parsedRange : null,
+      actions: parseInt(spell.system.time.value, 10),
+      traits: spell.system.traits.value,
+      ...(damageEntry ? { damage: [{ dice: damageEntry.formula, bonus: 0, damageType: damageEntry.type }] } : {})
+    };
+  });
 }

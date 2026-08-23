@@ -1,0 +1,97 @@
+{
+  "id": "raw-validation-xenowarden-greenhorn",
+  "name": "Xenowarden Greenhorn",
+  "side": "opposition",
+  "maxHP": 20,
+  "currentHP": 20,
+  "ac": 15,
+  "saves": {
+    "fort": 7,
+    "ref": 7,
+    "will": 4
+  },
+  "speed": 25,
+  "strikes": [
+    {
+      "name": "Arc Pistol",
+      "strikeType": "ranged",
+      "attackBonus": 7,
+      "rangeIncrement": 30,
+      "traits": [
+        "arc",
+        "expend-2",
+        "reload-1",
+        "tech"
+      ],
+      "damage": [
+        {
+          "dice": "1d4",
+          "bonus": 0,
+          "damageType": "electricity"
+        }
+      ]
+    },
+    {
+      "name": "Nano-edge Rapier",
+      "strikeType": "melee",
+      "attackBonus": 7,
+      "traits": [
+        "analog",
+        "deadly-d8",
+        "disarm",
+        "finesse"
+      ],
+      "damage": [
+        {
+          "dice": "1d6",
+          "bonus": 3,
+          "damageType": "piercing"
+        }
+      ]
+    }
+  ],
+  "reactions": [],
+  "actions": [
+    {
+      "name": "Grown Together",
+      "actionType": "passive",
+      "actionsCost": null,
+      "description": "<p>A Xenowarden greenhorn's AC increases by +1 when they're within reach of at least one other Xenowarden greenhorn.</p>"
+    }
+  ],
+  "lore": [
+    {
+      "name": "Xenowarden Lore",
+      "modifier": 3
+    }
+  ],
+  "skills": {
+    "acrobatics": 5,
+    "athletics": 6,
+    "nature": 4
+  },
+  "spells": [
+    {
+      "name": "Gouging Claw",
+      "attackBonus": 6,
+      "range": null,
+      "actions": 2,
+      "traits": [
+        "attack",
+        "cantrip",
+        "concentrate",
+        "manipulate",
+        "morph"
+      ],
+      "damage": [
+        {
+          "dice": "2d6",
+          "bonus": 0,
+          "damageType": "untyped"
+        }
+      ]
+    }
+  ],
+  "intimidationModifier": null,
+  "notes": "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Gouging Claw is this project's first NPC attack-roll spell, wired via extract-npc.mjs's deriveSpellAttacks(): attack bonus and range both come directly from her real raw data (spellcastingEntry.system.spelldc.value = 6, matching her Strikes' own +7-ish power level; range \"touch\" mapped to null, matching checkSpellRange's own adjacent-only convention — see deriveSpellAttacks' own header for why a naive parseInt(\"touch\") would have been a real, silent range-check bug). Her real second damage entry (2 persistent bleed) is not carried — personnel-engine has no persistent-damage mechanism, same documented scope limit as the PC side's own firstSpellDamage. \"Grown Together\" (a passive AC bonus that requires another Xenowarden Greenhorn present) is real but situational — not applicable to this fight, so left undocumented on this combatant rather than mechanically wired for a condition that can't occur here."
+}

@@ -9,11 +9,12 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { findNPC, toCombatant } from "../../tools/pack-extractor/extract-npc.mjs";
+import { findNPC, toCombatant, deriveSpellAttacks } from "../../tools/pack-extractor/extract-npc.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..", "..");
 const bestiaryDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "rulebook-bestiaries");
+const alienCoreDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "alien-core-bestiary");
 
 test("findNPC: locates Security Goon by exact name, with every embedded item attached", () => {
   const goon = findNPC(bestiaryDir, "Security Goon");
@@ -93,4 +94,33 @@ test("toCombatant: skills carries the real, final modifiers actually listed on t
   const goon = findNPC(bestiaryDir, "Security Goon");
   const combatant = toCombatant(goon, { strikeNames: [] });
   assert.deepEqual(combatant.skills, { athletics: 8, intimidation: 6 });
+});
+
+// --- deriveSpellAttacks (design doc §21's "bigger battlefield" follow-up — first NPC spellcaster) ---
+
+test("deriveSpellAttacks: Gouging Claw on Xenowarden Greenhorn — attack bonus and DC come straight off her real spellcastingEntry, no ability-modifier math", () => {
+  const xenowarden = findNPC(alienCoreDir, "Xenowarden Greenhorn");
+  const [gougingClaw] = deriveSpellAttacks(xenowarden, ["Gouging Claw"]);
+  assert.equal(gougingClaw.attackBonus, 6, "must equal her real spellcastingEntry.system.spelldc.value, not a derived number");
+  assert.equal(gougingClaw.actions, 2);
+  assert.ok(gougingClaw.traits.includes("attack"));
+  assert.deepEqual(gougingClaw.damage, [{ dice: "2d6", bonus: 0, damageType: "untyped" }], "only the first (instant) damage entry — the 2 persistent bleed entry is a documented, deliberate scope cut, same as the PC side's firstSpellDamage");
+});
+
+test("deriveSpellAttacks: a \"touch\"-range spell maps to range:null, not a silent NaN — checkSpellRange's ?? fallback only catches null/undefined, and a NaN range would make the spell legally castable from anywhere on the map", () => {
+  const xenowarden = findNPC(alienCoreDir, "Xenowarden Greenhorn");
+  const [gougingClaw] = deriveSpellAttacks(xenowarden, ["Gouging Claw"]);
+  assert.equal(gougingClaw.range, null);
+  assert.notEqual(gougingClaw.range, NaN); // documents the bug this guards against, even though NaN !== NaN makes this assertion trivially true
+  assert.ok(!Number.isNaN(gougingClaw.range));
+});
+
+test("deriveSpellAttacks: throws a clear error for a spell name that doesn't exist, rather than silently omitting it", () => {
+  const xenowarden = findNPC(alienCoreDir, "Xenowarden Greenhorn");
+  assert.throws(() => deriveSpellAttacks(xenowarden, ["Not A Real Spell"]), /No spell named/);
+});
+
+test("deriveSpellAttacks: throws for a real spell that has no \"attack\" trait (Scan Environment is pure exploration utility), rather than silently wiring a non-attack spell as an attack", () => {
+  const xenowarden = findNPC(alienCoreDir, "Xenowarden Greenhorn");
+  assert.throws(() => deriveSpellAttacks(xenowarden, ["Scan Environment"]), /not an attack-roll spell/);
 });

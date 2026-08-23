@@ -22,6 +22,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { runBattle } from "./personnel-engine/engine.mjs";
 import { buildScenario as buildLunar17VsSecurityGoon } from "./scenarios/personnel-lunar17-vs-security-goon.mjs";
+import { buildScenario as buildComplexBattle } from "./scenarios/personnel-complex-battle.mjs";
 import { runFileName, buildIndexEntry, mergeIndexEntry, trimRunPayload } from "./analysis/run-log-store.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -65,6 +66,24 @@ const SCENARIOS = {
     build: (args) => buildLunar17VsSecurityGoon({ ...args, setup: "FAR_ROOMS" }),
     label: "Lunar-17 vs. Security Goon — far rooms, two doorways to route through",
     defaultSeed: 1, roundLimit: 20
+  },
+  // Design doc §21's "bigger battlefield" expansion: 2-vs-2 on the larger two-building complex,
+  // Lunar-17+Tapkey vs. Security Goon+Xenowarden Greenhorn — the same real-fixtures-only discipline
+  // as the 1v1 scenarios above, just more combatants and a bigger map.
+  "complex-2v2-same-room": {
+    build: (args) => buildComplexBattle({ ...args, partyFixtures: ["lunar-17.json", "tapkey.json"], oppositionFixtures: ["security-goon.json", "xenowarden-greenhorn.json"], setup: "SAME_ROOM" }),
+    label: "2v2: Lunar-17+Tapkey vs. Security Goon+Xenowarden Greenhorn — same room, open sightline across the courtyard doorways",
+    defaultSeed: 1, roundLimit: 30
+  },
+  "complex-2v2-same-building-far-rooms": {
+    build: (args) => buildComplexBattle({ ...args, partyFixtures: ["lunar-17.json", "tapkey.json"], oppositionFixtures: ["security-goon.json", "xenowarden-greenhorn.json"], setup: "SAME_BUILDING_FAR_ROOMS" }),
+    label: "2v2: Lunar-17+Tapkey vs. Security Goon+Xenowarden Greenhorn — opposite corners of one building",
+    defaultSeed: 1, roundLimit: 30
+  },
+  "complex-2v2-across-the-complex": {
+    build: (args) => buildComplexBattle({ ...args, partyFixtures: ["lunar-17.json", "tapkey.json"], oppositionFixtures: ["security-goon.json", "xenowarden-greenhorn.json"], setup: "ACROSS_THE_COMPLEX" }),
+    label: "2v2: Lunar-17+Tapkey vs. Security Goon+Xenowarden Greenhorn — across the whole complex, farthest rooms in opposite buildings",
+    defaultSeed: 1, roundLimit: 30
   }
 };
 
