@@ -9,7 +9,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { findNPC, toCombatant, deriveSpellAttacks } from "../../tools/pack-extractor/extract-npc.mjs";
+import { findNPC, toCombatant, deriveSpellAttacks, deriveConditionSave } from "../../tools/pack-extractor/extract-npc.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..", "..");
@@ -123,4 +123,43 @@ test("deriveSpellAttacks: throws a clear error for a spell name that doesn't exi
 test("deriveSpellAttacks: throws for a real spell that has no \"attack\" trait (Scan Environment is pure exploration utility), rather than silently wiring a non-attack spell as an attack", () => {
   const xenowarden = findNPC(alienCoreDir, "Xenowarden Greenhorn");
   assert.throws(() => deriveSpellAttacks(xenowarden, ["Scan Environment"]), /not an attack-roll spell/);
+});
+
+// --- deriveConditionSave (design doc §22's 3v3 NPC-research follow-up — Erabryth's Forced Reflection, this project's first condition-only save action) ---
+
+const FORCED_REFLECTION_OUTCOMES = {
+  criticalSuccess: {},
+  success: { frightened: 1 },
+  failure: { stunnedRounds: 1, frightened: 1 },
+  criticalFailure: { stunnedRounds: 2, frightened: 2 }
+};
+
+test("deriveConditionSave: Forced Reflection on Erabryth — DC comes straight off her real spellcastingEntry (matching the @Check[will|dc:17] embedded in her own description exactly, two independent sources agreeing), real 1 action", () => {
+  const erabryth = findNPC(alienCoreDir, "Erabryth");
+  const forcedReflection = deriveConditionSave(erabryth, { name: "Forced Reflection", saveType: "will", range: 60, outcomes: FORCED_REFLECTION_OUTCOMES });
+  assert.equal(forcedReflection.dc, 17);
+  assert.equal(forcedReflection.actions, 1);
+  assert.equal(forcedReflection.saveType, "will");
+  assert.equal(forcedReflection.range, 60);
+  assert.deepEqual(forcedReflection.outcomes, FORCED_REFLECTION_OUTCOMES, "the outcome table is passed through exactly as supplied — this function derives the DC/range/actions, never invents the per-degree table itself");
+});
+
+test("deriveConditionSave: real traits are carried through (mental, fear, incapacitation, etc.)", () => {
+  const erabryth = findNPC(alienCoreDir, "Erabryth");
+  const forcedReflection = deriveConditionSave(erabryth, { name: "Forced Reflection", saveType: "will", range: 60, outcomes: FORCED_REFLECTION_OUTCOMES });
+  assert.ok(forcedReflection.traits.includes("mental"));
+  assert.ok(forcedReflection.traits.includes("fear"));
+});
+
+test("deriveConditionSave: throws a clear error for an action name that doesn't exist, rather than silently omitting it", () => {
+  const erabryth = findNPC(alienCoreDir, "Erabryth");
+  assert.throws(() => deriveConditionSave(erabryth, { name: "Not A Real Action", saveType: "will", range: 60, outcomes: {} }), /No action named/);
+});
+
+test("toCombatant: Erabryth's real Strikes (Ribbon/Fist/Light Ray) derive cleanly through the existing, unmodified lookup — the same real melee items the design doc §22 research verified all carry system.action:\"strike\"", () => {
+  const erabryth = findNPC(alienCoreDir, "Erabryth");
+  const combatant = toCombatant(erabryth, { strikeNames: ["Ribbon", "Fist", "Light Ray"] });
+  assert.equal(combatant.strikes.length, 3);
+  const ribbon = combatant.strikes.find((s) => s.name === "Ribbon");
+  assert.ok(ribbon.traits.includes("reach-10"), "Ribbon's real reach-10 trait — the roster's first reach weapon");
 });

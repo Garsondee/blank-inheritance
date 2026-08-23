@@ -89,3 +89,52 @@ export function cleanRangeFeetLocal(item) {
   if (item.range != null) return item.range;
   return reachFeetForStrikeLocal(item);
 }
+
+/**
+ * Which CSS class a Foundry Wall schema segment (design doc §22) renders with — three real flavors
+ * now exist, each drawn distinctly rather than as one undifferentiated dark line. Checked here
+ * rather than only inline in template.html because getting this classification backwards (e.g.
+ * treating a window as a plain wall) would silently make a real mechanical difference invisible on
+ * the map — the same "a visual confirmation tool is only trustworthy if it can't silently drift"
+ * reasoning this whole module already exists for.
+ */
+export function wallLineClass(wall) {
+  if (wall.cover) return "cover-line";
+  if (wall.sight === 0) return "window-line";
+  return "wall-line";
+}
+
+/**
+ * Degree-of-success -> decision-line class, for an ATTACK ROLL (strike, spellAttack) — the
+ * ATTACKER rolls, so criticalSuccess is their best outcome. `prefix` is "strike" or "spell" so the
+ * same 3-tier shape serves both action types while keeping their colors distinct (design doc §22 —
+ * "shot" vs. "spell").
+ */
+export function attackRollClass(prefix, degree) {
+  if (degree === "criticalSuccess") return `${prefix}-crit`;
+  if (degree === "success") return `${prefix}-hit`;
+  return `${prefix}-miss`;
+}
+
+/**
+ * Degree-of-success -> decision-line class, for a SAVE (saveAttack, conditionSave) — the TARGET
+ * rolls, so the polarity INVERTS relative to attackRollClass: the target's criticalFailure is the
+ * best outcome for the attacker's effect (double damage, Player Core's basic-save table), not their
+ * worst. Getting this inversion backwards would make a critically-failed save render as a miss.
+ */
+export function saveRollClass(prefix, degree) {
+  if (degree === "criticalFailure") return `${prefix}-crit`;
+  if (degree === "failure") return `${prefix}-hit`;
+  return `${prefix}-miss`;
+}
+
+/**
+ * Degree-of-success -> decision-line class, for Demoralize specifically — an Intimidation check,
+ * not an attack or a save. Only 2 real outcome tiers exist (REAL_OUTCOMES.demoralize's own
+ * appliedFrightened table gives criticalSuccess/success some real frightened value, failure/
+ * criticalFailure exactly 0), so this stays a plain hit/miss rather than borrowing a 3-tier scale
+ * that would imply a distinction (a "critical" Demoralize) the mechanic doesn't actually have.
+ */
+export function demoralizeClass(degree) {
+  return (degree === "criticalSuccess" || degree === "success") ? "demoralize-hit" : "demoralize-miss";
+}

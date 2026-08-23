@@ -17,7 +17,7 @@ import { reachFeetForStrike } from "../../tools/battle-simulator/engine/grid.mjs
 // they're mutable `let` exports now (design doc §19: the library holds both Frame- and
 // personnel-scale runs), and a destructured binding would freeze a stale value the moment
 // setMapScale() reassigns the module's own exports out from under it.
-const { setMapScale, posToPx, vertexToPx, feetToPx, reachFeetForStrikeLocal, cleanRangeFeetLocal } = geometry;
+const { setMapScale, posToPx, vertexToPx, feetToPx, reachFeetForStrikeLocal, cleanRangeFeetLocal, wallLineClass, attackRollClass, saveRollClass, demoralizeClass } = geometry;
 
 test("default scale (no setMapScale call yet): 44x44 at 30px/cell, 50ft/square — matches every Frame-scale run written before this field existed", () => {
   assert.equal(geometry.COLS, 44);
@@ -99,4 +99,55 @@ test("cleanRangeFeetLocal: falls through to reachFeetForStrikeLocal for anything
   const ranged = { strikeType: "ranged", rangeIncrement: 100 };
   assert.equal(cleanRangeFeetLocal(melee), 300);
   assert.equal(cleanRangeFeetLocal(ranged), 100);
+});
+
+// --- wallLineClass / degree-classification (design doc §22 — cover, windows, and the "shot" vs.
+// "spell" vs. Demoralize decision-line distinction) ---
+
+test("wallLineClass: a plain solid wall (move+sight both blocked, no cover flag) is \"wall-line\"", () => {
+  assert.equal(wallLineClass({ c: [0, 0, 1, 0], move: 20, sight: 20 }), "wall-line");
+});
+
+test("wallLineClass: a window (sight:0, move blocked, no cover flag) is \"window-line\", NOT \"wall-line\" — the whole point of authoring a window at all is that it must read differently from a solid wall", () => {
+  assert.equal(wallLineClass({ c: [0, 0, 1, 0], move: 20, sight: 0 }), "window-line");
+});
+
+test("wallLineClass: a cover object (cover:true) is \"cover-line\" even though its move/sight shape (move:20, sight:0) is otherwise IDENTICAL to a window's — cover must be checked first, or every cover object on the map would silently render as an ordinary window", () => {
+  assert.equal(wallLineClass({ c: [0, 0, 1, 0], move: 20, sight: 0, cover: true }), "cover-line");
+});
+
+test("wallLineClass: cover:false is falsy and must NOT be treated the same as cover:true", () => {
+  assert.equal(wallLineClass({ c: [0, 0, 1, 0], move: 20, sight: 0, cover: false }), "window-line");
+});
+
+test("attackRollClass: attacker-rolls polarity — criticalSuccess is the BEST outcome (crit), failure/criticalFailure both collapse to miss", () => {
+  assert.equal(attackRollClass("strike", "criticalSuccess"), "strike-crit");
+  assert.equal(attackRollClass("strike", "success"), "strike-hit");
+  assert.equal(attackRollClass("strike", "failure"), "strike-miss");
+  assert.equal(attackRollClass("strike", "criticalFailure"), "strike-miss");
+});
+
+test("attackRollClass: the prefix parameter keeps strike and spell visually distinct while sharing the same 3-tier shape", () => {
+  assert.equal(attackRollClass("spell", "criticalSuccess"), "spell-crit");
+  assert.equal(attackRollClass("spell", "success"), "spell-hit");
+});
+
+test("saveRollClass: save polarity is the INVERSE of attackRollClass — the target's criticalFailure is the attacker's best outcome (Player Core's basic-save table: criticalFailure = double damage), not their worst", () => {
+  assert.equal(saveRollClass("spell", "criticalFailure"), "spell-crit");
+  assert.equal(saveRollClass("spell", "failure"), "spell-hit");
+  assert.equal(saveRollClass("spell", "success"), "spell-miss");
+  assert.equal(saveRollClass("spell", "criticalSuccess"), "spell-miss");
+});
+
+test("saveRollClass and attackRollClass disagree on both ends of the scale for the same degree strings — this is the actual bug this pair of functions exists to prevent (using the wrong one for a save-based action would silently invert every cover/degree outcome shown on the map)", () => {
+  for (const degree of ["criticalSuccess", "failure", "criticalFailure"]) {
+    assert.notEqual(attackRollClass("spell", degree), saveRollClass("spell", degree));
+  }
+});
+
+test("demoralizeClass: only 2 real tiers — criticalSuccess/success both land (some frightened applied), failure/criticalFailure both miss (REAL_OUTCOMES.demoralize's own appliedFrightened table gives exactly 0 for both)", () => {
+  assert.equal(demoralizeClass("criticalSuccess"), "demoralize-hit");
+  assert.equal(demoralizeClass("success"), "demoralize-hit");
+  assert.equal(demoralizeClass("failure"), "demoralize-miss");
+  assert.equal(demoralizeClass("criticalFailure"), "demoralize-miss");
 });

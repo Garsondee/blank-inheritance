@@ -21,6 +21,7 @@ import {
   checkHealAbilityLegal,
   checkSaveAttackLegal,
   checkDemoralizeLegal,
+  checkConditionSaveLegal,
   multipleAttackPenalty,
   rangeIncrementPenalty
 } from "../../tools/battle-simulator/personnel-engine/legality.mjs";
@@ -420,7 +421,7 @@ test("checkHealAbilityLegal: a depleted ability (usesRemaining 0) is rejected", 
 // (design doc §19). The grenade's real range (70ft) is Lunar-17's own real extracted number.
 // ---------------------------------------------------------------------------
 
-const grenade = { name: "Incendiary Grenade (Commercial)", saveType: "reflex", dc: 17, range: 70, actions: 1, traits: ["consumable", "fire"], damage: [{ dice: "1d8", bonus: 0, damageType: "fire" }] };
+const grenade = { name: "Incendiary Grenade (Commercial)", saveType: "ref", dc: 17, range: 70, actions: 1, traits: ["consumable", "fire"], damage: [{ dice: "1d8", bonus: 0, damageType: "fire" }] };
 
 test("checkSaveAttackLegal: legal for a real in-range target with enough actions", () => {
   const attacker = { id: "a", name: "Thrower", currentHP: 15 };
@@ -488,4 +489,55 @@ test("checkDemoralizeLegal: a DIFFERENT attacker who hasn't tried yet can still 
   const target = { id: "t", name: "Target", currentHP: 10 };
   const result = checkDemoralizeLegal({ attacker: freshAttacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, turnState: openBudget });
   assert.equal(result.legal, true);
+});
+
+// ---------------------------------------------------------------------------
+// checkConditionSaveLegal — design doc §22 (Erabryth's Forced Reflection). Real range/DC values.
+// ---------------------------------------------------------------------------
+
+const forcedReflection = { name: "Forced Reflection", saveType: "will", dc: 17, range: 60, actions: 1, traits: ["mental"], outcomes: {} };
+
+test("checkConditionSaveLegal: legal for a real in-range target with enough actions", () => {
+  const attacker = { id: "a", name: "Erabryth", currentHP: 20 };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkConditionSaveLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 10, row: 0 }, conditionSave: forcedReflection, turnState: openBudget }); // 50ft
+  assert.equal(result.legal, true);
+});
+
+test("checkConditionSaveLegal: rejects out of range (beyond the real 60ft)", () => {
+  const attacker = { id: "a", name: "Erabryth", currentHP: 20 };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkConditionSaveLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 14, row: 0 }, conditionSave: forcedReflection, turnState: openBudget }); // 70ft
+  assert.equal(result.legal, false);
+});
+
+test("checkConditionSaveLegal: respects Line of Effect, same as every other targeted action", () => {
+  const wall = [{ c: [1, 0, 1, 1], move: 20, sight: 20 }];
+  const attacker = { id: "a", name: "Erabryth", currentHP: 20 };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkConditionSaveLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 1, row: 0 }, conditionSave: forcedReflection, turnState: openBudget, walls: wall });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /line of effect/i);
+});
+
+test("checkConditionSaveLegal: rejects a target already tried with this SAME ability this encounter (the real 'immune for 1 day' text, functionally 'never again' within a combat this short)", () => {
+  const attacker = { id: "a", name: "Erabryth", currentHP: 20, conditionSaveTargets: ["Forced Reflection|t"] };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkConditionSaveLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, conditionSave: forcedReflection, turnState: openBudget });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /already tried/);
+});
+
+test("checkConditionSaveLegal: the immunity gate is keyed PER-ABILITY, not just per-target — a different conditionSave against the same target is unaffected", () => {
+  const attacker = { id: "a", name: "Erabryth", currentHP: 20, conditionSaveTargets: ["Some Other Ability|t"] };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkConditionSaveLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, conditionSave: forcedReflection, turnState: openBudget });
+  assert.equal(result.legal, true);
+});
+
+test("checkConditionSaveLegal: rejects when the action budget doesn't allow it", () => {
+  const attacker = { id: "a", name: "Erabryth", currentHP: 20 };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkConditionSaveLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, conditionSave: forcedReflection, turnState: { actionsAvailable: 3, actionsUsed: 3 } });
+  assert.equal(result.legal, false);
 });

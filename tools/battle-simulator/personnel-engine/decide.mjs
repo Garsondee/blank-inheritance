@@ -247,6 +247,16 @@ export function generateProposals(state, combatantId, turn) {
     }
   }
 
+  // --- Condition-only saves (design doc §22, e.g. Forced Reflection): same "skip an
+  // already-doomed-to-fail proposal" filtering as Demoralize above, keyed per-ability since a
+  // combatant could have more than one (checkConditionSaveLegal's own gate key). ---
+  (me.conditionSaves ?? []).forEach((cs, i) => {
+    for (const e of enemies) {
+      if (me.conditionSaveTargets?.includes(`${cs.name}|${e.id}`)) continue;
+      proposals.push({ type: "conditionSave", targetId: e.id, conditionSaveIndex: i });
+    }
+  });
+
   // --- Support ---
   (me.healAbilities ?? []).forEach((_, i) => {
     for (const t of [me, ...allies]) if (t.currentHP < t.maxHP) proposals.push({ type: "healAbility", targetId: t.id, abilityIndex: i });
@@ -352,6 +362,7 @@ function describe(proposal, result) {
     case "spellAttack": return `Cast ${result?.spellName ?? "spell " + (proposal.spellIndex ?? 0)}`;
     case "saveAttack": return `Use ${result?.saveAttackName ?? "ability " + (proposal.saveAttackIndex ?? 0)} against ${proposal.targetId}`;
     case "demoralize": return `Demoralize ${proposal.targetId}`;
+    case "conditionSave": return `Use ${result?.conditionSaveName ?? "ability " + (proposal.conditionSaveIndex ?? 0)} against ${proposal.targetId}`;
     case "healAbility": return `Heal ${proposal.targetId} with ${result?.abilityName ?? "ability"}`;
     default: return proposal.type;
   }

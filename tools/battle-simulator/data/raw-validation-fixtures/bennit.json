@@ -1,0 +1,79 @@
+{
+  "id": "raw-validation-bennit",
+  "name": "“Nitpick” Bennit (level-1 Witchwarper pregen, design doc §22 — real Paizo Adventure Pregen, NOT one of the six real campaign kids)",
+  "side": "party",
+  "maxHP": 15,
+  "currentHP": 15,
+  "ac": 17,
+  "saves": {
+    "fort": 4,
+    "ref": 6,
+    "will": 6
+  },
+  "perception": 4,
+  "speed": 25,
+  "strikes": [
+    {
+      "name": "Laser Pistol",
+      "strikeType": "ranged",
+      "attackBonus": 6,
+      "rangeIncrement": 40,
+      "traits": [
+        "tech"
+      ],
+      "damage": [
+        {
+          "dice": "1d6",
+          "bonus": 0,
+          "damageType": "fire"
+        }
+      ]
+    },
+    {
+      "name": "Semi-Auto Pistol",
+      "strikeType": "ranged",
+      "attackBonus": 6,
+      "rangeIncrement": 60,
+      "traits": [
+        "analog"
+      ],
+      "damage": [
+        {
+          "dice": "1d6",
+          "bonus": 0,
+          "damageType": "piercing"
+        }
+      ]
+    }
+  ],
+  "saveAttacks": [
+    {
+      "name": "Thunderstrike",
+      "saveType": "ref",
+      "dc": 17,
+      "range": 120,
+      "actions": 2,
+      "traits": [
+        "concentrate",
+        "electricity",
+        "manipulate",
+        "sonic"
+      ],
+      "damage": [
+        {
+          "dice": "1d12",
+          "bonus": 0,
+          "damageType": "electricity"
+        },
+        {
+          "dice": "1d4",
+          "bonus": 0,
+          "damageType": "sonic"
+        }
+      ],
+      "usesRemaining": 3
+    }
+  ],
+  "intimidationModifier": 1,
+  "notes": "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §22. Thunderstrike (a real basic-Reflex-save spell, 1d12 electricity + 1d4 sonic) is this project's first save-based SPELL — deriveSaveSpells reads its save type directly off the spell's own structured system.defense.save.statistic field (not hand-supplied prose-reading, unlike a weapon's save-based effect), and its DC from her real spellcasting DC (deriveSpellDC), not Class DC. usesRemaining (3) is her real spell-slot count (system.slots.slot1.max), not an invented number. Her Frag Grenade (Commercial) is real but NOT wired as a usable action, for the same reason as every other grenade in this project: its raw description is a 5ft-burst AREA effect, not a single-target attack — see design doc §22."
+}

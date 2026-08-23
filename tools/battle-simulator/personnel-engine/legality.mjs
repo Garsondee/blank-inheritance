@@ -13,6 +13,11 @@
  * Phase 3, per design/scale-and-chassis.md §19's own "no saving-throw mechanism" note) and
  * checkDemoralizeLegal (Intimidation's Demoralize action, Player Core pg. 200, mirrored verbatim
  * at reference/srd/player-core/skill-8-intimidation.json).
+ *
+ * EXTENDED AGAIN (design doc §22's 3v3 NPC-research follow-up): checkConditionSaveLegal (a target
+ * rolls a save whose effect is a per-degree CONDITION table, e.g. Erabryth's Forced Reflection —
+ * Frightened/Stunned by degree, no damage at all) — structurally checkSaveAttackLegal's own shape
+ * plus a per-attacker-per-ability-per-target one-time gate.
  */
 
 import { distanceFeet, isOccupied, isInBounds, reachFeetForStrike, FEET_PER_SQUARE } from "./grid.mjs";
@@ -320,6 +325,48 @@ export function checkDemoralizeLegal({ attacker, attackerPos, target, targetPos,
 
   if (attacker.demoralizedTargets?.includes(target.id)) {
     return { legal: false, reason: `${attacker.name} has already tried to Demoralize ${target.name} this encounter — can't attempt it again for 10 minutes.` };
+  }
+
+  return { legal: true, reason: null };
+}
+
+/**
+ * A condition-only save action (design doc §22 — e.g. Erabryth's Forced Reflection): the TARGET
+ * rolls a save, same as checkSaveAttackLegal, but the effect is a per-degree table of CONDITIONS
+ * (Frightened/Stunned) rather than a flat damage multiplier — structurally identical legality to
+ * checkSaveAttackLegal (range/budget/perception/LOS/uses), kept as its own function rather than a
+ * variant flag on that one, matching this file's own existing precedent of one function per action
+ * type even where two are structurally close (checkSaveAttackLegal vs. checkDemoralizeLegal). The
+ * one genuinely different check: a per-attacker per-target one-time gate, same shape as Demoralize's
+ * own `demoralizedTargets` — Forced Reflection's real text is "regardless of the result, the target
+ * is then temporarily immune... for 1 day," functionally "never again this battle," the identical
+ * reasoning checkDemoralizeLegal's own header already documents for its 10-minute cooldown.
+ */
+export function checkConditionSaveLegal({ attacker, attackerPos, target, targetPos, conditionSave, turnState, walls }) {
+  const actorAlive = checkActorAlive(attacker);
+  if (!actorAlive.legal) return actorAlive;
+
+  const budget = checkActionBudget(turnState, conditionSave.actions ?? 1);
+  if (!budget.legal) return budget;
+
+  const alive = checkTargetAlive(target);
+  if (!alive.legal) return alive;
+
+  const dist = distanceFeet(attackerPos, targetPos);
+  const maxRange = conditionSave.range ?? FEET_PER_SQUARE;
+  if (dist > maxRange) {
+    return { legal: false, reason: `Target is ${dist}ft away, beyond ${conditionSave.name}'s range (${maxRange}ft).` };
+  }
+
+  const perception = checkPerceptionRange({ attacker, attackerPos, targetPos });
+  if (!perception.legal) return perception;
+
+  if (!lineOfEffect(attackerPos, targetPos, walls)) {
+    return { legal: false, reason: `No line of effect to ${target.name} — a wall entirely blocks it.` };
+  }
+
+  if (attacker.conditionSaveTargets?.includes(`${conditionSave.name}|${target.id}`)) {
+    return { legal: false, reason: `${attacker.name} has already tried ${conditionSave.name} against ${target.name} this encounter — can't attempt it again.` };
   }
 
   return { legal: true, reason: null };

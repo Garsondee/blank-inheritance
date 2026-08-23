@@ -160,3 +160,34 @@ export function deriveSpellAttacks(npc, spellNames) {
     };
   });
 }
+
+/**
+ * Derive a real condition-only save action (design doc §22 — Erabryth's Forced Reflection).
+ * Genuinely different shape from every other NPC action derived so far: the target rolls a save,
+ * but the effect is a per-degree table of CONDITIONS (Frightened/Stunned), not a flat damage
+ * multiplier. Only the DC comes off a real structured field (the NPC's spellcastingEntry, the SAME
+ * `spelldc.dc` field deriveSpellAttacks already reads — confirmed directly against Erabryth's own
+ * raw data that this matches the `@Check[will|dc:17]` embedded in her action's own free-text
+ * description exactly, two independent sources agreeing). Everything else — which save, the range,
+ * and above all the per-degree outcome table itself — is HAND-TRANSCRIBED by the caller from the
+ * action's real description prose, because nothing in the raw data structures any of that: an
+ * `action`-type item has no `defense.save` field the way a spell does, and definitely no per-degree
+ * condition table anywhere machine-readable. Same "hand-identify, cite verbatim, never infer"
+ * discipline as every other prose-only case in this project.
+ */
+export function deriveConditionSave(npc, { name, saveType, range, outcomes }) {
+  const action = npc.items.find((i) => i.type === "action" && i.name === name);
+  if (!action) throw new Error(`No action named "${name}" on ${npc.name}.`);
+  const entry = npc.items.find((i) => i.type === "spellcastingEntry");
+  if (!entry) throw new Error(`"${name}" on ${npc.name}: no spellcastingEntry found to source a DC from.`);
+
+  return {
+    name: action.name,
+    saveType,
+    dc: entry.system.spelldc.dc,
+    range,
+    actions: action.system.actions?.value ?? 1,
+    traits: action.system.traits?.value ?? [],
+    outcomes
+  };
+}

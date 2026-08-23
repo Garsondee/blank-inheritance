@@ -15,12 +15,21 @@
  * (Prone) — that's a genuinely different kind of gap (a missing prerequisite mechanism, not a
  * missing resolution mechanism) and stays out of scope on its own terms.
  *
- * Every save-based item is still hand-identified BY NAME, not auto-detected — nothing in the raw
- * weapon data structurally distinguishes "this is a save-based attack" from an ordinary Strike
+ * Every save-based ITEM is still hand-identified BY NAME, not auto-detected — nothing in the raw
+ * WEAPON data structurally distinguishes "this is a save-based attack" from an ordinary Strike
  * (the Incendiary Grenade's system.damage shape is IDENTICAL to Zero Knife's; the difference is
  * only visible in free-text description prose, "...with a @Check[reflex...] save"). Building
  * automatic detection for what's still a small, known set of cases would be exactly the kind of
- * fragile inference this project's "don't invent" conventions warn against.
+ * fragile inference this project's "don't invent" conventions warn against. A save-based SPELL is
+ * a different story — see deriveSaveSpells below, which reads it off a real structured field.
+ *
+ * EXTENDED (design doc §22's 3v3 pregen-research follow-up): deriveSaveSpells derives a real
+ * basic-save SPELL (Bennit's Thunderstrike) — genuinely new capability, not a repeat of an existing
+ * pattern with different data, because a spell's raw item carries `system.defense.save` as a real
+ * structured field (`{statistic, basic}`), unlike a weapon's save-based effect, which never says
+ * which save it targets anywhere but free-text prose. Reuses personnel-engine's existing
+ * `saveAttack` action type completely unchanged (checkSaveAttackLegal doesn't care whether its
+ * `saveAttack` object originated from a weapon or a spell — same shape either way).
  */
 import { deriveStrikeAttackBonus, abilityForStrikeAttack, deriveStrikeDamageBonus, deriveSpellAttack, deriveSpellDC, deriveClassDC, proficiency, SKILL_KEY_ABILITY } from "./derive.mjs";
 
@@ -40,6 +49,28 @@ function firstSpellDamage(damageMap) {
   if (!entry) return null;
   return { dice: entry.formula, bonus: 0, damageType: entry.type }; // Player Core pg. 398: spell damage adds no ability modifier by default
 }
+
+/**
+ * A spell's raw `system.range.value` is a free-text string ("30 feet", "120 feet") EXCEPT for
+ * touch-range spells, where it's literally `"touch"` — `parseInt("touch", 10)` silently produces
+ * `NaN`, and personnel-engine/legality.mjs's checkSpellRange computes `spell.range ?? FEET_PER_SQUARE`;
+ * since `??` only falls back on null/undefined, NOT NaN, a NaN range would have survived straight
+ * into a `dist > maxRange` comparison that's ALWAYS false for NaN — making a touch spell legally
+ * castable from anywhere on the map. Found and fixed on the NPC-side reader
+ * (pack-extractor/extract-npc.mjs's deriveSpellAttacks) first; applied here too since this function
+ * reads the exact same raw field shape.
+ */
+function parseSpellRangeFeet(rawRange) {
+  const parsed = parseInt(rawRange, 10);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+/** Player Core's real save-statistic names ("reflex"/"fortitude"/"will") mapped to this project's
+ * own established short-key convention (`combatant.saves` is always `{fort, ref, will}`, matching
+ * every real fixture and sf2e-common's own proficiency shape) — a saveType value must use the SAME
+ * convention `saves` itself uses, or `target.saves[saveType]` silently resolves to `undefined` and
+ * every save becomes an unwinnable criticalFailure (design doc §22's own real, found regression). */
+const SAVE_STATISTIC_TO_KEY = { reflex: "ref", fortitude: "fort", will: "will" };
 
 /**
  * Derive real Strikes for every weapon in `weaponNames` (by name, from `ingredients.weapons`) —
@@ -97,10 +128,60 @@ export function deriveSpells(ingredients, spellNames, abilityModifiers) {
     return {
       name: spell.name,
       attackBonus,
-      range: parseInt(spell.system.range.value, 10), // e.g. "30 feet" -> 30
+      range: parseSpellRangeFeet(spell.system.range.value), // e.g. "30 feet" -> 30; "touch" -> null, not NaN (see parseSpellRangeFeet)
       actions: parseInt(spell.system.time.value, 10),
       traits: spell.system.traits.value,
       ...(damage ? { damage: [damage] } : {})
+    };
+  });
+}
+
+/**
+ * Derive a real basic-save SPELL (design doc §22 — Bennit's Thunderstrike). Unlike deriveSaveAttacks'
+ * weapons, a spell's own raw data structurally names its save: `system.defense.save.{statistic,basic}`
+ * — read directly, not hand-supplied by the caller, and verified to actually be a BASIC save (the
+ * only shape personnel-engine's saveAttack resolution implements) rather than assumed. DC comes from
+ * the wielder's real spellcasting DC (deriveSpellDC, via the spell's own governing spellcastingEntry —
+ * the SAME ability+proficiency lookup deriveSpells already does for attack-roll spells), not Class DC —
+ * a spell's DC and a mundane item's DC are genuinely different SF2E numbers.
+ */
+export function deriveSaveSpells(ingredients, spellNames, abilityModifiers) {
+  const { spells, spellcastingEntries, level } = ingredients;
+  return spellNames.map((wantedName) => {
+    const spell = spells.find((s) => s.name === wantedName);
+    if (!spell) throw new Error(`No spell named "${wantedName}" in this pregen's raw spell list.`);
+    const saveInfo = spell.system.defense?.save;
+    if (!saveInfo?.basic) {
+      throw new Error(`"${wantedName}" is not a basic-save spell (system.defense.save.basic must be true) — deriveSaveSpells only supports the basic-save shape, see this file's own header.`);
+    }
+    const saveType = SAVE_STATISTIC_TO_KEY[saveInfo.statistic];
+    if (!saveType) throw new Error(`"${wantedName}": unrecognized save statistic "${saveInfo.statistic}".`);
+
+    const entry = spellcastingEntries.find((e) => e._id === spell.system.location.value);
+    if (!entry) throw new Error(`"${wantedName}": no spellcastingEntry found matching its own system.location.value.`);
+    const rankIndex = rankIndexOf(entry.system.proficiency.value);
+    const abilityKey = entry.system.ability.value;
+    const dc = deriveSpellDC({ rankIndex, level, abilityModifier: abilityModifiers[abilityKey] });
+
+    // A spell's damage map can carry MULTIPLE real entries (Thunderstrike: 1d12 electricity + 1d4
+    // sonic, both dealt together under the one save) — unlike firstSpellDamage (an attack-roll
+    // spell's single entry), every entry here is real and kept; personnel-engine/engine.mjs's own
+    // saveAttack resolution already sums every damage[] entry before applying the basic-save
+    // multiplier once, so this needs no engine changes to work correctly.
+    const damage = Object.values(spell.system.damage ?? {}).map((d) => ({ dice: d.formula, bonus: 0, damageType: d.type }));
+
+    return {
+      name: spell.name,
+      saveType,
+      dc,
+      range: parseSpellRangeFeet(spell.system.range.value),
+      actions: parseInt(spell.system.time.value, 10),
+      traits: spell.system.traits.value,
+      damage,
+      // A real spell-slot count (this project's own extension of deriveSaveAttacks' own
+      // system.quantity precedent, applied to spells instead of consumable items) — NOT unlimited.
+      // Bennit's real "Arcane Spontaneous Spells" entry carries system.slots.slot1.max: 3.
+      usesRemaining: entry.system.slots?.slot1?.max ?? null
     };
   });
 }

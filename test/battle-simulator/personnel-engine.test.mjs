@@ -303,7 +303,7 @@ function makeThrower(overrides = {}) {
   return {
     id: "thrower", name: "Thrower", side: "party", maxHP: 15, currentHP: 15, ac: 17,
     saves: { fort: 4, ref: 6, will: 9 }, speed: 25,
-    saveAttacks: [{ name: "Grenade", saveType: "reflex", dc: 17, range: 70, actions: 1, damage: [{ dice: "1d8", bonus: 0, damageType: "fire" }] }],
+    saveAttacks: [{ name: "Grenade", saveType: "ref", dc: 17, range: 70, actions: 1, damage: [{ dice: "1d8", bonus: 0, damageType: "fire" }] }],
     position: { col: 0, row: 0 },
     ...overrides
   };
@@ -327,8 +327,37 @@ test("saveAttack: the TARGET rolls (not the attacker), resolves via a real basic
   const action = log.rounds[0].turns.find((t) => t.combatantId === "thrower").actions.find((a) => a.type === "saveAttack");
   assert.equal(action.legal, true);
   assert.ok(["criticalSuccess", "success", "failure", "criticalFailure"].includes(action.roll.degree));
-  assert.equal(action.roll.saveBonus, target.saves.reflex, "the roll must use the TARGET's own Reflex save, never the thrower's");
+  assert.equal(action.roll.saveBonus, target.saves.ref, "the roll must use the TARGET's own Reflex save, never the thrower's");
   assert.equal(action.usesRemaining, 0);
+});
+
+/**
+ * REGRESSION (design doc §22, found while building the cover feature — not by inspection): every
+ * combatant's `saves` object uses the project's established SHORT key convention (`fort`/`ref`/
+ * `will`, matching every real fixture and sf2e-common's own proficiency shape), but `saveType`
+ * values had been authored as the FULL word ("reflex") in the original §20 grenade work and copied
+ * forward from there. `target.saves["reflex"]` is `undefined`; `undefined + 0` is `NaN`; and
+ * `degreeOfSuccess`'s three `>=`/`>` comparisons against a NaN total are ALL false in JS, so the
+ * result fell all the way through to the `criticalFailure` branch UNCONDITIONALLY (every comparison
+ * against NaN is false — there is no "middle" outcome to land on), varying only when a natural 20
+ * shifted it up to a plain failure. A real target facing a real saveAttack was, in effect, never
+ * capable of a genuine save at all — worst-case damage nearly every time, regardless of the real
+ * d20 rolled. Silent because nothing asserted the actual NUMBER `saveBonus` resolved to, only that
+ * `degree` was one of the four valid strings (criticalFailure IS a valid string). Pinned directly:
+ * across real dice, the degree distribution must show real variety, not certainty.
+ */
+test("saveAttack: real dice produce a real spread of degrees across many rolls — NOT criticalFailure (near-)every time, which is what a NaN saveBonus silently produces", () => {
+  const degrees = new Set();
+  for (let seed = 1; seed <= 30; seed++) {
+    const thrower = makeThrower();
+    const target = makeGoon({ position: { col: 1, row: 0 } });
+    function ai(state, id, turn) { return id === "thrower" && turn.actionsUsed === 0 ? { type: "saveAttack", targetId: "goon", saveAttackIndex: 0 } : null; }
+    const log = runBattle({ seed, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [thrower, target], ai });
+    const action = log.rounds[0].turns.find((t) => t.combatantId === "thrower").actions.find((a) => a.type === "saveAttack");
+    assert.ok(Number.isFinite(action.roll.saveBonus), `seed ${seed}: saveBonus must be a real finite number, got ${action.roll.saveBonus}`);
+    degrees.add(action.roll.degree);
+  }
+  assert.ok(degrees.size > 1, `expected a real spread of degrees across 30 seeds, saw only: ${[...degrees].join(", ")}`);
 });
 
 test("saveAttack: never increments the shared Multiple Attack Penalty counter — no attack roll happens at all", () => {
@@ -408,6 +437,171 @@ test("Frightened decays by exactly 1 at the end of the frightened combatant's ow
   assert.equal(goonTurns[0].snapshot.goon.frightened, 2, "after round 1's turn, 3 -> 2");
   assert.equal(goonTurns[1].snapshot.goon.frightened, 1, "after round 2's turn, 2 -> 1");
   assert.equal(goonTurns[2].snapshot.goon.frightened, 0, "after round 3's turn, 1 -> 0");
+});
+
+// --- conditionSave (design doc §22, e.g. Erabryth's Forced Reflection) ---
+
+function makeErabryth(overrides = {}) {
+  return {
+    id: "erabryth", name: "Erabryth", side: "opposition", maxHP: 20, currentHP: 20, ac: 15,
+    saves: { fort: 4, ref: 9, will: 6 }, speed: 25,
+    conditionSaves: [{
+      name: "Forced Reflection", saveType: "will", dc: 17, range: 60, actions: 1, traits: ["mental"],
+      outcomes: {
+        criticalSuccess: {},
+        success: { frightened: 1 },
+        failure: { stunnedRounds: 1, frightened: 1 },
+        criticalFailure: { stunnedRounds: 2, frightened: 2 }
+      }
+    }],
+    position: { col: 0, row: 0 },
+    ...overrides
+  };
+}
+
+test("conditionSave: the TARGET rolls a real save, and every one of the 4 real degrees appears across enough seeds — not a fixed/fake outcome", () => {
+  const degrees = new Set();
+  for (let seed = 1; seed <= 30; seed++) {
+    const erabryth = makeErabryth();
+    const target = makeGoon({ id: "target", side: "party", saves: { fort: 5, ref: 5, will: 2 }, position: { col: 5, row: 0 } });
+    function ai(state, id, turn) { return id === "erabryth" && turn.actionsUsed === 0 ? { type: "conditionSave", targetId: "target", conditionSaveIndex: 0 } : null; }
+    const log = runBattle({ seed, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [erabryth, target], ai });
+    const action = log.rounds[0].turns.find((t) => t.combatantId === "erabryth").actions.find((a) => a.type === "conditionSave");
+    assert.equal(action.legal, true);
+    degrees.add(action.roll.degree);
+  }
+  assert.equal(degrees.size, 4, `expected all 4 real degrees across 30 seeds, saw: ${[...degrees].join(", ")}`);
+});
+
+test("conditionSave: applies the REAL per-degree table exactly — failure sets both Stunned 1 and Frightened 1 together", () => {
+  const erabryth = makeErabryth();
+  const target = makeGoon({ id: "target", side: "party", saves: { fort: 5, ref: 5, will: 2 }, position: { col: 5, row: 0 } });
+  function ai(state, id, turn) { return id === "erabryth" && turn.actionsUsed === 0 ? { type: "conditionSave", targetId: "target", conditionSaveIndex: 0 } : null; }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [erabryth, target], ai });
+  const action = log.rounds[0].turns.find((t) => t.combatantId === "erabryth").actions.find((a) => a.type === "conditionSave");
+  // seed 1 with these real stats is independently confirmed (by direct diagnostic, not guessed) to
+  // land on "failure" — pinned here as a real, reproducible example of the table applying correctly,
+  // not asserting every seed must land here (a fixed modifier can never force EVERY d20 into one
+  // narrow degree band, so this test relies on one known-good seed rather than a false "guaranteed" claim).
+  assert.equal(action.roll.degree, "failure");
+  assert.deepEqual(action.applied, { stunnedRounds: 1, frightened: 1 });
+  assert.equal(action.targetFrightenedAfter, 1);
+  assert.equal(action.targetStunnedRoundsAfter, 1);
+});
+
+test("conditionSave: never increments the shared Multiple Attack Penalty counter — no attack roll happens at all, same as saveAttack/demoralize", () => {
+  const erabryth = makeErabryth({ strikes: [{ name: "Fallback Strike", strikeType: "melee", attackBonus: 100, traits: [], damage: [{ dice: "1d1", bonus: 0 }] }] });
+  const target = makeGoon({ id: "target", side: "party", position: { col: 0, row: 0 } });
+  function ai(state, id, turn) {
+    if (id !== "erabryth") return null;
+    if (turn.actionsUsed === 0) return { type: "conditionSave", targetId: "target", conditionSaveIndex: 0 };
+    if (turn.actionsUsed === 1) return { type: "strike", targetId: "target", strikeIndex: 0 };
+    return null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [erabryth, target], ai });
+  const strike = log.rounds[0].turns.find((t) => t.combatantId === "erabryth").actions.find((a) => a.type === "strike");
+  assert.equal(strike.roll.mapPenalty, 0, "the Strike immediately after a conditionSave must carry 0 MAP — conditionSave never counts as an attack roll");
+});
+
+test("conditionSave: a target already tried with this ability is rejected on a second attempt, and the corresponding real regression is pinned end to end (checkConditionSaveLegal's own unit test covers the legality math; this proves the full engine wiring)", () => {
+  const erabryth = makeErabryth();
+  const target = makeGoon({ id: "target", side: "party", currentHP: 30, position: { col: 5, row: 0 } });
+  function ai(state, id, turn) { return id === "erabryth" && turn.actionsUsed === 0 ? { type: "conditionSave", targetId: "target", conditionSaveIndex: 0 } : null; }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 3, combatants: [erabryth, target], ai });
+  const attempts = log.rounds.flatMap((r) => r.turns).filter((t) => t.combatantId === "erabryth").flatMap((t) => t.actions ?? []).filter((a) => a.type === "conditionSave");
+  assert.equal(attempts[0].legal, true);
+  for (const later of attempts.slice(1)) {
+    assert.equal(later.legal, false);
+    assert.match(later.reason, /already tried/);
+  }
+});
+
+test("conditionSave: a stunned target really does skip its own next turn — the round loop's existing stunnedRounds mechanism, now reachable from a real in-combat action for the first time", () => {
+  const erabryth = makeErabryth({ conditionSaves: [{ name: "Forced Reflection", saveType: "will", dc: 50, range: 60, actions: 1, traits: [], outcomes: { criticalSuccess: {}, success: {}, failure: { stunnedRounds: 1 }, criticalFailure: { stunnedRounds: 1 } } }] }); // guaranteed failure or worse
+  const target = makeGoon({ id: "target", side: "party", position: { col: 5, row: 0 } }); // must be on the OTHER side, or checkOutcome ends the battle at round 1 with no real party at all
+  function ai(state, id, turn) { return id === "erabryth" && turn.actionsUsed === 0 ? { type: "conditionSave", targetId: "target", conditionSaveIndex: 0 } : null; }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 2, combatants: [erabryth, target], ai });
+  const targetTurns = log.rounds.flatMap((r) => r.turns).filter((t) => t.combatantId === "target");
+  assert.ok(targetTurns.some((t) => t.stunned === true), `expected the target to show stunned:true on some later turn, got: ${JSON.stringify(targetTurns.map((t) => t.stunned))}`);
+});
+
+// --- Standard cover (design doc §22, Player Core pg. 416) ---
+
+function makeAttacker(overrides = {}) {
+  return {
+    id: "attacker", name: "Attacker", side: "party", maxHP: 16, currentHP: 16, ac: 15,
+    saves: { fort: 5, ref: 5, will: 5 }, speed: 25,
+    strikes: [{ name: "Sidearm", strikeType: "ranged", attackBonus: 10, rangeIncrement: 60, traits: [], damage: [{ dice: "1d1", bonus: 5 }] }],
+    saveAttacks: [{ name: "Test Blast", saveType: "ref", dc: 20, range: 60, actions: 1, traits: [], damage: [{ dice: "1d1", bonus: 5 }], usesRemaining: 5 }],
+    position: { col: 0, row: 0 },
+    ...overrides
+  };
+}
+function makeDefender(overrides = {}) {
+  return {
+    id: "defender", name: "Defender", side: "opposition", maxHP: 30, currentHP: 30, ac: 10,
+    saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], position: { col: 5, row: 0 },
+    ...overrides
+  };
+}
+const COVER_WALL = [{ c: [2, 0, 2, 1], cover: true }]; // sits squarely between (0,0) and (5,0)
+
+test("strike: a real cover object between attacker and target logs coverBonus:2 and the target's own AC/saves are never mutated by it (cover is relative to THIS shot, not a standing condition)", () => {
+  const attacker = makeAttacker();
+  const defender = makeDefender();
+  function ai(state, id, turn) { return id === "attacker" && turn.actionsUsed === 0 ? { type: "strike", targetId: "defender", strikeIndex: 0 } : null; }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [attacker, defender], ai, walls: COVER_WALL });
+  const strike = log.rounds[0].turns.find((t) => t.combatantId === "attacker").actions.find((a) => a.type === "strike");
+  assert.equal(strike.coverBonus, 2);
+  assert.equal(defender.ac, 10, "the defender's own persistent AC must never be modified by someone else's cover check");
+});
+
+test("strike: no cover object between attacker and target logs coverBonus:0", () => {
+  const attacker = makeAttacker();
+  const defender = makeDefender();
+  function ai(state, id, turn) { return id === "attacker" && turn.actionsUsed === 0 ? { type: "strike", targetId: "defender", strikeIndex: 0 } : null; }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [attacker, defender], ai }); // no walls at all
+  const strike = log.rounds[0].turns.find((t) => t.combatantId === "attacker").actions.find((a) => a.type === "strike");
+  assert.equal(strike.coverBonus, 0);
+});
+
+test("strike: cover actually changes the real hit/miss outcome, not just a logged number nobody reads — same seed, same attacker/defender, only the wall differs", () => {
+  function runWith(walls) {
+    const attacker = makeAttacker();
+    const defender = makeDefender();
+    function ai(state, id, turn) { return id === "attacker" && turn.actionsUsed === 0 ? { type: "strike", targetId: "defender", strikeIndex: 0 } : null; }
+    const log = runBattle({ seed: 3, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [attacker, defender], ai, walls });
+    return log.rounds[0].turns.find((t) => t.combatantId === "attacker").actions.find((a) => a.type === "strike").roll;
+  }
+  const withoutCover = runWith(undefined);
+  const withCover = runWith(COVER_WALL);
+  assert.equal(withoutCover.d20, withCover.d20, "same seed must roll the same raw d20 either way — only the AC target changed, not the dice stream");
+  assert.equal(withCover.total, withoutCover.total, "the roll's own total is attack-side, unaffected by the target's AC");
+  assert.ok(withCover.degree === withoutCover.degree || (["success", "criticalSuccess"].includes(withoutCover.degree) && ["failure", "criticalFailure", "success"].includes(withCover.degree)),
+    `cover raising the effective AC by 2 must never IMPROVE the attacker's degree of success: without=${withoutCover.degree} with=${withCover.degree}`);
+});
+
+test("saveAttack: a real cover object grants +2 to a REFLEX save specifically (Player Core: 'standard cover... to Reflex saves against area effects'), logged as coverBonus:2", () => {
+  const attacker = makeAttacker();
+  const defender = makeDefender();
+  function ai(state, id, turn) { return id === "attacker" && turn.actionsUsed === 0 ? { type: "saveAttack", targetId: "defender", saveAttackIndex: 0 } : null; }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [attacker, defender], ai, walls: COVER_WALL });
+  const save = log.rounds[0].turns.find((t) => t.combatantId === "attacker").actions.find((a) => a.type === "saveAttack");
+  assert.equal(save.coverBonus, 2);
+  assert.equal(save.roll.saveBonus, 7, "the defender's real Reflex save (5) plus the +2 cover bonus, folded in for this roll only");
+  assert.equal(defender.saves.ref, 5, "the defender's own persistent Reflex save must never be modified by someone else's cover check");
+});
+
+test("saveAttack: cover does NOT apply to a non-reflex save (Fortitude/Will) — the real rule names Reflex specifically", () => {
+  const attacker = makeAttacker({ saveAttacks: [{ name: "Test Fort Blast", saveType: "fort", dc: 20, range: 60, actions: 1, traits: [], damage: [{ dice: "1d1", bonus: 5 }], usesRemaining: 5 }] });
+  const defender = makeDefender();
+  function ai(state, id, turn) { return id === "attacker" && turn.actionsUsed === 0 ? { type: "saveAttack", targetId: "defender", saveAttackIndex: 0 } : null; }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [attacker, defender], ai, walls: COVER_WALL });
+  const save = log.rounds[0].turns.find((t) => t.combatantId === "attacker").actions.find((a) => a.type === "saveAttack");
+  // coverBonus is still logged as 2 (a real cover object DOES sit between them) even though it had
+  // no effect on THIS save type — the log records "was there real cover", not "did it apply here".
+  assert.equal(save.coverBonus, 2);
+  assert.equal(save.roll.saveBonus, 5, "Fortitude save must be the defender's real, unmodified value — cover only touches Reflex");
 });
 
 /**

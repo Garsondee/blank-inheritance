@@ -14,6 +14,7 @@
     --amber: #B8802E;
     --danger: #A8402F;
     --success: #5C7A4A;
+    --arcane: #6E5A96;
     --screen-bg: #1C221E;
     --screen-fg: #9FE6A8;
     --screen-fg-dim: #5C8A63;
@@ -35,6 +36,7 @@
       --amber: #D6A052;
       --danger: #D2695A;
       --success: #8FB377;
+      --arcane: #A794D6;
       --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.35);
     }
   }
@@ -182,8 +184,19 @@
   .grid-line { stroke: rgba(20,20,15,0.16); stroke-width: 1; }
   /* Walls (design doc §19 Phase 1b) — solid and dark, deliberately much more prominent than the
      faint grid: a personnel-scale run with no background photo depends on this line alone to make
-     Phase 1b's rooms/doorways visually legible at all. */
+     Phase 1b's rooms/doorways visually legible at all. Doors need no class of their own — a door is
+     just a gap left in a wall run (data/personnel-test-complex.mjs's own doorCols/doorRows), so the
+     opening already reads correctly with zero extra markup. */
   .wall-line { stroke: var(--ink); stroke-width: 4; stroke-linecap: round; }
+  /* Windows (design doc §22 — "walls with... windows, see through, fire through but can't move
+     through"): a real, distinct wall flavor (terrain.mjs's WINDOW_EDGE, sight:0 but move:20),
+     rendered thin and dashed against the solid wall's thick unbroken line so "you can see/shoot
+     past this, you just can't walk through it" reads at a glance, not just in the mechanics. */
+  .window-line { stroke: var(--accent); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 1 3.5; opacity: 0.85; }
+  /* Cover (design doc §22 — Ingram's own sketch legend: "Red = cover"). Solid, not dashed — a cover
+     object is a real physical obstacle (crate, barrier) you path around, it just doesn't block sight
+     the way a wall does, so it earns the same visual weight as a wall, in the sketch's own red. */
+  .cover-line { stroke: var(--danger); stroke-width: 4; stroke-linecap: round; }
 
   /* Token animation (design doc §15n). Tokens are PERSISTENT elements, created once per run and
      updated in place — the previous build tore down and rebuilt the whole SVG (innerHTML) on
@@ -221,6 +234,18 @@
   .decision-line.strike-crit { stroke: var(--amber); stroke-width: 3.5; fill: none; }
   .decision-line.strike-miss { stroke: var(--ink-muted); stroke-width: 2; stroke-dasharray: 2 3; fill: none; }
   .decision-line.heal { stroke: var(--success); stroke-width: 2; stroke-dasharray: 1 3; stroke-linecap: round; fill: none; }
+  /* Spell-flavored actions (design doc §22 — "a simple... 'spell' graphic"): spellAttack (an attack
+     roll, e.g. Eldritch Lance), saveAttack (a save-forcing spell, e.g. Thunderstrike), and
+     conditionSave (e.g. Forced Reflection) all share this arcane color family, distinct from a
+     physical strike's green/amber/gray — so a viewer can tell "shot" from "spell" at a glance,
+     regardless of which of the three underlying action types actually fired. */
+  .decision-line.spell-crit { stroke: var(--arcane); stroke-width: 3.5; fill: none; }
+  .decision-line.spell-hit { stroke: var(--arcane); stroke-width: 2.5; opacity: 0.8; fill: none; }
+  .decision-line.spell-miss { stroke: var(--ink-muted); stroke-width: 2; stroke-dasharray: 2 3; fill: none; }
+  /* Demoralize (Intimidation, Player Core pg. 200) — neither a shot nor a spell, a vocal/social
+     action, so it gets its own dotted amber treatment rather than borrowing either family. */
+  .decision-line.demoralize-hit { stroke: var(--amber); stroke-width: 2.5; stroke-dasharray: 1 2; stroke-linecap: round; fill: none; }
+  .decision-line.demoralize-miss { stroke: var(--ink-muted); stroke-width: 1.5; stroke-dasharray: 1 2; stroke-linecap: round; fill: none; }
   .range-ring { fill: none; stroke: var(--ink-muted); stroke-width: 1; stroke-dasharray: 2 4; opacity: 0.55; }
 
   /* ---------- Roleplaying & Decision-Making (design doc §14m) ---------- */
@@ -407,6 +432,8 @@
             <marker id="arrowCrit" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--amber)"/></marker>
             <marker id="arrowMiss" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink-muted)"/></marker>
             <marker id="arrowHeal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--success)"/></marker>
+            <marker id="arrowSpellHit" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--arcane)"/></marker>
+            <marker id="arrowSpellCrit" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--arcane)"/></marker>
           </defs>
           <g id="gridLayer"></g>
           <g id="wallLayer"></g>
@@ -659,24 +686,57 @@ function renderDecisionOverlay(run, step, stepIdx) {
       const isStep = action.type === "step";
       markup += `<line class="decision-line ${isStep ? "step" : "move"}" x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" marker-end="url(#${isStep ? "arrowStep" : "arrowMove"})"/>`;
       currentPos = waypoints[leg];
-    } else if (action.type === "strike" || action.type === "spellAttack") {
+    } else if (action.type === "strike") {
       const targetSnapshot = step.snapshot[action.targetId];
       if (!targetSnapshot) continue;
       const attackerPx = posToPx(currentPos);
       const targetPx = posToPx(targetSnapshot.position);
       const degree = action.roll?.degree;
-      const cls = degree === "criticalSuccess" ? "strike-crit" : degree === "success" ? "strike-hit" : "strike-miss";
-      const arrow = degree === "criticalSuccess" ? "arrowCrit" : degree === "success" ? "arrowHit" : "arrowMiss";
+      const cls = attackRollClass("strike", degree);
+      const arrow = cls === "strike-crit" ? "arrowCrit" : cls === "strike-hit" ? "arrowHit" : "arrowMiss";
       markup += `<line class="decision-line ${cls}" x1="${attackerPx.x}" y1="${attackerPx.y}" x2="${targetPx.x}" y2="${targetPx.y}" marker-end="url(#${arrow})"/>`;
 
-      const itemName = action.type === "strike" ? action.strikeName : action.spellName;
-      const pool = action.type === "strike" ? roster[combatantId]?.strikes : roster[combatantId]?.spells;
+      const item = (roster[combatantId]?.strikes || []).find((s) => s.name === action.strikeName);
+      const reach = item ? cleanRangeFeetLocal(item) : null;
+      if (reach && !ringsDrawn.has(action.strikeName)) {
+        ringsDrawn.add(action.strikeName);
+        markup += `<circle class="range-ring" cx="${attackerPx.x}" cy="${attackerPx.y}" r="${feetToPx(reach)}"/>`;
+      }
+    } else if (action.type === "spellAttack" || action.type === "saveAttack" || action.type === "conditionSave") {
+      // All three are "spell" (design doc §22's ask for a shot/grenade/spell graphic), sharing the
+      // arcane color family — but spellAttack is an ATTACK ROLL (the attacker rolls, so
+      // criticalSuccess is the attacker's best outcome) while saveAttack/conditionSave are SAVES
+      // (the TARGET rolls, so the polarity inverts: the target's criticalFailure is the best
+      // outcome for the attacker's effect, matching SF2E's basic-save damage table exactly).
+      const targetSnapshot = step.snapshot[action.targetId];
+      if (!targetSnapshot) continue;
+      const attackerPx = posToPx(currentPos);
+      const targetPx = posToPx(targetSnapshot.position);
+      const degree = action.roll?.degree;
+      const cls = action.type === "spellAttack" ? attackRollClass("spell", degree) : saveRollClass("spell", degree);
+      const arrow = cls === "spell-crit" ? "arrowSpellCrit" : cls === "spell-hit" ? "arrowSpellHit" : "arrowMiss";
+      markup += `<line class="decision-line ${cls}" x1="${attackerPx.x}" y1="${attackerPx.y}" x2="${targetPx.x}" y2="${targetPx.y}" marker-end="url(#${arrow})"/>`;
+
+      const itemName = action.type === "spellAttack" ? action.spellName : action.type === "saveAttack" ? action.saveAttackName : action.conditionSaveName;
+      const pool = action.type === "spellAttack" ? roster[combatantId]?.spells : action.type === "saveAttack" ? roster[combatantId]?.saveAttacks : roster[combatantId]?.conditionSaves;
       const item = (pool || []).find((s) => s.name === itemName);
       const reach = item ? cleanRangeFeetLocal(item) : null;
       if (reach && !ringsDrawn.has(itemName)) {
         ringsDrawn.add(itemName);
         markup += `<circle class="range-ring" cx="${attackerPx.x}" cy="${attackerPx.y}" r="${feetToPx(reach)}"/>`;
       }
+    } else if (action.type === "demoralize") {
+      // Not a shot, not a spell — an Intimidation check (Player Core pg. 200). Only 2 real outcome
+      // tiers exist (criticalSuccess/success both apply SOME frightened, failure/criticalFailure
+      // apply none — REAL_OUTCOMES.demoralize's own appliedFrightened table), so this stays a
+      // simple hit/miss rather than borrowing the 3-tier crit language of an actual attack.
+      const targetSnapshot = step.snapshot[action.targetId];
+      if (!targetSnapshot) continue;
+      const attackerPx = posToPx(currentPos);
+      const targetPx = posToPx(targetSnapshot.position);
+      const cls = demoralizeClass(action.roll?.degree);
+      const arrow = cls === "demoralize-hit" ? "arrowCrit" : "arrowMiss";
+      markup += `<line class="decision-line ${cls}" x1="${attackerPx.x}" y1="${attackerPx.y}" x2="${targetPx.x}" y2="${targetPx.y}" marker-end="url(#${arrow})"/>`;
     } else if (action.type === "healAbility") {
       const targetSnapshot = step.snapshot[action.targetId];
       if (!targetSnapshot) continue;
@@ -722,6 +782,15 @@ function renderGridLines() {
  * coordinates, `move`/`sight` as CONST.EDGE_SENSE_TYPES values, exactly matching how
  * personnel-engine/terrain.mjs (itself a re-export of engine/terrain.mjs) already interprets them.
  * A run with no walls at all (every Frame-scale run) renders an empty layer — cheap, correct no-op.
+ *
+ * Three real wall flavors now exist (design doc §22), each drawn distinctly rather than as one
+ * undifferentiated dark line — a solid wall blocks both move and sight; a window (sight:0, no
+ * `cover`) blocks move but not sight; cover (the `cover` flag) blocks move, not sight, and grants a
+ * circumstance bonus rather than hiding its user — mechanically closer to a window than a wall, but
+ * drawn in Ingram's own sketch's red so it reads as "stand here on purpose," not "see-through wall."
+ * A door needs no branch here at all: it's simply a gap left in the wall array, so the opening
+ * already reads correctly as empty space. Classification itself (wallLineClass) lives in
+ * geometry.mjs, spliced in below — real, independently node:test-tested logic, not inline-only.
  */
 function renderWalls(run) {
   const layer = document.getElementById("wallLayer");
@@ -730,7 +799,7 @@ function renderWalls(run) {
   for (const wall of walls) {
     const a = vertexToPx([wall.c[0], wall.c[1]]);
     const b = vertexToPx([wall.c[2], wall.c[3]]);
-    markup += `<line class="wall-line" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`;
+    markup += `<line class="${wallLineClass(wall)}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`;
   }
   layer.innerHTML = markup;
 }

@@ -12,7 +12,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { listLevel1Pregens, toIngredients } from "../../tools/character-builder/extract-pregen.mjs";
 import { deriveAbilityModifiers } from "../../tools/character-builder/derive.mjs";
-import { deriveStrikes, deriveSpells, deriveTransferVitality, deriveSaveAttacks, deriveSkillModifier } from "../../tools/character-builder/build-combat-pregen.mjs";
+import { deriveStrikes, deriveSpells, deriveTransferVitality, deriveSaveAttacks, deriveSaveSpells, deriveSkillModifier } from "../../tools/character-builder/build-combat-pregen.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..", "..");
@@ -103,8 +103,8 @@ test("all three weapons' category (simple) is trained per the Mystic class's rea
 test("deriveSaveAttacks: her real Incendiary Grenade — DC 17 (her real Class DC, matching the raw data's own @Check[reflex|against:class]), real 70ft range, real 1d8 fire damage", () => {
   const ingredients = lunar17Ingredients();
   const mods = deriveAbilityModifiers(ingredients);
-  const [grenade] = deriveSaveAttacks(ingredients, [{ name: "Incendiary Grenade (Commercial)", saveType: "reflex" }], mods);
-  assert.equal(grenade.saveType, "reflex");
+  const [grenade] = deriveSaveAttacks(ingredients, [{ name: "Incendiary Grenade (Commercial)", saveType: "ref" }], mods);
+  assert.equal(grenade.saveType, "ref");
   assert.equal(grenade.dc, 17, "her Class DC (Mystic, wis+4, trained, level 1): 10 + 3 + 4");
   assert.equal(grenade.range, 70);
   assert.deepEqual(grenade.damage, [{ dice: "1d8", bonus: 0, damageType: "fire" }]);
@@ -115,7 +115,7 @@ test("deriveSaveAttacks: her real Incendiary Grenade — DC 17 (her real Class D
 test("deriveSaveAttacks: throws a clear error for a weapon name that doesn't exist", () => {
   const ingredients = lunar17Ingredients();
   const mods = deriveAbilityModifiers(ingredients);
-  assert.throws(() => deriveSaveAttacks(ingredients, [{ name: "Not A Real Grenade", saveType: "reflex" }], mods), /No weapon named/);
+  assert.throws(() => deriveSaveAttacks(ingredients, [{ name: "Not A Real Grenade", saveType: "ref" }], mods), /No weapon named/);
 });
 
 test("deriveSkillModifier: Lunar-17's real Intimidation is untrained (+0) — her cha modifier is +0 and intimidation isn't in her real skillRanks at all", () => {
@@ -135,4 +135,43 @@ test("deriveSkillModifier: throws for a name that isn't one of the 18 real SF2E 
   const ingredients = lunar17Ingredients();
   const mods = deriveAbilityModifiers(ingredients);
   assert.throws(() => deriveSkillModifier(ingredients, "not-a-real-skill", mods), /not one of the 18 real SF2E skills/);
+});
+
+// ---------------------------------------------------------------------------
+// deriveSaveSpells (design doc §22) — against "Nitpick" Bennit's REAL raw pack data (a different
+// pregen than the rest of this file, on purpose: Thunderstrike is her real spell, not Lunar-17's).
+// ---------------------------------------------------------------------------
+
+function bennitIngredients() {
+  const pregens = listLevel1Pregens(packDir);
+  const bennit = pregens.find((p) => p.name === "“Nitpick” Bennit");
+  assert.ok(bennit, "expected a level-1 pregen named “Nitpick” Bennit in paizo-pregens");
+  return toIngredients(bennit);
+}
+
+test("deriveSaveSpells: Bennit's real Thunderstrike — DC from her real spell DC (not Class DC), real 120ft range, real TWO-entry damage (1d12 electricity + 1d4 sonic), real 3-slot usesRemaining", () => {
+  const ingredients = bennitIngredients();
+  const mods = deriveAbilityModifiers(ingredients);
+  const [thunderstrike] = deriveSaveSpells(ingredients, ["Thunderstrike"], mods);
+  assert.equal(thunderstrike.saveType, "ref", "her real system.defense.save.statistic is \"reflex\", correctly mapped to this project's own \"ref\" convention");
+  assert.equal(thunderstrike.dc, 17);
+  assert.equal(thunderstrike.range, 120);
+  assert.equal(thunderstrike.actions, 2);
+  assert.deepEqual(thunderstrike.damage, [
+    { dice: "1d12", bonus: 0, damageType: "electricity" },
+    { dice: "1d4", bonus: 0, damageType: "sonic" }
+  ]);
+  assert.equal(thunderstrike.usesRemaining, 3, "her real system.slots.slot1.max — not an invented number, and NOT unlimited");
+});
+
+test("deriveSaveSpells: throws a clear error for a spell name that doesn't exist", () => {
+  const ingredients = bennitIngredients();
+  const mods = deriveAbilityModifiers(ingredients);
+  assert.throws(() => deriveSaveSpells(ingredients, ["Not A Real Spell"], mods), /No spell named/);
+});
+
+test("deriveSaveSpells: throws for a real spell that has no basic save at all (Sure Strike is a self-buff, no defense.save field)", () => {
+  const ingredients = bennitIngredients();
+  const mods = deriveAbilityModifiers(ingredients);
+  assert.throws(() => deriveSaveSpells(ingredients, ["Sure Strike"], mods), /not a basic-save spell/);
 });

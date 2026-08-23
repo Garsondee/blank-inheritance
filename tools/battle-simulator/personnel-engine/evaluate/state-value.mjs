@@ -40,11 +40,17 @@
  * kind of thing design doc §19's own plan calls for a fresh measurement pass on, once a real
  * personnel-scale fight exists to test against (§17-§18's ablation-harness discipline) — not
  * pre-emptively re-tuned now without data.
+ *
+ * ADDED, not a port of anything Frame-scale: `stunDenial` (design doc §22, Erabryth's Forced
+ * Reflection) prices a stunned combatant's lost round, symmetric for allies/enemies. `lowHpCaution`
+ * and `outnumberedCaution` (also §22, Ingram's direct ask about retreating when hurt/outnumbered)
+ * are MULTIPLIERS applied to threatExposure at the point of use in evaluateState, not new additive
+ * terms of their own — see the comment there for why.
  */
 import { resolveEffectiveStats } from "../combatant.mjs";
 import { expectedStrikeDamage, expectedSaveDamage } from "../../engine/resolve.mjs";
 import { distanceFeet, reachFeetForStrike, FEET_PER_SQUARE } from "../grid.mjs";
-import { lineOfEffect } from "../terrain.mjs";
+import { lineOfEffect, hasCover, STANDARD_COVER_AC_BONUS } from "../terrain.mjs";
 import { pathCost } from "../world/pathfind.mjs";
 import { splitByRelation } from "../factions.mjs";
 
@@ -127,21 +133,29 @@ export function usefulRangeFeet(item) {
  * checks and DCs") — a deliberate, small, stated scope cut: saveAttack DCs are precomputed at
  * fixture-generation time (deriveClassDC), not re-derived live from a rank+ability pair, and
  * neither real fixture in play depends on this edge case.
+ *
+ * `walls` (design doc §22): folds in the same standard-cover check (+2 AC / +2 Reflex, Player Core
+ * pg. 416) the real engine applies at resolution time (personnel-engine/engine.mjs), so a position
+ * that would grant cover against a threat is automatically priced as safer here too -- no separate
+ * evaluator weight needed, the same "elegant, not bolted on" shape as Frightened's own evaluator
+ * integration above: cover lowers the estimated damage a target behind it would take, which
+ * threatExposure/offensiveReach already turn into a real positional preference on their own.
  */
-export function bestExpectedDamage(attacker, fromPos, target, targetPos) {
+export function bestExpectedDamage(attacker, fromPos, target, targetPos, walls) {
   const targetEffective = resolveEffectiveStats(target);
+  const coverBonus = hasCover(fromPos, targetPos, walls) ? STANDARD_COVER_AC_BONUS : 0;
   let best = 0;
   const dist = distanceFeet(fromPos, targetPos);
   for (const option of attackOptions(attacker)) {
     if (dist > usefulRangeFeet(option)) continue; // out of useful range from here
     const value = option.saveType != null
       ? expectedSaveDamage({
-          saveBonus: target.saves[option.saveType], dc: option.dc,
+          saveBonus: target.saves[option.saveType] + (option.saveType === "ref" ? coverBonus : 0), dc: option.dc,
           damage: option.damage, target, targetEffective
         })
       : expectedStrikeDamage({
           attackModifier: option.attackBonus - (attacker.frightened ?? 0),
-          targetAc: targetEffective.ac,
+          targetAc: targetEffective.ac + coverBonus,
           strike: option, target, targetEffective
         });
     if (value > best) best = value;
@@ -158,7 +172,20 @@ export const DEFAULT_WEIGHTS = {
   // NOT YET RE-MEASURED at this scale — see this file's own header. Carried over as a starting
   // point only, per design doc §19's own explicit plan to re-measure once real fights exist.
   closing: 0.75,
-  resource: 3.0            // HP-equivalent of keeping one limited-use item unspent
+  resource: 3.0,           // HP-equivalent of keeping one limited-use item unspent
+  // NOT YET MEASURED (design doc §22) — a reasoned starting point, not a guess pulled from nowhere:
+  // roughly the same order of magnitude as `resource` (a comparably "temporary tactical value, not
+  // permanent HP" concept), well below what a real kill is worth. Flagged exactly like `closing`
+  // above so a future ablation pass has something concrete to correct rather than silently drift.
+  stunDenial: 3.0,         // HP-equivalent of denying/suffering one full round of stun
+  // NOT YET MEASURED (design doc §22 — Ingram's direct ask: "give PCs a greater reason to get out
+  // of line of sight of baddies" when hurt, "and the same logic could apply to enemies"). Both are
+  // MULTIPLIERS on threatExposure, not separate additive terms — see evaluateState's own comment at
+  // the point of use for why. 1.0 at full health/parity (no change from today's behavior); scales
+  // up smoothly, no threshold/cliff. Reasoned starting points, same "flag for a future ablation
+  // pass" status as closing/stunDenial above, not pre-tuned against real data yet.
+  lowHpCaution: 2.0,       // at 0 HP, threatExposure's cost is 3x today's flat weight (1 + 2.0)
+  outnumberedCaution: 1.0  // seeing 2 enemies per visible ally doubles it; 3 per ally triples it
 };
 
 /**
@@ -175,12 +202,14 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
 
   for (const ally of allies) {
     score += weights.allyDamage * ally.currentHP;
-    for (const s of [...(ally.strikes ?? []), ...(ally.spells ?? []), ...(ally.healAbilities ?? []), ...(ally.saveAttacks ?? [])]) {
+    score -= weights.stunDenial * (ally.stunnedRounds ?? 0); // a stunned ally loses their whole next turn — a real, if temporary, cost
+    for (const s of [...(ally.strikes ?? []), ...(ally.spells ?? []), ...(ally.healAbilities ?? []), ...(ally.saveAttacks ?? []), ...(ally.conditionSaves ?? [])]) {
       if (s.usesRemaining != null) score += weights.resource * s.usesRemaining;
     }
   }
   for (const enemy of enemies) {
     score -= weights.enemyDamage * enemy.currentHP;
+    score += weights.stunDenial * (enemy.stunnedRounds ?? 0); // symmetric: an enemy's stunned round is exactly as valuable to us as our own would be costly
   }
 
   // Positional terms — computed for LIVING combatants only, and always as a symmetric pair so
@@ -208,14 +237,54 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
     if (ally.currentHP <= 0) continue;
     const allyPos = state.positions.get(ally.id);
     if (!allyPos) continue;
+
+    // Deferred, not applied inline: the low-HP/outnumbered caution factors below need this ally's
+    // FULL visible-enemy count first, so threatExposure's actual cost is applied in a second pass
+    // once both factors are known, not threaded mid-loop.
+    const visibleEnemyDamages = [];
     for (const enemy of enemies) {
       if (enemy.currentHP <= 0) continue;
       const enemyPos = state.positions.get(enemy.id);
       if (!enemyPos) continue;
       if (state.walls?.length && !lineOfEffect(allyPos, enemyPos, state.walls)) continue; // no real shot exists from here
-      reachByEnemy.set(enemy.id, (reachByEnemy.get(enemy.id) ?? 0) + bestExpectedDamage(ally, allyPos, enemy, enemyPos));
-      score -= weights.threatExposure * bestExpectedDamage(enemy, enemyPos, ally, allyPos);
+      reachByEnemy.set(enemy.id, (reachByEnemy.get(enemy.id) ?? 0) + bestExpectedDamage(ally, allyPos, enemy, enemyPos, state.walls));
+      visibleEnemyDamages.push(bestExpectedDamage(enemy, enemyPos, ally, allyPos, state.walls));
     }
+
+    // LOW-HP CAUTION (design doc §22 — "give PCs a greater reason to get out of line of sight of
+    // baddies" when hurt). Scales the SAME threatExposure cost just collected above, rather than
+    // adding a separate mechanism: a position that grants an enemy LOS already costs
+    // threatExposure*theirExpectedDamage; this just makes that cost weigh more heavily as
+    // currentHP falls, so the "disengage" move candidate decide.mjs already offers every turn
+    // (bestDestinationAway) starts scoring better once staying visible is genuinely dangerous.
+    // Linear in HP fraction — 1x at full health, 1+lowHpCaution at 0 HP — deliberately continuous,
+    // no threshold/cliff (exactly the kind of discontinuity the §22 "moving 3x is an alarm" bug
+    // taught this project to avoid). Symmetric by construction: this loop runs once per side
+    // (whichever side `allies` currently means), so a low-HP enemy gets the identical treatment
+    // when evaluateState is called from ITS side's perspective — "the same logic could apply to
+    // enemies" falls out for free, no separate branch needed.
+    const hpFraction = ally.maxHP > 0 ? ally.currentHP / ally.maxHP : 1;
+    const lowHpFactor = 1 + weights.lowHpCaution * (1 - hpFraction);
+
+    // OUTNUMBERED CAUTION (design doc §22 — "enemies which feel like they are outnumbered because
+    // they can see more enemies than they can see friends"). PERCEIVED local balance from this
+    // exact position, not the global roster count — matches ai/knowledge/belief.mjs's own "only
+    // what can actually be perceived" epistemic framing already used everywhere else in this
+    // engine. Neutral (1x) at parity or better (seeing at least as many allies+self as enemies);
+    // scales up only once visible enemies genuinely outnumber visible allies+self.
+    // visibleEnemyDamages.length IS this ally's visible-enemy count (identical LOS gate already
+    // applied above) — only visibleAllies needs its own small pass.
+    let visibleAllies = 0;
+    for (const other of allies) {
+      if (other.id === ally.id || other.currentHP <= 0) continue;
+      const otherPos = state.positions.get(other.id);
+      if (otherPos && (!state.walls?.length || lineOfEffect(allyPos, otherPos, state.walls))) visibleAllies++;
+    }
+    const outnumberedRatio = visibleEnemyDamages.length / (visibleAllies + 1);
+    const outnumberedFactor = 1 + weights.outnumberedCaution * Math.max(0, outnumberedRatio - 1);
+
+    const cautionFactor = lowHpFactor * outnumberedFactor;
+    for (const incoming of visibleEnemyDamages) score -= weights.threatExposure * cautionFactor * incoming;
   }
   for (const enemy of enemies) {
     const raw = reachByEnemy.get(enemy.id);

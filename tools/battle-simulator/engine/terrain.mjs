@@ -9,14 +9,14 @@
  * `door` are real Foundry fields too but nothing in this project models
  * lighting, sound, or doors, so they're simply absent rather than stubbed.
  *
- * SCOPE (deliberately bounded — see design doc §15p for the full reasoning):
- * a wall is a binary blocker for movement and Line of Effect. SF2E's
- * circumstance-bonus COVER (+1/+2/+4 AC from partial obstruction, Player
- * Core pg. 416) is NOT implemented here — that needs to distinguish a
- * partially-obstructing sliver from a fully-blocking wall, which is real
- * nuance not worth guessing at ahead of any real terrain to validate it
- * against. What's built is the higher-leverage half: can you even path to
- * or target something at all.
+ * SCOPE (originally bounded — see design doc §15p for the full reasoning, §22 for what's since been
+ * added): a wall is a binary blocker for movement and/or Line of Effect, on two INDEPENDENT axes
+ * (`move`/`sight`), which is what already makes a real window ("see and shoot through, can't walk
+ * through") expressible with zero new code — just author a wall segment with `move` blocking and
+ * `sight` not. What WAS missing, and is no longer: SF2E's real circumstance-bonus COVER (standard
+ * +2 AC, Player Core pg. 416 — reference/srd/player-core/420-cover.json) for a target that's
+ * merely PARTIALLY obstructed rather than fully blocked — see `hasCover` below, a third, genuinely
+ * independent wall property (`cover: true`) alongside move/sight, not a byproduct of either.
  *
  * AUTHORING TRAP, verified and regression-tested (found while building
  * data/personnel-test-facility.mjs, design doc §19 Phase 1b): movement and
@@ -189,11 +189,42 @@ export function segmentsIntersect([ax1, ay1, ax2, ay2], [bx1, by1, bx2, by2]) {
  * entirely behind a solid physical barrier." Modeled here as a hard binary:
  * a straight line from the center of cell `a` to the center of cell `b`,
  * blocked if it crosses any sight-blocking wall. (Real SF2E's softer COVER
- * gradations from a PARTIAL obstruction are the deferred half — see this
- * file's header.)
+ * gradations from a PARTIAL obstruction are a separate, now-implemented
+ * check — see `hasCover` below, not deferred any more.)
  */
 export function lineOfEffect(a, b, walls) {
   if (!walls?.length) return true;
   const line = [a.col + 0.5, a.row + 0.5, b.col + 0.5, b.row + 0.5];
   return !walls.some((w) => wallBlocksSight(w) && segmentsIntersect(line, w.c));
+}
+
+/**
+ * Player Core pg. 416 (reference/srd/player-core/420-cover.json): "draw a line from the center of
+ * your space to the center of the target's space. If that line passes through terrain or an object
+ * that would block the effect, the target has standard cover." Deliberately a SEPARATE wall subset
+ * from sight-blocking walls, not a byproduct of them — a real cover object (a crate, a low barrier,
+ * furniture) is something you can still see and target a creature behind, unlike a sight-blocking
+ * wall; the two are independent properties in this project's own wall schema, not two ends of one
+ * scale. Only ever reached for an attack that ALREADY passed `lineOfEffect` (checkStrikeLegal/
+ * checkSpellAttackLegal/checkSaveAttackLegal reject a fully-blocked shot before this is ever asked),
+ * so "does this specific shot also cross a cover object" is a well-formed question by the time
+ * anything calls this.
+ *
+ * A wall segment opts into granting cover with its own `cover: true` field — not a native Foundry
+ * Wall property (this schema only has light/sight/sound/move senses), a deliberate, documented
+ * extension of it for this project's own use, exactly like the rest of this file's header already
+ * notes for light/sound/door being real Foundry fields nothing here models. Independent of a
+ * segment's own move/sight blocking values, so the SAME hWall/vWall-built unit-edge run used for an
+ * ordinary wall works unchanged for a cover object — just add `cover: true` and set `sight` below
+ * the blocking threshold so it doesn't ALSO occlude line of effect.
+ *
+ * Standard cover only (+2 circumstance bonus) — greater cover (+4) requires the Take Cover action,
+ * a real, separate combat action this engine doesn't model yet; not invented here.
+ */
+export const STANDARD_COVER_AC_BONUS = 2;
+
+export function hasCover(a, b, walls) {
+  if (!walls?.length) return false;
+  const line = [a.col + 0.5, a.row + 0.5, b.col + 0.5, b.row + 0.5];
+  return walls.some((w) => w.cover && segmentsIntersect(line, w.c));
 }

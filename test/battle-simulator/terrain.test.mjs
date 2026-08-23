@@ -113,3 +113,29 @@ test("REGRESSION: lineOfEffect is symmetric — order of the two cells must not 
   const a = { col: 2, row: 5 }, b = { col: 7, row: 5 };
   assert.equal(lineOfEffect(a, b, walls), lineOfEffect(b, a, walls));
 });
+
+test("DOCUMENTATION TRAP: a single long multi-cell wall segment blocks Line of Effect across its whole span but blocks movement at ZERO edges along that span (not 'everywhere except one edge' — moveBlockedBetween's exact-endpoint match can never equal a longer segment's endpoints, no matter where along it you step)", () => {
+  // The tempting-but-wrong shorthand for "one wall spanning 8 rows" — see terrain.mjs's own
+  // header for the full explanation of why this is a trap.
+  const longWall = [{ c: [6, 0, 6, 8], move: EDGE_SENSE.NORMAL, sight: EDGE_SENSE.NORMAL }];
+
+  // Line of Effect: true geometric intersection doesn't care how long the segment is.
+  assert.equal(lineOfEffect({ col: 2, row: 4 }, { col: 10, row: 4 }, longWall), false, "sight should be blocked crossing anywhere along the span");
+
+  // Movement: NOT ONE of the 8 unit-length steps along the wall's span is blocked — the wall is
+  // fully walkable through, silently, despite correctly blocking sight.
+  for (let row = 0; row < 8; row++) {
+    assert.equal(moveBlockedBetween({ col: 5, row }, { col: 6, row }, longWall), false, `row ${row}: the long segment should NOT block this step (that's the trap)`);
+  }
+
+  // The fix is an authoring convention, not a code change: the identical span authored as a loop
+  // of unit-length edges (one per row crossed — see data/personnel-test-facility.mjs for a real
+  // example) blocks movement correctly at every row, while still blocking Line of Effect exactly
+  // as before.
+  const loopWall = [];
+  for (let row = 0; row < 8; row++) loopWall.push({ c: [6, row, 6, row + 1], move: EDGE_SENSE.NORMAL, sight: EDGE_SENSE.NORMAL });
+  for (let row = 0; row < 8; row++) {
+    assert.equal(moveBlockedBetween({ col: 5, row }, { col: 6, row }, loopWall), true, `row ${row}: should block once authored as unit-length edges`);
+  }
+  assert.equal(lineOfEffect({ col: 2, row: 4 }, { col: 10, row: 4 }, loopWall), false, "sight should still be blocked with the loop authoring");
+});

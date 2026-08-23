@@ -23,6 +23,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { evaluateState, DEFAULT_WEIGHTS } from "../../tools/battle-simulator/ai/evaluate/state-value.mjs";
+import { distanceFeet, FEET_PER_SQUARE } from "../../tools/battle-simulator/engine/grid.mjs";
 
 /**
  * A minimal state with `allyCount` party units and `enemyCount` opposition units, all mutually in
@@ -137,6 +138,28 @@ test("EVACUATION and SPOT have the sign their weights claim", () => {
   const spotted = { ...base, combatants: new Map(base.combatants) };
   spotted.combatants.set("ally-0", { ...base.combatants.get("ally-0"), spotted: true });
   assert.ok(evaluateState(spotted, "party") > evaluateState(base, "party"), "an ally holding a Spot bonus must be worth something to the party");
+});
+
+test("OBJECTIVE TERM: squaresAway is computed via the shared FEET_PER_SQUARE constant, not a hardcoded literal", () => {
+  // REGRESSION: this term used to divide by a hardcoded literal `50` instead of the FEET_PER_SQUARE
+  // constant the closing-gradient term (a few lines above it in state-value.mjs) already imports and
+  // uses. Harmless only because FEET_PER_SQUARE currently equals 50 — but deriving `expected` below
+  // from that same imported constant, rather than from a literal 50 written into this test, means a
+  // future change to FEET_PER_SQUARE is caught here if the objective term ever stops tracking it,
+  // instead of the two terms silently drifting apart with every test still green.
+  const base = makeState({ allyCount: 1, enemyCount: 0 });
+  const allyPos = base.positions.get("ally-0");
+  const objectivePos = { col: allyPos.col, row: allyPos.row + 6 }; // straight line: 6 squares away
+
+  const state = { ...base, combatants: new Map(base.combatants) };
+  state.combatants.set("ally-0", { ...base.combatants.get("ally-0"), objective: objectivePos });
+
+  const score = evaluateState(state, "party");
+  const squaresAway = distanceFeet(allyPos, objectivePos) / FEET_PER_SQUARE;
+  const expected = DEFAULT_WEIGHTS.allyDamage * 100 - DEFAULT_WEIGHTS.objective * squaresAway;
+
+  assert.ok(Math.abs(score - expected) < 1e-9,
+    `objective term mismatch: got ${score}, expected ${expected} (squaresAway=${squaresAway} via FEET_PER_SQUARE=${FEET_PER_SQUARE})`);
 });
 
 test("SCALE SANITY: a full-HP enemy is worth more to remove than a nearly-dead one — the evaluator prefers real progress to overkill", () => {

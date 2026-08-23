@@ -47,10 +47,12 @@
  *
  * EXTENDED (skill-actions-in-combat expansion, requested directly: "expand to saving throws...
  * keep expanding the list of things that PCs and NPCs can do"): two new action types.
- *  - "saveAttack" — a basic saving throw the TARGET rolls (e.g. a thrown grenade), using
- *    ../engine/resolve.mjs's resolveSave/basicSaveDamage/expectedSaveDamage (also reused
- *    unmodified — this is exactly as scale-agnostic as resolveStrike's own dice math, and already
- *    proven by ground-layer/'s own reuse of resolveSave/basicSaveDamage for its hazard saves).
+ *  - "saveAttack" — a basic saving throw the TARGET rolls (a genuinely single-target one — an
+ *    AREA-effect save like a grenade's burst is explicitly OUT of scope, see build-combat-pregen.mjs's
+ *    deriveSaveAttacks header, design doc §22), using ../engine/resolve.mjs's
+ *    resolveSave/basicSaveDamage/expectedSaveDamage (also reused unmodified — this is exactly as
+ *    scale-agnostic as resolveStrike's own dice math, and already proven by ground-layer/'s own
+ *    reuse of resolveSave/basicSaveDamage for its hazard saves).
  *  - "demoralize" — Intimidation's Demoralize action (Player Core pg. 200, mirrored verbatim at
  *    reference/srd/player-core/skill-8-intimidation.json): an Intimidation check against the
  *    target's Will DC, applying the Frightened condition (mirrored at
@@ -60,16 +62,25 @@
  * rolling an attack at all. This is the actual mechanism behind the tactic Ingram named directly:
  * Demoralize costs 0 extra penalty regardless of how many Strikes came before it in the same turn,
  * unlike a 2nd/3rd Strike's real -5/-10.
+ *
+ * EXTENDED AGAIN (design doc §22's cover ask): every attack-roll/save resolution above now checks
+ * `terrain.mjs`'s `hasCover` between attacker and target and, if a cover object's segment crosses
+ * that line, applies STANDARD_COVER_AC_BONUS (+2, Player Core pg. 416) to the target's effective
+ * AC (strike/spellAttack) or Reflex save (saveAttack) for that ONE resolution only — never written
+ * back onto the target's own persistent stats, since cover is relative to a specific attacker's
+ * line, not a standing condition (a real rule: "you might have cover against one opponent but not
+ * another"). Logged on the returned action as `coverBonus` for transcript/viewer honesty.
  */
 
 import { makeRng, rollD20, rollFormula } from "../engine/rng.mjs";
 import { resolveEffectiveStats } from "./combatant.mjs";
 import {
   checkMoveLegality, checkStepLegality, checkStrikeLegal, checkSpellAttackLegal, checkHealAbilityLegal,
-  checkSaveAttackLegal, checkDemoralizeLegal, multipleAttackPenalty, rangeIncrementPenalty
+  checkSaveAttackLegal, checkDemoralizeLegal, checkConditionSaveLegal, multipleAttackPenalty, rangeIncrementPenalty
 } from "./legality.mjs";
 import { resolveStrike, mitigateDamage, expectedStrikeDamage, resolveSave, basicSaveDamage, expectedSaveDamage, degreeProbabilities, degreeOfSuccess } from "../engine/resolve.mjs";
 import { distanceFeet, FEET_PER_SQUARE } from "./grid.mjs";
+import { hasCover, STANDARD_COVER_AC_BONUS } from "./terrain.mjs";
 
 /**
  * OUTCOME TABLES (design doc §15f) — the ONE seam where a real battle and a lookahead sandbox
@@ -82,9 +93,12 @@ const REAL_OUTCOMES = {
     const { appliedDamage } = applyStrikeDamage(roll, target, targetEffective, strike);
     return { roll, appliedDamage, immune: false };
   },
-  /** A basic saving throw (e.g. a thrown grenade) — the TARGET rolls, not the attacker. */
-  saveAttack(rng, { saveAttack, target, targetEffective }) {
-    const saveBonus = target.saves[saveAttack.saveType];
+  /** A basic saving throw (e.g. a thrown grenade) — the TARGET rolls, not the attacker. `coverBonus`
+   * (Player Core pg. 416, standard cover) applies to Reflex saves specifically ("+2 ... to Reflex
+   * saves against area effects") — folded in here as a plain addend, never written back onto
+   * `target.saves` itself, since cover is relative to THIS attacker's line, not a persistent stat. */
+  saveAttack(rng, { saveAttack, target, targetEffective, coverBonus = 0 }) {
+    const saveBonus = target.saves[saveAttack.saveType] + (saveAttack.saveType === "ref" ? coverBonus : 0);
     const saveRoll = resolveSave(rng, { saveBonus, dc: saveAttack.dc });
     const damageEntries = (saveAttack.damage ?? []).map((d) => rollFormula(rng, `${d.dice}${d.bonus >= 0 ? "+" : ""}${d.bonus}`));
     const rawDamage = damageEntries.reduce((sum, e) => sum + e.total, 0);
@@ -102,6 +116,21 @@ const REAL_OUTCOMES = {
     const degree = degreeOfSuccess(d20, total, willDC);
     const appliedFrightened = { criticalSuccess: 2, success: 1, failure: 0, criticalFailure: 0 }[degree];
     return { roll: { d20, modifier, total, dc: willDC, degree }, appliedFrightened };
+  },
+  /**
+   * A condition-only save (design doc §22): the TARGET rolls, same basic shape as saveAttack, but
+   * `conditionSave.outcomes[degree]` is a per-degree CONDITION table (e.g. {frightened, stunnedRounds})
+   * hand-transcribed from the real ability's own description — nothing structural distinguishes
+   * which conditions a given degree applies, same "hand-identify, don't infer" discipline as every
+   * other prose-only case in this project (extract-npc.mjs's deriveConditionSave is where that
+   * table is actually authored, cited against the real text; this function only ever resolves
+   * whatever table it's handed).
+   */
+  conditionSave(rng, { conditionSave, target }) {
+    const saveBonus = target.saves[conditionSave.saveType];
+    const saveRoll = resolveSave(rng, { saveBonus, dc: conditionSave.dc });
+    const applied = conditionSave.outcomes[saveRoll.degree] ?? {};
+    return { roll: saveRoll, applied };
   }
 };
 
@@ -125,8 +154,8 @@ const EXPECTED_OUTCOMES = {
       immune: false
     };
   },
-  saveAttack(_rng, { saveAttack, target, targetEffective }) {
-    const saveBonus = target.saves[saveAttack.saveType];
+  saveAttack(_rng, { saveAttack, target, targetEffective, coverBonus = 0 }) {
+    const saveBonus = target.saves[saveAttack.saveType] + (saveAttack.saveType === "ref" ? coverBonus : 0);
     const expected = expectedSaveDamage({ saveBonus, dc: saveAttack.dc, damage: saveAttack.damage, target, targetEffective });
     if (expected > 0) target.currentHP = Math.max(0, target.currentHP - expected);
     return {
@@ -141,6 +170,17 @@ const EXPECTED_OUTCOMES = {
     const probs = degreeProbabilities(modifier, willDC);
     const appliedFrightened = probs.criticalSuccess * 2 + probs.success * 1;
     return { roll: { expected: true, d20: null, modifier, total: null, dc: willDC, degree: null }, appliedFrightened };
+  },
+  /** Probability-weighted expected value across all four degrees, same shape as demoralize's own expected twin — folds BOTH condition axes (frightened, stunnedRounds) since Forced Reflection's table sets both together on some degrees. */
+  conditionSave(_rng, { conditionSave, target }) {
+    const probs = degreeProbabilities(target.saves[conditionSave.saveType], conditionSave.dc);
+    let frightened = 0, stunnedRounds = 0;
+    for (const [degree, p] of Object.entries(probs)) {
+      const outcome = conditionSave.outcomes[degree] ?? {};
+      frightened += p * (outcome.frightened ?? 0);
+      stunnedRounds += p * (outcome.stunnedRounds ?? 0);
+    }
+    return { roll: { expected: true, d20: null, degree: null, total: null, dc: conditionSave.dc }, applied: { frightened, stunnedRounds } };
   }
 };
 
@@ -203,7 +243,7 @@ export function runBattle(scenario) {
         // See this file's own header for why reactions are deliberately not wired up in Phase 1.
         reactions: c.reactions ?? [],
         spells: c.spells ?? [], healAbilities: c.healAbilities ?? [],
-        saveAttacks: c.saveAttacks ?? [], intimidationModifier: c.intimidationModifier ?? null
+        saveAttacks: c.saveAttacks ?? [], conditionSaves: c.conditionSaves ?? [], intimidationModifier: c.intimidationModifier ?? null
       }];
     })
   );
@@ -447,7 +487,9 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     const mapPenalty = multipleAttackPenalty(turnProgress.strikesAttempted, (strike.traits ?? []).includes("agile"));
     const rangePenalty = rangeIncrementPenalty(strike, distanceFeet(pos, targetPos));
     const frightenedPenalty = -(combatant.frightened ?? 0); // Frightened penalizes ALL your own checks — an attack roll is a check
-    const targetEffective = resolveEffectiveStats(target);
+    const coverBonus = hasCover(pos, targetPos, state.walls) ? STANDARD_COVER_AC_BONUS : 0;
+    const baseEffective = resolveEffectiveStats(target);
+    const targetEffective = coverBonus ? { ...baseEffective, ac: baseEffective.ac + coverBonus } : baseEffective;
 
     const { roll: strikeResult, appliedDamage } = outcomes.strike(rng, {
       attacker: combatant, strike, target, targetEffective, mapPenalty: mapPenalty + rangePenalty + frightenedPenalty
@@ -461,7 +503,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
 
     return {
       type: "strike", strikeName: strike.name, targetId: proposal.targetId, legal: true, actionsCost: 1,
-      roll: strikeResult, hardnessApplied: targetEffective.hardness,
+      roll: strikeResult, hardnessApplied: targetEffective.hardness, coverBonus,
       damageApplied: appliedDamage, targetHPAfter: target.currentHP,
       usesRemaining: strike.usesRemaining ?? null, decisionReason: proposal.reason ?? null
     };
@@ -486,7 +528,9 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     turnProgress.strikesAttempted += 1;
     const mapPenalty = multipleAttackPenalty(turnProgress.strikesAttempted, (spell.traits ?? []).includes("agile"));
     const frightenedPenalty = -(combatant.frightened ?? 0);
-    const targetEffective = resolveEffectiveStats(target);
+    const coverBonus = hasCover(pos, targetPos, state.walls) ? STANDARD_COVER_AC_BONUS : 0;
+    const baseEffective = resolveEffectiveStats(target);
+    const targetEffective = coverBonus ? { ...baseEffective, ac: baseEffective.ac + coverBonus } : baseEffective;
 
     const { roll: spellResult, appliedDamage } = outcomes.strike(rng, {
       attacker: combatant, strike: spell, target, targetEffective, mapPenalty: mapPenalty + frightenedPenalty
@@ -497,7 +541,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
 
     return {
       type: "spellAttack", spellName: spell.name, targetId: proposal.targetId, legal: true, actionsCost: spell.actions ?? 1,
-      roll: spellResult, hardnessApplied: targetEffective.hardness,
+      roll: spellResult, hardnessApplied: targetEffective.hardness, coverBonus,
       damageApplied: appliedDamage, targetHPAfter: target.currentHP,
       usesRemaining: spell.usesRemaining ?? null, decisionReason: proposal.reason ?? null
     };
@@ -540,15 +584,16 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     const check = checkSaveAttackLegal({ attacker: combatant, attackerPos: pos, target, targetPos, saveAttack: saveAttackAbility, turnState: turnProgress, walls: state.walls });
     if (!check.legal) return { type: "saveAttack", targetId: proposal.targetId, legal: false, reason: check.reason };
 
+    const coverBonus = hasCover(pos, targetPos, state.walls) ? STANDARD_COVER_AC_BONUS : 0;
     const targetEffective = resolveEffectiveStats(target);
-    const { roll: saveResult, appliedDamage } = outcomes.saveAttack(rng, { saveAttack: saveAttackAbility, target, targetEffective });
+    const { roll: saveResult, appliedDamage } = outcomes.saveAttack(rng, { saveAttack: saveAttackAbility, target, targetEffective, coverBonus });
     turnProgress.actionsUsed += saveAttackAbility.actions ?? 1;
 
     if (saveAttackAbility.usesRemaining != null) saveAttackAbility.usesRemaining -= 1;
 
     return {
       type: "saveAttack", saveAttackName: saveAttackAbility.name, targetId: proposal.targetId, legal: true, actionsCost: saveAttackAbility.actions ?? 1,
-      roll: saveResult, hardnessApplied: targetEffective.hardness,
+      roll: saveResult, hardnessApplied: targetEffective.hardness, coverBonus,
       damageApplied: appliedDamage, targetHPAfter: target.currentHP,
       usesRemaining: saveAttackAbility.usesRemaining ?? null, decisionReason: proposal.reason ?? null
     };
@@ -575,6 +620,38 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     return {
       type: "demoralize", targetId: proposal.targetId, legal: true, actionsCost: 1,
       roll: demoralizeRoll, frightenedApplied: appliedFrightened, targetFrightenedAfter: target.frightened,
+      decisionReason: proposal.reason ?? null
+    };
+  }
+
+  // Condition-only save (design doc §22, e.g. Erabryth's Forced Reflection): the TARGET rolls,
+  // like saveAttack, but the effect is a per-degree table of CONDITIONS instead of damage — no
+  // damage roll happens at all, so (matching saveAttack/demoralize above) this never counts toward
+  // MAP either. Cover deliberately does NOT apply here (unlike saveAttack's Reflex case): Player
+  // Core's cover bonus is explicitly to Reflex saves against AREA effects, and every conditionSave
+  // built so far is a Will save with no area trait at all — applying it would be inventing a rule
+  // interaction the real text doesn't describe, not a small oversight.
+  if (proposal.type === "conditionSave") {
+    const target = state.combatants.get(proposal.targetId);
+    const targetPos = state.positions.get(proposal.targetId);
+    const conditionSaveAbility = (combatant.conditionSaves ?? [])[proposal.conditionSaveIndex ?? 0];
+    if (!conditionSaveAbility) return { type: "conditionSave", targetId: proposal.targetId, legal: false, reason: `No conditionSave at index ${proposal.conditionSaveIndex ?? 0} — ${combatant.name} has ${(combatant.conditionSaves ?? []).length}.` };
+
+    const check = checkConditionSaveLegal({ attacker: combatant, attackerPos: pos, target, targetPos, conditionSave: conditionSaveAbility, turnState: turnProgress, walls: state.walls });
+    if (!check.legal) return { type: "conditionSave", targetId: proposal.targetId, legal: false, reason: check.reason };
+
+    const { roll: saveResult, applied } = outcomes.conditionSave(rng, { conditionSave: conditionSaveAbility, target });
+    // "Keep the worse (higher) value, don't stack" — same real stacking convention as Demoralize's
+    // own Frightened application, extended here to Stunned too (both are numeric conditions with
+    // the identical "higher value wins" rule — Conditions Appendix, Player Core).
+    if (applied.frightened != null) target.frightened = Math.max(target.frightened ?? 0, applied.frightened);
+    if (applied.stunnedRounds != null) target.stunnedRounds = Math.max(target.stunnedRounds ?? 0, applied.stunnedRounds);
+    combatant.conditionSaveTargets = [...(combatant.conditionSaveTargets ?? []), `${conditionSaveAbility.name}|${proposal.targetId}`];
+    turnProgress.actionsUsed += conditionSaveAbility.actions ?? 1;
+
+    return {
+      type: "conditionSave", conditionSaveName: conditionSaveAbility.name, targetId: proposal.targetId, legal: true, actionsCost: conditionSaveAbility.actions ?? 1,
+      roll: saveResult, applied, targetFrightenedAfter: target.frightened, targetStunnedRoundsAfter: target.stunnedRounds ?? 0,
       decisionReason: proposal.reason ?? null
     };
   }
@@ -634,9 +711,9 @@ function checkOutcome(state) {
  * copy below already correct for it, by construction.
  *
  * Mutable surface at personnel scale: state.round; state.combatants.<id>.{currentHP,
- * stunnedRounds, frightened, demoralizedTargets}; state.combatants.<id>.{strikes,spells,
- * healAbilities,saveAttacks}[i].usesRemaining; state.positions.<id>.{col,row}. (No
- * reactionAvailable map — this tree fires no reactions, see this file's own header.)
+ * stunnedRounds, frightened, demoralizedTargets, conditionSaveTargets}; state.combatants.<id>.
+ * {strikes,spells,healAbilities,saveAttacks,conditionSaves}[i].usesRemaining; state.positions.<id>.
+ * {col,row}. (No reactionAvailable map — this tree fires no reactions, see this file's own header.)
  */
 export function cloneStateForPlanning(state) {
   const combatants = new Map();
@@ -646,7 +723,9 @@ export function cloneStateForPlanning(state) {
     if (c.spells) copy.spells = c.spells.map((s) => ({ ...s }));
     if (c.healAbilities) copy.healAbilities = c.healAbilities.map((a) => ({ ...a }));
     if (c.saveAttacks) copy.saveAttacks = c.saveAttacks.map((s) => ({ ...s }));
+    if (c.conditionSaves) copy.conditionSaves = c.conditionSaves.map((s) => ({ ...s }));
     if (c.demoralizedTargets) copy.demoralizedTargets = [...c.demoralizedTargets];
+    if (c.conditionSaveTargets) copy.conditionSaveTargets = [...c.conditionSaveTargets];
     combatants.set(id, copy);
   }
   const positions = new Map();

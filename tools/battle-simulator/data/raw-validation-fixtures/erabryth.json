@@ -1,0 +1,146 @@
+{
+  "id": "raw-validation-erabryth",
+  "name": "Erabryth",
+  "side": "opposition",
+  "maxHP": 20,
+  "currentHP": 20,
+  "ac": 15,
+  "saves": {
+    "fort": 4,
+    "ref": 9,
+    "will": 6
+  },
+  "speed": 25,
+  "strikes": [
+    {
+      "name": "Ribbon",
+      "strikeType": "melee",
+      "attackBonus": 9,
+      "traits": [
+        "finesse",
+        "magical",
+        "reach-10",
+        "trip"
+      ],
+      "damage": [
+        {
+          "dice": "1d6",
+          "bonus": 1,
+          "damageType": "bludgeoning"
+        }
+      ]
+    },
+    {
+      "name": "Fist",
+      "strikeType": "melee",
+      "attackBonus": 9,
+      "traits": [
+        "agile",
+        "finesse",
+        "magical"
+      ],
+      "damage": [
+        {
+          "dice": "1d4",
+          "bonus": 1,
+          "damageType": "bludgeoning"
+        }
+      ]
+    },
+    {
+      "name": "Light Ray",
+      "strikeType": "melee",
+      "attackBonus": 9,
+      "traits": [
+        "boost-1d4",
+        "magical"
+      ],
+      "damage": [
+        {
+          "dice": "1d6",
+          "bonus": 0,
+          "damageType": "fire"
+        }
+      ]
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Reflect Aggression",
+      "actionType": "reaction",
+      "actionsCost": null,
+      "description": "<p><strong>Trigger</strong> A creature hits the erabryth with a melee or ranged Strike</p><hr /><p><strong>Effect</strong> The erabryth reflects some of their attacker's anger and aggression back at them. The erabryth gains resistance 3 to the triggering damage and deals @Damage[3[mental]] damage to their attacker.</p>"
+    }
+  ],
+  "actions": [
+    {
+      "name": "Buffering Zone",
+      "actionType": "passive",
+      "actionsCost": null,
+      "description": "<p>15 feet. A creature that begins its turn within the area must attempt a @Check[will|dc:14] save.</p><hr /><p><strong>Critical Success</strong> The creature is unaffected and is temporarily immune to buffering zone for 1 day.</p>\n<p><strong>Success</strong> The creature treats the buffering zone as difficult terrain for 1 round.</p>\n<p><strong>Failure</strong> As success, and the creature is pushed back 5 feet and takes a –1 status penalty to attack rolls for 1 round.</p>\n<p>@UUID[Compendium.sf2e.bestiary-effects.Item.X5oMEjGHa8WsCiqW]{Effect: Buffering Zone (Failure)}</p>\n<p><strong>Critical Failure</strong> As failure, but the creature is pushed back beyond the boundary of the buffering zone and can't reenter the buffering zone for 1 round.</p>"
+    },
+    {
+      "name": "Forced Reflection",
+      "actionType": "action",
+      "actionsCost": 1,
+      "description": "<p>The erabryth forces a creature within 60 feet to relive its most painful memories and regrets in an instant, confronting it with it difficult memories to help it reconcile its actions and let go of its pain. The target must attempt a @Check[will|dc:17|options:inflicts:frightened,inflicts:stunned] save. Regardless of the result, the target is then temporarily immune to Forced Reflection for 1 day.</p><hr /><p><strong>Critical Success</strong> The target is unaffected.</p>\n<p><strong>Success</strong> The target is @UUID[Compendium.sf2e.conditions.Item.TBSHQspnbcqxsmjL]{Frightened 1}.</p>\n<p><strong>Failure</strong> The target is @UUID[Compendium.sf2e.conditions.Item.dfCMdR4wnpbYNTix]{Stunned 1} and frightened 1.</p>\n<p><strong>Critical Failure</strong> The target is @UUID[Compendium.sf2e.conditions.Item.dfCMdR4wnpbYNTix]{Stunned 2} and @UUID[Compendium.sf2e.conditions.Item.TBSHQspnbcqxsmjL]{Frightened 2}.</p>"
+    },
+    {
+      "name": "Shepherd's Touch",
+      "actionType": "passive",
+      "actionsCost": null,
+      "description": "<p>An erabryth's Strikes have the benefit of a ghost killer upgrade and deal an extra 1d4 void damage to living creatures or 1d4 vitality damage to undead.</p>"
+    }
+  ],
+  "lore": [
+    {
+      "name": "Android Lore",
+      "modifier": 6
+    },
+    {
+      "name": "Boneyard Lore",
+      "modifier": 6
+    }
+  ],
+  "skills": {
+    "acrobatics": 7,
+    "athletics": 4,
+    "computers": 6,
+    "intimidation": 4,
+    "religion": 6,
+    "society": 6,
+    "stealth": 7
+  },
+  "conditionSaves": [
+    {
+      "name": "Forced Reflection",
+      "saveType": "will",
+      "dc": 17,
+      "range": 60,
+      "actions": 1,
+      "traits": [
+        "divine",
+        "emotion",
+        "fear",
+        "incapacitation",
+        "mental"
+      ],
+      "outcomes": {
+        "criticalSuccess": {},
+        "success": {
+          "frightened": 1
+        },
+        "failure": {
+          "stunnedRounds": 1,
+          "frightened": 1
+        },
+        "criticalFailure": {
+          "stunnedRounds": 2,
+          "frightened": 2
+        }
+      }
+    }
+  ],
+  "intimidationModifier": 4,
+  "notes": "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Forced Reflection is this project's first condition-only save action (personnel-engine's new \"conditionSave\" action type, design doc §22) — a real per-degree table of Frightened/Stunned hand-transcribed from her verbatim description text, DC sourced from her real spellcastingEntry.spelldc.dc (17). \"Shepherd's Touch\" (a passive that adds extra void/vitality damage to her Strikes) and \"Buffering Zone\" (a standing 15ft aura with its own real but situational save) are real but NOT wired — the same honest-skip discipline already applied to every other NPC's situational passives in this project."
+}

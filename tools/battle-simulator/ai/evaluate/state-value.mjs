@@ -341,7 +341,7 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
     if (!c.objective) continue;
     const pos = state.positions.get(c.id);
     if (!pos) continue;
-    const squaresAway = distanceFeet(pos, c.objective) / 50;
+    const squaresAway = distanceFeet(pos, c.objective) / FEET_PER_SQUARE;
     const progress = weights.objective * squaresAway;
     if (c.side === side) score -= progress; else score += progress;
   }

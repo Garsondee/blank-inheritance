@@ -19,8 +19,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { listLevel1Pregens, toIngredients } from "./extract-pregen.mjs";
 import { deriveAbilityModifiers, deriveHP, derivePerception, deriveSavingThrows, deriveArmorClass } from "./derive.mjs";
-import { deriveStrikes, deriveSpells, deriveTransferVitality, deriveSkillModifier } from "./build-combat-pregen.mjs";
-import { findNPC, toCombatant, deriveSpellAttacks } from "../pack-extractor/extract-npc.mjs";
+import { deriveStrikes, deriveSpells, deriveSaveSpells, deriveTransferVitality, deriveSkillModifier } from "./build-combat-pregen.mjs";
+import { findNPC, toCombatant, deriveSpellAttacks, deriveConditionSave } from "../pack-extractor/extract-npc.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..", "..");
@@ -161,17 +161,110 @@ function buildXenowardenGreenhorn() {
   };
 }
 
+/**
+ * Third PC (design doc §22's "3v3, and this time pick something that needs a real gap" ask —
+ * research recommendation: "Nitpick" Bennit). Her Thunderstrike is this project's first SAVE-BASED
+ * SPELL, requiring the new deriveSaveSpells (build-combat-pregen.mjs) — genuinely new capability,
+ * not a repeat of Tapkey/Xenowarden Greenhorn's own "zero new code" picks. Her real weapons (Laser
+ * Pistol, Semi-Auto Pistol) derive through the existing deriveStrikes unmodified; her Frag Grenade
+ * is real but NOT wired, for the identical reason Lunar-17's/Tapkey's own grenades were removed
+ * (design doc §22): a real `@Template[burst|distance:5]` area effect, not a single-target attack.
+ */
+function buildBennit() {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "paizo-pregens");
+  const pregen = listLevel1Pregens(packDir).find((p) => p.name === "“Nitpick” Bennit");
+  if (!pregen) throw new Error("“Nitpick” Bennit not found in paizo-pregens — Paizo may have renamed the pregen.");
+  const ingredients = toIngredients(pregen);
+  const mods = deriveAbilityModifiers(ingredients);
+
+  const hp = deriveHP({ ancestryHP: ingredients.ancestryHP, classHP: ingredients.classHP, conModifier: mods.con });
+  const perception = derivePerception({ rankIndex: ingredients.perceptionRank, level: 1, wisModifier: mods.wis });
+  const saves = deriveSavingThrows({
+    fortitudeRank: ingredients.saveRanks.fortitude, reflexRank: ingredients.saveRanks.reflex, willRank: ingredients.saveRanks.will,
+    level: 1, conModifier: mods.con, dexModifier: mods.dex, wisModifier: mods.wis
+  });
+  const ac = deriveArmorClass({
+    armorCategoryRank: ingredients.armorCategoryRank, level: 1, dexModifier: mods.dex,
+    dexCap: ingredients.armor?.dexCap ?? null, itemBonus: ingredients.armor?.acBonus ?? 0, armorProficiency: ingredients.armor?.name ?? null
+  });
+
+  const strikes = deriveStrikes(ingredients, ["Laser Pistol", "Semi-Auto Pistol"], mods);
+  const saveAttacks = deriveSaveSpells(ingredients, ["Thunderstrike"], mods);
+  const intimidationModifier = deriveSkillModifier(ingredients, "intimidation", mods);
+
+  return {
+    id: "raw-validation-bennit",
+    name: "“Nitpick” Bennit (level-1 Witchwarper pregen, design doc §22 — real Paizo Adventure Pregen, NOT one of the six real campaign kids)",
+    side: "party",
+    maxHP: hp.max,
+    currentHP: hp.max,
+    ac: ac.value,
+    saves: { fort: saves.fortitude.modifier, ref: saves.reflex.modifier, will: saves.will.modifier },
+    perception: perception.proficiency.modifier,
+    speed: ingredients.speed,
+    strikes,
+    saveAttacks,
+    intimidationModifier,
+    notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §22. Thunderstrike (a real basic-Reflex-save spell, 1d12 electricity + 1d4 sonic) is this project's first save-based SPELL — deriveSaveSpells reads its save type directly off the spell's own structured system.defense.save.statistic field (not hand-supplied prose-reading, unlike a weapon's save-based effect), and its DC from her real spellcasting DC (deriveSpellDC), not Class DC. usesRemaining (3) is her real spell-slot count (system.slots.slot1.max), not an invented number. Her Frag Grenade (Commercial) is real but NOT wired as a usable action, for the same reason as every other grenade in this project: its raw description is a 5ft-burst AREA effect, not a single-target attack — see design doc §22."
+  };
+}
+
+/**
+ * Third NPC (design doc §22's "3v3, and this time pick something that needs a real gap" ask —
+ * research recommendation: Erabryth, alien-core-bestiary). Her Forced Reflection is this project's
+ * first CONDITION-ONLY save action — the target rolls, but the effect is a per-degree table of
+ * Frightened/Stunned, not damage — requiring a genuinely new engine mechanism (personnel-engine/
+ * legality.mjs's checkConditionSaveLegal, engine.mjs's "conditionSave" action type, decide.mjs's
+ * candidate generation, and evaluate/state-value.mjs's new stunDenial term, since nothing anywhere
+ * priced `stunnedRounds` before this). Her real Strikes (Ribbon/Fist/Light Ray) derive through the
+ * existing toCombatant unmodified.
+ */
+function buildErabryth() {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "alien-core-bestiary");
+  const erabryth = findNPC(packDir, "Erabryth");
+  if (!erabryth) throw new Error("Erabryth not found in alien-core-bestiary — Paizo may have renamed the NPC.");
+  const combatant = toCombatant(erabryth, { strikeNames: ["Ribbon", "Fist", "Light Ray"] });
+  // Hand-transcribed from her real description prose (verified directly against the raw pack data —
+  // see design doc §22): "Critical Success: unaffected. Success: Frightened 1. Failure: Stunned 1
+  // and frightened 1. Critical Failure: Stunned 2 and Frightened 2." saveType "will" and range 60
+  // are likewise hand-read from the same prose ("...within 60 feet... @Check[will|dc:17...]") — DC
+  // itself comes from her real spellcastingEntry.spelldc.dc (17), confirmed to match the embedded
+  // @Check tag's own dc:17 exactly, two independent sources agreeing.
+  const conditionSaves = [deriveConditionSave(erabryth, {
+    name: "Forced Reflection", saveType: "will", range: 60,
+    outcomes: {
+      criticalSuccess: {},
+      success: { frightened: 1 },
+      failure: { stunnedRounds: 1, frightened: 1 },
+      criticalFailure: { stunnedRounds: 2, frightened: 2 }
+    }
+  })];
+  return {
+    id: "raw-validation-erabryth",
+    ...combatant,
+    conditionSaves,
+    intimidationModifier: combatant.skills.intimidation ?? null,
+    notes: "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Forced Reflection is this project's first condition-only save action (personnel-engine's new \"conditionSave\" action type, design doc §22) — a real per-degree table of Frightened/Stunned hand-transcribed from her verbatim description text, DC sourced from her real spellcastingEntry.spelldc.dc (17). \"Shepherd's Touch\" (a passive that adds extra void/vitality damage to her Strikes) and \"Buffering Zone\" (a standing 15ft aura with its own real but situational save) are real but NOT wired — the same honest-skip discipline already applied to every other NPC's situational passives in this project."
+  };
+}
+
 const lunar17 = buildLunar17();
 const securityGoon = buildSecurityGoon();
 const tapkey = buildTapkey();
 const xenowardenGreenhorn = buildXenowardenGreenhorn();
+const bennit = buildBennit();
+const erabryth = buildErabryth();
 
 writeFileSync(path.join(outDir, "lunar-17.json"), JSON.stringify(lunar17, null, 2) + "\n");
 writeFileSync(path.join(outDir, "security-goon.json"), JSON.stringify(securityGoon, null, 2) + "\n");
 writeFileSync(path.join(outDir, "tapkey.json"), JSON.stringify(tapkey, null, 2) + "\n");
 writeFileSync(path.join(outDir, "xenowarden-greenhorn.json"), JSON.stringify(xenowardenGreenhorn, null, 2) + "\n");
+writeFileSync(path.join(outDir, "bennit.json"), JSON.stringify(bennit, null, 2) + "\n");
+writeFileSync(path.join(outDir, "erabryth.json"), JSON.stringify(erabryth, null, 2) + "\n");
 
 console.log(`wrote lunar-17.json (AC ${lunar17.ac}, HP ${lunar17.maxHP}, ${lunar17.strikes.length} strikes, ${lunar17.spells.length} spell, ${lunar17.healAbilities.length} heal ability, intimidation +${lunar17.intimidationModifier})`);
 console.log(`wrote security-goon.json (AC ${securityGoon.ac}, HP ${securityGoon.maxHP}, ${securityGoon.strikes.length} strikes, ${securityGoon.reactions.length} reaction, ${securityGoon.actions.length} other action, intimidation +${securityGoon.intimidationModifier})`);
 console.log(`wrote tapkey.json (AC ${tapkey.ac}, HP ${tapkey.maxHP}, ${tapkey.strikes.length} strikes, intimidation +${tapkey.intimidationModifier})`);
 console.log(`wrote xenowarden-greenhorn.json (AC ${xenowardenGreenhorn.ac}, HP ${xenowardenGreenhorn.maxHP}, ${xenowardenGreenhorn.strikes.length} strikes, ${xenowardenGreenhorn.spells.length} spell, intimidation ${xenowardenGreenhorn.intimidationModifier})`);
+console.log(`wrote bennit.json (AC ${bennit.ac}, HP ${bennit.maxHP}, ${bennit.strikes.length} strikes, ${bennit.saveAttacks.length} saveAttack (spell), intimidation +${bennit.intimidationModifier})`);
+console.log(`wrote erabryth.json (AC ${erabryth.ac}, HP ${erabryth.maxHP}, ${erabryth.strikes.length} strikes, ${erabryth.conditionSaves.length} conditionSave, intimidation +${erabryth.intimidationModifier})`);

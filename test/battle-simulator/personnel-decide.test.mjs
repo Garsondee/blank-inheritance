@@ -100,3 +100,77 @@ test("an enemy with NO belief entry at all (never perceived, not even at deploym
   const movesTowardEnemy = proposals.filter((p) => p.type === "move" && p.to.col > 5); // any destination heading toward (10,10)
   assert.equal(movesTowardEnemy.length, 0, "no destination candidate should reference an enemy this side has no belief about at all");
 });
+
+// --- lowHpCaution / outnumberedCaution END-TO-END (design doc §22): unlike personnel-state-value's
+// own coverage (which proves the SCORING FORMULA behaves correctly in isolation), these prove
+// decide()'s real, full pipeline — candidate generation (the "disengage" move decide.mjs already
+// offers every turn via bestDestinationAway) PLUS evaluation — actually CHOOSES to retreat under
+// the right conditions, not just that a retreat option scores better in the abstract. This is
+// exactly the distinction design doc §22's own bug report turned on: a technically-correct formula
+// that never changes what the AI actually DOES isn't worth anything. ---
+
+function makeMeleeThreatState(hp) {
+  const me = {
+    id: "me", name: "Me", side: "party", currentHP: hp, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 },
+    speed: 25, strikes: [{ name: "Rifle", strikeType: "ranged", attackBonus: 8, rangeIncrement: 60, traits: [], damage: [{ dice: "1d6", bonus: 2, damageType: "piercing" }] }],
+    position: { col: 10, row: 10 }
+  };
+  const enemy = {
+    id: "enemy", name: "Enemy", side: "opposition", currentHP: 30, maxHP: 30, ac: 14, saves: { fort: 5, ref: 5, will: 5 },
+    speed: 25, strikes: [{ name: "Claws", strikeType: "melee", attackBonus: 15, traits: [], damage: [{ dice: "4d6", bonus: 10, damageType: "slashing" }] }], // a devastating melee-only hit
+    position: { col: 11, row: 10 } // adjacent — melee range
+  };
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 30, rows: 30 }, walls: [],
+    combatants: new Map([["me", me], ["enemy", enemy]]),
+    positions: new Map([["me", { ...me.position }], ["enemy", { ...enemy.position }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };
+  return { state, turn };
+}
+
+test("lowHpCaution END TO END: at full HP, decide() presses the attack against a dangerous melee threat (my own ranged Rifle keeps working from range, so kiting away costs real offensiveReach — not worth it while healthy)", () => {
+  const { state, turn } = makeMeleeThreatState(20);
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.equal(chosen.type, "strike", `expected a full-HP combatant to press the attack, chose: ${JSON.stringify(chosen)}`);
+});
+
+test("lowHpCaution END TO END: at critically low HP, decide() retreats out of the SAME melee threat's range instead — the identical position and the identical enemy, only currentHP changed", () => {
+  const { state, turn } = makeMeleeThreatState(2);
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.equal(chosen.type, "move", `expected a critically hurt combatant to disengage rather than trade blows with a devastating melee attacker, chose: ${JSON.stringify(chosen)}`);
+});
+
+function makeOutnumberedState(enemyCount) {
+  const me = {
+    id: "me", name: "Me", side: "party", currentHP: 16, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 },
+    speed: 25, strikes: [{ name: "Rifle", strikeType: "ranged", attackBonus: 8, rangeIncrement: 60, traits: [], damage: [{ dice: "1d6", bonus: 2, damageType: "piercing" }] }],
+    position: { col: 10, row: 10 }
+  };
+  const combatants = new Map([["me", me]]);
+  const positions = new Map([["me", { ...me.position }]]);
+  for (let i = 0; i < enemyCount; i++) {
+    const enemy = {
+      id: `enemy-${i}`, name: `Enemy ${i}`, side: "opposition", currentHP: 20, maxHP: 20, ac: 14, saves: { fort: 5, ref: 5, will: 5 },
+      speed: 25, strikes: [{ name: "Claws", strikeType: "melee", attackBonus: 10, traits: [], damage: [{ dice: "2d6", bonus: 4, damageType: "slashing" }] }],
+      position: { col: 11, row: 10 + i } // each a separate melee threat, all with real LOS to me
+    };
+    combatants.set(enemy.id, enemy);
+    positions.set(enemy.id, { ...enemy.position });
+  }
+  const state = { round: 1, seed: 1, gridSize: { cols: 30, rows: 30 }, walls: [], combatants, positions };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };
+  return { state, turn };
+}
+
+test("outnumberedCaution END TO END: a fair 1v1 (moderately hurt, but not outnumbered) still presses the attack", () => {
+  const { state, turn } = makeOutnumberedState(1);
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.equal(chosen.type, "strike", `expected a fair 1v1 to still favor attacking, chose: ${JSON.stringify(chosen)}`);
+});
+
+test("outnumberedCaution END TO END: the IDENTICAL combatant, at the SAME HP, retreats once genuinely outnumbered (2+ visible melee enemies) — only the enemy count changed", () => {
+  const { state, turn } = makeOutnumberedState(2);
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.equal(chosen.type, "move", `expected an outnumbered combatant to disengage rather than stand and trade with multiple melee attackers, chose: ${JSON.stringify(chosen)}`);
+});
