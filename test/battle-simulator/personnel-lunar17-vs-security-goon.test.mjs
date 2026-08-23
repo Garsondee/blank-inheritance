@@ -82,19 +82,25 @@ test("buildScenario: rejects an unknown setup name rather than silently falling 
 });
 
 /**
- * REGRESSION (design doc §19, skill-actions-in-combat expansion, found by MEASURING real behavior
- * across 10 seeds, not by inspection): deriveSaveAttacks originally never read a weapon's real
+ * HISTORY (design doc §19 -> §21): deriveSaveAttacks originally never read a weapon's real
  * system.quantity, so Lunar-17's real single Incendiary Grenade (system.quantity: 1, confirmed
- * against her raw pack data) was treated as infinitely reusable — she threw it 31 times across 10
- * seeds and Eldritch Lance usage collapsed from 37 to 4. Fixed by reading the real quantity into
- * usesRemaining; this pins the fix so it can't silently regress.
+ * against her raw pack data) was treated as infinitely reusable — a real bug, found by measuring 10
+ * seeds, not by inspection. That quantity fix shipped, but a SECOND, deeper problem surfaced later
+ * from a direct user report: the grenade's own raw description is a `@Template[burst|distance:5]`
+ * AREA effect ("Activate 1 Area Fire..."), not a single-target attack at all — the saveAttack action
+ * only ever models single-target saves, so no quantity fix could have made this correct. Lunar-17's
+ * grenade was removed from her usable kit entirely (design doc §21), matching the same "area
+ * attacks are out of scope" treatment already applied to every other burst/multi-target weapon.
+ * Pinned here as a real regression test: no saveAttack of any kind should ever appear for her again
+ * until this engine has a real area-effect mechanism and a save-based item that's actually
+ * single-target gets wired in its place.
  */
-test("the real Incendiary Grenade is thrown AT MOST once per fight, per side, matching her real sheet's system.quantity: 1 — never treated as infinite ordnance", () => {
+test("Lunar-17 never attempts a saveAttack — her only candidate (Incendiary Grenade) is a real area-burst weapon, correctly excluded rather than misrepresented as single-target", () => {
   for (let seed = 1; seed <= 10; seed++) {
     const log = runBattle(buildScenario({ seed, setup: "SAME_ROOM", roundLimit: 15 }));
     const grenadeThrows = log.rounds.flatMap((r) => r.turns).filter((t) => t.combatantId === "raw-validation-lunar-17")
-      .flatMap((t) => t.actions ?? []).filter((a) => a.legal && a.type === "saveAttack");
-    assert.ok(grenadeThrows.length <= 1, `seed ${seed}: expected at most 1 real grenade throw, saw ${grenadeThrows.length}`);
+      .flatMap((t) => t.actions ?? []).filter((a) => a.type === "saveAttack");
+    assert.equal(grenadeThrows.length, 0, `seed ${seed}: expected zero saveAttack attempts (the grenade is no longer wired), saw ${grenadeThrows.length}`);
   }
 });
 

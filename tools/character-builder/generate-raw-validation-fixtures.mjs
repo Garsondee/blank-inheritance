@@ -19,7 +19,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { listLevel1Pregens, toIngredients } from "./extract-pregen.mjs";
 import { deriveAbilityModifiers, deriveHP, derivePerception, deriveSavingThrows, deriveArmorClass } from "./derive.mjs";
-import { deriveStrikes, deriveSpells, deriveTransferVitality, deriveSaveAttacks, deriveSkillModifier } from "./build-combat-pregen.mjs";
+import { deriveStrikes, deriveSpells, deriveTransferVitality, deriveSkillModifier } from "./build-combat-pregen.mjs";
 import { findNPC, toCombatant, deriveSpellAttacks } from "../pack-extractor/extract-npc.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -47,7 +47,6 @@ function buildLunar17() {
   const strikes = deriveStrikes(ingredients, ["Zero Knife", "Arc Pistol", "Semi-Auto Pistol"], mods);
   const spells = deriveSpells(ingredients, ["Eldritch Lance"], mods);
   const healAbilities = [deriveTransferVitality(ingredients)];
-  const saveAttacks = deriveSaveAttacks(ingredients, [{ name: "Incendiary Grenade (Commercial)", saveType: "reflex" }], mods);
   const intimidationModifier = deriveSkillModifier(ingredients, "intimidation", mods);
 
   return {
@@ -63,9 +62,8 @@ function buildLunar17() {
     strikes,
     spells,
     healAbilities,
-    saveAttacks,
     intimidationModifier, // real, untrained (+0) — her cha modifier is +0 and Intimidation isn't one of her trained skills
-    notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §19. Transfer Vitality's healing amount (10, minimum 1) is hand-transcribed from real rule prose since no structured field exists for it — see build-combat-pregen.mjs's own citation. The Incendiary Grenade's DC (17) is her real Class DC, matching the raw item's own @Check[reflex|against:class] text exactly."
+    notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §19/§21. Transfer Vitality's healing amount (10, minimum 1) is hand-transcribed from real rule prose since no structured field exists for it — see build-combat-pregen.mjs's own citation. Her Incendiary Grenade (Commercial) is real but NOT wired as a usable action: its raw description reads \"Activate 1 Area Fire ... (@Template[burst|distance:5])\" — a 5ft-burst AREA effect, not a single-target attack, structurally identical to Frag Grenade/Electromag Grenade (already excluded for other pregens for the same reason). personnel-engine's saveAttack action is single-target only; wiring a burst weapon through it would have hit exactly one creature with none of the real friendly-fire risk an area weapon actually carries, and was in fact caught doing exactly that (see design doc §21's grenade-modeling correction)."
   };
 }
 
@@ -109,7 +107,6 @@ function buildTapkey() {
   });
 
   const strikes = deriveStrikes(ingredients, ["Nano-edge Rapier", "Boom Pistol"], mods);
-  const saveAttacks = deriveSaveAttacks(ingredients, [{ name: "Incendiary Grenade (Commercial)", saveType: "reflex" }], mods);
   const intimidationModifier = deriveSkillModifier(ingredients, "intimidation", mods);
 
   return {
@@ -123,9 +120,8 @@ function buildTapkey() {
     perception: perception.proficiency.modifier,
     speed: ingredients.speed,
     strikes,
-    saveAttacks,
     intimidationModifier, // real, untrained (+4) — pure Charisma; Intimidation isn't one of her trained skills either, but her cha modifier (+4) is the roster's highest
-    notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §21. Nano-edge Rapier and Boom Pistol both derive through the existing deriveStrikes unmodified — Tapkey needed zero new engine or extraction code, per the design doc §21 research survey of the 5 remaining Player Core pregens. Only Nano-edge Rapier and Boom Pistol are wired as Strikes; her Incendiary Grenade (Commercial) is wired as a saveAttack instead, matching Lunar-17's own grenade exactly (DC = real Class DC, matching the item's own @Check[reflex|against:class] text)."
+    notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §21. Nano-edge Rapier and Boom Pistol both derive through the existing deriveStrikes unmodified — Tapkey needed zero new engine or extraction code, per the design doc §21 research survey of the 5 remaining Player Core pregens. Her Incendiary Grenade (Commercial) is real but NOT wired as a usable action, for the same reason as Lunar-17's own grenade: its raw description is a 5ft-burst AREA effect (\"Activate 1 Area Fire ... @Template[burst|distance:5]\"), not a single-target attack personnel-engine's saveAttack action can correctly represent — see design doc §21."
   };
 }
 
@@ -175,7 +171,7 @@ writeFileSync(path.join(outDir, "security-goon.json"), JSON.stringify(securityGo
 writeFileSync(path.join(outDir, "tapkey.json"), JSON.stringify(tapkey, null, 2) + "\n");
 writeFileSync(path.join(outDir, "xenowarden-greenhorn.json"), JSON.stringify(xenowardenGreenhorn, null, 2) + "\n");
 
-console.log(`wrote lunar-17.json (AC ${lunar17.ac}, HP ${lunar17.maxHP}, ${lunar17.strikes.length} strikes, ${lunar17.spells.length} spell, ${lunar17.healAbilities.length} heal ability, ${lunar17.saveAttacks.length} saveAttack, intimidation +${lunar17.intimidationModifier})`);
+console.log(`wrote lunar-17.json (AC ${lunar17.ac}, HP ${lunar17.maxHP}, ${lunar17.strikes.length} strikes, ${lunar17.spells.length} spell, ${lunar17.healAbilities.length} heal ability, intimidation +${lunar17.intimidationModifier})`);
 console.log(`wrote security-goon.json (AC ${securityGoon.ac}, HP ${securityGoon.maxHP}, ${securityGoon.strikes.length} strikes, ${securityGoon.reactions.length} reaction, ${securityGoon.actions.length} other action, intimidation +${securityGoon.intimidationModifier})`);
-console.log(`wrote tapkey.json (AC ${tapkey.ac}, HP ${tapkey.maxHP}, ${tapkey.strikes.length} strikes, ${tapkey.saveAttacks.length} saveAttack, intimidation +${tapkey.intimidationModifier})`);
+console.log(`wrote tapkey.json (AC ${tapkey.ac}, HP ${tapkey.maxHP}, ${tapkey.strikes.length} strikes, intimidation +${tapkey.intimidationModifier})`);
 console.log(`wrote xenowarden-greenhorn.json (AC ${xenowardenGreenhorn.ac}, HP ${xenowardenGreenhorn.maxHP}, ${xenowardenGreenhorn.strikes.length} strikes, ${xenowardenGreenhorn.spells.length} spell, intimidation ${xenowardenGreenhorn.intimidationModifier})`);

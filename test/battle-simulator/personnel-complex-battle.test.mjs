@@ -59,7 +59,7 @@ test("buildScenario: a real 2-vs-2 fight (Lunar-17+Tapkey vs. Security Goon+Xeno
   }
 });
 
-test("buildScenario: the real 2-vs-2 fight exercises every one of the four new action types across a handful of seeds (strike, spellAttack via Gouging Claw, saveAttack via two different grenades, healAbility via Transfer Vitality) — proving the roster's real diversity actually gets used, not just legally tolerated", () => {
+test("buildScenario: the real 2-vs-2 fight exercises strike/spellAttack/healAbility/move across a handful of seeds — proving the roster's real diversity actually gets used, not just legally tolerated (no saveAttack: the roster's only candidate, Incendiary Grenade, is a real area-burst weapon correctly excluded — see design doc §21)", () => {
   const seenTypes = new Set();
   for (let seed = 1; seed <= 8; seed++) {
     const log = runBattle(buildScenario({ seed, partyFixtures: PARTY_2V2, oppositionFixtures: OPPOSITION_2V2, setup: "SAME_ROOM", roundLimit: 30 }));
@@ -67,26 +67,40 @@ test("buildScenario: the real 2-vs-2 fight exercises every one of the four new a
       seenTypes.add(action.type);
     }
   }
-  for (const expected of ["strike", "spellAttack", "saveAttack", "move"]) {
+  for (const expected of ["strike", "spellAttack", "move"]) {
     assert.ok(seenTypes.has(expected), `expected to see a real "${expected}" action across 8 seeds, saw: ${[...seenTypes].join(", ")}`);
   }
+  assert.equal(seenTypes.has("saveAttack"), false, "no fixture has a usable saveAttack any more — grenades were removed for being area-burst weapons, see design doc §21");
 });
 
-test("buildScenario: ACROSS_THE_COMPLEX seed=3 is a known, honestly-documented stale-belief movement oscillation (design doc §21) — once Security Goon dies and neither side keeps real line of sight, the two remaining survivors' beliefs freeze stale and greedy per-round repathing toward a fixed stale target oscillates between two cells forever near the courtyard branch point. NOT a crash, NOT illegal state — the round-limit circuit breaker resolves it as a clean, legal timeout. Pinned here as a concrete, reproducible case rather than a vague description, so a future fix (route commitment / movement hysteresis) has something real to point at.", () => {
+/**
+ * REGRESSION (design doc §21, found from a direct user report: "a bad guy oscillates by moving up
+ * and down... moved three times when they could have engaged"). Root cause, confirmed by
+ * instrumenting a real fight: `state.positions` keeps every combatant's position forever, alive or
+ * dead, and every occupancy check for movement (both the AI's own candidate generation AND the real
+ * engine's own legality gate) used to read straight off it with no HP filter. Security Goon died
+ * standing in (20,11) — the SINGLE doorway connecting Xenowarden Greenhorn's building to the rest of
+ * the map — and her corpse permanently sealed that doorway for the remaining 27 rounds, which is what
+ * both symptoms actually were: unable to ever leave her own building, Xenowarden Greenhorn's own
+ * "best available move" oscillated forever between two dead-end squares near the useless door.
+ *
+ * Before the fix (engine.mjs's livingPositions / decide.mjs's otherLivingPositions): this exact
+ * seed/setup timed out at the 30-round limit with zero net progress. After: it resolves in 4 rounds,
+ * a real party-victory, WITH Xenowarden Greenhorn actually landing three real Arc Pistol strikes the
+ * instant the doorway opens up. Pinned here as the concrete, reproducible case that exposed the bug.
+ */
+test("buildScenario: ACROSS_THE_COMPLEX seed=3 — a combatant who dies in a doorway no longer permanently blocks it; the fight that used to time out at 30 rounds now resolves quickly with real engagement", () => {
   const log = runBattle(buildScenario({ seed: 3, partyFixtures: PARTY_2V2, oppositionFixtures: OPPOSITION_2V2, setup: "ACROSS_THE_COMPLEX", roundLimit: 30 }));
-  assert.equal(log.outcome.result, "timeout", "if this ever starts resolving cleanly, the finding in design doc §21 no longer reproduces — update that section rather than just relaxing this assertion");
-  assert.equal(log.rounds.length, 30, "must hit the real round limit, not stop early for some other reason");
+  assert.equal(log.outcome.result, "party-victory", "this seed used to time out — a corpse blocking the only doorway is what caused that, see this test's own header");
+  assert.ok(log.rounds.length <= 10, `expected a quick, decisive resolution once the doorway is actually usable, took ${log.rounds.length} rounds`);
 
-  let sawIllegal = false;
+  let sawIllegal = false, xgAttacked = false;
   for (const round of log.rounds) for (const turn of round.turns) for (const action of turn.actions ?? []) {
-    if (["strike", "spellAttack", "saveAttack", "demoralize"].includes(action.type) && !action.legal) sawIllegal = true;
+    if (["strike", "spellAttack", "saveAttack", "demoralize"].includes(action.type)) {
+      if (!action.legal) sawIllegal = true;
+      if (turn.combatantId === "raw-validation-xenowarden-greenhorn-o1" && action.type === "strike" && action.legal) xgAttacked = true;
+    }
   }
-  assert.equal(sawIllegal, false, "a timeout must still be a fully rules-legal fight throughout, not a cover for illegal actions");
-
-  const lastRound = log.rounds.at(-1);
-  const finalSnapshot = lastRound.turns.at(-1).snapshot;
-  assert.ok(finalSnapshot["raw-validation-security-goon-o0"].currentHP <= 0, "Security Goon's real death (the one confirmed kill in this run) is what triggers the belief-freeze this test documents");
-  assert.ok(finalSnapshot["raw-validation-lunar-17-p0"].currentHP > 0, "the three survivors genuinely never resolve the fight, they don't die either");
-  assert.ok(finalSnapshot["raw-validation-tapkey-p1"].currentHP > 0);
-  assert.ok(finalSnapshot["raw-validation-xenowarden-greenhorn-o1"].currentHP > 0);
+  assert.equal(sawIllegal, false);
+  assert.ok(xgAttacked, "Xenowarden Greenhorn must actually land a real attack once the doorway opens up, not just move toward it forever");
 });

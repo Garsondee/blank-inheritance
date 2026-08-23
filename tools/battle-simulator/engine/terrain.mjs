@@ -18,6 +18,33 @@
  * against. What's built is the higher-leverage half: can you even path to
  * or target something at all.
  *
+ * AUTHORING TRAP, verified and regression-tested (found while building
+ * data/personnel-test-facility.mjs, design doc §19 Phase 1b): movement and
+ * Line of Effect check a wall's `c` segment in two genuinely different ways,
+ * and a wall spanning more than one grid unit is NOT handled the same by
+ * both. `lineOfEffect` does true 2D geometric line-segment intersection
+ * (`segmentsIntersect`) against the whole segment, so a sight line crossing
+ * anywhere along its length is correctly blocked no matter how long the
+ * segment is. `moveBlockedBetween` instead matches `c` against one candidate
+ * step's edge via EXACT endpoint equality (`segmentsEqual`) — and every
+ * candidate edge (`edgesBetween`/`orthogonalEdge`) is always exactly one
+ * grid unit long. The two can therefore only ever agree when a wall's `c` is
+ * itself exactly one unit long. A convenient-looking single segment meant to
+ * read as "one wall spanning N rows" — e.g. `{c:[6,0,6,8], move:20,
+ * sight:20}` for an 8-row span — blocks Line of Effect correctly across the
+ * whole thing, but blocks MOVEMENT NOWHERE along it: not "everywhere except
+ * one edge," but zero edges, since no unit-length step edge can ever equal
+ * an 8-unit segment's endpoints. The wall looks solid — you can't see
+ * through it — but is walkable through everywhere, silently, with no error
+ * or warning. ALWAYS author a multi-cell wall run as a LOOP OF UNIT-LENGTH
+ * EDGES, one segment per row/column crossed (see
+ * `data/personnel-test-facility.mjs` for a real worked example, and
+ * `test/battle-simulator/terrain.test.mjs`'s "documentation trap" test for a
+ * runnable proof of both the failure and the fix). This costs nothing in
+ * practice — Foundry's own Wall documents are typically authored as
+ * individual polygon edges too — but nothing here enforces or validates it,
+ * so a new wall run can still get it wrong silently.
+ *
  * No terrain is authored anywhere in this project yet (a separate effort is
  * building the real city map) — every scenario's `state.walls` is empty
  * today, and every function here is written so that an empty wall list is
@@ -81,11 +108,42 @@ function segmentsEqual(s1, s2) {
   return (ax1 === bx1 && ay1 === by1 && ax2 === bx2 && ay2 === by2) || (ax1 === bx2 && ay1 === by2 && ax2 === bx1 && ay2 === by1);
 }
 
+/**
+ * `segmentsEqual` treats a unit edge and its reverse as the same edge — canonicalize by direction
+ * so both orderings hash to one key, letting a Set stand in for the O(walls) `segmentsEqual` scan.
+ */
+function edgeKey([x1, y1, x2, y2]) {
+  return (x1 < x2 || (x1 === x2 && y1 <= y2)) ? `${x1},${y1},${x2},${y2}` : `${x2},${y2},${x1},${y1}`;
+}
+
+/**
+ * Every `moveBlockedBetween` call used to linear-scan the FULL wall list (`walls.some(...)`) for
+ * every candidate edge — fine on the original ~20-wall test facility, a real performance cliff once
+ * a bigger map existed: reachableCells' Dijkstra flood calls this once per (node, direction) pair,
+ * so a 256-wall map (data/personnel-test-complex.mjs, design doc §21) turned one large flood into
+ * roughly 1700 nodes x 8 directions x 256 walls ~= 3.5M comparisons — measured directly at ~258ms
+ * for a single flood, the dominant cost behind a real 2v2 fight taking ~7 SECONDS PER ROUND. Indexed
+ * once per distinct `walls` array (keyed by reference — `state.walls` is a stable array shared by
+ * reference across a whole battle, including every sandboxed lookahead fork, exactly like
+ * evaluate/state-value.mjs's own `distanceCache` WeakMap already relies on) into an O(1)-lookup Set,
+ * turning the same flood's wall-checking cost from O(nodes x directions x walls) into
+ * O(nodes x directions) — walls.length no longer matters at all once the index is built.
+ */
+const moveBlockingIndexCache = new WeakMap();
+function moveBlockingIndex(walls) {
+  let index = moveBlockingIndexCache.get(walls);
+  if (index) return index;
+  index = new Set();
+  for (const w of walls) if (wallBlocksMove(w)) index.add(edgeKey(w.c));
+  moveBlockingIndexCache.set(walls, index);
+  return index;
+}
+
 /** Is the single step from cell `a` to adjacent cell `b` blocked by any move-blocking wall? */
 export function moveBlockedBetween(a, b, walls) {
   if (!walls?.length) return false;
-  const edges = edgesBetween(a, b);
-  return walls.some((w) => wallBlocksMove(w) && edges.some((e) => segmentsEqual(e, w.c)));
+  const index = moveBlockingIndex(walls);
+  return edgesBetween(a, b).some((e) => index.has(edgeKey(e)));
 }
 
 /**

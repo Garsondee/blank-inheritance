@@ -11,7 +11,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { listLevel1Pregens, toIngredients } from "../../tools/character-builder/extract-pregen.mjs";
 import { deriveAbilityModifiers, deriveHP, deriveArmorClass } from "../../tools/character-builder/derive.mjs";
-import { deriveStrikes, deriveSpells, deriveTransferVitality, deriveSaveAttacks, deriveSkillModifier } from "../../tools/character-builder/build-combat-pregen.mjs";
+import { deriveStrikes, deriveSpells, deriveTransferVitality, deriveSkillModifier } from "../../tools/character-builder/build-combat-pregen.mjs";
 import { findNPC, toCombatant, deriveSpellAttacks } from "../../tools/pack-extractor/extract-npc.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -37,7 +37,7 @@ test("lunar-17.json: checked-in strikes/spell/heal-ability match a fresh live re
   assert.deepEqual(fixture.strikes, deriveStrikes(ingredients, ["Zero Knife", "Arc Pistol", "Semi-Auto Pistol"], mods));
   assert.deepEqual(fixture.spells, deriveSpells(ingredients, ["Eldritch Lance"], mods));
   assert.deepEqual(fixture.healAbilities, [deriveTransferVitality(ingredients)]);
-  assert.deepEqual(fixture.saveAttacks, deriveSaveAttacks(ingredients, [{ name: "Incendiary Grenade (Commercial)", saveType: "reflex" }], mods));
+  assert.equal(fixture.saveAttacks, undefined, "her Incendiary Grenade is real but a burst-AREA effect (see design doc §21) — must never be wired as a single-target saveAttack again");
   assert.equal(fixture.intimidationModifier, deriveSkillModifier(ingredients, "intimidation", mods));
   assert.equal(fixture.side, "party");
 });
@@ -59,7 +59,7 @@ test("security-goon.json: checked-in strikes/reactions/actions match a fresh liv
   assert.equal(fixture.side, "opposition");
 });
 
-test("tapkey.json: checked-in strikes/saveAttack match a fresh live re-derivation exactly — Tapkey needed zero new derivation code, per design doc §21's research survey", () => {
+test("tapkey.json: checked-in strikes match a fresh live re-derivation exactly — Tapkey needed zero new derivation code, per design doc §21's research survey", () => {
   const fixture = readFixture("tapkey.json");
   const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "paizo-pregens");
   const pregen = listLevel1Pregens(packDir).find((p) => p.name === "Tapkey");
@@ -72,7 +72,7 @@ test("tapkey.json: checked-in strikes/saveAttack match a fresh live re-derivatio
     dexCap: ingredients.armor?.dexCap ?? null, itemBonus: ingredients.armor?.acBonus ?? 0, armorProficiency: ingredients.armor?.name ?? null
   }).value);
   assert.deepEqual(fixture.strikes, deriveStrikes(ingredients, ["Nano-edge Rapier", "Boom Pistol"], mods));
-  assert.deepEqual(fixture.saveAttacks, deriveSaveAttacks(ingredients, [{ name: "Incendiary Grenade (Commercial)", saveType: "reflex" }], mods));
+  assert.equal(fixture.saveAttacks, undefined, "her Incendiary Grenade is real but a burst-AREA effect (see design doc §21) — must never be wired as a single-target saveAttack again");
   assert.equal(fixture.intimidationModifier, deriveSkillModifier(ingredients, "intimidation", mods));
   assert.equal(fixture.intimidationModifier, 4, "her Cha modifier (+4) is the roster's highest — the untrained-Demoralize axis the design doc research specifically wanted a second data point for");
   assert.equal(fixture.side, "party");

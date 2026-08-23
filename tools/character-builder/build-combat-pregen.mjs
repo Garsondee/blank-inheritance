@@ -106,14 +106,24 @@ export function deriveSpells(ingredients, spellNames, abilityModifiers) {
 }
 
 /**
- * Derive real save-based attacks (design doc §19's skill-actions-in-combat expansion) — e.g. a
- * thrown grenade with a basic Reflex save. `items` is `[{name, saveType}, ...]`, not just names:
- * nothing in the raw weapon data says WHICH save a given item's effect targets (that's only in
- * free-text description prose — "...with a @Check[reflex...] save" — so it's supplied by the
- * caller, hand-read from that same prose, same discipline as this file's other hand-identified
- * cases). DC is the wielder's real Class DC (deriveClassDC) — confirmed against the Incendiary
- * Grenade's own raw description, `@Check[reflex|against:class|basic]`: "against:class" means
- * literally the thrower's Class DC, not a separate flat number on the item.
+ * Derive real save-based attacks (design doc §19's skill-actions-in-combat expansion) — a
+ * SINGLE-TARGET item with a basic saving throw against the wielder's DC (e.g. a hypothetical spell
+ * like Thunderstrike, flagged but not yet built in design doc §21's pregen research). `items` is
+ * `[{name, saveType}, ...]`, not just names: nothing in the raw weapon data says WHICH save a given
+ * item's effect targets (that's only in free-text description prose — "...with a @Check[reflex...]
+ * save" — so it's supplied by the caller, hand-read from that same prose, same discipline as this
+ * file's other hand-identified cases). DC is the wielder's real Class DC (deriveClassDC).
+ *
+ * NOT A VALID FIT FOR GRENADES, despite this function's own original worked example having been the
+ * Incendiary Grenade — corrected in design doc §21 after a direct user report: every grenade
+ * checked so far (Incendiary, Frag, Electromag) is a `@Template[burst|distance:5]` AREA effect, not
+ * a single-target attack (confirmed directly against the Incendiary Grenade's raw description:
+ * "Activate 1 Area Fire ... @Template[burst|distance:5]"). Wiring an area weapon through this
+ * single-target mechanism silently drops its real friendly-fire risk, which is likely why the AI
+ * used it far more liberally than a rules-correct implementation ever would have. Grenades stay
+ * unwired — same "out of scope" treatment already applied to every other area/multi-target weapon
+ * (Auto-Fire, Suppressing Fire) — until this engine has a real area-effect mechanism to build them
+ * against.
  *
  * `actions: 1` is NOT read from any raw field — no explicit action-cost field exists on this raw
  * weapon item to read instead. A thrown weapon Strike is a real, single-action SF2E activity, so

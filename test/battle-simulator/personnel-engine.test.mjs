@@ -11,6 +11,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { runBattle, accountForActions } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
+import { decide } from "../../tools/battle-simulator/personnel-engine/decide.mjs";
 
 function makeCaster(overrides = {}) {
   return {
@@ -407,4 +408,33 @@ test("Frightened decays by exactly 1 at the end of the frightened combatant's ow
   assert.equal(goonTurns[0].snapshot.goon.frightened, 2, "after round 1's turn, 3 -> 2");
   assert.equal(goonTurns[1].snapshot.goon.frightened, 1, "after round 2's turn, 2 -> 1");
   assert.equal(goonTurns[2].snapshot.goon.frightened, 0, "after round 3's turn, 1 -> 0");
+});
+
+/**
+ * REGRESSION (design doc §21) — found from a direct user report ("a bad guy oscillates by moving up
+ * and down", "moved three times when they could have engaged") and confirmed by instrumenting a real
+ * 2v2 fight: `state.positions` keeps every combatant's last position forever, alive or dead
+ * (deliberately — the artifact viewer needs a defeated combatant's final square to render its body).
+ * Every occupancy check for movement used to read straight off it with NO HP filter at all, so a
+ * combatant who died standing in a single-square doorway permanently sealed it for the rest of the
+ * battle. Minimal, deterministic proof here: a 1-row-tall corridor makes any detour around the
+ * corpse geometrically impossible, so the mover can ONLY succeed by being allowed to path through
+ * the exact square a dead combatant occupies.
+ */
+test("a combatant who starts already dead in a one-row-tall corridor does not block a living combatant from moving through its square — the corpse-in-doorway bug", () => {
+  const corpse = { id: "corpse", name: "Corpse", side: "opposition", maxHP: 20, currentHP: 0, ac: 14, saves: { fort: 5, ref: 5, will: 5 }, speed: 0, strikes: [], position: { col: 2, row: 0 } };
+  const mover = {
+    id: "mover", name: "Mover", side: "party", maxHP: 16, currentHP: 16, ac: 15,
+    saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [],
+    position: { col: 0, row: 0 }, objective: { col: 4, row: 0 } // real decide.mjs mechanism: "move toward this point"
+  };
+  function ai(state, combatantId, turnState) { return decide(state, combatantId, turnState); }
+  // A 1-row grid: the ONLY way from col 0 to col 4 is straight through col 2, where the corpse sits.
+  const log = runBattle({ seed: 1, gridSize: { cols: 5, rows: 1 }, roundLimit: 2, combatants: [corpse, mover], ai });
+
+  const moverMoves = log.rounds.flatMap((r) => r.turns).filter((t) => t.combatantId === "mover").flatMap((t) => t.actions ?? []);
+  assert.ok(moverMoves.length > 0, "expected the mover to actually attempt moving, not hold with nothing to do");
+  assert.ok(moverMoves.every((a) => a.legal !== false), `every move must be legal — a corpse must never block movement: ${JSON.stringify(moverMoves)}`);
+  const reachedPastCorpse = moverMoves.some((a) => a.type === "move" && a.to.col >= 2);
+  assert.ok(reachedPastCorpse, `expected the mover to reach col>=2 (through/onto the corpse's own square) — got: ${JSON.stringify(moverMoves)}`);
 });

@@ -52,6 +52,21 @@ export function decisionRng(state, combatantId, decisionIndex) {
   return makeRng(h);
 }
 
+/**
+ * Every OTHER living combatant's position. A dead combatant's square must never count as an
+ * obstacle here — see engine.mjs's own `livingPositions` for the full story: a combatant who dies
+ * standing in a one-square doorway was permanently sealing that doorway for the rest of the battle,
+ * because every one of THIS file's own destination-finding calls also rebuilt its occupancy list
+ * straight off `state.positions` with no HP filter. Fixing only the real engine-side legality gate
+ * (engine.mjs) would not have been enough on its own — the AI's own route-planning here independently
+ * decides what to even PROPOSE, so it needed the identical fix.
+ */
+function otherLivingPositions(state, excludeId) {
+  return [...state.positions.entries()]
+    .filter(([id]) => id !== excludeId && (state.combatants.get(id)?.currentHP ?? 0) > 0)
+    .map(([, p]) => p);
+}
+
 /** Walk a SINGLE fixed (dx,dy) direction from `from`, stopping at bounds/occupied/budget/standoff/overshoot. */
 function extend(state, others, from, to, dx, dy, maxFeet, standoffFeet) {
   let cur = { ...from };
@@ -76,7 +91,7 @@ function extend(state, others, from, to, dx, dy, maxFeet, standoffFeet) {
  * the direct line to the only target on the map.
  */
 function stepToward(state, moverId, from, to, maxFeet, standoffFeet) {
-  const others = [...state.positions.entries()].filter(([id]) => id !== moverId).map(([, p]) => p);
+  const others = otherLivingPositions(state, moverId);
   const primaryDx = Math.sign(to.col - from.col);
   const primaryDy = Math.sign(to.row - from.row);
   if (primaryDx === 0 && primaryDy === 0) return null;
@@ -94,7 +109,7 @@ function stepToward(state, moverId, from, to, maxFeet, standoffFeet) {
 
 /** Straight line directly AWAY from a point, for disengaging. */
 function stepAway(state, moverId, from, threat, maxFeet) {
-  const others = [...state.positions.entries()].filter(([id]) => id !== moverId).map(([, p]) => p);
+  const others = otherLivingPositions(state, moverId);
   const dx = Math.sign(from.col - threat.col) || 1;
   const dy = Math.sign(from.row - threat.row) || 0;
   let cur = { ...from };
@@ -132,7 +147,7 @@ function trueDistanceField(state, moverId, to, others, cache) {
 }
 
 function pathfindingDestinationToward(state, moverId, from, to, maxFeet, standoffFeet, cache) {
-  const others = [...state.positions.entries()].filter(([id]) => id !== moverId).map(([, p]) => p);
+  const others = otherLivingPositions(state, moverId);
   const reachableKey = `reach|${moverId}|${from.col},${from.row}|${maxFeet}`;
   const reachable = cachedReachableCells(cache, reachableKey, { from, maxFeet, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls });
   const distField = trueDistanceField(state, moverId, to, others, cache);
@@ -165,7 +180,7 @@ export function bestDestinationToward(state, moverId, from, to, maxFeet, standof
 }
 
 function pathfindingDestinationAway(state, moverId, from, threat, maxFeet, cache) {
-  const others = [...state.positions.entries()].filter(([id]) => id !== moverId).map(([, p]) => p);
+  const others = otherLivingPositions(state, moverId);
   const reachableKey = `reach|${moverId}|${from.col},${from.row}|${maxFeet}`;
   const reachable = cachedReachableCells(cache, reachableKey, { from, maxFeet, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls });
   const distField = trueDistanceField(state, moverId, threat, others, cache);

@@ -360,6 +360,32 @@ function applyStrikeDamage(strikeResult, target, targetEffective, strike) {
   return { appliedDamage };
 }
 
+/**
+ * Every combatant's position, for occupancy purposes — DEAD combatants excluded. A defeated
+ * creature's square isn't an obstacle (nothing in Player Core treats a fallen creature as blocking
+ * movement the way a standing one does), so it must never count as "occupied" for pathing/legality.
+ *
+ * REAL BUG this fixes, found from a direct user report and confirmed by instrumenting a real fight:
+ * `state.positions` keeps every combatant's last position forever, alive or dead (deliberately —
+ * the artifact viewer needs a defeated combatant's final square to render its body). Every
+ * occupancy check used to read straight off `state.positions` with no HP filter at all, so a
+ * combatant who died standing in a single-square doorway permanently sealed that doorway for the
+ * rest of the battle — confirmed directly: Security Goon died at (20,11), the ONLY doorway between
+ * the courtyard and Xenowarden Greenhorn's building, and every one of Xenowarden Greenhorn's own
+ * pathfinding calls for the following 27 rounds still listed `security-goon-o0@20,11(hp0)` as an
+ * occupied, blocking square — she was structurally unable to ever leave her own building again,
+ * which is what the "oscillates near a doorway that goes nowhere" and "moved three times instead of
+ * engaging" reports were actually observing. Both the real legality gate here (via this function)
+ * and the AI's own candidate generation (decide.mjs's own matching `otherLivingPositions`) needed
+ * this fix — the AI's route-planning would still have proposed nothing useful even after the real
+ * engine started allowing the correct move, since it independently rebuilds its own occupancy list.
+ */
+function livingPositions(state) {
+  return [...state.positions.entries()]
+    .filter(([id]) => (state.combatants.get(id)?.currentHP ?? 0) > 0)
+    .map(([id, p]) => ({ combatantId: id, pos: p }));
+}
+
 /** The ONLY function in this codebase permitted to mutate combatant position/HP/flags. */
 function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLog, effective, outcomes = REAL_OUTCOMES }) {
   const combatant = state.combatants.get(combatantId);
@@ -372,7 +398,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     const { path, ...to } = proposal.to;
     const check = checkMoveLegality({
       combatant, from: pos, to, effectiveSpeed: effective.speed,
-      allPositions: [...state.positions.entries()].map(([id, p]) => ({ combatantId: id, pos: p })),
+      allPositions: livingPositions(state),
       gridSize: state.gridSize, turnState: turnProgress, walls: state.walls, path
     });
     if (!check.legal) return { type: "move", to, legal: false, reason: check.reason };
@@ -392,7 +418,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     const { path: _stepPath, ...to } = proposal.to;
     const check = checkStepLegality({
       combatant, from: pos, to, effectiveSpeed: effective.speed,
-      allPositions: [...state.positions.entries()].map(([id, p]) => ({ combatantId: id, pos: p })),
+      allPositions: livingPositions(state),
       gridSize: state.gridSize, turnState: turnProgress, walls: state.walls
     });
     if (!check.legal) return { type: "step", to, legal: false, reason: check.reason };
