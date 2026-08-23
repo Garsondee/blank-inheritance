@@ -63,12 +63,29 @@ test("checkMoveLegality: allows a move exactly at the Speed limit", () => {
   assert.equal(result.legal, true);
 });
 
-test("checkMoveLegality: accounts for feet already moved this turn (can't move 300ft twice on a 300ft Speed)", () => {
+/**
+ * CHANGED 2026-08-23 (design doc §15h). This test previously asserted the OPPOSITE — that a
+ * combatant which had already moved its full Speed could not move again this turn. That encoded
+ * a real rule deviation: SF2E's Stride is one action for up to your full Speed and is repeatable,
+ * so three Strides is three times your Speed. The old per-turn cap made "spend three actions
+ * closing distance" mechanically impossible and was the single largest contributor to the
+ * measured 57.1% action utilization.
+ */
+test("checkMoveLegality: each move action gets a FULL Speed independently — SF2E Stride is repeatable, so having already moved this turn does not restrict the next move", () => {
   const result = checkMoveLegality({
     combatant: { id: "a" }, from: { col: 6, row: 0 }, to: { col: 7, row: 0 }, // one more 50ft step
     effectiveSpeed: 300, feetAlreadyMovedThisTurn: 300, allPositions: [], gridSize, turnState: openBudget
   });
+  assert.equal(result.legal, true, "a second Stride is legal — it is paid for with a second action, not a shared distance pool");
+});
+
+test("checkMoveLegality: a SINGLE move still cannot exceed Speed — the per-action cap is the real limit", () => {
+  const result = checkMoveLegality({
+    combatant: { id: "a" }, from: { col: 0, row: 0 }, to: { col: 10, row: 0 }, // 500ft in one action
+    effectiveSpeed: 300, feetAlreadyMovedThisTurn: 0, allPositions: [], gridSize, turnState: openBudget
+  });
   assert.equal(result.legal, false);
+  assert.match(result.reason, /in one action/);
 });
 
 test("checkMoveLegality: rejects moving onto an occupied square", () => {

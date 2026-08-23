@@ -146,7 +146,12 @@ function cleanRangeFeet(item) {
  * instead of a real, reachable second step.
  */
 function remainingSpeedFeet(turnState) {
-  return Math.max(0, turnState.effective.speed - turnState.feetMoved);
+  // SF2E ACTION ECONOMY (design doc §15h): each Stride is one action for up to your FULL Speed,
+  // and Strides are repeatable. This used to subtract feetMoved, mirroring the engine's old
+  // per-turn cap — so after one full-Speed move the AI computed 0 remaining and stopped
+  // proposing movement at all. Fixing the engine rule alone changed NOTHING measurable until
+  // this was fixed too: the engine would have allowed a second move, but the AI never asked.
+  return turnState.effective.speed;
 }
 
 /**

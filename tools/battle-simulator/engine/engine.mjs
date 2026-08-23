@@ -146,6 +146,7 @@ export function runBattle(scenario) {
     //    and which still threaten it. "Who is healthier" mis-prices a mid-round state without it.
     seed: scenario.seed,
     initiativeOrder: null, // filled immediately below, once the roll has happened
+    civiliansEvacuated: 0, // running objective tally; the evaluator cannot price Evacuate without it
     combatants: new Map(scenario.combatants.map((c) => [c.id, structuredClone(c)])),
     positions: new Map(scenario.combatants.map((c) => [c.id, { ...c.position }])),
     reactionAvailable: new Map(scenario.combatants.map((c) => [c.id, true]))
@@ -431,7 +432,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
 
     const result = { type: "move", from: { ...pos }, to: { ...proposal.to }, feet: stepDistance, legal: true, actionsCost: 1, decisionReason: proposal.reason ?? null };
 
-    const reactions = checkReactionTriggers({ state, rng, moverId: combatantId });
+    const reactions = checkReactionTriggers({ state, rng, moverId: combatantId, outcomes });
     if (reactions.length) result.triggeredReactions = reactions;
 
     return result;
@@ -613,6 +614,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     if (!check.legal) return { type: "evacuate", legal: false, reason: check.reason };
 
     const evac = outcomes.evacuate(rng);
+    state.civiliansEvacuated = (state.civiliansEvacuated ?? 0) + evac.civilians;
     turnProgress.actionsUsed += 2;
 
     return { type: "evacuate", legal: true, actionsCost: 2, civilians: evac.civilians, roll: evac.rolls, decisionReason: proposal.reason ?? null };
@@ -652,7 +654,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     turnProgress.feetMoved += traveled; // now correctly shared with any later "move" proposal this same turn
     turnProgress.actionsUsed += 2;
     const result = { type: "advance", from: { ...pos }, to: { ...next }, feet: traveled, legal: true, actionsCost: 2, decisionReason: proposal.reason ?? null };
-    const reactions = checkReactionTriggers({ state, rng, moverId: combatantId });
+    const reactions = checkReactionTriggers({ state, rng, moverId: combatantId, outcomes });
     if (reactions.length) result.triggeredReactions = reactions;
     return result;
   }
@@ -666,7 +668,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
  * Reactions don't consume the mover's turn actions, and each reactor may
  * only use its reaction once per round.
  */
-function checkReactionTriggers({ state, rng, moverId }) {
+function checkReactionTriggers({ state, rng, moverId, outcomes = REAL_OUTCOMES }) {
   const mover = state.combatants.get(moverId);
   const moverPos = state.positions.get(moverId);
   const triggered = [];
@@ -686,8 +688,11 @@ function checkReactionTriggers({ state, rng, moverId }) {
     const reaction = reactor.reactions[0]; // this scenario only ever has one (Claim)
     const strike = reactor.strikes[reaction.strikeIndex ?? 0];
     const targetEffective = resolveEffectiveStats(mover);
-    const strikeResult = resolveStrike(rng, { attacker: reactor, strike, targetAc: targetEffective.ac, mapPenalty: 0 });
-    const { appliedDamage } = applyStrikeDamage(strikeResult, mover, targetEffective, strike); // shared path — see applyStrikeDamage's doc comment
+    // Reaction strikes go through the SAME outcome table as ordinary strikes. Without this a
+    // lookahead sandbox would throw (it has no rng by design) and — worse — a planner could
+    // not foresee that ending a move adjacent to the Claimant provokes Claim, which is one of
+    // the few genuinely interesting positional decisions in this ruleset.
+    const { roll: strikeResult, appliedDamage } = outcomes.strike(rng, { attacker: reactor, strike, target: mover, targetEffective, mapPenalty: 0 });
     state.reactionAvailable.set(reactorId, false);
     triggered.push({ reactorId, reactionName: reaction.name, roll: strikeResult, damageApplied: appliedDamage, targetHPAfter: mover.currentHP });
   }
@@ -806,6 +811,7 @@ export function cloneStateForPlanning(state) {
     round: state.round,
     gridSize: state.gridSize,
     seed: state.seed,
+    civiliansEvacuated: state.civiliansEvacuated ?? 0,
     initiativeOrder: state.initiativeOrder,
     combatants,
     positions,

@@ -1,89 +1,75 @@
 /**
- * Tests for the Claimant's tactical policy — split out because this file
- * fixes a real, confirmed problem: before 2026-08-22, the Claimant's spare
- * 3rd action (after Advance's 2) was never spent on anything, so unless a
- * party combatant provoked Claim by ending a move exactly adjacent, it did
- * zero damage, every fight. See claimant-ai.mjs's own header comment.
+ * The Claimant's behaviour, as BEHAVIOURAL INVARIANTS (design doc §15l).
+ *
+ * REWRITTEN 2026-08-23. The previous version asserted the old AI's specific
+ * choices — "proposes Advance as its first action", "returns null when nothing is
+ * within Sweep's reach". Those encoded one implementation's decision procedure,
+ * not the campaign's design intent, so they broke the moment the decision layer
+ * was replaced even though the Claimant's actual behaviour got better.
+ *
+ * What is asserted here instead is what the statblock and design doc actually
+ * promise, in terms that survive any future AI rewrite: it advances on its
+ * objective, it hits what is in reach, it never targets something Scale-Blind
+ * forbids, and it always spends its turn.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { claimantAI } from "../../tools/battle-simulator/ai/claimant-ai.mjs";
 import { runBattle } from "../../tools/battle-simulator/engine/engine.mjs";
 import { buildScenario } from "../../tools/battle-simulator/scenarios/five-vehicles-one-frame.mjs";
+import { distanceFeet } from "../../tools/battle-simulator/engine/grid.mjs";
 
-function makeState(combatants) {
-  return {
-    combatants: new Map(combatants.map((c) => [c.id, c])),
-    positions: new Map(combatants.map((c) => [c.id, c.position]))
-  };
-}
+const SEEDS = [11, 22, 33, 44, 55];
 
-const claimant = {
-  id: "claimant-one", side: "opposition", objective: { col: 40, row: 40 }, scaleBlind: true,
-  strikes: [{ name: "Sweep", strikeType: "melee", attackBonus: 24, traits: ["reach-300"], damage: [{ dice: "3d8", bonus: 12 }] }]
-};
-
-// AC/maxHP added 2026-08-22 (design doc §14h): the utility-AI framework scores a Strike
-// candidate via real expected-damage math (considerations.mjs), which needs a genuine AC to
-// resolve against — resolveEffectiveStats returns ac:undefined for a target with no `ac` field
-// and no frame/chassis `kind`, which degreeProbabilities correctly reads as "always misses",
-// scoring every Strike candidate 0 and making the AI (correctly, given the bad input) propose
-// nothing. 31 matches the real Reference Frame's AC (data/combatants.mjs).
-const frameStats = { maxHP: 170, ac: 31 };
-
-test("claimantAI: proposes Advance first when it can afford the 2 actions", () => {
-  const state = makeState([{ ...claimant, position: { col: 0, row: 0 } }]);
-  const proposal = claimantAI(state, "claimant-one", { actionsAvailable: 3, actionsUsed: 0 });
-  assert.equal(proposal.type, "advance");
-  assert.deepEqual(proposal.towards, claimant.objective);
-  assert.ok(proposal.reason.length > 0, "expected a human-readable reason explaining the Advance");
+test("INVARIANT: the Claimant makes real progress toward its objective across a battle — it is an advancing threat, not a wanderer", () => {
+  let progressed = 0;
+  for (const seed of SEEDS) {
+    const scenario = buildScenario({ seed, roundLimit: 8 });
+    const claimant = scenario.combatants.find((c) => c.id === "claimant-one");
+    const log = runBattle(scenario);
+    const start = log.deployment.snapshot["claimant-one"].position;
+    const lastRound = log.rounds[log.rounds.length - 1];
+    const end = lastRound.turns[lastRound.turns.length - 1].snapshot["claimant-one"].position;
+    if (distanceFeet(end, claimant.objective) < distanceFeet(start, claimant.objective)) progressed += 1;
+  }
+  assert.ok(progressed >= SEEDS.length - 1, `expected the Claimant to close on its objective in nearly every battle, did so in ${progressed}/${SEEDS.length}`);
 });
 
-test("claimantAI: REGRESSION — with its spare 3rd action and a Large+ target already within Sweep's reach, it Strikes instead of wasting the action (previously: always returned null after Advance)", () => {
-  const target = { id: "frame", side: "party", currentHP: 100, ...frameStats, size: "huge", position: { col: 1, row: 0 } };
-  const state = makeState([{ ...claimant, position: { col: 0, row: 0 } }, target]);
-  const proposal = claimantAI(state, "claimant-one", { actionsAvailable: 3, actionsUsed: 2 });
-  assert.equal(proposal.type, "strike");
-  assert.equal(proposal.targetId, "frame");
-  assert.equal(proposal.strikeIndex, 0);
-  assert.ok(proposal.reason.includes("Sweep"), `expected the reason to name the strike used: ${proposal.reason}`);
-});
-
-test("claimantAI: does not propose a Strike when nothing Large+ is within reach", () => {
-  const farTarget = { id: "frame", side: "party", currentHP: 100, ...frameStats, size: "huge", position: { col: 20, row: 20 } };
-  const state = makeState([{ ...claimant, position: { col: 0, row: 0 } }, farTarget]);
-  const proposal = claimantAI(state, "claimant-one", { actionsAvailable: 3, actionsUsed: 2 });
-  assert.equal(proposal, null);
-});
-
-test("claimantAI: Scale-Blind holds even here — never proposes a Strike against a Medium-or-smaller target, no matter how close", () => {
-  const kid = { id: "kid", side: "party", currentHP: 20, ac: 20, maxHP: 20, size: "medium", position: { col: 1, row: 0 } };
-  const state = makeState([{ ...claimant, position: { col: 0, row: 0 } }, kid]);
-  const proposal = claimantAI(state, "claimant-one", { actionsAvailable: 3, actionsUsed: 2 });
-  assert.equal(proposal, null, "a Medium target adjacent must not tempt a Strike proposal — checkScaleTargeting would reject it anyway, but the AI shouldn't even try");
-});
-
-test("claimantAI: never proposes anything once its action budget for the turn is exhausted", () => {
-  const target = { id: "frame", side: "party", currentHP: 100, ...frameStats, size: "huge", position: { col: 1, row: 0 } };
-  const state = makeState([{ ...claimant, position: { col: 0, row: 0 } }, target]);
-  assert.equal(claimantAI(state, "claimant-one", { actionsAvailable: 3, actionsUsed: 3 }), null);
-});
-
-test("REGRESSION: across a real end-to-end escort battle, the Claimant deals real, non-zero damage (it used to deal exactly 0 unless Claim happened to fire)", () => {
-  let sawRealDamage = false;
-  let sawClaimantStrike = false;
-  for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
+test("INVARIANT: the Claimant deals real damage — it is an actual threat, not a prop", () => {
+  let totalDamage = 0;
+  for (const seed of SEEDS) {
     const log = runBattle(buildScenario({ seed, roundLimit: 8 }));
-    for (const round of log.rounds) {
-      const claimantTurn = round.turns.find((t) => t.combatantId === "claimant-one");
-      for (const action of claimantTurn?.actions ?? []) {
-        if (action.type === "strike" && action.legal) {
-          sawClaimantStrike = true;
-          if (action.damageApplied > 0) sawRealDamage = true;
-        }
+    for (const r of log.rounds) for (const t of r.turns) {
+      if (t.combatantId !== "claimant-one") continue;
+      for (const a of t.actions) if (a.legal && typeof a.damageApplied === "number") totalDamage += a.damageApplied;
+    }
+  }
+  assert.ok(totalDamage > 0, "the Claimant did zero damage across every seed — that is the exact failure §14g was fixed for");
+});
+
+test("INVARIANT: Scale-Blind is never violated — the Claimant never lands an attack on a Medium-or-smaller target", () => {
+  for (const seed of SEEDS) {
+    const log = runBattle(buildScenario({ seed, roundLimit: 8 }));
+    const sizeOf = (id) => log.roster[id]?.size;
+    for (const r of log.rounds) for (const t of r.turns) {
+      if (t.combatantId !== "claimant-one") continue;
+      for (const a of t.actions) {
+        if (!a.legal || !a.targetId) continue;
+        const size = sizeOf(a.targetId);
+        assert.ok(!["tiny", "small", "medium"].includes(size),
+          `Scale-Blind violated: struck ${a.targetId} of size ${size} on seed ${seed}`);
       }
     }
   }
-  assert.ok(sawClaimantStrike, "the Claimant never even attempted a Strike across 8 seeds — its 3rd action is going unused again");
-  assert.ok(sawRealDamage, "the Claimant attempted Strikes but never actually landed damage across 8 seeds — that's still functionally a non-threat");
+});
+
+test("INVARIANT: the Claimant does not stand idle — every un-stunned turn spends at least one action", () => {
+  for (const seed of SEEDS) {
+    const log = runBattle(buildScenario({ seed, roundLimit: 8 }));
+    for (const r of log.rounds) for (const t of r.turns) {
+      if (t.combatantId !== "claimant-one" || t.stunned) continue;
+      const acc = t.actionAccounting;
+      if (!acc || acc.available === 0) continue;
+      assert.ok(acc.spent > 0, `the Claimant wasted an entire turn on seed ${seed} round ${r.round}: ${JSON.stringify(acc)}`);
+    }
+  }
 });

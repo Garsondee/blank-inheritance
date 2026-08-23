@@ -15,10 +15,10 @@
  * candidate, not something specific to the party side. Re-exported here
  * so existing imports keep working.
  */
-import { utilityAI } from "./utility-ai.mjs";
+import { decide } from "./decide.mjs";
 
 export { computeDestination } from "./candidates.mjs";
 
 export function partyAI(state, combatantId, turnState) {
-  return utilityAI(state, combatantId, turnState);
+  return decide(state, combatantId, turnState);
 }

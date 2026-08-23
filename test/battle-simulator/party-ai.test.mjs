@@ -35,13 +35,33 @@ function makeCombatantState({ vehiclePos, opponentPos, opponentOverrides = {} })
  * target that's still immuneToAllDamage (the Interdiction Field) — a
  * guaranteed 0-damage hit is a worse waste than a miss.
  */
-test("partyAI: fires the long-range weapon as an opening shot when the target is beyond the sidearm's range and not immune", () => {
-  const { state, turnState } = makeCombatantState({ vehiclePos: { col: 0, row: 0 }, opponentPos: { col: 20, row: 0 } }); // 1000ft, well past the 100ft sidearm
+/**
+ * REWRITTEN 2026-08-23 (design doc §15l). This previously asserted that the AI
+ * *must* fire the Rocket Pod the moment a target sat beyond sidearm range. That
+ * was one implementation's tactic, not design intent — with a real state
+ * evaluator, closing the distance to use the free weapon can legitimately be the
+ * better play, and forcing the shot would be exactly the waste the conservation
+ * rule exists to prevent.
+ *
+ * The durable intent (Ingram: "expensive to use... a terrible waste if they
+ * miss... players will have to find the funding to replace it") is CONSERVATION,
+ * so that is what is asserted: whatever it does, it must not burn the one-shot
+ * weapon when a free weapon is already a clean option.
+ */
+test("DESIGN INTENT: a vehicle does not burn its limited-use weapon while a free weapon is already in clean range", () => {
+  const { state, turnState } = makeCombatantState({ vehiclePos: { col: 0, row: 0 }, opponentPos: { col: 1, row: 0 } }); // 50ft — inside the 100ft sidearm
   const proposal = partyAI(state, "vesper", turnState);
-  assert.equal(proposal.type, "strike");
-  assert.equal(proposal.targetId, "claimant-one");
-  assert.equal(proposal.strikeIndex, 1);
-  assert.ok(proposal.reason.includes("Rocket Pod"), `expected the reason to name the strike used: ${proposal.reason}`);
+  assert.ok(proposal, "expected the vehicle to do something");
+  const firedLimitedWeapon = proposal.type === "strike" && proposal.strikeIndex === 1;
+  assert.ok(!firedLimitedWeapon,
+    `fired the one-shot Rocket Pod at point-blank range where the free sidearm reaches: ${JSON.stringify(proposal)}`);
+});
+
+test("DESIGN INTENT: a vehicle never proposes a limited-use weapon it has already spent", () => {
+  const { state, turnState, vehicle } = makeCombatantState({ vehiclePos: { col: 0, row: 0 }, opponentPos: { col: 20, row: 0 } });
+  vehicle.strikes[1].usesRemaining = 0;
+  const proposal = partyAI(state, "vesper", turnState);
+  assert.notEqual(proposal?.strikeIndex, 1, `proposed a weapon with no uses left: ${JSON.stringify(proposal)}`);
 });
 
 test("REGRESSION: partyAI never fires the long-range weapon into a target that's still immuneToAllDamage (found running the range-rework scenario: both vehicles' one-shot weapons landed on a Field-intact Claimant for a guaranteed, wasted 0 damage)", () => {

@@ -160,7 +160,14 @@ test("REGRESSION: Advance never leaves the grid bounds", () => {
   assert.ok(isInBounds(advance.to, gridSize), `Advance moved off-grid to (${advance.to.col},${advance.to.row}): ${JSON.stringify(advance)}`);
 });
 
-test("REGRESSION: Advance correctly charges its travel against the shared per-turn Speed budget — a follow-up 'move' can't stack a second full budget on top", () => {
+/**
+ * CHANGED 2026-08-23 (design doc §15h). Movement is now charged PER ACTION, matching SF2E's
+ * repeatable Stride, so an Advance followed by a Stride legitimately covers more ground than one
+ * Speed — that is the correct rule, not a bug. What must still hold is that each INDIVIDUAL
+ * movement action stays within Speed, which is what this now asserts. The original per-turn
+ * total-displacement assertion encoded the deviation this pass removed.
+ */
+test("REGRESSION: Advance and a follow-up move are each individually capped at Speed (movement is per-action, not a shared per-turn pool)", () => {
   const claimant = {
     id: "claimant-one", name: "Advancer", kind: "claimant", side: "opposition", size: "gargantuan",
     maxHP: 100, currentHP: 100, ac: 10, hardness: 0, saves: { fort: 10, ref: 10, will: 10 }, speed: 400,
@@ -180,10 +187,10 @@ test("REGRESSION: Advance correctly charges its travel against the shared per-tu
   const log = runBattle({ seed: 1, gridSize: { cols: 44, rows: 44 }, roundLimit: 1, combatants: [claimant, dummy], ai });
   const [advance, move] = log.rounds[0].turns[0].actions;
   assert.ok(advance.legal);
-  // Either the follow-up move is rejected (budget correctly exhausted), or if it's legal, total displacement must stay within Speed.
+  assert.ok(distanceFeet(advance.from, advance.to) <= 400, "the Advance itself must not exceed Speed");
   if (move?.legal) {
-    const total = distanceFeet(advance.from, advance.to) + distanceFeet(move.from, move.to);
-    assert.ok(total <= 400, `Total movement this turn (${total}ft) exceeded effective Speed (400ft): advance=${JSON.stringify(advance)} move=${JSON.stringify(move)}`);
+    assert.ok(distanceFeet(move.from, move.to) <= 400,
+      `the follow-up move exceeded Speed in a single action: ${JSON.stringify(move)}`);
   }
 });
 

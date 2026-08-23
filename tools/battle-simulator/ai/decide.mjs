@@ -1,0 +1,249 @@
+/**
+ * The decision layer (design doc §15j). Replaces the old
+ * generate-candidates → `weight × value` → argmax pipeline.
+ *
+ * HOW THIS DIFFERS, and why each difference was necessary:
+ *
+ *  1. **Actions are scored by the STATE they produce**, not by a hand-assigned
+ *     magnitude. Every candidate is applied to a private sandbox running the real
+ *     engine, and its score is `evaluate(after) − evaluate(before)`. That puts
+ *     movement, attacking, healing and evacuating into one currency for the first
+ *     time — previously every move scored a flat `1` and the weights table WAS the
+ *     entire normalisation mechanism.
+ *
+ *  2. **Movement candidates are always generated.** The old generator returned
+ *     `null` the moment a combatant was already in "clean range" of something,
+ *     so an in-range combatant had literally zero move options. Combined with
+ *     rounds 1-2 where the Claimant is immune (making every attack score exactly
+ *     0) and a rule that held the turn whenever the best score was ≤ 0, that
+ *     produced guaranteed do-nothing turns. Measured: 25% of all turns spent zero
+ *     action points, and `vesper` idled 59% of its turns having never moved once.
+ *
+ *  3. **Legality is never re-derived.** A candidate is "legal" iff the real engine
+ *     accepts it in the sandbox. The AI proposes; the engine judges. This is why
+ *     illegal-proposal count can stay at zero without the AI knowing any rules.
+ *
+ *  4. **Randomness comes from its own stream.** See `decisionRng` below.
+ *
+ * Depth is deliberately 1 (apply one action, evaluate, choose). Instrumenting the
+ * old system showed the median decision had TWO candidates — a beam search over
+ * two options is not a search. Fix the generator and the evaluator first, measure,
+ * and only then decide whether deeper lookahead earns its cost.
+ */
+import { forkTurnSandbox } from "../engine/engine.mjs";
+import { makeRng } from "../engine/rng.mjs";
+import { distanceFeet, isInBounds, isOccupied, FEET_PER_SQUARE } from "../engine/grid.mjs";
+import { evaluateState, attackOptions, usefulRangeFeet } from "./evaluate/state-value.mjs";
+
+/**
+ * A per-decision RNG derived from (battle seed, round, combatant, decision index).
+ *
+ * It must NOT be the engine's rng. If the AI drew from the battle's stream, then
+ * changing the AI at all — one more candidate, a different beam width — would
+ * re-align every subsequent d20, and you could never tell whether a new AI won
+ * because it played better or because the dice fell differently. Deriving an
+ * independent stream preserves common random numbers across AI versions, which is
+ * what makes before/after comparison meaningful.
+ */
+export function decisionRng(state, combatantId, decisionIndex) {
+  let h = (state.seed ?? 0) >>> 0;
+  const mix = (n) => { h = (Math.imul(h ^ n, 0x9e3779b1) + 0x85ebca6b) >>> 0; };
+  mix((state.round ?? 0) + 1);
+  mix(decisionIndex + 1);
+  for (let i = 0; i < combatantId.length; i++) mix(combatantId.charCodeAt(i));
+  return makeRng(h);
+}
+
+/**
+ * Walk one straight line from `from` toward `to`, stopping at the last square that
+ * is in bounds, unoccupied, within `maxFeet` of the start, and no further from the
+ * goal than the previous step. Straight-line-only is deliberate: the engine
+ * validates a move as ONE straight hop from the turn's start position, so a bent
+ * path would be generated and then rejected — a bug this project has already hit.
+ */
+function stepToward(state, moverId, from, to, maxFeet, standoffFeet) {
+  const others = [...state.positions.entries()].filter(([id]) => id !== moverId).map(([, p]) => p);
+  const dx = Math.sign(to.col - from.col);
+  const dy = Math.sign(to.row - from.row);
+  if (dx === 0 && dy === 0) return null;
+  let cur = { ...from };
+  let curDist = distanceFeet(cur, to);
+  for (;;) {
+    if (curDist <= standoffFeet) break;
+    const next = { col: cur.col + dx, row: cur.row + dy };
+    if (!isInBounds(next, state.gridSize)) break;
+    if (isOccupied(next, others)) break;
+    if (distanceFeet(from, next) > maxFeet) break;
+    const nextDist = distanceFeet(next, to);
+    if (nextDist >= curDist) break;
+    cur = next; curDist = nextDist;
+  }
+  return (cur.col === from.col && cur.row === from.row) ? null : cur;
+}
+
+/** Straight line directly AWAY from a point, for disengaging. */
+function stepAway(state, moverId, from, threat, maxFeet) {
+  const others = [...state.positions.entries()].filter(([id]) => id !== moverId).map(([, p]) => p);
+  const dx = Math.sign(from.col - threat.col) || 1;
+  const dy = Math.sign(from.row - threat.row) || 0;
+  let cur = { ...from };
+  for (;;) {
+    const next = { col: cur.col + dx, row: cur.row + dy };
+    if (!isInBounds(next, state.gridSize)) break;
+    if (isOccupied(next, others)) break;
+    if (distanceFeet(from, next) > maxFeet) break;
+    cur = next;
+  }
+  return (cur.col === from.col && cur.row === from.row) ? null : cur;
+}
+
+/**
+ * Every action worth considering. Deliberately generous — the evaluator decides
+ * what is good, this only decides what is *conceivable*. A starved generator
+ * cannot be rescued by any amount of clever scoring downstream.
+ */
+export function generateProposals(state, combatantId, turn) {
+  const me = state.combatants.get(combatantId);
+  const myPos = state.positions.get(combatantId);
+  const proposals = [];
+  if (!me || !myPos) return proposals;
+
+  const speed = turn.effective?.speed ?? me.speed ?? 0;
+  const living = [...state.combatants.values()].filter((c) => c.currentHP > 0);
+  const enemies = living.filter((c) => c.side !== me.side);
+  const allies = living.filter((c) => c.side === me.side && c.id !== combatantId);
+
+  // --- Attacks: every option against every living enemy ---
+  (me.strikes ?? []).forEach((_, i) => {
+    for (const e of enemies) proposals.push({ type: "strike", targetId: e.id, strikeIndex: i });
+  });
+  (me.spells ?? []).forEach((_, i) => {
+    for (const e of enemies) proposals.push({ type: "spellAttack", targetId: e.id, spellIndex: i });
+  });
+
+  // --- Support ---
+  (me.healAbilities ?? []).forEach((_, i) => {
+    for (const t of [me, ...allies]) if (t.currentHP < t.maxHP) proposals.push({ type: "healAbility", targetId: t.id, abilityIndex: i });
+  });
+  if (me.repairBonus != null && me.handlingDC != null) {
+    for (const a of allies) if (a.currentHP < a.maxHP) proposals.push({ type: "repair", targetId: a.id });
+  }
+  for (const a of allies) if (!a.spotted && attackOptions(a).length) proposals.push({ type: "spot", targetId: a.id });
+  if (me.canEvacuate) proposals.push({ type: "evacuate" });
+  if (me.objective) proposals.push({ type: "advance", towards: me.objective });
+
+  // --- Movement: ALWAYS offered, and at several distinct standoffs ---
+  // The old generator produced at most one destination and only when out of range.
+  // These aim at the ranges that actually matter: each of my weapons' useful reach
+  // against each enemy, plus closing to contact and disengaging entirely.
+  const destinations = new Map(); // keyed by cell so duplicates collapse
+  const addDest = (d) => { if (d) destinations.set(`${d.col},${d.row}`, d); };
+
+  const myRanges = [...new Set(attackOptions(me).map(usefulRangeFeet).filter((r) => Number.isFinite(r)))];
+  for (const e of enemies) {
+    const ePos = state.positions.get(e.id);
+    if (!ePos) continue;
+    for (const r of myRanges) addDest(stepToward(state, combatantId, myPos, ePos, speed, r));
+    addDest(stepToward(state, combatantId, myPos, ePos, speed, FEET_PER_SQUARE)); // close to contact
+    addDest(stepToward(state, combatantId, myPos, ePos, speed, 0));
+    addDest(stepAway(state, combatantId, myPos, ePos, speed));                    // disengage
+  }
+  for (const a of allies) {
+    const aPos = state.positions.get(a.id);
+    if (aPos && a.currentHP < a.maxHP) addDest(stepToward(state, combatantId, myPos, aPos, speed, FEET_PER_SQUARE));
+  }
+  if (me.objective) addDest(stepToward(state, combatantId, myPos, me.objective, speed, 0));
+
+  for (const d of destinations.values()) proposals.push({ type: "move", to: d });
+
+  return proposals;
+}
+
+/**
+ * Choose one action. Returns a proposal (with `reason` and `score`) or null when
+ * genuinely nothing improves the position.
+ *
+ * `competence` in [0,1] is the tunable skill knob: 1 picks the best action every
+ * time, lower values sample more loosely among the good ones via a softmax
+ * temperature. This is how "simulate good and bad tactical choices by the players"
+ * becomes a dial rather than a rewrite.
+ */
+export function decide(state, combatantId, turn, { competence = 1, weights } = {}) {
+  const me = state.combatants.get(combatantId);
+  if (!me) return null;
+  if (turn.actionsAvailable - turn.actionsUsed <= 0) return null;
+
+  const before = evaluateState(state, me.side, weights);
+  const proposals = generateProposals(state, combatantId, turn);
+  if (!proposals.length) return null;
+
+  const scored = [];
+  for (const proposal of proposals) {
+    const sandbox = forkTurnSandbox({ state, turn });
+    const result = sandbox.apply(combatantId, proposal);
+    if (!result.legal) continue; // the ENGINE decides legality; we never re-derive it
+    const after = evaluateState(sandbox.state, me.side, weights);
+    scored.push({ proposal, gain: after - before, result });
+  }
+  if (!scored.length) return null;
+
+  scored.sort((a, b) => (b.gain - a.gain) || describe(a.proposal, a.result).localeCompare(describe(b.proposal, b.result)));
+  const best = scored[0];
+
+  // NO "hold if nothing scores positive" GATE — deliberately (design doc §15k).
+  //
+  // The old AI returned null whenever its best candidate scored <= 0, and that single
+  // line produced a quarter of all turns being spent motionless. It is wrong for this
+  // game on two counts. Mechanically, SF2E gives you three actions and almost always
+  // something to spend them on; a real combatant repositions, Seeks, Aids or takes
+  // cover rather than standing still, and Ingram's own framing is that running out of
+  // things to do should be "very very very rare." Numerically, "0" is not a neutral
+  // baseline here — an evaluator that prices incoming threat at all makes *approaching
+  // a dangerous enemy* score slightly negative, so gating on > 0 systematically
+  // punishes exactly the aggressive play the fight needs.
+  //
+  // So: if any action is LEGAL, take the best one. Holding is what happens when the
+  // engine offers nothing at all, which is the only honest reason to hold.
+
+  const chosen = competence >= 1 ? best : sampleByCompetence(scored, competence, state, combatantId, turn);
+  return {
+    ...chosen.proposal,
+    score: Number(chosen.gain.toFixed(3)),
+    reason: `${describe(chosen.proposal, chosen.result)} — improves this side's position by ${chosen.gain.toFixed(1)} (best of ${scored.length} legal options)`
+  };
+}
+
+/**
+ * Softmax over candidate gains at a temperature set by competence. Sampling
+ * happens over the FULL scored set rather than a pruned shortlist: capping the
+ * pool first would mean a low-competence pilot structurally cannot make the kind
+ * of mediocre choice that low competence is supposed to model.
+ */
+function sampleByCompetence(scored, competence, state, combatantId, turn) {
+  const spread = Math.max(1e-6, scored[0].gain - scored[scored.length - 1].gain);
+  const temperature = Math.max(1e-6, (1 - competence)) * spread;
+  const weightsArr = scored.map((s) => Math.exp((s.gain - scored[0].gain) / temperature));
+  const total = weightsArr.reduce((a, b) => a + b, 0);
+  const rng = decisionRng(state, combatantId, turn.decisionIndex ?? 0);
+  let roll = rng() * total;
+  for (let i = 0; i < scored.length; i++) {
+    roll -= weightsArr[i];
+    if (roll <= 0) return scored[i];
+  }
+  return scored[0];
+}
+
+/** Human-readable action label, used for both the log reason and the deterministic tiebreak. */
+function describe(proposal, result) {
+  switch (proposal.type) {
+    case "move": return `Move to (${proposal.to.col},${proposal.to.row})`;
+    case "advance": return "Advance toward the objective";
+    case "strike": return `Strike with ${result?.strikeName ?? "weapon " + (proposal.strikeIndex ?? 0)}`;
+    case "spellAttack": return `Cast ${result?.spellName ?? "spell " + (proposal.spellIndex ?? 0)}`;
+    case "healAbility": return `Heal ${proposal.targetId} with ${result?.abilityName ?? "ability"}`;
+    case "repair": return `Field Repair ${proposal.targetId}`;
+    case "spot": return `Spot for ${proposal.targetId}`;
+    case "evacuate": return "Evacuate civilians";
+    default: return proposal.type;
+  }
+}

@@ -76,12 +76,24 @@ export function checkMoveLegality({ combatant, from, to, effectiveSpeed, feetAlr
   if (blocked) {
     return { legal: false, reason: `Path from (${from.col},${from.row}) to (${to.col},${to.row}) passes through an occupied square at (${blocked.col},${blocked.row}) — can't move through another combatant to reach a legal destination.` };
   }
+  // SF2E ACTION ECONOMY (design doc §15h, fixed 2026-08-23). Stride is ONE action for up to
+  // your full Speed, and it is repeatable — three Strides is three times your Speed. This used
+  // to charge a cumulative PER-TURN budget (`feetAlreadyMovedThisTurn + stepDistance`), which
+  // made "spend three actions closing distance" mechanically impossible: after one full-Speed
+  // move, every further move that turn was illegal, so the AI correctly found nothing to do and
+  // held its remaining points. That single rule deviation was the largest contributor to the
+  // measured 57.1% action utilization and the 20.3% of turns spent standing still.
+  //
+  // Ingram's standing principle: reproduce SF2E faithfully unless deliberately choosing to bend
+  // a rule, and the action economy in particular must be right — the system stands on the back
+  // of the play-tested original. `feetAlreadyMovedThisTurn` is retained as a parameter (it is
+  // still logged, and a future effect that genuinely caps per-turn movement would use it) but no
+  // longer gates an ordinary move.
   const stepDistance = distanceFeet(from, to);
-  const totalAfterMove = feetAlreadyMovedThisTurn + stepDistance;
-  if (totalAfterMove > effectiveSpeed) {
+  if (stepDistance > effectiveSpeed) {
     return {
       legal: false,
-      reason: `Would move ${totalAfterMove}ft this turn, exceeding effective Speed ${effectiveSpeed}ft (already moved ${feetAlreadyMovedThisTurn}ft).`
+      reason: `Would move ${stepDistance}ft in one action, exceeding effective Speed ${effectiveSpeed}ft.`
     };
   }
   return { legal: true, reason: null };

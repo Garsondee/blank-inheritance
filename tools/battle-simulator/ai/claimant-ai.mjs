@@ -16,8 +16,8 @@
  * independently documented and covered by
  * test/battle-simulator/claimant-ai.test.mjs.
  */
-import { utilityAI } from "./utility-ai.mjs";
+import { decide } from "./decide.mjs";
 
 export function claimantAI(state, combatantId, turnState) {
-  return utilityAI(state, combatantId, turnState);
+  return decide(state, combatantId, turnState);
 }

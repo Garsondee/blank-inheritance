@@ -582,3 +582,42 @@ Researched rather than recalled. Turn-based tactical combat is a *combinatorial-
 The honest verdict for this project: the apex is **not** AlphaZero. This is a GM's diagnostic instrument, not a competitive engine — it needs to play *plausibly, variably, and legibly*, because the question being asked is "would this encounter be interesting and appropriately deadly," and a superhuman optimizer answers a different question. Target: plan search over a well-built world model, with a tunable competence knob.
 
 The load-bearing architectural point: **everything below the decision layer is shared by every rung of that ladder.** Build the world model, forward model, and evaluation properly and the decision algorithm becomes swappable — greedy → plan search → MCTS → learned — with nothing underneath rewritten. The original mistake was building a decision layer on a weak substrate.
+
+## 15h. Rules fidelity first: movement is per-action
+
+Ingram's principle, verbatim: *"Always always aim to reproduce SF2E rules unless we are specifically choosing to break a rule... the action economy in SF and PF is particularly important to get right."*
+
+`legality.mjs` charged movement against a cumulative **per-turn** Speed budget. Real SF2E's Stride is one action for up to your full Speed, and it repeats — three Strides is 3x Speed. Under the old rule, after one full-Speed move every further move that turn was illegal, so "spend three actions closing distance" was mechanically impossible and the AI correctly found nothing to do. Fixed: each movement action is capped at Speed independently.
+
+**Instructive result: fixing the engine rule alone changed nothing measurable.** Utilization stayed at exactly 57.1%. The AI's own `remainingSpeedFeet` still subtracted feet already moved, so it never *asked* for a second move — the engine would have allowed it; the AI self-limited. Fixing both moved utilization to 60.0% and lifted the mobile combatants sharply (Frame 75.3% to 83.9%, Kingfisher 83.2% to 93.5%), while `vesper` got *worse*, because it still generated no move candidates at all.
+
+Two tests were updated because they **encoded the deviation** — one asserted a combatant could not move twice in a turn, one asserted total per-turn displacement stayed within one Speed. Both now assert the correct rule.
+
+## 15i-15k. The new decision layer, and three measured corrections
+
+`ai/decide.mjs` replaces generate-candidates then `weight x value` then argmax. Every candidate is applied to a private sandbox running the real engine and scored as `evaluate(after) - evaluate(before)` — putting movement, attacking, healing and evacuating into one currency (hit points) for the first time. Legality is never re-derived: a candidate is legal iff the real engine accepts it.
+
+Depth is deliberately **1**. Instrumenting the old system showed the median decision had **two** candidates; a beam search over two options is not a search. The generator and evaluator had to be fixed first, and search depth is now a parameter to be justified by measurement rather than assumed.
+
+Three corrections, each found by measuring rather than reasoning:
+
+1. **Symmetric threat pricing made the party refuse to fight.** With `threatExposure` at 0.55 against `offensiveReach` 0.75, a vehicle computed `0.75 x its own ~9 damage - 0.55 x the Claimant's ~30` and rationally concluded it should never approach. Utilization *fell* to 40.9% and party victories collapsed to 13/80. The error was pricing "damage I might take next round, if targeted, if they hit" as commensurate with "damage I deal now." Discounted to 0.12.
+
+2. **The evaluator could not see Spot or Evacuate at all**, so both scored exactly 0 and the Runabout — whose entire designed role is evacuation — stopped evacuating. Added a `spotted` term and a `state.civiliansEvacuated` tally the engine now maintains.
+
+3. **The evaluator was flat outside weapon range**, producing textbook degenerate movement: a real transcript showed the Frame doing move/move/move for four consecutive rounds, 900ft per round, never attacking — choosing arbitrarily among tied options, because `offensiveReach` and `threatExposure` are both zero out of range. Fixed with a **gated closing gradient** that applies only while short of one's own useful range and vanishes on arrival, so approach is worth exactly what it needs to be and cannot be farmed (an ungated version invites infinite kiting or infinite advancing).
+
+Also removed: the `if (best.gain <= 0) return null` gate inherited from the old AI, which alone produced a quarter of all turns spent motionless. Holding is now what happens when the engine offers *nothing legal* — the only honest reason to hold.
+
+**Measured result, 4 scenarios x 20 seeds, against the §15a frozen baseline:**
+
+| | Baseline | Now |
+|---|---|---|
+| Action utilization | 57.1% | **89.0%** |
+| Idle turn rate | 20.3% | **0.2%** |
+| Min verbs per combatant | **0** | 3 |
+| Distinct play signatures | 62/80 (77.5%) | **75/80 (93.8%)** |
+| Illegal proposals | 0 | 0 |
+| Sweep runtime | 74ms | 608ms |
+
+**A real balance finding, surfaced rather than retuned: party victories fell from 61/80 to 37/80.** As far as I can establish this is not a regression but the consequence of correct rules — per-action movement lets the Claimant Advance *and* Stride, so it reaches the party far sooner, and its damage across the sweep rose from 5,247 to 11,436. The old per-turn cap was artificially protecting the party. Whether to re-tune the encounter now that the rules are right is a design decision, not something to fix by weakening the AI.
