@@ -18,6 +18,21 @@
 import { distanceFeet, isOccupied, isInBounds, reachFeetForStrike, isAdjacent, FEET_PER_SQUARE } from "./grid.mjs";
 import { moveBlockedBetween, lineOfEffect } from "./terrain.mjs";
 
+/**
+ * Vision range (design doc §15r) — an opt-in perception limit separate from Scale Disparity
+ * (already handled by checkScaleTargeting) and Line of Effect (checked separately below). A
+ * combatant with no `vision` field has unlimited perceptual range, matching the behavior of
+ * every combatant fixture in this project today — a complete no-op until a scenario actually
+ * assigns one.
+ */
+function checkPerceptionRange({ attacker, attackerPos, targetPos }) {
+  const range = attacker.vision?.range;
+  if (range != null && distanceFeet(attackerPos, targetPos) > range) {
+    return { legal: false, reason: `Target is beyond ${attacker.name}'s perceptual range (${range}ft).` };
+  }
+  return { legal: true, reason: null };
+}
+
 export function checkActionBudget(turnState, actionCost) {
   const remaining = turnState.actionsAvailable - turnState.actionsUsed;
   if (actionCost > remaining) {
@@ -237,6 +252,9 @@ export function checkStrikeLegal({ attacker, attackerPos, target, targetPos, str
   const range = checkStrikeRange({ attackerPos, targetPos, strike });
   if (!range.legal) return range;
 
+  const perception = checkPerceptionRange({ attacker, attackerPos, targetPos });
+  if (!perception.legal) return perception;
+
   // Line of Effect (Player Core pg. 418, design doc §15p): "You have line of effect unless a
   // creature is entirely behind a solid physical barrier." An empty/undefined `walls` makes
   // lineOfEffect() always return true, so this is a no-op for every scenario without terrain.
@@ -398,6 +416,9 @@ export function checkSpellAttackLegal({ caster, casterPos, target, targetPos, sp
 
   const range = checkSpellRange({ casterPos, targetPos, spell });
   if (!range.legal) return range;
+
+  const perception = checkPerceptionRange({ attacker: caster, attackerPos: casterPos, targetPos });
+  if (!perception.legal) return perception;
 
   if (!lineOfEffect(casterPos, targetPos, walls)) {
     return { legal: false, reason: `No line of effect to ${target.name} — a wall entirely blocks the spell.` };

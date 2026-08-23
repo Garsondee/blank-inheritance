@@ -35,6 +35,7 @@ import { makeRng } from "../engine/rng.mjs";
 import { distanceFeet, isInBounds, isOccupied, FEET_PER_SQUARE } from "../engine/grid.mjs";
 import { evaluateState, attackOptions, usefulRangeFeet } from "./evaluate/state-value.mjs";
 import { reachableCells } from "./world/pathfind.mjs";
+import { refreshBelief, believedEnemies } from "./knowledge/belief.mjs";
 
 /**
  * A per-decision RNG derived from (battle seed, round, combatant, decision index).
@@ -189,6 +190,17 @@ export function generateProposals(state, combatantId, turn) {
   const enemies = living.filter((c) => c.side !== me.side);
   const allies = living.filter((c) => c.side === me.side && c.id !== combatantId);
 
+  // Belief (design doc §15s): refreshed from the WHOLE side's combined current vision, not just
+  // this one combatant — a Sensor Operator's good vision covers for a near-blind Frame teammate.
+  // Cheap and unconditional (O(allies x enemies)), matching every other opt-in mechanism this
+  // pass added: when nothing anywhere defines a `vision` field, every enemy is trivially
+  // perceivable by everyone, so believedPositions ends up identical to ground truth — a provable
+  // no-op for every scenario today, not a special-cased fast path that could drift from the slow one.
+  refreshBelief(state, me.side);
+  const believedPositions = new Map(
+    believedEnemies(state, me.side).filter((b) => b.position).map((b) => [b.id, b.position])
+  );
+
   // --- Attacks: every option against every living enemy ---
   (me.strikes ?? []).forEach((_, i) => {
     for (const e of enemies) proposals.push({ type: "strike", targetId: e.id, strikeIndex: i });
@@ -225,7 +237,14 @@ export function generateProposals(state, combatantId, turn) {
   // the better play, rather than something hardcoded to always prefer one over the other.
   const stepCandidates = [];
   for (const e of enemies) {
-    const ePos = state.positions.get(e.id);
+    // Believed position, not ground truth (design doc §15s) — an enemy with no belief entry at
+    // all has never been perceived by anyone on this side, and this is deliberately the ONE place
+    // that matters: proposing a move toward its true secret position would be omniscient cheating.
+    // Attacks don't need the same guard here — they're separately, correctly gated by REAL-TIME
+    // perception in checkStrikeLegal/checkSpellAttackLegal, so an attack candidate against
+    // something not currently visible is simply rejected as illegal downstream, same as any other
+    // illegal proposal.
+    const ePos = believedPositions.get(e.id);
     if (!ePos) continue;
     for (const r of myRanges) addDest(bestDestinationToward(state, combatantId, myPos, ePos, speed, r));
     addDest(bestDestinationToward(state, combatantId, myPos, ePos, speed, FEET_PER_SQUARE)); // close to contact

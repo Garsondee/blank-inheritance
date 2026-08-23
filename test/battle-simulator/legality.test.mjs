@@ -299,6 +299,38 @@ test("checkStrikeLegal: a limited-use strike with usesRemaining > 0 is legal, an
   assert.match(result.reason, /out of ordnance/);
 });
 
+// ---------------------------------------------------------------------------
+// checkPerceptionRange, exercised through checkStrikeLegal (design doc §15r) — an opt-in vision
+// limit, separate from Scale Disparity (checkScaleTargeting) and Line of Effect (already tested
+// above). No `vision` field is the required no-op: every combatant fixture in this project has
+// none today.
+// ---------------------------------------------------------------------------
+
+test("checkStrikeLegal: no `vision` field on the attacker means unlimited perceptual range — required no-op for every existing fixture", () => {
+  const attacker = { name: "Vehicle", currentHP: 50, scaleBlind: false };
+  const target = { name: "Target", size: "huge", currentHP: 10 };
+  const farAway = { name: "Long-Range Missile", strikeType: "ranged", rangeIncrement: 2000, attackBonus: 10 };
+  const result = checkStrikeLegal({
+    attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 30, row: 0 }, strike: farAway,
+    turnState: { actionsAvailable: 3, actionsUsed: 0 }
+  });
+  assert.equal(result.legal, true);
+});
+
+test("checkStrikeLegal: a defined vision.range rejects a target beyond it, even when the WEAPON's own range would reach", () => {
+  const attacker = { name: "Vehicle", currentHP: 50, scaleBlind: false, vision: { range: 500 } };
+  const target = { name: "Target", size: "huge", currentHP: 10 };
+  const longRangeWeapon = { name: "Long-Range Missile", strikeType: "ranged", rangeIncrement: 2000, attackBonus: 10 };
+  const turnState = { actionsAvailable: 3, actionsUsed: 0 };
+
+  const withinVision = checkStrikeLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 5, row: 0 }, strike: longRangeWeapon, turnState });
+  assert.equal(withinVision.legal, true, "5 squares = 250ft, within a 500ft vision range");
+
+  const beyondVision = checkStrikeLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 20, row: 0 }, strike: longRangeWeapon, turnState });
+  assert.equal(beyondVision.legal, false, "1000ft — well within the weapon's 2000ft range, but beyond a 500ft vision range: you can't hit what you can't perceive");
+  assert.match(beyondVision.reason, /perceptual range/);
+});
+
 test("checkTargetAlive: rejects targeting something already at 0 HP", () => {
   assert.equal(checkTargetAlive({ name: "x", currentHP: 0 }).legal, false);
   assert.equal(checkTargetAlive({ name: "x", currentHP: 1 }).legal, true);
