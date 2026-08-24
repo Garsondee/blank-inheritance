@@ -196,3 +196,47 @@ export function combatLabelFor(action) {
 export function isBurstAction(action) {
   return action.type === "saveAttack" || action.type === "conditionSave";
 }
+
+/**
+ * Design doc §36 — Ingram's own ask: render the acting token's real Line of Effect during its own
+ * turn, muting anyone it can't currently see. A parallel port of engine/terrain.mjs's own
+ * `lineOfEffect`/`wallBlocksSight`/`segmentsIntersect` (real 2D line-segment intersection against
+ * every sight-blocking wall, a wall's tip merely touching the line doesn't count, an edge-on
+ * collinear wall doesn't occlude) — the artifact is plain inline JS with no module loader once
+ * published, so this can't import the engine directly, same reasoning as reachFeetForStrikeLocal
+ * above. Cross-checked in the test suite against the real engine function so this can never
+ * silently drift from what the AI itself actually reasoned about.
+ */
+const EDGE_SENSE_NORMAL = 20; // engine/terrain.mjs's own EDGE_SENSE.NORMAL — a wall blocks sight/movement at this sense or higher
+function wallBlocksSightLocal(wall) {
+  return (wall.sight ?? 0) >= EDGE_SENSE_NORMAL;
+}
+function orientationLocal(ax, ay, bx, by, cx, cy) {
+  const v = (by - ay) * (cx - bx) - (bx - ax) * (cy - by);
+  return v > 0 ? 1 : v < 0 ? -1 : 0;
+}
+function onSegmentLocal(ax, ay, bx, by, px, py) {
+  return Math.min(ax, bx) <= px && px <= Math.max(ax, bx) && Math.min(ay, by) <= py && py <= Math.max(ay, by);
+}
+export function segmentsIntersectLocal([ax1, ay1, ax2, ay2], [bx1, by1, bx2, by2]) {
+  const o1 = orientationLocal(ax1, ay1, ax2, ay2, bx1, by1);
+  const o2 = orientationLocal(ax1, ay1, ax2, ay2, bx2, by2);
+  const o3 = orientationLocal(bx1, by1, bx2, by2, ax1, ay1);
+  const o4 = orientationLocal(bx1, by1, bx2, by2, ax2, ay2);
+  if (o1 !== o2 && o3 !== o4) {
+    const touchesEndpoint =
+      (ax1 === bx1 && ay1 === by1) || (ax1 === bx2 && ay1 === by2) ||
+      (ax2 === bx1 && ay2 === by1) || (ax2 === bx2 && ay2 === by2);
+    return !touchesEndpoint;
+  }
+  if (o1 === 0 && onSegmentLocal(ax1, ay1, ax2, ay2, bx1, by1)) return false;
+  if (o2 === 0 && onSegmentLocal(ax1, ay1, ax2, ay2, bx2, by2)) return false;
+  if (o3 === 0 && onSegmentLocal(bx1, by1, bx2, by2, ax1, ay1)) return false;
+  if (o4 === 0 && onSegmentLocal(bx1, by1, bx2, by2, ax2, ay2)) return false;
+  return false;
+}
+export function lineOfEffectLocal(a, b, walls) {
+  if (!walls?.length) return true;
+  const line = [a.col + 0.5, a.row + 0.5, b.col + 0.5, b.row + 0.5];
+  return !walls.some((w) => wallBlocksSightLocal(w) && segmentsIntersectLocal(line, w.c));
+}

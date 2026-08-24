@@ -1801,3 +1801,46 @@ The full battle-simulator suite required three real fix passes to go green after
 ### Files
 
 Changed: `tools/battle-simulator/personnel-engine/evaluate/state-value.mjs` (`lowHpFactor` cubic + raised ceiling, `aggression` dampener), `tools/battle-simulator/ai/knowledge/belief.mjs` and `tools/battle-simulator/personnel-engine/knowledge/belief.mjs` (both — real separate copies, not a re-export — gain the `blindDeployment` fork), `tools/battle-simulator/personnel-engine/engine.mjs` (`state.blindDeployment` wiring), `tools/battle-simulator/personnel-engine/decide.mjs` (the blind-exploration candidate), `tools/battle-simulator/scenarios/personnel-complex-battle.mjs` (`RANDOM_ARCS` setup), `tools/battle-simulator/run-personnel-scenario.mjs` (`complex-3v3-random-arcs` registered). New: `tools/battle-simulator/scenarios/random-deployment.mjs`. Regenerated: all 33 pre-existing personnel-scale logs plus 15 new `complex-3v3-random-arcs` logs, `logs/index.json`, `tools/battle-simulator/artifact/contact-simulation.html`. Tests: `test/battle-simulator/personnel-state-value.test.mjs` (extended), `test/battle-simulator/random-deployment.test.mjs` (new), `test/battle-simulator/personnel-complex-battle.test.mjs` (extended), `test/battle-simulator/run-personnel-scenario-cli.test.mjs` (corrected).
+
+## 36. Directed exploration ("vector toward center of mass," stick together), and live LOS rendering
+
+> *"We need to rethink what PCs do when there is no visible enemy. They need to explore in a way that sends them in the vector of the center of mass of their opponent and try to stick together as a group. At the moment they move randomly which means it takes ages for them to get line of sight of each other."*
+>
+> *"It would be be nice if we rendered the actual LOS of the tokens when it's their turn so that you can see what that token can see, highlighting tokens by making them full brightness only when actually visible, the rest of the time make them muted."*
+
+### Directed exploration
+
+§35's own blind-exploration candidate picked a uniformly random reachable cell every turn — real movement (fixing the freeze bug), but with no sense of direction at all, so two sides genuinely could and did wander for a long time before either one got lucky. Two candidates now, not one:
+
+1. **A blended target** — a real point along the line from this side's own center of mass toward the TRUE center of mass of the living opposing side, weighted 55%-75% toward the opponent (jittered per decision, not fixed) so the party visibly advances rather than just orbiting its own start. Using true opposition positions here isn't a new kind of omniscience introduced for this feature — `state-value.mjs`'s own `closing` gradient already scores movement against true enemy positions unconditionally on belief (see that file's own header), so this candidate is the movement-*generation* side of the identical, already-accepted split this project has had since §17: true position can inform movement, real perception still gates every actual attack. Blending in the party's OWN centroid (not aiming purely at the enemy) is the direct answer to "try to stick together as a group" — every member's blended target converges on roughly the same point, so the party advances as a loose formation rather than each combatant computing an independent beeline that could scatter them.
+2. **A genuinely random reachable cell**, kept from §35, so a blocked or currently-unreachable blended point never leaves a combatant with only one brittle option.
+
+**Measured, not assumed**, using `findFirstContactStepIndex` (already built for the fast-forward button, §30) against the 15 `complex-3v3-random-arcs` logs, regenerated once before this change and once after:
+
+| | Before (pure random) | After (directed) |
+|---|---|---|
+| Average turns before first contact | 20.5 | **6.7** |
+| Pre-contact turns as a share of the whole battle | 31.6% | **13.8%** |
+
+Roughly a 3x reduction in exploration time — directly answering "takes ages." A live spot-check also confirmed real cohesion in practice: at the midpoint of one battle's exploration phase, the three party members' maximum pairwise distance was under 8 squares — a real formation, not three individuals racing off independently.
+
+Building this required one genuinely important, hard-won test-methodology lesson, worth recording honestly: an early version of the new tests used wall-less fixtures (`walls: []`) for simplicity, and every one of them silently passed while testing the WRONG code path. `blindDeployment: true` only stops belief from being seeded with the true lineup at the very FIRST refresh — it does nothing to stop that same refresh's own real-time perception check from immediately re-discovering an enemy anyway, if literally nothing blocks the sightline (`lineOfEffect` with no walls is unconditionally true). The fix wasn't in the exploration code at all — it was giving the test fixtures a real dividing wall, matching this project's own established convention (`random-deployment.test.mjs`'s `centerDividerWalls`), so `believedPositions` genuinely stays empty and the new code actually gets exercised.
+
+### Live LOS rendering
+
+A real, parallel port of `engine/terrain.mjs`'s own `lineOfEffect`/`wallBlocksSight`/`segmentsIntersect` into `geometry.mjs` (`lineOfEffectLocal` — the artifact has no module loader once published, so it can't import the engine tree directly, the same reasoning `reachFeetForStrikeLocal` already established) — cross-checked in the test suite against the real engine function across hand-built cases AND a real spread of position pairs on the actual complex-battle map (opposite corners: blocked; same room: clear; the one real courtyard-door sightline design doc §24 built on purpose: clear; across an internal wall: blocked), so this can never silently drift from what the AI itself actually reasoned about.
+
+`updateTokenVisibility(run, step, activeId, activePos)` toggles a new `.not-visible` CSS class (`opacity: 0.4`, deliberately excluded from a `.dead` token — a corpse isn't "hidden," it's a different fact) on every OTHER token based on real Line of Effect from the ACTIVE combatant's own current position — never the true omniscient board state, exactly the acting token's own real, current view. Called at the start of every beat (reason/act-move/act-effect) using that beat's own tracked position, called again once an act-move beat's glide actually finishes (so visibility reflects where the token really ended up, not just where it started), and called once more at the top of every `render()` for the jump/scrub/reduced-motion/no-beats cases that never reach a beat at all. Verified live against a real battle: every token's dimmed/bright state matched `lineOfEffectLocal`'s own independent computation exactly, for every combatant, at a real mid-battle turn.
+
+### Verification
+
+10 new tests: 5 in `personnel-decide.test.mjs` (closer-to-true-opponent bias, real group cohesion via the ally-centroid blend, jitter-driven variety across 8 decision indices — the one that caught the wall-less-fixture bug above — and graceful behavior with zero living enemies), 6 in `artifact-geometry.test.mjs` (`lineOfEffectLocal` cross-checked against the real engine on open ground, a real blocking wall, a sight-permitting window, an irrelevant wall, the real complex-battle map across 4 position pairs, and the tip-touching-doesn't-block edge case). Full suite green throughout.
+
+### What wasn't attempted this pass
+
+- **Regenerating the 6 fixed-setup scenario families** — untouched by this pass; their belief is never empty (§15s's own default seeds it immediately), so the new exploration code structurally never runs for them. Only the 15 `complex-3v3-random-arcs` logs needed fresh data.
+- **"Move towards the sounds of violence"** — still explicitly "eventually" per Ingram's own §35 framing, still not attempted.
+
+### Files
+
+Changed: `tools/battle-simulator/personnel-engine/decide.mjs` (`averagePosition`, the blended+random exploration candidates), `tools/battle-simulator/artifact/geometry.mjs` (`lineOfEffectLocal`/`segmentsIntersectLocal` and their private helpers), `tools/battle-simulator/artifact/template.html` (`.token.not-visible` CSS, `updateTokenVisibility`, wired into `playBeat`'s three branches and `render`'s own baseline pass), `tools/battle-simulator/artifact/contact-simulation.html` (rebuilt). Regenerated: the 15 `complex-3v3-random-arcs` logs, `logs/index.json`. Tests: `test/battle-simulator/personnel-decide.test.mjs`, `test/battle-simulator/artifact-geometry.test.mjs` (both extended).

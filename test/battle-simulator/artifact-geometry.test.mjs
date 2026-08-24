@@ -232,3 +232,56 @@ test("isBurstAction: false for an ordinary Strike, a spell ATTACK roll, Demorali
   assert.equal(isBurstAction({ type: "demoralize" }), false);
   assert.equal(isBurstAction({ type: "healAbility" }), false);
 });
+
+// design doc §36 — Ingram's own ask: render the acting token's real Line of Effect during its own
+// turn. lineOfEffectLocal cross-checked against the real engine/terrain.mjs function throughout.
+import { lineOfEffect as engineLineOfEffect } from "../../tools/battle-simulator/engine/terrain.mjs";
+const { lineOfEffectLocal, segmentsIntersectLocal } = geometry;
+
+test("lineOfEffectLocal: no walls at all means unconditionally clear — cross-checked against the real engine", () => {
+  const a = { col: 0, row: 0 }, b = { col: 10, row: 10 };
+  assert.equal(lineOfEffectLocal(a, b, []), true);
+  assert.equal(lineOfEffectLocal(a, b, []), engineLineOfEffect(a, b, []));
+});
+
+test("lineOfEffectLocal: a real sight-blocking wall directly between two cells blocks the line — cross-checked against the real engine", () => {
+  const a = { col: 0, row: 5 }, b = { col: 10, row: 5 };
+  const walls = [{ c: [5, 0, 5, 10], move: 20, sight: 20 }];
+  assert.equal(lineOfEffectLocal(a, b, walls), false);
+  assert.equal(lineOfEffectLocal(a, b, walls), engineLineOfEffect(a, b, walls));
+});
+
+test("lineOfEffectLocal: a move-blocking-only wall (sight: 0, a window) does NOT block Line of Effect — cross-checked against the real engine", () => {
+  const a = { col: 0, row: 5 }, b = { col: 10, row: 5 };
+  const walls = [{ c: [5, 0, 5, 10], move: 20, sight: 0 }];
+  assert.equal(lineOfEffectLocal(a, b, walls), true);
+  assert.equal(lineOfEffectLocal(a, b, walls), engineLineOfEffect(a, b, walls));
+});
+
+test("lineOfEffectLocal: a wall elsewhere on the map (not crossing this specific line) never blocks it — cross-checked against the real engine", () => {
+  const a = { col: 0, row: 0 }, b = { col: 2, row: 0 };
+  const walls = [{ c: [5, 5, 5, 6], move: 20, sight: 20 }];
+  assert.equal(lineOfEffectLocal(a, b, walls), true);
+  assert.equal(lineOfEffectLocal(a, b, walls), engineLineOfEffect(a, b, walls));
+});
+
+test("lineOfEffectLocal: a real building's worth of walls (the complex-battle map) agrees with the real engine across a real spread of position pairs, not just one hand-picked case", async () => {
+  const { WALLS } = await import("../../tools/battle-simulator/data/personnel-test-complex.mjs");
+  const pairs = [
+    [{ col: 1, row: 26 }, { col: 42, row: 1 }],   // opposite corners — must be blocked
+    [{ col: 5, row: 6 }, { col: 8, row: 6 }],      // inside the same room — must be clear
+    [{ col: 19, row: 20 }, { col: 30, row: 20 }],  // the one real courtyard-door sightline (design doc §24) — must be clear
+    [{ col: 5, row: 6 }, { col: 17, row: 6 }],     // across an internal dividing wall — must be blocked
+  ];
+  for (const [a, b] of pairs) {
+    assert.equal(lineOfEffectLocal(a, b, WALLS), engineLineOfEffect(a, b, WALLS), `mismatch for ${JSON.stringify(a)} -> ${JSON.stringify(b)}`);
+  }
+});
+
+test("segmentsIntersectLocal: a wall whose tip merely touches the sight line doesn't block it, matching the real engine's own documented allowance", () => {
+  // The real engine's own test coverage establishes this exact shape; checked here only for the
+  // LOCAL copy specifically, since it's the one with real risk of silently drifting.
+  const line = [0, 0, 10, 0];
+  const touchingWall = [10, 0, 10, 5]; // touches the line only at its endpoint (10,0)
+  assert.equal(segmentsIntersectLocal(line, touchingWall), false);
+});

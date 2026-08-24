@@ -73,6 +73,16 @@ function otherLivingPositions(state, excludeId) {
     .map(([id, p]) => ({ ...p, side: state.combatants.get(id).side }));
 }
 
+/** The plain average of a list of {col,row} points — design doc §36's own "center of mass," used
+ * by the blind-exploration candidate below. Deliberately allowed to land on a non-integer cell;
+ * it's a DIRECTION reference for bestDestinationToward to aim at, not itself a destination. */
+function averagePosition(positions) {
+  return {
+    col: positions.reduce((sum, p) => sum + p.col, 0) / positions.length,
+    row: positions.reduce((sum, p) => sum + p.row, 0) / positions.length
+  };
+}
+
 /** Walk a SINGLE fixed (dx,dy) direction from `from`, stopping at bounds/occupied/budget/standoff/overshoot. */
 function extend(state, others, moverSide, from, to, dx, dy, maxFeet, standoffFeet) {
   let cur = { ...from };
@@ -408,23 +418,46 @@ export function generateProposals(state, combatantId, turn) {
   }
   if (me.objective) addDest(bestDestinationToward(state, combatantId, myPos, me.objective, speed, 0, destCache));
 
-  // design doc §35 — Ingram's own ask: with a genuinely blind deployment (no starting Line of
-  // Effect on either side — see engine.mjs's own `blindDeployment`), a side that has never
-  // perceived a single enemy gets NO enemy-directed destination from the loop above —
-  // believedPositions is empty, so it never runs at all — and with no hurt ally or scripted
-  // objective either, `destinations` would stay completely empty, freezing everyone in place
-  // forever: nobody can ever discover anybody if nobody moves. "A moment of tokens exploring,
-  // where they move around almost randomly" is a real random reachable cell, drawn from this
-  // combatant's own decisionRng (never the battle's own dice stream — see decisionRng's own
-  // header) so it varies seed to seed and turn to turn without needing any secret knowledge of
-  // where the enemy actually started.
+  // design doc §36 — Ingram's own rethink, after watching purely random exploration (§35) take
+  // "ages" for the two sides to find each other: with a genuinely blind deployment (no starting
+  // Line of Effect either side — engine.mjs's own `blindDeployment`), a side that's never
+  // perceived a single enemy gets no enemy-directed destination from the loop above at all
+  // (believedPositions is empty), and with no hurt ally or scripted objective either,
+  // `destinations` would otherwise stay completely empty. Two real candidates now, not one:
+  //
+  // (1) A BLENDED target — mostly toward the true center of mass of the living opposing side,
+  //     partly toward this side's OWN center of mass, so the whole party advances TOGETHER rather
+  //     than each member computing its own independent beeline ("try to stick together as a
+  //     group"). Using true positions here isn't new or specially omniscient for THIS file —
+  //     state-value.mjs's own `closing` gradient already scores movement against true enemy
+  //     positions regardless of belief (see that file's own header); this candidate is the
+  //     movement-generation side of the identical, already-accepted "true position informs
+  //     movement, real perception still gates every actual attack" split. The exact blend ratio
+  //     gets a small seeded jitter (decisionRng, never the battle's own dice) each turn — a
+  //     consistent beeline toward the same fixed point every turn wouldn't read as "almost
+  //     randomly" the way Ingram asked for, even though the overall DIRECTION is now deliberate.
+  // (2) A genuinely random reachable cell, same as before — kept in the running so a blocked or
+  //     currently-unreachable blended point never leaves a combatant with only one brittle option.
   if (believedPositions.size === 0) {
+    const rng = decisionRng(state, combatantId, turn.decisionIndex ?? 0);
+    const livingAllyPositions = [me, ...allies].filter((c) => c.currentHP > 0).map((c) => state.positions.get(c.id)).filter(Boolean);
+    const livingEnemyPositions = enemies.filter((c) => c.currentHP > 0).map((c) => state.positions.get(c.id)).filter(Boolean);
+    if (livingAllyPositions.length && livingEnemyPositions.length) {
+      const allyCentroid = averagePosition(livingAllyPositions);
+      const enemyCentroid = averagePosition(livingEnemyPositions);
+      const towardEnemyWeight = 0.55 + rng() * 0.2; // 55%-75% of the way toward the opponent's centroid, jittered
+      const blended = {
+        col: allyCentroid.col + (enemyCentroid.col - allyCentroid.col) * towardEnemyWeight,
+        row: allyCentroid.row + (enemyCentroid.row - allyCentroid.row) * towardEnemyWeight
+      };
+      addDest(bestDestinationToward(state, combatantId, myPos, blended, speed, 0, destCache));
+    }
+
     const exploreCells = [...reachableCells({
       from: myPos, maxFeet: speed, gridSize: state.gridSize,
       occupiedPositions: otherLivingPositions(state, combatantId), walls: state.walls, moverSide: me.side
     }).values()];
     if (exploreCells.length) {
-      const rng = decisionRng(state, combatantId, turn.decisionIndex ?? 0);
       const pick = exploreCells[Math.floor(rng() * exploreCells.length)];
       const last = pick.path[pick.path.length - 1];
       addDest({ col: last.col, row: last.row, path: pick.path });

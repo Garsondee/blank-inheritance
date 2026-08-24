@@ -206,6 +206,11 @@
   .token { cursor: default; transition: transform 0.42s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease; }
   .token.no-anim { transition: none; }
   .token.dead { opacity: 0.3; }
+  /* design doc §36 — Ingram's own ask: "render the actual LOS of the tokens when it's their turn...
+     highlighting tokens by making them full brightness only when actually visible, the rest of the
+     time make them muted." :not(.dead) so a defeated combatant's own body-marker opacity (above)
+     always wins — a corpse isn't "hidden," it's just dead, a different fact worth a different look. */
+  .token.not-visible:not(.dead) { opacity: 0.4; }
   .token circle.body { stroke: rgba(0,0,0,0.35); stroke-width: 1.5; }
   .token text { font-family: "IBM Plex Mono", monospace; font-weight: 600; fill: #fff; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
   .token .ring { fill: none; stroke-width: 2.5; opacity: 0; }
@@ -1135,7 +1140,7 @@ function playTurnBeats(run, step, stepIdx, gen, onDone) {
   const priorStep = steps[stepIdx - 1];
   let liveSnapshot = priorStep?.snapshot ?? step.snapshot;
   const ctx = {
-    run, activeId: step.combatantId,
+    run, step, activeId: step.combatantId,
     applyAndRenderRoster(action) {
       liveSnapshot = applyActionToSnapshot(liveSnapshot, action);
       renderRoster(run, liveSnapshot, step.combatantId);
@@ -1153,12 +1158,32 @@ function playTurnBeats(run, step, stepIdx, gen, onDone) {
   next();
 }
 
+/**
+ * Design doc §36 — Ingram's own ask: render the acting token's real Line of Effect during its own
+ * turn, dimming anyone it can't currently see rather than leaving every token equally bright
+ * regardless of whether this specific combatant could actually spot them. `activePos` is whatever
+ * position the active combatant is really AT right now in the sequence (tracked by the caller,
+ * not re-derived here) — so this reads correctly beat to beat, including mid-turn after a move.
+ * `activeId` null (deployment/outcome, or no run) clears every token back to full brightness —
+ * there's no "whose turn" to compute LOS from.
+ */
+function updateTokenVisibility(run, step, activeId, activePos) {
+  const walls = run?.log?.walls ?? [];
+  for (const [id, g] of tokenEls) {
+    if (!activeId || !activePos || id === activeId) { g.classList.remove("not-visible"); continue; }
+    const otherPos = step?.snapshot?.[id]?.position;
+    const visible = !otherPos || lineOfEffectLocal(activePos, otherPos, walls);
+    g.classList.toggle("not-visible", !visible);
+  }
+}
+
 function playBeat(beat, gen, advance, ctx) {
   if (beat.type === "reason") {
     // Design doc §30: the PREVIOUS action's targeting line (if any) belongs to a beat that's now
     // over — cleared here so it never lingers through the NEXT action's own reason bubble, the
     // same lifecycle spawnThoughtBubble already gives the bubble itself.
     document.getElementById("targetLineLayer").innerHTML = "";
+    updateTokenVisibility(ctx?.run, ctx?.step, ctx?.activeId, beat.pos);
     spawnThoughtBubble(beat.pos, beat.name, beat.text, beat.actionFooter);
     const holdMs = Math.max(400, (beat.holdOnly ? REASON_HOLD_ONLY_MS : REASON_HOLD_MS) / playSpeed);
     setTimeout(() => { if (gen === renderGeneration) advance(); }, holdMs);
@@ -1167,11 +1192,19 @@ function playBeat(beat, gen, advance, ctx) {
   if (beat.type === "act-move") {
     const g = tokenEls.get(beat.combatantId);
     if (!g) { advance(); return; }
+    updateTokenVisibility(ctx?.run, ctx?.step, ctx?.activeId, beat.fromPos);
     const legs = actionLegs(beat.action);
-    glideToken(g, { positions: [beat.fromPos, ...legs], legWeights: legs.map(() => 1 / legs.length) }, gen, advance);
+    const onMoveDone = () => {
+      // Re-derive from wherever the glide actually ended (the last leg's own destination) so
+      // visibility reflects the real post-move position, not just the pre-move one.
+      updateTokenVisibility(ctx?.run, ctx?.step, ctx?.activeId, legs[legs.length - 1]);
+      advance();
+    };
+    glideToken(g, { positions: [beat.fromPos, ...legs], legWeights: legs.map(() => 1 / legs.length) }, gen, onMoveDone);
     return;
   }
   if (beat.type === "act-effect") {
+    updateTokenVisibility(ctx?.run, ctx?.step, ctx?.activeId, beat.sourcePos);
     playCombatEffectBeat(beat.action, beat.sourcePos, beat.targetPos, gen, advance, ctx);
     return;
   }
@@ -1679,6 +1712,14 @@ function render(onStepDone) {
   // clear here since, unlike #overlayLayer, these layers aren't rebuilt via innerHTML each render.
   if (jump) { document.getElementById("effectLayer").innerHTML = ""; clearThoughtBubble(); }
   updateMapTokens(run, step, stepIndex, activeId, jump);
+  // design doc §36: a real baseline visibility pass every render — matches updateMapTokens' own
+  // "jump/reduced show the real end-of-turn position, a sequential turn starts at its own
+  // beginning" split, so LOS is never computed against a position the token isn't actually shown
+  // at. A step with real beats (a normal turn) immediately gets overwritten, beat by beat, once
+  // playTurnBeats starts below; this call is what covers deployment/outcome/no-beats steps, which
+  // never reach playBeat at all.
+  const activeStartPos = (jump || reduced) ? step.snapshot?.[activeId]?.position : (steps[stepIndex - 1]?.snapshot?.[activeId]?.position ?? step.snapshot?.[activeId]?.position);
+  updateTokenVisibility(run, step, activeId, activeStartPos);
   renderCurrentRun(run);
   // design doc §30: mid-sequence (real beat-by-beat playback), the roster starts at this turn's
   // BEGINNING state and is advanced one action at a time by playTurnBeats itself (via

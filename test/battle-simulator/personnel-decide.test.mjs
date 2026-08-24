@@ -478,3 +478,89 @@ test("bestDestinationAway: the mirrored fix — on a real distance tie, a diseng
   assert.ok(dest, "expected a real destination to be found");
   assert.equal(lineOfEffect(dest, threat, walls), false, `expected the disengage candidate to actually break line of effect — got ${JSON.stringify(dest)}`);
 });
+
+// --- Blind exploration, redesigned (design doc §36 — Ingram's own rethink: "at the moment they
+// move randomly which means it takes ages for them to get line of sight of each other... They need
+// to explore in a way that sends them in the vector of the center of mass of their opponent and
+// try to stick together as a group.") ---
+
+// A real, full-height dividing wall at col 20 — REQUIRED, not decorative: `blindDeployment` only
+// stops belief from being seeded with the true lineup at the very first refresh; if nothing
+// actually blocks sight, that same refresh's own real-time perception check (anyoneOnSideCanPerceive)
+// would immediately re-populate belief anyway, since lineOfEffect with no walls is unconditionally
+// true. Found the hard way: an early version of these tests used `walls: []` and every one of them
+// was silently exercising the ORDINARY enemy-directed movement loop, never the new exploration
+// candidate at all, despite `blindDeployment: true` being set. A wall this project's own
+// dividing-wall convention (random-deployment.test.mjs's own centerDividerWalls) makes genuinely
+// blind.
+function dividerWall(gridSize) {
+  const walls = [];
+  for (let r = 0; r < gridSize.rows; r++) walls.push({ c: [20, r, 20, r + 1], move: 20, sight: 20 });
+  return walls;
+}
+
+function makeExploreState({ mePos, allyPositions = [], enemyPositions = [], gridSize = { cols: 60, rows: 40 }, decisionIndex = 0 } = {}) {
+  const combatants = new Map();
+  const positions = new Map();
+  combatants.set("me", { id: "me", name: "Me", side: "party", currentHP: 16, maxHP: 16, speed: 30 });
+  positions.set("me", { ...mePos });
+  allyPositions.forEach((p, i) => {
+    const id = `ally-${i}`;
+    combatants.set(id, { id, name: id, side: "party", currentHP: 16, maxHP: 16, speed: 30 });
+    positions.set(id, { ...p });
+  });
+  enemyPositions.forEach((p, i) => {
+    const id = `enemy-${i}`;
+    combatants.set(id, { id, name: id, side: "opposition", currentHP: 10, maxHP: 10, speed: 25 });
+    positions.set(id, { ...p });
+  });
+  // design doc §35's own blind-deployment fork: without this (and the real dividing wall above),
+  // refreshBelief would seed/immediately re-discover the true enemy lineup — believedPositions
+  // must genuinely stay empty to exercise the exploration code path at all.
+  const state = { round: 1, seed: 1, gridSize, walls: dividerWall(gridSize), combatants, positions, blindDeployment: true };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex, effective: { speed: 30 } };
+  return { state, turn };
+}
+
+test("generateProposals (design doc §36): while blind, a move candidate is generated that's GENUINELY closer to the true opponent centroid than the starting position — not just any random reachable cell", () => {
+  const { state, turn } = makeExploreState({ mePos: { col: 0, row: 0 }, enemyPositions: [{ col: 40, row: 0 }] });
+  const proposals = generateProposals(state, "me", turn);
+  const moves = proposals.filter((p) => p.type === "move");
+  assert.ok(moves.length >= 1, "expected at least one move candidate while blind");
+  const closerToEnemy = moves.some((m) => Math.hypot(m.to.col - 40, m.to.row - 0) < 40);
+  assert.ok(closerToEnemy, `expected at least one candidate to be genuinely closer to the true enemy position, got: ${JSON.stringify(moves.map((m) => m.to))}`);
+});
+
+test("generateProposals (design doc §36): the blended candidate is pulled toward the party's OWN center of mass too, not a pure beeline at the enemy — 'try to stick together as a group'", () => {
+  // "me" sits far from its own allies but the allies themselves sit far from the enemy — a pure
+  // enemy-beeline would send "me" straight past its own group; the blended target must land
+  // somewhere between the two centroids, not at the enemy's exact position.
+  const { state, turn } = makeExploreState({
+    mePos: { col: 0, row: 0 },
+    allyPositions: [{ col: 2, row: 0 }, { col: 0, row: 2 }],
+    enemyPositions: [{ col: 50, row: 0 }]
+  });
+  const proposals = generateProposals(state, "me", turn);
+  const moves = proposals.filter((p) => p.type === "move");
+  // None of the real candidates should land anywhere near the enemy's own position this turn —
+  // movement is capped by real Speed (30ft = 6 squares) regardless, but the key property is that
+  // the DIRECTION is toward a blended point, which a single turn's move can only ever approach.
+  for (const m of moves) assert.ok(m.to.col < 10, `expected real movement capped by Speed, not a teleport toward the enemy: ${JSON.stringify(m.to)}`);
+});
+
+test("generateProposals (design doc §36): the blend ratio is jittered per decision — different decisionIndex values produce genuinely different blended candidates, not one fixed deterministic beeline", () => {
+  const seen = new Set();
+  for (let decisionIndex = 0; decisionIndex < 8; decisionIndex++) {
+    const { state, turn } = makeExploreState({ mePos: { col: 0, row: 15 }, allyPositions: [{ col: 0, row: 14 }], enemyPositions: [{ col: 59, row: 15 }], decisionIndex });
+    const proposals = generateProposals(state, "me", turn);
+    const moves = proposals.filter((p) => p.type === "move");
+    seen.add(JSON.stringify(moves.map((m) => m.to).sort((a, b) => a.col - b.col)));
+  }
+  assert.ok(seen.size > 1, `expected real variety across 8 decision indices — "almost randomly" should still hold even though the direction is now deliberate, got ${seen.size} distinct outcome(s)`);
+});
+
+test("generateProposals (design doc §36): with NO living enemies at all, blind exploration still offers a real (random) move candidate rather than throwing or leaving the combatant frozen", () => {
+  const { state, turn } = makeExploreState({ mePos: { col: 10, row: 10 }, allyPositions: [{ col: 11, row: 10 }] });
+  const proposals = generateProposals(state, "me", turn);
+  assert.ok(proposals.some((p) => p.type === "move"), "expected at least one real move candidate with no enemies at all (the fight may already be won on this side, or this is a genuinely solo scout)");
+});
