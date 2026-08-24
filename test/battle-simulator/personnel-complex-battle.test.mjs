@@ -10,7 +10,7 @@ import { runBattle } from "../../tools/battle-simulator/personnel-engine/engine.
 import { buildScenario } from "../../tools/battle-simulator/scenarios/personnel-complex-battle.mjs";
 import { lineOfEffect } from "../../tools/battle-simulator/personnel-engine/terrain.mjs";
 
-const ATTACK_TYPES = ["strike", "spellAttack", "saveAttack", "demoralize", "conditionSave"];
+const ATTACK_TYPES = ["strike", "spellAttack", "saveAttack", "demoralize", "conditionSave", "areaAttack"];
 
 function illegalAttacks(log) {
   let count = 0;
@@ -158,4 +158,43 @@ test("buildScenario: RANDOM_ARCS battles show a real early stretch of pure movem
   const preContact = allTurns.slice(0, firstContactIdx === -1 ? allTurns.length : firstContactIdx);
   const heldTurns = preContact.filter((t) => !(t.actions ?? []).length);
   assert.ok(heldTurns.length < preContact.length, `expected real exploration movement before contact, but ${heldTurns.length}/${preContact.length} pre-contact turns were completely held`);
+});
+
+// --- 4v4 (design doc §38 — Ingram's own question: "4 level 1 PCs should actually potentially
+// struggle against 4 NPCs at level 1... I wonder if your simulations will reveal any group
+// failures.") Every real fixture this project has built, one side each, on RANDOM_ARCS so no fixed
+// setup's own starting geometry biases the result. The real measured outcome distribution across
+// many seeds lives in design doc §38, not here — these tests only prove the scenario itself is
+// sound (scales cleanly to a 4th combatant per side, resolves legally, deploys genuinely blind). ---
+
+const PARTY_4V4 = ["lunar-17.json", "tapkey.json", "bennit.json", "vorza-moonshot.json"];
+const OPPOSITION_4V4 = ["security-goon.json", "xenowarden-greenhorn.json", "erabryth.json", "tough.json"];
+
+test("buildScenario: RANDOM_ARCS scales cleanly to 4v4 — genuinely zero cross-side Line of Effect at deployment on the real complex-battle map, same guarantee as the proven 3v3 case", () => {
+  for (let seed = 1; seed <= 10; seed++) {
+    const scenario = buildScenario({ seed, partyFixtures: PARTY_4V4, oppositionFixtures: OPPOSITION_4V4, setup: "RANDOM_ARCS" });
+    const partyIds = scenario.combatants.filter((c) => c.side === "party").map((c) => c.id);
+    const oppositionIds = scenario.combatants.filter((c) => c.side === "opposition").map((c) => c.id);
+    const positions = new Map(scenario.combatants.map((c) => [c.id, c.position]));
+    for (const pId of partyIds) for (const oId of oppositionIds) {
+      assert.equal(lineOfEffect(positions.get(pId), positions.get(oId), scenario.walls), false, `seed ${seed}: ${pId} can see ${oId} at deployment — not genuinely blind`);
+    }
+  }
+});
+
+test("buildScenario: 4v4 RANDOM_ARCS resolves cleanly end to end — zero illegal attacks, all 8 combatants present, across many seeds", () => {
+  for (let seed = 1; seed <= 15; seed++) {
+    const log = runBattle(buildScenario({ seed, partyFixtures: PARTY_4V4, oppositionFixtures: OPPOSITION_4V4, setup: "RANDOM_ARCS", roundLimit: 60 }));
+    assert.equal(Object.keys(log.roster).length, 8, `seed ${seed}: expected all 8 real combatants in the roster`);
+    assert.equal(illegalAttacks(log), 0, `seed ${seed}: an attack was proposed-and-committed illegally`);
+  }
+});
+
+test("buildScenario: 4v4 RANDOM_ARCS produces a real spread of outcomes across many seeds — not a guaranteed party win every time", () => {
+  const outcomes = new Set();
+  for (let seed = 1; seed <= 20; seed++) {
+    const log = runBattle(buildScenario({ seed, partyFixtures: PARTY_4V4, oppositionFixtures: OPPOSITION_4V4, setup: "RANDOM_ARCS", roundLimit: 60 }));
+    outcomes.add(log.outcome);
+  }
+  assert.ok(outcomes.size > 1, `expected a real mix of outcomes across 20 seeds at 4v4 (a fair, symmetric fight should NOT resolve identically every time), saw only: ${[...outcomes].join(", ")}`);
 });

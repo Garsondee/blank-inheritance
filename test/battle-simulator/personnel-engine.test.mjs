@@ -10,7 +10,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { runBattle, accountForActions } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
+import { runBattle, accountForActions, forkTurnSandbox } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
 import { decide } from "../../tools/battle-simulator/personnel-engine/decide.mjs";
 
 function makeCaster(overrides = {}) {
@@ -711,4 +711,141 @@ test("a move that must detour around a wall corner logs its own real, connected 
     const crossesRow1To2 = (a.row === 1 && b.row === 2) || (a.row === 2 && b.row === 1);
     if (crossesRow1To2) assert.ok(a.col === 3 && b.col === 3, `the only legal row1<->row2 crossing is at column 3 (the doorway) — got ${JSON.stringify(a)} -> ${JSON.stringify(b)}`);
   }
+});
+
+// ---------------------------------------------------------------------------
+// areaAttack (design doc §38, e.g. Tough's real Frag Grenade) — the multi-target basic-save
+// mechanism every grenade-carrying fixture since §21 has honestly flagged as missing.
+// ---------------------------------------------------------------------------
+
+function makeGrenadier(overrides = {}) {
+  return {
+    id: "grenadier", name: "Grenadier", side: "opposition", maxHP: 24, currentHP: 24, ac: 16,
+    saves: { fort: 7, ref: 7, will: 5 }, speed: 25,
+    areaAttacks: [{ name: "Frag Grenade (Commercial)", saveType: "ref", dc: 17, range: 70, radius: 5, actions: 1, damage: [{ dice: "1d8", bonus: 0, damageType: "piercing" }] }],
+    position: { col: 0, row: 0 },
+    ...overrides
+  };
+}
+function makeBystander(id, overrides = {}) {
+  return {
+    id, name: id, side: "party", maxHP: 20, currentHP: 20, ac: 14,
+    saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], position: { col: 0, row: 0 },
+    ...overrides
+  };
+}
+
+test("areaAttack: resolves via a real basic save, decrements usesRemaining exactly once, and reports every affected combatant", () => {
+  // grenadier stands 25ft (5 squares) from the aim point — within the grenade's real 70ft throw
+  // range, but safely outside its own 5ft blast radius, so this test's "only near-2" claim isn't
+  // also silently depending on whether the thrower catches themselves.
+  const grenadier = makeGrenadier({ position: { col: 1, row: 5 } });
+  grenadier.areaAttacks[0].usesRemaining = 1;
+  const nearOne = makeBystander("near-1", { position: { col: 4, row: 0 } });  // 15ft from origin — outside the 5ft radius
+  const nearTwo = makeBystander("near-2", { position: { col: 1, row: 0 } });  // origin itself, 0ft
+  function ai(state, id, turn) {
+    return id === "grenadier" && turn.actionsUsed === 0 ? { type: "areaAttack", originId: "near-2", areaAttackIndex: 0 } : null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [grenadier, nearOne, nearTwo], ai });
+  const action = log.rounds[0].turns.find((t) => t.combatantId === "grenadier").actions.find((a) => a.type === "areaAttack");
+  assert.equal(action.legal, true, JSON.stringify(action));
+  assert.equal(action.usesRemaining, 0, "one grenade throw consumes exactly one use, regardless of how many creatures were caught in it");
+  const affectedIds = action.affected.map((a) => a.targetId).sort();
+  assert.deepEqual(affectedIds, ["near-2"], "origin at near-2's own square (0ft away) — near-1 sits 15ft further out, well beyond the 5ft radius, so only near-2 is caught");
+  for (const a of action.affected) {
+    assert.ok(["criticalSuccess", "success", "failure", "criticalFailure"].includes(a.roll.degree));
+    assert.equal(a.roll.saveBonus, nearTwo.saves.ref, "the roll must use the AFFECTED CREATURE's own Reflex save, never the thrower's");
+  }
+});
+
+test("areaAttack: real friendly fire — an ALLY of the attacker caught in the blast radius takes real damage too, same shared damage roll as the enemy", () => {
+  // grenadier (opposition) throws at a party member 30ft away (well within the real 70ft throw
+  // range, well outside the 5ft blast); a SECOND opposition combatant standing right next to the
+  // aim point must be caught too — friendly fire cuts both ways, exactly the property every prior
+  // grenade note flagged as missing ("none of the real friendly-fire risk").
+  const opAllyTemplate = { id: "op-ally", name: "op-ally", side: "opposition", maxHP: 20, currentHP: 20, ac: 14, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], position: { col: 1, row: 0 } }; // 5ft from party-target
+  function ai(state, id, turn) {
+    return id === "grenadier" && turn.actionsUsed === 0 ? { type: "areaAttack", originId: "party-target", areaAttackIndex: 0 } : null;
+  }
+  let sawAllyHit = false;
+  for (let seed = 1; seed <= 15 && !sawAllyHit; seed++) {
+    const log = runBattle({
+      seed, gridSize: { cols: 20, rows: 20 }, roundLimit: 1,
+      combatants: [makeGrenadier({ position: { col: 6, row: 0 } }), makeBystander("party-target", { position: { col: 0, row: 0 } }), { ...opAllyTemplate }],
+      ai
+    });
+    const action = log.rounds[0].turns.find((t) => t.combatantId === "grenadier").actions.find((a) => a.type === "areaAttack");
+    assert.equal(action.legal, true, JSON.stringify(action));
+    const allyEntry = action.affected.find((a) => a.targetId === "op-ally");
+    assert.ok(allyEntry, `op-ally (5ft from the aim point, inside the 5ft radius) must always be listed as affected — got: ${JSON.stringify(action.affected.map((a) => a.targetId))}`);
+    if (allyEntry.appliedDamage > 0) sawAllyHit = true;
+  }
+  assert.ok(sawAllyHit, "expected op-ally to actually take real damage from its own side's grenade on at least one of 15 seeds — a real basic-save roll fails or crit-fails sometimes");
+});
+
+test("areaAttack: never increments the shared Multiple Attack Penalty counter — no attack roll happens at all, same as saveAttack", () => {
+  const grenadier = makeGrenadier();
+  grenadier.strikes = [{ name: "Fallback Strike", strikeType: "melee", attackBonus: 100, traits: [], damage: [{ dice: "1d1", bonus: 0 }] }];
+  const target = makeBystander("target", { position: { col: 0, row: 0 } });
+  function ai(state, id, turn) {
+    if (id !== "grenadier") return null;
+    if (turn.actionsUsed === 0) return { type: "areaAttack", originId: "target", areaAttackIndex: 0 };
+    if (turn.actionsUsed === 1) return { type: "strike", targetId: "target", strikeIndex: 0 };
+    return null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [grenadier, target], ai });
+  const strike = log.rounds[0].turns.find((t) => t.combatantId === "grenadier").actions.find((a) => a.type === "strike");
+  assert.equal(strike.roll.mapPenalty, 0, "the Strike immediately after an areaAttack must carry 0 MAP — areaAttack never counts as an attack roll");
+});
+
+test("areaAttack: rejected as illegal (not silently ignored) when the aim point's own occupant is already dead and nothing else is in range of the blast", () => {
+  // A live creature is ALWAYS 0ft from its own square, so it's always "in its own blast" by
+  // construction — the only realistic way an aim point ends up genuinely empty is a stale proposal
+  // against a target that died earlier this same battle (isDead filters it out of `affected`).
+  // Opposition-side, not party — conditions.mjs's own isDead is instant-death for opposition at 0
+  // HP, unlike a party member, who'd merely be unconscious (and thus still very much "in the blast").
+  // grenadier stands 25ft off (within the real 70ft throw range, outside the 5ft radius) so it
+  // isn't accidentally caught in its own blast — the point under test is a genuinely EMPTY blast.
+  const grenadier = makeGrenadier({ position: { col: 1, row: 5 } });
+  const corpse = { id: "corpse", name: "corpse", side: "opposition", maxHP: 20, currentHP: 0, ac: 14, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], position: { col: 1, row: 0 } };
+  function ai(state, id, turn) {
+    return id === "grenadier" && turn.actionsUsed === 0 ? { type: "areaAttack", originId: "corpse", areaAttackIndex: 0 } : null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [grenadier, corpse], ai });
+  const action = log.rounds[0].turns.find((t) => t.combatantId === "grenadier").actions.find((a) => a.type === "areaAttack");
+  assert.equal(action.legal, false);
+  assert.match(action.reason, /empty ground/);
+});
+
+test("areaAttack: real dice produce a real spread of degrees across many rolls, with a finite saveBonus every time", () => {
+  const degrees = new Set();
+  for (let seed = 1; seed <= 30; seed++) {
+    const grenadier = makeGrenadier();
+    const target = makeBystander("target", { position: { col: 1, row: 0 } });
+    function ai(state, id, turn) {
+      return id === "grenadier" && turn.actionsUsed === 0 ? { type: "areaAttack", originId: "target", areaAttackIndex: 0 } : null;
+    }
+    const log = runBattle({ seed, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [grenadier, target], ai });
+    const action = log.rounds[0].turns.find((t) => t.combatantId === "grenadier").actions.find((a) => a.type === "areaAttack");
+    const entry = action.affected.find((a) => a.targetId === "target");
+    assert.ok(Number.isFinite(entry.roll.saveBonus), `seed ${seed}: saveBonus must be a real finite number, got ${entry.roll.saveBonus}`);
+    degrees.add(entry.roll.degree);
+  }
+  assert.ok(degrees.size > 1, `expected a real spread of degrees across 30 seeds, saw only: ${[...degrees].join(", ")}`);
+});
+
+test("areaAttack (EXPECTED-VALUE sandbox, via forkTurnSandbox — the exact path decide.mjs's own lookahead uses): mutates EVERY affected combatant's currentHP, not just one", () => {
+  const grenadier = makeGrenadier();
+  const enemy = makeBystander("enemy-of-grenadier", { position: { col: 1, row: 0 } });
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["grenadier", { ...grenadier }], ["enemy-of-grenadier", { ...enemy }]]),
+    positions: new Map([["grenadier", { col: 0, row: 0 }], ["enemy-of-grenadier", { col: 1, row: 0 }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0 };
+  const sandbox = forkTurnSandbox({ state, turn });
+  const result = sandbox.apply("grenadier", { type: "areaAttack", originId: "enemy-of-grenadier", areaAttackIndex: 0 });
+  assert.equal(result.legal, true, JSON.stringify(result));
+  const after = sandbox.state.combatants.get("enemy-of-grenadier");
+  assert.ok(after.currentHP < enemy.currentHP, `expected the sandboxed enemy's currentHP to have dropped from the expected-value hit, was ${enemy.currentHP}, still ${after.currentHP}`);
 });

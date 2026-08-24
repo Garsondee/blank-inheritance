@@ -409,3 +409,52 @@ export function checkConditionSaveLegal({ attacker, attackerPos, target, targetP
 
   return { legal: true, reason: null };
 }
+
+/**
+ * A real area/burst effect (design doc §38 — e.g. a thrown grenade's "@Template[burst|distance:5]
+ * ... basic save"): unlike every other save-based action above, there is no single `target` — the
+ * attacker aims at a POINT (`originPos`, in practice a living creature's own square, matching how a
+ * player actually throws a grenade "at" someone) and EVERYONE within the burst radius is affected,
+ * friend or foe. Every note this project has written for an unwired grenade (Lunar-17, Tapkey,
+ * Bennit, all the way back to design doc §21) named this exact gap: "wiring a burst weapon through
+ * [saveAttack] would have hit exactly one creature with none of the real friendly-fire risk an area
+ * weapon actually carries." This is that missing mechanism, finally built — see engine.mjs's own
+ * areaAttack resolution for how "who's actually in the blast" gets computed from real state.
+ *
+ * Legality here only covers what the ATTACKER needs (range/budget/LOS/uses to the aim point) — the
+ * "is anything actually caught in the blast" check needs the full combatant/position map, which
+ * this file's other functions deliberately never take (they work off pre-resolved attacker/target
+ * objects, not raw state), so engine.mjs computes `affectedCount` from real state BEFORE calling
+ * this, and passes it through as the one extra param — keeping the state-scanning in engine.mjs
+ * where every other multi-combatant scan in this project already lives.
+ */
+export function checkAreaAttackLegal({ attacker, attackerPos, originPos, areaAttack, turnState, walls, affectedCount }) {
+  const actorAlive = checkActorAlive(attacker);
+  if (!actorAlive.legal) return actorAlive;
+
+  const budget = checkActionBudget(turnState, areaAttack.actions ?? 1);
+  if (!budget.legal) return budget;
+
+  const dist = distanceFeet(attackerPos, originPos);
+  const maxRange = areaAttack.range ?? FEET_PER_SQUARE;
+  if (dist > maxRange) {
+    return { legal: false, reason: `That point is ${dist}ft away, beyond ${areaAttack.name}'s range (${maxRange}ft).` };
+  }
+
+  const perception = checkPerceptionRange({ attacker, attackerPos, targetPos: originPos });
+  if (!perception.legal) return perception;
+
+  if (!lineOfEffect(attackerPos, originPos, walls)) {
+    return { legal: false, reason: `No line of effect to that point — a wall entirely blocks it.` };
+  }
+
+  if (areaAttack.usesRemaining != null && areaAttack.usesRemaining <= 0) {
+    return { legal: false, reason: `${areaAttack.name} is out of uses this encounter.` };
+  }
+
+  if (affectedCount === 0) {
+    return { legal: false, reason: `Nothing within ${areaAttack.radius}ft of that point — not worth spending ${areaAttack.name} on empty ground.` };
+  }
+
+  return { legal: true, reason: null };
+}

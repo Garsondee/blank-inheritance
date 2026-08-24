@@ -122,6 +122,7 @@ function makeFullKitState({ targetHP = 10 } = {}) {
     spells: [{ name: "Zap", attackBonus: 10, range: 30, actions: 2, traits: ["attack"], damage: [{ dice: "1d4", bonus: 0 }] }],
     saveAttacks: [{ name: "Blast", range: 30, actions: 2, dc: 18, damage: [{ dice: "2d6", bonus: 0 }] }],
     conditionSaves: [{ name: "Glare", range: 30, actions: 1, dc: 18 }],
+    areaAttacks: [{ name: "Grenade", saveType: "ref", range: 70, radius: 5, actions: 1, dc: 18, damage: [{ dice: "1d8", bonus: 0 }] }],
     intimidationModifier: 5,
     position: mePos
   };
@@ -149,6 +150,22 @@ test("generateProposals (design doc §32): the SAME full kit gets ZERO strike/sp
   for (const type of ["strike", "spellAttack", "saveAttack", "demoralize", "conditionSave"]) {
     assert.equal(proposals.filter((p) => p.type === type && p.targetId === "target").length, 0, `expected zero ${type} proposals against an unconscious target`);
   }
+});
+
+// areaAttack (design doc §38) uses `originId`, not `targetId` — a genuinely different proposal
+// shape (no single target at all), so it gets its own explicit tests rather than folding into the
+// targetId-keyed loops above, where it would silently check the wrong field and always read as zero.
+
+test("generateProposals (design doc §38): a full-kit combatant with a real areaAttack ability offers one candidate per conscious enemy, aimed at that enemy's own square", () => {
+  const { state, turn } = makeFullKitState({ targetHP: 10 });
+  const proposals = generateProposals(state, "me", turn);
+  assert.ok(proposals.some((p) => p.type === "areaAttack" && p.originId === "target"), "expected an areaAttack candidate aimed at the conscious target's own position");
+});
+
+test("generateProposals (design doc §38): ZERO areaAttack candidates aimed at an unconscious target — same §32 policy as every other offensive candidate ('the only reason to target a downed character would be to heal them')", () => {
+  const { state, turn } = makeFullKitState({ targetHP: 0 });
+  const proposals = generateProposals(state, "me", turn);
+  assert.equal(proposals.filter((p) => p.type === "areaAttack" && p.originId === "target").length, 0);
 });
 
 test("generateProposals (design doc §32): healAbility is UNAFFECTED — an ally can and should still be offered a heal toward an unconscious teammate", () => {
@@ -426,6 +443,38 @@ test("decide() END TO END: facing multiple real ranged threats at once with only
   const chosen = decide(state, "me", turn, { competence: 1 });
   assert.equal(chosen.type, "move", `expected repositioning under a multi-threat mismatch, chose: ${JSON.stringify(chosen)}`);
   assert.ok(hasCover(chosen.to, { col: 5, row: 1 }, walls), `expected the chosen reposition to be a real covered destination, chose: ${JSON.stringify(chosen)}`);
+});
+
+// --- areaAttack friendly fire (design doc §38): the whole point of resolving a real burst against
+// EVERY combatant it catches (engine.mjs), rather than a fake single-target stand-in, is that
+// decide()'s existing sandbox-and-score loop prices an ally-catching origin exactly as unfavorably
+// as any other ally-damaging proposal — with no bespoke "avoid your own side" heuristic anywhere in
+// decide.mjs itself. Proven end to end, not just asserted: two equally-reachable enemy targets, only
+// one of which happens to stand next to one of the thrower's own allies. ---
+
+test("decide() END TO END: an areaAttack candidate that would ALSO catch an ally in the blast loses to an equally-good candidate that catches only enemies — friendly fire is priced for free by the existing evaluator, no bespoke heuristic needed", () => {
+  const me = {
+    id: "me", name: "Grenadier", side: "opposition", currentHP: 24, maxHP: 24, saves: { fort: 5, ref: 5, will: 5 }, speed: 0,
+    areaAttacks: [{ name: "Frag Grenade", saveType: "ref", range: 70, radius: 5, actions: 1, dc: 18, damage: [{ dice: "1d8", bonus: 0 }] }],
+    position: { col: 0, row: 0 }
+  };
+  // Same saves on every creature below on purpose — the enemy damage a grenade aimed at either
+  // target deals is symmetric; the ONLY real difference between the two candidates is whether an
+  // ally also sits in the blast, so this isolates exactly the property under test.
+  const isolatedEnemy = { id: "isolated-enemy", name: "Isolated Enemy", side: "party", currentHP: 20, maxHP: 20, saves: { fort: 5, ref: 5, will: 5 }, speed: 0, position: { col: 10, row: 0 } }; // 50ft, alone
+  const crowdedEnemy = { id: "crowded-enemy", name: "Crowded Enemy", side: "party", currentHP: 20, maxHP: 20, saves: { fort: 5, ref: 5, will: 5 }, speed: 0, position: { col: 10, row: 5 } }; // 50ft-ish, but...
+  const opAlly = { id: "op-ally", name: "Op Ally", side: "opposition", currentHP: 20, maxHP: 20, saves: { fort: 5, ref: 5, will: 5 }, speed: 0, position: { col: 11, row: 5 } }; // ...5ft from crowdedEnemy, inside the 5ft blast radius
+
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["me", me], ["isolated-enemy", isolatedEnemy], ["crowded-enemy", crowdedEnemy], ["op-ally", opAlly]]),
+    positions: new Map([["me", { ...me.position }], ["isolated-enemy", { ...isolatedEnemy.position }], ["crowded-enemy", { ...crowdedEnemy.position }], ["op-ally", { ...opAlly.position }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 0 } };
+
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.equal(chosen.type, "areaAttack", `expected the grenade to be the top choice overall — real expected damage against a living enemy, chose: ${JSON.stringify(chosen)}`);
+  assert.equal(chosen.originId, "isolated-enemy", `expected the clean origin (no ally in the blast) to beat the origin that would also catch op-ally — chose: ${JSON.stringify(chosen)}`);
 });
 
 // --- LOS-aware tiebreak for pathfindingDestinationToward/Away (design doc §27, adversarial-audit

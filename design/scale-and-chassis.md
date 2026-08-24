@@ -1908,3 +1908,63 @@ The timeout is the headline result: seed 6 never resolved within 60 rounds under
 ### Files
 
 Changed: `tools/battle-simulator/artifact/movement.mjs` (`groupTurnActions`), `tools/battle-simulator/artifact/template.html` (`buildTurnBeats` rewritten around `groupTurnActions` + `isPreContact`, `playBeat`'s act-move branch reads `beat.legs` directly), `tools/battle-simulator/personnel-engine/decide.mjs` (blended exploration target rounded to a real cell), `tools/battle-simulator/artifact/contact-simulation.html` (rebuilt). Regenerated: the 15 `complex-3v3-random-arcs` logs, `logs/index.json`. Tests: `test/battle-simulator/movement.test.mjs` (7 new `groupTurnActions` cases), `test/battle-simulator/personnel-decide.test.mjs` (1 new wall-detour regression case). Full suite: 780/780.
+
+## 38. A fourth PC, a fourth NPC, real area-burst damage, and a real 4v4 — "will your simulations reveal any group failures?"
+
+> *"Pick a new pregen - add it - pick a new NPC - add it. Apparently 4 level 1 PCs should actually potentially struggle against 4 NPCs at level 1. I wonder if your simulations will reveal any group failures. When you add a PC or NPC I'd like you to note any gaps that haven't been filled yet in terms of what they can do and the simulation, pick something and fill that gap with functionality."*
+
+Four real deliverables from one message: a fourth PC, a fourth NPC, one real gap closed with real engine functionality, and a real 4v4 to see whether the roster's own honest struggle-or-stomp question actually holds up.
+
+### Choosing the fourth PC and NPC: re-verified against real data, not re-trusted from an old survey
+
+§21's own research survey named 5 remaining Player Core pregens and a shortlist of bestiary NPCs — re-checked directly against the real pack data this session rather than assumed still accurate:
+
+- **Jaedana (Operative)**: still throws — `toIngredients()` hits an ambiguous ability boost with no recorded resolution, confirmed by actually running it.
+- **Old-Growth Wildfire (Soldier)**: still has nothing usable — her only two weapons are a real area-burst grenade (out of scope on the PC side, see below) and a Machine Gun whose raw `weapons` entry has no melee fallback item on her sheet at all; Auto-Fire is a separately out-of-scope multi-target category.
+- **Vorza Moonshot (Solarian)** — the pick: `toIngredients()` runs clean, and her real, achievable kit is one ranged Strike (Zero Pistol, 1d6 cold, derives through the existing `deriveStrikes` unmodified) plus Demoralize. Her own distinctive gap: a Solarian's whole class fantasy — a Solar Weapon, manifested only while attuned (Solar Manifestations) — has **no static item representation on her sheet at all**, confirmed directly (her raw `weapons` list is just Electromag Grenade + Zero Pistol, nothing else) — unlike a grenade or a sidearm, there's no physical fallback item to extract a melee Strike from. Not an extraction shortfall; a real property of her real kit.
+
+On the NPC side, re-scanned ALL 23 real level-1 NPCs across both bestiary packs directly (not just the 4 the old survey had named), screening each for a genuine single-target `system.action:"strike"` melee/ranged item:
+
+- **Tough (`rulebook-bestiaries`)** — the pick, matching §21's own old finding exactly: only Gun Bash (`system.action:"strike"`, +9, 1d4+4 bludgeoning) is a real Strike; her other two weapons are both real but out of scope — Scattergun is `"auto-fire"` (a cone, multi-target, the same category as Old-Growth Wildfire's Machine Gun), and her **Frag Grenade is a real `system.action:"area-fire"` burst** — exactly the mechanism this pass needed to build anyway.
+
+### The gap: every grenade this project has ever extracted was flagged "not wired"
+
+Lunar-17's Incendiary Grenade (§19), Tapkey's own copy (§21), Bennit's Frag Grenade (§22), now Vorza's Electromag Grenade — four separate PCs, four separate honest notes saying the same thing: *"wiring a burst weapon through saveAttack would have hit exactly one creature with none of the real friendly-fire risk an area weapon actually carries."* That's the gap this pass closes — not a new PC-side derivation, a genuinely new ENGINE mechanism: a real multi-target basic-save burst.
+
+**`personnel-engine/legality.mjs`** — `checkAreaAttackLegal`: unlike every other save-based action, there's no single `target`, only an aim point (`originPos`) and a radius. Range/budget/perception/LOS all check against that point; a new `affectedCount` param (computed by the caller from real state, since legality.mjs's other functions never scan the whole combatant map) rejects an aim point that would catch nothing — a real grenade is never worth throwing at empty ground.
+
+**`personnel-engine/engine.mjs`** — a new `"areaAttack"` proposal type, in both outcome tables. Real PF2e/SF2e area damage is rolled **once** and applied to every caught creature according to THEIR OWN save degree — not a fresh roll per target — so `REAL_OUTCOMES.areaAttack` rolls the shared damage first, then resolves each affected creature's basic save against it. `EXPECTED_OUTCOMES.areaAttack` calls the already-existing `expectedSaveDamage` once per affected creature (no new math needed there at all). "Who's caught in the blast" is computed from real `state.positions`/`state.combatants` — every LIVING combatant within `radius` feet of the origin, **either side, attacker included** if they're close enough to their own throw. Cover is judged from the blast origin, not the attacker (once it lands, what matters is what's between the explosion and each creature it's near).
+
+**The friendly-fire pricing needed zero new code in the evaluator.** `evaluateState` (state-value.mjs) already reads every combatant's live `currentHP` straight off the sandboxed state for its `enemyDamage`/`allyDamage` terms — never from a per-action result object. Because the new `areaAttack` resolution genuinely mutates HP on every affected creature, an origin that would also catch an ally scores exactly as badly as any other ally-damaging proposal, automatically. Proven end to end, not just reasoned about: a decide() test with two equally-reachable enemy targets, only one of which stands next to an ally, correctly and consistently picks the clean one.
+
+**`pack-extractor/extract-npc.mjs`** — `deriveAreaAttack(npc, {name, saveType, actions})`, the extraction half. Structurally read from the real item: burst radius (`system.area.value`), throw range (`system.range.increment`), damage. The DC needed a real, cited convention rather than a guess: the attack-row item carries no separately stored DC field at all (confirmed by reading its complete raw JSON) — Player Core's own `@Check[reflex|against:class|basic]` phrasing plus the standard "10 + attack bonus" NPC shortcut this system already uses elsewhere gives DC 17 for Tough (10 + her real 7). `usesRemaining` comes from the real carried quantity on the paired `weapon`-type item (a thrown grenade is a grenade you don't have anymore). Two structural guards (`system.action !== "area-fire"`, `area.type !== "burst"`) stop a future caller from silently mis-wiring a plain Strike or a cone/line effect as a burst.
+
+**What this deliberately does NOT reach**: a **PC's own** area weapon needs its DC from their Class DC (`10 + class DC proficiency + key ability modifier`) — a real derivation this project has never built (only Spell DC exists, via `deriveSpellDC`). Vorza's Electromag Grenade and every earlier PC's own grenade stay unwired for exactly this reason, now stated precisely in their fixtures' own notes rather than just "not wired." Scattergun/Machine Gun-style Auto-Fire (a real, different multi-target shape — a cone/line, not a burst) stays out of scope, matching every prior Auto-Fire note in this project.
+
+### The real 4v4: Lunar-17+Tapkey+Bennit+Vorza Moonshot vs. Security Goon+Xenowarden Greenhorn+Erabryth+Tough
+
+Registered as `complex-4v4-random-arcs` — every real fixture this project has built, one side each, `RANDOM_ARCS` deployment (§35) so no fixed setup's own starting geometry could bias the result either way. Verified structurally first (LOS-blind deployment scales cleanly to 4v4, zero illegal actions across many seeds, all 8 combatants present, a real spread of outcomes) — then run for real, 30 seeds, to actually answer the question asked:
+
+| Outcome | Count |
+|---|---|
+| Party victory | 15 |
+| Party defeat | 13 |
+| Timeout (60-round ceiling) | 2 |
+
+**Yes — the simulation genuinely does reveal group failures.** 13 of 30 real fights (43%) end in a full party defeat, not a curiosity or an edge case. This is the roster's first real, symmetric matchup — every earlier scenario in this project (2v2, 3v3) skewed heavily toward party victory — and a roughly coin-flip result across 30 independently-seeded fights is exactly the kind of finding Ingram's own question was actually asking for: proof that "4 PCs vs. 4 NPCs at level 1 is a genuinely dangerous fight," not an assumption.
+
+A real trace confirms the new mechanism firing correctly in an actual AI-chosen battle, not just in isolated tests: in seed 8 (a party defeat), round 2, Tough throws her Frag Grenade at Bennit's square (best of 11 legal options that turn, +6.8 net score) — 1d8 rolls a 5, Bennit makes her save and takes half (2 damage, to 13/15), Lunar-17 (standing 5ft away) fails hers and takes the full 5 (to 10/15). One thrown grenade, two PCs actually hit — real friendly-fire-shaped multi-target damage, playing out exactly as designed, in a battle nobody scripted.
+
+### Verification
+
+New tests across six files: `personnel-legality.test.mjs` (6 `checkAreaAttackLegal` cases — legal, range, LOS, depleted uses, empty-blast rejection, budget), `personnel-engine.test.mjs` (7 `areaAttack` cases — real basic-save resolution with exactly-once `usesRemaining` decrement, real friendly fire across 15 seeds, zero MAP impact, illegal-when-empty rejection, real dice spread, and an EXPECTED-VALUE sandbox case proving multi-target HP mutation), `personnel-decide.test.mjs` (4 cases — proposal generation, the §32 downed-target policy extended to `originId`, and the friendly-fire-avoidance decide() end-to-end case), `extract-npc.test.mjs` (6 `deriveAreaAttack` cases against Tough's real data, including both structural guards), `raw-validation-fixtures.test.mjs` (2 new fixture-drift cases plus the shared shape-compatibility test extended to 8 fixtures and `areaAttack`), `personnel-complex-battle.test.mjs` (3 new 4v4-scale cases — LOS-blind deployment, clean resolution across 15 seeds, real outcome variety across 20 seeds). Full suite green throughout (touched files individually re-verified: 70+47+36+24+9+16+9 = 211 tests across the 7 changed files, zero failures).
+
+### What wasn't attempted this pass
+
+- **PC-side Class DC derivation** — the natural next gap, now precisely named rather than vaguely flagged; would unlock every existing PC's own grenade, not just a new one.
+- **Auto-Fire/cone-and-line area effects** (Scattergun, Machine Gun) — a genuinely different multi-target shape from a burst, already out of scope project-wide.
+- **Persistent damage** (any area effect's own critical-failure bleed/similar) — the same documented scope limit as every other damage-over-time gap in this project.
+
+### Files
+
+New: `tools/battle-simulator/data/raw-validation-fixtures/vorza-moonshot.json`, `tools/battle-simulator/data/raw-validation-fixtures/tough.json`. Changed: `tools/battle-simulator/personnel-engine/legality.mjs` (`checkAreaAttackLegal`), `tools/battle-simulator/personnel-engine/engine.mjs` (`areaAttack` in both outcome tables, dispatch branch, roster projection, `cloneStateForPlanning`), `tools/battle-simulator/personnel-engine/decide.mjs` (`areaAttack` proposal generation, `describe()`), `tools/pack-extractor/extract-npc.mjs` (`deriveAreaAttack`), `tools/character-builder/generate-raw-validation-fixtures.mjs` (`buildVorzaMoonshot`/`buildTough`), `tools/battle-simulator/run-personnel-scenario.mjs` (`complex-4v4-random-arcs`), `tools/battle-simulator/artifact/contact-simulation.html` (rebuilt, 105 runs embedded). Regenerated: 30 `complex-4v4-random-arcs` logs, `logs/index.json`. Tests: `test/battle-simulator/personnel-legality.test.mjs`, `test/battle-simulator/personnel-engine.test.mjs`, `test/battle-simulator/personnel-decide.test.mjs`, `test/battle-simulator/personnel-complex-battle.test.mjs`, `test/battle-simulator/run-personnel-scenario-cli.test.mjs`, `test/character-builder/extract-npc.test.mjs`, `test/character-builder/raw-validation-fixtures.test.mjs` (all extended).

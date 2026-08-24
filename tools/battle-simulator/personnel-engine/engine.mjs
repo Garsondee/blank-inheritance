@@ -70,13 +70,21 @@
  * back onto the target's own persistent stats, since cover is relative to a specific attacker's
  * line, not a standing condition (a real rule: "you might have cover against one opponent but not
  * another"). Logged on the returned action as `coverBonus` for transcript/viewer honesty.
+ *
+ * EXTENDED AGAIN (design doc §38): "areaAttack" — a genuinely multi-target basic-save effect (a
+ * thrown grenade's real burst), closing the gap every grenade-carrying fixture since §21 has
+ * honestly flagged as unwired. Structurally different from saveAttack above: there is no single
+ * `target`, only an aim point (`originId`'s current square) and a radius — every living combatant
+ * within it is affected, either side, no exception for allies or the attacker's own square. `rng`
+ * still only ever advances the real battle's dice stream when REAL_OUTCOMES is in play, exactly
+ * like every other action type here.
  */
 
 import { makeRng, rollD20, rollFormula } from "../engine/rng.mjs";
 import { resolveEffectiveStats } from "./combatant.mjs";
 import {
   checkMoveLegality, checkStepLegality, checkStrikeLegal, checkSpellAttackLegal, checkHealAbilityLegal,
-  checkSaveAttackLegal, checkDemoralizeLegal, checkConditionSaveLegal, multipleAttackPenalty, rangeIncrementPenalty
+  checkSaveAttackLegal, checkDemoralizeLegal, checkConditionSaveLegal, checkAreaAttackLegal, multipleAttackPenalty, rangeIncrementPenalty
 } from "./legality.mjs";
 import { resolveStrike, mitigateDamage, expectedStrikeDamage, resolveSave, basicSaveDamage, expectedSaveDamage, degreeProbabilities, degreeOfSuccess } from "../engine/resolve.mjs";
 import { distanceFeet, FEET_PER_SQUARE } from "./grid.mjs";
@@ -142,6 +150,28 @@ const REAL_OUTCOMES = {
     const saveRoll = resolveSave(rng, { saveBonus, dc: conditionSave.dc });
     const applied = conditionSave.outcomes[saveRoll.degree] ?? {};
     return { roll: saveRoll, applied };
+  },
+  /**
+   * A real area/burst effect (design doc §38 — e.g. a thrown grenade). Unlike saveAttack, this is
+   * genuinely MULTI-target: `affected` is every living combatant (either side) the blast radius
+   * actually caught, pre-resolved by the caller (engine.mjs's areaAttack dispatch, which is the one
+   * place with real access to the whole state.combatants/positions map). Real PF2e/SF2e area
+   * damage is rolled ONCE and then applied per creature according to THEIR OWN save degree — not a
+   * fresh damage roll per target — so `rawDamage` is rolled a single time here and reused for every
+   * entry in `results`.
+   */
+  areaAttack(rng, { areaAttack, affected }) {
+    const damageEntries = (areaAttack.damage ?? []).map((d) => rollFormula(rng, `${d.dice}${d.bonus >= 0 ? "+" : ""}${d.bonus}`));
+    const rawDamage = damageEntries.reduce((sum, e) => sum + e.total, 0);
+    const results = affected.map(({ target, targetEffective, coverBonus = 0 }) => {
+      const saveBonus = target.saves[areaAttack.saveType] + (areaAttack.saveType === "ref" ? coverBonus : 0);
+      const saveRoll = resolveSave(rng, { saveBonus, dc: areaAttack.dc });
+      const afterSave = basicSaveDamage(rawDamage, saveRoll.degree);
+      const appliedDamage = mitigateDamage(afterSave, { target, targetEffective, strike: areaAttack });
+      target.currentHP = Math.max(0, target.currentHP - appliedDamage);
+      return { targetId: target.id, roll: { ...saveRoll, damage: { raw: rawDamage, afterSave } }, appliedDamage };
+    });
+    return { damage: { entries: damageEntries, raw: rawDamage }, results };
   }
 };
 
@@ -192,6 +222,24 @@ const EXPECTED_OUTCOMES = {
       stunnedValue += p * (outcome.stunnedValue ?? 0);
     }
     return { roll: { expected: true, d20: null, degree: null, total: null, dc: conditionSave.dc }, applied: { frightened, stunnedValue } };
+  },
+  /**
+   * Design doc §38 — the multi-target twin of areaAttack above, one expectedSaveDamage call per
+   * affected creature (it already folds the degree-probability-weighted average internally, so no
+   * hand-rolled averaging is needed here). This is THE piece that makes friendly fire visible to the
+   * AI's own lookahead: evaluateState reads every combatant's live currentHP directly off the
+   * sandboxed state (state-value.mjs's own header/§38 design note), so an origin that also expects
+   * to cost an ally real HP scores exactly as badly as any other ally-damaging proposal would,
+   * automatically — no bespoke "avoid your own side" heuristic needed anywhere in decide.mjs.
+   */
+  areaAttack(_rng, { areaAttack, affected }) {
+    const results = affected.map(({ target, targetEffective, coverBonus = 0 }) => {
+      const saveBonus = target.saves[areaAttack.saveType] + (areaAttack.saveType === "ref" ? coverBonus : 0);
+      const expected = expectedSaveDamage({ saveBonus, dc: areaAttack.dc, damage: areaAttack.damage, target, targetEffective });
+      if (expected > 0) target.currentHP = Math.max(0, target.currentHP - expected);
+      return { targetId: target.id, roll: { expected: true, saveBonus, dc: areaAttack.dc, damage: expected > 0 ? { raw: expected } : null }, appliedDamage: expected };
+    });
+    return { results };
   }
 };
 
@@ -258,7 +306,7 @@ export function runBattle(scenario) {
         // See this file's own header for why reactions are deliberately not wired up in Phase 1.
         reactions: c.reactions ?? [],
         spells: c.spells ?? [], healAbilities: c.healAbilities ?? [],
-        saveAttacks: c.saveAttacks ?? [], conditionSaves: c.conditionSaves ?? [], intimidationModifier: c.intimidationModifier ?? null
+        saveAttacks: c.saveAttacks ?? [], conditionSaves: c.conditionSaves ?? [], areaAttacks: c.areaAttacks ?? [], intimidationModifier: c.intimidationModifier ?? null
       }];
     })
   );
@@ -810,6 +858,62 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     };
   }
 
+  // Area/burst attack (design doc §38, e.g. a thrown grenade): the attacker aims at a POINT — in
+  // practice `originId`'s own current square, matching how a player actually throws a grenade "at"
+  // someone — and EVERY living combatant within the burst radius is affected, either side, attacker
+  // included if they're close enough to their own blast. This is the one action type with no single
+  // `target` at all, so "who's actually caught in it" is computed here from real state, not trusted
+  // from the proposal (matching this whole engine's "never trust the AI/scenario" design).
+  if (proposal.type === "areaAttack") {
+    const originPos = state.positions.get(proposal.originId);
+    const areaAttackAbility = (combatant.areaAttacks ?? [])[proposal.areaAttackIndex ?? 0];
+    if (!areaAttackAbility) return { type: "areaAttack", originId: proposal.originId, legal: false, reason: `No areaAttack at index ${proposal.areaAttackIndex ?? 0} — ${combatant.name} has ${(combatant.areaAttacks ?? []).length}.` };
+    if (!originPos) return { type: "areaAttack", originId: proposal.originId, legal: false, reason: `${proposal.originId} has no known position to aim at.` };
+
+    const affectedIds = [...state.combatants.keys()].filter((id) => {
+      const c = state.combatants.get(id);
+      if (isDead(c)) return false;
+      const cPos = state.positions.get(id);
+      return cPos && distanceFeet(cPos, originPos) <= areaAttackAbility.radius;
+    });
+
+    const check = checkAreaAttackLegal({
+      attacker: combatant, attackerPos: pos, originPos, areaAttack: areaAttackAbility, turnState: turnProgress, walls: state.walls,
+      affectedCount: affectedIds.length
+    });
+    if (!check.legal) return { type: "areaAttack", originId: proposal.originId, legal: false, reason: check.reason };
+
+    const affected = affectedIds.map((id) => {
+      const target = state.combatants.get(id);
+      const targetPos = state.positions.get(id);
+      // Cover is judged from the BLAST ORIGIN, not the attacker — once the grenade lands, what
+      // matters for each caught creature's Reflex save is whether something stands between them and
+      // where it actually went off, not where it was thrown from.
+      const coverBonus = hasCover(originPos, targetPos, state.walls) ? STANDARD_COVER_AC_BONUS : 0;
+      return { target, targetEffective: resolveEffectiveStats(target), coverBonus };
+    });
+    const hpBefore = new Map(affected.map(({ target }) => [target.id, target.currentHP]));
+
+    const { damage, results } = outcomes.areaAttack(rng, { areaAttack: areaAttackAbility, affected });
+
+    for (const r of results) {
+      const target = state.combatants.get(r.targetId);
+      applyDyingTransition({ target, hpBefore: hpBefore.get(r.targetId), appliedDamage: r.appliedDamage, critical: r.roll?.degree === "criticalFailure" });
+    }
+    turnProgress.actionsUsed += areaAttackAbility.actions ?? 1;
+    if (areaAttackAbility.usesRemaining != null) areaAttackAbility.usesRemaining -= 1;
+
+    return {
+      type: "areaAttack", areaAttackName: areaAttackAbility.name, originId: proposal.originId, legal: true, actionsCost: areaAttackAbility.actions ?? 1,
+      radius: areaAttackAbility.radius, damage,
+      affected: results.map((r) => {
+        const target = state.combatants.get(r.targetId);
+        return { ...r, targetHPAfter: target.currentHP, ...targetConditionAfter(target) };
+      }),
+      usesRemaining: areaAttackAbility.usesRemaining ?? null, decisionReason: proposal.reason ?? null
+    };
+  }
+
   return { type: proposal.type, legal: false, reason: `Unknown action type "${proposal.type}".` };
 }
 
@@ -887,6 +991,7 @@ export function cloneStateForPlanning(state) {
     if (c.healAbilities) copy.healAbilities = c.healAbilities.map((a) => ({ ...a }));
     if (c.saveAttacks) copy.saveAttacks = c.saveAttacks.map((s) => ({ ...s }));
     if (c.conditionSaves) copy.conditionSaves = c.conditionSaves.map((s) => ({ ...s }));
+    if (c.areaAttacks) copy.areaAttacks = c.areaAttacks.map((a) => ({ ...a }));
     if (c.demoralizedTargets) copy.demoralizedTargets = [...c.demoralizedTargets];
     if (c.conditionSaveImmunities) copy.conditionSaveImmunities = [...c.conditionSaveImmunities];
     combatants.set(id, copy);

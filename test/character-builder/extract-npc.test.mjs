@@ -9,7 +9,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { findNPC, toCombatant, deriveSpellAttacks, deriveConditionSave } from "../../tools/pack-extractor/extract-npc.mjs";
+import { findNPC, toCombatant, deriveSpellAttacks, deriveConditionSave, deriveAreaAttack } from "../../tools/pack-extractor/extract-npc.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..", "..");
@@ -162,4 +162,48 @@ test("toCombatant: Erabryth's real Strikes (Ribbon/Fist/Light Ray) derive cleanl
   assert.equal(combatant.strikes.length, 3);
   const ribbon = combatant.strikes.find((s) => s.name === "Ribbon");
   assert.ok(ribbon.traits.includes("reach-10"), "Ribbon's real reach-10 trait — the roster's first reach weapon");
+});
+
+// --- deriveAreaAttack (design doc §38, first NPC area/burst attack — Tough's real Frag Grenade,
+// the exact gap every grenade-carrying fixture since §21 flagged as missing) ---
+
+test("deriveAreaAttack: Frag Grenade on Tough — DC is 10+her real attack-row bonus (7), radius/range/damage all come straight off her raw data, usesRemaining from her real carried quantity", () => {
+  const tough = findNPC(bestiaryDir, "Tough");
+  const frag = deriveAreaAttack(tough, { name: "Frag Grenade (Commercial)", saveType: "ref", actions: 1 });
+  assert.equal(frag.dc, 17, "10 + her real melee-item bonus.value of 7");
+  assert.equal(frag.radius, 5, "her real system.area.value");
+  assert.equal(frag.range, 70, "her real system.range.increment");
+  assert.deepEqual(frag.damage, [{ dice: "1d8", bonus: 0, damageType: "piercing" }]);
+  assert.equal(frag.usesRemaining, 1, "her real carried weapon-item quantity — a single grenade");
+  assert.equal(frag.saveType, "ref");
+  assert.equal(frag.actions, 1);
+});
+
+test("deriveAreaAttack: real traits are carried through (consumable, grenade, tech)", () => {
+  const tough = findNPC(bestiaryDir, "Tough");
+  const frag = deriveAreaAttack(tough, { name: "Frag Grenade (Commercial)", saveType: "ref", actions: 1 });
+  for (const trait of ["consumable", "grenade", "tech"]) assert.ok(frag.traits.includes(trait), `expected real trait "${trait}", got: ${JSON.stringify(frag.traits)}`);
+});
+
+test("deriveAreaAttack: throws a clear error for an item name that doesn't exist, rather than silently omitting it", () => {
+  const tough = findNPC(bestiaryDir, "Tough");
+  assert.throws(() => deriveAreaAttack(tough, { name: "Not A Real Item", saveType: "ref", actions: 1 }), /No melee\/attack-row item named/);
+});
+
+test("deriveAreaAttack: throws for a real melee item that isn't actually an area-fire effect (Gun Bash is a plain Strike) — never silently mis-wires a real attack roll as a burst", () => {
+  const tough = findNPC(bestiaryDir, "Tough");
+  assert.throws(() => deriveAreaAttack(tough, { name: "Gun Bash", saveType: "ref", actions: 1 }), /not "area-fire"/);
+});
+
+test("deriveAreaAttack: throws for Scattergun — a real cone effect, but system.action is \"auto-fire\" (multi-target, not a basic-save burst) — never silently mis-wires an out-of-scope attack type", () => {
+  const tough = findNPC(bestiaryDir, "Tough");
+  assert.throws(() => deriveAreaAttack(tough, { name: "Scattergun", saveType: "ref", actions: 1 }), /not "area-fire"/);
+});
+
+test("deriveAreaAttack: throws for a genuine area-fire item whose area ISN'T a burst — the shape guard fires even when the action-type guard above wouldn't catch it (no real non-burst area-fire item exists yet to test against, so this constructs the raw shape directly)", () => {
+  const fakeConeAreaFire = {
+    name: "Synthetic Cone Grenade",
+    items: [{ type: "melee", name: "Synthetic Cone Grenade", system: { action: "area-fire", area: { type: "cone", value: 15 }, bonus: { value: 5 }, damageRolls: { a: { damage: "1d6", damageType: "fire" } }, range: { increment: 30 }, traits: { value: [] } } }]
+  };
+  assert.throws(() => deriveAreaAttack(fakeConeAreaFire, { name: "Synthetic Cone Grenade", saveType: "ref", actions: 1 }), /burst-shaped area/);
 });

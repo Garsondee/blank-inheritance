@@ -371,6 +371,17 @@ export function generateProposals(state, combatantId, turn) {
     }
   });
 
+  // --- Area/burst attacks (design doc §38, e.g. a thrown grenade) — one candidate per enemy square
+  // to aim at, same shape as every other targeted candidate above. No hand-built "avoid allies"
+  // filtering here on purpose: the sandbox (engine.mjs's areaAttack, both outcome tables) genuinely
+  // damages EVERY combatant the blast catches, so evaluateState's existing allyDamage term already
+  // prices an origin that would also catch a nearby ally exactly as unfavorably as any other
+  // ally-damaging proposal — the friendly-fire awareness comes for free from correct simulation,
+  // not a bespoke heuristic. ---
+  (me.areaAttacks ?? []).forEach((_, i) => {
+    for (const e of targetableEnemies) proposals.push({ type: "areaAttack", originId: e.id, areaAttackIndex: i });
+  });
+
   // --- Support ---
   (me.healAbilities ?? []).forEach((_, i) => {
     for (const t of [me, ...allies]) if (t.currentHP < t.maxHP) proposals.push({ type: "healAbility", targetId: t.id, abilityIndex: i });
@@ -551,6 +562,7 @@ function describe(proposal, result) {
     case "saveAttack": return `Use ${result?.saveAttackName ?? "ability " + (proposal.saveAttackIndex ?? 0)} against ${proposal.targetId}`;
     case "demoralize": return `Demoralize ${proposal.targetId}`;
     case "conditionSave": return `Use ${result?.conditionSaveName ?? "ability " + (proposal.conditionSaveIndex ?? 0)} against ${proposal.targetId}`;
+    case "areaAttack": return `Throw ${result?.areaAttackName ?? "ability " + (proposal.areaAttackIndex ?? 0)} at ${proposal.originId}'s position`;
     case "healAbility": return `Heal ${proposal.targetId} with ${result?.abilityName ?? "ability"}`;
     default: return proposal.type;
   }

@@ -99,6 +99,21 @@ const SCENARIOS = {
     build: (args) => buildComplexBattle({ ...args, partyFixtures: ["lunar-17.json", "tapkey.json", "bennit.json"], oppositionFixtures: ["security-goon.json", "xenowarden-greenhorn.json", "erabryth.json"], setup: "RANDOM_ARCS" }),
     label: "3v3: Lunar-17+Tapkey+Bennit vs. Security Goon+Xenowarden Greenhorn+Erabryth — randomized opposite arcs, real Line-of-Effect-validated blind opening",
     defaultSeed: 1, roundLimit: 60
+  },
+  // design doc §38 — Ingram's own question: "4 level 1 PCs should actually potentially struggle
+  // against 4 NPCs at level 1... I wonder if your simulations will reveal any group failures."
+  // Every real fixture this project has built, all four a side, RANDOM_ARCS so no fixed setup's own
+  // starting geometry can bias the result one way or another — see design doc §38 for the real
+  // measured outcome distribution across many seeds.
+  "complex-4v4-random-arcs": {
+    build: (args) => buildComplexBattle({
+      ...args,
+      partyFixtures: ["lunar-17.json", "tapkey.json", "bennit.json", "vorza-moonshot.json"],
+      oppositionFixtures: ["security-goon.json", "xenowarden-greenhorn.json", "erabryth.json", "tough.json"],
+      setup: "RANDOM_ARCS"
+    }),
+    label: "4v4: Lunar-17+Tapkey+Bennit+Vorza Moonshot vs. Security Goon+Xenowarden Greenhorn+Erabryth+Tough — every real fixture this project has, randomized opposite arcs, real Line-of-Effect-validated blind opening",
+    defaultSeed: 1, roundLimit: 60
   }
 };
 

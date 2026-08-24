@@ -22,6 +22,7 @@ import {
   checkSaveAttackLegal,
   checkDemoralizeLegal,
   checkConditionSaveLegal,
+  checkAreaAttackLegal,
   multipleAttackPenalty,
   rangeIncrementPenalty
 } from "../../tools/battle-simulator/personnel-engine/legality.mjs";
@@ -605,5 +606,52 @@ test("checkConditionSaveLegal: rejects when the action budget doesn't allow it",
   const attacker = { id: "a", name: "Erabryth", currentHP: 20 };
   const target = { id: "t", name: "Target", currentHP: 10 };
   const result = checkConditionSaveLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, conditionSave: forcedReflection, turnState: { actionsAvailable: 3, actionsUsed: 3 } });
+  assert.equal(result.legal, false);
+});
+
+// ---------------------------------------------------------------------------
+// checkAreaAttackLegal — design doc §38 (a thrown grenade's real burst). Real Tough/Frag Grenade
+// numbers: DC 17 (10 + her real attack-row bonus of 7), 70ft throw range, 5ft burst radius.
+// ---------------------------------------------------------------------------
+
+const fragGrenade = { name: "Frag Grenade (Commercial)", saveType: "ref", dc: 17, range: 70, radius: 5, actions: 1, traits: ["consumable", "grenade", "tech"], damage: [{ dice: "1d8", bonus: 0, damageType: "piercing" }] };
+
+test("checkAreaAttackLegal: legal for a real in-range aim point with something caught in the blast", () => {
+  const attacker = { id: "a", name: "Tough", currentHP: 24 };
+  const result = checkAreaAttackLegal({ attacker, attackerPos: { col: 0, row: 0 }, originPos: { col: 10, row: 0 }, areaAttack: fragGrenade, turnState: openBudget, affectedCount: 1 }); // 50ft
+  assert.equal(result.legal, true);
+});
+
+test("checkAreaAttackLegal: rejects out of range (beyond the grenade's real 70ft)", () => {
+  const attacker = { id: "a", name: "Tough", currentHP: 24 };
+  const result = checkAreaAttackLegal({ attacker, attackerPos: { col: 0, row: 0 }, originPos: { col: 20, row: 0 }, areaAttack: fragGrenade, turnState: openBudget, affectedCount: 1 }); // 100ft
+  assert.equal(result.legal, false);
+});
+
+test("checkAreaAttackLegal: respects Line of Effect to the aim point, same as every other targeted action", () => {
+  const wall = [{ c: [1, 0, 1, 1], move: 20, sight: 20 }];
+  const attacker = { id: "a", name: "Tough", currentHP: 24 };
+  const result = checkAreaAttackLegal({ attacker, attackerPos: { col: 0, row: 0 }, originPos: { col: 5, row: 0 }, areaAttack: fragGrenade, turnState: openBudget, walls: wall, affectedCount: 1 });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /line of effect/i);
+});
+
+test("checkAreaAttackLegal: a depleted areaAttack (usesRemaining 0) is rejected — a real grenade is single-use", () => {
+  const attacker = { id: "a", name: "Tough", currentHP: 24 };
+  const result = checkAreaAttackLegal({ attacker, attackerPos: { col: 0, row: 0 }, originPos: { col: 0, row: 0 }, areaAttack: { ...fragGrenade, usesRemaining: 0 }, turnState: openBudget, affectedCount: 1 });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /out of uses/);
+});
+
+test("checkAreaAttackLegal: rejects an aim point with nothing in the blast radius — not worth throwing a real grenade at empty ground", () => {
+  const attacker = { id: "a", name: "Tough", currentHP: 24 };
+  const result = checkAreaAttackLegal({ attacker, attackerPos: { col: 0, row: 0 }, originPos: { col: 5, row: 0 }, areaAttack: fragGrenade, turnState: openBudget, affectedCount: 0 });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /empty ground/);
+});
+
+test("checkAreaAttackLegal: rejects when the action budget doesn't allow it", () => {
+  const attacker = { id: "a", name: "Tough", currentHP: 24 };
+  const result = checkAreaAttackLegal({ attacker, attackerPos: { col: 0, row: 0 }, originPos: { col: 0, row: 0 }, areaAttack: fragGrenade, turnState: { actionsAvailable: 3, actionsUsed: 3 }, affectedCount: 1 });
   assert.equal(result.legal, false);
 });

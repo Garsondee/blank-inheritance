@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 import { listLevel1Pregens, toIngredients } from "../../tools/character-builder/extract-pregen.mjs";
 import { deriveAbilityModifiers, deriveHP, deriveArmorClass } from "../../tools/character-builder/derive.mjs";
 import { deriveStrikes, deriveSpells, deriveSaveSpells, deriveTransferVitality, deriveSkillModifier } from "../../tools/character-builder/build-combat-pregen.mjs";
-import { findNPC, toCombatant, deriveSpellAttacks, deriveConditionSave } from "../../tools/pack-extractor/extract-npc.mjs";
+import { findNPC, toCombatant, deriveSpellAttacks, deriveConditionSave, deriveAreaAttack } from "../../tools/pack-extractor/extract-npc.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..", "..");
@@ -138,8 +138,49 @@ test("erabryth.json: checked-in strikes/conditionSave match a fresh live re-extr
   assert.equal(fixture.side, "opposition");
 });
 
-test("all six fixtures are personnel-engine-shape-compatible: every strike/spell has the fields checkStrikeLegal/checkSpellAttackLegal actually read", () => {
-  for (const name of ["lunar-17.json", "security-goon.json", "tapkey.json", "xenowarden-greenhorn.json", "bennit.json", "erabryth.json"]) {
+test("vorza-moonshot.json: checked-in strikes match a fresh live re-derivation exactly — design doc §38's fourth PC, the one real Player Core pregen left buildable after Jaedana's boost-ambiguity throw and Old-Growth Wildfire's Auto-Fire-only weapon", () => {
+  const fixture = readFixture("vorza-moonshot.json");
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "paizo-pregens");
+  const pregen = listLevel1Pregens(packDir).find((p) => p.name === "Vorza Moonshot");
+  const ingredients = toIngredients(pregen);
+  const mods = deriveAbilityModifiers(ingredients);
+
+  assert.equal(fixture.maxHP, deriveHP({ ancestryHP: ingredients.ancestryHP, classHP: ingredients.classHP, conModifier: mods.con }).max);
+  assert.equal(fixture.maxHP, 23, "matches the pregen's own referenceHP field exactly");
+  assert.equal(fixture.ac, deriveArmorClass({
+    armorCategoryRank: ingredients.armorCategoryRank, level: 1, dexModifier: mods.dex,
+    dexCap: ingredients.armor?.dexCap ?? null, itemBonus: ingredients.armor?.acBonus ?? 0, armorProficiency: ingredients.armor?.name ?? null
+  }).value);
+  assert.deepEqual(fixture.strikes, deriveStrikes(ingredients, ["Zero Pistol"], mods));
+  assert.equal(fixture.strikes.length, 1, "her melee weapon is entirely a stance (Solar Manifestations) with no static item to extract — real, not a shortfall");
+  assert.equal(fixture.areaAttacks, undefined, "her Electromag Grenade is real but NOT wired — PC-side area attacks additionally need a Class DC derivation this project doesn't have yet, see her own notes field");
+  assert.equal(fixture.intimidationModifier, deriveSkillModifier(ingredients, "intimidation", mods));
+  assert.equal(fixture.side, "party");
+});
+
+test("tough.json: checked-in strikes/areaAttack match a fresh live re-extraction exactly — this project's first NPC area/burst attack, design doc §38", () => {
+  const fixture = readFixture("tough.json");
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "rulebook-bestiaries");
+  const tough = findNPC(packDir, "Tough");
+  const combatant = toCombatant(tough, { strikeNames: ["Gun Bash"] });
+  const areaAttacks = [deriveAreaAttack(tough, { name: "Frag Grenade (Commercial)", saveType: "ref", actions: 1 })];
+
+  assert.equal(fixture.maxHP, combatant.maxHP);
+  assert.equal(fixture.ac, combatant.ac);
+  assert.deepEqual(fixture.saves, combatant.saves);
+  assert.deepEqual(fixture.strikes, combatant.strikes);
+  assert.equal(fixture.strikes.length, 1, "only Gun Bash is a real Strike — Scattergun is a real auto-fire cone, out of scope");
+  assert.deepEqual(fixture.areaAttacks, areaAttacks);
+  assert.equal(fixture.areaAttacks[0].dc, 17);
+  assert.equal(fixture.areaAttacks[0].radius, 5);
+  assert.equal(fixture.areaAttacks[0].usesRemaining, 1, "a single real carried grenade, not unlimited");
+  assert.equal(fixture.intimidationModifier, combatant.skills.intimidation ?? null);
+  assert.equal(fixture.intimidationModifier, 4, "Intimidation IS one of her 3 real listed skills (athletics/intimidation/thievery)");
+  assert.equal(fixture.side, "opposition");
+});
+
+test("all eight fixtures are personnel-engine-shape-compatible: every strike/spell/areaAttack has the fields checkStrikeLegal/checkSpellAttackLegal/checkAreaAttackLegal actually read", () => {
+  for (const name of ["lunar-17.json", "security-goon.json", "tapkey.json", "xenowarden-greenhorn.json", "bennit.json", "erabryth.json", "vorza-moonshot.json", "tough.json"]) {
     const fixture = readFixture(name);
     for (const strike of fixture.strikes) {
       assert.ok(strike.name && strike.strikeType && typeof strike.attackBonus === "number", `${name}: malformed strike ${JSON.stringify(strike)}`);
@@ -151,6 +192,10 @@ test("all six fixtures are personnel-engine-shape-compatible: every strike/spell
       // falls back to FEET_PER_SQUARE for it, so it must not be rejected by a plain truthiness check.
       const rangeOk = spell.range === null || typeof spell.range === "number";
       assert.ok(spell.name && typeof spell.attackBonus === "number" && rangeOk && spell.actions, `${name}: malformed spell ${JSON.stringify(spell)}`);
+    }
+    for (const areaAttack of fixture.areaAttacks ?? []) {
+      assert.ok(areaAttack.name && areaAttack.saveType && typeof areaAttack.dc === "number" && typeof areaAttack.radius === "number", `${name}: malformed areaAttack ${JSON.stringify(areaAttack)}`);
+      assert.ok(Array.isArray(areaAttack.damage) && areaAttack.damage[0]?.dice, `${name}: areaAttack "${areaAttack.name}" has no usable damage`);
     }
   }
 });

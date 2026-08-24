@@ -1,0 +1,85 @@
+{
+  "id": "raw-validation-tough",
+  "name": "Tough",
+  "side": "opposition",
+  "maxHP": 24,
+  "currentHP": 24,
+  "ac": 16,
+  "saves": {
+    "fort": 7,
+    "ref": 7,
+    "will": 5
+  },
+  "speed": 25,
+  "strikes": [
+    {
+      "name": "Gun Bash",
+      "strikeType": "melee",
+      "attackBonus": 9,
+      "traits": [
+        "analog",
+        "nonlethal"
+      ],
+      "damage": [
+        {
+          "dice": "1d4",
+          "bonus": 4,
+          "damageType": "bludgeoning"
+        }
+      ]
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Reactive Strike",
+      "actionType": "reaction",
+      "actionsCost": null,
+      "description": "<p>@Localize[PF2E.NPC.Abilities.Glossary.ReactiveStrike]</p>"
+    }
+  ],
+  "actions": [
+    {
+      "name": "Home Turf",
+      "actionType": "passive",
+      "actionsCost": null,
+      "description": "<p>While in their gang's territory, the tough gains a +2 circumstance bonus to their Will DC against checks to [[/act demoralize]] and [[/act coerce]].</p>"
+    },
+    {
+      "name": "Pile On",
+      "actionType": "passive",
+      "actionsCost": null,
+      "description": "<p>When the tough damages a creature with a Strike, all members of their gang within 60 feet of the tough gain a +1 status bonus to attack and damage rolls against that creature until the beginning of the tough's next turn.</p>\n<p>@UUID[Compendium.sf2e.bestiary-effects.Item.kxoPPo6Jl7c8ahpS]{Effect: Pile On}</p>"
+    }
+  ],
+  "lore": [],
+  "skills": {
+    "athletics": 7,
+    "intimidation": 4,
+    "thievery": 4
+  },
+  "areaAttacks": [
+    {
+      "name": "Frag Grenade (Commercial)",
+      "saveType": "ref",
+      "dc": 17,
+      "range": 70,
+      "radius": 5,
+      "actions": 1,
+      "traits": [
+        "consumable",
+        "grenade",
+        "tech"
+      ],
+      "damage": [
+        {
+          "dice": "1d8",
+          "bonus": 0,
+          "damageType": "piercing"
+        }
+      ],
+      "usesRemaining": 1
+    }
+  ],
+  "intimidationModifier": 4,
+  "notes": "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/rulebook-bestiaries) — see test/character-builder/extract-npc.test.mjs. Her Frag Grenade (Commercial) is this project's first NPC area/burst attack (personnel-engine's new \"areaAttack\" action type, design doc §38) — DC 17 (10 + her real attack-row bonus of 7, the standard 'attack bonus doubles as basic-save DC basis' convention this system uses for NPC area effects with no separately stored DC field), 5ft burst radius and 1d8 piercing damage both read straight off her real system.area.value/damageRolls, usesRemaining 1 from her real carried weapon-item quantity. Her Scattergun (system.action:\"auto-fire\", a real area-cone weapon) is NOT wired — the same out-of-scope multi-target category as every Auto-Fire/Suppressing-Fire weapon already flagged elsewhere in this project (Old-Growth Wildfire's Machine Gun, design doc §21's own survey)."
+}

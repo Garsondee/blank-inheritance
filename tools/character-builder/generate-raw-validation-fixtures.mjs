@@ -20,7 +20,7 @@ import { fileURLToPath } from "node:url";
 import { listLevel1Pregens, toIngredients } from "./extract-pregen.mjs";
 import { deriveAbilityModifiers, deriveHP, derivePerception, deriveSavingThrows, deriveArmorClass } from "./derive.mjs";
 import { deriveStrikes, deriveSpells, deriveSaveSpells, deriveTransferVitality, deriveSkillModifier } from "./build-combat-pregen.mjs";
-import { findNPC, toCombatant, deriveSpellAttacks, deriveConditionSave } from "../pack-extractor/extract-npc.mjs";
+import { findNPC, toCombatant, deriveSpellAttacks, deriveConditionSave, deriveAreaAttack } from "../pack-extractor/extract-npc.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..", "..");
@@ -248,12 +248,89 @@ function buildErabryth() {
   };
 }
 
+/**
+ * Fourth PC (design doc §38's 4v4 ask — "pick a new pregen and add it"). Of the 3 real Player Core
+ * pregens still unused after §21/§22's own survey, only one is actually buildable: Jaedana's
+ * toIngredients() throws on an ambiguous ability boost with no recorded resolution, and Old-Growth
+ * Wildfire's one real weapon (Machine Gun) is Auto-Fire-only with no melee fallback on her sheet at
+ * all — re-confirmed directly against the real pack data this session, not just trusted from the
+ * old survey notes. Vorza Moonshot is the one genuinely viable pick, and her own real gap is
+ * distinctive: her melee weapon is entirely a STANCE (Solar Manifestations, only exists while
+ * attuned) — no static fallback item exists on her sheet at all, unlike a grenade or sidearm, so
+ * there is nothing to extract a melee Strike FROM. Her real, achievable kit is one ranged Strike
+ * (Zero Pistol) plus a real Demoralize.
+ */
+function buildVorzaMoonshot() {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "paizo-pregens");
+  const pregen = listLevel1Pregens(packDir).find((p) => p.name === "Vorza Moonshot");
+  if (!pregen) throw new Error("Vorza Moonshot not found in paizo-pregens — Paizo may have renamed the pregen.");
+  const ingredients = toIngredients(pregen);
+  const mods = deriveAbilityModifiers(ingredients);
+
+  const hp = deriveHP({ ancestryHP: ingredients.ancestryHP, classHP: ingredients.classHP, conModifier: mods.con });
+  const perception = derivePerception({ rankIndex: ingredients.perceptionRank, level: 1, wisModifier: mods.wis });
+  const saves = deriveSavingThrows({
+    fortitudeRank: ingredients.saveRanks.fortitude, reflexRank: ingredients.saveRanks.reflex, willRank: ingredients.saveRanks.will,
+    level: 1, conModifier: mods.con, dexModifier: mods.dex, wisModifier: mods.wis
+  });
+  const ac = deriveArmorClass({
+    armorCategoryRank: ingredients.armorCategoryRank, level: 1, dexModifier: mods.dex,
+    dexCap: ingredients.armor?.dexCap ?? null, itemBonus: ingredients.armor?.acBonus ?? 0, armorProficiency: ingredients.armor?.name ?? null
+  });
+
+  const strikes = deriveStrikes(ingredients, ["Zero Pistol"], mods);
+  const intimidationModifier = deriveSkillModifier(ingredients, "intimidation", mods);
+
+  return {
+    id: "raw-validation-vorza-moonshot",
+    name: "Vorza Moonshot (level-1 Solarian pregen, design doc §38 — real Paizo Adventure Pregen, NOT one of the six real campaign kids)",
+    side: "party",
+    maxHP: hp.max,
+    currentHP: hp.max,
+    ac: ac.value,
+    saves: { fort: saves.fortitude.modifier, ref: saves.reflex.modifier, will: saves.will.modifier },
+    perception: perception.proficiency.modifier,
+    speed: ingredients.speed,
+    strikes,
+    intimidationModifier, // real, untrained (+0) — her Charisma modifier is +0, same flat number as Lunar-17's, not the roster's highest like Tapkey's
+    notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — her derived HP (23) matches the pregen's own referenceHP field exactly. design doc §38: a Solarian's whole class fantasy (a Solar Weapon, manifested only while attuned) has NO static item representation on her real sheet at all — unlike every other PC's melee option, there is nothing to extract a Strike from, so she's ranged-only (Zero Pistol) by the real shape of her own kit, not an extraction shortfall. Her Electromag Grenade (Commercial) is real but NOT wired, for the same reason as every other grenade in this project (see Lunar-17/Tapkey/Bennit's own notes) — PLUS one more: even with design doc §38's new areaAttack mechanism now built, a PC's own basic-save DC for an area weapon is 10 + their CLASS DC (Player Core: '@Check[reflex|against:class|basic]'), and this project has never derived a PC's Class DC (only Spell DC, via deriveSpellDC) — an NPC's grenade sidesteps this because NPCs store a final precomputed attack-row bonus directly (see extract-npc.mjs's deriveAreaAttack), a PC does not. Flagged as the natural next gap, not invented around here."
+  };
+}
+
+/**
+ * Fourth NPC (design doc §38's 4v4 ask — "pick a new NPC and add it"), and the demonstration
+ * fixture for THIS pass's own gap-fill: Tough (rulebook-bestiaries) carries a real Frag Grenade
+ * whose attack-row is a genuine system.action:"area-fire" burst — the first NPC (and first
+ * combatant at all) to actually use the new areaAttack mechanism personnel-engine gained this
+ * session. Her Gun Bash (system.action:"strike") derives as an ordinary melee Strike through the
+ * existing, unmodified toCombatant, exactly matching the real §21 survey's own finding ("only Gun
+ * Bash is a real Strike — the other two are area attacks... thinner than Security Goon already
+ * is") — true then, and still true of her Scattergun (a real system.action:"auto-fire" cone, the
+ * same out-of-scope multi-target category as Old-Growth Wildfire's Machine Gun, not attempted here).
+ */
+function buildTough() {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "rulebook-bestiaries");
+  const tough = findNPC(packDir, "Tough");
+  if (!tough) throw new Error("Tough not found in rulebook-bestiaries — Paizo may have renamed the NPC.");
+  const combatant = toCombatant(tough, { strikeNames: ["Gun Bash"] });
+  const areaAttacks = [deriveAreaAttack(tough, { name: "Frag Grenade (Commercial)", saveType: "ref", actions: 1 })];
+  return {
+    id: "raw-validation-tough",
+    ...combatant,
+    areaAttacks,
+    intimidationModifier: combatant.skills.intimidation ?? null, // real, trained (+4) — one of her 3 real listed skills (athletics/intimidation/thievery)
+    notes: "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/rulebook-bestiaries) — see test/character-builder/extract-npc.test.mjs. Her Frag Grenade (Commercial) is this project's first NPC area/burst attack (personnel-engine's new \"areaAttack\" action type, design doc §38) — DC 17 (10 + her real attack-row bonus of 7, the standard 'attack bonus doubles as basic-save DC basis' convention this system uses for NPC area effects with no separately stored DC field), 5ft burst radius and 1d8 piercing damage both read straight off her real system.area.value/damageRolls, usesRemaining 1 from her real carried weapon-item quantity. Her Scattergun (system.action:\"auto-fire\", a real area-cone weapon) is NOT wired — the same out-of-scope multi-target category as every Auto-Fire/Suppressing-Fire weapon already flagged elsewhere in this project (Old-Growth Wildfire's Machine Gun, design doc §21's own survey)."
+  };
+}
+
 const lunar17 = buildLunar17();
 const securityGoon = buildSecurityGoon();
 const tapkey = buildTapkey();
 const xenowardenGreenhorn = buildXenowardenGreenhorn();
 const bennit = buildBennit();
 const erabryth = buildErabryth();
+const vorzaMoonshot = buildVorzaMoonshot();
+const tough = buildTough();
 
 writeFileSync(path.join(outDir, "lunar-17.json"), JSON.stringify(lunar17, null, 2) + "\n");
 writeFileSync(path.join(outDir, "security-goon.json"), JSON.stringify(securityGoon, null, 2) + "\n");
@@ -261,6 +338,8 @@ writeFileSync(path.join(outDir, "tapkey.json"), JSON.stringify(tapkey, null, 2) 
 writeFileSync(path.join(outDir, "xenowarden-greenhorn.json"), JSON.stringify(xenowardenGreenhorn, null, 2) + "\n");
 writeFileSync(path.join(outDir, "bennit.json"), JSON.stringify(bennit, null, 2) + "\n");
 writeFileSync(path.join(outDir, "erabryth.json"), JSON.stringify(erabryth, null, 2) + "\n");
+writeFileSync(path.join(outDir, "vorza-moonshot.json"), JSON.stringify(vorzaMoonshot, null, 2) + "\n");
+writeFileSync(path.join(outDir, "tough.json"), JSON.stringify(tough, null, 2) + "\n");
 
 console.log(`wrote lunar-17.json (AC ${lunar17.ac}, HP ${lunar17.maxHP}, ${lunar17.strikes.length} strikes, ${lunar17.spells.length} spell, ${lunar17.healAbilities.length} heal ability, intimidation +${lunar17.intimidationModifier})`);
 console.log(`wrote security-goon.json (AC ${securityGoon.ac}, HP ${securityGoon.maxHP}, ${securityGoon.strikes.length} strikes, ${securityGoon.reactions.length} reaction, ${securityGoon.actions.length} other action, intimidation +${securityGoon.intimidationModifier})`);
@@ -268,3 +347,5 @@ console.log(`wrote tapkey.json (AC ${tapkey.ac}, HP ${tapkey.maxHP}, ${tapkey.st
 console.log(`wrote xenowarden-greenhorn.json (AC ${xenowardenGreenhorn.ac}, HP ${xenowardenGreenhorn.maxHP}, ${xenowardenGreenhorn.strikes.length} strikes, ${xenowardenGreenhorn.spells.length} spell, intimidation ${xenowardenGreenhorn.intimidationModifier})`);
 console.log(`wrote bennit.json (AC ${bennit.ac}, HP ${bennit.maxHP}, ${bennit.strikes.length} strikes, ${bennit.saveAttacks.length} saveAttack (spell), intimidation +${bennit.intimidationModifier})`);
 console.log(`wrote erabryth.json (AC ${erabryth.ac}, HP ${erabryth.maxHP}, ${erabryth.strikes.length} strikes, ${erabryth.conditionSaves.length} conditionSave, intimidation +${erabryth.intimidationModifier})`);
+console.log(`wrote vorza-moonshot.json (AC ${vorzaMoonshot.ac}, HP ${vorzaMoonshot.maxHP}, ${vorzaMoonshot.strikes.length} strikes, intimidation +${vorzaMoonshot.intimidationModifier})`);
+console.log(`wrote tough.json (AC ${tough.ac}, HP ${tough.maxHP}, ${tough.strikes.length} strikes, ${tough.areaAttacks.length} areaAttack, intimidation +${tough.intimidationModifier})`);

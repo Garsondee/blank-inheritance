@@ -26,6 +26,11 @@
  * Xenowarden Greenhorn's own raw data (`{"dc":14,"value":6}`) — so no ability-modifier math is
  * needed at all, exactly the same "NPCs store final numbers" shape this file's header already
  * documents for Strikes/AC/saves.
+ *
+ * EXTENDED AGAIN (design doc §38, first NPC area/burst attack — Tough's Frag Grenade): every real
+ * grenade this project has ever extracted (Lunar-17, Tapkey, Bennit's, now Tough's) was flagged as
+ * "not wired — no area-effect mechanism exists." deriveAreaAttack() below is that mechanism's real
+ * extraction half — see its own header for exactly what's structural vs. hand-supplied.
  */
 import { readPackDocuments } from "./read-pack.mjs";
 
@@ -175,6 +180,50 @@ export function deriveSpellAttacks(npc, spellNames) {
  * condition table anywhere machine-readable. Same "hand-identify, cite verbatim, never infer"
  * discipline as every other prose-only case in this project.
  */
+/**
+ * Derive a real area/burst attack (design doc §38 — e.g. Tough's Frag Grenade). Genuinely different
+ * from every Strike/spell above: the raw `melee`-type attack-row item has NO attack-roll bonus in
+ * the personnel-engine sense at all — `system.action` is `"area-fire"`, not `"strike"` (the same
+ * structural field toCombatant's header already names as "a real, citable, structural signal"), and
+ * `system.bonus.value` is instead the modifier the system's own UI turns into a basic-save DC via
+ * the standard "10 + bonus" convention (there is no separate stored DC field anywhere on the item —
+ * confirmed by reading its raw JSON directly, not assumed). Structurally read from the raw data:
+ * DC, throw range, burst radius (`system.area.value`), damage. Hand-supplied by the caller, same
+ * "hand-identify, don't infer" discipline as deriveConditionSave: `saveType` (Player Core: every
+ * area weapon found so far is a basic REFLEX save, but nothing marks that structurally on the item
+ * itself) and `actions` (the item carries no action-cost field at all — its own description prose
+ * says "Activate 1 Area Fire", which is exactly the kind of free text this project always hand-
+ * transcribes rather than parses). `usesRemaining` comes from the real carried quantity on the
+ * PAIRED `weapon`-type item of the same name (a grenade you've thrown is a grenade you don't have
+ * anymore) — the same weapon/melee-item pairing toCombatant's own header documents for Strikes.
+ */
+export function deriveAreaAttack(npc, { name, saveType, actions }) {
+  const item = npc.items.find((i) => i.type === "melee" && i.name === name);
+  if (!item) throw new Error(`No melee/attack-row item named "${name}" on ${npc.name}.`);
+  if (item.system.action !== "area-fire") {
+    throw new Error(`"${name}" on ${npc.name} has system.action "${item.system.action}", not "area-fire" — deriveAreaAttack only supports a real area-fire burst effect.`);
+  }
+  if (item.system.area?.type !== "burst") {
+    throw new Error(`"${name}" on ${npc.name}: expected a burst-shaped area, got "${item.system.area?.type}" — a cone/line effect (e.g. a scattergun) needs a different shape entirely, not supported here.`);
+  }
+  const [damageEntry] = Object.values(item.system.damageRolls ?? {});
+  if (!damageEntry) throw new Error(`"${name}" on ${npc.name} has no damageRolls entry to derive damage from.`);
+  const { dice, bonus } = parseDamageString(damageEntry.damage);
+  const carriedWeapon = npc.items.find((i) => i.type === "weapon" && i.name === name);
+
+  return {
+    name: item.name,
+    saveType,
+    dc: 10 + item.system.bonus.value,
+    range: item.system.range?.increment ?? null,
+    radius: item.system.area.value,
+    actions,
+    traits: item.system.traits?.value ?? [],
+    damage: [{ dice, bonus, damageType: damageEntry.damageType }],
+    usesRemaining: carriedWeapon?.system.quantity ?? null
+  };
+}
+
 export function deriveConditionSave(npc, { name, saveType, range, outcomes }) {
   const action = npc.items.find((i) => i.type === "action" && i.name === name);
   if (!action) throw new Error(`No action named "${name}" on ${npc.name}.`);
