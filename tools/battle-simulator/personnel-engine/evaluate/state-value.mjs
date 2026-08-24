@@ -212,7 +212,10 @@ export const DEFAULT_WEIGHTS = {
   // the point of use for why. 1.0 at full health/parity (no change from today's behavior); scales
   // up smoothly, no threshold/cliff. Reasoned starting points, same "flag for a future ablation
   // pass" status as closing/stunDenial above, not pre-tuned against real data yet.
-  lowHpCaution: 2.0,       // at 0 HP, threatExposure's cost is 3x today's flat weight (1 + 2.0)
+  // design doc §35: raised from 2.0, and the ramp changed from linear to cubic (see the point of
+  // use) — the old 3x ceiling (0.36 effective) never got remotely close to competing with a real
+  // attack's 1.0-per-HP scale; at 0 HP this now reaches 9x (1.08 effective), just past parity.
+  lowHpCaution: 8.0,
   outnumberedCaution: 1.0  // seeing 2 enemies per visible ally doubles it; 3 per ally triples it
 };
 
@@ -285,14 +288,28 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
     // threatExposure*theirExpectedDamage; this just makes that cost weigh more heavily as
     // currentHP falls, so the "disengage" move candidate decide.mjs already offers every turn
     // (bestDestinationAway) starts scoring better once staying visible is genuinely dangerous.
-    // Linear in HP fraction — 1x at full health, 1+lowHpCaution at 0 HP — deliberately continuous,
-    // no threshold/cliff (exactly the kind of discontinuity the §22 "moving 3x is an alarm" bug
-    // taught this project to avoid). Symmetric by construction: this loop runs once per side
-    // (whichever side `allies` currently means), so a low-HP enemy gets the identical treatment
-    // when evaluateState is called from ITS side's perspective — "the same logic could apply to
-    // enemies" falls out for free, no separate branch needed.
+    // Symmetric by construction: this loop runs once per side (whichever side `allies` currently
+    // means), so a low-HP enemy gets the identical treatment when evaluateState is called from ITS
+    // side's perspective — "the same logic could apply to enemies" falls out for free, no separate
+    // branch needed.
+    //
+    // REGRESSION FIX (design doc §35 — Ingram's own report, watching real play: "tokens still don't
+    // run for cover... everything stops being a simulation and ends up looking very strange"; §31's
+    // audit had already measured the same thing directly: 72% of real low-HP turns show ZERO
+    // movement, 0% show a pure retreat, even at 1 HP). Root cause: the OLD linear curve capped out
+    // at a mere 3x even at 0 HP (1 + lowHpCaution=2.0) — threatExposure's own base weight (0.12) is
+    // so heavily discounted that even its maximum possible value (0.36) never got remotely close to
+    // enemyDamage/allyDamage's 1.0-per-HP scale, so a real, mediocre attack routinely outscored full
+    // retreat regardless of how badly hurt anyone was. Two changes, together: `lowHpCaution` raised
+    // (2.0 -> 8.0) so the CEILING can actually compete with a real attack near death's door, and the
+    // ramp changed from linear to CUBIC in (1-hpFraction) so that higher ceiling only actually bites
+    // in roughly the last quarter of HP — deliberately still continuous, no threshold/cliff (exactly
+    // the kind of discontinuity the §22 "moving 3x is an alarm" bug taught this project to avoid),
+    // just a curve shaped so caution stays close to baseline through most of the HP range and climbs
+    // sharply only once things are genuinely dire. Measured, not guessed — see design doc §35's own
+    // before/after real-log comparison.
     const hpFraction = ally.maxHP > 0 ? ally.currentHP / ally.maxHP : 1;
-    const lowHpFactor = 1 + weights.lowHpCaution * (1 - hpFraction);
+    const lowHpFactor = 1 + weights.lowHpCaution * Math.pow(1 - hpFraction, 3);
 
     // OUTNUMBERED CAUTION (design doc §22 — "enemies which feel like they are outnumbered because
     // they can see more enemies than they can see friends"). PERCEIVED local balance from this
@@ -311,7 +328,17 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
     const outnumberedRatio = visibleEnemyDamages.length / (visibleAllies + 1);
     const outnumberedFactor = 1 + weights.outnumberedCaution * Math.max(0, outnumberedRatio - 1);
 
-    const cautionFactor = lowHpFactor * outnumberedFactor;
+    // AGGRESSION (design doc §35 — Ingram's own ask: "maybe we could have some characters act more
+    // aggressive, moving towards enemies"). A real, opt-in per-combatant field (`ally.aggression`,
+    // default 1 — every existing fixture is completely unaffected until one is deliberately given a
+    // different value) that dampens THIS combatant's OWN caution, and only their own: it's read
+    // inside the per-ally loop, so an aggressive combatant's teammates keep their own normal
+    // caution unchanged. A value above 1 divides the caution factor down (less afraid of exposure,
+    // so closing/attacking options naturally start outscoring retreat more often — an emergent
+    // consequence of reduced fear, not a second, separate "want to attack" mechanism); a value
+    // below 1 would do the reverse for a deliberately skittish combatant, though nothing in the
+    // current roster uses that direction.
+    const cautionFactor = (lowHpFactor * outnumberedFactor) / (ally.aggression ?? 1);
     for (const incoming of visibleEnemyDamages) score -= weights.threatExposure * cautionFactor * incoming;
   }
   for (const enemy of enemies) {

@@ -88,6 +88,17 @@ const SCENARIOS = {
     build: (args) => buildComplexBattle({ ...args, partyFixtures: ["lunar-17.json", "tapkey.json", "bennit.json"], oppositionFixtures: ["security-goon.json", "xenowarden-greenhorn.json", "erabryth.json"], setup: "NORTH_SOUTH_ENDS" }),
     label: "3v3: Lunar-17+Tapkey+Bennit vs. Security Goon+Xenowarden Greenhorn+Erabryth — opposite ends of the open courtyard, real line of effect but a long, open approach",
     defaultSeed: 1, roundLimit: 40
+  },
+  // design doc §35 — Ingram's own ask: "we shouldn't always spawn our two sides in the same
+  // places." A real randomized opening every seed, not one of three fixed hand-picked lineups —
+  // see scenarios/random-deployment.mjs for the actual algorithm (two random arcs, real
+  // Line-of-Effect validation, retried until genuinely blind). Round limit raised well past the
+  // other setups' 40: a genuinely blind opening spends real turns exploring before contact is even
+  // possible, on top of whatever travel the fight itself needs afterward.
+  "complex-3v3-random-arcs": {
+    build: (args) => buildComplexBattle({ ...args, partyFixtures: ["lunar-17.json", "tapkey.json", "bennit.json"], oppositionFixtures: ["security-goon.json", "xenowarden-greenhorn.json", "erabryth.json"], setup: "RANDOM_ARCS" }),
+    label: "3v3: Lunar-17+Tapkey+Bennit vs. Security Goon+Xenowarden Greenhorn+Erabryth — randomized opposite arcs, real Line-of-Effect-validated blind opening",
+    defaultSeed: 1, roundLimit: 60
   }
 };
 

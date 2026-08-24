@@ -46,12 +46,23 @@ export function refreshBelief(state, side) {
   // sides separated by a wall from round 1 with no way to ever discover each other at all. Fog
   // only starts genuinely degrading belief from the SECOND refresh onward, when a side that once
   // knew where an enemy was stops being able to confirm it.
+  //
+  // OPT-IN EXCEPTION (design doc §35 — `state.blindDeployment`): a genuinely randomized deployment
+  // (scenarios/random-deployment.mjs) already guarantees NO cross-side Line of Effect exists at the
+  // start — the whole point is a real "find each other first" opening, not a known lineup viewed
+  // through a temporarily-blocking wall. Seeding true positions there would silently defeat that
+  // guarantee (every combatant would already know exactly where to walk from turn 1), so a scenario
+  // that sets this flag starts belief genuinely EMPTY instead — real fog of war from round 0, not
+  // just from round 1 onward. Every scenario that doesn't set it keeps §15s's original behavior
+  // completely unchanged; this is a new, narrower mode, not a replacement for the old default.
   const isFirstRefresh = !state.belief[side];
   if (isFirstRefresh) {
-    state.belief[side] = new Map(
-      [...state.combatants].filter(([, c]) => c.side !== side && c.currentHP > 0)
-        .map(([id]) => [id, { position: { ...state.positions.get(id) }, lastSeenRound: state.round, visible: false }])
-    );
+    state.belief[side] = state.blindDeployment
+      ? new Map()
+      : new Map(
+          [...state.combatants].filter(([, c]) => c.side !== side && c.currentHP > 0)
+            .map(([id]) => [id, { position: { ...state.positions.get(id) }, lastSeenRound: state.round, visible: false }])
+        );
   }
   const belief = state.belief[side];
 

@@ -366,11 +366,19 @@ export function checkDemoralizeLegal({ attacker, attackerPos, target, targetPos,
  * (Frightened/Stunned) rather than a flat damage multiplier — structurally identical legality to
  * checkSaveAttackLegal (range/budget/perception/LOS/uses), kept as its own function rather than a
  * variant flag on that one, matching this file's own existing precedent of one function per action
- * type even where two are structurally close (checkSaveAttackLegal vs. checkDemoralizeLegal). The
- * one genuinely different check: a per-attacker per-target one-time gate, same shape as Demoralize's
- * own `demoralizedTargets` — Forced Reflection's real text is "regardless of the result, the target
- * is then temporarily immune... for 1 day," functionally "never again this battle," the identical
- * reasoning checkDemoralizeLegal's own header already documents for its 10-minute cooldown.
+ * type even where two are structurally close (checkSaveAttackLegal vs. checkDemoralizeLegal).
+ *
+ * REGRESSION FIX (design doc §34 — Ingram's own quoted rule text caught this): the one-time gate
+ * here is genuinely NOT the same shape as Demoralize's `demoralizedTargets`, despite an earlier
+ * comment here claiming it was. The real text differs in exactly the way that matters: Demoralize's
+ * cooldown is phrased "YOU can't Demoralize the same creature again" — attacker-scoped, so a
+ * DIFFERENT creature can still try. Forced Reflection's is phrased "the TARGET is then temporarily
+ * immune to Forced Reflection" — target-scoped, so ANY attacker is blocked, not just the one who
+ * already tried. This was previously tracked as `attacker.conditionSaveTargets` (keyed
+ * attacker-side, same shape as Demoralize) — functionally invisible with only one
+ * Forced-Reflection-capable creature in the current roster (Erabryth), but wrong the moment a
+ * second one exists. Now tracked as `target.conditionSaveImmunities` (a plain list of ability
+ * names the TARGET has become immune to) instead.
  */
 export function checkConditionSaveLegal({ attacker, attackerPos, target, targetPos, conditionSave, turnState, walls }) {
   const actorAlive = checkActorAlive(attacker);
@@ -395,8 +403,8 @@ export function checkConditionSaveLegal({ attacker, attackerPos, target, targetP
     return { legal: false, reason: `No line of effect to ${target.name} — a wall entirely blocks it.` };
   }
 
-  if (attacker.conditionSaveTargets?.includes(`${conditionSave.name}|${target.id}`)) {
-    return { legal: false, reason: `${attacker.name} has already tried ${conditionSave.name} against ${target.name} this encounter — can't attempt it again.` };
+  if (target.conditionSaveImmunities?.includes(conditionSave.name)) {
+    return { legal: false, reason: `${target.name} is already immune to ${conditionSave.name} this encounter.` };
   }
 
   return { legal: true, reason: null };

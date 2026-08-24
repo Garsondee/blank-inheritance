@@ -8,6 +8,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { runBattle } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
 import { buildScenario } from "../../tools/battle-simulator/scenarios/personnel-complex-battle.mjs";
+import { lineOfEffect } from "../../tools/battle-simulator/personnel-engine/terrain.mjs";
 
 const ATTACK_TYPES = ["strike", "spellAttack", "saveAttack", "demoralize", "conditionSave"];
 
@@ -100,4 +101,61 @@ test("buildScenario: real cover objects on the new map actually get crossed into
     }
   }
   assert.ok(sawCover, "expected at least one real attack across 10 seeds to show a nonzero coverBonus — the new map's cover objects must actually matter in real play, not just in isolated unit tests");
+});
+
+// --- RANDOM_ARCS (design doc §35 — "we shouldn't always spawn our two sides in the same places") ---
+
+test("buildScenario: RANDOM_ARCS sets blindDeployment on the returned scenario; every other setup leaves it false", () => {
+  const random = buildScenario({ seed: 1, partyFixtures: PARTY_3V3, oppositionFixtures: OPPOSITION_3V3, setup: "RANDOM_ARCS" });
+  assert.equal(random.blindDeployment, true);
+  for (const setup of ["NORTH_SOUTH_ENDS", "DIAGONAL_NW_SE", "DIAGONAL_SW_NE"]) {
+    const scenario = buildScenario({ seed: 1, partyFixtures: PARTY_3V3, oppositionFixtures: OPPOSITION_3V3, setup });
+    assert.equal(scenario.blindDeployment, false, `setup ${setup} must not set blindDeployment`);
+  }
+});
+
+test("buildScenario: RANDOM_ARCS genuinely produces zero cross-side Line of Effect at deployment, on the REAL complex-battle map — not just on the generator's own synthetic test map", () => {
+  for (let seed = 1; seed <= 5; seed++) {
+    const scenario = buildScenario({ seed, partyFixtures: PARTY_3V3, oppositionFixtures: OPPOSITION_3V3, setup: "RANDOM_ARCS" });
+    const party = scenario.combatants.filter((c) => c.side === "party");
+    const opposition = scenario.combatants.filter((c) => c.side === "opposition");
+    for (const p of party) {
+      for (const o of opposition) {
+        assert.equal(lineOfEffect(p.position, o.position, scenario.walls), false, `seed ${seed}: ${p.id} at ${JSON.stringify(p.position)} can see ${o.id} at ${JSON.stringify(o.position)} at deployment`);
+      }
+    }
+  }
+});
+
+test("buildScenario: RANDOM_ARCS is reproducible per seed (same seed -> identical starting positions) and varies across seeds (real variety, not a fixed lineup)", () => {
+  const a = buildScenario({ seed: 99, partyFixtures: PARTY_3V3, oppositionFixtures: OPPOSITION_3V3, setup: "RANDOM_ARCS" });
+  const b = buildScenario({ seed: 99, partyFixtures: PARTY_3V3, oppositionFixtures: OPPOSITION_3V3, setup: "RANDOM_ARCS" });
+  assert.deepEqual(a.combatants.map((c) => c.position), b.combatants.map((c) => c.position));
+
+  const seen = new Set();
+  for (let seed = 1; seed <= 6; seed++) {
+    const scenario = buildScenario({ seed, partyFixtures: PARTY_3V3, oppositionFixtures: OPPOSITION_3V3, setup: "RANDOM_ARCS" });
+    seen.add(JSON.stringify(scenario.combatants[0].position));
+  }
+  assert.ok(seen.size > 1, `expected real variety across 6 seeds, got only ${seen.size} distinct opening position(s) for the first combatant`);
+});
+
+test("buildScenario: RANDOM_ARCS resolves cleanly end to end — zero illegal attacks, all 6 combatants present, across several seeds", () => {
+  for (let seed = 1; seed <= 5; seed++) {
+    const log = runBattle(buildScenario({ seed, partyFixtures: PARTY_3V3, oppositionFixtures: OPPOSITION_3V3, setup: "RANDOM_ARCS", roundLimit: 60 }));
+    assert.equal(Object.keys(log.roster).length, 6, `seed ${seed}: expected all 6 real combatants in the roster`);
+    assert.equal(illegalAttacks(log), 0, `seed ${seed}: an attack was proposed-and-committed illegally`);
+  }
+});
+
+test("buildScenario: RANDOM_ARCS battles show a real early stretch of pure movement (the 'exploring' phase) before any attack — not an immediate beeline, and not a frozen deadlock either", () => {
+  const log = runBattle(buildScenario({ seed: 3, partyFixtures: PARTY_3V3, oppositionFixtures: OPPOSITION_3V3, setup: "RANDOM_ARCS", roundLimit: 60 }));
+  const allTurns = log.rounds.flatMap((r) => r.turns);
+  const firstContactIdx = allTurns.findIndex((t) => (t.actions ?? []).some((a) => ["strike", "spellAttack", "saveAttack", "demoralize", "conditionSave"].includes(a.type) && a.legal !== false));
+  assert.ok(firstContactIdx > 0, "expected at least some turns to pass before first contact — an immediate first-turn attack would mean the blind opening isn't actually blind");
+  // Nobody should be permanently frozen: every turn before contact must show REAL movement, not an
+  // empty held turn — confirms the exploration candidate is actually firing, not leaving everyone stuck.
+  const preContact = allTurns.slice(0, firstContactIdx === -1 ? allTurns.length : firstContactIdx);
+  const heldTurns = preContact.filter((t) => !(t.actions ?? []).length);
+  assert.ok(heldTurns.length < preContact.length, `expected real exploration movement before contact, but ${heldTurns.length}/${preContact.length} pre-contact turns were completely held`);
 });

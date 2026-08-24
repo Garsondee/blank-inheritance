@@ -1718,3 +1718,86 @@ Rebuilt and driven live against real, freshly-regenerated battle data: picked a 
 ### Files
 
 Changed: `tools/battle-simulator/artifact/template.html` (`.thought-bubble` CSS simplified to one fixed position, `.bubble-tail-line`/`.bubble-tail-dot` CSS added, `#bubbleTailLayer` SVG group added, `bubbleCornerPx`/`drawBubbleTail`/`BUBBLE_CORNER_PCT`/`BUBBLE_TAIL_START_OFFSET` added, `bubbleBoxFor`/`pickBubblePlacement`/`posToPercent` and the `otherPositions` plumbing through `buildTurnBeats`/`spawnThoughtBubble` all removed, `clearThoughtBubble` now also clears the tail layer), `tools/battle-simulator/artifact/contact-simulation.html` (rebuilt).
+
+## 34. Forced Reflection: a real, if latent, RAW-fidelity bug — caught by Ingram's own quoted rule text
+
+> *"Pretty sure I saw this spell be used on someone twice, that's not legal! [pasted the real Forced Reflection stat block, highlighting] Regardless of the result, the target is then temporarily immune to Forced Reflection for 1 day."*
+
+### What the data actually showed
+
+Checked directly, both ways, before touching any code: scanned all 33 personnel-scale logs on disk for (a) the SAME attacker using `conditionSave` against the SAME target+ability twice, and (b) ANY target hit by `conditionSave` more than once regardless of attacker. Zero instances of either, across 36 total legal `conditionSave` actions. The mechanism was, and had been, working correctly for every battle actually on disk.
+
+### The real, if currently invisible, bug
+
+The exclusion was tracked as `attacker.conditionSaveTargets` — a per-ATTACKER "have I tried this on them" list, the identical shape Demoralize's own `demoralizedTargets` uses. That shape is correct for Demoralize (Player Core: *"YOU can't Demoralize the same creature again"* — explicitly attacker-scoped) but wrong for Forced Reflection, whose real text Ingram quoted is phrased from the TARGET's side: *"the target is then temporarily immune to Forced Reflection."* Immune to the ability, not to one specific creature's use of it. With only one Forced-Reflection-capable creature in the entire current roster (Erabryth — confirmed by checking every fixture in `raw-validation-fixtures/`), this distinction is currently unobservable: attacker-scoped and target-scoped tracking produce identical results when there's only ever one possible attacker. It stops being invisible the moment a second one exists — which is exactly why Ingram's own careful reading of the rule text, not the log data, is what caught it.
+
+### The fix
+
+Moved the tracking from `attacker.conditionSaveTargets` (a `"name|targetId"` string list) to `target.conditionSaveImmunities` (a plain list of ability names, now living on the TARGET). `legality.mjs`'s `checkConditionSaveLegal`, `decide.mjs`'s own proposal filter, and `engine.mjs`'s write-back and sandbox-clone-forward all updated together. Demoralize's own, genuinely-different, attacker-scoped `demoralizedTargets` mechanism is untouched — the two abilities' real text actually differs, so their code correctly differs too, rather than sharing a single mechanism that was only ever accidentally right for one of them.
+
+### Verification
+
+Seven new tests across `personnel-legality.test.mjs` (rewrote the two existing tests to set immunity on the target rather than the attacker, added a new test proving a SECOND, different attacker is also blocked once a target has already saved against an ability — the exact case a single-attacker roster can never expose) and `personnel-decide.test.mjs` (the same target-side check at the proposal-generation layer, plus a control proving immunity to one ability doesn't block a different one). Full suite green. One further check, done directly rather than assumed: a pre-existing end-to-end integration test (`personnel-engine.test.mjs`) that scripts the same attacker repeatedly trying `conditionSave` on the same target was still asserting the OLD rejection wording ("already tried") in its regex match — a real, if narrow, second casualty of the fix, caught by running the full suite rather than just the files touched directly. Updated to match the new, more accurate wording ("already immune"); the underlying behavior (attempt 1 legal, every later attempt rejected) is unchanged and was never what broke.
+
+### Files
+
+Changed: `tools/battle-simulator/personnel-engine/legality.mjs`, `tools/battle-simulator/personnel-engine/engine.mjs`, `tools/battle-simulator/personnel-engine/decide.mjs`. Tests: `test/battle-simulator/personnel-legality.test.mjs`, `test/battle-simulator/personnel-decide.test.mjs`, `test/battle-simulator/personnel-engine.test.mjs` (all extended/corrected).
+
+## 35. Real cover-seeking, an aggression dial, and a genuinely blind randomized opening
+
+The largest single ask this session, three related threads from one message:
+
+> *"I also note that tokens still don't run for cover, they don't seek to stand next to cover and place it between themselves and their opponents. Once they get within range they just plunk away with ranged weapons and everything stops being a simulation and ends up looking very strange. Could we introduce some behaviours? Maybe we could have some characters act more aggressive, moving towards enemies."*
+>
+> *"We shouldn't always spawn our two sides in the same places, we should spawn them randomly within two randomly chosen arcs with a distance between each other. If a token starts being able to see an opponent token then that's not a valid starting point. That means we get a moment of tokens exploring, where they move around almost randomly, then once contact begins characters move towards their nearest enemy. Eventually we might make it that good and bad characters alike move towards the sounds of violence... The idea is that we need to do this to actually get a wide range of results and start getting better feedback on what's working and what isn't."*
+
+### Cover-seeking: real, measured before/after, not a guess
+
+§31's own audit had already root-caused why nobody retreats: `lowHpCaution`'s linear ramp capped out at a mere 3x even at 0 HP (weight 2.0), and `threatExposure`'s own base weight (0.12) is so heavily discounted that even that ceiling (0.36 effective) never got remotely close to `enemyDamage`/`allyDamage`'s 1.0-per-HP scale — a real, mediocre attack routinely outscored full retreat regardless of how close to death anyone was. Ingram watching real play independently confirmed the exact same symptom from the outside, unprompted.
+
+Two changes to `state-value.mjs`'s `lowHpFactor`, together: `lowHpCaution` raised 2.0 -> 8.0 (bringing the ceiling to 9x, ~1.08 effective — just past parity with a real attack), and the ramp changed from linear to CUBIC in `(1 - hpFraction)` — deliberately still continuous, no threshold/cliff (§22's own "moving 3x is an alarm" lesson), just shaped so the higher ceiling only actually bites in roughly the last quarter of HP rather than making moderately-hurt combatants over-cautious through the whole middle of the range.
+
+**Measured, not guessed**, using a fresh, purpose-built script (`measure-low-hp-retreat.mjs`, scratchpad-only) applying §31's own methodology — every party-combatant turn starting at <=34% max HP, did the turn's first move increase or decrease distance to the nearest living enemy — run once against the logs on disk BEFORE regenerating (60 logs, old weights) and once after (75 logs — see below for the +15 — new weights):
+
+| | Before | After |
+|---|---|---|
+| Qualifying low-HP turns | 97 | 126 |
+| Zero movement | 36.1% | 27.0% |
+| Moved AWAY (real retreat) | 33.0% | **42.9%** |
+
+A real, directional, measured improvement — not a total transformation (this is one weight change, not a rewrite of the tactical layer), and stated honestly as such.
+
+### `aggression`: an opt-in per-combatant dial, not a new taxonomy
+
+Ingram's "maybe some characters act more aggressive" is answered with the smallest mechanism that does the job: a single optional numeric field, `combatant.aggression` (default 1 — every existing fixture completely unaffected), read inside `evaluateState`'s own per-ally loop and applied as a divisor on that ONE combatant's caution factor (`cautionFactor = lowHpFactor * outnumberedFactor / aggression`). A value above 1 makes a combatant discount their own exposure risk — "moving towards enemies" falls out as an emergent consequence of reduced fear, not a second, independent "wants to attack" mechanism layered on top. Deliberately NOT wired onto any real fixture yet — which specific character (if any) should be the aggressive one is a roster/creative call, not an engineering one, and nothing in Ingram's message named a specific character; the mechanism is real, tested, and ready whenever that call gets made.
+
+### The exploration gap this whole feature exposed
+
+Building genuinely blind deployment surfaced a real, necessary companion problem: `generateProposals`'s entire movement-candidate section is driven by `believedPositions` (design doc §15s) — with zero known enemies, EVERY enemy-directed destination candidate is skipped, and with no hurt ally or scripted objective either, `destinations` stays completely empty. A combatant in that state would hold forever, every turn, since nobody can ever discover anybody if nobody moves. A new, gated candidate fixes this: when `believedPositions.size === 0`, propose one real, seeded-random reachable cell (via `reachableCells`, using `decisionRng` — never the battle's own dice stream, matching this file's own established separation) as a genuine "explore" move. This is what makes "a moment of tokens exploring, moving around almost randomly" a real, working behavior rather than just a description of intent.
+
+### Genuine fog of war at deployment — a real, scoped fork of an existing decision
+
+`belief.mjs`'s `refreshBelief` has always seeded every side's belief with the TRUE enemy lineup at deployment, regardless of Line of Effect — a deliberate §15s decision ("everyone sees the battlefield lineup before wall quirks kick in"), reasonable for the existing hand-picked setups where "the lineup" and "a specific room" were the same known thing. It's fundamentally incompatible with what Ingram is now asking for: a genuine "find each other first" opening requires actually not knowing where the enemy started. Rather than silently overriding a real, working, deliberate prior decision for every scenario, `refreshBelief` now checks a new opt-in `state.blindDeployment` flag — set ONLY by the new randomized-arc deployment (below) — and starts belief genuinely empty when it's true. Every existing fixed setup keeps §15s's original behavior completely unchanged; this is a new, narrower mode sitting alongside it, not a replacement.
+
+### Randomized arc deployment, with a real, verified guarantee
+
+New, map-agnostic module (`scenarios/random-deployment.mjs`): pick two directions from the map's center at least 90° apart (a real angular-separation floor, not just "random and hope"), walk each out to near the map's own boundary (a real ray-to-box-edge intersection), cluster each side's combatants there in the same tight-arrival-together shape the existing hand-picked setups already use, and — the actual point — reject the whole attempt and re-roll (still fully seeded/reproducible) if ANY combatant on one side would start with real Line of Effect to ANY combatant on the other. Wired into `personnel-complex-battle.mjs` as a new `"RANDOM_ARCS"` setup value, which also sets the new `blindDeployment` flag on the returned scenario — the deployment guarantee and the belief fork are meant to be used together, and `RANDOM_ARCS` is what turns both on at once. A new named scenario, `complex-3v3-random-arcs`, registers it for real log generation alongside the existing fixed setups (round limit raised 40 -> 60: a genuinely blind opening spends real turns exploring before contact is even possible, on top of whatever the fight itself needs afterward).
+
+### Verification
+
+24 new tests: `random-deployment.test.mjs` (ray-box geometry, cluster placement including a real wall-sealed-neighbor case, and the deployment generator itself — zero cross-side Line of Effect on a real dividing-wall map, in-bounds/no-overlap, exact reproducibility per seed, real variety across seeds, the 90° separation floor checked structurally across 20 seeds, and a deliberately-impossible zero-wall map proving it throws a clear error rather than silently violating its own guarantee), plus new `personnel-complex-battle.test.mjs` coverage proving the same guarantee holds on the REAL complex-battle map (not just the generator's own synthetic test map), reproducibility/variety at the full scenario-builder level, clean end-to-end resolution across 5 seeds, and — the actual behavioral proof — a real battle showing genuine pre-contact movement with zero frozen turns.
+
+Then generated 15 fresh `complex-3v3-random-arcs` logs and rebuilt the artifact (75 runs total now, up from 60), and drove one live in the browser: deployment placed the two sides at (28,28)-(29,29) and (1,17)-(2,18) on the 44x30 map — genuinely far apart, not a corner-adjacency accident — first contact landed at step 63 of 100, and every single one of the 62 pre-contact turns showed real movement (0 frozen turns) — the exploration behavior working exactly as designed, not just in theory. Confirmed the existing "fast-forward to first contact" button (§30) still lands exactly on the independently-computed contact step against this new deployment mode too. Console clean throughout.
+
+The full battle-simulator suite required three real fix passes to go green after this pass's changes — each one a genuine, distinct casualty of a deliberate behavior change, not a flaky retry: two stale test assertions (§34's own "already tried" -> "already immune" wording change, and this section's `lowHpCaution` linear -> cubic curve, both updated to assert the new intended shape rather than the old one) and one registry-completeness test that hardcoded the exact set of six scenario names and needed the new seventh added. All caught by running the FULL suite, not just the files touched directly — the personnel-engine.test.mjs and run-personnel-scenario-cli.test.mjs casualties in particular lived in files this pass never directly edited.
+
+### What wasn't attempted this pass
+
+- **§31's Priority 3** (the evaluator's blindness to `dyingValue`/`woundedValue`) — still untouched, still flagged, still a separate weight/incentive question from the concrete fixes above.
+- **"Move towards the sounds of violence"** — Ingram's own framing was explicitly "eventually," not now. Would need combat NOISE as a real, positional, decaying signal distinct from belief's current position-only memory — real future scope, not attempted here.
+- **Assigning `aggression` to any specific real fixture** — the mechanism is built and tested; which character (if any) becomes the aggressive one is left for Ingram's own call, not decided here.
+- **A real screenshot** — still unavailable this session, unchanged from every prior pass' note.
+
+### Files
+
+Changed: `tools/battle-simulator/personnel-engine/evaluate/state-value.mjs` (`lowHpFactor` cubic + raised ceiling, `aggression` dampener), `tools/battle-simulator/ai/knowledge/belief.mjs` and `tools/battle-simulator/personnel-engine/knowledge/belief.mjs` (both — real separate copies, not a re-export — gain the `blindDeployment` fork), `tools/battle-simulator/personnel-engine/engine.mjs` (`state.blindDeployment` wiring), `tools/battle-simulator/personnel-engine/decide.mjs` (the blind-exploration candidate), `tools/battle-simulator/scenarios/personnel-complex-battle.mjs` (`RANDOM_ARCS` setup), `tools/battle-simulator/run-personnel-scenario.mjs` (`complex-3v3-random-arcs` registered). New: `tools/battle-simulator/scenarios/random-deployment.mjs`. Regenerated: all 33 pre-existing personnel-scale logs plus 15 new `complex-3v3-random-arcs` logs, `logs/index.json`, `tools/battle-simulator/artifact/contact-simulation.html`. Tests: `test/battle-simulator/personnel-state-value.test.mjs` (extended), `test/battle-simulator/random-deployment.test.mjs` (new), `test/battle-simulator/personnel-complex-battle.test.mjs` (extended), `test/battle-simulator/run-personnel-scenario-cli.test.mjs` (corrected).

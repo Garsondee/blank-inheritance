@@ -159,6 +159,23 @@ test("generateProposals (design doc §32): healAbility is UNAFFECTED — an ally
   assert.ok(proposals.some((p) => p.type === "healAbility" && p.targetId === "target"), "an unconscious ally must still be a legal, proposed heal target");
 });
 
+// design doc §34 — a direct user report: Forced Reflection's real text makes the TARGET immune
+// ("the target is then temporarily immune to Forced Reflection"), not just the one attacker who
+// tried it — checked here at the proposal-generation layer, mirroring legality.mjs's own coverage.
+test("generateProposals (design doc §34): no conditionSave proposal is generated against a target already immune to that SAME ability, even from a DIFFERENT attacker than whoever first triggered the immunity", () => {
+  const { state, turn } = makeFullKitState({ targetHP: 10 });
+  state.combatants.get("target").conditionSaveImmunities = ["Glare"];
+  const proposals = generateProposals(state, "me", turn);
+  assert.equal(proposals.filter((p) => p.type === "conditionSave" && p.targetId === "target").length, 0, "'me' never tried Glare on this target before — the immunity came from elsewhere, and must still block it");
+});
+
+test("generateProposals (design doc §34): a conditionSave proposal against a DIFFERENT, non-immune target is unaffected", () => {
+  const { state, turn } = makeFullKitState({ targetHP: 10 });
+  state.combatants.get("target").conditionSaveImmunities = ["Some Other Ability"]; // immune to a different ability, not Glare
+  const proposals = generateProposals(state, "me", turn);
+  assert.ok(proposals.some((p) => p.type === "conditionSave" && p.targetId === "target"), "immunity to a different ability must not block Glare");
+});
+
 // --- Move through allies (design doc §24 — Ingram's own direct correction: "Characters can move
 // through friendly character spaces per the rules"), proven through the REAL pathfinding entry
 // points the AI actually calls, not just the lower-level reachableCells/blocksPassage unit tests. ---

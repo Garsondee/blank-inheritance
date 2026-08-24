@@ -537,7 +537,10 @@ test("conditionSave: a target already tried with this ability is rejected on a s
   assert.equal(attempts[0].legal, true);
   for (const later of attempts.slice(1)) {
     assert.equal(later.legal, false);
-    assert.match(later.reason, /already tried/);
+    // design doc §34: the rejection reason changed from "the attacker already tried" to "the
+    // target is already immune" when the gate moved from attacker-side to target-side tracking —
+    // same real behavior (a second attempt is still rejected), more accurate wording.
+    assert.match(later.reason, /already immune/);
   }
 });
 

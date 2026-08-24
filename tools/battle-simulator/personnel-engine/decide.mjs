@@ -350,11 +350,13 @@ export function generateProposals(state, combatantId, turn) {
   }
 
   // --- Condition-only saves (design doc §22, e.g. Forced Reflection): same "skip an
-  // already-doomed-to-fail proposal" filtering as Demoralize above, keyed per-ability since a
-  // combatant could have more than one (checkConditionSaveLegal's own gate key). ---
+  // already-doomed-to-fail proposal" filtering as Demoralize above. Design doc §34: checked on the
+  // TARGET's own conditionSaveImmunities, not the attacker's — Forced Reflection's real text makes
+  // the target immune to anyone, not just this one attacker (contrast Demoralize just above, which
+  // really is attacker-scoped, per its own real "you can't... again" wording). ---
   (me.conditionSaves ?? []).forEach((cs, i) => {
     for (const e of targetableEnemies) {
-      if (me.conditionSaveTargets?.includes(`${cs.name}|${e.id}`)) continue;
+      if (e.conditionSaveImmunities?.includes(cs.name)) continue;
       proposals.push({ type: "conditionSave", targetId: e.id, conditionSaveIndex: i });
     }
   });
@@ -405,6 +407,29 @@ export function generateProposals(state, combatantId, turn) {
     if (aPos && a.currentHP < a.maxHP) addDest(bestDestinationToward(state, combatantId, myPos, aPos, speed, FEET_PER_SQUARE, destCache));
   }
   if (me.objective) addDest(bestDestinationToward(state, combatantId, myPos, me.objective, speed, 0, destCache));
+
+  // design doc §35 — Ingram's own ask: with a genuinely blind deployment (no starting Line of
+  // Effect on either side — see engine.mjs's own `blindDeployment`), a side that has never
+  // perceived a single enemy gets NO enemy-directed destination from the loop above —
+  // believedPositions is empty, so it never runs at all — and with no hurt ally or scripted
+  // objective either, `destinations` would stay completely empty, freezing everyone in place
+  // forever: nobody can ever discover anybody if nobody moves. "A moment of tokens exploring,
+  // where they move around almost randomly" is a real random reachable cell, drawn from this
+  // combatant's own decisionRng (never the battle's own dice stream — see decisionRng's own
+  // header) so it varies seed to seed and turn to turn without needing any secret knowledge of
+  // where the enemy actually started.
+  if (believedPositions.size === 0) {
+    const exploreCells = [...reachableCells({
+      from: myPos, maxFeet: speed, gridSize: state.gridSize,
+      occupiedPositions: otherLivingPositions(state, combatantId), walls: state.walls, moverSide: me.side
+    }).values()];
+    if (exploreCells.length) {
+      const rng = decisionRng(state, combatantId, turn.decisionIndex ?? 0);
+      const pick = exploreCells[Math.floor(rng() * exploreCells.length)];
+      const last = pick.path[pick.path.length - 1];
+      addDest({ col: last.col, row: last.row, path: pick.path });
+    }
+  }
 
   for (const d of destinations.values()) proposals.push({ type: "move", to: d });
 

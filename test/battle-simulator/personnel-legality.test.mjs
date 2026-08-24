@@ -573,19 +573,32 @@ test("checkConditionSaveLegal: respects Line of Effect, same as every other targ
   assert.match(result.reason, /line of effect/i);
 });
 
-test("checkConditionSaveLegal: rejects a target already tried with this SAME ability this encounter (the real 'immune for 1 day' text, functionally 'never again' within a combat this short)", () => {
-  const attacker = { id: "a", name: "Erabryth", currentHP: 20, conditionSaveTargets: ["Forced Reflection|t"] };
-  const target = { id: "t", name: "Target", currentHP: 10 };
+test("checkConditionSaveLegal: rejects a target already immune to this SAME ability this encounter (the real 'the target is then temporarily immune... for 1 day' text, functionally 'never again' within a combat this short)", () => {
+  const attacker = { id: "a", name: "Erabryth", currentHP: 20 };
+  const target = { id: "t", name: "Target", currentHP: 10, conditionSaveImmunities: ["Forced Reflection"] };
   const result = checkConditionSaveLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, conditionSave: forcedReflection, turnState: openBudget });
   assert.equal(result.legal, false);
-  assert.match(result.reason, /already tried/);
+  assert.match(result.reason, /already immune/);
 });
 
 test("checkConditionSaveLegal: the immunity gate is keyed PER-ABILITY, not just per-target — a different conditionSave against the same target is unaffected", () => {
-  const attacker = { id: "a", name: "Erabryth", currentHP: 20, conditionSaveTargets: ["Some Other Ability|t"] };
-  const target = { id: "t", name: "Target", currentHP: 10 };
+  const attacker = { id: "a", name: "Erabryth", currentHP: 20 };
+  const target = { id: "t", name: "Target", currentHP: 10, conditionSaveImmunities: ["Some Other Ability"] };
   const result = checkConditionSaveLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, conditionSave: forcedReflection, turnState: openBudget });
   assert.equal(result.legal, true);
+});
+
+// REGRESSION (design doc §34 — a direct user report of a real, if latent, bug: this whole gate
+// used to live on the ATTACKER, matching Demoralize's shape — but Forced Reflection's real text
+// makes the TARGET immune, not just to one attacker. Only matters once a second
+// Forced-Reflection-capable creature exists, which is exactly why this needs its own explicit test
+// rather than trusting the two tests above (a single-attacker roster can't tell the two shapes
+// apart) — proven here with two DIFFERENT attackers.
+test("checkConditionSaveLegal: immunity is TARGET-side, not attacker-side — a DIFFERENT attacker is also blocked once the target has already saved against this ability once this encounter", () => {
+  const secondAttacker = { id: "b", name: "A Second Forced-Reflection Creature", currentHP: 20 };
+  const target = { id: "t", name: "Target", currentHP: 10, conditionSaveImmunities: ["Forced Reflection"] };
+  const result = checkConditionSaveLegal({ attacker: secondAttacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, conditionSave: forcedReflection, turnState: openBudget });
+  assert.equal(result.legal, false, "Player Core: 'the target is then temporarily immune to Forced Reflection' — immune to the ABILITY, not just to whichever creature tried it first");
 });
 
 test("checkConditionSaveLegal: rejects when the action budget doesn't allow it", () => {

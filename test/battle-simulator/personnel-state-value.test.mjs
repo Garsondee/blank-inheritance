@@ -241,13 +241,45 @@ test("lowHpCaution: at full HP (and a fair, unoutnumbered match) the caution cos
   assert.ok(Math.abs(cost) < 1e-9, `expected zero caution cost at full HP with a fair 1v1, got ${cost.toFixed(4)}`);
 });
 
-test("lowHpCaution: scales LINEARLY with HP fraction, not a threshold — the exactly-continuous shape design doc §22's own 'moving 3x is an alarm' bug taught this project to prefer over any cliff", () => {
-  // cautionCost is proportional to (1 - hpFraction) at a fair, unoutnumbered ratio (outnumberedFactor
-  // stays pinned at 1 throughout, unaffected by HP) — so cost(15 of 20 HP)/cost(10 of 20 HP) must
-  // equal (1-15/20)/(1-10/20) = 0.25/0.50 = 0.5 exactly, a precise check, not just "goes up."
+// design doc §35: the ramp changed from linear to CUBIC in (1-hpFraction) — §31's own audit found
+// the old linear curve's 3x ceiling never got remotely close to competing with a real attack, and
+// raising the ceiling ALONE (without reshaping the curve) would have made caution kick in too early
+// through the middle of the HP range, not just when things are genuinely dire.
+test("lowHpCaution: scales CUBICALLY with HP fraction, not linearly and not a threshold — still exactly continuous (no cliff, matching design doc §22's own 'moving 3x is an alarm' lesson), just a curve that stays flatter through most of the range", () => {
+  // cost(15 of 20 HP)/cost(10 of 20 HP) must equal (1-15/20)^3/(1-10/20)^3 = 0.25^3/0.5^3 = 0.125
+  // exactly — a precise check of the actual shape, not just "goes up faster than before."
   const at15 = cautionCost(makeState({ allyCount: 1, enemyCount: 1, allyHP: 15 }));
   const at10 = cautionCost(makeState({ allyCount: 1, enemyCount: 1, allyHP: 10 }));
-  assert.ok(Math.abs(at15 / at10 - 0.5) < 1e-6, `expected cost(15hp)/cost(10hp) == 0.5 exactly (got ${(at15 / at10).toFixed(4)}, at15=${at15.toFixed(4)}, at10=${at10.toFixed(4)})`);
+  assert.ok(Math.abs(at15 / at10 - 0.125) < 1e-6, `expected cost(15hp)/cost(10hp) == 0.125 exactly (got ${(at15 / at10).toFixed(4)}, at15=${at15.toFixed(4)}, at10=${at10.toFixed(4)})`);
+});
+
+test("lowHpCaution: at (near) 0 HP, the raised ceiling brings threatExposure's effective weight to just past enemyDamage's own 1.0-per-HP scale — the actual fix for cover-seeking losing to a mediocre attack even at death's door", () => {
+  // effective weight = DEFAULT threatExposure(0.12) * (1 + lowHpCaution(8) * (1-hpFraction)^3), which
+  // -> 0.12 * 9 = 1.08 as hpFraction -> 0. Checked at 1 HP (not 0 — a combatant AT exactly 0 HP is
+  // skipped by this whole per-ally loop entirely, matching how a downed combatant no longer has a
+  // real "stay safe from here" decision to make; this is about the ceiling still-in-the-fight
+  // combatants approach as they near it, not the unconscious/dead edge case itself).
+  const expectedEffectiveWeight = DEFAULT_WEIGHTS.threatExposure * (1 + DEFAULT_WEIGHTS.lowHpCaution);
+  assert.ok(expectedEffectiveWeight > 1.0, `expected the near-0-HP ceiling to exceed enemyDamage's 1.0-per-HP scale, got ${expectedEffectiveWeight.toFixed(3)}`);
+  const cost = cautionCost(makeState({ allyCount: 1, enemyCount: 1, allyHP: 1 }));
+  assert.ok(cost > 0, "sanity: some real caution cost must actually apply at 1 HP");
+});
+
+// design doc §35 — Ingram's own ask: "some characters act more aggressive, moving towards enemies."
+test("aggression: an opt-in per-combatant field that dampens ONLY that combatant's own caution — absent (undefined) means zero behavior change from before this field existed", () => {
+  const base = makeState({ allyCount: 1, enemyCount: 1, allyHP: 5 });
+  const baseline = cautionCost(base);
+  const stillBaseline = cautionCost({ ...base, combatants: new Map([...base.combatants].map(([id, c]) => [id, { ...c, aggression: 1 }])) });
+  assert.ok(Math.abs(baseline - stillBaseline) < 1e-9, "aggression:1 must be a pure no-op, identical to the field being absent entirely");
+});
+
+test("aggression: a value above 1 reduces the caution cost for THAT combatant, without affecting an unrelated ally evaluated the same way", () => {
+  const hurt = makeState({ allyCount: 1, enemyCount: 1, allyHP: 5 });
+  const cautious = cautionCost(hurt);
+  const aggressive = { ...hurt, combatants: new Map([...hurt.combatants].map(([id, c]) => [id, c.side === "party" ? { ...c, aggression: 4 } : c])) };
+  const dampened = cautionCost(aggressive);
+  assert.ok(dampened < cautious, `expected aggression:4 to LOWER the caution cost (cautious=${cautious.toFixed(3)}, dampened=${dampened.toFixed(3)})`);
+  assert.ok(Math.abs(dampened - cautious / 4) < 1e-6, `expected the caution cost to divide cleanly by the aggression factor (cautious/4=${(cautious / 4).toFixed(4)}, got ${dampened.toFixed(4)})`);
 });
 
 test("outnumberedCaution: a lone ally seeing 2 enemies (ratio 2:1) has a strictly nonzero caution cost", () => {

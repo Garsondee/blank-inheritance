@@ -49,13 +49,14 @@ test("planRuns: --roundLimit override applies to every planned run", () => {
   assert.ok(plans.every((p) => p.roundLimit === 3));
 });
 
-test("planRuns against the REAL registry (no fake override): all three real Phase 1b room configurations plus the three 3v3 complex-battle setups (design doc §22) are registered, each buildable without throwing", () => {
+test("planRuns against the REAL registry (no fake override): all three real Phase 1b room configurations, the three fixed 3v3 complex-battle setups (design doc §22), and the randomized-arc 3v3 setup (design doc §35) are registered, each buildable without throwing", () => {
   const plans = planRuns({}); // no second arg -> the module's own real SCENARIOS
   const names = plans.map((p) => p.scenario).sort();
   assert.deepEqual(names, [
     "complex-3v3-diagonal-nw-se",
     "complex-3v3-diagonal-sw-ne",
     "complex-3v3-north-south-ends",
+    "complex-3v3-random-arcs",
     "lunar17-vs-security-goon-adjacent-rooms",
     "lunar17-vs-security-goon-far-rooms",
     "lunar17-vs-security-goon-same-room"

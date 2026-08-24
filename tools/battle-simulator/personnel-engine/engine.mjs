@@ -231,6 +231,10 @@ export function runBattle(scenario) {
     seed: scenario.seed,
     initiativeOrder: null, // filled immediately below, once the roll has happened
     walls: scenario.walls, // Foundry Wall-schema segments (design doc §19 Phase 1b) — undefined means none
+    // design doc §35 — opt-in, undefined/false means completely unchanged §15s behavior (deployment
+    // seeds true enemy positions into belief); only a genuinely LOS-validated random deployment sets
+    // this, so belief.mjs's own refreshBelief starts empty instead — see that file's own comment.
+    blindDeployment: scenario.blindDeployment,
     combatants: new Map(scenario.combatants.map((c) => [c.id, structuredClone(c)])),
     positions: new Map(scenario.combatants.map((c) => [c.id, { ...c.position }]))
   };
@@ -793,7 +797,10 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     // the identical "higher value wins" rule — Conditions Appendix, Player Core).
     if (applied.frightened != null) target.frightened = Math.max(target.frightened ?? 0, applied.frightened);
     if (applied.stunnedValue != null) target.stunnedValue = Math.max(target.stunnedValue ?? 0, applied.stunnedValue);
-    combatant.conditionSaveTargets = [...(combatant.conditionSaveTargets ?? []), `${conditionSaveAbility.name}|${proposal.targetId}`];
+    // Design doc §34: tracked on the TARGET, not the attacker — Forced Reflection's real text is
+    // "the target is then temporarily immune," not "you can't try again" (contrast Demoralize's
+    // own attacker-scoped demoralizedTargets, just below, which really is worded that way).
+    target.conditionSaveImmunities = [...(target.conditionSaveImmunities ?? []), conditionSaveAbility.name];
     turnProgress.actionsUsed += conditionSaveAbility.actions ?? 1;
 
     return {
@@ -865,7 +872,7 @@ function checkOutcome(state) {
  *
  * Mutable surface at personnel scale: state.round; state.combatants.<id>.{currentHP,
  * stunnedValue, frightened, dyingValue, woundedValue, prone, demoralizedTargets,
- * conditionSaveTargets}; state.combatants.<id>.{strikes,spells,healAbilities,saveAttacks,
+ * conditionSaveImmunities}; state.combatants.<id>.{strikes,spells,healAbilities,saveAttacks,
  * conditionSaves}[i].usesRemaining; state.positions.<id>.{col,row}. (No reactionAvailable map —
  * this tree fires no reactions, see this file's own header.) dyingValue/woundedValue/prone are
  * design doc §25 additions, flat scalars for the exact same reason frightened/stunnedValue already
@@ -881,7 +888,7 @@ export function cloneStateForPlanning(state) {
     if (c.saveAttacks) copy.saveAttacks = c.saveAttacks.map((s) => ({ ...s }));
     if (c.conditionSaves) copy.conditionSaves = c.conditionSaves.map((s) => ({ ...s }));
     if (c.demoralizedTargets) copy.demoralizedTargets = [...c.demoralizedTargets];
-    if (c.conditionSaveTargets) copy.conditionSaveTargets = [...c.conditionSaveTargets];
+    if (c.conditionSaveImmunities) copy.conditionSaveImmunities = [...c.conditionSaveImmunities];
     combatants.set(id, copy);
   }
   const positions = new Map();

@@ -11,6 +11,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { decide } from "../personnel-engine/decide.mjs";
 import { GRID_SIZE, WALLS, SETUPS } from "../data/personnel-test-complex.mjs";
+import { generateRandomArcDeployment } from "./random-deployment.mjs";
+import { makeRng } from "../engine/rng.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(here, "..", "data", "raw-validation-fixtures");
@@ -28,17 +30,38 @@ function ai(state, combatantId, turnState) {
  * @param {number} args.seed
  * @param {string[]} args.partyFixtures - real fixture filenames, e.g. ["lunar-17.json", "..."]
  * @param {string[]} args.oppositionFixtures - real fixture filenames
- * @param {"DIAGONAL_SW_NE"|"DIAGONAL_NW_SE"|"NORTH_SOUTH_ENDS"} [args.setup]
+ * @param {"DIAGONAL_SW_NE"|"DIAGONAL_NW_SE"|"NORTH_SOUTH_ENDS"|"RANDOM_ARCS"} [args.setup] -
+ *   design doc §35: "RANDOM_ARCS" replaces the fixed lineup with `generateRandomArcDeployment` —
+ *   a real, seeded-but-varied opening with NO starting Line of Effect between the two sides,
+ *   verified rather than assumed (see that module's own header). Also sets `blindDeployment` on
+ *   the returned scenario, so belief.mjs starts genuinely empty instead of §15s's usual
+ *   deployment-seeds-the-true-lineup default — the two are meant to be used together (see
+ *   engine.mjs's own `blindDeployment` field and belief.mjs's own comment on it).
  * @param {number} [args.roundLimit]
  */
 export function buildScenario({ seed, partyFixtures, oppositionFixtures, setup = "DIAGONAL_SW_NE", roundLimit = 40 } = {}) {
-  const positions = SETUPS[setup];
-  if (!positions) throw new Error(`Unknown setup "${setup}" — expected one of ${Object.keys(SETUPS).join(", ")}.`);
-  if (partyFixtures.length > positions.partyPositions.length) {
-    throw new Error(`Setup "${setup}" only defines ${positions.partyPositions.length} party spawn point(s), asked for ${partyFixtures.length} party fixture(s).`);
-  }
-  if (oppositionFixtures.length > positions.oppositionPositions.length) {
-    throw new Error(`Setup "${setup}" only defines ${positions.oppositionPositions.length} opposition spawn point(s), asked for ${oppositionFixtures.length} opposition fixture(s).`);
+  let positions;
+  let blindDeployment = false;
+  if (setup === "RANDOM_ARCS") {
+    // A distinct RNG stream from the battle's own seed — matching decide.mjs's own decisionRng
+    // precedent (see that function's header): drawing deployment randomness from the same stream
+    // the battle's real dice use would desync every subsequent roll the instant this algorithm's
+    // own random-draw count changed for any reason.
+    const deploymentRng = makeRng((seed ^ 0x52414e44) >>> 0); // 0x52414e44 = "RAND" — just a fixed mixing constant, not meaningful beyond decorrelating the two streams
+    const deployment = generateRandomArcDeployment({
+      gridSize: GRID_SIZE, walls: WALLS, partyCount: partyFixtures.length, oppositionCount: oppositionFixtures.length, rng: deploymentRng
+    });
+    positions = deployment;
+    blindDeployment = true;
+  } else {
+    positions = SETUPS[setup];
+    if (!positions) throw new Error(`Unknown setup "${setup}" — expected one of ${[...Object.keys(SETUPS), "RANDOM_ARCS"].join(", ")}.`);
+    if (partyFixtures.length > positions.partyPositions.length) {
+      throw new Error(`Setup "${setup}" only defines ${positions.partyPositions.length} party spawn point(s), asked for ${partyFixtures.length} party fixture(s).`);
+    }
+    if (oppositionFixtures.length > positions.oppositionPositions.length) {
+      throw new Error(`Setup "${setup}" only defines ${positions.oppositionPositions.length} opposition spawn point(s), asked for ${oppositionFixtures.length} opposition fixture(s).`);
+    }
   }
 
   // runBattle keys its live combatant map by `id` (engine.mjs: `new Map(scenario.combatants.map(c
@@ -54,5 +77,5 @@ export function buildScenario({ seed, partyFixtures, oppositionFixtures, setup =
     ...oppositionFixtures.map((file, i) => ({ ...withUniqueId(loadFixture(file), i, "o"), position: { ...positions.oppositionPositions[i] } }))
   ];
 
-  return { seed, gridSize: GRID_SIZE, roundLimit, combatants, ai, walls: WALLS };
+  return { seed, gridSize: GRID_SIZE, roundLimit, combatants, ai, walls: WALLS, blindDeployment };
 }
