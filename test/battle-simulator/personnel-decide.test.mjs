@@ -105,6 +105,60 @@ test("an enemy with NO belief entry at all (never perceived, not even at deploym
   assert.equal(movesTowardEnemy.length, 0, "no destination candidate should reference an enemy this side has no belief about at all");
 });
 
+// --- Design doc §32 — a direct instruction, not a RAW question (Player Core fully permits
+// attacking an unconscious creature; legality.mjs is unchanged): "we will not actually build an AI
+// which kills downed players deliberately... the only reason to target a downed unconscious
+// character would be to heal them." An unconscious combatant only ever exists on the PARTY side
+// (conditions.mjs's isUnconscious — an ordinary NPC dies outright at 0 HP), so these fixtures put
+// "me" on the OPPOSITION side targeting a downed PARTY member, matching the real bug this closes
+// (§31's audit found 3 of 4 real Demoralize uses in actual logs targeted an unconscious ally). ---
+
+function makeFullKitState({ targetHP = 10 } = {}) {
+  const mePos = { col: 0, row: 0 };
+  const targetPos = { col: 0, row: 1 };
+  const me = {
+    id: "me", name: "Me", side: "opposition", currentHP: 16, maxHP: 16, speed: 25,
+    strikes: [{ name: "Claw", strikeType: "melee", attackBonus: 10, traits: [], damage: [{ dice: "1d4", bonus: 0 }] }],
+    spells: [{ name: "Zap", attackBonus: 10, range: 30, actions: 2, traits: ["attack"], damage: [{ dice: "1d4", bonus: 0 }] }],
+    saveAttacks: [{ name: "Blast", range: 30, actions: 2, dc: 18, damage: [{ dice: "2d6", bonus: 0 }] }],
+    conditionSaves: [{ name: "Glare", range: 30, actions: 1, dc: 18 }],
+    intimidationModifier: 5,
+    position: mePos
+  };
+  const target = { id: "target", name: "Target", side: "party", currentHP: targetHP, maxHP: 16, speed: 0, position: targetPos };
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["me", me], ["target", target]]),
+    positions: new Map([["me", { ...mePos }], ["target", { ...targetPos }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };
+  return { state, turn };
+}
+
+test("generateProposals (design doc §32) baseline: a full-kit opposition combatant DOES get strike/spellAttack/saveAttack/demoralize/conditionSave proposals against a normal, conscious party target", () => {
+  const { state, turn } = makeFullKitState({ targetHP: 10 });
+  const proposals = generateProposals(state, "me", turn);
+  for (const type of ["strike", "spellAttack", "saveAttack", "demoralize", "conditionSave"]) {
+    assert.ok(proposals.some((p) => p.type === type && p.targetId === "target"), `expected at least one ${type} proposal against a conscious target`);
+  }
+});
+
+test("generateProposals (design doc §32): the SAME full kit gets ZERO strike/spellAttack/saveAttack/demoralize/conditionSave proposals once that exact target is unconscious (downed but not dead)", () => {
+  const { state, turn } = makeFullKitState({ targetHP: 0 }); // side "party", currentHP 0, dyingValue unset (0) -> isDead false, isUnconscious true
+  const proposals = generateProposals(state, "me", turn);
+  for (const type of ["strike", "spellAttack", "saveAttack", "demoralize", "conditionSave"]) {
+    assert.equal(proposals.filter((p) => p.type === type && p.targetId === "target").length, 0, `expected zero ${type} proposals against an unconscious target`);
+  }
+});
+
+test("generateProposals (design doc §32): healAbility is UNAFFECTED — an ally can and should still be offered a heal toward an unconscious teammate", () => {
+  const { state, turn } = makeFullKitState({ targetHP: 0 });
+  state.combatants.get("me").side = "party"; // "me" and "target" are now allies
+  state.combatants.get("me").healAbilities = [{ name: "Field Aid", healingAmount: 10, range: 30, actions: 1 }];
+  const proposals = generateProposals(state, "me", turn);
+  assert.ok(proposals.some((p) => p.type === "healAbility" && p.targetId === "target"), "an unconscious ally must still be a legal, proposed heal target");
+});
+
 // --- Move through allies (design doc §24 — Ingram's own direct correction: "Characters can move
 // through friendly character spaces per the rules"), proven through the REAL pathfinding entry
 // points the AI actually calls, not just the lower-level reachableCells/blocksPassage unit tests. ---

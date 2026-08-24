@@ -271,25 +271,77 @@
      size the container actually renders at" approach posToPx already relies on for the SVG layers,
      so the bubble tracks correctly regardless of how wide the map panel happens to be. */
   #bubbleLayer { position: absolute; inset: 0; pointer-events: none; }
+  /* design doc §32 — "x2 larger": every dimension below is exactly double §29's original
+     (200px->400px, 12px->24px font, etc.) — a deliberate, consistent scale-up, not ad hoc tweaks. */
   .thought-bubble {
-    position: absolute; transform: translate(-50%, -100%); max-width: 200px; width: max-content;
-    background: var(--surface); border: 1.5px solid var(--ink); border-radius: 10px;
-    padding: 6px 10px; font-size: 12px; line-height: 1.35; color: var(--ink);
+    position: absolute; max-width: 400px; width: max-content;
+    background: var(--surface); border: 3px solid var(--ink); border-radius: 20px;
+    padding: 12px 20px; font-size: 24px; line-height: 1.35; color: var(--ink);
     box-shadow: var(--shadow); opacity: 0; text-align: center;
   }
-  .thought-bubble::after {
+  .thought-bubble .tb-name { font-family: "Oswald", sans-serif; font-weight: 600; font-size: 19px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-muted); margin-bottom: 4px; }
+  /* design doc §32 — "the name of the action being taken followed by the symbols that SF2E uses
+     for actions... link the action to the cost of that action": a distinct footer line, separated
+     from the reasoning text above it, so cost reads as a separate fact rather than part of the
+     sentence. */
+  .thought-bubble .tb-action {
+    margin-top: 8px; padding-top: 8px; border-top: 2px solid var(--border);
+    font-family: "Oswald", sans-serif; font-weight: 600; font-size: 18px; letter-spacing: 0.02em;
+    color: var(--accent); display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .thought-bubble .tb-action .tb-cost { color: var(--amber); letter-spacing: 1px; }
+
+  /* design doc §32 — "smart about its positioning, not overlapping with tokens": four placements,
+     chosen at spawn time by pickBubblePlacement (JS) based on real other-token positions. Each
+     bundles its own anchor transform AND tail direction so the two never drift out of sync. */
+  .thought-bubble.place-top { transform: translate(-50%, -100%); }
+  .thought-bubble.place-bottom { transform: translate(-50%, 0%); }
+  .thought-bubble.place-left { transform: translate(-100%, -50%); }
+  .thought-bubble.place-right { transform: translate(0%, -50%); }
+
+  .thought-bubble.place-top::after {
     content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%);
-    border: 6px solid transparent; border-top-color: var(--ink);
+    border: 11px solid transparent; border-top-color: var(--ink);
   }
-  .thought-bubble::before {
+  .thought-bubble.place-top::before {
     content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%); z-index: 1;
-    border: 4.5px solid transparent; border-top-color: var(--surface); margin-top: -1.5px;
+    border: 8.5px solid transparent; border-top-color: var(--surface); margin-top: -2.5px;
   }
-  .thought-bubble .tb-name { font-family: "Oswald", sans-serif; font-weight: 600; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-muted); margin-bottom: 2px; }
-  .thought-bubble.playing { animation: bubbleIn 0.22s ease-out forwards; }
-  @keyframes bubbleIn { from { opacity: 0; transform: translate(-50%, -88%); } to { opacity: 1; transform: translate(-50%, -100%); } }
+  .thought-bubble.place-bottom::after {
+    content: ""; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%);
+    border: 11px solid transparent; border-bottom-color: var(--ink);
+  }
+  .thought-bubble.place-bottom::before {
+    content: ""; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); z-index: 1;
+    border: 8.5px solid transparent; border-bottom-color: var(--surface); margin-bottom: -2.5px;
+  }
+  .thought-bubble.place-left::after {
+    content: ""; position: absolute; top: 50%; left: 100%; transform: translateY(-50%);
+    border: 11px solid transparent; border-left-color: var(--ink);
+  }
+  .thought-bubble.place-left::before {
+    content: ""; position: absolute; top: 50%; left: 100%; transform: translateY(-50%); z-index: 1;
+    border: 8.5px solid transparent; border-left-color: var(--surface); margin-left: -2.5px;
+  }
+  .thought-bubble.place-right::after {
+    content: ""; position: absolute; top: 50%; right: 100%; transform: translateY(-50%);
+    border: 11px solid transparent; border-right-color: var(--ink);
+  }
+  .thought-bubble.place-right::before {
+    content: ""; position: absolute; top: 50%; right: 100%; transform: translateY(-50%); z-index: 1;
+    border: 8.5px solid transparent; border-right-color: var(--surface); margin-right: -2.5px;
+  }
+
+  .thought-bubble.playing.place-top { animation: bubbleInTop 0.22s ease-out forwards; }
+  .thought-bubble.playing.place-bottom { animation: bubbleInBottom 0.22s ease-out forwards; }
+  .thought-bubble.playing.place-left { animation: bubbleInLeft 0.22s ease-out forwards; }
+  .thought-bubble.playing.place-right { animation: bubbleInRight 0.22s ease-out forwards; }
+  @keyframes bubbleInTop { from { opacity: 0; transform: translate(-50%, -88%); } to { opacity: 1; transform: translate(-50%, -100%); } }
+  @keyframes bubbleInBottom { from { opacity: 0; transform: translate(-50%, -12%); } to { opacity: 1; transform: translate(-50%, 0%); } }
+  @keyframes bubbleInLeft { from { opacity: 0; transform: translate(-88%, -50%); } to { opacity: 1; transform: translate(-100%, -50%); } }
+  @keyframes bubbleInRight { from { opacity: 0; transform: translate(-12%, -50%); } to { opacity: 1; transform: translate(0%, -50%); } }
   @media (prefers-reduced-motion: reduce) {
-    .thought-bubble.playing { animation: none; opacity: 1; }
+    .thought-bubble.playing { animation: none !important; opacity: 1; }
   }
 
   /* Decision overlay (design doc §14h): a move's start->end path and a strike's attacker->target
@@ -1002,6 +1054,60 @@ const ACT_EFFECT_HOLD_MS = 1000;   // how long a combat-result label/burst stays
  * Position is tracked as the list is built (`pos`) so each beat carries the real position it needs
  * — the sequencer never has to re-derive "where is this combatant right now mid-turn."
  */
+// design doc §32 — real SF2E terminology only ("Make sure all names are the real names of those
+// things"): the generic basic-action verb for action types that don't already carry their own
+// real ability name (Player Core pg. 408/410, reference/srd/player-core/383-actions.json).
+// spellAttack/healAbility/saveAttack/conditionSave instead show the SPECIFIC real ability name
+// already extracted onto the action itself (spellName/abilityName/saveAttackName/
+// conditionSaveName) — more precise than a generic "Cast a Spell" verb, and unambiguously the real
+// name of the actual thing happening, not a guess at which generic verb category it falls under.
+const REAL_ACTION_NAME = { move: "Stride", step: "Step", strike: "Strike", demoralize: "Demoralize" };
+function realActionName(action) {
+  return REAL_ACTION_NAME[action.type]
+    ?? action.spellName ?? action.abilityName ?? action.saveAttackName ?? action.conditionSaveName
+    ?? action.type;
+}
+
+// design doc §32 — "the symbols that SF2E uses for actions... link the action to the cost of that
+// action": Player Core's own Action Icon Key (383-actions.json) names five real glyphs (Single
+// Action, Two-Action Activity, Three-Action Activity, Reaction, Free Action). This engine's own
+// action types only ever cost 1-3 actions (no reactions/free actions exist in personnel-engine's
+// real repertoire today — legality.mjs's own action list confirms it), but reaction/free are kept
+// here for completeness rather than assumed away.
+function actionCostIcons(n) {
+  if (n === 0) return "◇"; // Free Action
+  if (n < 0) return "↺"; // Reaction (this engine encodes a reaction as a negative/absent cost nowhere today — defensive only)
+  return "◆".repeat(Math.max(1, Math.round(n)));
+}
+
+// design doc §32 — "smart about its positioning, not overlapping with tokens": four candidate
+// placements (above/below/left/right of the speaking token), tried in preference order, picking
+// the first whose estimated bounding box doesn't come within TOKEN_EXCLUSION_PX of any OTHER
+// living combatant's real current position. A fixed size estimate (not the real rendered size,
+// which isn't known until after the browser lays out the wrapped text) is deliberately
+// conservative — good enough to dodge the obvious case (a token sitting directly under the
+// default placement), not a pixel-exact layout solver.
+const BUBBLE_EST_W = 400, BUBBLE_EST_H = 160, BUBBLE_GAP_PX = 4;
+function bubbleBoxFor(anchorPx, placement) {
+  const w = BUBBLE_EST_W, h = BUBBLE_EST_H, g = BUBBLE_GAP_PX;
+  if (placement === "top") return { left: anchorPx.x - w / 2, right: anchorPx.x + w / 2, top: anchorPx.y - h - g, bottom: anchorPx.y };
+  if (placement === "bottom") return { left: anchorPx.x - w / 2, right: anchorPx.x + w / 2, top: anchorPx.y, bottom: anchorPx.y + h + g };
+  if (placement === "left") return { left: anchorPx.x - w - g, right: anchorPx.x, top: anchorPx.y - h / 2, bottom: anchorPx.y + h / 2 };
+  return { left: anchorPx.x, right: anchorPx.x + w + g, top: anchorPx.y - h / 2, bottom: anchorPx.y + h / 2 }; // "right"
+}
+function pickBubblePlacement(anchorPx, otherPositions) {
+  const exclusion = CELL * 0.7;
+  for (const placement of ["top", "bottom", "right", "left"]) {
+    const box = bubbleBoxFor(anchorPx, placement);
+    const blocked = (otherPositions || []).some((p) => {
+      const px = posToPx(p);
+      return px.x >= box.left - exclusion && px.x <= box.right + exclusion && px.y >= box.top - exclusion && px.y <= box.bottom + exclusion;
+    });
+    if (!blocked) return placement;
+  }
+  return "top"; // every placement collides with something — fall back to the original default rather than never showing a bubble at all
+}
+
 function buildTurnBeats(run, step, stepIdx) {
   const beats = [];
   if (step.kind !== "turn") return beats;
@@ -1012,7 +1118,16 @@ function buildTurnBeats(run, step, stepIdx) {
   let pos = priorStep?.snapshot?.[combatantId]?.position;
   if (!pos) return beats;
 
-  const pushReason = (text, holdOnly) => beats.push({ type: "reason", combatantId, name, text, pos: { ...pos }, holdOnly: !!holdOnly });
+  // design doc §32: every OTHER living combatant's position, for the bubble's own collision check
+  // — computed once per turn since nobody but the acting combatant moves during their own turn.
+  const otherPositions = Object.entries(step.snapshot)
+    .filter(([id, s]) => id !== combatantId && (s.currentHP ?? 1) > 0 && s.position)
+    .map(([, s]) => s.position);
+
+  const pushReason = (text, holdOnly, action) => beats.push({
+    type: "reason", combatantId, name, text, pos: { ...pos }, holdOnly: !!holdOnly, otherPositions,
+    actionFooter: action ? { name: realActionName(action), cost: action.actionsCost ?? 1 } : null
+  });
 
   if (step.dying) {
     const rc = step.recoveryCheck;
@@ -1039,7 +1154,7 @@ function buildTurnBeats(run, step, stepIdx) {
       pushReason(`Considered it — rejected: ${action.reason}`, true);
       continue; // a rejected proposal never moved or struck anything — nothing to actually play out
     }
-    pushReason(action.decisionReason || "—");
+    pushReason(action.decisionReason || "—", false, action);
     if (action.type === "move" || action.type === "step" || action.type === "advance") {
       beats.push({ type: "act-move", combatantId, fromPos: { ...pos }, action });
       pos = action.to;
@@ -1100,7 +1215,7 @@ function playBeat(beat, gen, advance, ctx) {
     // over — cleared here so it never lingers through the NEXT action's own reason bubble, the
     // same lifecycle spawnThoughtBubble already gives the bubble itself.
     document.getElementById("targetLineLayer").innerHTML = "";
-    spawnThoughtBubble(beat.pos, beat.name, beat.text);
+    spawnThoughtBubble(beat.pos, beat.name, beat.text, beat.otherPositions, beat.actionFooter);
     const holdMs = Math.max(400, (beat.holdOnly ? REASON_HOLD_ONLY_MS : REASON_HOLD_MS) / playSpeed);
     setTimeout(() => { if (gen === renderGeneration) advance(); }, holdMs);
     return;
@@ -1186,11 +1301,13 @@ let currentBubbleEl = null;
 function clearThoughtBubble() {
   if (currentBubbleEl) { currentBubbleEl.remove(); currentBubbleEl = null; }
 }
-function spawnThoughtBubble(pos, name, text) {
+function spawnThoughtBubble(pos, name, text, otherPositions, actionFooter) {
   clearThoughtBubble();
+  const anchorPx = posToPx(pos);
+  const placement = pickBubblePlacement(anchorPx, otherPositions);
   const pct = posToPercent(pos);
   const el = document.createElement("div");
-  el.className = "thought-bubble";
+  el.className = `thought-bubble place-${placement}`;
   el.style.left = `${pct.left}%`;
   el.style.top = `${pct.top}%`;
   const nameEl = document.createElement("div");
@@ -1199,6 +1316,15 @@ function spawnThoughtBubble(pos, name, text) {
   const textEl = document.createElement("div");
   textEl.textContent = text;
   el.append(nameEl, textEl);
+  if (actionFooter) {
+    const footerEl = document.createElement("div");
+    footerEl.className = "tb-action";
+    const costEl = document.createElement("span");
+    costEl.className = "tb-cost";
+    costEl.textContent = actionCostIcons(actionFooter.cost);
+    footerEl.append(`${actionFooter.name} `, costEl);
+    el.append(footerEl);
+  }
   document.getElementById("bubbleLayer").appendChild(el);
   requestAnimationFrame(() => el.classList.add("playing"));
   currentBubbleEl = el;

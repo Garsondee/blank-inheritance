@@ -326,6 +326,20 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
   // while a combatant is short of its own best useful range, and vanishes at zero the moment it is
   // in range — an ungated "closer is better" term is farmable (a unit already in range would keep
   // walking forever to harvest more of it).
+  //
+  // REGRESSION FIX (design doc §32, adversarial-audit finding): this used to filter to
+  // `enemy.currentHP <= 0` LIVING enemies only when searching for "nearest" — so killing the
+  // currently-nearest enemy (even one already well within range, contributing nothing here) made
+  // the search jump to whoever was next, often much farther away, and RETROACTIVELY penalized the
+  // ally for "not closing" on a fight a teammate just finished — a direct violation of this file's
+  // own §17 monotonicity requirement (proven directly: killing an already-in-range 1-HP enemy
+  // dropped a real evaluated score by over 10 points). Fix: don't exclude dead enemies from the
+  // search at all. `state.positions` keeps every combatant's position forever, alive or dead (see
+  // engine.mjs's own livingPositions comment), and dying doesn't move anyone — so a dead enemy's
+  // entry here is IDENTICAL before and after their own death, meaning `nearest` (a min over a set
+  // whose membership and values are now both unchanged by any kill) can only ever stay exactly the
+  // same, never jump. A genuinely closer LIVING enemy is still correctly picked over a farther
+  // corpse, same as before — only the "reassign to someone farther on death" discontinuity is gone.
   for (const ally of allies) {
     if (ally.currentHP <= 0) continue;
     const allyPos = state.positions.get(ally.id);
@@ -335,7 +349,6 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
     const reach = Math.max(...ranges);
     let nearest = Infinity;
     for (const enemy of enemies) {
-      if (enemy.currentHP <= 0) continue;
       const ePos = state.positions.get(enemy.id);
       if (ePos) nearest = Math.min(nearest, effectiveDistance(state, allyPos, ePos));
     }

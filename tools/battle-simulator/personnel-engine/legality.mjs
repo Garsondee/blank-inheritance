@@ -246,8 +246,16 @@ export function checkSpellAttackLegal({ caster, casterPos, target, targetPos, sp
   return { legal: true, reason: null };
 }
 
-/** A flat, no-roll heal ability (e.g. the Mystic's Transfer Vitality) — real amount, real range, real limited uses. */
-export function checkHealAbilityLegal({ healer, healerPos, target, targetPos, ability, turnState }) {
+/**
+ * A flat, no-roll heal ability (e.g. the Mystic's Transfer Vitality) — real amount, real range,
+ * real limited uses. `walls` (design doc §32 — a real report: "I noticed a heal being cast
+ * through a wall") was the one thing missing here relative to every sibling legality check —
+ * checkStrikeLegal/checkSpellAttackLegal/checkSaveAttackLegal/checkDemoralizeLegal/
+ * checkConditionSaveLegal all independently gate on lineOfEffect, and this function simply never
+ * received the `walls` parameter to do the same. Healing at range still needs a real line to the
+ * target — nothing in Player Core exempts it from Line of Effect.
+ */
+export function checkHealAbilityLegal({ healer, healerPos, target, targetPos, ability, turnState, walls }) {
   const actorAlive = checkActorAlive(healer);
   if (!actorAlive.legal) return actorAlive;
 
@@ -264,6 +272,10 @@ export function checkHealAbilityLegal({ healer, healerPos, target, targetPos, ab
 
   const range = checkSpellRange({ casterPos: healerPos, targetPos, spell: ability });
   if (!range.legal) return range;
+
+  if (!lineOfEffect(healerPos, targetPos, walls)) {
+    return { legal: false, reason: `No line of effect to ${target.name} — a wall entirely blocks ${ability.name}.` };
+  }
 
   if (ability.usesRemaining != null && ability.usesRemaining <= 0) {
     return { legal: false, reason: `${ability.name} has no uses remaining this encounter.` };

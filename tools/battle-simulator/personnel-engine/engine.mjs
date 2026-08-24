@@ -692,7 +692,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     const ability = (combatant.healAbilities ?? [])[proposal.abilityIndex ?? 0];
     if (!ability) return { type: "healAbility", targetId: proposal.targetId, legal: false, reason: `No heal ability at index ${proposal.abilityIndex ?? 0} — ${combatant.name} has ${(combatant.healAbilities ?? []).length}.` };
 
-    const check = checkHealAbilityLegal({ healer: combatant, healerPos: pos, target, targetPos, ability, turnState: turnProgress });
+    const check = checkHealAbilityLegal({ healer: combatant, healerPos: pos, target, targetPos, ability, turnState: turnProgress, walls: state.walls });
     if (!check.legal) return { type: "healAbility", targetId: proposal.targetId, legal: false, reason: check.reason };
 
     const healing = ability.healingAmount ?? 0;

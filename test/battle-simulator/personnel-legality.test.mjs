@@ -444,6 +444,31 @@ test("checkHealAbilityLegal: a depleted ability (usesRemaining 0) is rejected", 
   assert.equal(result.legal, false);
 });
 
+// REGRESSION (design doc §32 — a direct user report: "I noticed a heal being cast through a
+// wall"). checkHealAbilityLegal never checked Line of Effect at all, unlike every sibling action
+// legality check just above it in this same file — confirmed missing by direct code reading, now
+// fixed the same way those already work.
+test("checkHealAbilityLegal: respects Line of Effect — a wall blocks a heal exactly like a Strike or spell attack", () => {
+  const wall = [{ c: [1, 0, 1, 1], move: 20, sight: 20 }]; // sits directly between (0,0) and (1,0)
+  const target = { id: "ally", name: "Ally", currentHP: 10, maxHP: 16 };
+  const result = checkHealAbilityLegal({
+    healer: aliveCaster, healerPos: { col: 0, row: 0 }, target, targetPos: { col: 1, row: 0 },
+    ability: transferVitality, turnState: openBudget, walls: wall
+  });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /No line of effect/);
+});
+
+test("checkHealAbilityLegal: still legal with real walls present that just don't happen to block THIS shot", () => {
+  const wall = [{ c: [1, 0, 1, 1], move: 20, sight: 20 }]; // between (0,0) and (1,0) — irrelevant to a heal along a different edge
+  const target = { id: "ally", name: "Ally", currentHP: 10, maxHP: 16 };
+  const result = checkHealAbilityLegal({
+    healer: aliveCaster, healerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 1 },
+    ability: transferVitality, turnState: openBudget, walls: wall
+  });
+  assert.equal(result.legal, true);
+});
+
 // ---------------------------------------------------------------------------
 // checkSaveAttackLegal / checkDemoralizeLegal — the skill-actions-in-combat expansion
 // (design doc §19). The grenade's real range (70ft) is Lunar-17's own real extracted number.

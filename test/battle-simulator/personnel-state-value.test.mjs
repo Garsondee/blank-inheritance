@@ -78,6 +78,33 @@ test("KILL IS NEVER WORSE THAN NEARLY-KILLED: a dead enemy scores at least as we
   }
 });
 
+// design doc §32 — a real adversarial-audit finding, proven with a minimal isolated case before
+// this fix: every test above clusters allies and enemies within a few squares of each other, so
+// the closing gradient (state-value.mjs's own "still short of a shot" term) is permanently 0 and
+// silently untested by any of them. These two tests specifically put an enemy OUT of range so the
+// term has real, non-zero gradient to get wrong.
+test("CLOSING GRADIENT MONOTONICITY: killing an already-in-range enemy must never lower the score by making the search reassign to a farther one", () => {
+  const base = makeState({ allyCount: 1, enemyCount: 2, enemyHP: 20 });
+  const state = { ...base, positions: new Map(base.positions) };
+  state.positions.set("enemy-1", { col: 60, row: 5 }); // far beyond the Pistol's useful range — enemy-0 stays close/in-range
+
+  const enemy0Alive = evaluateState(state, "party");
+  const enemy0Dead = evaluateState(withEnemyHP(state, "enemy-0", 0), "party");
+  assert.ok(enemy0Dead >= enemy0Alive - 1e-9,
+    `killing the near, already-in-range enemy-0 while a far enemy-1 remains alive LOWERED the score (${enemy0Alive.toFixed(2)} -> ${enemy0Dead.toFixed(2)}) — REGRESSION: the closing gradient reassigned "nearest" to the farther surviving enemy instead of staying flat.`);
+});
+
+test("CLOSING GRADIENT still does real work: an ally out of range of every enemy scores worse than one already in range", () => {
+  const inRange = makeState({ allyCount: 1, enemyCount: 1, enemyHP: 20 });
+  const outOfRange = { ...inRange, positions: new Map(inRange.positions) };
+  outOfRange.positions.set("enemy-0", { col: 60, row: 5 });
+
+  const scoreInRange = evaluateState(inRange, "party");
+  const scoreOutOfRange = evaluateState(outOfRange, "party");
+  assert.ok(scoreOutOfRange < scoreInRange,
+    "moving the only enemy far out of range should still cost the ally something via the closing gradient — the monotonicity fix must not have accidentally zeroed the term out entirely.");
+});
+
 test("MONOTONICITY: losing ally HP never RAISES the party's score", () => {
   const base = makeState({ allyCount: 3, enemyCount: 2 });
   let previous = null;

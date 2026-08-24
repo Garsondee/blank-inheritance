@@ -36,7 +36,7 @@ import { splitByRelation } from "./factions.mjs";
 import { evaluateState, attackOptions, proactiveAttackOptions, usefulRangeFeet, maxLegalRangeFeet } from "./evaluate/state-value.mjs";
 import { reachableCells } from "./world/pathfind.mjs";
 import { refreshBelief, believedEnemies } from "./knowledge/belief.mjs";
-import { isDead } from "./conditions.mjs";
+import { isDead, isUnconscious } from "./conditions.mjs";
 import { hasCover, lineOfEffect } from "./terrain.mjs";
 
 /**
@@ -296,14 +296,24 @@ export function generateProposals(state, combatantId, turn) {
   if (!me || !myPos) return proposals;
 
   const speed = turn.effective?.speed ?? me.speed ?? 0;
-  // Design doc §25: a downed-but-not-dead PC (isDead false, currentHP<=0) is still a real target —
-  // both to an enemy looking to finish them off, and to an ally who might path over to heal them.
-  // Filtering on currentHP>0 here would silently make the entire dying/revival mechanic invisible
-  // to the AI's own candidate generation, the same shape of gap checkTargetAlive/
-  // checkHealAbilityLegal both had before this pass (an unconscious PC being a real, legal target
-  // is the actual point of the feature, not just an incidental detail).
+  // Design doc §25: a downed-but-not-dead PC (isDead false, currentHP<=0) is still a real
+  // combatant in the world — an ally can path over to heal them, so filtering on currentHP>0 here
+  // would silently make the whole dying/revival mechanic invisible to the AI's own candidate
+  // generation. `enemies`/`allies` below therefore still include unconscious combatants; only
+  // `isDead` ones are ever dropped.
   const living = [...state.combatants.values()].filter((c) => !isDead(c));
   const { allies, enemies } = splitByRelation(me, living);
+  // Design doc §32 — a direct instruction, not a RAW question (Player Core fully permits attacking
+  // an unconscious creature; §25's own research already confirmed that): "we will not actually
+  // build an AI which kills downed players deliberately... the only reason to target a downed
+  // unconscious character would be to heal them." This is deliberately a PROPOSAL-layer policy
+  // choice, not a legality.mjs rule — legality stays an accurate mirror of what SF2E actually
+  // permits; this is this project's own choice about what the AI will ever attempt. Used only by
+  // the five offense/social candidate loops just below; `enemies` itself (unconscious included)
+  // still feeds movement/positioning further down, and healing below deliberately targets `allies`
+  // (and `me`) directly, never this filtered list — an unconscious ally is exactly who should still
+  // be healed.
+  const targetableEnemies = enemies.filter((e) => !isUnconscious(e));
 
   // Belief (design doc §15s): refreshed from the WHOLE side's combined current vision, not just
   // this one combatant.
@@ -312,24 +322,28 @@ export function generateProposals(state, combatantId, turn) {
     believedEnemies(state, me.side).filter((b) => b.position).map((b) => [b.id, b.position])
   );
 
-  // --- Attacks: every option against every living enemy ---
+  // --- Attacks: every option against every living, targetable enemy ---
   (me.strikes ?? []).forEach((s, i) => {
     if (s.reactionOnly) return;
-    for (const e of enemies) proposals.push({ type: "strike", targetId: e.id, strikeIndex: i });
+    for (const e of targetableEnemies) proposals.push({ type: "strike", targetId: e.id, strikeIndex: i });
   });
   (me.spells ?? []).forEach((_, i) => {
-    for (const e of enemies) proposals.push({ type: "spellAttack", targetId: e.id, spellIndex: i });
+    for (const e of targetableEnemies) proposals.push({ type: "spellAttack", targetId: e.id, spellIndex: i });
   });
   (me.saveAttacks ?? []).forEach((_, i) => {
-    for (const e of enemies) proposals.push({ type: "saveAttack", targetId: e.id, saveAttackIndex: i });
+    for (const e of targetableEnemies) proposals.push({ type: "saveAttack", targetId: e.id, saveAttackIndex: i });
   });
 
   // --- Demoralize (Intimidation): only offered if this combatant actually has an Intimidation
   // modifier extracted (opt-in, matching vision/walls' own pattern) and hasn't already tried this
   // specific target this battle (checkDemoralizeLegal would reject it anyway, but filtering here
-  // keeps the candidate list honest rather than generating a proposal doomed to fail). ---
+  // keeps the candidate list honest rather than generating a proposal doomed to fail). Also never
+  // offered against an unconscious target (design doc §32 — Ingram's own question: "why would
+  // someone demoralise a downed target anyways? That's completely illogical" — and mechanically,
+  // Player Core requires the target to be able to hear/understand you, which an unconscious
+  // creature categorically cannot). ---
   if (me.intimidationModifier != null) {
-    for (const e of enemies) {
+    for (const e of targetableEnemies) {
       if (me.demoralizedTargets?.includes(e.id)) continue;
       proposals.push({ type: "demoralize", targetId: e.id });
     }
@@ -339,7 +353,7 @@ export function generateProposals(state, combatantId, turn) {
   // already-doomed-to-fail proposal" filtering as Demoralize above, keyed per-ability since a
   // combatant could have more than one (checkConditionSaveLegal's own gate key). ---
   (me.conditionSaves ?? []).forEach((cs, i) => {
-    for (const e of enemies) {
+    for (const e of targetableEnemies) {
       if (me.conditionSaveTargets?.includes(`${cs.name}|${e.id}`)) continue;
       proposals.push({ type: "conditionSave", targetId: e.id, conditionSaveIndex: i });
     }
