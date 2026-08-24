@@ -507,6 +507,7 @@
           <g id="gridLayer"></g>
           <g id="wallLayer"></g>
           <g id="overlayLayer"></g>
+          <g id="targetLineLayer"></g>
           <g id="tokenLayer"></g>
           <g id="effectLayer"></g>
         </svg>
@@ -527,6 +528,7 @@
         <button class="btn" id="btnPrev" title="Previous turn">◀ Prev</button>
         <button class="btn primary" id="btnPlay" title="Play (space)">▶ Play</button>
         <button class="btn" id="btnNext" title="Next turn">Next ▶</button>
+        <button class="btn" id="btnFirstContact" title="Fast-forward to first contact">⚡ First Contact</button>
         <button class="btn" id="btnEnd" title="Jump to end">End ⏭</button>
       </div>
       <select class="speed-select" id="speedSelect" aria-label="Playback speed">
@@ -697,14 +699,92 @@ function narrateReactionLine(roster, r) {
 }
 
 /**
- * Decision overlay (design doc §14h): draw THIS step's move path(s), strike line(s), and the
- * acting strike's clean-range ring directly on the map — Ingram's explicit ask after the
- * Claimant screenshot question ("why did it choose to strike? what was it striking? things that
- * aren't within reach?"), so a viewer can visually confirm an action lands where the numbers say
- * it should rather than trusting the log text alone. Only LEGAL actions are drawn — a rejected
- * proposal never moved or struck anything, so it has no line to show.
+ * One action's targeting line + range ring — the actual drawing logic behind the decision overlay
+ * below, factored out (design doc §30) so the exact same per-type styling (attacker/save polarity,
+ * crit/hit/miss color, which arrowhead) can also be called for ONE action at a time, synced to the
+ * beat sequencer's own clock (playCombatEffectBeat) instead of only ever appearing all-at-once for
+ * a whole turn. `ringsDrawn` lets a caller dedupe repeated use of the same ability across several
+ * calls (renderDecisionOverlay's whole-turn loop reuses one Set across all its actions); the
+ * per-beat caller passes a fresh Set each time since only one action is ever on screen at once.
  */
-function renderDecisionOverlay(run, step, stepIdx) {
+function targetingLineMarkupFor(action, fromPos, targetPos, roster, combatantId, ringsDrawn) {
+  if (!targetPos) return "";
+  const fromPx = posToPx(fromPos);
+  const targetPx = posToPx(targetPos);
+
+  if (action.type === "strike") {
+    const cls = attackRollClass("strike", action.roll?.degree);
+    const arrow = cls === "strike-crit" ? "arrowCrit" : cls === "strike-hit" ? "arrowHit" : "arrowMiss";
+    let markup = `<line class="decision-line ${cls}" x1="${fromPx.x}" y1="${fromPx.y}" x2="${targetPx.x}" y2="${targetPx.y}" marker-end="url(#${arrow})"/>`;
+    const item = (roster[combatantId]?.strikes || []).find((s) => s.name === action.strikeName);
+    const reach = item ? cleanRangeFeetLocal(item) : null;
+    if (reach && !ringsDrawn.has(action.strikeName)) {
+      ringsDrawn.add(action.strikeName);
+      markup += `<circle class="range-ring" cx="${fromPx.x}" cy="${fromPx.y}" r="${feetToPx(reach)}"/>`;
+    }
+    return markup;
+  }
+  if (action.type === "spellAttack" || action.type === "saveAttack" || action.type === "conditionSave") {
+    // All three are "spell" (design doc §22's ask for a shot/grenade/spell graphic), sharing the
+    // arcane color family — but spellAttack is an ATTACK ROLL (the attacker rolls, so
+    // criticalSuccess is the attacker's best outcome) while saveAttack/conditionSave are SAVES
+    // (the TARGET rolls, so the polarity inverts: the target's criticalFailure is the best
+    // outcome for the attacker's effect, matching SF2E's basic-save damage table exactly).
+    const degree = action.roll?.degree;
+    const cls = action.type === "spellAttack" ? attackRollClass("spell", degree) : saveRollClass("spell", degree);
+    const arrow = cls === "spell-crit" ? "arrowSpellCrit" : cls === "spell-hit" ? "arrowSpellHit" : "arrowMiss";
+    let markup = `<line class="decision-line ${cls}" x1="${fromPx.x}" y1="${fromPx.y}" x2="${targetPx.x}" y2="${targetPx.y}" marker-end="url(#${arrow})"/>`;
+    const itemName = action.type === "spellAttack" ? action.spellName : action.type === "saveAttack" ? action.saveAttackName : action.conditionSaveName;
+    const pool = action.type === "spellAttack" ? roster[combatantId]?.spells : action.type === "saveAttack" ? roster[combatantId]?.saveAttacks : roster[combatantId]?.conditionSaves;
+    const item = (pool || []).find((s) => s.name === itemName);
+    const reach = item ? cleanRangeFeetLocal(item) : null;
+    if (reach && !ringsDrawn.has(itemName)) {
+      ringsDrawn.add(itemName);
+      markup += `<circle class="range-ring" cx="${fromPx.x}" cy="${fromPx.y}" r="${feetToPx(reach)}"/>`;
+    }
+    return markup;
+  }
+  if (action.type === "demoralize") {
+    // Not a shot, not a spell — an Intimidation check (Player Core pg. 200). Only 2 real outcome
+    // tiers exist (criticalSuccess/success both apply SOME frightened, failure/criticalFailure
+    // apply none — REAL_OUTCOMES.demoralize's own appliedFrightened table), so this stays a
+    // simple hit/miss rather than borrowing the 3-tier crit language of an actual attack.
+    const cls = demoralizeClass(action.roll?.degree);
+    const arrow = cls === "demoralize-hit" ? "arrowCrit" : "arrowMiss";
+    return `<line class="decision-line ${cls}" x1="${fromPx.x}" y1="${fromPx.y}" x2="${targetPx.x}" y2="${targetPx.y}" marker-end="url(#${arrow})"/>`;
+  }
+  if (action.type === "healAbility") {
+    let markup = `<line class="decision-line heal" x1="${fromPx.x}" y1="${fromPx.y}" x2="${targetPx.x}" y2="${targetPx.y}" marker-end="url(#arrowHeal)"/>`;
+    const ability = (roster[combatantId]?.healAbilities || []).find((a) => a.name === action.abilityName);
+    const reach = ability ? cleanRangeFeetLocal(ability) : null;
+    if (reach && !ringsDrawn.has(action.abilityName)) {
+      ringsDrawn.add(action.abilityName);
+      markup += `<circle class="range-ring" cx="${fromPx.x}" cy="${fromPx.y}" r="${feetToPx(reach)}"/>`;
+    }
+    return markup;
+  }
+  return "";
+}
+
+/**
+ * Decision overlay (design doc §14h): draw THIS step's move path(s) directly on the map —
+ * Ingram's explicit ask after the Claimant screenshot question ("why did it choose to strike?
+ * what was it striking? things that aren't within reach?"), so a viewer can visually confirm an
+ * action lands where the numbers say it should rather than trusting the log text alone. Only
+ * LEGAL actions are drawn — a rejected proposal never moved or struck anything, so it has no line
+ * to show.
+ *
+ * `includeTargetingLines` (design doc §30, default true): the strike/spell/save/demoralize/heal
+ * lines this function ALSO used to draw here, all at once, for the whole turn — every one of them
+ * lingering, unchanging, for the full ~20s a busy turn's beat sequence takes to narrate, with no
+ * way to tell which line matched whatever the sequencer was narrating AT THAT MOMENT. That's real,
+ * live sequential playback's own targeting line now (targetingLineMarkupFor, called from
+ * playCombatEffectBeat, one action at a time) — so the sequential caller in render() passes false
+ * here and lets the beat sequencer own that layer instead. A jumped/scrubbed view or
+ * prefers-reduced-motion, which never runs the beat sequencer at all, still passes true (the
+ * default) so the map isn't left with no targeting information at all.
+ */
+function renderDecisionOverlay(run, step, stepIdx, { includeTargetingLines = true } = {}) {
   if (step.kind !== "turn" || !step.actions?.length) return "";
   const roster = run.log.roster;
   const combatantId = step.combatantId;
@@ -733,70 +813,9 @@ function renderDecisionOverlay(run, step, stepIdx) {
         markup += `<line class="decision-line ${isStep ? "step" : "move"}" x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}"${marker}/>`;
         currentPos = p;
       });
-    } else if (action.type === "strike") {
+    } else if (includeTargetingLines) {
       const targetSnapshot = step.snapshot[action.targetId];
-      if (!targetSnapshot) continue;
-      const attackerPx = posToPx(currentPos);
-      const targetPx = posToPx(targetSnapshot.position);
-      const degree = action.roll?.degree;
-      const cls = attackRollClass("strike", degree);
-      const arrow = cls === "strike-crit" ? "arrowCrit" : cls === "strike-hit" ? "arrowHit" : "arrowMiss";
-      markup += `<line class="decision-line ${cls}" x1="${attackerPx.x}" y1="${attackerPx.y}" x2="${targetPx.x}" y2="${targetPx.y}" marker-end="url(#${arrow})"/>`;
-
-      const item = (roster[combatantId]?.strikes || []).find((s) => s.name === action.strikeName);
-      const reach = item ? cleanRangeFeetLocal(item) : null;
-      if (reach && !ringsDrawn.has(action.strikeName)) {
-        ringsDrawn.add(action.strikeName);
-        markup += `<circle class="range-ring" cx="${attackerPx.x}" cy="${attackerPx.y}" r="${feetToPx(reach)}"/>`;
-      }
-    } else if (action.type === "spellAttack" || action.type === "saveAttack" || action.type === "conditionSave") {
-      // All three are "spell" (design doc §22's ask for a shot/grenade/spell graphic), sharing the
-      // arcane color family — but spellAttack is an ATTACK ROLL (the attacker rolls, so
-      // criticalSuccess is the attacker's best outcome) while saveAttack/conditionSave are SAVES
-      // (the TARGET rolls, so the polarity inverts: the target's criticalFailure is the best
-      // outcome for the attacker's effect, matching SF2E's basic-save damage table exactly).
-      const targetSnapshot = step.snapshot[action.targetId];
-      if (!targetSnapshot) continue;
-      const attackerPx = posToPx(currentPos);
-      const targetPx = posToPx(targetSnapshot.position);
-      const degree = action.roll?.degree;
-      const cls = action.type === "spellAttack" ? attackRollClass("spell", degree) : saveRollClass("spell", degree);
-      const arrow = cls === "spell-crit" ? "arrowSpellCrit" : cls === "spell-hit" ? "arrowSpellHit" : "arrowMiss";
-      markup += `<line class="decision-line ${cls}" x1="${attackerPx.x}" y1="${attackerPx.y}" x2="${targetPx.x}" y2="${targetPx.y}" marker-end="url(#${arrow})"/>`;
-
-      const itemName = action.type === "spellAttack" ? action.spellName : action.type === "saveAttack" ? action.saveAttackName : action.conditionSaveName;
-      const pool = action.type === "spellAttack" ? roster[combatantId]?.spells : action.type === "saveAttack" ? roster[combatantId]?.saveAttacks : roster[combatantId]?.conditionSaves;
-      const item = (pool || []).find((s) => s.name === itemName);
-      const reach = item ? cleanRangeFeetLocal(item) : null;
-      if (reach && !ringsDrawn.has(itemName)) {
-        ringsDrawn.add(itemName);
-        markup += `<circle class="range-ring" cx="${attackerPx.x}" cy="${attackerPx.y}" r="${feetToPx(reach)}"/>`;
-      }
-    } else if (action.type === "demoralize") {
-      // Not a shot, not a spell — an Intimidation check (Player Core pg. 200). Only 2 real outcome
-      // tiers exist (criticalSuccess/success both apply SOME frightened, failure/criticalFailure
-      // apply none — REAL_OUTCOMES.demoralize's own appliedFrightened table), so this stays a
-      // simple hit/miss rather than borrowing the 3-tier crit language of an actual attack.
-      const targetSnapshot = step.snapshot[action.targetId];
-      if (!targetSnapshot) continue;
-      const attackerPx = posToPx(currentPos);
-      const targetPx = posToPx(targetSnapshot.position);
-      const cls = demoralizeClass(action.roll?.degree);
-      const arrow = cls === "demoralize-hit" ? "arrowCrit" : "arrowMiss";
-      markup += `<line class="decision-line ${cls}" x1="${attackerPx.x}" y1="${attackerPx.y}" x2="${targetPx.x}" y2="${targetPx.y}" marker-end="url(#${arrow})"/>`;
-    } else if (action.type === "healAbility") {
-      const targetSnapshot = step.snapshot[action.targetId];
-      if (!targetSnapshot) continue;
-      const healerPx = posToPx(currentPos);
-      const targetPx = posToPx(targetSnapshot.position);
-      markup += `<line class="decision-line heal" x1="${healerPx.x}" y1="${healerPx.y}" x2="${targetPx.x}" y2="${targetPx.y}" marker-end="url(#arrowHeal)"/>`;
-
-      const ability = (roster[combatantId]?.healAbilities || []).find((a) => a.name === action.abilityName);
-      const reach = ability ? cleanRangeFeetLocal(ability) : null;
-      if (reach && !ringsDrawn.has(action.abilityName)) {
-        ringsDrawn.add(action.abilityName);
-        markup += `<circle class="range-ring" cx="${healerPx.x}" cy="${healerPx.y}" r="${feetToPx(reach)}"/>`;
-      }
+      markup += targetingLineMarkupFor(action, currentPos, targetSnapshot?.position, roster, combatantId, ringsDrawn);
     }
   }
   return markup;
@@ -1025,7 +1044,7 @@ function buildTurnBeats(run, step, stepIdx) {
       beats.push({ type: "act-move", combatantId, fromPos: { ...pos }, action });
       pos = action.to;
     } else {
-      beats.push({ type: "act-effect", action, targetPos: step.snapshot[action.targetId]?.position });
+      beats.push({ type: "act-effect", action, sourcePos: { ...pos }, targetPos: step.snapshot[action.targetId]?.position });
     }
   }
   return beats;
@@ -1047,18 +1066,40 @@ function playTurnBeats(run, step, stepIdx, gen, onDone) {
     setTimeout(() => { if (gen === renderGeneration) onDone?.(); }, Math.max(500, 1200 / playSpeed));
     return;
   }
+  // Design doc §30: the roster used to jump to step.snapshot (this turn's END state) the instant
+  // playback began, well before the beats narrating THIS turn had actually played out — so a
+  // heal's target could show full HP for the ~20s leading up to the very beat that healed them,
+  // reading exactly like "healed someone already at full health." liveSnapshot instead starts at
+  // the PRIOR turn's real end state and only advances one action at a time, in lockstep with the
+  // beat that actually causes each change — applyActionToSnapshot (steps.mjs) is a pure no-op for
+  // any beat that isn't a real target-affecting action, so this is safe to call on every beat.
+  const priorStep = steps[stepIdx - 1];
+  let liveSnapshot = priorStep?.snapshot ?? step.snapshot;
+  const ctx = {
+    run, activeId: step.combatantId,
+    applyAndRenderRoster(action) {
+      liveSnapshot = applyActionToSnapshot(liveSnapshot, action);
+      renderRoster(run, liveSnapshot, step.combatantId);
+      const targetG = action.targetId && tokenEls.get(action.targetId);
+      if (targetG) targetG.classList.toggle("dead", (liveSnapshot[action.targetId]?.currentHP ?? 1) <= 0);
+    }
+  };
   let i = 0;
   function next() {
     if (gen !== renderGeneration) return; // superseded by a newer render (scrub/jump/new step) — stop
     if (i >= beats.length) { clearThoughtBubble(); onDone?.(); return; }
     const beat = beats[i]; i++;
-    playBeat(beat, gen, next);
+    playBeat(beat, gen, next, ctx);
   }
   next();
 }
 
-function playBeat(beat, gen, advance) {
+function playBeat(beat, gen, advance, ctx) {
   if (beat.type === "reason") {
+    // Design doc §30: the PREVIOUS action's targeting line (if any) belongs to a beat that's now
+    // over — cleared here so it never lingers through the NEXT action's own reason bubble, the
+    // same lifecycle spawnThoughtBubble already gives the bubble itself.
+    document.getElementById("targetLineLayer").innerHTML = "";
     spawnThoughtBubble(beat.pos, beat.name, beat.text);
     const holdMs = Math.max(400, (beat.holdOnly ? REASON_HOLD_ONLY_MS : REASON_HOLD_MS) / playSpeed);
     setTimeout(() => { if (gen === renderGeneration) advance(); }, holdMs);
@@ -1072,16 +1113,21 @@ function playBeat(beat, gen, advance) {
     return;
   }
   if (beat.type === "act-effect") {
-    playCombatEffectBeat(beat.action, beat.targetPos, gen, advance);
+    playCombatEffectBeat(beat.action, beat.sourcePos, beat.targetPos, gen, advance, ctx);
     return;
   }
   advance(); // unknown beat type — never hang the sequence over something unexpected
 }
 
 /** design doc §28's own flash/label/burst display, now driven by the sequencer's own beat clock
- * instead of an independent staggered setTimeout burst — same visuals, real sequencing. */
-function playCombatEffectBeat(action, targetPos, gen, advance) {
+ * instead of an independent staggered setTimeout burst — same visuals, real sequencing. Design doc
+ * §30 adds two things at the SAME moment the label appears (never before — the point is this is
+ * the instant the action actually resolves): the roster/token HP sync (ctx.applyAndRenderRoster)
+ * and a single targeting line reusing the exact per-type styling renderDecisionOverlay already
+ * established (targetingLineMarkupFor), so which token did this to which is never a guess. */
+function playCombatEffectBeat(action, sourcePos, targetPos, gen, advance, ctx) {
   const holdMs = Math.max(500, ACT_EFFECT_HOLD_MS / playSpeed);
+  ctx?.applyAndRenderRoster?.(action);
   const label = combatLabelFor(action);
   if (label && targetPos) {
     spawnFloatingLabel(targetPos, label.text, label.cls, holdMs);
@@ -1093,6 +1139,10 @@ function playCombatEffectBeat(action, targetPos, gen, advance) {
       else if (label.cls.endsWith("-hit") || label.cls.endsWith("-crit")) flashToken(g, "hit-flash");
     }
     if (isBurstAction(action)) spawnBurst(targetPos, label.cls.endsWith("-crit") ? "crit" : "hit", Math.min(holdMs, 900));
+    if (sourcePos && ctx?.run) {
+      document.getElementById("targetLineLayer").innerHTML =
+        targetingLineMarkupFor(action, sourcePos, targetPos, ctx.run.log.roster, ctx.activeId, new Set());
+    }
   }
   setTimeout(() => { if (gen === renderGeneration) advance(); }, holdMs);
 }
@@ -1514,6 +1564,7 @@ function render(onStepDone) {
   const activeId = step.kind === "turn" ? step.combatantId : null;
 
   const jump = lastRenderedRunId !== currentRunId || lastRenderedIndex === null || Math.abs(stepIndex - lastRenderedIndex) !== 1;
+  const reduced = prefersReducedMotion();
   renderGeneration += 1;
   const gen = renderGeneration;
 
@@ -1528,7 +1579,13 @@ function render(onStepDone) {
   mapImgEl.src = isWalledRun ? "" : MAP_DATA_URI;
   mapImgEl.alt = isWalledRun ? "" : "City district battle map, 44x44 grid";
 
-  document.getElementById("overlayLayer").innerHTML = renderDecisionOverlay(run, step, stepIndex);
+  // design doc §30: targeting lines only get drawn here all-at-once when the beat sequencer ISN'T
+  // about to run (a jump/scrub, or reduced-motion) — otherwise playCombatEffectBeat owns
+  // #targetLineLayer instead, one action at a time, in sync with whichever beat is actually
+  // playing. Either way #targetLineLayer itself always starts this render cleared, same as
+  // #overlayLayer already does via the innerHTML reassignment right below.
+  document.getElementById("overlayLayer").innerHTML = renderDecisionOverlay(run, step, stepIndex, { includeTargetingLines: jump || reduced });
+  document.getElementById("targetLineLayer").innerHTML = "";
   // A hard jump (far scrub, run switch) shouldn't leave a stale combat-result label or thought
   // bubble from wherever the view WAS — the sequencer itself only runs on a real step-by-step
   // advance (!jump), but anything already mid-animation from before the jump needs an explicit
@@ -1536,7 +1593,13 @@ function render(onStepDone) {
   if (jump) { document.getElementById("effectLayer").innerHTML = ""; clearThoughtBubble(); }
   updateMapTokens(run, step, stepIndex, activeId, jump);
   renderCurrentRun(run);
-  renderRoster(run, step.snapshot, activeId);
+  // design doc §30: mid-sequence (real beat-by-beat playback), the roster starts at this turn's
+  // BEGINNING state and is advanced one action at a time by playTurnBeats itself (via
+  // applyAndRenderRoster) — never jump straight to step.snapshot's END state before the beats
+  // narrating how it got there have actually played. A jump/scrub/reduced-motion view has no beat
+  // sequence to catch up with, so it still shows the real end state immediately, unchanged.
+  const rosterSnapshot = (!jump && !reduced && step.kind === "turn") ? (steps[stepIndex - 1]?.snapshot ?? step.snapshot) : step.snapshot;
+  renderRoster(run, rosterSnapshot, activeId);
   renderInitiativeStrip(run, activeId);
   renderSheet(run, step);
   renderRoundOverview(run, step, stepIndex);
@@ -1557,12 +1620,16 @@ function render(onStepDone) {
   document.getElementById("btnStart").disabled = stepIndex === 0;
   document.getElementById("btnNext").disabled = stepIndex === steps.length - 1;
   document.getElementById("btnEnd").disabled = stepIndex === steps.length - 1;
+  // design doc §30: nothing to fast-forward TO if this run never makes contact (a pure-maneuver
+  // scenario, or the run is empty) — findFirstContactStepIndex is a cheap linear scan over a
+  // steps array that's at most a few hundred entries long, fine to recompute every render.
+  const firstContactBtn = document.getElementById("btnFirstContact");
+  firstContactBtn.disabled = findFirstContactStepIndex(steps) < 0;
   if (stepIndex === steps.length - 1) pause();
 
   lastRenderedIndex = stepIndex;
   lastRenderedRunId = currentRunId;
 
-  const reduced = prefersReducedMotion();
   if (!jump && !reduced) playTurnBeats(run, step, stepIndex, gen, onStepDone);
   else onStepDone?.();
 }
@@ -1661,6 +1728,14 @@ document.getElementById("speedSelect").addEventListener("change", (e) => { playS
 
 document.getElementById("btnStart").addEventListener("click", () => { pause(); goTo(0); });
 document.getElementById("btnEnd").addEventListener("click", () => { pause(); goTo(steps.length - 1); });
+// design doc §30 — Ingram's own ask: "the option to fast forward to first contact." One fixed
+// landmark per run (the first real strike/spell/save/demoralize — see findFirstContactStepIndex),
+// not a relative seek, so clicking it always lands on the same turn regardless of where playback
+// currently sits.
+document.getElementById("btnFirstContact").addEventListener("click", () => {
+  const idx = findFirstContactStepIndex(steps);
+  if (idx >= 0) { pause(); goTo(idx); }
+});
 document.getElementById("btnPrev").addEventListener("click", () => { pause(); goTo(stepIndex - 1); });
 document.getElementById("btnNext").addEventListener("click", () => { pause(); goTo(stepIndex + 1); });
 document.getElementById("btnPlay").addEventListener("click", togglePlay);

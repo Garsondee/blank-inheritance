@@ -63,6 +63,12 @@ test("a lethal hit on a full-HP PC knocks them out with dying 1 (non-critical) o
   assert.ok(pcSnapshot.dyingValue === 1 || pcSnapshot.dyingValue === 2, `expected dying 1 or 2, got ${pcSnapshot.dyingValue}`);
   assert.equal(pcSnapshot.unconscious, true);
   assert.equal(pcSnapshot.dead, false, "dying 1 or 2 is knocked out, not dead");
+  // design doc §30: the strike's OWN targetXAfter fields must agree with the turn's authoritative
+  // snapshot — the artifact viewer syncs the roster to these action-level fields beat-by-beat, so a
+  // mismatch here would mean the map shows something different from what actually happened.
+  assert.equal(strike.targetDyingValueAfter, pcSnapshot.dyingValue);
+  assert.equal(strike.targetUnconsciousAfter, true);
+  assert.equal(strike.targetDeadAfter, false);
 });
 
 test("the downed PC's own next turn is a real recovery check, not a normal action turn and not silently skipped", () => {
@@ -89,6 +95,7 @@ test("taking a fresh hit while already down increases the dying value instead of
   assert.equal(strike.targetHPAfter, 0, "still floored at 0, not negative");
   const pcSnapshot = attackerTurn.snapshot.pc;
   assert.ok(pcSnapshot.dyingValue >= 2, `expected the dying value to have increased from 1, got ${pcSnapshot.dyingValue}`);
+  assert.equal(strike.targetDyingValueAfter, pcSnapshot.dyingValue, "design doc §30: the action's own field must match the authoritative snapshot");
 });
 
 test("healing a downed PC back to positive HP revives them — clears dying, and they act normally on their own next turn", () => {
@@ -110,6 +117,11 @@ test("healing a downed PC back to positive HP revives them — clears dying, and
   const afterHealSnapshot = healerR1.snapshot.pc;
   assert.equal(afterHealSnapshot.dyingValue, 0);
   assert.equal(afterHealSnapshot.unconscious, false);
+  // design doc §30: this is the exact case the "heal cast on an already-full-health target" report
+  // turned out to be — the heal itself always carried the right numbers; only the artifact's OLD
+  // roster-sync timing made it look wrong. These fields are what the fix now reads from.
+  assert.equal(heal.targetDyingValueAfter, 0);
+  assert.equal(heal.targetUnconsciousAfter, false);
   // The PC's round-2 turn must be a REAL turn again (not a recovery check) — they were healed in round 1.
   const pcRound2Turn = log.rounds[1]?.turns.find((t) => t.combatantId === "pc");
   if (pcRound2Turn) assert.equal(pcRound2Turn.dying, undefined, "a revived PC takes a normal turn, not a recovery check, on their next turn");
@@ -137,4 +149,5 @@ test("a critically-failed condition-save-style knockout (design doc §25's own c
   assert.equal(strike.roll.degree, "criticalSuccess", "the fixture must produce a real, guaranteed critical hit for this test to mean anything");
   const pcSnapshot = attackerTurn.snapshot.pc;
   assert.equal(pcSnapshot.dyingValue, 2, "a critical knockout must be dying 2, not dying 1");
+  assert.equal(strike.targetDyingValueAfter, 2, "design doc §30: the action's own field must match the authoritative snapshot");
 });

@@ -490,6 +490,26 @@ function applyDyingTransition({ target, hpBefore, appliedDamage, critical }) {
 }
 
 /**
+ * Design doc §30: every HP-affecting action result already carries targetHPAfter; this adds the
+ * matching "after" snapshot of the target's own condition fields so the artifact viewer can sync
+ * its roster/chips to the SAME moment the HP number changes, beat by beat, rather than jumping
+ * straight to the whole turn's end state the instant playback begins — the real root cause behind
+ * the "heal cast on an already-full-health target" report (the target genuinely was hurt when
+ * healed; the roster just hadn't caught up yet, since it was showing turn-end state throughout).
+ * Mirrors conditionSave's own pre-existing targetFrightenedAfter/targetStunnedValueAfter fields —
+ * same "targetXAfter" naming shape, not a second vocabulary.
+ */
+function targetConditionAfter(target) {
+  return {
+    targetDyingValueAfter: target.dyingValue ?? 0,
+    targetWoundedValueAfter: target.woundedValue ?? 0,
+    targetProneAfter: !!target.prone,
+    targetUnconsciousAfter: isUnconscious(target),
+    targetDeadAfter: isDead(target)
+  };
+}
+
+/**
  * Every combatant's position, for occupancy purposes — DEAD combatants excluded. A defeated
  * creature's square isn't an obstacle (nothing in Player Core treats a fallen creature as blocking
  * movement the way a standing one does), so it must never count as "occupied" for pathing/legality.
@@ -619,7 +639,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     return {
       type: "strike", strikeName: strike.name, targetId: proposal.targetId, legal: true, actionsCost: 1,
       roll: strikeResult, hardnessApplied: targetEffective.hardness, coverBonus, flankBonus,
-      damageApplied: appliedDamage, targetHPAfter: target.currentHP,
+      damageApplied: appliedDamage, targetHPAfter: target.currentHP, ...targetConditionAfter(target),
       usesRemaining: strike.usesRemaining ?? null, decisionReason: proposal.reason ?? null
     };
   }
@@ -659,7 +679,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     return {
       type: "spellAttack", spellName: spell.name, targetId: proposal.targetId, legal: true, actionsCost: spell.actions ?? 1,
       roll: spellResult, hardnessApplied: targetEffective.hardness, coverBonus,
-      damageApplied: appliedDamage, targetHPAfter: target.currentHP,
+      damageApplied: appliedDamage, targetHPAfter: target.currentHP, ...targetConditionAfter(target),
       usesRemaining: spell.usesRemaining ?? null, decisionReason: proposal.reason ?? null
     };
   }
@@ -687,7 +707,8 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
 
     return {
       type: "healAbility", abilityName: ability.name, targetId: proposal.targetId, legal: true, actionsCost: ability.actions ?? 1,
-      healing, targetHPAfter: target.currentHP, usesRemaining: ability.usesRemaining ?? null, decisionReason: proposal.reason ?? null
+      healing, targetHPAfter: target.currentHP, ...targetConditionAfter(target),
+      usesRemaining: ability.usesRemaining ?? null, decisionReason: proposal.reason ?? null
     };
   }
 
@@ -720,7 +741,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     return {
       type: "saveAttack", saveAttackName: saveAttackAbility.name, targetId: proposal.targetId, legal: true, actionsCost: saveAttackAbility.actions ?? 1,
       roll: saveResult, hardnessApplied: targetEffective.hardness, coverBonus,
-      damageApplied: appliedDamage, targetHPAfter: target.currentHP,
+      damageApplied: appliedDamage, targetHPAfter: target.currentHP, ...targetConditionAfter(target),
       usesRemaining: saveAttackAbility.usesRemaining ?? null, decisionReason: proposal.reason ?? null
     };
   }
