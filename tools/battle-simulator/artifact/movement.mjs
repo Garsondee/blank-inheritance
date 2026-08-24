@@ -28,6 +28,42 @@ export function actionLegs(action) {
   return action.path?.length > 1 ? action.path.slice(1) : [action.to];
 }
 
+const MOVE_ACTION_TYPES = new Set(["move", "step", "advance"]);
+
+/**
+ * Design doc §37 — Ingram's own ask: "If all a character does is move multiple times we only
+ * need to include a single 'move' over all, that should speed things up a lot." Groups one turn's
+ * raw action list into playback-ready runs: every span of CONSECUTIVE legal move/step/advance
+ * actions collapses into one `{ kind: "moveGroup", actions, legs, to }` entry (`legs` is every
+ * real action's own actionLegs concatenated in order, so a real multi-action approach animates as
+ * one continuous glide instead of N separate reason-then-move beats). Anything else — a rejected
+ * proposal, an attack/heal/demoralize/etc. — passes through unmerged as `{ kind: "single", action
+ * }`; a rejected proposal never actually moved anything, so it never joins a glide, and only real
+ * consecutive movement reads as one continuous motion.
+ */
+export function groupTurnActions(actions) {
+  const groups = [];
+  let i = 0;
+  while (i < actions.length) {
+    const action = actions[i];
+    if (action.legal !== false && MOVE_ACTION_TYPES.has(action.type)) {
+      const runActions = [action];
+      let j = i + 1;
+      while (j < actions.length && actions[j].legal !== false && MOVE_ACTION_TYPES.has(actions[j].type)) {
+        runActions.push(actions[j]);
+        j++;
+      }
+      i = j;
+      const legs = runActions.flatMap((a) => actionLegs(a));
+      groups.push({ kind: "moveGroup", actions: runActions, legs, to: runActions[runActions.length - 1].to });
+    } else {
+      groups.push({ kind: "single", action });
+      i++;
+    }
+  }
+  return groups;
+}
+
 /**
  * The sequence of grid positions the acting combatant occupies THIS step, start to finish, plus a
  * parallel per-leg TIME WEIGHT — shared by the decision overlay (draws a line per REAL leg) and the

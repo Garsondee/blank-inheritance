@@ -1844,3 +1844,67 @@ A real, parallel port of `engine/terrain.mjs`'s own `lineOfEffect`/`wallBlocksSi
 ### Files
 
 Changed: `tools/battle-simulator/personnel-engine/decide.mjs` (`averagePosition`, the blended+random exploration candidates), `tools/battle-simulator/artifact/geometry.mjs` (`lineOfEffectLocal`/`segmentsIntersectLocal` and their private helpers), `tools/battle-simulator/artifact/template.html` (`.token.not-visible` CSS, `updateTokenVisibility`, wired into `playBeat`'s three branches and `render`'s own baseline pass), `tools/battle-simulator/artifact/contact-simulation.html` (rebuilt). Regenerated: the 15 `complex-3v3-random-arcs` logs, `logs/index.json`. Tests: `test/battle-simulator/personnel-decide.test.mjs`, `test/battle-simulator/artifact-geometry.test.mjs` (both extended).
+
+## 37. Merged-move playback, no pausing before contact, and the real bug behind wall-hugging oscillation
+
+> *"If all a character does is move multiple times we only need to include a single 'move' over all, that should speed things up a lot. Hell, make it so that we don't have any pausing until first contact, once you hit play tokens just move towards each other in turn, only once a token can see another token do we slow things down into an explaining mode."*
+>
+> *"I still see examples of PC tokens which are moving backwards and forwards, probably because they are next to a long wall and can't play multiple turns ahead. They need to be able to plan multiple turns ahead so that they can move around very large objects without thinking they are stuck."*
+
+Three asks, one viewer-pacing pair and one real AI bug.
+
+### Merged-move playback
+
+`buildTurnBeats` used to give every single action its own reason-then-act beat pair, even when a turn was nothing but three or four consecutive Strides — three or four full "here's why, then watch it move" cycles for what reads, visually, as one continuous walk. New `groupTurnActions` (`movement.mjs`, tested independently rather than left inline — this project's own extraction convention for real logic living inside `template.html`, matching `geometry.mjs`/`steps.mjs`/`library.mjs`) collapses any run of CONSECUTIVE legal move/step/advance actions into a single `moveGroup` — one reason beat, one glide, every real leg from every action in the run concatenated in order. A non-move action (or a rejected proposal) still breaks the run and gets its own beat, unmerged — a Stride-Stride-Strike turn still reads as move, then a real separate strike moment, not one bubble covering an attack it didn't explain.
+
+### No pausing before contact
+
+`isPreContact` (`stepIdx < findFirstContactStepIndex(steps)`, recomputed per turn — the array is small, and this keeps `buildTurnBeats` a pure function of its own three arguments) now suppresses the reason bubble entirely for a pre-contact move group: no bubble, no `REASON_HOLD_MS` wait, straight into the glide. The glide itself still plays at the normal speed-adjusted pace, so motion stays visible — it just never stops to narrate a decision that, during blind exploration, is always the same generic "keep advancing" choice. The turn that actually CONTAINS the first contact action gets full explaining-mode treatment (not just turns strictly after it) — `isPreContact` is false exactly at `firstContactIdx`, so the attack that finally breaks the silence gets narrated, not just its aftermath.
+
+Verified directly against a real `complex-3v3-random-arcs` run rather than assumed: patched `buildTurnBeats` in the live artifact to log every call, then played a real battle through. Confirmed 12 straight pre-contact turns (11 real combatant turns before the fight starts) produced beat sequences of exactly `["act-move"]` each — zero reason beats — and the very next turn, at the step `findFirstContactStepIndex` itself names as first contact, produced `["reason", "act-move"]` immediately followed by a real strike turn's `["reason", "act-effect", "reason", "act-effect", "reason", "act-effect"]`. Explaining mode starts exactly where it should, not one turn early or late.
+
+(One test-methodology note worth recording: real-time verification via the browser preview pane was blocked for most of this check by the pane reporting `document.hidden === true` even after being explicitly fronted — a known limitation this session already has for screenshot compositing, now confirmed to also throttle/suspend the CSS-transition-driven token glide entirely, matching `glideToken`'s own decade-old code comment about hidden tabs suspending rAF. Worked around by temporarily monkey-patching `glideToken` in the live page to resolve instantly instead of via real CSS timing — that made the underlying sequencing logic race through cleanly, proving the STRUCTURE is correct independent of the browser tooling's rendering limitation. The real, unpatched code is untouched; this was a verification workaround only, not a change to the shipped behavior.)
+
+### The real bug behind "moving backwards and forwards near a long wall"
+
+Ingram's own diagnosis — "can't play multiple turns ahead" — pointed at the pathfinding horizon, but `bestDestinationToward`'s `trueDistanceField` (§16) already floods a real Dijkstra distance field from the target across the WHOLE map (a generous `span`, not bounded to one turn's Speed) — it was already multi-turn-aware in exactly the sense needed. The actual bug was smaller and stranger: §36's blended exploration candidate computes its target as a raw arithmetic blend of two centroids —
+
+```js
+const blended = {
+  col: allyCentroid.col + (enemyCentroid.col - allyCentroid.col) * towardEnemyWeight,
+  row: allyCentroid.row + (enemyCentroid.row - allyCentroid.row) * towardEnemyWeight
+};
+```
+
+— a **float**, not a grid cell. `reachableCells`'s Dijkstra flood generates every neighbor by adding ±1/0 to the flood origin's own col/row; flooded from a non-integer origin, EVERY key it ever produces is non-integer too ("33.7,0", never "34,0"). The mover's own reachable-this-turn cells are always real integer grid cells, so `trueDist(col, row)`'s lookup into that field NEVER matched, EVERY time, for this one candidate — silently falling through to its own fallback, `distanceFeet(...) * 10`, a pure straight-line estimate with zero wall-awareness. That's the whole bug: the wall-aware multi-turn field was already built and already correct, but the one candidate that needed it most was handing it a key it could structurally never look up, so it always got the myopic straight-line answer instead — walk straight at the wall, get blocked, walk straight at the wall again next turn from a slightly different angle, repeat.
+
+Fixed by rounding the blend to the nearest real cell before searching:
+
+```js
+const blended = {
+  col: Math.round(allyCentroid.col + (enemyCentroid.col - allyCentroid.col) * towardEnemyWeight),
+  row: Math.round(allyCentroid.row + (enemyCentroid.row - allyCentroid.row) * towardEnemyWeight)
+};
+```
+
+No new pathfinding machinery required — the multi-turn-aware search this whole feature always needed was already there.
+
+**Proven with a real regression test, not just reasoned about**: a full-height dividing wall with a single gap at rows 18-22, mover and enemy centroid both on row 0 on opposite sides of the SOLID part of the wall. Confirmed by temporarily reverting just the rounding fix (`git stash push` on `decide.mjs` alone, new test left in place) that the un-rounded candidate stays at row 1-2 — hugging the wall it can't get through — while the fixed version correctly biases toward the gap (row > 2). Both runs captured in `test/battle-simulator/personnel-decide.test.mjs`; only the fixed version is what ships.
+
+**Measured, not assumed, on the real scenario this bug was hit in**: the 15 `complex-3v3-random-arcs` logs, regenerated with the fix.
+
+| | Before (unrounded blend) | After (rounded) |
+|---|---|---|
+| Round-limit timeouts | **1 / 15** (seed 6, hit the full 60-round ceiling) | **0 / 15** |
+| Average rounds (excluding the timeout outlier) | 7.1 | 6.8 |
+
+The timeout is the headline result: seed 6 never resolved within 60 rounds under the old code — exactly the "stuck, can't get past the wall" failure mode Ingram was watching happen — and resolves in 9 rounds with the fix. Every other seed's round count stayed in the same tight range, confirming this wasn't a broader rebalance, just the one dead-lock case going away.
+
+### What wasn't attempted this pass
+
+- **Regenerating the 6 fixed-setup scenario families** — their belief is never empty, so the exploration candidate this bug lived in structurally never runs for them; only `complex-3v3-random-arcs` needed fresh data.
+- **A genuine multi-turn lookahead search** — considered and explicitly NOT built. The evidence pointed at a real but narrow bug in an existing, already-adequate multi-turn-aware field, not a missing capability — building new planning machinery on top of a broken lookup would have masked the actual defect rather than fixed it.
+
+### Files
+
+Changed: `tools/battle-simulator/artifact/movement.mjs` (`groupTurnActions`), `tools/battle-simulator/artifact/template.html` (`buildTurnBeats` rewritten around `groupTurnActions` + `isPreContact`, `playBeat`'s act-move branch reads `beat.legs` directly), `tools/battle-simulator/personnel-engine/decide.mjs` (blended exploration target rounded to a real cell), `tools/battle-simulator/artifact/contact-simulation.html` (rebuilt). Regenerated: the 15 `complex-3v3-random-arcs` logs, `logs/index.json`. Tests: `test/battle-simulator/movement.test.mjs` (7 new `groupTurnActions` cases), `test/battle-simulator/personnel-decide.test.mjs` (1 new wall-detour regression case). Full suite: 780/780.

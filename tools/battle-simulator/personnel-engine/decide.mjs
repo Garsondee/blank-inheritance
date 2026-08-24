@@ -446,9 +446,21 @@ export function generateProposals(state, combatantId, turn) {
       const allyCentroid = averagePosition(livingAllyPositions);
       const enemyCentroid = averagePosition(livingEnemyPositions);
       const towardEnemyWeight = 0.55 + rng() * 0.2; // 55%-75% of the way toward the opponent's centroid, jittered
+      // design doc §37 (Ingram's own bug report: PCs "moving backwards and forwards" near a long
+      // wall, "can't play multiple turns ahead") — root cause traced to THIS blend, not a missing
+      // planning horizon. `bestDestinationToward` already scores candidates by real wall-aware
+      // Dijkstra distance-to-target (trueDistanceField floods outward from `to` across the WHOLE
+      // map, not just this turn's reach — genuinely multi-turn-aware already), but that field is
+      // keyed by exact integer "col,row" strings. A raw centroid blend is a float, so its flood
+      // lands on off-grid keys ("33.7,0" etc.) that the mover's own integer-keyed reachable-cells
+      // lookup can NEVER match — trueDist() silently falls through to the naive `distanceFeet * 10`
+      // straight-line fallback for every candidate, EVERY time, which is exactly the myopic
+      // "walk straight at the wall" behavior being reported. Rounding to the nearest real cell
+      // before searching is the whole fix — it restores the wall-aware field this was always meant
+      // to use, no new pathfinding machinery required.
       const blended = {
-        col: allyCentroid.col + (enemyCentroid.col - allyCentroid.col) * towardEnemyWeight,
-        row: allyCentroid.row + (enemyCentroid.row - allyCentroid.row) * towardEnemyWeight
+        col: Math.round(allyCentroid.col + (enemyCentroid.col - allyCentroid.col) * towardEnemyWeight),
+        row: Math.round(allyCentroid.row + (enemyCentroid.row - allyCentroid.row) * towardEnemyWeight)
       };
       addDest(bestDestinationToward(state, combatantId, myPos, blended, speed, 0, destCache));
     }

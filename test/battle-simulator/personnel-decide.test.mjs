@@ -564,3 +564,38 @@ test("generateProposals (design doc §36): with NO living enemies at all, blind 
   const proposals = generateProposals(state, "me", turn);
   assert.ok(proposals.some((p) => p.type === "move"), "expected at least one real move candidate with no enemies at all (the fight may already be won on this side, or this is a genuinely solo scout)");
 });
+
+// A full-height dividing wall EXCEPT a gap at rows 18-22 — the only crossing point between the two
+// sides on this map. `me` and the enemy centroid both sit at row 0, on opposite sides of the SOLID
+// part of the wall, so the real shortest route between them must detour down to the gap first.
+function dividerWallWithGap(gridSize, gapStart, gapEnd) {
+  const walls = [];
+  for (let r = 0; r < gridSize.rows; r++) {
+    if (r >= gapStart && r < gapEnd) continue;
+    walls.push({ c: [20, r, 20, r + 1], move: 20, sight: 20 });
+  }
+  return walls;
+}
+
+test("generateProposals (design doc §37 — Ingram's bug report: PCs oscillating next to a long wall during blind exploration): the blended exploration candidate is real Dijkstra wall-aware, not a naive beeline into solid wall — it moves toward the gap, not just sideways along the wall", () => {
+  const gridSize = { cols: 60, rows: 40 };
+  const combatants = new Map();
+  const positions = new Map();
+  combatants.set("me", { id: "me", name: "Me", side: "party", currentHP: 16, maxHP: 16, speed: 30 });
+  positions.set("me", { col: 15, row: 0 });
+  combatants.set("enemy-0", { id: "enemy-0", name: "enemy-0", side: "opposition", currentHP: 10, maxHP: 10, speed: 25 });
+  positions.set("enemy-0", { col: 45, row: 0 });
+  const state = {
+    round: 1, seed: 1, gridSize, walls: dividerWallWithGap(gridSize, 18, 22),
+    combatants, positions, blindDeployment: true
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 30 } };
+  const proposals = generateProposals(state, "me", turn);
+  const moves = proposals.filter((p) => p.type === "move");
+  assert.ok(moves.length >= 1, "expected at least one move candidate while blind");
+  // The naive (buggy) fallback picks whichever reachable cell is closest in a straight line to the
+  // blended point — that's a cell that stays near row 0, hugging the solid wall. The real
+  // wall-aware field instead knows row 0 is a dead end and biases toward the gap at rows 18-22.
+  const movesTowardGap = moves.some((m) => m.to.row > 2);
+  assert.ok(movesTowardGap, `expected the blended candidate to move toward the gap (row > 2), not hug the solid wall at row 0 — got: ${JSON.stringify(moves.map((m) => m.to))}`);
+});

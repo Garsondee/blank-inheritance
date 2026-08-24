@@ -7,7 +7,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { actionLegs, combatantWaypoints } from "../../tools/battle-simulator/artifact/movement.mjs";
+import { actionLegs, combatantWaypoints, groupTurnActions } from "../../tools/battle-simulator/artifact/movement.mjs";
 
 // --- actionLegs ---
 
@@ -126,4 +126,82 @@ test("combatantWaypoints: a non-movement action (strike) contributes no waypoint
   ];
   const result = combatantWaypoints(steps, 1);
   assert.deepEqual(result.positions, [{ col: 0, row: 0 }]);
+});
+
+// --- groupTurnActions (design doc §37 — Ingram's own ask: "If all a character does is move
+// multiple times we only need to include a single 'move' over all, that should speed things up a
+// lot.") ---
+
+test("groupTurnActions: three consecutive move actions merge into a single moveGroup with all legs concatenated in order", () => {
+  const actions = [
+    { type: "move", to: { col: 1, row: 0 } },
+    { type: "move", to: { col: 2, row: 0 } },
+    { type: "move", to: { col: 3, row: 0 } }
+  ];
+  const groups = groupTurnActions(actions);
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].kind, "moveGroup");
+  assert.deepEqual(groups[0].legs, [{ col: 1, row: 0 }, { col: 2, row: 0 }, { col: 3, row: 0 }]);
+  assert.deepEqual(groups[0].to, { col: 3, row: 0 });
+  assert.equal(groups[0].actions.length, 3);
+});
+
+test("groupTurnActions: step and advance merge into the same run as move — all three are 'movement' for grouping purposes", () => {
+  const actions = [
+    { type: "step", to: { col: 1, row: 0 } },
+    { type: "advance", to: { col: 2, row: 0 } },
+    { type: "move", to: { col: 3, row: 0 } }
+  ];
+  const groups = groupTurnActions(actions);
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].kind, "moveGroup");
+});
+
+test("groupTurnActions: a non-move action breaks the run — move, strike, move produces three separate groups, not one merged glide", () => {
+  const actions = [
+    { type: "move", to: { col: 1, row: 0 } },
+    { type: "strike", targetId: "b" },
+    { type: "move", to: { col: 2, row: 0 } }
+  ];
+  const groups = groupTurnActions(actions);
+  assert.equal(groups.length, 3);
+  assert.equal(groups[0].kind, "moveGroup");
+  assert.equal(groups[1].kind, "single");
+  assert.equal(groups[1].action.type, "strike");
+  assert.equal(groups[2].kind, "moveGroup");
+});
+
+test("groupTurnActions: a rejected (illegal) move never joins a run — it passes through as its own single entry, even between two real moves", () => {
+  const actions = [
+    { type: "move", to: { col: 1, row: 0 } },
+    { type: "move", to: { col: 9, row: 9 }, legal: false, reason: "out of range" },
+    { type: "move", to: { col: 2, row: 0 } }
+  ];
+  const groups = groupTurnActions(actions);
+  assert.equal(groups.length, 3);
+  assert.equal(groups[0].kind, "moveGroup");
+  assert.equal(groups[0].actions.length, 1);
+  assert.equal(groups[1].kind, "single");
+  assert.equal(groups[1].action.legal, false);
+  assert.equal(groups[2].kind, "moveGroup");
+});
+
+test("groupTurnActions: a real bent path inside the merged run contributes every real waypoint, not just its endpoint", () => {
+  const actions = [
+    { type: "move", to: { col: 1, row: 0 } },
+    { type: "move", to: { col: 3, row: 2 }, path: [{ col: 1, row: 0 }, { col: 2, row: 1 }, { col: 3, row: 2 }] }
+  ];
+  const groups = groupTurnActions(actions);
+  assert.equal(groups.length, 1);
+  assert.deepEqual(groups[0].legs, [{ col: 1, row: 0 }, { col: 2, row: 1 }, { col: 3, row: 2 }]);
+});
+
+test("groupTurnActions: an empty action list returns an empty group list", () => {
+  assert.deepEqual(groupTurnActions([]), []);
+});
+
+test("groupTurnActions: a single non-move action passes through as its own group, unmerged", () => {
+  const groups = groupTurnActions([{ type: "healAbility", targetId: "b" }]);
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].kind, "single");
 });

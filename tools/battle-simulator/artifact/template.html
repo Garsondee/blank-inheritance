@@ -604,7 +604,7 @@ const DAMAGE_STATE_LABEL = { operational: "Operational", degraded: "Degraded", c
 
 // GRID/MAP_PX/CELL/FEET_PER_SQUARE/posToPx/feetToPx/reachFeetForStrikeLocal/cleanRangeFeetLocal come from
 // geometry.mjs; buildSteps from steps.mjs; the library filter/sort helpers from library.mjs;
-// actionLegs/combatantWaypoints from movement.mjs — all spliced in here by build.mjs (see
+// actionLegs/combatantWaypoints/groupTurnActions from movement.mjs — all spliced in here by build.mjs (see
 // tools/battle-simulator/artifact/build.mjs) as real, independently node:test-tested ES modules,
 // not re-authored inline.
 __GEOMETRY_JS__
@@ -1098,18 +1098,38 @@ function buildTurnBeats(run, step, stepIdx) {
     return beats;
   }
 
-  for (const action of actions) {
-    if (action.legal === false) {
-      pushReason(`Considered it — rejected: ${action.reason}`, true);
-      continue; // a rejected proposal never moved or struck anything — nothing to actually play out
-    }
-    pushReason(action.decisionReason || "—", false, action);
-    if (action.type === "move" || action.type === "step" || action.type === "advance") {
-      beats.push({ type: "act-move", combatantId, fromPos: { ...pos }, action });
-      pos = action.to;
-    } else {
+  // design doc §37 — Ingram's own ask: no pausing at all until the battle's REAL first contact,
+  // once play actually starts ("once you hit play tokens just move towards each other in turn,
+  // only once a token can see another token do we slow things down into an explaining mode").
+  // -1 (a run that never makes contact) is treated as pre-contact throughout — nothing to explain
+  // if no attack ever happens. Recomputed per turn rather than cached: `steps` is small (a linear
+  // scan is cheap) and this keeps buildTurnBeats a pure function of its own three arguments.
+  const firstContactIdx = findFirstContactStepIndex(steps);
+  const isPreContact = firstContactIdx < 0 || stepIdx < firstContactIdx;
+
+  for (const group of groupTurnActions(actions)) {
+    if (group.kind === "single") {
+      const action = group.action;
+      if (action.legal === false) {
+        pushReason(`Considered it — rejected: ${action.reason}`, true);
+        continue; // a rejected proposal never moved or struck anything — nothing to actually play out
+      }
+      pushReason(action.decisionReason || "—", false, action);
       beats.push({ type: "act-effect", action, sourcePos: { ...pos }, targetPos: step.snapshot[action.targetId]?.position });
+      continue;
     }
+    // design doc §37 — Ingram's own ask: "If all a character does is move multiple times we only
+    // need to include a single 'move' over all." groupTurnActions (movement.mjs) already merged
+    // this run of consecutive legal move/step/advance actions into one continuous path — one beat
+    // pair instead of one per action, same real route either way.
+    const last = group.actions[group.actions.length - 1];
+    // Pre-contact, skip the reason bubble entirely — no explaining, no pause. The glide itself
+    // still plays (the act-move beat below), so motion stays visible; it just never stops to
+    // narrate a decision that, during blind exploration, is always the same generic "keep
+    // advancing" choice anyway.
+    if (!isPreContact) pushReason(last.decisionReason || "—", false, last);
+    beats.push({ type: "act-move", combatantId, fromPos: { ...pos }, legs: group.legs });
+    pos = group.to;
   }
   return beats;
 }
@@ -1193,7 +1213,7 @@ function playBeat(beat, gen, advance, ctx) {
     const g = tokenEls.get(beat.combatantId);
     if (!g) { advance(); return; }
     updateTokenVisibility(ctx?.run, ctx?.step, ctx?.activeId, beat.fromPos);
-    const legs = actionLegs(beat.action);
+    const legs = beat.legs;
     const onMoveDone = () => {
       // Re-derive from wherever the glide actually ended (the last leg's own destination) so
       // visibility reflects the real post-move position, not just the pre-move one.
