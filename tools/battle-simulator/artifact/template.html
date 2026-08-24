@@ -271,13 +271,16 @@
      size the container actually renders at" approach posToPx already relies on for the SVG layers,
      so the bubble tracks correctly regardless of how wide the map panel happens to be. */
   #bubbleLayer { position: absolute; inset: 0; pointer-events: none; }
-  /* design doc §32 — "x2 larger": every dimension below is exactly double §29's original
-     (200px->400px, 12px->24px font, etc.) — a deliberate, consistent scale-up, not ad hoc tweaks. */
+  /* design doc §33 — Ingram's own fix: bubbles kept going off-screen or overlapping things under
+     §32's "dodge the nearest token" scheme, which had nowhere clean to dodge INTO near a map edge.
+     Now the bubble lives in one fixed, always-on-screen corner (BUBBLE_CORNER_PCT, JS) — a real
+     tail line (bubble-tail-line/-dot below) does the work of reaching across to the actual token,
+     the same way a comic panel's speech bubble does, rather than the bubble itself chasing it. */
   .thought-bubble {
-    position: absolute; max-width: 400px; width: max-content;
+    position: absolute; top: 3%; left: 3%; max-width: 400px; width: max-content;
     background: var(--surface); border: 3px solid var(--ink); border-radius: 20px;
     padding: 12px 20px; font-size: 24px; line-height: 1.35; color: var(--ink);
-    box-shadow: var(--shadow); opacity: 0; text-align: center;
+    box-shadow: var(--shadow); opacity: 0; text-align: center; transform: scale(0.94);
   }
   .thought-bubble .tb-name { font-family: "Oswald", sans-serif; font-weight: 600; font-size: 19px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-muted); margin-bottom: 4px; }
   /* design doc §32 — "the name of the action being taken followed by the symbols that SF2E uses
@@ -290,58 +293,20 @@
     color: var(--accent); display: flex; align-items: center; justify-content: center; gap: 8px;
   }
   .thought-bubble .tb-action .tb-cost { color: var(--amber); letter-spacing: 1px; }
+  .thought-bubble.playing { animation: bubbleIn 0.22s ease-out forwards; }
+  @keyframes bubbleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
-  /* design doc §32 — "smart about its positioning, not overlapping with tokens": four placements,
-     chosen at spawn time by pickBubblePlacement (JS) based on real other-token positions. Each
-     bundles its own anchor transform AND tail direction so the two never drift out of sync. */
-  .thought-bubble.place-top { transform: translate(-50%, -100%); }
-  .thought-bubble.place-bottom { transform: translate(-50%, 0%); }
-  .thought-bubble.place-left { transform: translate(-100%, -50%); }
-  .thought-bubble.place-right { transform: translate(0%, -50%); }
-
-  .thought-bubble.place-top::after {
-    content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%);
-    border: 11px solid transparent; border-top-color: var(--ink);
-  }
-  .thought-bubble.place-top::before {
-    content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%); z-index: 1;
-    border: 8.5px solid transparent; border-top-color: var(--surface); margin-top: -2.5px;
-  }
-  .thought-bubble.place-bottom::after {
-    content: ""; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%);
-    border: 11px solid transparent; border-bottom-color: var(--ink);
-  }
-  .thought-bubble.place-bottom::before {
-    content: ""; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); z-index: 1;
-    border: 8.5px solid transparent; border-bottom-color: var(--surface); margin-bottom: -2.5px;
-  }
-  .thought-bubble.place-left::after {
-    content: ""; position: absolute; top: 50%; left: 100%; transform: translateY(-50%);
-    border: 11px solid transparent; border-left-color: var(--ink);
-  }
-  .thought-bubble.place-left::before {
-    content: ""; position: absolute; top: 50%; left: 100%; transform: translateY(-50%); z-index: 1;
-    border: 8.5px solid transparent; border-left-color: var(--surface); margin-left: -2.5px;
-  }
-  .thought-bubble.place-right::after {
-    content: ""; position: absolute; top: 50%; right: 100%; transform: translateY(-50%);
-    border: 11px solid transparent; border-right-color: var(--ink);
-  }
-  .thought-bubble.place-right::before {
-    content: ""; position: absolute; top: 50%; right: 100%; transform: translateY(-50%); z-index: 1;
-    border: 8.5px solid transparent; border-right-color: var(--surface); margin-right: -2.5px;
-  }
-
-  .thought-bubble.playing.place-top { animation: bubbleInTop 0.22s ease-out forwards; }
-  .thought-bubble.playing.place-bottom { animation: bubbleInBottom 0.22s ease-out forwards; }
-  .thought-bubble.playing.place-left { animation: bubbleInLeft 0.22s ease-out forwards; }
-  .thought-bubble.playing.place-right { animation: bubbleInRight 0.22s ease-out forwards; }
-  @keyframes bubbleInTop { from { opacity: 0; transform: translate(-50%, -88%); } to { opacity: 1; transform: translate(-50%, -100%); } }
-  @keyframes bubbleInBottom { from { opacity: 0; transform: translate(-50%, -12%); } to { opacity: 1; transform: translate(-50%, 0%); } }
-  @keyframes bubbleInLeft { from { opacity: 0; transform: translate(-88%, -50%); } to { opacity: 1; transform: translate(-100%, -50%); } }
-  @keyframes bubbleInRight { from { opacity: 0; transform: translate(-12%, -50%); } to { opacity: 1; transform: translate(0%, -50%); } }
+  /* design doc §33 — the long tail itself: a real SVG line from the bubble's fixed corner to the
+     speaking token, plus a small dot right at the token so it's unambiguous who's talking even
+     across a busy, crowded map. Dashed rather than solid specifically to read as "a connector,"
+     not a targeting/decision line (those are always solid — see .decision-line above). */
+  .bubble-tail-line { stroke: var(--ink); stroke-width: 2.5; stroke-dasharray: 7 5; stroke-linecap: round; opacity: 0; fill: none; }
+  .bubble-tail-dot { fill: var(--ink); opacity: 0; }
+  .bubble-tail-line.playing, .bubble-tail-dot.playing { animation: tailIn 0.22s ease-out forwards; }
+  @keyframes tailIn { from { opacity: 0; } to { opacity: 0.7; } }
   @media (prefers-reduced-motion: reduce) {
-    .thought-bubble.playing { animation: none !important; opacity: 1; }
+    .thought-bubble.playing { animation: none !important; opacity: 1; transform: none; }
+    .bubble-tail-line.playing, .bubble-tail-dot.playing { animation: none !important; opacity: 0.7; }
   }
 
   /* Decision overlay (design doc §14h): a move's start->end path and a strike's attacker->target
@@ -561,6 +526,7 @@
           <g id="overlayLayer"></g>
           <g id="targetLineLayer"></g>
           <g id="tokenLayer"></g>
+          <g id="bubbleTailLayer"></g>
           <g id="effectLayer"></g>
         </svg>
         <div id="bubbleLayer"></div>
@@ -1080,32 +1046,16 @@ function actionCostIcons(n) {
   return "◆".repeat(Math.max(1, Math.round(n)));
 }
 
-// design doc §32 — "smart about its positioning, not overlapping with tokens": four candidate
-// placements (above/below/left/right of the speaking token), tried in preference order, picking
-// the first whose estimated bounding box doesn't come within TOKEN_EXCLUSION_PX of any OTHER
-// living combatant's real current position. A fixed size estimate (not the real rendered size,
-// which isn't known until after the browser lays out the wrapped text) is deliberately
-// conservative — good enough to dodge the obvious case (a token sitting directly under the
-// default placement), not a pixel-exact layout solver.
-const BUBBLE_EST_W = 400, BUBBLE_EST_H = 160, BUBBLE_GAP_PX = 4;
-function bubbleBoxFor(anchorPx, placement) {
-  const w = BUBBLE_EST_W, h = BUBBLE_EST_H, g = BUBBLE_GAP_PX;
-  if (placement === "top") return { left: anchorPx.x - w / 2, right: anchorPx.x + w / 2, top: anchorPx.y - h - g, bottom: anchorPx.y };
-  if (placement === "bottom") return { left: anchorPx.x - w / 2, right: anchorPx.x + w / 2, top: anchorPx.y, bottom: anchorPx.y + h + g };
-  if (placement === "left") return { left: anchorPx.x - w - g, right: anchorPx.x, top: anchorPx.y - h / 2, bottom: anchorPx.y + h / 2 };
-  return { left: anchorPx.x, right: anchorPx.x + w + g, top: anchorPx.y - h / 2, bottom: anchorPx.y + h / 2 }; // "right"
-}
-function pickBubblePlacement(anchorPx, otherPositions) {
-  const exclusion = CELL * 0.7;
-  for (const placement of ["top", "bottom", "right", "left"]) {
-    const box = bubbleBoxFor(anchorPx, placement);
-    const blocked = (otherPositions || []).some((p) => {
-      const px = posToPx(p);
-      return px.x >= box.left - exclusion && px.x <= box.right + exclusion && px.y >= box.top - exclusion && px.y <= box.bottom + exclusion;
-    });
-    if (!blocked) return placement;
-  }
-  return "top"; // every placement collides with something — fall back to the original default rather than never showing a bubble at all
+// design doc §33 — Ingram's own report: the four-placement dodge-the-nearest-token scheme (§32)
+// still routinely went off-screen (a placement near a map EDGE has nowhere clean to dodge INTO)
+// and still overlapped things. Replaced with a fixed screen corner (always on-screen, by
+// construction — see BUBBLE_CORNER_PCT below) plus a real tail line drawn all the way to the
+// speaking token (drawBubbleTail, called from spawnThoughtBubble) — same idea as a comic panel's
+// speech bubble reaching across the page to whoever's talking, rather than always sitting
+// directly on top of them, where a busy map has nowhere left for it to go.
+const BUBBLE_CORNER_PCT = { left: 3, top: 3 }; // top-left — map-wrap has no other overlay competing for this corner (checked directly: scenarioNote/initiative-strip are separate panels, not drawn over the map)
+function bubbleCornerPx() {
+  return { x: (BUBBLE_CORNER_PCT.left / 100) * MAP_PX_W, y: (BUBBLE_CORNER_PCT.top / 100) * MAP_PX_H };
 }
 
 function buildTurnBeats(run, step, stepIdx) {
@@ -1118,14 +1068,8 @@ function buildTurnBeats(run, step, stepIdx) {
   let pos = priorStep?.snapshot?.[combatantId]?.position;
   if (!pos) return beats;
 
-  // design doc §32: every OTHER living combatant's position, for the bubble's own collision check
-  // — computed once per turn since nobody but the acting combatant moves during their own turn.
-  const otherPositions = Object.entries(step.snapshot)
-    .filter(([id, s]) => id !== combatantId && (s.currentHP ?? 1) > 0 && s.position)
-    .map(([, s]) => s.position);
-
   const pushReason = (text, holdOnly, action) => beats.push({
-    type: "reason", combatantId, name, text, pos: { ...pos }, holdOnly: !!holdOnly, otherPositions,
+    type: "reason", combatantId, name, text, pos: { ...pos }, holdOnly: !!holdOnly,
     actionFooter: action ? { name: realActionName(action), cost: action.actionsCost ?? 1 } : null
   });
 
@@ -1215,7 +1159,7 @@ function playBeat(beat, gen, advance, ctx) {
     // over — cleared here so it never lingers through the NEXT action's own reason bubble, the
     // same lifecycle spawnThoughtBubble already gives the bubble itself.
     document.getElementById("targetLineLayer").innerHTML = "";
-    spawnThoughtBubble(beat.pos, beat.name, beat.text, beat.otherPositions, beat.actionFooter);
+    spawnThoughtBubble(beat.pos, beat.name, beat.text, beat.actionFooter);
     const holdMs = Math.max(400, (beat.holdOnly ? REASON_HOLD_ONLY_MS : REASON_HOLD_MS) / playSpeed);
     setTimeout(() => { if (gen === renderGeneration) advance(); }, holdMs);
     return;
@@ -1288,28 +1232,44 @@ function spawnBurst(pos, flavor, holdMs = 700) {
   setTimeout(() => el.remove(), holdMs);
 }
 
-/** A grid position -> percentage-of-container offset, the HTML equivalent of posToPx — the
- * bubble layer is a plain HTML overlay (real word-wrap, painless), not SVG, so it can't use SVG
- * pixel coordinates directly; percentages track correctly regardless of how wide the map panel
- * actually renders, same "works at whatever size the container is" property posToPx relies on. */
-function posToPercent(pos) {
-  const px = posToPx(pos);
-  return { left: (px.x / MAP_PX_W) * 100, top: (px.y / MAP_PX_H) * 100 };
+// design doc §33: the tail's BUBBLE-side endpoint — a fixed estimate near the bubble's own
+// bottom-right area (the box grows right/down from BUBBLE_CORNER_PCT), not a measured DOM rect.
+// The bubble's exact rendered size depends on how much the wrapped text needs, which isn't known
+// until after layout — but a tail is understood as "roughly this direction, this far" even a
+// little short of the literal edge, so a fixed estimate is enough; no getBoundingClientRect
+// round-trip needed.
+const BUBBLE_TAIL_START_OFFSET = { x: 200, y: 130 };
+
+/** Draws a real line (+ a small dot right at the speaker) from the bubble's fixed corner all the
+ * way to the token's actual position — design doc §33's whole point: the bubble no longer moves
+ * to chase the token, so this is the one thing that still has to reach across the map to say
+ * "THIS is who's thinking this." Cleared and redrawn every reason beat, same lifecycle the bubble
+ * itself already has. */
+function drawBubbleTail(tokenPos) {
+  const layer = document.getElementById("bubbleTailLayer");
+  const corner = bubbleCornerPx();
+  const start = { x: corner.x + BUBBLE_TAIL_START_OFFSET.x, y: corner.y + BUBBLE_TAIL_START_OFFSET.y };
+  const end = posToPx(tokenPos);
+  const line = document.createElementNS(SVG_NS, "line");
+  line.setAttribute("class", "bubble-tail-line");
+  line.setAttribute("x1", start.x); line.setAttribute("y1", start.y);
+  line.setAttribute("x2", end.x); line.setAttribute("y2", end.y);
+  const dot = document.createElementNS(SVG_NS, "circle");
+  dot.setAttribute("class", "bubble-tail-dot");
+  dot.setAttribute("cx", end.x); dot.setAttribute("cy", end.y); dot.setAttribute("r", 5);
+  layer.append(line, dot);
+  requestAnimationFrame(() => { line.classList.add("playing"); dot.classList.add("playing"); });
 }
 
 let currentBubbleEl = null;
 function clearThoughtBubble() {
   if (currentBubbleEl) { currentBubbleEl.remove(); currentBubbleEl = null; }
+  document.getElementById("bubbleTailLayer").innerHTML = "";
 }
-function spawnThoughtBubble(pos, name, text, otherPositions, actionFooter) {
+function spawnThoughtBubble(pos, name, text, actionFooter) {
   clearThoughtBubble();
-  const anchorPx = posToPx(pos);
-  const placement = pickBubblePlacement(anchorPx, otherPositions);
-  const pct = posToPercent(pos);
   const el = document.createElement("div");
-  el.className = `thought-bubble place-${placement}`;
-  el.style.left = `${pct.left}%`;
-  el.style.top = `${pct.top}%`;
+  el.className = "thought-bubble";
   const nameEl = document.createElement("div");
   nameEl.className = "tb-name";
   nameEl.textContent = name;
@@ -1326,6 +1286,7 @@ function spawnThoughtBubble(pos, name, text, otherPositions, actionFooter) {
     el.append(footerEl);
   }
   document.getElementById("bubbleLayer").appendChild(el);
+  drawBubbleTail(pos);
   requestAnimationFrame(() => el.classList.add("playing"));
   currentBubbleEl = el;
 }

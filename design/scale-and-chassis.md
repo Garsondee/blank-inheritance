@@ -1694,3 +1694,27 @@ One honest data point from the regeneration, not chased further: `complex-3v3-di
 ### Files
 
 Changed: `tools/battle-simulator/personnel-engine/legality.mjs` (`checkHealAbilityLegal` gains `walls`/Line of Effect), `tools/battle-simulator/personnel-engine/engine.mjs` (the one call site now passes `state.walls`), `tools/battle-simulator/personnel-engine/decide.mjs` (`targetableEnemies`, `isUnconscious` import, five proposal loops switched to it), `tools/battle-simulator/personnel-engine/evaluate/state-value.mjs` (closing-gradient's dead-enemy exclusion removed), `tools/battle-simulator/artifact/template.html` (`.thought-bubble` CSS doubled and split into 4 placement variants, `realActionName`/`actionCostIcons`/`bubbleBoxFor`/`pickBubblePlacement` added, `buildTurnBeats` computes `otherPositions`/`actionFooter` per reason beat, `spawnThoughtBubble` takes and renders both), `tools/battle-simulator/artifact/contact-simulation.html` (rebuilt), all 33 personnel-scale files under `tools/battle-simulator/logs/` plus `logs/index.json` (regenerated). Tests: `test/battle-simulator/personnel-legality.test.mjs`, `test/battle-simulator/personnel-decide.test.mjs`, `test/battle-simulator/personnel-state-value.test.mjs` (all extended).
+
+## 33. Speech bubble: a fixed corner and a real tail, replacing §32's dodge-the-nearest-token scheme
+
+Direct follow-up after actually watching §32's positioning fix in play:
+
+> *"Speech bubbles are often off screen, often overlapping things. Move the bubble itself into a corner with a long tail to the unit thinking it."*
+
+### Why §32's fix wasn't enough
+
+§32's `pickBubblePlacement` tried four placements (above/below/left/right of the speaking token) and picked whichever didn't collide with another token's estimated position — but it only ever checked for OTHER TOKENS, never the map's own edges. A combatant near a map boundary has nowhere clean to dodge into regardless of which of the four directions gets tried, so the bubble could still render partly or fully off the visible map. The fix isn't a fifth placement or a smarter collision box — it's not anchoring to the token's position at all.
+
+### The fix: one fixed corner, one real tail line
+
+`.thought-bubble` now has a single, constant CSS position (`top: 3%; left: 3%` — the top-left corner of the map; checked directly that nothing else in `.map-wrap` competes for that space, since `#scenarioNote` and the initiative strip are separate panels outside the map, not overlays on top of it) — on-screen by construction, for any token anywhere on any map, at any zoom. `drawBubbleTail(tokenPos)` (new, `template.html`) draws the connection instead: a real SVG `<line>` from a fixed point near the bubble's own corner (`bubbleCornerPx()` + a fixed offset estimate — not a measured DOM rect, since the bubble's real rendered size depends on wrapped text length that isn't known until after layout, and a tail reads fine even a few pixels short of the literal edge) to the token's actual `posToPx` position, plus a small dot marking exactly who's speaking. Dashed rather than solid, specifically so it reads as "a connector" and never gets confused with the solid `.decision-line` targeting lines from §28/§30. Drawn into a new `#bubbleTailLayer` SVG group (between `#tokenLayer` and `#effectLayer`, so the tail stays visible crossing over other tokens but sits under any combat-result label). `clearThoughtBubble` now clears both the bubble div and the tail layer together, so the two can never fall out of sync with each other.
+
+The whole four-placement collision system from §32 (`bubbleBoxFor`, `pickBubblePlacement`, the `otherPositions` computation in `buildTurnBeats`, the four `place-*` CSS variants and their four directional keyframes) is deleted outright rather than left dormant — it solved a narrower problem than the real one and the real one doesn't need it.
+
+### Verification
+
+Rebuilt and driven live against real, freshly-regenerated battle data: picked a turn whose acting combatant sits near the BOTTOM-left of a 44x30 map (far from the bubble's fixed top-left corner — a genuine stress case, not a convenient one) and confirmed directly via `getBoundingClientRect()` that the bubble's rendered box stays fully within the map SVG's own rendered rectangle on all four edges. Confirmed the tail line's own endpoints match exactly: the bubble-side start at the expected fixed corner offset, and the token-side end at the exact same pixel coordinates `posToPx` independently computes for that combatant's real position (75, 825) — not approximately, exactly. Confirmed the tail layer never accumulates stale elements across multiple reason beats (always exactly 2 children — one line, one dot — matching the clear-then-redraw lifecycle). Confirmed `pickBubblePlacement` is genuinely gone, not just unused. Console clean (the one 404 is the missing favicon, unchanged from every prior pass).
+
+### Files
+
+Changed: `tools/battle-simulator/artifact/template.html` (`.thought-bubble` CSS simplified to one fixed position, `.bubble-tail-line`/`.bubble-tail-dot` CSS added, `#bubbleTailLayer` SVG group added, `bubbleCornerPx`/`drawBubbleTail`/`BUBBLE_CORNER_PCT`/`BUBBLE_TAIL_START_OFFSET` added, `bubbleBoxFor`/`pickBubblePlacement`/`posToPercent` and the `otherPositions` plumbing through `buildTurnBeats`/`spawnThoughtBubble` all removed, `clearThoughtBubble` now also clears the tail layer), `tools/battle-simulator/artifact/contact-simulation.html` (rebuilt).
