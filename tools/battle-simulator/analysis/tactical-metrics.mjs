@@ -22,6 +22,8 @@
  * Pure functions over a completed battle log, same contract as metrics.mjs. No RNG, no I/O.
  */
 
+import { hasCover } from "../engine/terrain.mjs";
+
 /** Every logged action across a battle, flattened with its round/actor context. */
 function flatActions(log) {
   const out = [];
@@ -35,7 +37,16 @@ function flatActions(log) {
   return out;
 }
 
-const ATTACK_TYPES = new Set(["strike", "spellAttack"]);
+// REGRESSION (design doc §39, found while adding coverUsageStats below, not by inspection): this
+// set predates personnel-engine's saveAttack (§22) and areaAttack (§38) action types entirely — a
+// combatant whose real damage comes from a thrown grenade (saveAttack) was invisible to focus-fire
+// and threat-priority tracking, silently undercounting exactly the kind of attack these metrics
+// exist to watch. saveAttack fits the same single-target `targetId`/`roll` shape as strike/
+// spellAttack and is added here; areaAttack is deliberately NOT added — it has no single `targetId`
+// at all (an `originId` plus a multi-target `affected[]` array instead), so every function below
+// that keys off `action.targetId` would silently treat it as a no-op regardless, and forcing it in
+// would only invite a future reader to assume it's handled when it structurally can't be.
+const ATTACK_TYPES = new Set(["strike", "spellAttack", "saveAttack"]);
 
 /**
  * FOCUS FIRE — does the AI concentrate damage, or smear it across every enemy at once?
@@ -303,6 +314,153 @@ export function engagementStats(log) {
   return { firstDamageRound, totalDamage, rounds: (log.rounds ?? []).length };
 }
 
+/**
+ * SIDE OUTCOME — how badly did one side actually get hurt, by the end?
+ *
+ * BROKEN POLE: none named — this isn't a quality detector like the metrics above, it's the raw
+ * severity signal design doc §39 asked for directly: "track both end HP and HP damaged/healed" as
+ * the basis for comparing how dangerous different XP budgets actually turn out to be. Every other
+ * metric in this file answers "is the AI playing well"; this one answers "how much did this side
+ * suffer", which only means something once compared ACROSS a real seed sweep at different
+ * difficulties (see `analysis/xp-budget-battery.mjs`) — a single run's numbers here are close to
+ * meaningless on their own, same as one d20 roll says nothing about a character's real bonus.
+ *
+ * MEASURED AS: summed real, already-logged per-target numbers (damageApplied/appliedDamage,
+ * healing, targetHPAfter) for every combatant on `side` — never re-simulated, never estimated.
+ * `finalHP` is read from the LATEST targetHPAfter seen for each combatant (chronological scan,
+ * so a later heal correctly overwrites an earlier hit) and defaults to full `maxHP` for anyone
+ * never targeted at all, which is exactly the real starting/ending state for a combatant nobody
+ * ever touched.
+ */
+export function sideOutcomeStats(log, side) {
+  const roster = log.roster ?? {};
+  const ids = new Set(Object.keys(roster).filter((id) => roster[id]?.side === side));
+  const finalHP = new Map([...ids].map((id) => [id, roster[id].maxHP ?? 0]));
+  let damageTaken = 0;
+  let healingReceived = 0;
+
+  for (const { action } of flatActions(log)) {
+    if (action.legal === false) continue;
+    if (action.targetId && ids.has(action.targetId)) {
+      if (typeof action.damageApplied === "number") damageTaken += action.damageApplied;
+      if (typeof action.healing === "number") healingReceived += action.healing;
+      if (typeof action.targetHPAfter === "number") finalHP.set(action.targetId, action.targetHPAfter);
+    }
+    // areaAttack (design doc §38): multi-target, no single targetId — each affected entry carries
+    // its own appliedDamage/targetHPAfter, same shape as a single-target hit, just plural.
+    for (const affected of action.affected ?? []) {
+      if (!ids.has(affected.targetId)) continue;
+      if (typeof affected.appliedDamage === "number") damageTaken += affected.appliedDamage;
+      if (typeof affected.targetHPAfter === "number") finalHP.set(affected.targetId, affected.targetHPAfter);
+    }
+  }
+
+  const maxHP = [...ids].reduce((sum, id) => sum + (roster[id].maxHP ?? 0), 0);
+  const finalHPTotal = [...finalHP.values()].reduce((sum, hp) => sum + hp, 0);
+  return {
+    side,
+    maxHP,
+    finalHP: finalHPTotal,
+    finalHPFraction: maxHP > 0 ? finalHPTotal / maxHP : 1,
+    damageTaken,
+    healingReceived,
+    perCombatant: [...ids].map((id) => ({ id, maxHP: roster[id].maxHP ?? 0, finalHP: finalHP.get(id) }))
+  };
+}
+
+/**
+ * COVER DISCIPLINE — does the AI actually use cover, in a real gunfight?
+ *
+ * BROKEN POLE: standing in the open. Design doc §26 gave the evaluator a real, if quiet, mechanism
+ * for pricing a covered position (state-value.mjs's bestExpectedDamage folds hasCover's +2 AC/
+ * Reflex into threatExposure) and §27 gave decide.mjs a real candidate that PROPOSES one — but "the
+ * machinery exists" and "it actually fires in real fights" are different claims, and design doc §39
+ * asked directly: "Does the cover mechanic actually work rules as written? Are the participants
+ * actually using it?" This is the measured answer, not a guess.
+ *
+ * MEASURED AS TWO SEPARATE RATES, deliberately not blended into one number — they catch different
+ * failures:
+ *  - `moveIntoCoverRate` — of every move this combatant makes, what fraction lands somewhere with
+ *    real cover (the identical hasCover geometric check the engine itself uses) from at least one
+ *    LIVING enemy. Catches an AI that never seeks cover at all.
+ *  - `attackFromCoverRate` — of every ranged attack-roll/save, what fraction was thrown from a
+ *    position that already had cover from ITS OWN target. Catches the narrower but more telling
+ *    failure of seeking cover once, then walking back into the open to shoot. hasCover(a,b) is
+ *    symmetric — a wall segment blocks the line between two points the same way from either end,
+ *    confirmed directly against its own implementation (`segmentsIntersect` doesn't care about
+ *    direction) — so the SAME `coverBonus` field strike/spellAttack/saveAttack already log (a real
+ *    AC/Reflex bonus the TARGET gets from the attacker's own line) is, read from the other side,
+ *    exactly "was the attacker also covered." No new engine computation needed here — one field is
+ *    read straight from the log, the other is recomputed post-hoc from the exact same real function.
+ *
+ * areaAttack is deliberately excluded from attackFromCoverRate for the same structural reason
+ * ATTACK_TYPES excludes it above: no single attacker-target line, no logged coverBonus to read.
+ * Melee strikes are excluded too — cover-from-a-wall between two ADJACENT combatants isn't the
+ * question this metric is answering; `strikeType` lives on the roster's own strike definition, not
+ * the logged action, so a melee Strike is identified by looking that up, not guessed from traits.
+ */
+export function coverUsageStats(log) {
+  const roster = log.roster ?? {};
+  const walls = log.walls ?? [];
+  const perCombatant = new Map();
+  const recordFor = (id) => {
+    if (!perCombatant.has(id)) perCombatant.set(id, { movesTotal: 0, movesIntoCover: 0, attacksTotal: 0, attacksFromCover: 0 });
+    return perCombatant.get(id);
+  };
+
+  for (const round of log.rounds ?? []) {
+    for (const turn of round.turns ?? []) {
+      const moverSide = roster[turn.combatantId]?.side;
+      // Enemy positions as of THIS turn's own end-of-turn snapshot — nobody else moves mid-turn, so
+      // this is exact, not an approximation, and deliberately TRUE positions (this is after-the-fact
+      // analysis of a finished battle, not an AI decision — the belief/omniscience split that governs
+      // decide.mjs's own candidate generation has no bearing on measuring what actually happened).
+      const enemyPositions = Object.entries(turn.snapshot ?? {})
+        .filter(([id, s]) => roster[id] && roster[id].side !== moverSide && s.currentHP > 0)
+        .map(([, s]) => s.position);
+
+      for (const action of turn.actions ?? []) {
+        if (action.legal === false) continue;
+
+        if ((action.type === "move" || action.type === "step" || action.type === "advance") && action.to) {
+          const rec = recordFor(turn.combatantId);
+          rec.movesTotal += 1;
+          if (enemyPositions.some((ePos) => hasCover(action.to, ePos, walls))) rec.movesIntoCover += 1;
+        }
+
+        if (["strike", "spellAttack", "saveAttack"].includes(action.type) && typeof action.coverBonus === "number") {
+          if (action.type === "strike") {
+            const strikeDef = roster[turn.combatantId]?.strikes?.find((s) => s.name === action.strikeName);
+            if (strikeDef?.strikeType !== "ranged") continue; // melee — not the question this metric answers
+          }
+          const rec = recordFor(turn.combatantId);
+          rec.attacksTotal += 1;
+          if (action.coverBonus > 0) rec.attacksFromCover += 1;
+        }
+      }
+    }
+  }
+
+  const combatants = [...perCombatant.entries()].map(([id, rec]) => ({
+    id,
+    ...rec,
+    moveIntoCoverRate: rec.movesTotal > 0 ? rec.movesIntoCover / rec.movesTotal : null,
+    attackFromCoverRate: rec.attacksTotal > 0 ? rec.attacksFromCover / rec.attacksTotal : null
+  }));
+
+  const totals = combatants.reduce((acc, c) => ({
+    movesTotal: acc.movesTotal + c.movesTotal, movesIntoCover: acc.movesIntoCover + c.movesIntoCover,
+    attacksTotal: acc.attacksTotal + c.attacksTotal, attacksFromCover: acc.attacksFromCover + c.attacksFromCover
+  }), { movesTotal: 0, movesIntoCover: 0, attacksTotal: 0, attacksFromCover: 0 });
+
+  return {
+    combatants,
+    moveIntoCoverRate: totals.movesTotal > 0 ? totals.movesIntoCover / totals.movesTotal : null,
+    attackFromCoverRate: totals.attacksTotal > 0 ? totals.attacksFromCover / totals.attacksTotal : null,
+    ...totals
+  };
+}
+
 /** Everything above, for one battle log. */
 export function collectTacticalMetrics(log, options = {}) {
   return {
@@ -311,7 +469,8 @@ export function collectTacticalMetrics(log, options = {}) {
     oscillation: oscillationStats(log),
     resourceUse: resourceUseStats(log),
     threatPriority: threatPriorityStats(log, options),
-    engagement: engagementStats(log)
+    engagement: engagementStats(log),
+    coverUsage: coverUsageStats(log)
   };
 }
 
@@ -325,6 +484,7 @@ export function formatTacticalMetrics(m) {
     `oscillation:    worstExplorationRatio=${num(m.oscillation.worstExplorationRatio)} worstRevisit=${m.oscillation.worstRevisit}`,
     `resourceUse:    ${m.resourceUse.spent}/${m.resourceUse.tracked} limited options spent${m.resourceUse.options.length ? " [" + m.resourceUse.options.map((o) => `${o.name}:${o.spentRound ?? "never"}`).join(", ") + "]" : ""}`,
     `threatPriority: correlation=${num(m.threatPriority.threatAttackCorrelation)} over ${m.threatPriority.totalAttacks} attacks`,
-    `engagement:     firstDamage=round ${m.engagement.firstDamageRound ?? "NEVER"}, totalDamage=${m.engagement.totalDamage}, rounds=${m.engagement.rounds}`
+    `engagement:     firstDamage=round ${m.engagement.firstDamageRound ?? "NEVER"}, totalDamage=${m.engagement.totalDamage}, rounds=${m.engagement.rounds}`,
+    `coverUsage:     moveIntoCover=${pct(m.coverUsage.moveIntoCoverRate)} (${m.coverUsage.movesIntoCover}/${m.coverUsage.movesTotal}), attackFromCover=${pct(m.coverUsage.attackFromCoverRate)} (${m.coverUsage.attacksFromCover}/${m.coverUsage.attacksTotal})`
   ].join("\n");
 }

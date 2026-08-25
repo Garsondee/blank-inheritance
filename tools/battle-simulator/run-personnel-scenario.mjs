@@ -114,6 +114,53 @@ const SCENARIOS = {
     }),
     label: "4v4: Lunar-17+Tapkey+Bennit+Vorza Moonshot vs. Security Goon+Xenowarden Greenhorn+Erabryth+Tough — every real fixture this project has, randomized opposite arcs, real Line-of-Effect-validated blind opening",
     defaultSeed: 1, roundLimit: 60
+  },
+  // design doc §39 — the XP-budget battery: "take our four person group and put them through a
+  // series of battles but we relate each battle to the XP budget that SF2E uses... from just one
+  // tick under 'average' all the way to extreme." Real SF2E numbers (reference/tables/
+  // encounter-and-rewards-math.json): a party of 4 uses XP budgets 60/80/120/160 for Low/Moderate/
+  // Severe/Extreme. Every real opposition fixture in this roster is level 1 (relative level 0 = 40xp
+  // each), so N of them sums to a clean 40N — 2/3/4 land EXACTLY on Moderate/Severe/Extreme; there is
+  // no whole-creature combination of same-level-only fixtures that hits Low (60xp) exactly, so that
+  // tier is honestly not attempted (see design doc §39's own writeup) rather than faked. Same core
+  // party as complex-4v4-random-arcs throughout, opposition growing one real fixture at a time so
+  // each tier is a strict superset of the one below it, isolating "does the budget alone change the
+  // outcome" as the one real variable.
+  "complex-2v4-moderate-random-arcs": {
+    build: (args) => buildComplexBattle({
+      ...args,
+      partyFixtures: ["lunar-17.json", "tapkey.json", "bennit.json", "vorza-moonshot.json"],
+      oppositionFixtures: ["security-goon.json", "xenowarden-greenhorn.json"],
+      setup: "RANDOM_ARCS"
+    }),
+    label: "4v2 (Moderate, 80xp budget): Lunar-17+Tapkey+Bennit+Vorza Moonshot vs. Security Goon+Xenowarden Greenhorn — design doc §39's XP-budget battery",
+    defaultSeed: 1, roundLimit: 60
+  },
+  "complex-3v4-severe-random-arcs": {
+    build: (args) => buildComplexBattle({
+      ...args,
+      partyFixtures: ["lunar-17.json", "tapkey.json", "bennit.json", "vorza-moonshot.json"],
+      oppositionFixtures: ["security-goon.json", "xenowarden-greenhorn.json", "erabryth.json"],
+      setup: "RANDOM_ARCS"
+    }),
+    label: "4v3 (Severe, 120xp budget): Lunar-17+Tapkey+Bennit+Vorza Moonshot vs. Security Goon+Xenowarden Greenhorn+Erabryth — design doc §39's XP-budget battery",
+    defaultSeed: 1, roundLimit: 60
+  },
+  // design doc §39's ranged-combat/cover investigation: "add a new Pregen PC and give them a long
+  // range rifle like weapon... Add a new NPC and find one with a long range weapon... Does the cover
+  // mechanic actually work rules as written? Are the participants actually using it?" A deliberately
+  // MINIMAL 1v1 — Obozaya's real 100ft Laser Rifle against Kuriaku's real 120ft Shobhad Longrifle
+  // (the longest range on either side of this roster, by a full increment) — so any cover-seeking
+  // (or lack of it) is attributable to these two specifically, not diluted across a larger melee.
+  "ranged-duel-obozaya-vs-kuriaku": {
+    build: (args) => buildComplexBattle({
+      ...args,
+      partyFixtures: ["obozaya.json"],
+      oppositionFixtures: ["kuriaku.json"],
+      setup: "RANDOM_ARCS"
+    }),
+    label: "1v1 ranged duel: Obozaya (100ft Laser Rifle) vs. Kuriaku (120ft Shobhad Longrifle) — design doc §39's cover-mechanic investigation",
+    defaultSeed: 1, roundLimit: 60
   }
 };
 

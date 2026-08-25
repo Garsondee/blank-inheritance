@@ -1,0 +1,52 @@
+{
+  "id": "raw-validation-obozaya",
+  "name": "Obozaya (level-1 Soldier iconic, design doc §39 — real Paizo iconic pregen, NOT one of the six real campaign kids)",
+  "side": "party",
+  "maxHP": 24,
+  "currentHP": 24,
+  "ac": 18,
+  "saves": {
+    "fort": 9,
+    "ref": 5,
+    "will": 5
+  },
+  "perception": 3,
+  "speed": 20,
+  "strikes": [
+    {
+      "name": "Doshko",
+      "strikeType": "melee",
+      "attackBonus": 5,
+      "traits": [
+        "analog",
+        "parry",
+        "vesk"
+      ],
+      "damage": [
+        {
+          "dice": "1d12",
+          "bonus": 2,
+          "damageType": "piercing"
+        }
+      ]
+    },
+    {
+      "name": "Laser Rifle",
+      "strikeType": "ranged",
+      "attackBonus": 5,
+      "rangeIncrement": 100,
+      "traits": [
+        "tech"
+      ],
+      "damage": [
+        {
+          "dice": "1d8",
+          "bonus": 0,
+          "damageType": "fire"
+        }
+      ]
+    }
+  ],
+  "intimidationModifier": 0,
+  "notes": "HP/AC/saves/Doshko are every bit as real and derived as every other fixture (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/iconics) — her derived HP (24) matches the pregen's own referenceHP field exactly. Her Laser Rifle is a real catalog item (gamesystems/sf2e/packs/equipment, level 0, 45sp) pushed into her own ingredients before deriving — see extract-pregen.mjs's findEquipmentItem — rather than her own as-published loadout (her real sheet carries an Auto-Fire-only Machine Gun, the same out-of-scope weapon type already flagged on Old-Growth Wildfire, design doc §21). Every number on the resulting Strike (attack bonus, damage, range) is exactly what deriveStrikes would produce for any OTHER weapon her real Simple-weapon proficiency covers — the substitution is which item she's holding, not an invented bonus."
+}

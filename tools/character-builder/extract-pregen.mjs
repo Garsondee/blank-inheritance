@@ -65,6 +65,24 @@ export function listLevel1Pregens(packDir) {
 }
 
 /**
+ * A real, standalone weapon item from the general equipment compendium (design doc §39 — Ingram's
+ * own ask: "add a new Pregen PC and give them a long range rifle like weapon"). No level-1 pregen
+ * anywhere in either real pregen pack (paizo-pregens' 6, iconics' 6) carries anything past a 60ft
+ * pistol — re-verified directly this session, not assumed — so "give them a weapon" means equipping
+ * a REAL item from the general catalog, not inventing one. Returned in the exact same shape
+ * `toIngredients`' own `weapons` array already uses (the raw `{name, system}` document itself,
+ * confirmed against `deriveStrikes`' own reads: `weapon.system.range`/`.traits`/`.category`/
+ * `.bonus`/`.damage`), so it can be pushed straight into a real pregen's own `ingredients.weapons`
+ * and handed to the existing, unmodified `deriveStrikes` — no new derivation code needed, only a
+ * real item pulled fresh from the pack each time this runs, same as everything else in this file.
+ */
+export function findEquipmentItem(packDir, name) {
+  const { documents } = readPackDocuments(packDir);
+  const item = documents.find((d) => !d.embedded && d.doc.type === "weapon" && d.doc.name === name);
+  return item ? item.doc : null;
+}
+
+/**
  * Normalize one resolved pregen into derive.mjs's ingredient shape.
  * `boostOverrides` supplies resolutions for ambiguous entries (see
  * resolve()'s doc comment) as `{ ancestry: [ability, ...], background: [ability, ...] }`,

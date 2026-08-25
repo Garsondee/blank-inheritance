@@ -1,0 +1,83 @@
+{
+  "id": "raw-validation-kuriaku",
+  "name": "Kuriaku",
+  "side": "opposition",
+  "maxHP": 24,
+  "currentHP": 24,
+  "ac": 16,
+  "saves": {
+    "fort": 7,
+    "ref": 8,
+    "will": 6
+  },
+  "speed": 25,
+  "strikes": [
+    {
+      "name": "Shobhad Longrifle",
+      "strikeType": "ranged",
+      "attackBonus": 8,
+      "rangeIncrement": 120,
+      "traits": [
+        "backstabber",
+        "concussive",
+        "expend-1",
+        "fatal-d12",
+        "kickback",
+        "reload-1",
+        "unwieldy",
+        "volley-30"
+      ],
+      "damage": [
+        {
+          "dice": "1d8",
+          "bonus": 0,
+          "damageType": "piercing"
+        }
+      ]
+    },
+    {
+      "name": "Antlers",
+      "strikeType": "melee",
+      "attackBonus": 8,
+      "traits": [],
+      "damage": [
+        {
+          "dice": "1d4",
+          "bonus": 3,
+          "damageType": "piercing"
+        }
+      ]
+    }
+  ],
+  "reactions": [],
+  "actions": [
+    {
+      "name": "Reverberant Antlers",
+      "actionType": "passive",
+      "actionsCost": null,
+      "description": "<p>Magical vibrations resonate through Kuriaku from his antlers. A creature that starts its turn @UUID[Compendium.sf2e.conditions.Item.kWc1fhmv9LBiTuei]{Grabbed} or @UUID[Compendium.sf2e.conditions.Item.VcDeM8A5oI6VqhbM]{Restrained} by Kuriaku must succeed at a @Check[fortitude|dc:14] save or be @UUID[Compendium.sf2e.conditions.Item.i3OJZU2nk64Df3xm]{Clumsy 1} and @UUID[Compendium.sf2e.conditions.Item.e1XGnhKNSQIm5IXg]{Stupefied 1} for 1 round (1 hour on a critical failure). A restrained creature uses the outcome one degree of success worse than its result.</p>"
+    },
+    {
+      "name": "Grab",
+      "actionType": "action",
+      "actionsCost": 1,
+      "description": "<p>@Localize[PF2E.NPC.Abilities.Glossary.Grab]</p>"
+    },
+    {
+      "name": "Knockdown",
+      "actionType": "action",
+      "actionsCost": 1,
+      "description": "<p>@Localize[PF2E.NPC.Abilities.Glossary.Knockdown]</p>"
+    }
+  ],
+  "lore": [],
+  "skills": {
+    "acrobatics": 8,
+    "athletics": 8,
+    "crafting": 6,
+    "performance": 4,
+    "stealth": 6
+  },
+  "intimidationModifier": null,
+  "notes": "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/starfinder-society-bestiary) — see test/character-builder/extract-npc.test.mjs. Her Shobhad Longrifle carries several real traits this engine does NOT mechanically model, flagged honestly rather than silently dropped: 'volley-30' (a real -2 penalty when the target is within 30ft, the opposite of most ranged weapons — this project has no range-banded-penalty mechanism at all yet), 'fatal-d12' (upgrades the damage die on a critical hit), 'kickback' (a real self-damage/knockback cost to the wielder), 'backstabber' (bonus damage against a flat-footed target). Her real Reverberant Antlers/Grab/Knockdown actions are captured verbatim under `actions` for transcript honesty but are NOT wired — Grab/Knockdown both require a maneuver-and-persistent-condition mechanism (Grabbed/Restrained tracking) this engine doesn't have, the same honest-skip discipline as every other NPC's situational specials in this project."
+}

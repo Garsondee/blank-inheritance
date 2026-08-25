@@ -9,7 +9,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { listLevel1Pregens, toIngredients } from "../../tools/character-builder/extract-pregen.mjs";
+import { listLevel1Pregens, toIngredients, findEquipmentItem } from "../../tools/character-builder/extract-pregen.mjs";
 import { deriveAbilityModifiers, deriveHP, deriveArmorClass } from "../../tools/character-builder/derive.mjs";
 import { deriveStrikes, deriveSpells, deriveSaveSpells, deriveTransferVitality, deriveSkillModifier } from "../../tools/character-builder/build-combat-pregen.mjs";
 import { findNPC, toCombatant, deriveSpellAttacks, deriveConditionSave, deriveAreaAttack } from "../../tools/pack-extractor/extract-npc.mjs";
@@ -179,8 +179,65 @@ test("tough.json: checked-in strikes/areaAttack match a fresh live re-extraction
   assert.equal(fixture.side, "opposition");
 });
 
-test("all eight fixtures are personnel-engine-shape-compatible: every strike/spell/areaAttack has the fields checkStrikeLegal/checkSpellAttackLegal/checkAreaAttackLegal actually read", () => {
-  for (const name of ["lunar-17.json", "security-goon.json", "tapkey.json", "xenowarden-greenhorn.json", "bennit.json", "erabryth.json", "vorza-moonshot.json", "tough.json"]) {
+test("findEquipmentItem: locates Laser Rifle by exact name in the general equipment compendium, with real, final stats", () => {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "equipment");
+  const laserRifle = findEquipmentItem(packDir, "Laser Rifle");
+  assert.ok(laserRifle, "expected to find an item named exactly \"Laser Rifle\" in the equipment compendium");
+  assert.equal(laserRifle.type, "weapon");
+  assert.equal(laserRifle.system.range, 100);
+  assert.equal(laserRifle.system.category, "simple");
+});
+
+test("findEquipmentItem: returns null (not throw) for a name that doesn't exist", () => {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "equipment");
+  assert.equal(findEquipmentItem(packDir, "Definitely Not A Real Weapon Name"), null);
+});
+
+test("obozaya.json: checked-in strikes match a fresh live re-derivation exactly, including a real catalog weapon pushed into her own ingredients — design doc §39's long-range PC", () => {
+  const fixture = readFixture("obozaya.json");
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "iconics");
+  const pregen = listLevel1Pregens(packDir).find((p) => p.name === "Obozaya (Level 1)");
+  const ingredients = toIngredients(pregen);
+  const equipmentDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "equipment");
+  ingredients.weapons = [...ingredients.weapons, findEquipmentItem(equipmentDir, "Laser Rifle")];
+  const mods = deriveAbilityModifiers(ingredients);
+
+  assert.equal(fixture.maxHP, deriveHP({ ancestryHP: ingredients.ancestryHP, classHP: ingredients.classHP, conModifier: mods.con }).max);
+  assert.equal(fixture.maxHP, 24, "matches the pregen's own referenceHP field exactly");
+  assert.equal(fixture.ac, deriveArmorClass({
+    armorCategoryRank: ingredients.armorCategoryRank, level: 1, dexModifier: mods.dex,
+    dexCap: ingredients.armor?.dexCap ?? null, itemBonus: ingredients.armor?.acBonus ?? 0, armorProficiency: ingredients.armor?.name ?? null
+  }).value);
+  assert.deepEqual(fixture.strikes, deriveStrikes(ingredients, ["Doshko", "Laser Rifle"], mods));
+  const rifle = fixture.strikes.find((s) => s.name === "Laser Rifle");
+  assert.equal(rifle.strikeType, "ranged");
+  assert.equal(rifle.rangeIncrement, 100, "the roster's longest-range PC weapon by a wide margin — every existing PC tops out at a 60ft pistol");
+  assert.equal(fixture.intimidationModifier, deriveSkillModifier(ingredients, "intimidation", mods));
+  assert.equal(fixture.side, "party");
+});
+
+test("kuriaku.json: checked-in strikes match a fresh live re-extraction exactly — a real, AS-PUBLISHED long-range weapon (design doc §39), from a pack not previously scanned by this project", () => {
+  const fixture = readFixture("kuriaku.json");
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "starfinder-society-bestiary");
+  const kuriaku = findNPC(packDir, "Kuriaku");
+  assert.ok(kuriaku, "expected to find an NPC named exactly \"Kuriaku\" in starfinder-society-bestiary");
+  const combatant = toCombatant(kuriaku, { strikeNames: ["Shobhad Longrifle", "Antlers"] });
+
+  assert.equal(fixture.maxHP, combatant.maxHP);
+  assert.equal(fixture.ac, combatant.ac);
+  assert.deepEqual(fixture.saves, combatant.saves);
+  assert.deepEqual(fixture.strikes, combatant.strikes);
+  const rifle = fixture.strikes.find((s) => s.name === "Shobhad Longrifle");
+  assert.equal(rifle.strikeType, "ranged");
+  assert.equal(rifle.rangeIncrement, 120, "the longest range of any combatant this project has ever fielded");
+  assert.ok(rifle.traits.includes("volley-30"), "a real trait this engine does not mechanically model — must still be carried through honestly, not dropped");
+  assert.equal(fixture.intimidationModifier, combatant.skills.intimidation ?? null);
+  assert.equal(fixture.intimidationModifier, null, "Intimidation genuinely isn't one of her 5 listed skills");
+  assert.equal(fixture.side, "opposition");
+});
+
+test("all ten fixtures are personnel-engine-shape-compatible: every strike/spell/areaAttack has the fields checkStrikeLegal/checkSpellAttackLegal/checkAreaAttackLegal actually read", () => {
+  for (const name of ["lunar-17.json", "security-goon.json", "tapkey.json", "xenowarden-greenhorn.json", "bennit.json", "erabryth.json", "vorza-moonshot.json", "tough.json", "obozaya.json", "kuriaku.json"]) {
     const fixture = readFixture(name);
     for (const strike of fixture.strikes) {
       assert.ok(strike.name && strike.strikeType && typeof strike.attackBonus === "number", `${name}: malformed strike ${JSON.stringify(strike)}`);

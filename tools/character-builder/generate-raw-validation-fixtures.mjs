@@ -17,7 +17,7 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { listLevel1Pregens, toIngredients } from "./extract-pregen.mjs";
+import { listLevel1Pregens, toIngredients, findEquipmentItem } from "./extract-pregen.mjs";
 import { deriveAbilityModifiers, deriveHP, derivePerception, deriveSavingThrows, deriveArmorClass } from "./derive.mjs";
 import { deriveStrikes, deriveSpells, deriveSaveSpells, deriveTransferVitality, deriveSkillModifier } from "./build-combat-pregen.mjs";
 import { findNPC, toCombatant, deriveSpellAttacks, deriveConditionSave, deriveAreaAttack } from "../pack-extractor/extract-npc.mjs";
@@ -323,6 +323,85 @@ function buildTough() {
   };
 }
 
+/**
+ * Fifth PC (design doc §39's ranged-combat/cover ask — "add a new Pregen PC and give them a long
+ * range rifle like weapon"). Re-checked directly, not assumed: NO level-1 pregen in either real
+ * pregen pack (paizo-pregens' 6, iconics' 6 — Zemir/Navasi still throw on the same ambiguous-boost
+ * issue as Jaedana) carries anything past a 60ft pistol. "Give them a weapon" is met the same way a
+ * real player would meet it — by buying one — using `findEquipmentItem` to pull a real, standalone
+ * catalog item (Laser Rifle: level 0, simple category, 45sp, 100ft range, 1d8 fire) straight from
+ * the general equipment compendium and pushing it into a real pregen's own `ingredients.weapons`
+ * before deriving, rather than inventing a weapon's numbers by hand. Obozaya (Vesk Soldier,
+ * `iconics`) is the pick: her real class carries trained Simple-weapon proficiency (`classAttacks.
+ * simple: 1`), so a Laser Rifle is a mechanically legitimate weapon for her to wield, not just a
+ * reskin. Her own real Doshko (melee, martial, 1d12 piercing) derives unmodified through the
+ * existing deriveStrikes too, giving her a genuine melee fallback for when a fight closes distance —
+ * exactly the kind of combatant this ranged/cover investigation needs.
+ */
+function buildObozaya() {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "iconics");
+  const pregen = listLevel1Pregens(packDir).find((p) => p.name === "Obozaya (Level 1)");
+  if (!pregen) throw new Error("Obozaya (Level 1) not found in iconics — Paizo may have renamed the pregen.");
+  const ingredients = toIngredients(pregen);
+  const equipmentDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "equipment");
+  const laserRifle = findEquipmentItem(equipmentDir, "Laser Rifle");
+  if (!laserRifle) throw new Error("Laser Rifle not found in the equipment compendium — Paizo may have renamed the item.");
+  ingredients.weapons = [...ingredients.weapons, laserRifle];
+  const mods = deriveAbilityModifiers(ingredients);
+
+  const hp = deriveHP({ ancestryHP: ingredients.ancestryHP, classHP: ingredients.classHP, conModifier: mods.con });
+  const perception = derivePerception({ rankIndex: ingredients.perceptionRank, level: 1, wisModifier: mods.wis });
+  const saves = deriveSavingThrows({
+    fortitudeRank: ingredients.saveRanks.fortitude, reflexRank: ingredients.saveRanks.reflex, willRank: ingredients.saveRanks.will,
+    level: 1, conModifier: mods.con, dexModifier: mods.dex, wisModifier: mods.wis
+  });
+  const ac = deriveArmorClass({
+    armorCategoryRank: ingredients.armorCategoryRank, level: 1, dexModifier: mods.dex,
+    dexCap: ingredients.armor?.dexCap ?? null, itemBonus: ingredients.armor?.acBonus ?? 0, armorProficiency: ingredients.armor?.name ?? null
+  });
+
+  const strikes = deriveStrikes(ingredients, ["Doshko", "Laser Rifle"], mods);
+  const intimidationModifier = deriveSkillModifier(ingredients, "intimidation", mods);
+
+  return {
+    id: "raw-validation-obozaya",
+    name: "Obozaya (level-1 Soldier iconic, design doc §39 — real Paizo iconic pregen, NOT one of the six real campaign kids)",
+    side: "party",
+    maxHP: hp.max,
+    currentHP: hp.max,
+    ac: ac.value,
+    saves: { fort: saves.fortitude.modifier, ref: saves.reflex.modifier, will: saves.will.modifier },
+    perception: perception.proficiency.modifier,
+    speed: ingredients.speed,
+    strikes,
+    intimidationModifier, // real, untrained (+0) — her Charisma modifier is +0
+    notes: "HP/AC/saves/Doshko are every bit as real and derived as every other fixture (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/iconics) — her derived HP (24) matches the pregen's own referenceHP field exactly. Her Laser Rifle is a real catalog item (gamesystems/sf2e/packs/equipment, level 0, 45sp) pushed into her own ingredients before deriving — see extract-pregen.mjs's findEquipmentItem — rather than her own as-published loadout (her real sheet carries an Auto-Fire-only Machine Gun, the same out-of-scope weapon type already flagged on Old-Growth Wildfire, design doc §21). Every number on the resulting Strike (attack bonus, damage, range) is exactly what deriveStrikes would produce for any OTHER weapon her real Simple-weapon proficiency covers — the substitution is which item she's holding, not an invented bonus."
+  };
+}
+
+/**
+ * Fifth NPC (design doc §39's ranged-combat/cover ask — "add a new NPC and find one with a long
+ * range weapon"), and the roster's actual long-range answer: unlike Obozaya's substituted rifle,
+ * Kuriaku (`starfinder-society-bestiary`, a pack not previously scanned — re-checked all level-1
+ * NPCs across it directly, not assumed empty) carries a real Shobhad Longrifle AS PUBLISHED — a
+ * genuine `system.action:"strike"` attack, 120ft range, the longest range of any combatant this
+ * project has ever fielded (outranging even Obozaya's own new 100ft rifle by a full increment).
+ * Her Antlers give her a real natural-weapon melee fallback, derived unmodified through the
+ * existing toCombatant, matching Erabryth/Xenowarden Greenhorn's own natural-weapon pattern.
+ */
+function buildKuriaku() {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "starfinder-society-bestiary");
+  const kuriaku = findNPC(packDir, "Kuriaku");
+  if (!kuriaku) throw new Error("Kuriaku not found in starfinder-society-bestiary — Paizo may have renamed the NPC.");
+  const combatant = toCombatant(kuriaku, { strikeNames: ["Shobhad Longrifle", "Antlers"] });
+  return {
+    id: "raw-validation-kuriaku",
+    ...combatant,
+    intimidationModifier: combatant.skills.intimidation ?? null, // real: Intimidation isn't one of her 5 listed skills (acrobatics/athletics/crafting/performance/stealth)
+    notes: "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/starfinder-society-bestiary) — see test/character-builder/extract-npc.test.mjs. Her Shobhad Longrifle carries several real traits this engine does NOT mechanically model, flagged honestly rather than silently dropped: 'volley-30' (a real -2 penalty when the target is within 30ft, the opposite of most ranged weapons — this project has no range-banded-penalty mechanism at all yet), 'fatal-d12' (upgrades the damage die on a critical hit), 'kickback' (a real self-damage/knockback cost to the wielder), 'backstabber' (bonus damage against a flat-footed target). Her real Reverberant Antlers/Grab/Knockdown actions are captured verbatim under `actions` for transcript honesty but are NOT wired — Grab/Knockdown both require a maneuver-and-persistent-condition mechanism (Grabbed/Restrained tracking) this engine doesn't have, the same honest-skip discipline as every other NPC's situational specials in this project."
+  };
+}
+
 const lunar17 = buildLunar17();
 const securityGoon = buildSecurityGoon();
 const tapkey = buildTapkey();
@@ -331,6 +410,8 @@ const bennit = buildBennit();
 const erabryth = buildErabryth();
 const vorzaMoonshot = buildVorzaMoonshot();
 const tough = buildTough();
+const obozaya = buildObozaya();
+const kuriaku = buildKuriaku();
 
 writeFileSync(path.join(outDir, "lunar-17.json"), JSON.stringify(lunar17, null, 2) + "\n");
 writeFileSync(path.join(outDir, "security-goon.json"), JSON.stringify(securityGoon, null, 2) + "\n");
@@ -340,6 +421,8 @@ writeFileSync(path.join(outDir, "bennit.json"), JSON.stringify(bennit, null, 2) 
 writeFileSync(path.join(outDir, "erabryth.json"), JSON.stringify(erabryth, null, 2) + "\n");
 writeFileSync(path.join(outDir, "vorza-moonshot.json"), JSON.stringify(vorzaMoonshot, null, 2) + "\n");
 writeFileSync(path.join(outDir, "tough.json"), JSON.stringify(tough, null, 2) + "\n");
+writeFileSync(path.join(outDir, "obozaya.json"), JSON.stringify(obozaya, null, 2) + "\n");
+writeFileSync(path.join(outDir, "kuriaku.json"), JSON.stringify(kuriaku, null, 2) + "\n");
 
 console.log(`wrote lunar-17.json (AC ${lunar17.ac}, HP ${lunar17.maxHP}, ${lunar17.strikes.length} strikes, ${lunar17.spells.length} spell, ${lunar17.healAbilities.length} heal ability, intimidation +${lunar17.intimidationModifier})`);
 console.log(`wrote security-goon.json (AC ${securityGoon.ac}, HP ${securityGoon.maxHP}, ${securityGoon.strikes.length} strikes, ${securityGoon.reactions.length} reaction, ${securityGoon.actions.length} other action, intimidation +${securityGoon.intimidationModifier})`);
@@ -349,3 +432,5 @@ console.log(`wrote bennit.json (AC ${bennit.ac}, HP ${bennit.maxHP}, ${bennit.st
 console.log(`wrote erabryth.json (AC ${erabryth.ac}, HP ${erabryth.maxHP}, ${erabryth.strikes.length} strikes, ${erabryth.conditionSaves.length} conditionSave, intimidation +${erabryth.intimidationModifier})`);
 console.log(`wrote vorza-moonshot.json (AC ${vorzaMoonshot.ac}, HP ${vorzaMoonshot.maxHP}, ${vorzaMoonshot.strikes.length} strikes, intimidation +${vorzaMoonshot.intimidationModifier})`);
 console.log(`wrote tough.json (AC ${tough.ac}, HP ${tough.maxHP}, ${tough.strikes.length} strikes, ${tough.areaAttacks.length} areaAttack, intimidation +${tough.intimidationModifier})`);
+console.log(`wrote obozaya.json (AC ${obozaya.ac}, HP ${obozaya.maxHP}, ${obozaya.strikes.length} strikes incl. a ${obozaya.strikes.find((s) => s.name === "Laser Rifle")?.rangeIncrement}ft rifle, intimidation +${obozaya.intimidationModifier})`);
+console.log(`wrote kuriaku.json (AC ${kuriaku.ac}, HP ${kuriaku.maxHP}, ${kuriaku.strikes.length} strikes incl. a ${kuriaku.strikes.find((s) => s.name === "Shobhad Longrifle")?.rangeIncrement}ft rifle, intimidation ${kuriaku.intimidationModifier})`);

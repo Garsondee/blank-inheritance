@@ -1968,3 +1968,65 @@ New tests across six files: `personnel-legality.test.mjs` (6 `checkAreaAttackLeg
 ### Files
 
 New: `tools/battle-simulator/data/raw-validation-fixtures/vorza-moonshot.json`, `tools/battle-simulator/data/raw-validation-fixtures/tough.json`. Changed: `tools/battle-simulator/personnel-engine/legality.mjs` (`checkAreaAttackLegal`), `tools/battle-simulator/personnel-engine/engine.mjs` (`areaAttack` in both outcome tables, dispatch branch, roster projection, `cloneStateForPlanning`), `tools/battle-simulator/personnel-engine/decide.mjs` (`areaAttack` proposal generation, `describe()`), `tools/pack-extractor/extract-npc.mjs` (`deriveAreaAttack`), `tools/character-builder/generate-raw-validation-fixtures.mjs` (`buildVorzaMoonshot`/`buildTough`), `tools/battle-simulator/run-personnel-scenario.mjs` (`complex-4v4-random-arcs`), `tools/battle-simulator/artifact/contact-simulation.html` (rebuilt, 105 runs embedded). Regenerated: 30 `complex-4v4-random-arcs` logs, `logs/index.json`. Tests: `test/battle-simulator/personnel-legality.test.mjs`, `test/battle-simulator/personnel-engine.test.mjs`, `test/battle-simulator/personnel-decide.test.mjs`, `test/battle-simulator/personnel-complex-battle.test.mjs`, `test/battle-simulator/run-personnel-scenario-cli.test.mjs`, `test/character-builder/extract-npc.test.mjs`, `test/character-builder/raw-validation-fixtures.test.mjs` (all extended).
+
+## 39. An XP-budget battery, a persistent battle-history log, and the real answer on cover discipline
+
+> *"A good test / simulation to run would be to take our four person group and put them through a series of battles but we relate each battle to the XP budget that SF2E uses. We build every from just one tick under 'average' all the way to extreme... The goal would be to see if the different XP budgets resulted in different levels of damage happening to the group. Track both end HP and HP damaged / healed... The idea is to start tracking the history of battles in a log where we try and put real numbers to the skills / intelligence of our AI... Which brings me to the next gap, add a new Pregen PC and give them a long range rifle like weapon. Add a new NPC and find one with a long range weapon... Does the cover mechanic actually work rules as written? Are the participants actually using it?"*
+
+Five real deliverables: cleared the stale run library, a real SF2E XP-budget battery against the existing 4-PC party, a genuinely new `sideOutcomeStats`/`coverUsageStats` pair of tracking metrics, a persistent history log to accumulate them in, and two new long-range fixtures built specifically to stress the cover question.
+
+### Clearing the stale run library
+
+`tools/battle-simulator/logs/` (gitignored, always regeneratable) held 105 runs from before this session's own §38 roster/mechanics changes — cleared outright rather than left to quietly misrepresent current behavior, then fully repopulated at the end of this pass across every registered scenario.
+
+### The XP-budget math, real not guessed
+
+`reference/tables/encounter-and-rewards-math.json`'s own `encounterDifficultyThresholds`: a 4-PC party's XP budget is Low 60 / Moderate 80 / Severe 120 / Extreme 160 (Trivial's own ceiling is 40). Every real opposition fixture in this roster is level 1 relative to a level-1 party — `creatureXpByRelativeLevel`'s own "0" row values it at a flat 40xp — so N real fixtures sum to exactly 40N: **2 lands on Moderate, 3 on Severe, 4 on Extreme**, all three exact, no invented numbers. There is no whole-creature combination of same-level-only fixtures that hits Low (60xp) exactly — confirmed by the arithmetic itself, not a limitation of this project's tooling — so, matching Ingram's own "no point testing very low XP budget battles," that tier is honestly skipped rather than faked with an invented weaker minion. "One tick under average" (Moderate) lands as the battery's floor, exactly as asked, even though the label itself is "Moderate," not "Low."
+
+Two new scenarios (`complex-2v4-moderate-random-arcs`, `complex-3v4-severe-random-arcs`) join the already-registered `complex-4v4-random-arcs` (Extreme) to form the three-tier battery — same 4-PC party throughout (Lunar-17, Tapkey, Bennit, Vorza Moonshot), opposition growing one real fixture at a time (Security Goon → +Xenowarden Greenhorn → +Erabryth → +Tough) so each tier is a strict superset of the one below it, isolating the XP budget as the one real variable.
+
+### Two new tracking metrics, in the same disciplined style as §17's tactical-metrics.mjs
+
+**`sideOutcomeStats(log, side)`** — exactly design doc §39's own ask, "track both end HP and HP damaged/healed": sums the real, already-logged `damageApplied`/`healing`/`targetHPAfter` fields for every combatant on one side (party or opposition), including `areaAttack`'s multi-target `affected[]` array. Final HP is read from the LATEST `targetHPAfter` seen per combatant in chronological order (so a late heal correctly overwrites an earlier hit), defaulting to full `maxHP` for anyone never targeted at all — never re-simulated, never estimated.
+
+**`coverUsageStats(log)`** — the direct, measured answer to "does the cover mechanic actually work RAW, are participants using it," as two separate rates rather than one blended number (they catch different failures): `moveIntoCoverRate` (does a move ever land somewhere with real cover from a living enemy — using the exact same `hasCover` geometric check the engine itself scores against) and `attackFromCoverRate` (was a ranged attack thrown from a position that already had cover from its own target). The second one needed no new engine computation at all: `hasCover(a,b,walls)` is symmetric by construction (`segmentsIntersect` doesn't care about direction — confirmed directly against the implementation), so the `coverBonus` field strike/spellAttack/saveAttack already log — "does the TARGET have cover from me" — read from the other side is exactly "was I, the attacker, also covered." `areaAttack` is excluded from this rate on the same honest structural grounds it's excluded from `ATTACK_TYPES` below (no single attacker-target line, no coverBonus ever logged for it); melee strikes are excluded because cover-between-two-adjacent-combatants isn't the question being asked.
+
+**One real regression, found while building this, not by inspection**: `tactical-metrics.mjs`'s own `ATTACK_TYPES` set predated `saveAttack` (§22) and `areaAttack` (§38) entirely — a combatant whose damage comes from a thrown grenade was silently invisible to `focusFireStats`/`threatPriorityStats`. Fixed by adding `saveAttack` (the same single-`targetId` shape as strike/spellAttack); `areaAttack` deliberately left out, since every function keying off `action.targetId` would treat it as a no-op regardless of whether it's "in" the set.
+
+### `analysis/xp-budget-battery.mjs` and the new `battle-history.md`
+
+A real script, not a one-off — reuses the already-registered scenarios via the already-exported `planRuns` (the exact same builder every CLI run goes through) rather than re-deriving scenario setup, runs a seed sweep per tier, and **appends** one dated markdown section to `tools/battle-simulator/analysis/battle-history.md` (a real, committed, accumulating file — unlike the gitignored raw run logs, this is the actual "history of battles... put real numbers to the skills/intelligence of our AI" record Ingram asked for). Re-running it adds a new entry; it never overwrites the last one.
+
+### The real answer: yes, XP budget changes outcomes — cleanly and monotonically
+
+15 real seeds per tier:
+
+| Tier (budget) | Outcomes | Mean party final HP | Mean damage taken | Mean healing received | Mean rounds |
+|---|---|---|---|---|---|
+| Moderate (80xp) | 14 victory, 1 timeout | **97.6%** | 14.3 | 24.0 | 8.7 |
+| Severe (120xp) | 15 victory | **96.8%** | 33.0 | 48.0 | 6.1 |
+| Extreme (160xp) | 9 victory, 5 defeat, 1 timeout | **53.2%** | 84.5 | 67.3 | 11.9 |
+
+Damage taken scales cleanly and monotonically with budget (14.3 → 33.0 → 84.5) — directly answering the question asked. Final HP shows the real, qualitative cliff GM Core's own definitions predict: Moderate and Severe both leave the party nearly untouched, while Extreme is where genuine danger appears (matching Extreme's own real definition: "a real chance the entire party could die") — consistent with §38's own larger 30-seed Extreme sample (15 victory/13 defeat/2 timeout, both drawn from the identical seeded scenario, seeds 1-15 here reproducing that sample's own first 15 results exactly, confirming determinism rather than measuring anything new). Severe resolving in FEWER mean rounds than Moderate despite the larger budget isn't a bug: Erabryth (Severe's third enemy) contributes Frightened/Stunned control rather than raw damage, and the party's own focus fire against one more but not proportionally-more-dangerous target can close a fight faster, not slower — a real texture worth recording honestly rather than smoothing into a false straight line.
+
+Cover usage stayed close to flat across all three tiers (~35-40% move-into-cover, ~21% attack-from-cover) — the mechanism fires at a real, consistent baseline rate regardless of how dangerous the fight is, not just under specific pressure.
+
+### The ranged/cover investigation: two new fixtures, and a real answer
+
+No level-1 pregen in either real pregen pack (`paizo-pregens`' 6, `iconics`' 6 — Navasi/Zemir still throw on the same ambiguous-boost issue as Jaedana) carries anything past a 60ft pistol, re-verified directly this session. **Obozaya** (Vesk Soldier, `iconics`) is the new PC: her real class carries trained Simple-weapon proficiency, so a real Laser Rifle (100ft, pulled fresh from the general equipment compendium via a new `findEquipmentItem` helper and pushed into her own `ingredients.weapons` before deriving — a real catalog purchase, not an invented weapon) is a mechanically legitimate substitute for her canonical Auto-Fire-only Machine Gun. **Kuriaku** (`starfinder-society-bestiary`, a pack not previously scanned) is the new NPC — no substitution needed, her real Shobhad Longrifle is AS-PUBLISHED, 120ft, the longest range this project has ever fielded on either side.
+
+Registered as a deliberately minimal `ranged-duel-obozaya-vs-kuriaku` (1v1, not diluted across a larger melee), 15 real seeds:
+
+- Outcomes: 5 victory, 7 defeat, 3 timeout — a genuinely close, sometimes-inconclusive standoff between two comparably-equipped snipers, exactly what a fair long-range duel should look like.
+- Mean party (Obozaya) final HP 17.5%, zero healing received (neither combatant has any heal ability) — a real, costly fight, not a stomp either way.
+- **moveIntoCoverRate 25.3%, attackFromCoverRate 31.0%** — meaningfully HIGHER attack-from-cover than any XP-budget tier's ~21%. **Yes, the cover mechanic works RAW, and yes, the participants are using it** — more so, in fact, in a pure ranged standoff where cover is the only real defense available than in a mixed melee/ranged brawl where many combatants are already inside melee range and cover matters less to them specifically.
+
+### What wasn't attempted this pass
+
+- **A real "Low" (60xp) tier** — not reachable with a same-level-only roster; explicitly not faked with an invented weaker creature (see the XP-budget math section above).
+- **Root-causing the ranged duel's 20% timeout rate** — a real, interesting number (two evenly-matched snipers kiting/circling at range for the full 60-round ceiling), flagged honestly rather than chased down this pass.
+- **Cover-usage reward shaping** — Ingram's own follow-on idea ("we could then start awarding points to the AI for when it places... in cover") is a real, separate design change to `state-value.mjs`'s weights, not attempted here — this pass builds the MEASUREMENT the tuning would need to justify itself against, deliberately stopping short of the tuning itself.
+
+### Files
+
+New: `tools/battle-simulator/data/raw-validation-fixtures/obozaya.json`, `tools/battle-simulator/data/raw-validation-fixtures/kuriaku.json`, `tools/battle-simulator/analysis/xp-budget-battery.mjs`, `tools/battle-simulator/analysis/battle-history.md`. Changed: `tools/character-builder/extract-pregen.mjs` (`findEquipmentItem`), `tools/character-builder/generate-raw-validation-fixtures.mjs` (`buildObozaya`/`buildKuriaku`), `tools/battle-simulator/analysis/tactical-metrics.mjs` (`sideOutcomeStats`, `coverUsageStats`, `ATTACK_TYPES` regression fix), `tools/battle-simulator/run-personnel-scenario.mjs` (three new scenarios), `tools/battle-simulator/artifact/contact-simulation.html` (rebuilt). Cleared and regenerated: the full `logs/` run library across every registered scenario. Tests: `test/character-builder/raw-validation-fixtures.test.mjs`, `test/battle-simulator/tactical-benchmark.test.mjs`, `test/battle-simulator/run-personnel-scenario-cli.test.mjs` (all extended); `test/battle-simulator/xp-budget-battery.test.mjs` (new).

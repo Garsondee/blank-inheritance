@@ -21,7 +21,7 @@ import assert from "node:assert/strict";
 import { runBattle } from "../../tools/battle-simulator/engine/engine.mjs";
 import { ARCHETYPES } from "../../tools/battle-simulator/scenarios/archetypes.mjs";
 import { BASELINES } from "../../tools/battle-simulator/ai/baselines.mjs";
-import { collectTacticalMetrics, focusFireStats, spearman } from "../../tools/battle-simulator/analysis/tactical-metrics.mjs";
+import { collectTacticalMetrics, focusFireStats, threatPriorityStats, coverUsageStats, sideOutcomeStats, spearman } from "../../tools/battle-simulator/analysis/tactical-metrics.mjs";
 import { auditActionUtilization } from "../../tools/battle-simulator/analysis/action-utilization.mjs";
 
 test("every archetype runs to completion with zero illegal proposals", () => {
@@ -87,11 +87,138 @@ test("collectTacticalMetrics returns every metric family for a real battle, with
   // The mirror archetype has no limited-use options and no objective, so several metrics have
   // legitimately empty inputs — the exact shape most likely to throw on a null.
   const m = collectTacticalMetrics(runBattle(ARCHETYPES.mirror({ seed: 7004, roundLimit: 4 })));
-  for (const key of ["focusFire", "mapDiscipline", "oscillation", "resourceUse", "threatPriority", "engagement"]) {
+  for (const key of ["focusFire", "mapDiscipline", "oscillation", "resourceUse", "threatPriority", "engagement", "coverUsage"]) {
     assert.ok(m[key] !== undefined, `missing metric family: ${key}`);
   }
   assert.equal(m.resourceUse.tracked, 0, "mirror units carry no limited-use options");
   assert.ok(m.engagement.totalDamage >= 0);
+});
+
+// REGRESSION (design doc §39, found while building coverUsageStats): ATTACK_TYPES predated
+// saveAttack (§22) and areaAttack (§38) entirely — a combatant whose real damage comes from a
+// thrown grenade was invisible to focus-fire/threat-priority tracking. Proven with a hand-built log
+// (the actual fix is inside tactical-metrics.mjs's own module-private ATTACK_TYPES, not directly
+// importable, so this proves it via the two PUBLIC functions that read it).
+test("METRIC VALIDATION (design doc §39 regression): focusFireStats and threatPriorityStats now count saveAttack, not just strike/spellAttack", () => {
+  const log = {
+    roster: { a: { side: "party", strikes: [] }, x: { side: "opposition", strikes: [] } },
+    rounds: [{ round: 1, turns: [{ combatantId: "a", actions: [
+      { type: "saveAttack", legal: true, targetId: "x", targetHPAfter: 10 },
+      { type: "saveAttack", legal: true, targetId: "x", targetHPAfter: 0 } // finished it — no switch to flag
+    ] }] }]
+  };
+  assert.equal(focusFireStats(log).consecutiveAttackPairs, 1, "saveAttack must be counted as a real attack by focusFireStats");
+  assert.equal(threatPriorityStats(log, { side: "party" }).totalAttacks, 2, "both saveAttacks must be counted as attacks received by threatPriorityStats");
+});
+
+// --- sideOutcomeStats (design doc §39 — "track both end HP and HP damaged / healed") ---
+
+test("METRIC VALIDATION — sideOutcomeStats: sums real damage/healing for the requested side only, and reports final HP from the LATEST targetHPAfter seen per combatant", () => {
+  const roster = {
+    "p-1": { side: "party", maxHP: 20 },
+    "p-2": { side: "party", maxHP: 15 },
+    "o-1": { side: "opposition", maxHP: 25 }
+  };
+  const log = {
+    roster,
+    rounds: [
+      { round: 1, turns: [{ combatantId: "o-1", actions: [
+        { type: "strike", legal: true, targetId: "p-1", damageApplied: 6, targetHPAfter: 14 }
+      ] }] },
+      { round: 2, turns: [
+        { combatantId: "o-1", actions: [{ type: "strike", legal: true, targetId: "p-1", damageApplied: 4, targetHPAfter: 10 }] },
+        { combatantId: "p-2", actions: [{ type: "healAbility", legal: true, targetId: "p-1", healing: 3, targetHPAfter: 13 }] }
+      ] }
+    ]
+  };
+  const party = sideOutcomeStats(log, "party");
+  assert.equal(party.maxHP, 35, "20 + 15");
+  assert.equal(party.damageTaken, 10, "6 + 4 — only damage landing on a party target counts");
+  assert.equal(party.healingReceived, 3);
+  assert.equal(party.finalHP, 13 + 15, "p-1's LATEST targetHPAfter (13, after the heal) + p-2's untouched maxHP (15)");
+  assert.equal(party.finalHPFraction, 28 / 35);
+
+  const opposition = sideOutcomeStats(log, "opposition");
+  assert.equal(opposition.damageTaken, 0, "o-1 was never targeted — nothing landed on the opposition side");
+  assert.equal(opposition.finalHP, 25, "untouched, still at its own real maxHP");
+});
+
+test("METRIC VALIDATION — sideOutcomeStats: a real areaAttack's multi-target `affected[]` array is counted the same as any single-target hit", () => {
+  const roster = { "p-1": { side: "party", maxHP: 20 }, "p-2": { side: "party", maxHP: 20 } };
+  const log = {
+    roster,
+    rounds: [{ round: 1, turns: [{ combatantId: "enemy", actions: [
+      { type: "areaAttack", legal: true, originId: "p-1", affected: [
+        { targetId: "p-1", appliedDamage: 5, targetHPAfter: 15 },
+        { targetId: "p-2", appliedDamage: 2, targetHPAfter: 18 }
+      ] }
+    ] }] }]
+  };
+  const party = sideOutcomeStats(log, "party");
+  assert.equal(party.damageTaken, 7, "5 + 2 across both creatures caught in the same blast");
+  assert.equal(party.finalHP, 15 + 18);
+});
+
+// --- coverUsageStats (design doc §39 — Ingram's own question: "Does the cover mechanic actually
+// work rules as written? Are the participants actually using it?") ---
+
+test("METRIC VALIDATION — coverUsageStats: moveIntoCoverRate detects a move that lands somewhere with real cover from a living enemy, and does not false-positive on one that doesn't", () => {
+  const walls = [{ c: [5, 0, 5, 10], cover: true }]; // a vertical cover wall at col 5
+  const roster = { mover: { side: "party" }, enemy: { side: "opposition" } };
+  const coveredMove = {
+    roster, walls,
+    rounds: [{ round: 1, turns: [{ combatantId: "mover", snapshot: { mover: { position: { col: 4, row: 5 }, currentHP: 10 }, enemy: { position: { col: 10, row: 5 }, currentHP: 10 } }, actions: [
+      { type: "move", legal: true, to: { col: 4, row: 5 } } // same side of the wall as... wait see next test for the "not covered" contrast
+    ] }] }]
+  };
+  const openMove = {
+    roster, walls,
+    rounds: [{ round: 1, turns: [{ combatantId: "mover", snapshot: { mover: { position: { col: 10, row: 5 }, currentHP: 10 }, enemy: { position: { col: 10, row: 6 }, currentHP: 10 } }, actions: [
+      { type: "move", legal: true, to: { col: 10, row: 5 } } // same side of the wall as the enemy — no cover between them
+    ] }] }]
+  };
+  assert.equal(coverUsageStats(coveredMove).moveIntoCoverRate, 1, "the wall at col 5 sits directly between (4,5) and the enemy at (10,5) — must count as cover");
+  assert.equal(coverUsageStats(openMove).moveIntoCoverRate, 0, "both combatants are on the same side of the wall — no cover, must not false-positive");
+});
+
+test("METRIC VALIDATION — coverUsageStats: a dead enemy's position never counts toward moveIntoCoverRate", () => {
+  const walls = [{ c: [5, 0, 5, 10], cover: true }];
+  const roster = { mover: { side: "party" }, enemy: { side: "opposition" } };
+  const log = {
+    roster, walls,
+    rounds: [{ round: 1, turns: [{ combatantId: "mover", snapshot: { mover: { position: { col: 4, row: 5 }, currentHP: 10 }, enemy: { position: { col: 10, row: 5 }, currentHP: 0 } }, actions: [
+      { type: "move", legal: true, to: { col: 4, row: 5 } }
+    ] }] }]
+  };
+  assert.equal(coverUsageStats(log).moveIntoCoverRate, 0, "the only enemy is dead — nothing to take cover FROM, must not count");
+});
+
+test("METRIC VALIDATION — coverUsageStats: attackFromCoverRate reads the real, already-logged coverBonus field — ranged strikes only, melee excluded via the roster's own strikeType", () => {
+  const roster = {
+    shooter: { side: "party", strikes: [{ name: "Rifle", strikeType: "ranged" }, { name: "Knife", strikeType: "melee" }] }
+  };
+  const log = {
+    roster, walls: [],
+    rounds: [{ round: 1, turns: [{ combatantId: "shooter", snapshot: {}, actions: [
+      { type: "strike", legal: true, strikeName: "Rifle", coverBonus: 2 },  // ranged, from cover
+      { type: "strike", legal: true, strikeName: "Rifle", coverBonus: 0 },  // ranged, NOT from cover
+      { type: "strike", legal: true, strikeName: "Knife", coverBonus: 2 },  // melee — excluded regardless of coverBonus
+      { type: "saveAttack", legal: true, coverBonus: 2 }                    // saveAttack has no strikeType concept — always counted
+    ] }] }]
+  };
+  const stats = coverUsageStats(log);
+  assert.equal(stats.attacksTotal, 3, "2 ranged strikes + 1 saveAttack — the melee Knife strike must be excluded");
+  assert.equal(stats.attacksFromCover, 2);
+  assert.equal(stats.attackFromCoverRate, 2 / 3);
+});
+
+test("coverUsageStats: returns null rates (not NaN or a crash) when a combatant never moved or never attacked", () => {
+  const roster = { a: { side: "party" } };
+  const log = { roster, walls: [], rounds: [{ round: 1, turns: [{ combatantId: "a", snapshot: {}, actions: [] }] }] };
+  const stats = coverUsageStats(log);
+  assert.equal(stats.moveIntoCoverRate, null);
+  assert.equal(stats.attackFromCoverRate, null);
+  assert.deepEqual(stats.combatants, [], "a turn with zero real moves/attacks never even creates a per-combatant record");
 });
 
 test("REGRESSION (design doc §15k, re-guarded by §18's closing-weight fix): a unit starting outside its own weapon range still closes distance and engages — the ORIGINAL bug this term exists for", () => {
