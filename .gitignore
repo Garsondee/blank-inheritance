@@ -3,6 +3,8 @@ Thumbs.db
 node_modules/
 *.log
 .env
+__pycache__/
+*.pyc
 
 # Large local reference trees — not project content, not for version control
 /gamesystems/
@@ -54,3 +56,9 @@ node_modules/
 # Map editor frontend (Phase 3 onward): Vite's build output, rebuilt from
 # source at any time via `npm run build`.
 /tools/city-map/frontend/dist/
+
+# Scratch debug output from ad-hoc dev-session checks (before/after renders,
+# candidate-site previews, one-off CLI logs) — not a real, reproducible build
+# artifact with its own generator script the way the entries above are, just
+# working scratch that accumulated in-tree. Never meant to be committed.
+/tools/city-map/_out/
