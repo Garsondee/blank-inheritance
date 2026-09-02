@@ -306,6 +306,21 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
   // walking toward the enemy forever to harvest more of it, and the mirror-image
   // "further is safer" term would produce infinite kiting. Gating makes approach
   // worth exactly as much as it needs to be and not one point more.
+  //
+  // REGRESSION FIX (GH issue #24 — found chasing design doc §57's own Frame-scale research pass,
+  // the exact monotonicity bug personnel-engine's own evaluate/state-value.mjs already fixed for
+  // this identical term, design doc §32): this used to filter to LIVING enemies only when searching
+  // for "nearest" — so killing the currently-nearest enemy (even one already well within range,
+  // contributing nothing here) made the search jump to whoever was next, often much farther away,
+  // and RETROACTIVELY penalized the ally for "not closing" on a fight a teammate just finished, a
+  // direct violation of the monotonicity requirement (reducing an enemy's HP must never reduce this
+  // side's score). Fix: don't exclude dead enemies from the search at all. `state.positions` keeps
+  // every combatant's position forever, alive or dead (confirmed directly: this engine never calls
+  // `state.positions.delete`), and dying doesn't move anyone — so a dead enemy's entry here is
+  // IDENTICAL before and after their own death, meaning `nearest` (a min over a set whose membership
+  // and values are now both unchanged by any kill) can only ever stay exactly the same, never jump.
+  // A genuinely closer LIVING enemy is still correctly picked over a farther corpse, same as before
+  // — only the "reassign to someone farther on death" discontinuity is gone.
   for (const ally of allies) {
     if (ally.currentHP <= 0) continue;
     const allyPos = state.positions.get(ally.id);
@@ -315,7 +330,6 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
     const reach = Math.max(...ranges);
     let nearest = Infinity;
     for (const enemy of enemies) {
-      if (enemy.currentHP <= 0) continue;
       const ePos = state.positions.get(enemy.id);
       if (ePos) nearest = Math.min(nearest, effectiveDistance(state, allyPos, ePos));
     }

@@ -130,6 +130,32 @@ test("ZERO-SUM SANITY: a state good for the party is bad for the opposition — 
   assert.ok(oppositionDelta <= 0, `the same event scored ${oppositionDelta.toFixed(2)} for the opposition — both sides cannot gain`);
 });
 
+// GH issue #24 / design doc §32's own Frame-scale twin — a real adversarial-audit-style finding:
+// every fixture above clusters allies/enemies within a few squares, so the closing gradient (state-
+// value.mjs's own "still short of a shot" term) is permanently 0 and silently untested. This test
+// specifically puts one enemy OUT of range so the term has real, non-zero gradient to get wrong.
+test("CLOSING GRADIENT MONOTONICITY (GH issue #24): killing an already-in-range enemy must never lower the score by making the search reassign to a farther one", () => {
+  const base = makeState({ allyCount: 1, enemyCount: 2, enemyHP: 100 });
+  const state = { ...base, positions: new Map(base.positions) };
+  state.positions.set("enemy-1", { col: 200, row: 5 }); // 9750ft — far beyond the Cannon's 500ft range increment; enemy-0 stays close/in-range
+
+  const enemy0Alive = evaluateState(state, "party");
+  const enemy0Dead = evaluateState(withEnemyHP(state, "enemy-0", 0), "party");
+  assert.ok(enemy0Dead >= enemy0Alive - 1e-9,
+    `killing the near, already-in-range enemy-0 while a far enemy-1 remains alive LOWERED the score (${enemy0Alive.toFixed(2)} -> ${enemy0Dead.toFixed(2)}) — REGRESSION: the closing gradient reassigned "nearest" to the farther surviving enemy instead of staying flat, the exact bug issue #24 reported.`);
+});
+
+test("CLOSING GRADIENT still does real work after the issue #24 fix: an ally out of range of every enemy scores worse than one already in range", () => {
+  const inRange = makeState({ allyCount: 1, enemyCount: 1, enemyHP: 100 });
+  const outOfRange = { ...inRange, positions: new Map(inRange.positions) };
+  outOfRange.positions.set("enemy-0", { col: 200, row: 5 });
+
+  const scoreInRange = evaluateState(inRange, "party");
+  const scoreOutOfRange = evaluateState(outOfRange, "party");
+  assert.ok(scoreOutOfRange < scoreInRange,
+    "moving the only enemy far out of range should still cost the ally something via the closing gradient — the issue #24 fix must not have accidentally zeroed the term out entirely.");
+});
+
 test("EVACUATION and SPOT have the sign their weights claim", () => {
   const base = makeState({ allyCount: 2, enemyCount: 1 });
   const evacuated = { ...base, civiliansEvacuated: 3 };
