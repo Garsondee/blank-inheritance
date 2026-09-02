@@ -22,7 +22,7 @@ import { ALL_PROFILES } from "../../tools/battle-simulator/personnel-engine/arch
 import {
   decideRandom, decideWorst, decideNearestOnly,
   RANDOM_BASELINE, WORST_BASELINE, NEAREST_ONLY_BASELINE, ANCHOR_BASELINES,
-  GREEDY_V1_POLICY, POLICY_BASELINES
+  GREEDY_V1_POLICY, POLICY_BASELINES, LOOKAHEAD_V1_POLICY, LOOKAHEAD_V1_NO_PILEONRISK
 } from "../../tools/battle-simulator/personnel-engine/baselines.mjs";
 
 const fixturesDir = "tools/battle-simulator/data/raw-validation-fixtures";
@@ -169,6 +169,31 @@ test("GREEDY_V1_POLICY: real id, decisionMode \"policy\", policyId \"greedy-v1\"
   assert.ok(Object.isFrozen(GREEDY_V1_POLICY));
   assert.equal(POLICY_BASELINES[GREEDY_V1_POLICY.id], GREEDY_V1_POLICY);
   assert.equal(ALL_PROFILES[GREEDY_V1_POLICY.id], GREEDY_V1_POLICY);
+});
+
+// design doc §60/#1: LOOKAHEAD_V1_POLICY and its own pileOnRisk-zeroed twin — the first REAL,
+// genuinely different decision algorithm registered through the policy interface, and the exact
+// profile "the test that actually matters" (issue #1's own framing) was run against. Real behavioral
+// proof lives in test/battle-simulator/lookahead.test.mjs's own trap tests; this file only covers the
+// registry shape.
+test("LOOKAHEAD_V1_POLICY: real id, decisionMode \"policy\", policyId \"lookahead-v1\", frozen, registered", () => {
+  assert.equal(LOOKAHEAD_V1_POLICY.id, "lookahead-v1");
+  assert.equal(LOOKAHEAD_V1_POLICY.decisionMode, "policy");
+  assert.equal(LOOKAHEAD_V1_POLICY.policyId, "lookahead-v1");
+  assert.ok(Object.isFrozen(LOOKAHEAD_V1_POLICY));
+  assert.equal(POLICY_BASELINES[LOOKAHEAD_V1_POLICY.id], LOOKAHEAD_V1_POLICY);
+  assert.equal(ALL_PROFILES[LOOKAHEAD_V1_POLICY.id], LOOKAHEAD_V1_POLICY);
+});
+
+test("LOOKAHEAD_V1_NO_PILEONRISK: real id, resolves to policyId \"lookahead-v1\" too, weights are a COMPLETE object with pileOnRisk weighted to exactly 0 (not omitted)", () => {
+  assert.equal(LOOKAHEAD_V1_NO_PILEONRISK.id, "lookahead-v1-no-pileonrisk");
+  assert.equal(LOOKAHEAD_V1_NO_PILEONRISK.decisionMode, "policy");
+  assert.equal(LOOKAHEAD_V1_NO_PILEONRISK.policyId, "lookahead-v1");
+  assert.equal(LOOKAHEAD_V1_NO_PILEONRISK.weights.pileOnRisk, 0);
+  assert.deepEqual(Object.keys(LOOKAHEAD_V1_NO_PILEONRISK.weights).sort(), Object.keys(DEFAULT_WEIGHTS).sort(), "every OTHER weight key must be present and untouched — only pileOnRisk changed");
+  assert.ok(Object.isFrozen(LOOKAHEAD_V1_NO_PILEONRISK));
+  assert.ok(Object.isFrozen(LOOKAHEAD_V1_NO_PILEONRISK.weights));
+  assert.equal(ALL_PROFILES[LOOKAHEAD_V1_NO_PILEONRISK.id], LOOKAHEAD_V1_NO_PILEONRISK);
 });
 
 // --- The real, load-bearing behavioral claim: baseline-v1 actually beats each anchor decisively ---

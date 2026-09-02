@@ -17,6 +17,7 @@ import { makeRng } from "../engine/rng.mjs";
 import { decideWithPolicy } from "../ai-common/engine-adapter.mjs";
 import { PERSONNEL_ADAPTER } from "../ai-common/adapters/personnel-adapter.mjs";
 import "../ai-common/policies/greedy.mjs"; // registers "greedy-v1" (design doc §57/#4) as a side effect
+import "../ai-common/policies/lookahead.mjs"; // registers "lookahead-v1" (design doc §60/#1) as a side effect
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(here, "..", "data", "raw-validation-fixtures");

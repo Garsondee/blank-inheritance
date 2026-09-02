@@ -174,7 +174,31 @@ export const ANCHOR_BASELINES = Object.freeze({
  */
 export const GREEDY_V1_POLICY = Object.freeze({ ...BASELINE_V1, id: "greedy-v1", frozenAt: "2026-09-02", decisionMode: "policy", policyId: "greedy-v1" });
 
+/**
+ * `lookahead-v1` (design doc §60, GH issue #1) — the first REAL, genuinely different decision
+ * algorithm registered through the policy interface: a 2-ply search that simulates opponent replies
+ * before scoring a candidate, instead of another hand-coded evaluator term. Real weights, real
+ * `BASELINE_V1` templates/competence — only `decisionMode`/`policyId` differ from `BASELINE_V1`
+ * itself, exactly like `GREEDY_V1_POLICY` above.
+ */
+export const LOOKAHEAD_V1_POLICY = Object.freeze({ ...BASELINE_V1, id: "lookahead-v1", frozenAt: "2026-09-02", decisionMode: "policy", policyId: "lookahead-v1" });
+
+/**
+ * `lookahead-v1` WITHOUT `pileOnRisk` (design doc §60, GH issue #1's own "the test that actually
+ * matters"): does a GENERIC 2-ply search independently rediscover "don't let yourself get tripped
+ * near a second attacker" — the tough.json+xenowarden-greenhorn.json roster's real, diagnosed 75%
+ * loss to `aggressive-v1` (design doc §54) — without being told the specific pattern the way
+ * `pileOnRisk` was hard-coded to price? Weighted to exactly 0, not simply omitted, so this profile's
+ * own weights object stays complete and passes `assertCompleteWeights` like every other real profile.
+ */
+export const LOOKAHEAD_V1_NO_PILEONRISK = Object.freeze({
+  ...BASELINE_V1, id: "lookahead-v1-no-pileonrisk", frozenAt: "2026-09-02", decisionMode: "policy", policyId: "lookahead-v1",
+  weights: Object.freeze({ ...BASELINE_V1.weights, pileOnRisk: 0 })
+});
+
 /** Every real registry-dispatched policy baseline this file defines, keyed by its own `id`. */
 export const POLICY_BASELINES = Object.freeze({
-  [GREEDY_V1_POLICY.id]: GREEDY_V1_POLICY
+  [GREEDY_V1_POLICY.id]: GREEDY_V1_POLICY,
+  [LOOKAHEAD_V1_POLICY.id]: LOOKAHEAD_V1_POLICY,
+  [LOOKAHEAD_V1_NO_PILEONRISK.id]: LOOKAHEAD_V1_NO_PILEONRISK
 });

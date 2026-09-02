@@ -4400,3 +4400,33 @@ Parallel tournament runner (worker_threads, concurrency=8): 1519ms vs. 2299ms se
 Cost guard OK: mean 960.5ms/battle is 1.7x the greedy-v1 reference (552.3ms/battle), within the configured 3x limit.
 
 ---
+## 2026-09-02 — Mirror-match tournament
+
+### Mirror-match tournament (design doc §47) — tough.json+xenowarden-greenhorn.json, seeds 1-48, n=48
+
+`lookahead-v1-no-pileonrisk` (party) vs. `aggressive-v1` (opposition) — identical roster on both sides, only the AI profile differs.
+
+- lookahead-v1-no-pileonrisk win rate: 33.3%
+- aggressive-v1 win rate: 66.7%
+- Timeout rate: 0.0%
+- Mean rounds to resolution: 5.0
+- Mean elapsed time per battle: 335.1ms
+
+Parallel tournament runner (worker_threads, concurrency=8): 2455ms vs. 4789ms sequential — 2.0x.
+
+---
+## 2026-09-02 — Mirror-match tournament
+
+### Mirror-match tournament (design doc §47) — tough.json+xenowarden-greenhorn.json, seeds 1-48, n=48
+
+`baseline-v1` (party) vs. `aggressive-v1` (opposition) — identical roster on both sides, only the AI profile differs.
+
+- baseline-v1 win rate: 35.4%
+- aggressive-v1 win rate: 64.6%
+- Timeout rate: 0.0%
+- Mean rounds to resolution: 5.4
+- Mean elapsed time per battle: 279.4ms
+
+Parallel tournament runner (worker_threads, concurrency=8): 2177ms vs. 3821ms sequential — 1.8x.
+
+---
