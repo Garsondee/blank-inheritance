@@ -5,9 +5,9 @@
   "name": null,
   "workingName": "The Watcher",
   "namingPlaceholderRef": "the-watcher-name",
-  "description": "An invisible, city-hovering, manipulating presence, first glimpsed through a Type C False Contact.",
-  "engagementType": "Long-arc antagonist dealt with through investigation and ground-level play rather than a Frame encounter — not a fight resolved in a single session.",
-  "status": "Thread stays open through the whole opening arc.",
+  "description": "An invisible, city-spanning, watching presence, first glimpsed through a Type C False Contact. Not hovering over the city so much as soaked into it — unnoticed for a long stretch of the campaign, then revealed as a vast, intangible mass that bestrides the whole city, its multitude of eyes reaching down into everything that happens there. It cannot act directly in combat; it sends its chosen (Claimants) to fight in its place, watching and learning through them. It logs the party's tactics from every encounter and deliberately, visibly plays fragments of their own past actions back to them — the point is for the party to know they're being studied, not to hide it — then adapts its chosen's approach round over round and encounter over encounter to specifically counter what worked last time.",
+  "engagementType": "Long-arc antagonist dealt with through investigation and ground-level play, never fought directly — its chosen (Claimants) do its fighting while it watches and adapts through them. Not resolved by a climactic boss encounter: the Watcher is defeated by the party winning the campaign itself.",
+  "status": "Thread stays open through the whole opening arc, then escalates for the rest of the campaign as it studies and adapts to the party — resolved only by the campaign's overall outcome, not a dedicated final fight.",
   "firstAppearance": {
     "eventRef": "false-contact-type-c"
   }

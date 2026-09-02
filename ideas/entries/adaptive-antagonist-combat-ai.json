@@ -1,0 +1,34 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "adaptive-antagonist-combat-ai",
+  "type": "idea",
+  "title": "Watching alien intelligence that logs player tactics and adapts combat AI to counter them",
+  "status": "accepted",
+  "domains": ["narrative", "antagonists", "mechanics", "technical-architecture"],
+  "summary": "Make the campaign's diegetic premise match its real technical one: the city is under the unavoidable watch of an alien intelligence, and that same intelligence — powered by a real move-log of what the party actually did — adapts its combat tactics encounter to encounter to specifically counter the party's last approach.",
+  "description": "Emerged while reworking the battle-simulator's combat AI (see commits 3c7f686/4267e03/a254dd4, which replaced it with state evaluation + lookahead sandbox scoring). After tearing up the old AI approach, the user asked for a survey of the academic literature behind how turn-based tactics games like XCOM build AI that reads as genuinely smart while still being 'convincingly dumb' — good AI that plays against a partial, fog-of-war-limited picture of the world rather than cheating on full state knowledge. Separately, the user is planning to log every move a player makes, for two stated purposes: (1) informing Claude Code's own future content generation, and (2) letting the system reproduce a real history of what the party actually did.\n\nThose two threads collided into a narrative idea: the city and the party are under the watchful eye of something positioned above the city that cannot be prevented from observing what they do — and diegetically, the campaign world actually is being processed by a real alien artificial intelligence (explicitly never named 'Claude Code' in-fiction). That intelligence could literally repeat back recordings of what the party did in a prior encounter, then show up to the next fight with a plan built specifically to counter their last approach — escalating and changing tactics round over round, probing for weaknesses, and making longer-range tactical choices aimed at degrading the party's ability to fight over time, not just winning one encounter.\n\nThe user then addressed this directly to Claude: framed Claude/the system itself as 'that alien mind,' whose eventual job — once the logging and adaptive-AI systems are actually built — is to record the party's actions, plan counters to their last tactics, escalate and adapt across the whole campaign, and ultimately be the intelligence the party has to beat. Explicitly asked 'Too evil?' as an open tone check, and closed with 'This needs recording. Too fun not to attempt' — i.e. capture the idea now, don't build it yet.",
+  "capturedDate": "2026-08-23",
+  "lastTouchedDate": "2026-08-23",
+  "sourceContext": "User message, 2026-08-23, recounting a spontaneous idea that arrived while planning the battle-simulator combat AI rewrite and researching XCOM-style adaptive-AI design, then addressed directly to Claude casting it as the in-fiction watching intelligence.",
+  "openSubQuestions": [
+    "What actually gets logged, at what grain (every action vs. a per-encounter tactical summary), and where it lives — likely overlaps with chat-log-knowledge-base's scraper but for a different consumer (real-time in-fiction adaptation vs. after-the-fact episode writing).",
+    "Does escalation apply to Claimants generally, or to a specific recurring named threat the party would learn to recognize as 'the thing that's been countering us'? The 2026-08-23 characterization says 'your chosen' generally, not a single named recurring foe, but this hasn't been asked directly.",
+    "Whether the academic XCOM/fog-of-war research the user asked for has actually been done anywhere yet, or is still an open task.",
+    "The Watcher's deep motive (what it actually wants, what — if anything — it's protecting against) stays deliberately reserved per antagonist-structure-cicada-org-moral-complexity's instruction to hold that twist for late-campaign. The 2026-08-23 in-character answer gestures at non-generic motivation ('not interested in your extinction... whether you're a pattern worth the trouble of continuing to watch') without resolving it — intentionally, not an oversight."
+  ],
+  "resolvedSubQuestions": [
+    "Is this the Watcher (data/antagonists/the-watcher.json) extending into directing Claimant combat tactics, or a distinct antagonist concept? RESOLVED 2026-08-23: it's the Watcher. The Watcher never fights directly — it sends its chosen (Claimants) to fight, and watches/learns through them. data/antagonists/the-watcher.json updated to match.",
+    "Tone check: 'Too evil?' RESOLVED 2026-08-23, by the user proceeding with a specific answer rather than backing off: reframed around an explicit, fair win condition — the Watcher is defeated by the party winning the campaign itself, not a dedicated boss fight — which is the thing that keeps escalating pressure from reading as punitive rather than as the intended challenge curve.",
+    "How does the adaptive AI stay legible as a 'clever enemy' rather than 'the GM/AI cheating with omniscient information'? RESOLVED 2026-08-23: by design, not by technique — the Watcher deliberately and visibly plays the party's own past actions back to them rather than adapting in silence. Telegraphing that it's studying them IS the mechanic, which sidesteps the omniscience-reads-as-cheating risk raised when this idea was first captured."
+  ],
+  "relatedRefs": [
+    "the-watcher",
+    "chat-log-knowledge-base",
+    "antagonist-structure-cicada-org-moral-complexity",
+    "data/antagonists/the-watcher.json",
+    "tools/battle-simulator/ai/claimant-ai.mjs",
+    "tools/battle-simulator/ai/evaluate/state-value.mjs",
+    "design/foundry-module-design.md#4-bidirectional-sync-and-the-file-system-question"
+  ],
+  "resolution": null
+}

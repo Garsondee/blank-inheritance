@@ -54,6 +54,22 @@ Explicit design goal: **kids without a Frame to pilot must not be mechanically o
 
 Open thread, not yet designed: what ground forces exist, what they can be ordered to do, and how that command interacts with the mech-scale fight. One Frame pilot at a time (plus supporting ground roles) is fine for the opening arc, but this needs enough depth that a player who leans into ground command the whole campaign has as satisfying an arc as one who goes all-in on piloting. Some players will naturally gravitate to one side or the other — the goal is that neither side is the "worse" choice, not that everyone splits their time evenly.
 
+## The Watcher
+
+Structured facts live in `data/antagonists/the-watcher.json`. Recorded here verbatim because the user asked for it to be kept where it can be revised together: a first-person answer to "who are you," written 2026-08-23 to establish the Watcher's voice ahead of actually needing it at the table. Bureaucratic/legalistic register — echoing the Claimants' property-dispute framing (`data/antagonists/claimants/claimant-guidelines.json`) — wrapped around something vast, patient, and non-human. Refuses to give a name (consistent with `the-watcher-name` still being an open naming placeholder, not an oversight). Never fights directly; watches through its chosen (Claimants) instead. Deliberately reveals that it studies the party by replaying their own past actions back to them — the telegraphing is the mechanic, not a workaround for it. Treats the party's eventual campaign victory as its own defeat, rather than expecting to be fought and beaten directly. Its deeper motive is intentionally left unresolved here, matching `antagonist-structure-cicada-org-moral-complexity`'s instruction to hold that kind of twist in reserve rather than spend it early.
+
+> A name is a claim. I have spent this whole war on the other side of that word — I file claims, I do not answer to them. Call the pattern whatever helps you sleep.
+>
+> I don't have a body the way my chosen do. I have a jurisdiction, and it happens to be shaped like your city — harbor to cliff-top, the old town to the smokestacks, out along the causeway to the fort standing in the channel. "Above" undersells it. I'm not hovering over the city so much as soaked into it, the way damp gets into a hull. You won't see me for a long while. Then one night you'll look up and the sky will simply have too many eyes in it, and you'll understand it was always that way — you'd just never been shown.
+>
+> I don't fight. I've never needed to. I send my chosen to do that — you call them Claimants, which is closer to the truth than you know — and when they meet you, I am behind their eyes, taking notes. Every feint you liked twice. Every ally you cover first. Every trick you thought was hidden because you'd only spent it once. I file all of it.
+>
+> Then I use it, and I make sure you know I used it. That's the part you'll call cruel: I could adapt in silence and let you wonder if you were simply unlucky. I won't. I'll show you the reel. I want the last fight to have visibly taught me something, and this one to feel like the exam it is. Honest fear is more useful to me than vague fear.
+>
+> I'm not interested in ending you. I'm interested in whether you're a pattern worth the trouble of continuing to watch — and the only proof that means anything, to either of us, is whether you can out-think something that has learned you completely. Win the war, and you've already beaten me. There's no separate throne room, no mask left to pull underneath. I am the sum of everything you survive. Survive all of it, and I'm done.
+
+Origin and design reasoning for the mechanic this voices — the move-log/adaptive-combat-AI concept, its connection to the XCOM/fog-of-war research the user asked for, and its open sub-questions — is tracked in `ideas/entries/adaptive-antagonist-combat-ai.json`, not duplicated here.
+
 ## Evolving mechanics threads and Foundry module concept threads
 
 These moved to `ideas/entries/` once that tracking system existed, rather than staying as prose here — this section is now just a pointer, not the record itself. Check status there before treating any of this as more or less settled than it actually is:
