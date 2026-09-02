@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "map-operation-log.schema.json",
+  "title": "Map Operation Log",
+  "description": "design/map-generation.md §6: an ordered, append-only list of edits. Render = import the base World, then replay every operation in order -- never a destructive edit. Op coordinates are lon/lat, never frame-relative metres, because a frame's centre/rotation/extent are exactly the parameters an art-direction session sweeps most, and lon/lat survives all three (see citymap/ops/log.py's module docstring). Each operation's shape beyond id/op/when/note is owned by that op kind's own module (citymap/ops/construct.py, citymap/ops/demolish.py, ...) rather than pre-declared here, so adding a new op kind (crater/excavate/reclaim/...) is a self-contained addition, not a schema change.",
+  "type": "object",
+  "required": ["operations"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "op"],
+        "properties": {
+          "id": { "type": "string", "description": "Unique within the log. Namespaces every feature id this op produces (see ids.op_feature_id) -- replaying the log must reproduce identical ids, so this can never be regenerated or reordered." },
+          "op": { "enum": ["construct", "trace", "crater", "excavate", "reclaim", "rezone", "rename", "override", "demolish"] },
+          "when": { "type": "string", "description": "Campaign-time label (e.g. an episode/scene id) this op is attached to. Free-form; not interpreted by the replay engine." },
+          "note": { "type": "string", "description": "Human rationale -- why this scar exists, for the GM reading the log later." }
+        },
+        "additionalProperties": true
+      }
+    }
+  }
+}

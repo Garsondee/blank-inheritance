@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Kurose Map Editor</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+<link rel="stylesheet" href="/static/editor.css" />
+</head>
+<body>
+  <div id="app">
+    <div id="map">
+      <div id="base-map-status">Rendering base map -- first launch only, this is cached after...</div>
+      <button id="btn-open-scratchpad" class="floating-btn">Scratchpad</button>
+    </div>
+
+    <div id="scratchpad-panel">
+      <div id="scratchpad-titlebar">
+        <span>Scratchpad -- draw an asset by hand</span>
+        <button id="btn-close-scratchpad" title="Close">&times;</button>
+      </div>
+      <div id="scratchpad-body">
+        <div id="scratchpad-canvas-wrap">
+          <canvas id="scratchpad-canvas" width="520" height="520"></canvas>
+        </div>
+        <div id="scratchpad-controls">
+          <div class="tools">
+            <button id="sp-tool-area" class="tool-btn">Draw area</button>
+            <button id="sp-tool-line" class="tool-btn">Draw line</button>
+            <button id="sp-tool-frontage" class="tool-btn">Set frontage</button>
+            <button id="sp-tool-fill" class="tool-btn">Fill</button>
+            <button id="sp-tool-none" class="tool-btn active">Pan / none</button>
+          </div>
+          <p class="hint">Click to add points, double-click (or the Finish button, or Enter) to
+            complete a shape, Escape to cancel. A last point placed near the start snaps closed
+            automatically. Frontage: click once to set where/which way the access road connects
+            (required before saving). Fill: pick a material below, then click any closed area
+            shape (including through mirror/radial echoes) to colour it -- affects the real map,
+            not just this preview.</p>
+          <button id="sp-btn-finish" class="primary-btn">Finish shape</button>
+
+          <label>Structure type
+            <select id="sp-structure-type">
+              <option value="watchtower">Watchtower (building=tower)</option>
+              <option value="wall">Wall/rampart segment (building=wall)</option>
+              <option value="barracks">Barracks (building=barracks)</option>
+              <option value="apron">Apron/yard (building=apron)</option>
+              <option value="command">Command block (building=government)</option>
+              <option value="generic">Generic structure (building=yes)</option>
+            </select>
+          </label>
+          <label>Height (m) <input id="sp-height" type="number" step="0.5" value="6"></label>
+          <label>Fill material (Fill tool)
+            <select id="sp-material">
+              <option value="">None (plain structure colour)</option>
+              <option value="concrete">Concrete</option>
+              <option value="metal">Metal</option>
+              <option value="brick">Brick</option>
+              <option value="asphalt">Asphalt</option>
+              <option value="wood">Wood</option>
+              <option value="glass">Glass</option>
+            </select>
+          </label>
+          <label>Line style
+            <select id="sp-line-style">
+              <option value="solid">Solid</option>
+              <option value="dashed">Dashed</option>
+              <option value="dotted">Dotted</option>
+            </select>
+          </label>
+          <label class="checkbox-label">
+            <input id="sp-depth-hint" type="checkbox">
+            Give this line real depth (extrudes to a real wall at export)
+          </label>
+          <label>Thickness if depth (m) <input id="sp-thickness" type="number" step="0.5" value="3"></label>
+
+          <label>Grid
+            <span class="inline-row">
+              <input id="sp-grid-enabled" type="checkbox" checked>
+              <input id="sp-grid-size" type="number" step="0.5" value="2" title="grid size, metres">
+            </span>
+          </label>
+          <label>Ortho angle snap
+            <select id="sp-ortho-step">
+              <option value="0">Off (organic)</option>
+              <option value="22.5" selected>22.5 degrees (allows 45/90 too)</option>
+              <option value="45">45 degrees only</option>
+              <option value="90">90 degrees only</option>
+            </select>
+          </label>
+          <label>Symmetry
+            <select id="sp-symmetry-mode">
+              <option value="none">None</option>
+              <option value="mirror">Mirror</option>
+              <option value="radial">Radial</option>
+            </select>
+          </label>
+          <div id="sp-mirror-controls" style="display:none">
+            <button id="sp-tool-mirror-axis" class="tool-btn">Set mirror axis (click twice)</button>
+          </div>
+          <div id="sp-radial-controls" style="display:none">
+            <button id="sp-tool-radial-center" class="tool-btn">Set radial centre (click once)</button>
+            <label>Copies <input id="sp-radial-count" type="number" step="1" min="2" value="4"></label>
+          </div>
+
+          <div class="list-section">
+            <h2>Shapes <span id="sp-count-shapes">0</span></h2>
+            <ul id="sp-list-shapes"></ul>
+          </div>
+
+          <button id="sp-btn-preview" class="primary-btn">Real preview</button>
+          <div id="sp-preview-status"></div>
+          <div id="sp-preview-result"></div>
+
+          <div class="list-section">
+            <h2>Save this design</h2>
+            <label>Template id <input id="sp-save-name" type="text" placeholder="e.g. valley-watchtower"></label>
+            <button id="sp-btn-save" class="primary-btn">Save as Template</button>
+            <div id="sp-save-status"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="panel">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="edit">Edit</button>
+        <button class="tab-btn" data-tab="place">Place</button>
+        <button class="tab-btn" data-tab="design">Design</button>
+        <button class="tab-btn" data-tab="render">Render</button>
+      </div>
+
+      <div id="tab-edit" class="tab-content active">
+        <h1>Kurose Map Editor</h1>
+        <p class="hint">The background is a real render of the current map, not a live layer --
+          draw directly on it. Draw a polygon over anything to remove. Draw polygons for new
+          construction sites (land or sea). Draw a line (double-click or Enter to finish) for a
+          road sketch -- one continuous multi-point line works, or several shorter ones if
+          that's easier; touching ends get auto-joined back into one road.</p>
+
+        <div class="tools">
+          <button id="tool-removal" class="tool-btn">Draw removal</button>
+          <button id="tool-site" class="tool-btn">Draw site</button>
+          <button id="tool-road" class="tool-btn">Draw road</button>
+          <button id="tool-none" class="tool-btn">Pan / none</button>
+        </div>
+
+        <div class="list-section">
+          <h2>Removals <span id="count-removals">0</span></h2>
+          <ul id="list-removals"></ul>
+        </div>
+        <div class="list-section">
+          <h2>Sites <span id="count-sites">0</span></h2>
+          <ul id="list-sites"></ul>
+        </div>
+        <div class="list-section">
+          <h2>Roads <span id="count-roads">0</span></h2>
+          <ul id="list-roads"></ul>
+        </div>
+
+        <button id="btn-submit" class="primary-btn">Send to Claude</button>
+        <div id="submit-status"></div>
+      </div>
+
+      <div id="tab-place" class="tab-content">
+        <h1>Place an asset</h1>
+        <p class="hint">Pick a saved template, then click on the map to start placing it --
+          click-drag-release sets both position and facing in one motion, matching drawing a
+          site polygon. Nothing is written to the real map until you press Confirm.</p>
+
+        <label>Template
+          <select id="place-template-select"></select>
+        </label>
+        <button id="btn-place-refresh" class="tool-btn">Refresh list</button>
+        <button id="btn-place-start" class="primary-btn">Start placing</button>
+
+        <div id="place-status"></div>
+        <button id="btn-place-check" class="primary-btn" disabled>Check placement</button>
+        <div id="place-check-result"></div>
+        <button id="btn-place-confirm" class="primary-btn" disabled>Confirm placement</button>
+        <button id="btn-place-cancel" class="tool-btn">Cancel</button>
+      </div>
+
+      <div id="tab-design" class="tab-content">
+        <h1>Design: Fort Wall</h1>
+        <p class="hint">Draw a rough perimeter -- it gets bastioned into a stubby star-fort
+          trace, extruded into a real wall, and broken up with strengthening pylons. Real
+          local terrain and shadows, rendered fast so you can actually iterate.</p>
+
+        <div class="tools">
+          <button id="tool-design-perimeter" class="tool-btn">Draw perimeter</button>
+          <button id="tool-design-none" class="tool-btn">Pan / none</button>
+        </div>
+
+        <label>Wall thickness (m) <input id="fw-wall-thickness" type="number" step="0.5" value="5"></label>
+        <label>Wall height (m) <input id="fw-wall-height" type="number" step="0.5" value="9"></label>
+        <label>Bastion depth (m) <input id="fw-bastion-depth" type="number" step="1" value="18"></label>
+        <label>Flank fraction (0-0.5) <input id="fw-flank-fraction" type="number" step="0.02" min="0" max="0.5" value="0.32"></label>
+        <label>Pylon spacing (m) <input id="fw-pylon-spacing" type="number" step="5" value="45"></label>
+        <label>Pylon radius (m) <input id="fw-pylon-radius" type="number" step="0.5" value="4"></label>
+        <label>Pylon height (m) <input id="fw-pylon-height" type="number" step="0.5" value="13"></label>
+        <label>Preview extent (m) <input id="fw-extent" type="number" step="50" value="500"></label>
+
+        <button id="btn-fw-generate" class="primary-btn" disabled>Generate preview</button>
+        <div id="fw-status"></div>
+        <div id="fw-result"></div>
+
+        <div class="list-section">
+          <h2>Save this design</h2>
+          <label>Template id <input id="fw-save-name" type="text" placeholder="e.g. valley-fort-wall"></label>
+          <button id="btn-fw-save" class="primary-btn">Save as Template</button>
+          <div id="fw-save-status"></div>
+        </div>
+      </div>
+
+      <div id="tab-render" class="tab-content">
+        <h1>Render</h1>
+        <label>Mode
+          <select id="render-mode">
+            <option value="preview">Preview (a window)</option>
+            <option value="overview">Overview (whole frame, small)</option>
+            <option value="full">Full (tiled, high resolution)</option>
+          </select>
+        </label>
+
+        <div id="render-preview-fields" class="render-fields">
+          <label>Center lon <input id="render-lon" type="number" step="0.000001" value="135.205"></label>
+          <label>Center lat <input id="render-lat" type="number" step="0.000001" value="34.678"></label>
+          <label>Extent (m) <input id="render-extent" type="number" step="10" value="2000"></label>
+          <label>Metres/px <input id="render-mpp" type="number" step="0.01" value="0.586"></label>
+          <button id="btn-use-view" type="button">Use current map view</button>
+        </div>
+
+        <div id="render-overview-fields" class="render-fields" style="display:none">
+          <label>Output px <input id="render-overview-px" type="number" step="128" value="2048"></label>
+        </div>
+
+        <div id="render-full-fields" class="render-fields" style="display:none">
+          <label class="checkbox-label">
+            <input id="render-full-whole-frame" type="checkbox" checked>
+            Whole frame (ignore crop below -- slow, renders the entire 12km map)
+          </label>
+          <label>Crop centre lon <input id="render-full-lon" type="number" step="0.000001" value="135.205"></label>
+          <label>Crop centre lat <input id="render-full-lat" type="number" step="0.000001" value="34.678"></label>
+          <label>Crop extent (m) <input id="render-full-extent" type="number" step="10" value="2000"></label>
+          <button id="btn-use-view-full" type="button">Use current map view</button>
+          <label>Tiles (NxN) <input id="render-tiles" type="number" step="1" value="3"></label>
+          <label>Px per tile <input id="render-px-per-tile" type="number" step="128" value="2048"></label>
+          <label>Supersample <input id="render-supersample" type="number" step="1" value="3"></label>
+        </div>
+
+        <button id="btn-render" class="primary-btn">Render</button>
+
+        <div id="render-progress">
+          <div class="bar-track"><div id="render-bar" class="bar-fill"></div></div>
+          <div id="render-status"></div>
+        </div>
+        <div id="render-result"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+  <script src="/static/editor.js"></script>
+  <script src="/static/scratchpad.js"></script>
+</body>
+</html>

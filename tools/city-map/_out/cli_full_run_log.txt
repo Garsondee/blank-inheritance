@@ -1,0 +1,13 @@
+frame: kurose-12km  style: kurose-1950s  mode: full
+world cache hit (E:\Mythica Machina Business\Blank Inheritance\tools\city-map\cache\world\2711802b942efb661989525cef8f2a09)
+world: 236027 features
+replaying 2 operation(s) from ..\..\data\map\operations\kurose.json
+  [1/2] demolish (op-0001) ... done  DemolishReport(removed_feature_count=934, clipped_feature_count=5, pruned_way_count=6, pruned_way_ids=[26581519, 26581523, 422116045, 26581518, 26581521, 422116044], removed_lamp_count=0, left_landuse_feature_id=None, returned_to_sea=True, sea_area_after_km2=265.1939378003712)
+  [2/2] construct (op-0002) ... done  ConstructReport(part_feature_ids=['82302f689533f2c4', '0affa89dd2d6452d', 'f09ef37a1afb92f2', 'ec51250e32f21004', '715808358d081491', '2a0efe0d67de9e6e', '59f9ca7a2b83049e', '712523c0ba1965f8'], demolished_feature_ids=[], road_ok=True, road_reason='', road_length_m=33.85376117476094, terrain_edited=True, bench_elevation_m=204.4106903076172, footprint_clear=True, footprint_conflicts=[])
+replay finished in 196.6s
+building fields (DEM fetch/sample, hillshade, sea gradient)... done (37.3s)
+exporting 3x3 tiles at 2048px each -> 6144x6144 final image
+export tiles: [------------------------------] 0/9 (  0.0%)     0.0s elapsed, estimating...        export tiles: [###---------------------------] 1/9 ( 11.1%)    61.7s elapsed, ~494s left           export tiles: [#######-----------------------] 2/9 ( 22.2%)   130.9s elapsed, ~458s left           export tiles: [##########--------------------] 3/9 ( 33.3%)   210.0s elapsed, ~420s left           export tiles: [#############-----------------] 4/9 ( 44.4%)   277.8s elapsed, ~347s left           export tiles: [#################-------------] 5/9 ( 55.6%)   342.2s elapsed, ~274s left           export tiles: [####################----------] 6/9 ( 66.7%)   406.9s elapsed, ~203s left           export tiles: [#######################-------] 7/9 ( 77.8%)   471.0s elapsed, ~135s left           export tiles: [###########################---] 8/9 ( 88.9%)   529.5s elapsed, ~66s left            export tiles: [##############################] 9/9 (100.0%)   586.3s elapsed, done                 export tiles: [##############################] 9/9 (100.0%)   586.3s elapsed, done                 
+saving _out/kurose_full_final.png... done (9.6s)
+
+done. _out/kurose_full_final.png (6144x6144, 30.9 MB) in 835.7s total

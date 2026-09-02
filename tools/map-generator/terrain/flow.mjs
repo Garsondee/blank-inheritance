@@ -15,11 +15,17 @@
  *   2. computeReceivers — D8 steepest descent on the filled surface.
  *   3. drainageArea     — accumulate contributing area downstream.
  *
- * Boundary convention: only the SEAWARD edge (x = 0, the left column) is an
- * open outlet. The other three edges are walls. That is not an implementation
- * shortcut — it is the physical setup being modelled: a coastal mountain front
- * draining west into the sea, which is what puts every river mouth on one coast
- * where a port town can exist.
+ * Boundary convention: flow leaves the model only through OUTLET cells. By
+ * default those are the seaward edge (x = 0, the left column) — a coastal
+ * mountain front draining west into the sea, which is what puts every river
+ * mouth on one coast where a port town can exist.
+ *
+ * The outlet set is a parameter rather than a constant because the generator
+ * runs the landscape TWICE against two different base levels: first against a
+ * glacial lowstand at the map edge, then — after the sea has risen over the
+ * result — against the new shoreline. Sea level is not a fixed fact of a
+ * landscape, and the second pass is what builds the alluvial ground a town can
+ * actually stand on. See terrain/generate.mjs.
  */
 
 import { D8, D8_DIST, Field } from '../core/field.mjs';
@@ -37,7 +43,7 @@ import { MinHeap } from '../core/heap.mjs';
  * drainage network develops a hole exactly where a lake or an estuary should be
  * — which is visible in the final map as a river that stops in mid-valley.
  */
-export function fillDepressions(elevation, { epsilon = 1e-5 } = {}) {
+export function fillDepressions(elevation, { epsilon = 1e-5, outlets = null } = {}) {
   const { width, height } = elevation;
   const filled = elevation.clone();
   const h = filled.data;
@@ -45,11 +51,19 @@ export function fillDepressions(elevation, { epsilon = 1e-5 } = {}) {
   const closed = new Uint8Array(n);
   const heap = new MinHeap(n);
 
-  // Seed with the open seaward edge only.
-  for (let y = 0; y < height; y++) {
-    const i = y * width;
-    closed[i] = 1;
-    heap.push(h[i], i);
+  // Seed with the outlet set: the cells water is allowed to leave through.
+  if (outlets) {
+    for (let i = 0; i < n; i++) {
+      if (!outlets[i]) continue;
+      closed[i] = 1;
+      heap.push(h[i], i);
+    }
+  } else {
+    for (let y = 0; y < height; y++) {
+      const i = y * width;
+      closed[i] = 1;
+      heap.push(h[i], i);
+    }
   }
 
   while (heap.size > 0) {
@@ -80,10 +94,10 @@ export function fillDepressions(elevation, { epsilon = 1e-5 } = {}) {
  * cells (1 or sqrt(2)) — needed because a diagonal step is longer, and slope is
  * rise over run.
  *
- * Outlets are the seaward-edge cells; everything else must find a downhill
+ * Outlet cells drain out of the model; everything else must find a downhill
  * neighbour, which fillDepressions has guaranteed exists.
  */
-export function computeReceivers(filled) {
+export function computeReceivers(filled, { outlets = null } = {}) {
   const { width, height } = filled;
   const h = filled.data;
   const n = h.length;
@@ -93,8 +107,8 @@ export function computeReceivers(filled) {
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = y * width + x;
-      if (x === 0) {
-        // Open seaward boundary: this cell is where water leaves the model.
+      if (outlets ? outlets[i] : x === 0) {
+        // This cell is where water leaves the model.
         receivers[i] = i;
         distances[i] = 1;
         continue;
@@ -128,21 +142,56 @@ export function computeReceivers(filled) {
  * A topological ordering of cells from base level upward.
  *
  * Braun & Willett's implicit erosion solver needs to visit each cell only after
- * its receiver has already been updated this timestep. Sorting by filled
- * elevation ascending gives exactly that ordering, because fillDepressions
- * guarantees every cell sits strictly above its receiver.
+ * its receiver has already been updated this timestep, and drainage
+ * accumulation needs the same order reversed.
  *
- * Returns Int32Array of cell indices, lowest first. Reverse it to walk
- * downstream-to-upstream (which is what drainage accumulation wants).
+ * This is Braun & Willett (2013)'s own O(n) construction: invert the receiver
+ * array into per-cell donor lists (CSR-style, one flat array plus offsets),
+ * then depth-first traverse outward from every outlet. A node is emitted before
+ * any of its donors by construction.
+ *
+ * It replaced a far simpler implementation that just sorted every cell by
+ * elevation — also a valid ordering, but an O(n log n) comparator sort run
+ * every iteration, which measurably dominated the whole simulation and made
+ * erosion scale as roughly O(n^2.6) instead of O(n log n). That was the single
+ * thing standing between this generator and the fine resolutions the map
+ * actually needs. Sorting is also why the old version took the filled elevation
+ * field as its argument; this one needs only the receivers.
  */
-export function computeStack(filled) {
-  const n = filled.length;
-  const order = new Int32Array(n);
-  for (let i = 0; i < n; i++) order[i] = i;
-  const h = filled.data;
-  // Int32Array.prototype.sort with a comparator is a numeric sort, not lexical.
-  order.sort((a, b) => h[a] - h[b]);
-  return order;
+export function computeStack(receivers) {
+  const n = receivers.length;
+
+  // Donor counts, then a prefix sum into CSR offsets.
+  const offset = new Int32Array(n + 1);
+  for (let i = 0; i < n; i++) {
+    const r = receivers[i];
+    if (r !== i) offset[r + 1]++;
+  }
+  for (let i = 0; i < n; i++) offset[i + 1] += offset[i];
+
+  // Scatter donors into the flat list. Every non-outlet cell donates to exactly
+  // one receiver, so the list is at most n long.
+  const cursor = Int32Array.from(offset.subarray(0, n));
+  const donors = new Int32Array(n);
+  for (let i = 0; i < n; i++) {
+    const r = receivers[i];
+    if (r !== i) donors[cursor[r]++] = i;
+  }
+
+  // Iterative DFS from every outlet. An explicit work array rather than
+  // recursion: a long river is a deep tree, and recursion would blow the stack.
+  const stack = new Int32Array(n);
+  const work = new Int32Array(n);
+  let top = 0;
+  let wt = 0;
+  for (let i = 0; i < n; i++) if (receivers[i] === i) work[wt++] = i;
+  while (wt > 0) {
+    const node = work[--wt];
+    stack[top++] = node;
+    for (let k = offset[node]; k < offset[node + 1]; k++) work[wt++] = donors[k];
+  }
+
+  return stack;
 }
 
 /**
@@ -163,7 +212,7 @@ export function drainageArea(filled, receivers, { precipitation = null, cellArea
   for (let i = 0; i < n; i++) {
     area[i] = cellArea * (precipitation ? precipitation.data[i] : 1);
   }
-  const stack = computeStack(filled);
+  const stack = computeStack(receivers);
   for (let s = n - 1; s >= 0; s--) {
     const i = stack[s];
     const r = receivers[i];
@@ -181,7 +230,7 @@ export function drainageArea(filled, receivers, { precipitation = null, cellArea
  */
 export function routeFlow(elevation, opts = {}) {
   const filled = fillDepressions(elevation, opts);
-  const { receivers, distances } = computeReceivers(filled);
+  const { receivers, distances } = computeReceivers(filled, opts);
   const { area, stack } = drainageArea(filled, receivers, opts);
   return { filled, receivers, distances, area, stack };
 }

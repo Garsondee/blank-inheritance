@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "map-template.schema.json",
+  "title": "Map Structure Template",
+  "description": "A parametric structure for the `construct` operation (design/map-generation.md §6) -- a bunker, a sea fort, any hand-designed content placed by an op rather than imported from OSM. Every part's footprint is in LOCAL METRES, origin at the op's anchor, +Y = the template's own 'north' before the op's rotation is applied (see citymap/ops/construct.py). Parts become ordinary Features carrying real tags, so they inherit the whole renderer -- Minkowski shadows, height-graded fills, road z-order -- for free, exactly like an imported OSM building.",
+  "type": "object",
+  "required": ["id", "type", "name", "parts", "frontage"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string" },
+    "type": { "const": "map-template" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "parts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["tags", "footprint"],
+        "properties": {
+          "kind": {
+            "enum": ["area", "line"], "default": "area",
+            "description": "'area' (default) becomes a Polygon -- a building/landuse fill with height, shadow and outline. 'line' becomes a LineString -- a perimeter track, fence line or similar, drawn through the ordinary road/linear-feature pipeline (e.g. tags={'highway':'track'}) rather than filled. Line parts are never treated as placement obstacles or overlap candidates -- only area parts are."
+          },
+          "tags": {
+            "type": "object",
+            "description": "OSM-style tags this part renders with -- e.g. {'building':'bunker'} draws with the normal building pipeline (Minkowski shadow, height-graded fill); {'highway':'track'} on a line part draws as a road.",
+            "additionalProperties": { "type": "string" }
+          },
+          "heightM": { "type": "number", "minimum": 0, "default": 0 },
+          "footprint": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2
+            },
+            "description": "[[x,y], ...] in local metres. For kind='area' (minimum 3 points): NOT closed (the first point is not repeated) -- construct.py closes the ring. For kind='line' (minimum 2 points): an open polyline in point order, drawn exactly as given -- repeat the first point at the end if a closed loop (e.g. a perimeter track) is wanted."
+          }
+        }
+      }
+    },
+    "frontage": {
+      "type": "object",
+      "required": ["localPoint", "localDirection"],
+      "description": "Where and which way the structure's access road connects. localPoint is where the road ends at the structure; localDirection is the outward-facing normal the road should approach along.",
+      "properties": {
+        "localPoint": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+        "localDirection": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 }
+      }
+    },
+    "accessRoad": {
+      "type": "object",
+      "properties": {
+        "highwayClass": { "type": "string", "default": "service" }
+      }
+    }
+  }
+}

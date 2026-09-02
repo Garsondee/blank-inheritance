@@ -1,0 +1,190 @@
+{
+  "$schema": "../../schema/map-style.schema.json",
+  "id": "kurose-1950s",
+  "type": "map-style",
+  "name": "Kurose 1950s survey",
+  "notes": [
+    "Every linear dimension is in GROUND METRES and carries an 'M' suffix; the",
+    "loader rejects unit-less numbers in dimension sections. See",
+    "tools/city-map/citymap/style.py for why -- pixel dimensions make previews",
+    "lie about ink weight.",
+    "Values marked 'was Npx' were literal pixels in the original spike, tuned at",
+    "0.586 m/px (the 12 km frame at 20480px working canvas). They have been",
+    "converted at that scale so the delivered render is unchanged, and now scale",
+    "correctly at every other zoom."
+  ],
+
+  "palette": {
+    "paper": [234, 229, 214],
+    "ink": [46, 41, 37],
+    "seaShallow": [156, 180, 190],
+    "seaDeep": [108, 138, 158],
+    "coastInk": [58, 78, 84],
+    "water": [150, 172, 183],
+    "contourMinor": [120, 92, 60],
+    "contourIndex": [96, 68, 40],
+    "railway": [72, 66, 60],
+    "lamp": [236, 190, 96],
+    "decoInk": [40, 34, 28],
+    "cartoucheBg": [241, 236, 222],
+    "cartoucheSub": [96, 86, 74],
+    "buildingLow": [214, 207, 196],
+    "buildingHigh": [174, 167, 156],
+    "hatch": [90, 80, 70],
+    "coastFade": [221, 213, 195]
+  },
+
+  "widths": {
+    "contourMinorM": 0.586,
+    "contourIndexM": 0.938,
+    "buildingOutlineM": 0.586,
+    "coastStrokeM": 1.172,
+    "waterStrokeM": 0.703,
+    "railwayM": 4.0,
+    "riverMinM": 3.0,
+    "riverMaxM": 14.0,
+    "hatchSpacingM": 14.0,
+    "hatchLineM": 0.586,
+    "lampRadiusM": 2.93,
+    "roadCasingM": 1.289
+  },
+
+  "roads": {
+    "motorwayM": 22,
+    "motorway_linkM": 12,
+    "trunkM": 19,
+    "trunk_linkM": 11,
+    "primaryM": 15,
+    "primary_linkM": 9,
+    "secondaryM": 12,
+    "secondary_linkM": 7.5,
+    "tertiaryM": 9.5,
+    "tertiary_linkM": 6.5,
+    "residentialM": 6.5,
+    "unclassifiedM": 6.0,
+    "living_streetM": 5.5,
+    "pedestrianM": 4.5,
+    "serviceM": 3.6,
+    "footwayM": 1.8,
+    "stepsM": 2.0,
+    "trackM": 3.0,
+    "bridlewayM": 2.0,
+    "cyclewayM": 2.5,
+    "roadM": 6.0
+  },
+
+  "shadow": {
+    "buildingHeightScale": 0.55,
+    "buildingBlurM": 1.4,
+    "bridgeDeckM": 8.0,
+    "bridgeBlurM": 1.2,
+    "bridgeWidenM": 2.344
+  },
+
+  "texture": {
+    "grainFineM": 1.758,
+    "grainCoarseM": 250.0,
+    "dappleLargeM": 1200.0,
+    "dappleSmallM": 428.6
+  },
+
+  "labels": {
+    "roadLabelM": 17.0,
+    "roadLabelMinMppM": 0.6
+  },
+
+  "pageFurniture": {
+    "_note": "Page-relative, NOT ground metres -- these are properties of the sheet (see style.py). Fractions of the page's output width unless suffixed Px.",
+    "marginFrac": 0.00547,
+    "cartoucheTitlePx": 34,
+    "cartoucheSubPx": 15,
+    "compassLabelPx": 20,
+    "compassRadiusFrac": 0.0107,
+    "tickLongFrac": 0.00195,
+    "tickShortFrac": 0.00098
+  },
+
+  "landuse": {
+    "industrial": [208, 200, 187],
+    "residential": [226, 221, 206],
+    "commercial": [224, 214, 201],
+    "retail": [226, 212, 201],
+    "railway": [207, 197, 190],
+    "grass": [198, 210, 178],
+    "forest": [170, 190, 158],
+    "cemetery": [189, 201, 177],
+    "farmland": [214, 212, 182],
+    "meadow": [200, 212, 180],
+    "orchard": [188, 204, 166],
+    "quarry": [200, 192, 182],
+    "wood": [170, 190, 158],
+    "scrub": [186, 200, 168],
+    "grassland": [196, 208, 176],
+    "recreation_ground": [200, 213, 180],
+    "brownfield": [206, 199, 188],
+    "construction": [206, 199, 188],
+    "religious": [218, 208, 196],
+    "harbour": [203, 196, 187],
+    "education": [220, 213, 200],
+    "sand": [223, 214, 190],
+    "shingle": [206, 200, 188],
+    "park": [198, 213, 178],
+    "garden": [200, 214, 182],
+    "playground": [204, 216, 186],
+    "dog_park": [198, 213, 178],
+    "common": [198, 213, 178],
+    "flowerbed": [202, 213, 184],
+    "pitch": [188, 206, 168],
+    "sports_centre": [196, 210, 178],
+    "sports_hall": [206, 199, 188],
+    "stadium": [196, 210, 178],
+    "military": [212, 200, 186],
+    "apron": [214, 208, 198],
+    "aerodrome": [216, 211, 200]
+  },
+
+  "hatchLanduse": ["industrial", "quarry", "railway"],
+
+  "buildingMaterial": {
+    "_note": "building:material -> flat fill colour, overriding the generic height-graded buildingLow/buildingHigh lerp above for a building tagged this way -- set by the Scratchpad's Fill tool (editor/static/scratchpad.js's MATERIAL_STYLES) or by hand. Still gets shadow_mul-multiplied like any other building fill, so it darkens correctly in cast shadow.",
+    "concrete": [206, 202, 193],
+    "metal": [128, 132, 136],
+    "brick": [176, 128, 104],
+    "asphalt": [92, 90, 86],
+    "wood": [168, 138, 96],
+    "glass": [158, 178, 184]
+  },
+
+  "buildingRoofPalette": [
+    [132, 146, 162],
+    [88, 92, 98],
+    [162, 100, 78],
+    [110, 148, 152],
+    [198, 188, 168],
+    [176, 118, 72],
+    [108, 126, 110]
+  ],
+
+  "canopy": {
+    "_note": "Vegetation-canopy noise tint for forest/wood/scrub landuse (citymap.render.CANOPY_LANDUSE_KEYS), replacing their flat landuse colour above -- added 2026-08-24 after a direct user report of blocky/low-res-looking forest fill next to crisp contour lines (real cause: coarse OSM forest polygon data, made worse by a single flat tint with no internal variation). Palette stops loosely sampled from a real aerial photo of autumn forest near Kobe: darker sage, the existing forest/wood tone, olive/amber, and a sparse warm rust accent -- gamma biases the noise toward the first two stops so the mountains don't shift the whole map's colour temperature, only read as textured.",
+    "blobM": 45.0,
+    "gamma": 2.0,
+    "seed": 8412,
+    "palette": [[148, 172, 132], [176, 188, 148], [196, 182, 128], [192, 150, 104]]
+  },
+
+  "lighting": {
+    "warmTint": [1.22, 1.04, 0.7],
+    "coolTint": [0.82, 0.9, 1.1],
+    "ambient": 0.3,
+    "directWeight": 0.7,
+    "buildingShadowAlpha": 92,
+    "bridgeShadowAlpha": 80,
+    "seaDepthFalloffM": 900.0,
+    "seaDepthGamma": 0.6,
+    "seaRippleAmount": 0.06,
+    "_coastFadeNote": "Direct user request 2026-08-24: bare (unclassified) terrain reads as a warm brown right up to the coast -- paper tinted by warmTint at whatever brightness that patch of ground happens to have, no landuse tint to soften it (an already-tagged landuse like sand/aerodrome keeps its own colour untouched, this only affects untagged ground). A wide fade toward palette.coastFade near the shoreline reads as an intentional coastal fringe instead of an abrupt or jagged boundary -- see fields.coast_fade_t and render_tile's own coastal-fade section. coastFadeM is deliberately large ('very large wide fade', the user's own words), much bigger than sea's own falloff.",
+    "coastFadeM": 700.0,
+    "coastFadeGamma": 0.7
+  }
+}

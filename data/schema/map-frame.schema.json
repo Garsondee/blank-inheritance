@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "map-frame.schema.json",
+  "title": "Map Frame",
+  "description": "A rendered map's centre/rotation/extent/CRS/DEM/light config -- the constructor arguments for citymap.frame.Frame (tools/city-map/citymap/frame.py). Rotation and extent are deliberately NOT part of the L1 world cache key (see world.py's module docstring) -- they are the parameters an art-direction loop sweeps most, so re-editing this file after the world/fields caches already exist is cheap for rotation/extent changes and only re-fetches when center or crsEpsg actually moves the ground truth.",
+  "type": "object",
+  "required": ["id", "type", "center", "rotationDeg", "extentM", "crsEpsg"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string" },
+    "type": { "const": "map-frame" },
+    "center": {
+      "type": "object",
+      "required": ["lon", "lat"],
+      "properties": {
+        "lon": { "type": "number" },
+        "lat": { "type": "number" }
+      }
+    },
+    "rotationDeg": {
+      "type": "number",
+      "description": "Degrees CCW that source-CRS north is rotated to become map-space 'up'. See frame.py's to_map/to_source."
+    },
+    "extentM": { "type": "number", "exclusiveMinimum": 0, "description": "Side length of the square page, in ground metres." },
+    "crsEpsg": { "type": "integer", "description": "The source CRS EPSG code -- Japan has 19 plane-rectangular zones (JGD2011); Kurose/Kobe is zone VI, EPSG:6674." },
+    "dem": {
+      "type": "object",
+      "properties": {
+        "grid": { "type": "integer", "exclusiveMinimum": 0, "default": 2048 },
+        "zoom": { "type": "integer", "exclusiveMinimum": 0, "default": 15 },
+        "source": { "type": "string", "default": "gsi-japan" }
+      }
+    },
+    "light": {
+      "type": "object",
+      "properties": {
+        "azimuthDeg": { "type": "number", "default": 315.0 },
+        "altitudeDeg": { "type": "number", "default": 14.0 }
+      }
+    }
+  }
+}

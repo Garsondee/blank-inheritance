@@ -1,0 +1,55 @@
+{
+  "$schema": "../../schema/map-template.schema.json",
+  "id": "directorate-command-citadel",
+  "type": "map-template",
+  "name": "Directorate Forward Command Citadel",
+  "description": "A whole compound, not a single building -- first entry in a real shape library built directly from a user-drawn site polygon (map editor 'NERV HQ' site, 2026-08-23) rather than a reusable stamped-out template placed inside an arbitrary shape. The drawn polygon (a ~937m x 716m hooked peninsula) became the perimeter fence line itself (see the 'line' part below -- its footprint is that exact polygon, converted to local metres, not an approximation), and everything else was designed to fill it: a stepped command citadel + comms mast on the wide north lobe (the site's most commanding ground), an operations/quarters wing hugging the west edge, a paved yard crossing to a long Frame maintenance hangar laid out along the site's narrow eastern arm (the arm's own shape suggested a hangar strip rather than fighting it), and a seaward watchtower at the arm's tip covering the open-water approach. 1950s industrial-mecha, not sleek sci-fi (design/campaign-arc.md's tone doc): the citadel is a stepped concrete ziggurat, not a glass tower, and the Directorate itself is 'legitimate and procedural... not a hidden conspiracy' (data/factions/directorate.json) -- this reads as an overwhelmed civil-defence command post that grew past its original footprint, not a villain's secret lair. 'Directorate' is the real, already-established (if still unnamed) faction; nothing here invents new lore, just gives its forward operations a real building. Offshore by construction (the drawn site's centroid sits in open water after this session's island removals) -- no access road is expected until the causeway router exists (ideas/entries/offshore-construction.json phase b/c), same honest gap already documented on op-0005 and every other offshore site this session.",
+  "parts": [
+    {
+      "tags": { "building": "government", "military": "office", "name:en": "Command Citadel" },
+      "heightM": 42.0,
+      "footprint": [[-25, 150], [35, 140], [70, 175], [65, 220], [10, 235], [-40, 210]]
+    },
+    {
+      "tags": { "building": "tower", "man_made": "communications_tower", "name:en": "Comms & Radar Mast" },
+      "heightM": 58.0,
+      "footprint": [[88, 195], [102, 195], [105, 215], [92, 218]]
+    },
+    {
+      "tags": { "building": "office", "military": "barracks", "name:en": "Operations & Quarters Wing" },
+      "heightM": 16.0,
+      "footprint": [[-230, -90], [-190, -50], [-260, 80], [-300, 170], [-330, 150], [-300, 40], [-270, -70]]
+    },
+    {
+      "tags": { "building": "hangar", "military": "depot", "name:en": "Frame Maintenance Hangar" },
+      "heightM": 24.0,
+      "footprint": [[340, -330], [400, -390], [480, -360], [520, -260], [460, -200], [380, -240]]
+    },
+    {
+      "tags": { "building": "tower", "military": "tower", "name:en": "Seaward Watchtower" },
+      "heightM": 28.0,
+      "footprint": [[545, -110], [575, -105], [580, -75], [550, -70]]
+    },
+    {
+      "tags": { "aeroway": "apron", "surface": "paved", "name:en": "Compound Yard", "building": "apron" },
+      "heightM": 0.0,
+      "footprint": [[-20, 20], [80, -10], [220, -140], [280, -180], [300, -100], [150, 20], [20, 90]]
+    },
+    {
+      "kind": "line",
+      "tags": { "barrier": "fence", "name:en": "Perimeter Fence" },
+      "footprint": [
+        [-252.5, -139.3], [346.1, -422.2], [448.0, -366.6], [592.1, -142.8], [596.2, -33.6],
+        [12.1, 294.2], [-71.3, 160.9], [-212.6, 245.6], [-288.7, 212.0], [-340.5, 145.1],
+        [-339.2, 73.2], [-295.6, 14.8], [-194.0, -41.1]
+      ]
+    }
+  ],
+  "frontage": {
+    "localPoint": [-330, 150],
+    "localDirection": [-1, 0]
+  },
+  "accessRoad": {
+    "highwayClass": "service"
+  }
+}

@@ -1,0 +1,779 @@
+{
+  "$schema": "../../schema/map-operation-log.schema.json",
+  "operations": [
+    {
+      "id": "op-0001",
+      "op": "demolish",
+      "when": "vertical-slice-demo",
+      "note": "Kobe Airport removed -- the ocean reclaims the island, not just its buildings. returnToSea unions the demolish area directly into World.sea, so it renders as open water with a fresh coastline stroke and is permanently exempt from ever counting as land content again (see ops/demolish.py). An earlier draft used leaveLanduse=brownfield instead -- that models 'buildings cleared, ground stays dry land', the wrong operation for 'let the sea take it back'; kept as a separate opt-in for demolishes where the ground genuinely stays land. Demolish polygon is the real (concave) union of every aeroway=*, landuse/leisure area, and building within 3500m of the field -- reusing parse.land_content()'s own definition of 'land', the same test sea.py trusts for carving the coastline -- restricted to the connected component nearest the airport point, buffered 50m and simplified to 32 vertices. Not a hand-guessed circle, and deliberately NOT that union's convex hull: hulling it bridged the water gap toward Port Island and would have swept up real residential buildings there. Verified clean (0 features intersect the final polygon's 2m-shrunk interior) and verified NOT over-reaching (every named building actually caught is airport infrastructure or the small staff-housing block that turns out to sit on the island itself, confirmed by coordinates falling inside the aeroway-only bounding envelope). Tests the graph-cascade pruning (ops/demolish.py) against real topology: the island's own road network plus the connecting bridge from Port Island must all be eaten back to the first real junction, never left as a stub.",
+      "returnToSea": true,
+      "area": {
+        "polygon": [
+          {
+            "lon": 135.199505,
+            "lat": 34.6325228
+          },
+          {
+            "lon": 135.2066578,
+            "lat": 34.6332699
+          },
+          {
+            "lon": 135.2068133,
+            "lat": 34.6345658
+          },
+          {
+            "lon": 135.2108405,
+            "lat": 34.6405394
+          },
+          {
+            "lon": 135.2124859,
+            "lat": 34.6416621
+          },
+          {
+            "lon": 135.2271721,
+            "lat": 34.6429469
+          },
+          {
+            "lon": 135.2286713,
+            "lat": 34.6427936
+          },
+          {
+            "lon": 135.2299124,
+            "lat": 34.6420106
+          },
+          {
+            "lon": 135.2313143,
+            "lat": 34.643159
+          },
+          {
+            "lon": 135.2357642,
+            "lat": 34.6435362
+          },
+          {
+            "lon": 135.2369886,
+            "lat": 34.6433532
+          },
+          {
+            "lon": 135.2380459,
+            "lat": 34.6425448
+          },
+          {
+            "lon": 135.2402499,
+            "lat": 34.6384161
+          },
+          {
+            "lon": 135.240556,
+            "lat": 34.636702
+          },
+          {
+            "lon": 135.2434573,
+            "lat": 34.6355368
+          },
+          {
+            "lon": 135.2442416,
+            "lat": 34.6342289
+          },
+          {
+            "lon": 135.24356,
+            "lat": 34.6328222
+          },
+          {
+            "lon": 135.2396235,
+            "lat": 34.6306782
+          },
+          {
+            "lon": 135.2308536,
+            "lat": 34.6299442
+          },
+          {
+            "lon": 135.2298949,
+            "lat": 34.629086
+          },
+          {
+            "lon": 135.2286408,
+            "lat": 34.6287596
+          },
+          {
+            "lon": 135.227526,
+            "lat": 34.6288872
+          },
+          {
+            "lon": 135.2263803,
+            "lat": 34.6295701
+          },
+          {
+            "lon": 135.2153375,
+            "lat": 34.6287127
+          },
+          {
+            "lon": 135.21091,
+            "lat": 34.6275453
+          },
+          {
+            "lon": 135.2080663,
+            "lat": 34.6285672
+          },
+          {
+            "lon": 135.2071848,
+            "lat": 34.6294485
+          },
+          {
+            "lon": 135.2003151,
+            "lat": 34.6290994
+          },
+          {
+            "lon": 135.1992821,
+            "lat": 34.6294055
+          },
+          {
+            "lon": 135.1985153,
+            "lat": 34.6301676
+          },
+          {
+            "lon": 135.1984223,
+            "lat": 34.6314507
+          },
+          {
+            "lon": 135.199505,
+            "lat": 34.6325228
+          }
+        ]
+      }
+    },
+    {
+      "id": "op-0002",
+      "op": "construct",
+      "when": "vertical-slice-demo",
+      "note": "Directorate forward hangar sited in the mountain valley northwest of downtown, well past the last mapped houses. Site-finding history, kept because each failure taught the mechanism something real: (1) a first pick 80m out from a dead-end stub was 12m from a live railway -- construct.py had NO check for non-building infrastructure at all until this forced one (footprintClear/footprintConflicts on the report, now also checking waterways/water bodies after a second real miss below); (2) several picks further along that same heading were geometrically clear but sat on ground too steep for the router's state lattice to climb even one legal first step (router.py's documented 'wedge' limitation); (3) after adding real terrain benching (construct now builds a level pad -- convex hull of every part, benched UP to the max elevation sampled at its vertices, so the frontage ends up above the naturally lower ground beyond it rather than at unchanged grade), slope stopped being the constraint, and the next auto-picked clear site turned out to straddle a real stream -- construct's conflict-check didn't cover water yet, only found by looking at the render. Both gaps are now load-bearing checks, not just this op's history. Final site: clear of buildings, roads, rail AND water, benched to ~204m, with a short (34m) access road reaching a real junction.",
+      "template": "mech-bunker",
+      "anchor": {
+        "lon": 135.211328,
+        "lat": 34.718427
+      },
+      "rotation": 45.2
+    },
+    {
+      "id": "op-0003",
+      "op": "demolish",
+      "when": "vertical-slice-demo",
+      "note": "Port Island removed entirely to make way for a sci-fi sea fort complex (siting is a later op, once offshore construction -- anchor-in-sea detection, land reclamation, causeway routing -- actually exists; see ideas/entries/offshore-construction.json). Unlike Kobe Airport, which had no single unifying feature and needed a land-content union, Port Island is already one coherent OSM place=island multipolygon relation (reclaimed=yes, wikidata Q1207766), so the demolish polygon is that relation's own real coastline geometry directly: buffer(50m) to catch piers/breakwaters right at the edge, then simplify(25m) -- same buffer/simplify numbers as op-0001, for a consistent coastline character. Verified against the real cached extract before writing: raw island area 8.378 km^2 (matches Port Island's real-world ~826ha), 2040 other features intersect the raw polygon (confirms real content, not a degenerate shape), 982m clear of the already-removed Kobe Airport island and 2068m clear of Rokko Island (op-0004) -- no risk of the 50m buffer bridging either gap. Applying it: 2028 features removed, 13 clipped, 84 ways pruned by the road+rail graph cascade (ops/demolish.py) -- every bridge connecting Port Island to the mainland is eaten back to its real junction, the same mechanism verified against Kobe Airport's dangling railway bridge. 0 features survive inside the polygon's 2m-shrunk interior.",
+      "returnToSea": true,
+      "area": {
+        "polygon": [
+          {
+            "lon": 135.2011838,
+            "lat": 34.6740293
+          },
+          {
+            "lon": 135.2022149,
+            "lat": 34.6742133
+          },
+          {
+            "lon": 135.2022605,
+            "lat": 34.6749607
+          },
+          {
+            "lon": 135.2035281,
+            "lat": 34.6759755
+          },
+          {
+            "lon": 135.2027157,
+            "lat": 34.6769867
+          },
+          {
+            "lon": 135.2029245,
+            "lat": 34.6774898
+          },
+          {
+            "lon": 135.2068396,
+            "lat": 34.6792528
+          },
+          {
+            "lon": 135.2073605,
+            "lat": 34.6786492
+          },
+          {
+            "lon": 135.2060464,
+            "lat": 34.6777269
+          },
+          {
+            "lon": 135.2065313,
+            "lat": 34.6773903
+          },
+          {
+            "lon": 135.2100931,
+            "lat": 34.6791693
+          },
+          {
+            "lon": 135.2099976,
+            "lat": 34.6816677
+          },
+          {
+            "lon": 135.2203073,
+            "lat": 34.6831493
+          },
+          {
+            "lon": 135.2257329,
+            "lat": 34.6786253
+          },
+          {
+            "lon": 135.2260609,
+            "lat": 34.6778588
+          },
+          {
+            "lon": 135.2256801,
+            "lat": 34.6774438
+          },
+          {
+            "lon": 135.2171723,
+            "lat": 34.6748357
+          },
+          {
+            "lon": 135.2181089,
+            "lat": 34.6732659
+          },
+          {
+            "lon": 135.2280365,
+            "lat": 34.6762641
+          },
+          {
+            "lon": 135.2320746,
+            "lat": 34.6740989
+          },
+          {
+            "lon": 135.2324267,
+            "lat": 34.6734705
+          },
+          {
+            "lon": 135.2320736,
+            "lat": 34.6730099
+          },
+          {
+            "lon": 135.2203305,
+            "lat": 34.6693956
+          },
+          {
+            "lon": 135.2212586,
+            "lat": 34.6678206
+          },
+          {
+            "lon": 135.2334959,
+            "lat": 34.6714919
+          },
+          {
+            "lon": 135.2369742,
+            "lat": 34.6654196
+          },
+          {
+            "lon": 135.236639,
+            "lat": 34.6648799
+          },
+          {
+            "lon": 135.2264851,
+            "lat": 34.6617379
+          },
+          {
+            "lon": 135.2284209,
+            "lat": 34.6585323
+          },
+          {
+            "lon": 135.2391581,
+            "lat": 34.66165
+          },
+          {
+            "lon": 135.2456088,
+            "lat": 34.6505233
+          },
+          {
+            "lon": 135.2171136,
+            "lat": 34.6497375
+          },
+          {
+            "lon": 135.2057127,
+            "lat": 34.6571725
+          },
+          {
+            "lon": 135.2049738,
+            "lat": 34.6568452
+          },
+          {
+            "lon": 135.2047521,
+            "lat": 34.6558783
+          },
+          {
+            "lon": 135.2039797,
+            "lat": 34.655828
+          },
+          {
+            "lon": 135.203639,
+            "lat": 34.658742
+          },
+          {
+            "lon": 135.2026226,
+            "lat": 34.658528
+          },
+          {
+            "lon": 135.201816,
+            "lat": 34.6591721
+          },
+          {
+            "lon": 135.2008927,
+            "lat": 34.6736039
+          },
+          {
+            "lon": 135.2011838,
+            "lat": 34.6740293
+          }
+        ]
+      }
+    },
+    {
+      "id": "op-0004",
+      "op": "demolish",
+      "when": "vertical-slice-demo",
+      "note": "Rokko Island removed entirely -- the second of the two islands cleared for sci-fi sea forts, alongside Port Island (op-0003); same methodology, same reasoning for why the two are independent, non-conflicting removals. Real place=island multipolygon relation (reclaimed=yes, wikidata Q579015), buffer(50m), simplify(25m). Raw island area 5.965 km^2 (matches Rokko Island's real-world ~580ha); 3052 other features intersect the raw polygon. 2068m clear of Port Island, so the two 50m buffers cannot interact. Applying it: 3045 features removed, 8 clipped, 19 ways pruned by the graph cascade -- among them the Rokko Liner elevated transit line and its viaducts (electrified, bridge=yes, exactly the class of feature op-0001's fix was written for), eaten back to real junctions on the mainland rather than left dangling over open water. 0 features survive inside the polygon's 2m-shrunk interior.",
+      "returnToSea": true,
+      "area": {
+        "polygon": [
+          {
+            "lon": 135.2516653,
+            "lat": 34.6932413
+          },
+          {
+            "lon": 135.2519994,
+            "lat": 34.6937287
+          },
+          {
+            "lon": 135.2640336,
+            "lat": 34.6982102
+          },
+          {
+            "lon": 135.2647003,
+            "lat": 34.6980445
+          },
+          {
+            "lon": 135.2656744,
+            "lat": 34.696289
+          },
+          {
+            "lon": 135.2718802,
+            "lat": 34.6969649
+          },
+          {
+            "lon": 135.2722429,
+            "lat": 34.6988657
+          },
+          {
+            "lon": 135.272699,
+            "lat": 34.6991973
+          },
+          {
+            "lon": 135.2832967,
+            "lat": 34.6977768
+          },
+          {
+            "lon": 135.2837227,
+            "lat": 34.6974693
+          },
+          {
+            "lon": 135.2882162,
+            "lat": 34.697177
+          },
+          {
+            "lon": 135.2886982,
+            "lat": 34.6967281
+          },
+          {
+            "lon": 135.2894698,
+            "lat": 34.6905349
+          },
+          {
+            "lon": 135.278971,
+            "lat": 34.691891
+          },
+          {
+            "lon": 135.2792616,
+            "lat": 34.690042
+          },
+          {
+            "lon": 135.2898463,
+            "lat": 34.6883553
+          },
+          {
+            "lon": 135.291015,
+            "lat": 34.6815476
+          },
+          {
+            "lon": 135.2894894,
+            "lat": 34.6811312
+          },
+          {
+            "lon": 135.254281,
+            "lat": 34.6773309
+          },
+          {
+            "lon": 135.2537953,
+            "lat": 34.6784111
+          },
+          {
+            "lon": 135.2516653,
+            "lat": 34.6932413
+          }
+        ]
+      }
+    },
+    {
+      "id": "op-0005",
+      "op": "construct",
+      "when": "vertical-slice-demo",
+      "note": "First real offshore anchor -- proof that construct's phase (a) offshore machinery (ideas/entries/offshore-construction.json: anchor-in-sea detection, land reclaimed as returnToSea's exact inverse, flat freeboard elevation instead of slope-benching) actually works against real data, not just synthetic test fixtures. Sited dead centre of Port Island's own former centroid (135.219654, 34.664185), now open water after op-0003 -- verified before writing this op: is_offshore=True, reclaimed_area_m2=~21397 (the 8-part footprint's convex hull plus the default 15m apron), bench_elevation_m=4.0 (the default freeboard), footprint_clear=True with zero conflicts. Reusing the mech-bunker template as a PLACEHOLDER shape, not a real sea-fort design -- no dedicated sea-fort template exists yet, and this op exists to prove the mechanism, not to be the final hangar/launch complex the user actually asked for ('a larger pair of sea forts will be the hangar/launch location and another one nearby will be the HQ for our version of NERV'). road_ok is False and stays False until the causeway router (phase b/c of the same idea) exists -- this platform currently has new land and a building but no connection to anywhere, which is expected and reported, not a bug. Replace or supplement this op once real sea-fort templates and the causeway router both exist.",
+      "template": "mech-bunker",
+      "anchor": {
+        "lon": 135.219654,
+        "lat": 34.664185
+      },
+      "rotation": 0.0
+    },
+    {
+      "id": "op-0006",
+      "op": "construct",
+      "when": "vertical-slice-demo",
+      "note": "Land fort #1 of 3, sited in the same mountain valley as the bunker (op-0002), 297m away -- same auto-selection methodology as the bunker's own siting history (np.gradient(elevation) to find genuinely gentle terrain, then a REAL apply_construct dry run to confirm footprint_clear and road_ok rather than trusting the gradient scan alone), not traced from a hand-marked location: the annotated screenshot the user marked pink sites on is not available in this context. Verified before writing: footprint_clear=True (zero conflicts), road_ok=True (a real 40m access track reaches the existing network), bench_elevation_m=130.9. Auto-picked from 44 tried candidates, gentlest-gradient-first, at least 220m clear of the bunker and of the other two land forts (op-0007, op-0008). Flag for correction if this doesn't match where the pink dots actually were.",
+      "template": "sentinel-tower",
+      "anchor": {
+        "lon": 135.214553,
+        "lat": 34.718178
+      },
+      "rotation": 0.0
+    },
+    {
+      "id": "op-0007",
+      "op": "construct",
+      "when": "vertical-slice-demo",
+      "note": "Land fort #2 of 3 -- see op-0006's note for methodology (same search, same run). 648m from the bunker. Verified before writing: footprint_clear=True, road_ok=True (23m access track), bench_elevation_m=86.8.",
+      "template": "sentinel-tower",
+      "anchor": {
+        "lon": 135.212889,
+        "lat": 34.712733
+      },
+      "rotation": 0.0
+    },
+    {
+      "id": "op-0008",
+      "op": "construct",
+      "when": "vertical-slice-demo",
+      "note": "Land fort #3 of 3 -- see op-0006's note for methodology (same search, same run). 895m from the bunker. Verified before writing: footprint_clear=True, road_ok=True (91m access track), bench_elevation_m=73.2.",
+      "template": "sentinel-tower",
+      "anchor": {
+        "lon": 135.21054,
+        "lat": 34.710382
+      },
+      "rotation": 0.0
+    },
+    {
+      "id": "op-0009",
+      "op": "demolish",
+      "note": "Map-editor removal (user note: 'Get rid of this bunker'). Drawn polygon over op-0005's placeholder mech-bunker-template platform at Port Island's former centroid -- that op's own note already called it out as temporary ('Replace or supplement this op once real sea-fort templates ... exist'). Only the polygon's contents are removed; no returnToSea/leaveLanduse, so the reclaimed platform itself stays as clear land, not reverted to sea -- the user asked to remove 'this bunker', not un-reclaim the ground under it. Verified: removed_feature_count=9, clipped_feature_count=0, pruned_way_count=0.",
+      "area": {
+        "polygon": [
+          {
+            "lon": 135.21964073181155,
+            "lat": 34.665426199570376
+          },
+          {
+            "lon": 135.21674394607547,
+            "lat": 34.66442047607866
+          },
+          {
+            "lon": 135.2181172370911,
+            "lat": 34.662267833893665
+          },
+          {
+            "lon": 135.2219367027283,
+            "lat": 34.66265601940439
+          },
+          {
+            "lon": 135.22086381912234,
+            "lat": 34.66470278565965
+          }
+        ]
+      }
+    },
+    {
+      "id": "op-0010",
+      "op": "trace",
+      "note": "Map-editor road sketch, 2 point(s). Verified: length_m=260, snapped_start_node=None, snapped_end_node=None. -- CROSSES WATER (no causeway router yet -- see ideas/entries/offshore-construction.json phase b/c; this reaches toward a real offshore/coastal site, same honest gap op-0005 already documents for road_ok)",
+      "points": [
+        {
+          "lon": 135.21812796592715,
+          "lat": 34.679895142383025
+        },
+        {
+          "lon": 135.2205848693848,
+          "lat": 34.68106826608216
+        }
+      ],
+      "highwayClass": "unclassified"
+    },
+    {
+      "id": "op-0011",
+      "op": "trace",
+      "note": "Map-editor road sketch, 2 point(s). Verified: length_m=264, snapped_start_node=None, snapped_end_node=None. -- CROSSES WATER (no causeway router yet -- see ideas/entries/offshore-construction.json phase b/c; this reaches toward a real offshore/coastal site, same honest gap op-0005 already documents for road_ok)",
+      "points": [
+        {
+          "lon": 135.22371769180768,
+          "lat": 34.67710777814045
+        },
+        {
+          "lon": 135.22123932838443,
+          "lat": 34.675890492751975
+        }
+      ],
+      "highwayClass": "unclassified"
+    },
+    {
+      "id": "op-0012",
+      "op": "trace",
+      "note": "Map-editor road sketch, 2 point(s). Verified: length_m=570, snapped_start_node=None, snapped_end_node=None. -- CROSSES WATER (no causeway router yet -- see ideas/entries/offshore-construction.json phase b/c; this reaches toward a real offshore/coastal site, same honest gap op-0005 already documents for road_ok)",
+      "points": [
+        {
+          "lon": 135.23551940917972,
+          "lat": 34.69454752784172
+        },
+        {
+          "lon": 135.23811578750613,
+          "lat": 34.68988215573354
+        }
+      ],
+      "highwayClass": "unclassified"
+    },
+    {
+      "id": "op-0013",
+      "op": "trace",
+      "note": "Map-editor road sketch, 2 point(s). Verified: length_m=75, snapped_start_node=None, snapped_end_node=None.",
+      "points": [
+        {
+          "lon": 135.18184840679172,
+          "lat": 34.704973653511395
+        },
+        {
+          "lon": 135.1820415258408,
+          "lat": 34.70431231067402
+        }
+      ],
+      "highwayClass": "unclassified"
+    },
+    {
+      "id": "op-0014",
+      "op": "trace",
+      "note": "Map-editor road sketch, 2 point(s). Verified: length_m=314, snapped_start_node=None, snapped_end_node=1942528858.",
+      "points": [
+        {
+          "lon": 135.17033100128177,
+          "lat": 34.70111930581064
+        },
+        {
+          "lon": 135.16763806343081,
+          "lat": 34.69936444947162
+        }
+      ],
+      "highwayClass": "unclassified"
+    },
+    {
+      "id": "op-0015",
+      "op": "trace",
+      "note": "Map-editor road sketch, 11 point(s) (joined from 10 drawn 2-point segments -- see citymap/editor/roads.py). Verified: length_m=1204, snapped_start_node=None, snapped_end_node=None.",
+      "points": [
+        {
+          "lon": 135.20125687122348,
+          "lat": 34.71578678413622
+        },
+        {
+          "lon": 135.20275890827182,
+          "lat": 34.716602326397606
+        },
+        {
+          "lon": 135.204952955246,
+          "lat": 34.71701229865874
+        },
+        {
+          "lon": 135.2060526609421,
+          "lat": 34.71748398465968
+        },
+        {
+          "lon": 135.20681977272037,
+          "lat": 34.71792481026566
+        },
+        {
+          "lon": 135.20751714706424,
+          "lat": 34.717960076212634
+        },
+        {
+          "lon": 135.20719528198245,
+          "lat": 34.717554527034224
+        },
+        {
+          "lon": 135.20587563514712,
+          "lat": 34.716509767476666
+        },
+        {
+          "lon": 135.20582735538486,
+          "lat": 34.71609979272417
+        },
+        {
+          "lon": 135.20641744136813,
+          "lat": 34.71606452598386
+        },
+        {
+          "lon": 135.20880997180942,
+          "lat": 34.71714015479741
+        }
+      ],
+      "highwayClass": "unclassified"
+    },
+    {
+      "id": "op-0016",
+      "op": "trace",
+      "note": "Map-editor road sketch, 2 point(s). Verified: length_m=1408, snapped_start_node=3778020589, snapped_end_node=-20442232205569. -- CROSSES WATER (no causeway router yet -- see ideas/entries/offshore-construction.json phase b/c; this reaches toward a real offshore/coastal site, same honest gap op-0005 already documents for road_ok)",
+      "points": [
+        {
+          "lon": 135.2090406417847,
+          "lat": 34.689529067690266
+        },
+        {
+          "lon": 135.22043466567996,
+          "lat": 34.681008977685124
+        }
+      ],
+      "highwayClass": "unclassified"
+    },
+    {
+      "id": "op-0017",
+      "op": "construct",
+      "note": "Map-editor site (user note: 'Sea Fort'). fits: mech-bunker @ 59.5 deg. is_offshore=True, road_ok=False, road_length_m=0, bench_elevation_m=4.0. Reusing the mech-bunker template as a PLACEHOLDER shape, same as op-0005 -- no dedicated sea-fort template exists yet. road_ok=False is expected (no causeway router), not a bug.",
+      "template": "mech-bunker",
+      "anchor": {
+        "lon": 135.20278797300642,
+        "lat": 34.66732181997117
+      },
+      "rotation": 59.45344087080925
+    },
+    {
+      "id": "op-0018",
+      "op": "construct",
+      "note": "Map-editor site (user note: 'Sea Fort 2'). fits: mech-bunker @ 138.5 deg. is_offshore=True, road_ok=False, road_length_m=0, bench_elevation_m=4.0. Reusing the mech-bunker template as a PLACEHOLDER shape, same as op-0005 -- no dedicated sea-fort template exists yet. road_ok=False is expected (no causeway router), not a bug.",
+      "template": "mech-bunker",
+      "anchor": {
+        "lon": 135.23845908110505,
+        "lat": 34.689526658924976
+      },
+      "rotation": 138.53761136717685
+    },
+    {
+      "id": "op-0019",
+      "op": "construct",
+      "note": "Map-editor site (user note: 'Mech Hanger'). fits: mech-bunker @ 115.5 deg. is_offshore=True, road_ok=False, road_length_m=0, bench_elevation_m=4.0. Reusing the mech-bunker template as a PLACEHOLDER shape, same as op-0005 -- no dedicated hangar template exists yet. road_ok=False is expected (no causeway router), not a bug. Matches the campaign's own earlier framing (op-0005's note): 'a larger pair of sea forts will be the hangar/launch location and another one nearby will be the HQ for our version of NERV' -- this is that hangar/launch site.",
+      "template": "mech-bunker",
+      "anchor": {
+        "lon": 135.21954493716746,
+        "lat": 34.67491893974866
+      },
+      "rotation": 115.48146461854924
+    },
+    {
+      "id": "op-0020",
+      "op": "construct",
+      "note": "Map-editor site (user note: 'NERV HQ'). fits: mech-bunker @ 119.3 deg. is_offshore=True, road_ok=False, road_length_m=0, bench_elevation_m=4.0. Reusing the mech-bunker template as a PLACEHOLDER shape, same as op-0005 -- no dedicated HQ template exists yet. road_ok=False is expected (no causeway router), not a bug. Matches the campaign's own earlier framing (op-0005's note): 'a larger pair of sea forts will be the hangar/launch location and another one nearby will be the HQ for our version of NERV' -- this is that HQ site.",
+      "template": "mech-bunker",
+      "anchor": {
+        "lon": 135.22341228132376,
+        "lat": 34.67959673221123
+      },
+      "rotation": 119.30609621543181
+    },
+    {
+      "id": "op-0024",
+      "op": "demolish",
+      "note": "Retiring op-0020's placeholder mech-bunker (same reasoning as op-0009 retiring op-0005's) -- replaced by op-0026's real, purpose-built compound (directorate-command-citadel), built from the actual drawn 'NERV HQ' polygon instead of a reused generic template. 110m-radius circle around op-0020's own anchor: mech-bunker.json's own farthest vertex (its perimeter patrol track) is ~92m from origin -- confirmed by reading the template file directly after an earlier 80m attempt clipped that track instead of fully removing it.",
+      "area": {
+        "center": {
+          "lon": 135.22341228132376,
+          "lat": 34.67959673221123
+        },
+        "radiusM": 110.0
+      }
+    },
+    {
+      "id": "op-0025",
+      "op": "demolish",
+      "note": "Pre-clearing the new compound's own footprint before construct runs. A real dry run of op-0026 first came back footprint_clear=False, footprint_conflicts=['highway=unclassified'] -- op-0016's own trace road (this session, part of the same map-editor submission) cuts across where the west wing sits. construct.py deliberately surfaces this rather than auto-clearing it (module docstring: roads/rail/water crossing a footprint are 'left for the operator to notice', unlike buildings, which ARE auto-demolished) -- this is that deliberate operator decision: clip whatever's inside the convex hull of the compound's actual buildings+apron (not the full fence outline, which would clear far more than the buildings themselves touch). A demolish-clip, not a full removal, so the rest of op-0016 outside this footprint survives untouched.",
+      "area": {
+        "polygon": [
+          {
+            "lon": 135.22378101671177,
+            "lat": 34.67619415566837
+          },
+          {
+            "lon": 135.21952536362534,
+            "lat": 34.68141027443437
+          },
+          {
+            "lon": 135.21926042883965,
+            "lat": 34.68174884433509
+          },
+          {
+            "lon": 135.21991710855087,
+            "lat": 34.683731633251625
+          },
+          {
+            "lon": 135.2203099905669,
+            "lat": 34.683749402245574
+          },
+          {
+            "lon": 135.223583776583,
+            "lat": 34.68283323752562
+          },
+          {
+            "lon": 135.22426001948955,
+            "lat": 34.68232545153856
+          },
+          {
+            "lon": 135.22436553643672,
+            "lat": 34.68224258187808
+          },
+          {
+            "lon": 135.22721998857511,
+            "lat": 34.67781436010555
+          },
+          {
+            "lon": 135.22700656050802,
+            "lat": 34.677604403035865
+          },
+          {
+            "lon": 135.22562980651423,
+            "lat": 34.67665329993382
+          },
+          {
+            "lon": 135.224699159902,
+            "lat": 34.676060375541496
+          },
+          {
+            "lon": 135.22378101671177,
+            "lat": 34.67619415566837
+          }
+        ]
+      }
+    },
+    {
+      "id": "op-0026",
+      "op": "construct",
+      "note": "Real bespoke compound for the map-editor 'NERV HQ' site, replacing op-0020's placeholder (see op-0024) -- first real entry built by treating a drawn polygon as an actual design brief rather than a search key into a small fixed template catalog (the earlier, wrong approach op-0017 through op-0020 all used). Anchor is the drawn polygon's own centroid in MAP space (not siting.fit_template's representative_point() -- this template's footprints, including the perimeter fence, are baked as offsets from that exact centroid, so this anchor must match or the fence would land somewhere the user never drew), rotation=0.0 because the footprint orientation is already baked in from the real drawn polygon. Verified: footprint_clear=True, is_offshore=True, reclaimed_area_m2=453798, bench_elevation_m=4.0, road_ok=False (offshore construct -- causeway routing not yet implemented (ideas/entries/offshore-construction.json, phase b/c)).",
+      "template": "directorate-command-citadel",
+      "anchor": {
+        "lon": 135.22218600640986,
+        "lat": 34.68105484288998
+      },
+      "rotation": 0.0
+    }
+  ]
+}

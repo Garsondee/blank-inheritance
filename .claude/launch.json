@@ -6,6 +6,24 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["--yes", "serve", "-l", "4173", "tools/battle-simulator/artifact"],
       "port": 4173
+    },
+    {
+      "name": "city-map-tiles",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["tools/city-map/api/main.py"],
+      "port": 8766
+    },
+    {
+      "name": "city-map-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "tools/city-map/frontend", "run", "dev", "--", "--host", "127.0.0.1"],
+      "port": 5173
+    },
+    {
+      "name": "city-map-frontend-preview",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "tools/city-map/frontend", "run", "preview"],
+      "port": 4174
     }
   ]
 }

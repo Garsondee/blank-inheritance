@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "map-style.schema.json",
+  "title": "Map Style",
+  "description": "A style sheet for tools/city-map's renderer (see citymap/style.py) — colours, and every linear dimension in GROUND METRES rather than pixels, so a preview rendered at a different scale from the final export has identical ink weight. citymap/style.py enforces the metre rule on load: any key in a dimension section (widths/roads/shadow/texture/labels) must end in 'M', or in one of the recognised dimensionless suffixes (Scale/Ratio/Alpha/Gamma/Amount/Weight/Count/Px) for values that genuinely have no unit. pageFurniture and lighting are exempt from that check for the reasons given on their properties below.",
+  "type": "object",
+  "required": ["id", "type", "name", "palette", "roads"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string" },
+    "type": { "const": "map-style" },
+    "name": { "type": "string" },
+    "notes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Free-form authoring notes about this style sheet, rendered as a plain array of lines rather than one long string so they read well in a diff."
+    },
+
+    "palette": {
+      "type": "object",
+      "description": "Named colours, referenced by citymap.style.Style.colour(key). [r,g,b], each 0-255.",
+      "additionalProperties": { "$ref": "#/$defs/rgb" }
+    },
+    "landuse": {
+      "type": "object",
+      "description": "OSM landuse/natural/leisure value -> tint colour, multiplied over the hillshade rather than drawn as an opaque fill (so terrain relief survives underneath — see citymap/render.py). Keyed by the raw OSM tag value, e.g. 'industrial', 'forest', 'park'.",
+      "additionalProperties": { "$ref": "#/$defs/rgb" }
+    },
+    "hatchLanduse": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Landuse values that additionally get a diagonal hatch overlay (industrial districts, quarries, rail yards)."
+    },
+    "buildingMaterial": {
+      "type": "object",
+      "description": "building:material tag value -> flat fill colour, overriding the generic height-graded buildingLow/buildingHigh lerp (see citymap.style.Style.material_colour, citymap/render.py's BUILDING_MATERIAL_TAG). Set by the map editor's Scratchpad Fill tool, or by hand.",
+      "properties": {
+        "_note": { "type": "string" }
+      },
+      "additionalProperties": { "$ref": "#/$defs/rgb" }
+    },
+    "buildingRoofPalette": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/rgb" },
+      "description": "Roof-colour choices for buildings with no building:material tag -- citymap.render.py hashes each building's own feature id into this list (Style.building_roof_palette, render._building_roof_colour) so a real mix of roof colours shows up automatically, deterministic per building rather than one shared colour for every building of a given height. Added 2026-08-24 after a direct user request for per-building colour variety 'consistent with their location', loosely sampled from real Kobe/Kanazawa rooftop aerial photos."
+    },
+
+    "widths": { "$ref": "#/$defs/metreDimensions" },
+    "roads": {
+      "type": "object",
+      "description": "Carriageway width per OSM highway=* class, in ground metres (key = class + 'M', e.g. 'residentialM'). citymap.style.Style.knows_road()/road_width_px() key off this directly — a synthesised road class absent here draws as nothing, not an error, so any class the road router can emit must have an entry.",
+      "additionalProperties": { "type": "number", "exclusiveMinimum": 0 }
+    },
+    "shadow": { "$ref": "#/$defs/metreDimensions" },
+    "texture": { "$ref": "#/$defs/metreDimensions" },
+    "canopy": {
+      "type": "object",
+      "description": "Vegetation-canopy noise tint for dense-tree landuse classes (forest/wood/scrub — see CANOPY_LANDUSE_KEYS in citymap/render.py), replacing their flat landuse colour with a multi-stop palette sampled by a seeded, frame-wide noise field (citymap.terrain.canopy_noise_t) instead. Added 2026-08-24 after a direct user report that flat-tinted forest read as blocky/low-resolution when zoomed in, mirroring real aerial-photo tree-canopy colour variation instead. blobM is a genuine ground dimension (M-suffixed, enforced); gamma is dimensionless (Gamma suffix, exempt) and biases the noise toward the low (first-palette-stop) end so the whole canopy doesn't shift the map's overall colour temperature — only patches reach the warmer/later stops.",
+      "properties": {
+        "blobM": { "type": "number", "exclusiveMinimum": 0,
+          "description": "Approximate ground size of one noise blob — tuned to read as a loose cluster of tree crowns, not a single-pixel speckle or a frame-wide gradient." },
+        "gamma": { "type": "number", "exclusiveMinimum": 0 },
+        "seed": { "type": "integer" },
+        "palette": {
+          "type": "array", "minItems": 2,
+          "items": { "$ref": "#/$defs/rgb" },
+          "description": "Ordered colour stops from t=0 to t=1, piecewise-linearly interpolated by the noise value at each pixel."
+        }
+      }
+    },
+    "labels": { "$ref": "#/$defs/metreDimensions" },
+
+    "pageFurniture": {
+      "type": "object",
+      "description": "Cartouche/border/compass-rose/scale-bar sizing. Deliberately exempt from the metre rule (see citymap/style.py): these are properties of the SHEET, not the ground — a cartouche sized in ground metres would be invisible on a wide composition check and absurd in a narrow preview window. Values are fractions of the page's output width unless suffixed Px (a fixed pixel size, e.g. font sizes).",
+      "properties": {
+        "_note": { "type": "string" }
+      },
+      "additionalProperties": { "type": ["number", "string"] }
+    },
+
+    "lighting": {
+      "type": "object",
+      "description": "Hillshade colour grading (see citymap/terrain.py's shade_rgb) and sea texture parameters. Exempt from the metre rule: every value here is either a colour tint, a 0-1 blend weight, an exponent, or (seaDepthFalloffM alone) a smooth-falloff distance with no pixel-vs-metre stroke-width risk to guard against.",
+      "properties": {
+        "warmTint": { "$ref": "#/$defs/rgbFloat" },
+        "coolTint": { "$ref": "#/$defs/rgbFloat" },
+        "ambient": { "type": "number", "minimum": 0, "maximum": 1 },
+        "directWeight": { "type": "number", "minimum": 0, "maximum": 1 },
+        "buildingShadowAlpha": { "type": "integer", "minimum": 0, "maximum": 255 },
+        "bridgeShadowAlpha": { "type": "integer", "minimum": 0, "maximum": 255 },
+        "seaDepthFalloffM": { "type": "number", "exclusiveMinimum": 0 },
+        "seaDepthGamma": { "type": "number", "exclusiveMinimum": 0 },
+        "seaRippleAmount": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": true
+    }
+  },
+
+  "$defs": {
+    "rgb": {
+      "type": "array",
+      "items": { "type": "integer", "minimum": 0, "maximum": 255 },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "rgbFloat": {
+      "type": "array",
+      "description": "A colour tint expressed as a multiplier, not a 0-255 channel (e.g. warmTint's 1.22 peak — see terrain.shade_rgb).",
+      "items": { "type": "number", "minimum": 0 },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "metreDimensions": {
+      "type": "object",
+      "description": "Every key ending in 'M' is a ground-metre linear dimension, converted to pixels at draw time by dividing by the tile's metres-per-pixel (citymap.style.Style.px()). Keys ending in a recognised dimensionless suffix (Scale/Ratio/Alpha/Gamma/Amount/Weight/Count/Px) are genuine ratios/exponents/counts with no unit to get wrong — see citymap/style.py's _assert_no_pixel_dimensions for the check this mirrors.",
+      "additionalProperties": { "type": "number" }
+    }
+  }
+}

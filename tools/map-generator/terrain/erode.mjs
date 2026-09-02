@@ -41,12 +41,14 @@ import { routeFlow } from './flow.mjs';
  * Cells are visited in stack order (base level first), so by the time cell i is
  * updated, its receiver's new elevation is already known.
  */
-function streamPowerStep(h, { receivers, distances, area, stack }, { K, m, dt, dx }) {
+function streamPowerStep(h, { receivers, distances, area, stack }, { K, m, dt, dx, erodibility }) {
   for (let s = 0; s < stack.length; s++) {
     const i = stack[s];
     const r = receivers[i];
     if (r === i) continue; // Outlet: held at base level.
-    const f = (K * Math.pow(area[i], m) * dt) / (distances[i] * dx);
+    const k = erodibility ? K * erodibility[i] : K;
+    if (k <= 0) continue;
+    const f = (k * Math.pow(area[i], m) * dt) / (distances[i] * dx);
     // h_i_new = (h_i + f * h_r_new) / (1 + f)
     const next = (h[i] + f * h[r]) / (1 + f);
     // The solver cannot push a cell below its receiver; guard against float
@@ -67,8 +69,25 @@ function streamPowerStep(h, { receivers, distances, area, stack }, { K, m, dt, d
  * non-coincidentally — where a Japanese coastal town sits.
  *
  * `eroded` is the thickness removed by the incision step, per cell.
+ *
+ * `ceiling`, when supplied, is a per-cell elevation a cell may aggrade UP TO
+ * even though that would otherwise be blocked by the anti-inversion cap. It
+ * exists for one specific and important landform: a river entering the sea
+ * fills its own mouth to sea level and then builds outward across the shallows.
+ * That is delta progradation, and it is how the flat ground a port town stands
+ * on comes into existence after the sea has already drowned the valley.
+ *
+ * `slopeScale` (a critical gradient, e.g. 0.02) makes deposition TRANSPORT-
+ * LIMITED rather than uniform, by scaling it by Scrit / (S + Scrit). Without
+ * it, Davy & Lague's bare G * Qs / A deposits at the same rate everywhere the
+ * sediment passes — at steady state it is literally constant — so cranking G up
+ * to build a floodplain instead blankets the entire landscape, hillslopes
+ * included, and dissolves the terrain it was supposed to be filling. With it, a
+ * 40% hillslope deposits at 5% of the rate a 1% valley floor does, which is
+ * both what real alluvium does and the only way to get a flat town site without
+ * losing the drowned-valley coastline that makes the map worth generating.
  */
-function depositStep(h, eroded, { receivers, area, stack }, { G, cellArea, maxFillFraction }) {
+function depositStep(h, eroded, { receivers, distances, area, stack }, { G, cellArea, dx, maxFillFraction, ceiling, slopeScale }) {
   const n = h.length;
   const carried = new Float64Array(n); // Volume arriving from upstream.
 
@@ -82,6 +101,13 @@ function depositStep(h, eroded, { receivers, area, stack }, { G, cellArea, maxFi
     // Davy & Lague: deposition thickness = G * Qs / A.
     let dep = (G * available) / area[i];
 
+    // Transport limitation: steep reaches carry their load onward, flat ones
+    // drop it.
+    if (slopeScale > 0) {
+      const S = (h[i] - h[r]) / (distances[i] * dx);
+      dep *= slopeScale / (Math.max(0, S) + slopeScale);
+    }
+
     // Cap 1: cannot deposit more sediment than is actually present.
     const maxByMass = available / cellArea;
     if (dep > maxByMass) dep = maxByMass;
@@ -89,8 +115,13 @@ function depositStep(h, eroded, { receivers, area, stack }, { G, cellArea, maxFi
     // Cap 2: cannot aggrade a cell to or above its receiver, which would
     // invert the flow direction and make the next iteration's routing
     // nonsensical. Filling most of the way is allowed and is precisely how a
-    // near-flat reach levels itself out.
-    const headroom = (h[i] - h[r]) * maxFillFraction;
+    // near-flat reach levels itself out. A cell under its ceiling (i.e. still
+    // below sea level) may instead fill right up to that ceiling.
+    let headroom = (h[i] - h[r]) * maxFillFraction;
+    if (ceiling) {
+      const toCeiling = ceiling[i] - h[i];
+      if (toCeiling > headroom) headroom = toCeiling;
+    }
     if (dep > headroom) dep = headroom;
     if (dep < 0) dep = 0;
 
@@ -145,6 +176,14 @@ function diffuseStep(h, width, height, { D, dt, dx }) {
  * @param {number} opts.dx          Cell size in metres.
  * @param {Field}  [opts.precipitation]  Optional per-cell rainfall weighting.
  * @param {number} [opts.fillEvery] Re-run depression filling every N steps.
+ * @param {Uint8Array} [opts.outlets] Cells water leaves through, held at a fixed
+ *   elevation and never uplifted. Defaults to the seaward edge column.
+ * @param {Float64Array} [opts.erodibility] Per-cell multiplier on K. Used to
+ *   switch river incision off below sea level, where there is no river.
+ * @param {Float64Array} [opts.ceiling] Per-cell aggradation ceiling; see
+ *   depositStep. Use -Infinity for cells that should not have one.
+ * @param {number} [opts.depositionSlopeScale] Critical gradient making
+ *   deposition transport-limited; 0 disables it. See depositStep.
  * @param {function} [opts.onProgress] Called as (step, iterations).
  *
  * Returns the final elevation plus the last hydrology solution, so callers get
@@ -163,6 +202,10 @@ export function erode(elevation, uplift, opts) {
     fillEvery = 1,
     maxFillFraction = 0.85,
     baseLevel = 0,
+    outlets = null,
+    erodibility = null,
+    ceiling = null,
+    depositionSlopeScale = 0,
     onProgress = null,
   } = opts;
 
@@ -172,44 +215,62 @@ export function erode(elevation, uplift, opts) {
   const before = new Float64Array(h.length);
   let flow = null;
 
+  // Outlet cells are the base level the landscape cuts down toward. They are
+  // pinned: never uplifted, and restored after every pass that might have
+  // smeared into them. Which cells those are is the difference between the two
+  // phases of the run — the map edge at a glacial lowstand, then the shoreline
+  // itself once the sea has risen. See generate.mjs.
+  const pinned = new Uint8Array(h.length);
+  if (outlets) pinned.set(outlets);
+  else for (let y = 0; y < height; y++) pinned[y * width] = 1;
+  const pinnedElevation = new Float64Array(h.length);
+  for (let i = 0; i < h.length; i++) {
+    pinnedElevation[i] = outlets ? h[i] : baseLevel;
+  }
+  const restorePinned = () => {
+    for (let i = 0; i < h.length; i++) if (pinned[i]) h[i] = pinnedElevation[i];
+  };
+
+  const flowOpts = { precipitation, cellArea, outlets: pinned };
+
   for (let step = 0; step < iterations; step++) {
-    // Uplift. The seaward column is the fixed base level the whole landscape
-    // is cutting down toward, so it never rises.
-    for (let y = 0; y < height; y++) {
-      for (let x = 1; x < width; x++) {
-        const i = y * width + x;
-        h[i] += uplift.data[i] * dt;
-      }
-      h[y * width] = baseLevel;
+    for (let i = 0; i < h.length; i++) {
+      if (!pinned[i]) h[i] += uplift.data[i] * dt;
     }
+    restorePinned();
 
     // Re-route flow. Depression filling dominates the cost, so it can be run
     // less often than every step: pits form slowly once the network is
     // integrated, and the receivers from a step or two ago are still valid.
     if (!flow || step % fillEvery === 0) {
-      flow = routeFlow(elevation, { precipitation, cellArea });
+      flow = routeFlow(elevation, flowOpts);
     }
 
     before.set(h);
-    streamPowerStep(h, flow, { K, m, dt, dx });
+    streamPowerStep(h, flow, { K, m, dt, dx, erodibility });
 
     if (G > 0) {
       const eroded = new Float64Array(h.length);
       for (let i = 0; i < h.length; i++) eroded[i] = before[i] - h[i];
-      depositStep(h, eroded, flow, { G, cellArea, maxFillFraction });
+      depositStep(h, eroded, flow, {
+        G,
+        cellArea,
+        dx,
+        maxFillFraction,
+        ceiling,
+        slopeScale: depositionSlopeScale,
+      });
     }
 
     diffuseStep(h, width, height, { D, dt, dx });
-
-    // Re-clamp base level after diffusion smeared into it.
-    for (let y = 0; y < height; y++) h[y * width] = baseLevel;
+    restorePinned();
 
     if (onProgress) onProgress(step + 1, iterations);
   }
 
   // Final hydrology on the finished surface, so rivers are drawn from the same
   // terrain the renderer shades.
-  flow = routeFlow(elevation, { precipitation, cellArea });
+  flow = routeFlow(elevation, flowOpts);
   return { elevation, flow };
 }
 

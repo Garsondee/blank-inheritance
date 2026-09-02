@@ -1,0 +1,46 @@
+{
+  "$schema": "../../schema/map-template.schema.json",
+  "id": "sentinel-tower",
+  "type": "map-template",
+  "name": "Sentinel Tower",
+  "description": "A Directorate watch-post: a tall angular sensor spire flanked by two asymmetric mast platforms (deliberately mismatched east/west, not mirrored, so it doesn't read as a stamped-out prefab), a small garrison block, and a paved apron fanning toward the access track, the whole site ringed by a perimeter fence (a line part, not a filled area -- see map-template.schema.json's 'kind'). Distinct silhouette from mech-bunker.json on purpose: tall and narrow instead of low and wide, so a skyline with several of these plus a hangar reads as a real mixed installation rather than one shape copy-pasted around the map. Local +Y is the template's own north (deep site, away from the road); the garrison/apron/entrance face -Y (south), so at rotation=0 the road approaches from the south, matching mech-bunker.json's convention. Roughly 84m x 100m overall including the fence -- noticeably more compact than the bunker, appropriate for a smaller watch-post class structure meant to be sited in numbers rather than as a single centrepiece.",
+  "parts": [
+    {
+      "tags": { "building": "tower", "military": "tower", "name:en": "Sentinel Spire" },
+      "heightM": 32.0,
+      "footprint": [[-11, -4], [-3, -10], [9, -8], [15, 2], [13, 16], [1, 22], [-13, 16]]
+    },
+    {
+      "tags": { "building": "tower", "man_made": "mast", "name:en": "Sensor Mast, East" },
+      "heightM": 20.0,
+      "footprint": [[16, -8], [28, -12], [33, -2], [26, 6], [18, 2]]
+    },
+    {
+      "tags": { "building": "tower", "man_made": "mast", "name:en": "Sensor Mast, West" },
+      "heightM": 17.0,
+      "footprint": [[-16, -6], [-30, -4], [-34, 6], [-22, 10]]
+    },
+    {
+      "tags": { "building": "barracks", "military": "barracks", "name:en": "Garrison Quarters" },
+      "heightM": 5.0,
+      "footprint": [[-9, -28], [9, -28], [9, -16], [-9, -16]]
+    },
+    {
+      "tags": { "aeroway": "apron", "surface": "paved", "building": "apron" },
+      "heightM": 0.0,
+      "footprint": [[-9, -28], [9, -28], [18, -42], [18, -56], [-18, -56], [-18, -42]]
+    },
+    {
+      "kind": "line",
+      "tags": { "barrier": "fence", "name:en": "Perimeter Fence" },
+      "footprint": [[-42, -60], [42, -60], [42, 30], [20, 40], [-20, 40], [-42, 30], [-42, -60]]
+    }
+  ],
+  "frontage": {
+    "localPoint": [0, -56],
+    "localDirection": [0, -1]
+  },
+  "accessRoad": {
+    "highwayClass": "track"
+  }
+}

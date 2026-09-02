@@ -1,0 +1,56 @@
+{
+  "$schema": "../../schema/map-template.schema.json",
+  "id": "mech-bunker",
+  "type": "map-template",
+  "name": "Mech Bunker",
+  "description": "A Directorate forward hangar for a single Frame, cut into a hillside: an angular hardened hangar with chamfered blast-deflecting front corners, flanking earth-revetment wings flaring out from the entrance, a rear berm wrapping the hangar where it meets the slope, a separated auxiliary-power shed (real bunker doctrine keeps generators away from the main structure), a guard post at the apron mouth, a fan-shaped apron widening toward the access road, and a looped perimeter patrol track (a line part, not a filled area -- see map-template.schema.json's 'kind'). Local +Y is the template's own north (into the hillside); the entrance/apron face -Y (south), so at rotation=0 the road approaches from the south. Roughly 130m x 115m overall including the patrol loop -- site clearance must account for the whole footprint, not just the hangar.",
+  "parts": [
+    {
+      "tags": { "building": "bunker", "military": "bunker", "name:en": "Forward Hangar" },
+      "heightM": 12.0,
+      "footprint": [[-14, -24], [14, -24], [22, -15], [22, 8], [14, 18], [-14, 18], [-22, 8], [-22, -15]]
+    },
+    {
+      "tags": { "building": "bunker", "name:en": "Blast Deflector, West" },
+      "heightM": 5.0,
+      "footprint": [[-22, -15], [-18, -19], [-52, -40], [-57, -35]]
+    },
+    {
+      "tags": { "building": "bunker", "name:en": "Blast Deflector, East" },
+      "heightM": 5.0,
+      "footprint": [[22, -15], [18, -19], [52, -40], [57, -35]]
+    },
+    {
+      "tags": { "building": "bunker", "name:en": "Rear Revetment" },
+      "heightM": 4.0,
+      "footprint": [[-30, 20], [-30, 48], [30, 48], [30, 20], [20, 20], [20, 38], [-20, 38], [-20, 20]]
+    },
+    {
+      "tags": { "building": "service", "power": "generator", "name:en": "Auxiliary Power" },
+      "heightM": 3.5,
+      "footprint": [[34, -10], [48, -10], [48, 3], [34, 3]]
+    },
+    {
+      "tags": { "building": "guardhouse", "name:en": "Gate Post" },
+      "heightM": 3.0,
+      "footprint": [[-33, -50], [-27, -50], [-27, -44], [-33, -44]]
+    },
+    {
+      "tags": { "aeroway": "apron", "surface": "paved", "building": "apron" },
+      "heightM": 0.0,
+      "footprint": [[-14, -24], [14, -24], [26, -42], [26, -58], [-26, -58], [-26, -42]]
+    },
+    {
+      "kind": "line",
+      "tags": { "highway": "track", "surface": "unpaved", "name:en": "Perimeter Patrol Track" },
+      "footprint": [[-65, -65], [65, -65], [65, 25], [30, 35], [-30, 35], [-65, 25], [-65, -65]]
+    }
+  ],
+  "frontage": {
+    "localPoint": [0, -58],
+    "localDirection": [0, -1]
+  },
+  "accessRoad": {
+    "highwayClass": "track"
+  }
+}

@@ -1,0 +1,18 @@
+loaded base world: 236027 features
+loaded base fields: 82711 map-space features
+
+2 operations to replay:
+  op-0001: demolish  (Kobe Airport removed -- the ocean reclaims the island, not just its buildings. returnToSea unions the demolish area directly into World.sea, so it renders as open water with a fresh coastline stroke and is permanently exempt from ever counting as land content again (see ops/demolish.py). An earlier draft used leaveLanduse=brownfield instead -- that models 'buildings cleared, ground stays dry land', the wrong operation for 'let the sea take it back'; kept as a separate opt-in for demolishes where the ground genuinely stays land. Demolish polygon is the real (concave) union of every aeroway=*, landuse/leisure area, and building within 3500m of the field -- reusing parse.land_content()'s own definition of 'land', the same test sea.py trusts for carving the coastline -- restricted to the connected component nearest the airport point, buffered 50m and simplified to 32 vertices. Not a hand-guessed circle, and deliberately NOT that union's convex hull: hulling it bridged the water gap toward Port Island and would have swept up real residential buildings there. Verified clean (0 features intersect the final polygon's 2m-shrunk interior) and verified NOT over-reaching (every named building actually caught is airport infrastructure or the small staff-housing block that turns out to sit on the island itself, confirmed by coordinates falling inside the aeroway-only bounding envelope). Tests the graph-cascade pruning (ops/demolish.py) against real topology: the island's own road network plus the connecting bridge from Port Island must all be eaten back to the first real junction, never left as a stub.)
+  op-0002: construct  (Directorate forward hangar sited deep in the mountain valley northwest of downtown, well past the last mapped houses, following the same stream/road that climbs the valley from the small settlement below. Site was found systematically, not eyeballed: two earlier candidates along this exact road failed for real, distinct reasons this op log is worth recording -- (1) a first pick 80m out from a dead-end stub turned out to be 12m from a live railway (construct.py had no check for non-building infrastructure at all until this caught it -- see footprintClear/footprintConflicts on the report); (2) several picks further along that same heading were geometrically clear but sat on genuinely steep ground the router's own state lattice cannot traverse (see router.py's documented 'wedge' limitation) -- confirmed by directly computing the terrain's gradient field rather than continuing to guess headings. The final site was chosen from cells with under 5% local slope within reach of a real road, with the structure's rotation set to face back toward that road.)
+
+[op-0001] demolish: removed=934 clipped=5 pruned_ways=6 [26581519, 26581523, 422116045, 26581518, 26581521, 422116044] removed_lamps=0 (4.19s)
+
+[op-0002] construct: parts=8 demolished_existing=[] road_ok=True () road_length=135m (199.73s)
+
+final world: 235096 features (base had 236027)
+final fields rebuilt in 34.6s
+after_overview.png rendered in 75.3s
+after_op-0001_site.png rendered in 83.9s
+after_op-0002_site.png rendered in 77.3s
+
+done.

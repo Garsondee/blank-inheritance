@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>city-map editor</title>
+    <!-- Pinned to match package.json's maplibre-gl version exactly. Loaded
+         explicitly here (autoloadCss={false} on <MapLibre>) rather than via
+         svelte-maplibre-gl's own runtime CDN auto-loader, which calls
+         maplibregl.getVersion() -- a method svelte-maplibre-gl's auto-loader
+         assumes is present, which held us back from the v5 line during an
+         earlier downgrade attempt (see App.svelte's worker-loading comment
+         for the full story); this project is pinned to v6. -->
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6.6.0/dist/maplibre-gl.css" />
+    <style>
+      html, body, #app { margin: 0; padding: 0; height: 100%; width: 100%; }
+      body { font-family: system-ui, sans-serif; background: #1a1a1a; color: #eee; }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

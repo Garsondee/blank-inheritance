@@ -31,3 +31,26 @@ node_modules/
 /tools/battle-simulator/battle-log.json
 /tools/battle-simulator/artifact/contact-simulation.html
 /tools/battle-simulator/logs/
+
+# Map-generator output. Fully reproducible from a seed at any time
+# (`node tools/map-generator/cli.mjs --seed N --out out/coast-N`), and each SVG
+# carries a ~500KB embedded relief raster — committing them would put megabytes
+# of churn into history for something a one-line command regenerates exactly.
+/tools/map-generator/out/
+
+# city-map's fetch/build cache: cached Overpass JSON and GSI DEM tiles (L0),
+# parsed world models (L1), per-frame terrain fields (L2), and replayed
+# worlds keyed by op-log content hash (L3). Large binary data reproducible
+# from source at any time; same bulk-tree treatment as reference/, artwork/,
+# audio/ above.
+/tools/city-map/cache/
+
+# Map editor: raw submitted JSON (my own working input, processed by hand
+# into real ops -- see the map editor plan) and rendered PNGs served back
+# to the browser. Both reproducible/regenerable, not project content.
+/data/map/editor-submissions/
+/tools/city-map/editor/renders/
+
+# Map editor frontend (Phase 3 onward): Vite's build output, rebuilt from
+# source at any time via `npm run build`.
+/tools/city-map/frontend/dist/

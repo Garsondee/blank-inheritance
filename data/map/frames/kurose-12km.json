@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schema/map-frame.schema.json",
+  "id": "kurose-12km",
+  "type": "map-frame",
+  "center": { "lon": 135.205, "lat": 34.678 },
+  "rotationDeg": 31.0,
+  "extentM": 12000.0,
+  "crsEpsg": 6674,
+  "dem": { "grid": 2048, "zoom": 15, "source": "gsi-japan" },
+  "light": { "azimuthDeg": 315.0, "altitudeDeg": 14.0 }
+}

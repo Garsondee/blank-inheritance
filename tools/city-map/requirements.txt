@@ -1,0 +1,6 @@
+# Pinned to what was verified working during the 2026-08-23/24 sessions.
+shapely==2.1.2
+pyproj==3.7.2
+numpy==1.24.2
+pillow==9.5.0
+scipy==1.17.1

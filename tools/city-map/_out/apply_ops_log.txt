@@ -1,0 +1,18 @@
+loaded base world: 236027 features
+loaded base fields: 82711 map-space features
+
+2 operations to replay:
+  op-0001: demolish  (Kobe Airport removed. Demolish polygon is the real convex hull of every aeroway=* feature + centroid-contained building within 3000m of the field, buffered 50m and simplified to 15 vertices -- not a hand-guessed circle. Tests the graph-cascade pruning (ops/demolish.py) against real topology: the island's own road network plus the connecting bridge from Port Island must all be eaten back to the first real junction, never left as a stub.)
+  op-0002: construct  (Directorate forward hangar sited at the mountain/city seam northwest of downtown, past where mapped development currently stops. Anchor and rotation were derived from the real road graph, not eyeballed: node 1442919565 is the nearest dead-end stub (unclassified class, zero buildings within 120m) with an outward heading of (-0.98,0.20) -- almost due west into open hillside -- so the bunker sits 80m further along that same heading, rotated so its south-facing frontage (78.5deg) looks back down the stub rather than at an arbitrary angle.)
+
+[op-0001] demolish: removed=888 clipped=20 pruned_ways=28 [26581520, 26581522, 298016133, 298016140, 298016880, 1472141701, 1381625520, 298018272, 422116045, 772873382, 775319133, 775468676, 775468670, 1541426483, 26581519, 26581523, 298367186, 298367187, 298367188, 298367190, 298367192, 422116044, 775468675, 1381958480, 1381958481, 26581518, 26581521, 298367189] removed_lamps=0 (7.25s)
+
+[op-0002] construct: parts=2 demolished_existing=[] road_ok=True () road_length=94m (251.62s)
+
+final world: 235114 features (base had 236027)
+final fields rebuilt in 63.7s
+after_overview.png rendered in 137.1s
+after_op-0001_site.png rendered in 169.1s
+after_op-0002_site.png rendered in 143.6s
+
+done.

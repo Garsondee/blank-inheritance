@@ -21,6 +21,7 @@
  * harder and worse, because the parts would not be consistent with each other.
  */
 
+import { euclideanDistanceTransform } from '../core/distance.mjs';
 import { D8 } from '../core/field.mjs';
 
 export const LAND = 0;
@@ -88,65 +89,34 @@ export function floodWorld(elevation, seaLevel) {
 
 /**
  * Signed distance to the coastline, in cells: positive on land, negative at
- * sea. Computed with a two-pass 3-4 chamfer transform, which is O(n) and close
- * enough to Euclidean for everything downstream.
+ * sea.
  *
- * Used by the bathymetry stage (shelf break as a function of offshore distance)
- * and later by the city stage (waterfront zoning, harbour siting).
+ * Exact Euclidean, not a chamfer approximation — see core/distance.mjs for why
+ * that distinction is worth the extra code. The shelf-break bathymetry contours
+ * this field directly, and the city stage will zone off it.
  */
 export function coastDistance(water, width, height) {
   const n = width * height;
-  const dist = new Float64Array(n);
   const isSea = (i) => water[i] === OCEAN;
 
-  // A cell is on the boundary if it differs from any 4-neighbour.
-  const BIG = 1e9;
-  for (let i = 0; i < n; i++) dist[i] = BIG;
+  // Seed the transform with the cells that straddle the waterline.
+  const seeds = new Uint8Array(n);
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = y * width + x;
       const s = isSea(i);
-      let edge = false;
-      if (x > 0 && isSea(i - 1) !== s) edge = true;
-      if (x < width - 1 && isSea(i + 1) !== s) edge = true;
-      if (y > 0 && isSea(i - width) !== s) edge = true;
-      if (y < height - 1 && isSea(i + width) !== s) edge = true;
-      if (edge) dist[i] = 0;
+      if (
+        (x > 0 && isSea(i - 1) !== s) ||
+        (x < width - 1 && isSea(i + 1) !== s) ||
+        (y > 0 && isSea(i - width) !== s) ||
+        (y < height - 1 && isSea(i + width) !== s)
+      ) {
+        seeds[i] = 1;
+      }
     }
   }
 
-  const A = 1;
-  const B = Math.SQRT2;
-  // Forward pass.
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const i = y * width + x;
-      let d = dist[i];
-      if (y > 0) {
-        if (x > 0) d = Math.min(d, dist[i - width - 1] + B);
-        d = Math.min(d, dist[i - width] + A);
-        if (x < width - 1) d = Math.min(d, dist[i - width + 1] + B);
-      }
-      if (x > 0) d = Math.min(d, dist[i - 1] + A);
-      dist[i] = d;
-    }
-  }
-  // Backward pass.
-  for (let y = height - 1; y >= 0; y--) {
-    for (let x = width - 1; x >= 0; x--) {
-      const i = y * width + x;
-      let d = dist[i];
-      if (y < height - 1) {
-        if (x < width - 1) d = Math.min(d, dist[i + width + 1] + B);
-        d = Math.min(d, dist[i + width] + A);
-        if (x > 0) d = Math.min(d, dist[i + width - 1] + B);
-      }
-      if (x < width - 1) d = Math.min(d, dist[i + 1] + A);
-      dist[i] = d;
-    }
-  }
-
-  // Sign it.
+  const dist = euclideanDistanceTransform(seeds, width, height);
   for (let i = 0; i < n; i++) if (isSea(i)) dist[i] = -dist[i];
   return dist;
 }

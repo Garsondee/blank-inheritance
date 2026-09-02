@@ -93,7 +93,18 @@ export function marchingSquares(field, level, { minLength = 2 } = {}) {
         else pairs = centreAbove ? [[0, 3], [2, 1]] : [[0, 1], [2, 3]];
       }
 
-      for (const [a, b] of pairs) segments.push([pt(a), pt(b)]);
+      for (const [a, b] of pairs) {
+        const p0 = pt(a);
+        const p1 = pt(b);
+        // Drop zero-length segments. When the level passes exactly through a
+        // grid corner, two edges of the cell yield the identical point, and the
+        // degenerate segment carries no information — but it does survive
+        // stitching as a spurious two-point "ring". (Found 2026-08-23 on a test
+        // cone, where the contour at radius 20 passes exactly through the
+        // 3-4-5 triangle corners and produced four phantom rings.)
+        if (Math.abs(p0[0] - p1[0]) < 1e-12 && Math.abs(p0[1] - p1[1]) < 1e-12) continue;
+        segments.push([p0, p1]);
+      }
     }
   }
 

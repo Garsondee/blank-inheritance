@@ -1,0 +1,26 @@
+{
+  "name": "city-map-editor-frontend",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Map-editor plan Phase 3: MapLibre + Svelte shell over the live tile server, real feature selection. See tools/city-map/README.md and the map-editor plan for the architecture this replaces (the operation log, tools/city-map/editor/).",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 4174",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "maplibre-gl": "^6.6.0",
+    "svelte-maplibre-gl": "^2.2.1",
+    "terra-draw": "^1.32.3",
+    "terra-draw-maplibre-gl-adapter": "^1.4.1"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^4.0.4",
+    "svelte": "^5.56.10",
+    "typescript": "^7.0.2",
+    "vite": "^5.4.21",
+    "vitest": "^2.1.9"
+  }
+}
