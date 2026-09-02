@@ -36,6 +36,9 @@ import { fileURLToPath } from "node:url";
 import { decide } from "../personnel-engine/decide.mjs";
 import { applyProfileToCombatant, decideOptionsForProfile } from "../personnel-engine/ai-profiles.mjs";
 import { decideRandom, decideWorst, decideNearestOnly } from "../personnel-engine/baselines.mjs";
+import { decideWithPolicy } from "../ai-common/engine-adapter.mjs";
+import { PERSONNEL_ADAPTER } from "../ai-common/adapters/personnel-adapter.mjs";
+import "../ai-common/policies/greedy.mjs"; // registers "greedy-v1" (design doc §57/#4) as a side effect
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(here, "..", "data", "raw-validation-fixtures");
@@ -75,12 +78,17 @@ export function buildScenario({ seed, roster, partyProfile, oppositionProfile, r
   // design doc §51: an anchor baseline (random-baseline/worst-baseline/nearest-only-baseline) is a
   // profile-SHAPED object with a real `decisionMode`, not a weighted profile — dispatch to its own
   // real decision function BEFORE falling through to the ordinary decide()/decideOptionsForProfile
-  // path every real weighted profile still uses unchanged.
+  // path every real weighted profile still uses unchanged. design doc §57/#4: a `"policy"` profile
+  // (e.g. `greedy-v1`, `baselines.mjs`'s own POLICY_BASELINES) dispatches through the SHARED
+  // `ai-common/` registry instead — this is the one real integration point issue #4's "definition of
+  // done" asks for: `--opposition=<policy-id>` works here with zero special-casing beyond this branch,
+  // for ANY future policy registered in `ai-common/policies/`, not just `greedy-v1`.
   function ai(state, combatantId, turn) {
     const profile = state.combatants.get(combatantId)?.side === "party" ? partyProfile : oppositionProfile;
     if (profile.decisionMode === "random") return decideRandom(state, combatantId, turn);
     if (profile.decisionMode === "worst") return decideWorst(state, combatantId, turn, { weights: profile.weights });
     if (profile.decisionMode === "nearest-only") return decideNearestOnly(state, combatantId, turn);
+    if (profile.decisionMode === "policy") return decideWithPolicy(profile.policyId, PERSONNEL_ADAPTER, state, combatantId, turn, decideOptionsForProfile(profile));
     return decide(state, combatantId, turn, decideOptionsForProfile(profile));
   }
 

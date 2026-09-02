@@ -11,6 +11,7 @@ import { runBattle } from "../../tools/battle-simulator/personnel-engine/engine.
 import { buildScenario } from "../../tools/battle-simulator/scenarios/personnel-complex-battle.mjs";
 import { lineOfEffect } from "../../tools/battle-simulator/personnel-engine/terrain.mjs";
 import { BASELINE_V1, NO_MANEUVERS_V1 } from "../../tools/battle-simulator/personnel-engine/ai-profiles.mjs";
+import { GREEDY_V1_POLICY } from "../../tools/battle-simulator/personnel-engine/baselines.mjs";
 
 const ATTACK_TYPES = ["strike", "spellAttack", "saveAttack", "demoralize", "conditionSave", "areaAttack"];
 
@@ -296,4 +297,24 @@ test("buildScenario: a profile's temperament/aggression really do land on the de
   assert.equal(scenario.combatants[0].temperament, NO_MANEUVERS_V1.temperament);
   assert.equal(scenario.combatants[0].aggression, NO_MANEUVERS_V1.aggression);
   assert.equal(scenario.combatants[1].temperament, BASELINE_V1.temperament);
+});
+
+// design doc §57/#4: this scenario builder is one of the three real sites issue #4 names as needing
+// to resolve a policy through the ai-common/ registry (the other two are personnel-mirror.mjs, whose
+// own equivalence test lives in personnel-mirror.test.mjs, and tournament-worker.mjs, which is covered
+// transitively since it calls personnel-mirror.mjs's buildScenario). GREEDY_V1_POLICY is BY
+// CONSTRUCTION the same decide() BASELINE_V1 itself drives, so routing it through this scenario
+// builder's own new "policy" branch must be byte-identical to the ordinary BASELINE_V1 path.
+test("buildScenario: oppositionProfile: GREEDY_V1_POLICY (dispatched through the ai-common/ registry) is BYTE-IDENTICAL, action for action, to oppositionProfile: BASELINE_V1 — this scenario builder's own new \"policy\" branch adds no behavior of its own", () => {
+  function realActionSequence(scenario) {
+    const log = runBattle(scenario);
+    const seq = [];
+    for (const round of log.rounds) for (const turn of round.turns) for (const action of turn.actions ?? []) {
+      seq.push(`${turn.combatantId}:${action.type}${action.targetId ? "->" + action.targetId : ""}`);
+    }
+    return { outcome: log.outcome, seq };
+  }
+  const direct = buildScenario({ seed: 5, partyFixtures: ["lunar-17.json"], oppositionFixtures: ["security-goon.json"], setup: "DIAGONAL_SW_NE", roundLimit: 15, partyProfile: BASELINE_V1, oppositionProfile: BASELINE_V1 });
+  const viaRegistry = buildScenario({ seed: 5, partyFixtures: ["lunar-17.json"], oppositionFixtures: ["security-goon.json"], setup: "DIAGONAL_SW_NE", roundLimit: 15, partyProfile: BASELINE_V1, oppositionProfile: GREEDY_V1_POLICY });
+  assert.deepEqual(realActionSequence(viaRegistry), realActionSequence(direct));
 });

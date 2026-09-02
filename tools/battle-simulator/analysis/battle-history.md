@@ -4352,3 +4352,17 @@ Final best: `baseline-v1` (no candidate was promoted — see per-generation log 
 | 3352 | maneuverTempoDenial x1.1174 | baseline-v1:37.5% | 3/6 beaten | rejected |
 
 ---
+## 2026-09-02 — Mirror-match tournament
+
+### Mirror-match tournament (design doc §47) — lunar-17.json+security-goon.json, seeds 1-8, n=8
+
+`baseline-v1` (party) vs. `greedy-v1` (opposition) — identical roster on both sides, only the AI profile differs.
+
+- baseline-v1 win rate: 37.5%
+- greedy-v1 win rate: 25.0%
+- Timeout rate: 37.5%
+- Mean rounds to resolution: 21.6
+
+Parallel tournament runner (worker_threads, concurrency=8): 3037ms vs. 6134ms sequential — 2.0x.
+
+---

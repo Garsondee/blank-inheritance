@@ -21,7 +21,8 @@ import { BASELINE_V1 } from "../../tools/battle-simulator/personnel-engine/ai-pr
 import { ALL_PROFILES } from "../../tools/battle-simulator/personnel-engine/archetypes.mjs";
 import {
   decideRandom, decideWorst, decideNearestOnly,
-  RANDOM_BASELINE, WORST_BASELINE, NEAREST_ONLY_BASELINE, ANCHOR_BASELINES
+  RANDOM_BASELINE, WORST_BASELINE, NEAREST_ONLY_BASELINE, ANCHOR_BASELINES,
+  GREEDY_V1_POLICY, POLICY_BASELINES
 } from "../../tools/battle-simulator/personnel-engine/baselines.mjs";
 
 const fixturesDir = "tools/battle-simulator/data/raw-validation-fixtures";
@@ -155,6 +156,19 @@ test("RANDOM_BASELINE / WORST_BASELINE / NEAREST_ONLY_BASELINE: real ids, real d
     assert.equal(ALL_PROFILES[profile.id], profile);
     assert.equal(ANCHOR_BASELINES[profile.id], profile);
   }
+});
+
+// design doc §57/#4: GREEDY_V1_POLICY is a different KIND of profile-shaped wrapper than the three
+// anchors above — not a floor, but a real proof that the new ai-common/ registry reaches the exact
+// same decision `decide()` already makes. See test/battle-simulator/personnel-mirror.test.mjs's own
+// byte-identical-battle test for the real behavioral proof; this file only covers the registry shape.
+test("GREEDY_V1_POLICY: real id, decisionMode \"policy\", policyId \"greedy-v1\", frozen, and registered in both POLICY_BASELINES and ALL_PROFILES", () => {
+  assert.equal(GREEDY_V1_POLICY.id, "greedy-v1");
+  assert.equal(GREEDY_V1_POLICY.decisionMode, "policy");
+  assert.equal(GREEDY_V1_POLICY.policyId, "greedy-v1");
+  assert.ok(Object.isFrozen(GREEDY_V1_POLICY));
+  assert.equal(POLICY_BASELINES[GREEDY_V1_POLICY.id], GREEDY_V1_POLICY);
+  assert.equal(ALL_PROFILES[GREEDY_V1_POLICY.id], GREEDY_V1_POLICY);
 });
 
 // --- The real, load-bearing behavioral claim: baseline-v1 actually beats each anchor decisively ---

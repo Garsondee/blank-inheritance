@@ -13,6 +13,7 @@ import assert from "node:assert/strict";
 import { runBattle } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
 import { buildScenario, GRID_SIZE } from "../../tools/battle-simulator/scenarios/personnel-mirror.mjs";
 import { BASELINE_V1, NO_MANEUVERS_V1 } from "../../tools/battle-simulator/personnel-engine/ai-profiles.mjs";
+import { GREEDY_V1_POLICY } from "../../tools/battle-simulator/personnel-engine/baselines.mjs";
 
 test("buildScenario: throws without a roster", () => {
   assert.throws(() => buildScenario({ seed: 1, partyProfile: BASELINE_V1, oppositionProfile: BASELINE_V1 }), /non-empty roster/);
@@ -66,4 +67,37 @@ test("BASELINE_V1 vs BASELINE_V1 (a true control-vs-control mirror, no variable 
   const scenario = buildScenario({ seed: 3, roster: ["lunar-17.json"], partyProfile: BASELINE_V1, oppositionProfile: BASELINE_V1, roundLimit: 15 });
   const log = runBattle(scenario);
   assert.ok(["party-victory", "party-defeat", "timeout"].includes(log.outcome.result));
+});
+
+// --- design doc §57/#4: the "policy" decisionMode dispatch, the real integration point for the new
+// ai-common/ registry. GREEDY_V1_POLICY is `{...BASELINE_V1, decisionMode: "policy", policyId:
+// "greedy-v1"}` — resolving "greedy-v1" against PERSONNEL_ADAPTER is BY CONSTRUCTION the same decide()
+// BASELINE_V1 itself drives, so a real mirror battle across this new dispatch branch must be BYTE-
+// IDENTICAL, action for action, to the same battle run through the ordinary decide() path — proof this
+// scenario's own new "policy" branch adds no behavior of its own, only a different route to the same
+// place.
+
+function actionSequence(log) {
+  const seq = [];
+  for (const round of log.rounds) for (const turn of round.turns) for (const action of turn.actions ?? []) {
+    seq.push(`${turn.combatantId}:${action.type}${action.targetId ? "->" + action.targetId : ""}`);
+  }
+  return seq;
+}
+
+test("\"policy\" decisionMode: GREEDY_V1_POLICY resolved through ai-common's registry is BYTE-IDENTICAL, action for action, to the ordinary BASELINE_V1 decide() path — same seed/roster, only the profile differs", () => {
+  const ROSTER = ["lunar-17.json", "security-goon.json"];
+  const directLog = runBattle(buildScenario({ seed: 42, roster: ROSTER, partyProfile: BASELINE_V1, oppositionProfile: BASELINE_V1, roundLimit: 6 }));
+  const registryLog = runBattle(buildScenario({ seed: 42, roster: ROSTER, partyProfile: BASELINE_V1, oppositionProfile: GREEDY_V1_POLICY, roundLimit: 6 }));
+  assert.deepEqual(actionSequence(registryLog), actionSequence(directLog));
+  assert.equal(registryLog.outcome.result, directLog.outcome.result);
+  assert.equal(registryLog.rounds.length, directLog.rounds.length);
+});
+
+test("\"policy\" decisionMode: GREEDY_V1_POLICY is a real, frozen, profile-shaped wrapper registered in ALL_PROFILES under its own id, matching the RANDOM_BASELINE/WORST_BASELINE/NEAREST_ONLY_BASELINE convention", async () => {
+  const { ALL_PROFILES } = await import("../../tools/battle-simulator/personnel-engine/archetypes.mjs");
+  assert.equal(GREEDY_V1_POLICY.decisionMode, "policy");
+  assert.equal(GREEDY_V1_POLICY.policyId, "greedy-v1");
+  assert.ok(Object.isFrozen(GREEDY_V1_POLICY));
+  assert.equal(ALL_PROFILES["greedy-v1"], GREEDY_V1_POLICY, "tournament-runner.mjs's own --opposition=greedy-v1 must resolve to this real profile");
 });

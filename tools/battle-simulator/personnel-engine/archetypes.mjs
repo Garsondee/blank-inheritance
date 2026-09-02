@@ -42,7 +42,7 @@
  */
 
 import { BASELINE_V1, PROFILES, assertCompleteWeights } from "./ai-profiles.mjs";
-import { ANCHOR_BASELINES } from "./baselines.mjs";
+import { ANCHOR_BASELINES, POLICY_BASELINES } from "./baselines.mjs";
 
 /**
  * Aggressive — Ladder plan §05: "aggression > 1, low lowHpCaution, morale off." Doubles the
@@ -162,4 +162,4 @@ export const ARCHETYPES = Object.freeze({
  * `ai-profiles.mjs`, on purpose: that file exports the MECHANISM (and the two control profiles that
  * prove it), this one is the growable content library downstream of it — merging in the other
  * direction would make the two files import each other. */
-export const ALL_PROFILES = Object.freeze({ ...PROFILES, ...ARCHETYPES, ...ANCHOR_BASELINES });
+export const ALL_PROFILES = Object.freeze({ ...PROFILES, ...ARCHETYPES, ...ANCHOR_BASELINES, ...POLICY_BASELINES });

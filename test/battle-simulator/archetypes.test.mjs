@@ -24,7 +24,7 @@ import { runBattle } from "../../tools/battle-simulator/personnel-engine/engine.
 import { decide } from "../../tools/battle-simulator/personnel-engine/decide.mjs";
 import { BASELINE_V1, PROFILES, decideOptionsForProfile, applyProfileToCombatant, assertCompleteWeights } from "../../tools/battle-simulator/personnel-engine/ai-profiles.mjs";
 import { AGGRESSIVE_V1, CAUTIOUS_V1, FLANKER_V1, BRAWLER_V1, MINDLESS_V1, ZEALOT_V1, ARCHETYPES, ALL_PROFILES } from "../../tools/battle-simulator/personnel-engine/archetypes.mjs";
-import { ANCHOR_BASELINES, WORST_BASELINE } from "../../tools/battle-simulator/personnel-engine/baselines.mjs";
+import { ANCHOR_BASELINES, WORST_BASELINE, POLICY_BASELINES, GREEDY_V1_POLICY } from "../../tools/battle-simulator/personnel-engine/baselines.mjs";
 
 const fixturesDir = "tools/battle-simulator/data/raw-validation-fixtures";
 function loadFixture(file) { return JSON.parse(readFileSync(`${fixturesDir}/${file}`, "utf8")); }
@@ -108,11 +108,12 @@ test("ARCHETYPES: all six, keyed by their own real id", () => {
   for (const [id, profile] of Object.entries(ARCHETYPES)) assert.equal(profile.id, id);
 });
 
-test("ALL_PROFILES: ai-profiles.mjs's own PROFILES merged with every archetype AND every anchor baseline (design doc §51) — nothing dropped, nothing duplicated incorrectly", () => {
-  assert.deepEqual(Object.keys(ALL_PROFILES).sort(), [...Object.keys(PROFILES), ...Object.keys(ARCHETYPES), ...Object.keys(ANCHOR_BASELINES)].sort());
+test("ALL_PROFILES: ai-profiles.mjs's own PROFILES merged with every archetype, every anchor baseline (design doc §51), AND every registry-dispatched policy baseline (design doc §57/#4) — nothing dropped, nothing duplicated incorrectly", () => {
+  assert.deepEqual(Object.keys(ALL_PROFILES).sort(), [...Object.keys(PROFILES), ...Object.keys(ARCHETYPES), ...Object.keys(ANCHOR_BASELINES), ...Object.keys(POLICY_BASELINES)].sort());
   assert.equal(ALL_PROFILES["baseline-v1"], BASELINE_V1);
   assert.equal(ALL_PROFILES["mindless-v1"], MINDLESS_V1);
   assert.equal(ALL_PROFILES["worst-baseline"], WORST_BASELINE);
+  assert.equal(ALL_PROFILES["greedy-v1"], GREEDY_V1_POLICY);
 });
 
 // --- Behavioral: bloodied 1-vs-2, real morale-mechanism proof ---

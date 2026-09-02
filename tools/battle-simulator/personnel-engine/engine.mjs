@@ -1321,7 +1321,10 @@ function snapshotState(state) {
   return snapshot;
 }
 
-function checkOutcome(state) {
+/** Exported (design doc §57/#20 — the shared engine-interface adapters need a real, callable terminal
+ * check without re-deriving win/loss logic) — behavior is completely unchanged, this is only a
+ * visibility widening. */
+export function checkOutcome(state) {
   const opposition = [...state.combatants.values()].filter((c) => c.side === "opposition");
   const party = [...state.combatants.values()].filter((c) => c.side === "party");
 

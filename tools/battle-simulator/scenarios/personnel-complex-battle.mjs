@@ -14,6 +14,9 @@ import { applyProfileToCombatant, decideOptionsForProfile } from "../personnel-e
 import { GRID_SIZE, WALLS, SETUPS } from "../data/personnel-test-complex.mjs";
 import { generateRandomArcDeployment } from "./random-deployment.mjs";
 import { makeRng } from "../engine/rng.mjs";
+import { decideWithPolicy } from "../ai-common/engine-adapter.mjs";
+import { PERSONNEL_ADAPTER } from "../ai-common/adapters/personnel-adapter.mjs";
+import "../ai-common/policies/greedy.mjs"; // registers "greedy-v1" (design doc §57/#4) as a side effect
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(here, "..", "data", "raw-validation-fixtures");
@@ -58,8 +61,13 @@ function loadFixture(file) {
  * @param {object} [args.oppositionProfile] - the same mechanism, for the opposition side.
  */
 export function buildScenario({ seed, partyFixtures, oppositionFixtures, setup = "DIAGONAL_SW_NE", roundLimit = 40, partyManeuvers = true, partyProfile, oppositionProfile } = {}) {
+  // design doc §57/#4: a "policy" profile (e.g. greedy-v1, personnel-engine/baselines.mjs's own
+  // POLICY_BASELINES) dispatches through the shared ai-common/ registry — the same real integration
+  // point personnel-mirror.mjs's own ai() function gained, so a policy-bearing profile behaves
+  // identically regardless of which scenario builder deploys it.
   function ai(state, combatantId, turnState) {
     const profile = state.combatants.get(combatantId)?.side === "party" ? partyProfile : oppositionProfile;
+    if (profile?.decisionMode === "policy") return decideWithPolicy(profile.policyId, PERSONNEL_ADAPTER, state, combatantId, turnState, decideOptionsForProfile(profile));
     return profile ? decide(state, combatantId, turnState, decideOptionsForProfile(profile)) : decide(state, combatantId, turnState);
   }
   let positions;

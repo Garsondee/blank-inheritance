@@ -150,3 +150,31 @@ export const ANCHOR_BASELINES = Object.freeze({
   [WORST_BASELINE.id]: WORST_BASELINE,
   [NEAREST_ONLY_BASELINE.id]: NEAREST_ONLY_BASELINE
 });
+
+/**
+ * REGISTRY-DISPATCHED POLICIES (design doc §57/#4/#20 — Stage 0's real "pluggable decision-policy
+ * interface"). Unlike the three anchors above (each a genuinely different kind of BAD), `greedy-v1`
+ * is BY CONSTRUCTION the exact same decision `decide()` already makes: `ai-common/policies/greedy.mjs`
+ * registers it as a real, adapter-agnostic wrapper around whichever engine's own `nativeGreedyDecide`
+ * gets resolved — zero new decision logic. This profile-shaped wrapper exists so that claim is
+ * provable end-to-end through the REAL scenario/tournament pipeline, not just at ai-common's own unit-
+ * test layer: a real mirror battle comparing `baseline-v1` (the ordinary decide() path) against
+ * `greedy-v1` (the SAME decide(), reached through the new registry) must be IDENTICAL, seed for seed
+ * — see test/battle-simulator/personnel-mirror.test.mjs's own registry-equivalence test. A FUTURE,
+ * genuinely different policy (2-ply lookahead #1, MCTS #6) registers its own id in `ai-common/policies/`
+ * and gets its own entry here the same way — and from that point on is real, new decision-making
+ * behavior, not a re-proof of `decide()`.
+ *
+ * Deliberately NOT imported from `ai-common/` here: this file stays inside `personnel-engine/`, which
+ * must never depend on the new third-party `ai-common/` layer (that would invert design doc §57's own
+ * "sits above them, not between them" — `ai-common/`'s adapters already depend on `personnel-engine/`,
+ * so the reverse import would be a real dependency cycle). `policyId` is a plain string; the actual
+ * registry lookup happens only in `scenarios/personnel-mirror.mjs`'s own `ai()` dispatch, which DOES
+ * import `ai-common/` — a scenario builder is a caller/consumer of personnel-engine, not part of it.
+ */
+export const GREEDY_V1_POLICY = Object.freeze({ ...BASELINE_V1, id: "greedy-v1", frozenAt: "2026-09-02", decisionMode: "policy", policyId: "greedy-v1" });
+
+/** Every real registry-dispatched policy baseline this file defines, keyed by its own `id`. */
+export const POLICY_BASELINES = Object.freeze({
+  [GREEDY_V1_POLICY.id]: GREEDY_V1_POLICY
+});

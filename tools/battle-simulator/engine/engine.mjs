@@ -783,7 +783,10 @@ function snapshotState(state) {
  * whole section exists to fix. Detected and reported as its own distinct outcome the moment it
  * becomes true, rather than grinding out rounds that can no longer produce a different result.
  */
-function checkOutcome(state, scenario) {
+/** Exported (design doc §57/#20 — the shared engine-interface adapters need a real, callable terminal
+ * check without re-deriving win/loss/stalemate logic) — behavior is completely unchanged, this is
+ * only a visibility widening. */
+export function checkOutcome(state, scenario) {
   const opposition = [...state.combatants.values()].filter((c) => c.side === "opposition");
   const party = [...state.combatants.values()].filter((c) => c.side === "party");
 
