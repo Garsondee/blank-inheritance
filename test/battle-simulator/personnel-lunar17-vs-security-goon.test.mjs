@@ -105,22 +105,22 @@ test("Lunar-17 never attempts a saveAttack — her only candidate (Incendiary Gr
 });
 
 /**
- * AN HONEST, MEASURED FINDING, not silently patched over (design doc §19): under the CURRENT
- * DEFAULT_WEIGHTS (unchanged from Frame-scale, see evaluate/state-value.mjs's own header — this
- * file itself already flags `closing` as "NOT YET RE-MEASURED at this scale"), Demoralize is
- * mechanically correct — real dice, real Frightened application, verified in personnel-engine.test.mjs
- * — but its evaluator-scored value is too small to ever beat a direct attack in THIS specific 1v1
- * matchup, even a heavily MAP-penalized one. Measured directly (not assumed): a fresh-turn Strike
- * scored 5.2 vs Demoralize's 0.13 in a representative position; even a 3rd Strike at -10 MAP still
- * scored 1.3, ~10x Demoralize's value. The mechanism is real and channels correctly through
- * offensiveReach/threatExposure (both scale up with more allies, confirmed by direct measurement),
- * but with only ONE attacker on the party side, the credit is structurally small. This is exactly
- * the kind of thing the ablation-harness/tactical-benchmark discipline (§17-18) exists to catch —
- * flagged here rather than either quietly re-tuning a weight without real justification, or hiding
- * the gap. Pinned as a real, current-state assertion so a future change to this either intentionally
- * updates the assertion (with real measurement behind it) or the test itself proves things changed.
+ * UPDATE (design doc §43, Stage 2): this WAS an honest zero — see the git history of this comment
+ * for the original single-action-isolated measurement (Strike 5.2 vs. Demoralize 0.13 in a
+ * representative position) that justified it. Whole-turn planning changed the real finding, not the
+ * comment's own reasoning: Demoralize's real Frightened application (Player Core) makes a FOLLOW-UP
+ * attack meaningfully more likely to land, exactly the same class of payoff Trip/Grapple already
+ * demonstrate (design doc §43's own flagship cases) — invisible to a chooser that only ever scores
+ * Demoralize in isolation, real once `control-then-attack` can see the whole sequence. Measured on
+ * this exact 10-seed sweep: 5 real Demoralize attempts across 10 full battles (~0.5/battle) — a real,
+ * situational choice, not a dominant one; SOME seeds never find it worthwhile, which is the expected
+ * shape for a tactic that depends on the specific matchup, not a bug. Per this test's own prior
+ * instruction ("update this test's assertion... don't just delete it"), the assertion below now
+ * proves the QUALITATIVE finding (Demoralize is sometimes chosen) rather than pinning the exact
+ * count, which is real but not itself load-bearing — a minor unrelated evaluator change could shift
+ * 5 without changing whether the underlying tactic is genuinely competitive now.
  */
-test("HONEST FINDING: Demoralize is never actually chosen in this specific 1v1 matchup under current weights — mechanically correct, but not yet competitively valued (see this test's own comment)", () => {
+test("Demoralize is now sometimes chosen in this 1v1 matchup, once whole-turn planning can see the follow-up attack it sets up — a real change from the pre-Stage-2 'never' finding (see this test's own comment)", () => {
   let sawDemoralize = 0;
   for (let seed = 1; seed <= 10; seed++) {
     const log = runBattle(buildScenario({ seed, setup: "SAME_ROOM", roundLimit: 15 }));
@@ -128,5 +128,5 @@ test("HONEST FINDING: Demoralize is never actually chosen in this specific 1v1 m
       if (action.legal && action.type === "demoralize") sawDemoralize += 1;
     }
   }
-  assert.equal(sawDemoralize, 0, "if this ever becomes nonzero, that's real news — a weight change or a smarter evaluator finally made Demoralize competitive in a 1v1; update this test's assertion (and its comment) to match, don't just delete it");
+  assert.ok(sawDemoralize > 0, "expected whole-turn planning to make Demoralize genuinely competitive at least once across 10 seeds — if this regresses to 0, either the search or the Frightened payoff broke");
 });

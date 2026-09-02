@@ -12,6 +12,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { runBattle, accountForActions, forkTurnSandbox } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
 import { decide } from "../../tools/battle-simulator/personnel-engine/decide.mjs";
+import { resolveEffectiveStats } from "../../tools/battle-simulator/personnel-engine/combatant.mjs";
+import { checkStrikeLegal } from "../../tools/battle-simulator/personnel-engine/legality.mjs";
 
 function makeCaster(overrides = {}) {
   return {
@@ -848,4 +850,383 @@ test("areaAttack (EXPECTED-VALUE sandbox, via forkTurnSandbox — the exact path
   assert.equal(result.legal, true, JSON.stringify(result));
   const after = sandbox.state.combatants.get("enemy-of-grenadier");
   assert.ok(after.currentHP < enemy.currentHP, `expected the sandboxed enemy's currentHP to have dropped from the expected-value hit, was ${enemy.currentHP}, still ${after.currentHP}`);
+});
+
+// ---------------------------------------------------------------------------
+// Trip / Shove / Grapple / Escape — Athletics maneuvers (design doc §31's rules-gap sweep,
+// priority 1: "the first REAL control actions"). Core resolution is proven deterministically via
+// forkTurnSandbox's EXPECTED-VALUE path (a "most likely degree" resolution — same guaranteed-
+// outcome technique personnel-decide.test.mjs's own end-to-end tests already use), by choosing
+// modifier/DC pairs so lopsided that ALL 20 d20 faces still land on the SAME real degree of
+// success after the nat-1/nat-20 shift — proven by hand against degreeOfSuccess's own real
+// boundaries, not just assumed. Multi-turn lifecycle behavior (release-on-move, natural expiry,
+// release-on-death) is proven through a real runBattle instead, since those genuinely need the
+// round loop.
+// ---------------------------------------------------------------------------
+
+function makeGrappler(overrides = {}) {
+  return {
+    id: "grappler", name: "Grappler", side: "party", maxHP: 16, currentHP: 16, ac: 15,
+    saves: { fort: 5, ref: 5, will: 5 }, speed: 25, athleticsModifier: 20, strikes: [],
+    position: { col: 0, row: 0 },
+    ...overrides
+  };
+}
+function makeHeld(overrides = {}) {
+  return {
+    id: "held", name: "Held", side: "opposition", maxHP: 20, currentHP: 20, ac: 14,
+    saves: { fort: -10, ref: 5, will: 5 }, speed: 25,
+    strikes: [{ name: "Claw", strikeType: "melee", attackBonus: 10, traits: [], damage: [{ dice: "1d4", bonus: 0 }] }],
+    position: { col: 1, row: 0 },
+    ...overrides
+  };
+}
+function sandboxApply(combatants, positions, actorId, proposal) {
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map(combatants.map((c) => [c.id, { ...c }])),
+    positions: new Map(positions.map(([id, pos]) => [id, { ...pos }]))
+  };
+  const sandbox = forkTurnSandbox({ state, turn: { actionsAvailable: 3, actionsUsed: 0 } });
+  const result = sandbox.apply(actorId, proposal);
+  return { result, state: sandbox.state };
+}
+
+test("Trip (guaranteed critical success — overwhelming Athletics modifier vs a terrible Fortitude DC): knocks the target prone and applies real bludgeoning damage", () => {
+  const grappler = makeGrappler();
+  const held = makeHeld();
+  const { result, state } = sandboxApply([grappler, held], [["grappler", grappler.position], ["held", held.position]], "grappler", { type: "trip", targetId: "held" });
+  assert.equal(result.legal, true, JSON.stringify(result));
+  assert.equal(result.roll.degree, "criticalSuccess");
+  assert.equal(result.fell, true);
+  assert.equal(result.selfFell, false);
+  assert.ok(result.appliedDamage > 0, "critical success must deal real bludgeoning damage");
+  assert.equal(state.combatants.get("held").prone, true);
+  assert.ok(state.combatants.get("held").currentHP < held.currentHP);
+});
+
+test("Trip (guaranteed critical failure — terrible Athletics modifier vs an overwhelming Fortitude DC): the ATTACKER falls prone instead, and the target is completely untouched", () => {
+  const weakGrappler = makeGrappler({ athleticsModifier: -20 });
+  const toughHeld = makeHeld({ saves: { fort: 20, ref: 5, will: 5 } });
+  const { result, state } = sandboxApply([weakGrappler, toughHeld], [["grappler", weakGrappler.position], ["held", toughHeld.position]], "grappler", { type: "trip", targetId: "held" });
+  assert.equal(result.legal, true, JSON.stringify(result));
+  assert.equal(result.roll.degree, "criticalFailure");
+  assert.equal(result.fell, false);
+  assert.equal(result.selfFell, true);
+  assert.equal(result.appliedDamage, 0);
+  assert.equal(state.combatants.get("grappler").prone, true);
+  assert.ok(!state.combatants.get("held").prone, "the target must not be prone — left unset (falsy), same convention as every other untouched condition field in this engine");
+  assert.equal(state.combatants.get("held").currentHP, toughHeld.currentHP);
+});
+
+test("Trip/Shove/Grapple never increment the shared Multiple Attack Penalty counter — none is an attack roll (Player Core: they're skill checks)", () => {
+  const grappler = makeGrappler();
+  grappler.strikes = [{ name: "Backup Strike", strikeType: "melee", attackBonus: 100, traits: [], damage: [{ dice: "1d1", bonus: 5 }] }];
+  const held = makeHeld();
+  function ai(state, id, turn) {
+    if (id !== "grappler") return null;
+    if (turn.actionsUsed === 0) return { type: "trip", targetId: "held" };
+    if (turn.actionsUsed === 1) return { type: "strike", targetId: "held", strikeIndex: 0 };
+    return null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [grappler, held], ai });
+  const strike = log.rounds[0].turns.find((t) => t.combatantId === "grappler").actions.find((a) => a.type === "strike");
+  assert.equal(strike.roll.mapPenalty, 0, "the Strike immediately after a Trip must carry 0 MAP — Trip never counts as an attack roll");
+});
+
+// design doc §43: pushFeet is a TRUE probability-weighted expectation, not a mode-gated all-or-
+// nothing value — makeGrappler()/makeHeld()'s modifier(20)/DC(0) combo is overwhelming but NOT
+// literally 100%: a natural 1 always downgrades one step regardless of the total (total=21 would
+// otherwise be criticalSuccess, shifted down to success), so criticalSuccess is 19/20, success is
+// 1/20, and the real expectation is 0.95*10 + 0.05*5 = 9.75, not a flat 10. The rounded SQUARE
+// landing spot is unaffected (Math.round(9.75/5) = Math.round(10/5) = 2 either way) — only the raw
+// pushFeet figure itself changes.
+test("Shove (guaranteed — 19/20 — critical success): pushes the target exactly 2 squares (rounds from the real 9.75ft expectation) directly away from the attacker", () => {
+  const grappler = makeGrappler();
+  const held = makeHeld();
+  const { result, state } = sandboxApply([grappler, held], [["grappler", grappler.position], ["held", held.position]], "grappler", { type: "shove", targetId: "held" });
+  assert.equal(result.legal, true, JSON.stringify(result));
+  assert.equal(result.roll.degree, "criticalSuccess");
+  assert.equal(result.pushFeet, 9.75);
+  assert.deepEqual(state.positions.get("held"), { col: 3, row: 0 }, "pushed 2 squares east — directly away from the attacker at (0,0)");
+});
+
+test("Shove: a push that would run off the grid edge stops at the last clear square — Player Core's own 'can't move it into or through obstacles'", () => {
+  const grappler = makeGrappler({ position: { col: 17, row: 0 } });
+  const heldNearEdge = makeHeld({ position: { col: 18, row: 0 } }); // only 1 clear square before the edge of a 20-wide (cols 0-19) grid
+  const { result, state } = sandboxApply([grappler, heldNearEdge], [["grappler", grappler.position], ["held", heldNearEdge.position]], "grappler", { type: "shove", targetId: "held" });
+  assert.equal(result.legal, true, JSON.stringify(result));
+  assert.equal(result.roll.degree, "criticalSuccess");
+  assert.equal(result.pushFeet, 9.75, "the ATTEMPT is still a real (19/20) critical-success-dominated expectation — only the actual landing spot is clamped");
+  assert.deepEqual(state.positions.get("held"), { col: 19, row: 0 }, "stops at the last real in-bounds square, not (20,0), which is off the grid");
+});
+
+/**
+ * REGRESSION (design doc §43, Stage 2): the actual bug the two tests above only hinted at — a
+ * CLOSE matchup (modifier 5 vs DC 15: criticalFailure 1/20, failure 8/20, success 10/20,
+ * criticalSuccess 1/20, hand-verified the same way as every other exact-fraction test in this
+ * project) makes the old mode-gated code's failure mode obvious: "success" was merely the most
+ * likely degree (50%), so the OLD code would have applied ZERO trip damage and a flat 5ft (not
+ * 10ft) shove despite a real, nonzero 5% chance of critical success on EACH — worse, a combatant
+ * with a large enough Athletics edge to make criticalSuccess itself the mode (as the two tests
+ * above show) got FULL crit damage EVERY attempt, including a second, third, unlimited Trip against
+ * a target already lying prone from the first one — an unbounded free-damage exploit a probability-
+ * weighted expectation can't produce, since a real 95% chance stays 95%, never rounds up to 100%.
+ */
+test("Trip/Shove EXPECTED_OUTCOMES: a close (not overwhelming) matchup applies the real PROBABILITY-WEIGHTED expectation, not an all-or-nothing gate on whichever degree is merely most likely", () => {
+  const grappler = makeGrappler({ athleticsModifier: 5 });
+  const held = makeHeld({ saves: { fort: 5, ref: 5, will: 5 } }); // dc = 15; modifier 5 vs dc 15 -> criticalFailure 1/20, failure 8/20, success 10/20, criticalSuccess 1/20
+  const { result: tripResult } = sandboxApply([grappler, held], [["grappler", grappler.position], ["held", held.position]], "grappler", { type: "trip", targetId: "held" });
+  assert.equal(tripResult.roll.degree, "success", "the MODE is success (10/20) — the old code would have applied exactly 0 damage here");
+  assert.ok(Math.abs(tripResult.appliedDamage - (1 / 20) * 3.5) < 1e-9, `expected the real 1/20-of-average-1d6 expectation (${((1 / 20) * 3.5).toFixed(4)}), got ${tripResult.appliedDamage}`);
+  assert.ok(tripResult.appliedDamage > 0, "a real, if small, nonzero expected chance of crit-trip damage must never round down to zero");
+
+  const { result: shoveResult } = sandboxApply([grappler, held], [["grappler", grappler.position], ["held", held.position]], "grappler", { type: "shove", targetId: "held" });
+  assert.equal(shoveResult.roll.degree, "success");
+  assert.ok(Math.abs(shoveResult.pushFeet - 3.0) < 1e-9, `expected the real blended expectation 0.05*10 + 0.5*5 = 3.0ft, got ${shoveResult.pushFeet}`);
+});
+
+test("Trip EXPECTED_OUTCOMES: repeating the SAME control action against an ALREADY-prone target no longer nets full, repeated bonus damage every time — the actual exploit this fix closes", () => {
+  const grappler = makeGrappler(); // athleticsModifier 20 vs held's fort -10 -> criticalSuccess 19/20 (see the fixed test above), NOT a full 100%
+  const held = makeHeld();
+  const sandbox = forkTurnSandbox({
+    state: { round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [], combatants: new Map([["grappler", { ...grappler }], ["held", { ...held }]]), positions: new Map([["grappler", { ...grappler.position }], ["held", { ...held.position }]]) },
+    turn: { actionsAvailable: 3, actionsUsed: 0 }
+  });
+  const first = sandbox.apply("grappler", { type: "trip", targetId: "held" });
+  assert.equal(sandbox.state.combatants.get("held").prone, true, "first Trip knocks the target prone");
+  const second = sandbox.apply("grappler", { type: "trip", targetId: "held" });
+  assert.equal(second.legal, true, "re-tripping an already-prone target is still LEGAL — Player Core never forbids it");
+  assert.ok(Math.abs(first.appliedDamage - second.appliedDamage) < 1e-9, "the SAME real 19/20 expectation applies both times — no escalation or double-counting from targeting an already-prone creature");
+  assert.ok(second.appliedDamage < 3.5, `the fixed expectation (${second.appliedDamage.toFixed(3)}) must stay strictly below the OLD code's flat, always-applied average (3.5) — the actual exploit this fix closes`);
+});
+
+test("Grapple (guaranteed critical success): restrains the target, recording the real 'until the end of your next turn' expiry", () => {
+  const grappler = makeGrappler();
+  const held = makeHeld();
+  const { result, state } = sandboxApply([grappler, held], [["grappler", grappler.position], ["held", held.position]], "grappler", { type: "grapple", targetId: "held" });
+  assert.equal(result.legal, true, JSON.stringify(result));
+  assert.equal(result.roll.degree, "criticalSuccess");
+  assert.equal(result.appliedState, "restrained");
+  assert.deepEqual(state.combatants.get("held").grappledBy, { attackerId: "grappler", state: "restrained", expiresEndOfRound: 2 });
+});
+
+test("Grapple: a restrained target is off-guard (-2 AC) as a direct, live consequence — resolveEffectiveStats already folds isOffGuardFromConditions in, no separate wiring needed", () => {
+  const grappler = makeGrappler();
+  const held = makeHeld();
+  const { state } = sandboxApply([grappler, held], [["grappler", grappler.position], ["held", held.position]], "grappler", { type: "grapple", targetId: "held" });
+  const effective = resolveEffectiveStats(state.combatants.get("held"));
+  assert.equal(effective.ac, held.ac - 2, "restrained grants off-guard, a real -2 circumstance penalty to AC");
+});
+
+test("Grapple: a restrained target genuinely can't Strike back — proven at the legality layer against the SAME object the sandbox just produced, not a separately-constructed fixture", () => {
+  const grappler = makeGrappler();
+  const held = makeHeld();
+  const { state } = sandboxApply([grappler, held], [["grappler", grappler.position], ["held", held.position]], "grappler", { type: "grapple", targetId: "held" });
+  const restrainedHeld = state.combatants.get("held");
+  const check = checkStrikeLegal({
+    attacker: restrainedHeld, attackerPos: state.positions.get("held"),
+    target: state.combatants.get("grappler"), targetPos: state.positions.get("grappler"),
+    strike: restrainedHeld.strikes[0], turnState: { actionsAvailable: 3, actionsUsed: 0 }
+  });
+  assert.equal(check.legal, false);
+  assert.match(check.reason, /restrained/);
+});
+
+test("Escape (guaranteed success — a strong Athletics modifier vs a weak grappler's Fortitude/Athletics DCs): frees the actor, clearing grappledBy", () => {
+  const weakGrappler = makeGrappler({ athleticsModifier: -20, saves: { fort: -10, ref: 5, will: 5 } });
+  const strongEscaper = makeHeld({ athleticsModifier: 20, grappledBy: { attackerId: "grappler", state: "restrained", expiresEndOfRound: 5 } });
+  const { result, state } = sandboxApply([weakGrappler, strongEscaper], [["grappler", weakGrappler.position], ["held", strongEscaper.position]], "held", { type: "escape" });
+  assert.equal(result.legal, true, JSON.stringify(result));
+  assert.ok(["success", "criticalSuccess"].includes(result.roll.degree));
+  assert.equal(result.freed, true);
+  assert.equal(state.combatants.get("held").grappledBy, null);
+});
+
+test("Escape (guaranteed failure — a weak Athletics modifier vs a strong grappler): stays held", () => {
+  const strongGrappler = makeGrappler({ athleticsModifier: 20, saves: { fort: 20, ref: 5, will: 5 } });
+  const weakEscaper = makeHeld({ athleticsModifier: -20, grappledBy: { attackerId: "grappler", state: "restrained", expiresEndOfRound: 5 } });
+  const { result, state } = sandboxApply([strongGrappler, weakEscaper], [["grappler", strongGrappler.position], ["held", weakEscaper.position]], "held", { type: "escape" });
+  assert.equal(result.legal, true, JSON.stringify(result));
+  assert.equal(result.freed, false);
+  assert.ok(state.combatants.get("held").grappledBy, "must still be held after a failed Escape");
+});
+
+// --- Multi-turn lifecycle, proven through a real runBattle: release-on-move, natural expiry,
+// release-on-death. All three use the SAME guaranteed-success setup (modifier 20 vs DC 0), proven
+// above to land on "success" or better on EVERY one of the 20 possible d20 faces, so these tests
+// never depend on which exact seed happens to be used — only that a hold was applied at all. ---
+
+test("Grapple ends when the grappler moves in the SAME turn — Player Core's own 'ends... unless you move', proven through a real runBattle, not just the isolated conditions.mjs unit", () => {
+  const grappler = makeGrappler();
+  const held = makeHeld();
+  function ai(state, id, turn) {
+    if (id !== "grappler") return null;
+    if (turn.actionsUsed === 0) return { type: "grapple", targetId: "held" };
+    if (turn.actionsUsed === 1) return { type: "move", to: { col: 0, row: 3 } }; // away from held's square, not through it
+    return null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [grappler, held], ai });
+  const turn = log.rounds[0].turns.find((t) => t.combatantId === "grappler");
+  const grappleAction = turn.actions.find((a) => a.type === "grapple");
+  assert.equal(grappleAction.legal, true, JSON.stringify(grappleAction));
+  assert.ok(grappleAction.targetGrappledAfter, "the grapple itself must have actually applied");
+  const moveAction = turn.actions.find((a) => a.type === "move");
+  assert.equal(moveAction.legal, true, JSON.stringify(moveAction));
+  assert.equal(turn.snapshot.held.grappledBy, null, "released the instant the grappler moves, within the SAME turn");
+});
+
+test("Grapple naturally expires at the end of the grappler's OWN next turn if nothing else releases it first — real 'until the end of your next turn' duration, not permanent or one-round", () => {
+  const grappler = makeGrappler();
+  const held = makeHeld({ speed: 0 }); // never moves on its own — isolates the timing under test
+  function ai(state, id, turn) {
+    if (id === "grappler" && turn.actionsUsed === 0 && state.round === 1) return { type: "grapple", targetId: "held" };
+    return null; // grappler holds afterward — never moves, never re-grapples
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 3, combatants: [grappler, held], ai });
+  const round1Turn = log.rounds.find((r) => r.round === 1).turns.find((t) => t.combatantId === "grappler");
+  assert.ok(round1Turn.snapshot.held.grappledBy, "round 1: still held immediately after the grapple");
+  const round2Turn = log.rounds.find((r) => r.round === 2).turns.find((t) => t.combatantId === "grappler");
+  assert.equal(round2Turn.snapshot.held.grappledBy, null, "round 2 IS the grappler's own next turn — the hold lapses once it resolves");
+});
+
+test("Grapple releases the instant its own grappler is killed by someone else — a dead grappler can't maintain a physical hold (documented ruling, conditions.mjs's own releaseGrapplesHeldBy header)", () => {
+  const grappler = makeGrappler({ side: "opposition", currentHP: 1, initiativeModifier: 100 }); // one hit from dying; acts first, guaranteed
+  const held = makeHeld({ side: "party", speed: 0 });
+  const killer = {
+    id: "killer", name: "Killer", side: "party", maxHP: 20, currentHP: 20, ac: 15,
+    saves: { fort: 5, ref: 5, will: 5 }, speed: 0, initiativeModifier: -100, // acts last, guaranteed
+    strikes: [{ name: "Overkill", strikeType: "melee", attackBonus: 100, traits: [], damage: [{ dice: "10d6", bonus: 100 }] }],
+    position: { col: 0, row: 1 }
+  };
+  function ai(state, id, turn) {
+    if (id === "grappler" && turn.actionsUsed === 0 && state.round === 1) return { type: "grapple", targetId: "held" };
+    if (id === "killer" && turn.actionsUsed === 0) return { type: "strike", targetId: "grappler", strikeIndex: 0 };
+    return null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [grappler, held, killer], ai });
+  const round1 = log.rounds.find((r) => r.round === 1);
+  const grapplerTurn = round1.turns.find((t) => t.combatantId === "grappler");
+  assert.ok(grapplerTurn, "expected the grappler to have acted (guaranteed by initiativeModifier: 100)");
+  assert.ok(grapplerTurn.snapshot.held.grappledBy, "must actually be held right after the grapple");
+  const killerTurn = round1.turns.find((t) => t.combatantId === "killer");
+  assert.ok(killerTurn, "expected the killer to have acted too (guaranteed by initiativeModifier: -100 acting after grappler)");
+  assert.equal(killerTurn.snapshot.held.grappledBy, null, "released the instant the grappler is struck down, mid-round — not waiting for a natural expiry that will now never come");
+});
+
+/**
+ * REGRESSION (design doc §41, Stage 0): the real DC for Escape never involved Fortitude at all —
+ * "typically the Athletics DC of a creature grabbing you" (reference/srd/player-core/383-actions.json,
+ * live-verified at https://2e.aonsrd.com/actions/5-escape). The first version of this engine's
+ * Escape used "the Fortitude or Athletics DC, whichever is higher" instead, sourced from a less
+ * precise mirror (skill-3-athletics.json's own embedded Escape summary). Proven here by making the
+ * grappler's Fortitude enormous and its Athletics terrible — under the OLD (buggy) formula this
+ * would have made Escape nearly impossible; under the real rule it must be easy.
+ */
+test("Escape: a grappler's Fortitude is completely irrelevant to the real DC — only their Athletics matters", () => {
+  const grappler = makeGrappler({ athleticsModifier: -20, saves: { fort: 100, ref: 5, will: 5 } }); // huge Fortitude, terrible Athletics
+  const held = makeHeld({ athleticsModifier: 0, grappledBy: { attackerId: "grappler", state: "restrained", expiresEndOfRound: 5 } });
+  const { result } = sandboxApply([grappler, held], [["grappler", grappler.position], ["held", held.position]], "held", { type: "escape" });
+  assert.equal(result.legal, true, JSON.stringify(result));
+  assert.equal(result.roll.dc, -10, "DC must be exactly 10 + the grappler's real Athletics modifier (-20) — the huge Fortitude (100) must have zero effect");
+  assert.equal(result.freed, true, "an ordinary (modifier 0) escaper must easily break free once DC correctly ignores the grappler's Fortitude");
+});
+
+// ---------------------------------------------------------------------------
+// Stand / Crawl (design doc §41, Stage 0) — the only two move actions Player Core allows while
+// prone, and the fix for a real bug Trip exposed: nothing previously cleared `prone` at all except
+// the heal-a-downed-PC path, so a tripped combatant strode away at full Speed forever, permanently
+// off-guard and permanently -2 to attack. Trip cost an action and never got paid back.
+// ---------------------------------------------------------------------------
+
+test("Stand: clears prone outright — no roll, no randomness", () => {
+  const combatants = [{ id: "a", side: "party", currentHP: 15, prone: true }];
+  const positions = [["a", { col: 0, row: 0 }]];
+  const { result, state } = sandboxApply(combatants, positions, "a", { type: "stand" });
+  assert.equal(result.legal, true, JSON.stringify(result));
+  assert.equal(state.combatants.get("a").prone, false);
+});
+
+test("Stand: illegal for a combatant who isn't prone — nothing to Stand from", () => {
+  const combatants = [{ id: "a", side: "party", currentHP: 15, prone: false }];
+  const positions = [["a", { col: 0, row: 0 }]];
+  const { result } = sandboxApply(combatants, positions, "a", { type: "stand" });
+  assert.equal(result.legal, false);
+});
+
+test("Crawl: moves exactly 5ft (one square) while REMAINING prone — the real 'continue to stay prone' text, not accidentally clearing it", () => {
+  const combatants = [{ id: "a", side: "party", currentHP: 15, speed: 25, prone: true }];
+  const positions = [["a", { col: 0, row: 0 }]];
+  const { result, state } = sandboxApply(combatants, positions, "a", { type: "crawl", to: { col: 1, row: 0 } });
+  assert.equal(result.legal, true, JSON.stringify(result));
+  assert.equal(result.feet, 5);
+  assert.deepEqual(state.positions.get("a"), { col: 1, row: 0 });
+  assert.equal(state.combatants.get("a").prone, true, "must remain prone after crawling — the whole point of the action");
+});
+
+test("Crawl: illegal below the real 10ft Speed requirement", () => {
+  const combatants = [{ id: "a", side: "party", currentHP: 15, speed: 5, prone: true }];
+  const positions = [["a", { col: 0, row: 0 }]];
+  const { result } = sandboxApply(combatants, positions, "a", { type: "crawl", to: { col: 1, row: 0 } });
+  assert.equal(result.legal, false);
+});
+
+test("A prone combatant's own Stride attempt is rejected in a real runBattle — the actual bug Trip exposed, now fixed end to end", () => {
+  const proneCombatant = {
+    id: "a", name: "A", side: "party", maxHP: 15, currentHP: 15, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25,
+    strikes: [], prone: true, position: { col: 0, row: 0 }
+  };
+  const bystander = {
+    id: "b", name: "B", side: "opposition", maxHP: 15, currentHP: 15, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 0,
+    strikes: [], position: { col: 10, row: 10 }
+  };
+  function ai(state, id, turn) {
+    return id === "a" && turn.actionsUsed === 0 ? { type: "move", to: { col: 1, row: 0 } } : null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [proneCombatant, bystander], ai });
+  const move = log.rounds[0].turns.find((t) => t.combatantId === "a").actions.find((a) => a.type === "move");
+  assert.equal(move.legal, false, JSON.stringify(move));
+  assert.match(move.reason, /[Pp]rone/);
+});
+
+test("Standing up in a real runBattle restores full Stride the very next action — the real trade Trip is supposed to cost", () => {
+  const proneCombatant = {
+    id: "a", name: "A", side: "party", maxHP: 15, currentHP: 15, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25,
+    strikes: [], prone: true, position: { col: 0, row: 0 }
+  };
+  const bystander = {
+    id: "b", name: "B", side: "opposition", maxHP: 15, currentHP: 15, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 0,
+    strikes: [], position: { col: 10, row: 10 }
+  };
+  function ai(state, id, turn) {
+    if (id !== "a") return null;
+    if (turn.actionsUsed === 0) return { type: "stand" };
+    if (turn.actionsUsed === 1) return { type: "move", to: { col: 1, row: 0 } };
+    return null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [proneCombatant, bystander], ai });
+  const actions = log.rounds[0].turns.find((t) => t.combatantId === "a").actions;
+  assert.equal(actions.find((a) => a.type === "stand").legal, true);
+  const move = actions.find((a) => a.type === "move");
+  assert.equal(move.legal, true, JSON.stringify(move));
+});
+
+// --- onRoundStart (design doc §45 — a direct ask: distinguish a broken run from a slow-but-working
+// one by real per-round progress visibility, not by guessing) ---
+
+test("runBattle: onRoundStart, when provided, fires exactly once per round with the real round number and roundLimit — and is completely optional, every existing caller (this whole file, until now) omits it with zero behavior change", () => {
+  const a = { id: "a", name: "A", side: "party", maxHP: 15, currentHP: 15, ac: 30, saves: { fort: 5, ref: 5, will: 5 }, speed: 0, strikes: [], position: { col: 0, row: 0 } };
+  const b = { id: "b", name: "B", side: "opposition", maxHP: 15, currentHP: 15, ac: 30, saves: { fort: 5, ref: 5, will: 5 }, speed: 0, strikes: [], position: { col: 10, row: 10 } };
+  function ai() { return null; } // nobody ever acts — a real, if boring, guaranteed-timeout battle
+  const seen = [];
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 4, combatants: [a, b], ai, onRoundStart: (round, roundLimit) => seen.push({ round, roundLimit }) });
+  assert.equal(log.rounds.length, 4, "sanity check: the battle really did run all 4 rounds");
+  assert.deepEqual(seen, [{ round: 1, roundLimit: 4 }, { round: 2, roundLimit: 4 }, { round: 3, roundLimit: 4 }, { round: 4, roundLimit: 4 }]);
+});
+
+test("runBattle: with NO onRoundStart provided, nothing is called and nothing throws — the optional-callback pattern degrades to exactly the pre-existing behavior", () => {
+  const a = { id: "a", name: "A", side: "party", maxHP: 15, currentHP: 15, ac: 30, saves: { fort: 5, ref: 5, will: 5 }, speed: 0, strikes: [], position: { col: 0, row: 0 } };
+  const b = { id: "b", name: "B", side: "opposition", maxHP: 15, currentHP: 15, ac: 30, saves: { fort: 5, ref: 5, will: 5 }, speed: 0, strikes: [], position: { col: 10, row: 10 } };
+  function ai() { return null; }
+  assert.doesNotThrow(() => runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 2, combatants: [a, b], ai }));
 });

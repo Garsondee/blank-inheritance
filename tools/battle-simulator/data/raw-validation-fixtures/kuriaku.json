@@ -79,5 +79,6 @@
     "stealth": 6
   },
   "intimidationModifier": null,
+  "athleticsModifier": 8,
   "notes": "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/starfinder-society-bestiary) — see test/character-builder/extract-npc.test.mjs. Her Shobhad Longrifle carries several real traits this engine does NOT mechanically model, flagged honestly rather than silently dropped: 'volley-30' (a real -2 penalty when the target is within 30ft, the opposite of most ranged weapons — this project has no range-banded-penalty mechanism at all yet), 'fatal-d12' (upgrades the damage die on a critical hit), 'kickback' (a real self-damage/knockback cost to the wielder), 'backstabber' (bonus damage against a flat-footed target). Her real Reverberant Antlers/Grab/Knockdown actions are captured verbatim under `actions` for transcript honesty but are NOT wired — Grab/Knockdown both require a maneuver-and-persistent-condition mechanism (Grabbed/Restrained tracking) this engine doesn't have, the same honest-skip discipline as every other NPC's situational specials in this project."
 }

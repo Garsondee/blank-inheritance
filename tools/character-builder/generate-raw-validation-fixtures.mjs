@@ -48,6 +48,7 @@ function buildLunar17() {
   const spells = deriveSpells(ingredients, ["Eldritch Lance"], mods);
   const healAbilities = [deriveTransferVitality(ingredients)];
   const intimidationModifier = deriveSkillModifier(ingredients, "intimidation", mods);
+  const athleticsModifier = deriveSkillModifier(ingredients, "athletics", mods);
 
   return {
     id: "raw-validation-lunar-17",
@@ -63,6 +64,8 @@ function buildLunar17() {
     spells,
     healAbilities,
     intimidationModifier, // real, untrained (+0) — her cha modifier is +0 and Intimidation isn't one of her trained skills
+    athleticsModifier, // real, derived the same way (design doc §31's Trip/Shove/Grapple gap-fill) — untrained, her Str modifier
+    heroPoints: 1, // Player Core pg. 405 — "each character gets 1 Hero Point at the start of a session" (design doc §42)
     notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §19/§21. Transfer Vitality's healing amount (10, minimum 1) is hand-transcribed from real rule prose since no structured field exists for it — see build-combat-pregen.mjs's own citation. Her Incendiary Grenade (Commercial) is real but NOT wired as a usable action: its raw description reads \"Activate 1 Area Fire ... (@Template[burst|distance:5])\" — a 5ft-burst AREA effect, not a single-target attack, structurally identical to Frag Grenade/Electromag Grenade (already excluded for other pregens for the same reason). personnel-engine's saveAttack action is single-target only; wiring a burst weapon through it would have hit exactly one creature with none of the real friendly-fire risk an area weapon actually carries, and was in fact caught doing exactly that (see design doc §21's grenade-modeling correction)."
   };
 }
@@ -77,6 +80,7 @@ function buildSecurityGoon() {
     name: "Security Goon (level-1 NPC, design doc §19 Pure RAW SF2E Validation — real rulebook-bestiaries statblock)",
     ...combatant,
     intimidationModifier: combatant.skills.intimidation, // real, trained (+6) — she's one of the two skills actually listed on her real sheet
+    athleticsModifier: combatant.skills.athletics ?? null, // real, trained (+8) — her OTHER listed skill (design doc §31's Trip/Shove/Grapple gap-fill)
     notes: "Every number here is a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/rulebook-bestiaries) — NPCs store final, precomputed combat numbers, so no derivation was needed. See test/character-builder/extract-npc.test.mjs and design/scale-and-chassis.md §19. \"License to Break Bones\" (a Fortitude-save, Prone-requiring action) is captured under `actions` for transcript honesty but is NOT a usable strike — this engine has no saving-throw mechanism."
   };
 }
@@ -108,6 +112,7 @@ function buildTapkey() {
 
   const strikes = deriveStrikes(ingredients, ["Nano-edge Rapier", "Boom Pistol"], mods);
   const intimidationModifier = deriveSkillModifier(ingredients, "intimidation", mods);
+  const athleticsModifier = deriveSkillModifier(ingredients, "athletics", mods);
 
   return {
     id: "raw-validation-tapkey",
@@ -121,6 +126,8 @@ function buildTapkey() {
     speed: ingredients.speed,
     strikes,
     intimidationModifier, // real, untrained (+4) — pure Charisma; Intimidation isn't one of her trained skills either, but her cha modifier (+4) is the roster's highest
+    athleticsModifier, // real, derived the same way (design doc §31's Trip/Shove/Grapple gap-fill)
+    heroPoints: 1, // Player Core pg. 405 — "each character gets 1 Hero Point at the start of a session" (design doc §42)
     notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §21. Nano-edge Rapier and Boom Pistol both derive through the existing deriveStrikes unmodified — Tapkey needed zero new engine or extraction code, per the design doc §21 research survey of the 5 remaining Player Core pregens. Her Incendiary Grenade (Commercial) is real but NOT wired as a usable action, for the same reason as Lunar-17's own grenade: its raw description is a 5ft-burst AREA effect (\"Activate 1 Area Fire ... @Template[burst|distance:5]\"), not a single-target attack personnel-engine's saveAttack action can correctly represent — see design doc §21."
   };
 }
@@ -157,6 +164,7 @@ function buildXenowardenGreenhorn() {
     ...combatant,
     spells,
     intimidationModifier: combatant.skills.intimidation ?? null, // real: Intimidation isn't one of her 3 listed skills (acrobatics/athletics/nature) — null, not an invented untrained number, see extract-npc.mjs's own skills-field note
+    athleticsModifier: combatant.skills.athletics ?? null, // real — Athletics IS one of her 3 listed skills (design doc §31's Trip/Shove/Grapple gap-fill)
     notes: "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Gouging Claw is this project's first NPC attack-roll spell, wired via extract-npc.mjs's deriveSpellAttacks(): attack bonus and range both come directly from her real raw data (spellcastingEntry.system.spelldc.value = 6, matching her Strikes' own +7-ish power level; range \"touch\" mapped to null, matching checkSpellRange's own adjacent-only convention — see deriveSpellAttacks' own header for why a naive parseInt(\"touch\") would have been a real, silent range-check bug). Her real second damage entry (2 persistent bleed) is not carried — personnel-engine has no persistent-damage mechanism, same documented scope limit as the PC side's own firstSpellDamage. \"Grown Together\" (a passive AC bonus that requires another Xenowarden Greenhorn present) is real but situational — not applicable to this fight, so left undocumented on this combatant rather than mechanically wired for a condition that can't occur here."
   };
 }
@@ -191,6 +199,7 @@ function buildBennit() {
   const strikes = deriveStrikes(ingredients, ["Laser Pistol", "Semi-Auto Pistol"], mods);
   const saveAttacks = deriveSaveSpells(ingredients, ["Thunderstrike"], mods);
   const intimidationModifier = deriveSkillModifier(ingredients, "intimidation", mods);
+  const athleticsModifier = deriveSkillModifier(ingredients, "athletics", mods);
 
   return {
     id: "raw-validation-bennit",
@@ -205,6 +214,8 @@ function buildBennit() {
     strikes,
     saveAttacks,
     intimidationModifier,
+    athleticsModifier, // real, derived the same way (design doc §31's Trip/Shove/Grapple gap-fill)
+    heroPoints: 1, // Player Core pg. 405 — "each character gets 1 Hero Point at the start of a session" (design doc §42)
     notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §22. Thunderstrike (a real basic-Reflex-save spell, 1d12 electricity + 1d4 sonic) is this project's first save-based SPELL — deriveSaveSpells reads its save type directly off the spell's own structured system.defense.save.statistic field (not hand-supplied prose-reading, unlike a weapon's save-based effect), and its DC from her real spellcasting DC (deriveSpellDC), not Class DC. usesRemaining (3) is her real spell-slot count (system.slots.slot1.max), not an invented number. Her Frag Grenade (Commercial) is real but NOT wired as a usable action, for the same reason as every other grenade in this project: its raw description is a 5ft-burst AREA effect, not a single-target attack — see design doc §22."
   };
 }
@@ -244,6 +255,7 @@ function buildErabryth() {
     ...combatant,
     conditionSaves,
     intimidationModifier: combatant.skills.intimidation ?? null,
+    athleticsModifier: combatant.skills.athletics ?? null, // design doc §31's Trip/Shove/Grapple gap-fill — real if listed on her sheet, null (not invented) otherwise, same discipline as intimidationModifier just above
     notes: "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Forced Reflection is this project's first condition-only save action (personnel-engine's new \"conditionSave\" action type, design doc §22) — a real per-degree table of Frightened/Stunned hand-transcribed from her verbatim description text, DC sourced from her real spellcastingEntry.spelldc.dc (17). \"Shepherd's Touch\" (a passive that adds extra void/vitality damage to her Strikes) and \"Buffering Zone\" (a standing 15ft aura with its own real but situational save) are real but NOT wired — the same honest-skip discipline already applied to every other NPC's situational passives in this project."
   };
 }
@@ -280,6 +292,7 @@ function buildVorzaMoonshot() {
 
   const strikes = deriveStrikes(ingredients, ["Zero Pistol"], mods);
   const intimidationModifier = deriveSkillModifier(ingredients, "intimidation", mods);
+  const athleticsModifier = deriveSkillModifier(ingredients, "athletics", mods);
 
   return {
     id: "raw-validation-vorza-moonshot",
@@ -293,6 +306,8 @@ function buildVorzaMoonshot() {
     speed: ingredients.speed,
     strikes,
     intimidationModifier, // real, untrained (+0) — her Charisma modifier is +0, same flat number as Lunar-17's, not the roster's highest like Tapkey's
+    athleticsModifier, // real, derived the same way (design doc §31's Trip/Shove/Grapple gap-fill)
+    heroPoints: 1, // Player Core pg. 405 — "each character gets 1 Hero Point at the start of a session" (design doc §42)
     notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — her derived HP (23) matches the pregen's own referenceHP field exactly. design doc §38: a Solarian's whole class fantasy (a Solar Weapon, manifested only while attuned) has NO static item representation on her real sheet at all — unlike every other PC's melee option, there is nothing to extract a Strike from, so she's ranged-only (Zero Pistol) by the real shape of her own kit, not an extraction shortfall. Her Electromag Grenade (Commercial) is real but NOT wired, for the same reason as every other grenade in this project (see Lunar-17/Tapkey/Bennit's own notes) — PLUS one more: even with design doc §38's new areaAttack mechanism now built, a PC's own basic-save DC for an area weapon is 10 + their CLASS DC (Player Core: '@Check[reflex|against:class|basic]'), and this project has never derived a PC's Class DC (only Spell DC, via deriveSpellDC) — an NPC's grenade sidesteps this because NPCs store a final precomputed attack-row bonus directly (see extract-npc.mjs's deriveAreaAttack), a PC does not. Flagged as the natural next gap, not invented around here."
   };
 }
@@ -319,6 +334,7 @@ function buildTough() {
     ...combatant,
     areaAttacks,
     intimidationModifier: combatant.skills.intimidation ?? null, // real, trained (+4) — one of her 3 real listed skills (athletics/intimidation/thievery)
+    athleticsModifier: combatant.skills.athletics ?? null, // real, trained — ALSO one of her 3 listed skills (design doc §31's Trip/Shove/Grapple gap-fill)
     notes: "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/rulebook-bestiaries) — see test/character-builder/extract-npc.test.mjs. Her Frag Grenade (Commercial) is this project's first NPC area/burst attack (personnel-engine's new \"areaAttack\" action type, design doc §38) — DC 17 (10 + her real attack-row bonus of 7, the standard 'attack bonus doubles as basic-save DC basis' convention this system uses for NPC area effects with no separately stored DC field), 5ft burst radius and 1d8 piercing damage both read straight off her real system.area.value/damageRolls, usesRemaining 1 from her real carried weapon-item quantity. Her Scattergun (system.action:\"auto-fire\", a real area-cone weapon) is NOT wired — the same out-of-scope multi-target category as every Auto-Fire/Suppressing-Fire weapon already flagged elsewhere in this project (Old-Growth Wildfire's Machine Gun, design doc §21's own survey)."
   };
 }
@@ -362,6 +378,7 @@ function buildObozaya() {
 
   const strikes = deriveStrikes(ingredients, ["Doshko", "Laser Rifle"], mods);
   const intimidationModifier = deriveSkillModifier(ingredients, "intimidation", mods);
+  const athleticsModifier = deriveSkillModifier(ingredients, "athletics", mods);
 
   return {
     id: "raw-validation-obozaya",
@@ -375,6 +392,8 @@ function buildObozaya() {
     speed: ingredients.speed,
     strikes,
     intimidationModifier, // real, untrained (+0) — her Charisma modifier is +0
+    athleticsModifier, // real, derived the same way (design doc §31's Trip/Shove/Grapple gap-fill) — her Strength modifier, trained (Soldier class)
+    heroPoints: 1, // Player Core pg. 405 — "each character gets 1 Hero Point at the start of a session" (design doc §42)
     notes: "HP/AC/saves/Doshko are every bit as real and derived as every other fixture (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/iconics) — her derived HP (24) matches the pregen's own referenceHP field exactly. Her Laser Rifle is a real catalog item (gamesystems/sf2e/packs/equipment, level 0, 45sp) pushed into her own ingredients before deriving — see extract-pregen.mjs's findEquipmentItem — rather than her own as-published loadout (her real sheet carries an Auto-Fire-only Machine Gun, the same out-of-scope weapon type already flagged on Old-Growth Wildfire, design doc §21). Every number on the resulting Strike (attack bonus, damage, range) is exactly what deriveStrikes would produce for any OTHER weapon her real Simple-weapon proficiency covers — the substitution is which item she's holding, not an invented bonus."
   };
 }
@@ -398,6 +417,7 @@ function buildKuriaku() {
     id: "raw-validation-kuriaku",
     ...combatant,
     intimidationModifier: combatant.skills.intimidation ?? null, // real: Intimidation isn't one of her 5 listed skills (acrobatics/athletics/crafting/performance/stealth)
+    athleticsModifier: combatant.skills.athletics ?? null, // real — Athletics IS one of her 5 listed skills (design doc §31's Trip/Shove/Grapple gap-fill)
     notes: "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/starfinder-society-bestiary) — see test/character-builder/extract-npc.test.mjs. Her Shobhad Longrifle carries several real traits this engine does NOT mechanically model, flagged honestly rather than silently dropped: 'volley-30' (a real -2 penalty when the target is within 30ft, the opposite of most ranged weapons — this project has no range-banded-penalty mechanism at all yet), 'fatal-d12' (upgrades the damage die on a critical hit), 'kickback' (a real self-damage/knockback cost to the wielder), 'backstabber' (bonus damage against a flat-footed target). Her real Reverberant Antlers/Grab/Knockdown actions are captured verbatim under `actions` for transcript honesty but are NOT wired — Grab/Knockdown both require a maneuver-and-persistent-condition mechanism (Grabbed/Restrained tracking) this engine doesn't have, the same honest-skip discipline as every other NPC's situational specials in this project."
   };
 }

@@ -22,6 +22,17 @@
  * failure: max 3 distinct verbs per combatant, and seven consecutive seeds
  * producing near-identical play. Aggregate damage totals looked fine throughout.
  *
+ * DYING TURNS excluded from idleTurnRate, same as Stunned (found running design doc §53's
+ * transcript-audit tool against squishier rosters than the one this file was originally validated
+ * against): a downed-but-not-dead personnel-scale combatant gets a real turn log entry every round
+ * while it makes its own real dying/recovery check (engine.mjs's own `dying: true` entries,
+ * `actions: []`, `actionAccounting.available: 0`) — genuinely unable to act at all under the real
+ * Unconscious condition, not a case of the AI failing to find something to do. Before this fix, a
+ * roster with squishier fixtures (shorter fights, more rounds spent by an already-downed combatant)
+ * read as having a real, comparatively worse idleTurnRate than a tankier roster purely because of
+ * how many rounds its combatants spend dying, not because of any difference in decision quality —
+ * confounding exactly the cross-roster comparison this metric exists to support.
+ *
  * Pure functions over a completed battle log. No RNG, no I/O.
  */
 
@@ -42,6 +53,12 @@ function isStunnedTurn(turn) {
   return Boolean(turn.stunned) || (turn.actionAccounting?.heldReason || "").startsWith("Stunned");
 }
 
+/** A real dying/recovery-check turn (engine.mjs's own `dying: true` entries) — see this file's own
+ * header for why these are excluded from idleTurnRate the same way Stunned already is. */
+function isDyingTurn(turn) {
+  return Boolean(turn.dying);
+}
+
 /**
  * Metrics for a single completed battle log.
  * `log` is the object runBattle() returns.
@@ -53,6 +70,7 @@ export function collectRunMetrics(log) {
   let turns = 0;
   let idleTurns = 0;
   let stunnedTurns = 0;
+  let dyingTurns = 0;
   let illegalProposals = 0;
   const turnLengths = [0, 0, 0, 0]; // index = points spent, capped at 3
   const globalVerbs = new Map();
@@ -73,8 +91,10 @@ export function collectRunMetrics(log) {
       c.available += av; c.spent += sp; c.turns += 1;
 
       const stunned = isStunnedTurn(turn);
+      const dying = isDyingTurn(turn);
       if (stunned) stunnedTurns += 1;
-      if (sp === 0 && !stunned) { idleTurns += 1; c.idleTurns += 1; }
+      if (dying) dyingTurns += 1;
+      if (sp === 0 && !stunned && !dying) { idleTurns += 1; c.idleTurns += 1; }
       turnLengths[Math.min(3, sp)] += 1;
 
       for (const action of turn.actions ?? []) {
@@ -110,6 +130,7 @@ export function collectRunMetrics(log) {
     idleTurns,
     idleTurnRate: turns > 0 ? idleTurns / turns : 0,
     stunnedTurns,
+    dyingTurns,
     illegalProposals,
     turnLengths,
     verbs: Object.fromEntries(globalVerbs),

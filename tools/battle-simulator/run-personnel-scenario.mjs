@@ -115,6 +115,22 @@ const SCENARIOS = {
     label: "4v4: Lunar-17+Tapkey+Bennit+Vorza Moonshot vs. Security Goon+Xenowarden Greenhorn+Erabryth+Tough — every real fixture this project has, randomized opposite arcs, real Line-of-Effect-validated blind opening",
     defaultSeed: 1, roundLimit: 60
   },
+  // design doc §43, Stage 2's own explicit verification ask: "the same party with Trip, Shove and
+  // Grapple withheld, run head-to-head. If the maneuver-capable AI does not measurably win more, the
+  // maneuvers are decoration." IDENTICAL to complex-4v4-random-arcs in every other respect (same
+  // fixtures, same opposition, same RANDOM_ARCS deployment, same seeds line up 1:1) — partyManeuvers
+  // is the one real variable this pair isolates.
+  "complex-4v4-no-maneuvers-random-arcs": {
+    build: (args) => buildComplexBattle({
+      ...args,
+      partyFixtures: ["lunar-17.json", "tapkey.json", "bennit.json", "vorza-moonshot.json"],
+      oppositionFixtures: ["security-goon.json", "xenowarden-greenhorn.json", "erabryth.json", "tough.json"],
+      setup: "RANDOM_ARCS",
+      partyManeuvers: false
+    }),
+    label: "4v4 NO-MANEUVERS BASELINE: same roster as complex-4v4-random-arcs, party's own Trip/Shove/Grapple withheld — design doc §43's Stage 2 verification pair",
+    defaultSeed: 1, roundLimit: 60
+  },
   // design doc §39 — the XP-budget battery: "take our four person group and put them through a
   // series of battles but we relate each battle to the XP budget that SF2E uses... from just one
   // tick under 'average' all the way to extreme." Real SF2E numbers (reference/tables/

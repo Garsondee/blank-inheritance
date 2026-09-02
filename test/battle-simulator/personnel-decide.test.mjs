@@ -25,6 +25,7 @@ import { forkTurnSandbox } from "../../tools/battle-simulator/personnel-engine/e
 import { evaluateState } from "../../tools/battle-simulator/personnel-engine/evaluate/state-value.mjs";
 import { hasCover, lineOfEffect } from "../../tools/battle-simulator/personnel-engine/terrain.mjs";
 import { GRID_SIZE as FACILITY_GRID_SIZE, WALLS as FACILITY_WALLS, SETUPS as FACILITY_SETUPS } from "../../tools/battle-simulator/data/personnel-test-facility.mjs";
+import { buildScenario as buildComplexBattleScenario } from "../../tools/battle-simulator/scenarios/personnel-complex-battle.mjs";
 
 function makeState({ mePos = { col: 0, row: 0 }, enemyPos = { col: 0, row: 2 }, walls = [] } = {}) {
   const me = {
@@ -193,6 +194,113 @@ test("generateProposals (design doc §34): a conditionSave proposal against a DI
   assert.ok(proposals.some((p) => p.type === "conditionSave" && p.targetId === "target"), "immunity to a different ability must not block Glare");
 });
 
+// --- Trip/Shove/Grapple/Escape (design doc §31's rules-gap sweep, priority 1) ---
+
+test("generateProposals: a combatant with a real Athletics modifier gets trip/shove/grapple proposals against every targetable enemy", () => {
+  const { state, turn } = makeFullKitState({ targetHP: 10 });
+  state.combatants.get("me").athleticsModifier = 5;
+  const proposals = generateProposals(state, "me", turn);
+  for (const type of ["trip", "shove", "grapple"]) {
+    assert.ok(proposals.some((p) => p.type === type && p.targetId === "target"), `expected at least one ${type} proposal against a conscious target`);
+  }
+});
+
+test("generateProposals: with NO Athletics modifier extracted at all, zero trip/shove/grapple proposals — opt-in, matching intimidationModifier's own pattern", () => {
+  const { state, turn } = makeFullKitState({ targetHP: 10 }); // athleticsModifier never set on "me"
+  const proposals = generateProposals(state, "me", turn);
+  for (const type of ["trip", "shove", "grapple"]) {
+    assert.equal(proposals.filter((p) => p.type === type).length, 0, `expected zero ${type} proposals with no Athletics modifier extracted`);
+  }
+});
+
+test("generateProposals: the SAME Athletics-equipped combatant gets ZERO trip/shove/grapple proposals once that exact target is unconscious — same §32 policy as every other offensive candidate ('the only reason to target a downed character would be to heal them')", () => {
+  const { state, turn } = makeFullKitState({ targetHP: 0 });
+  state.combatants.get("me").athleticsModifier = 5;
+  const proposals = generateProposals(state, "me", turn);
+  for (const type of ["trip", "shove", "grapple"]) {
+    assert.equal(proposals.filter((p) => p.type === type && p.targetId === "target").length, 0, `expected zero ${type} proposals against an unconscious target`);
+  }
+});
+
+test("generateProposals: a combatant currently grabbed/restrained gets an Escape proposal", () => {
+  const { state, turn } = makeFullKitState({ targetHP: 10 });
+  state.combatants.get("me").grappledBy = { attackerId: "target", state: "restrained", expiresEndOfRound: 5 };
+  const proposals = generateProposals(state, "me", turn);
+  assert.ok(proposals.some((p) => p.type === "escape"), "expected an Escape proposal while held");
+});
+
+test("generateProposals: a combatant who is NOT currently held gets no Escape proposal at all", () => {
+  const { state, turn } = makeFullKitState({ targetHP: 10 });
+  const proposals = generateProposals(state, "me", turn);
+  assert.equal(proposals.filter((p) => p.type === "escape").length, 0);
+});
+
+// --- Stand (design doc §41, Stage 0) ---
+
+test("generateProposals: a prone combatant gets a Stand proposal", () => {
+  const { state, turn } = makeFullKitState({ targetHP: 10 });
+  state.combatants.get("me").prone = true;
+  const proposals = generateProposals(state, "me", turn);
+  assert.ok(proposals.some((p) => p.type === "stand"), "expected a Stand proposal while prone");
+});
+
+test("generateProposals: a combatant who is NOT prone gets no Stand proposal at all", () => {
+  const { state, turn } = makeFullKitState({ targetHP: 10 });
+  const proposals = generateProposals(state, "me", turn);
+  assert.equal(proposals.filter((p) => p.type === "stand").length, 0);
+});
+
+test("generateProposals: Crawl is deliberately NOT generated on its own, even while prone — mirrors this file's own existing precedent for Step, since Crawl is dominated by Stand with no Take Cover/difficult terrain yet to make it a real, distinct choice", () => {
+  const { state, turn } = makeFullKitState({ targetHP: 10 });
+  state.combatants.get("me").prone = true;
+  const proposals = generateProposals(state, "me", turn);
+  assert.equal(proposals.filter((p) => p.type === "crawl").length, 0);
+});
+
+test("decide() END TO END: a prone combatant with nothing worth attacking chooses to Stand — a real economic trade now, not a free permanent condition", () => {
+  const me = {
+    id: "me", name: "Me", side: "party", currentHP: 20, maxHP: 20, ac: 15, speed: 25, prone: true,
+    strikes: [{ name: "Knife", strikeType: "melee", attackBonus: 5, traits: [], damage: [{ dice: "1d4", bonus: 0 }] }],
+    position: { col: 0, row: 0 }
+  };
+  const farEnemy = {
+    id: "enemy", name: "Enemy", side: "opposition", currentHP: 20, maxHP: 20, ac: 15,
+    saves: { fort: 5, ref: 5, will: 5 }, speed: 0, strikes: [],
+    position: { col: 19, row: 19 } // far outside melee reach — nothing to Strike, nowhere useful to close to this turn
+  };
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["me", me], ["enemy", farEnemy]]),
+    positions: new Map([["me", { ...me.position }], ["enemy", { ...farEnemy.position }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.equal(chosen.type, "stand", `expected a prone combatant with nothing useful to attack to stand up and shed its real -2 attack / off-guard penalty, chose: ${JSON.stringify(chosen)}`);
+});
+
+test("decide() END TO END: an overwhelming Grapple candidate against a devastating melee threat outscores a near-guaranteed-miss Strike — proves the evaluator actually rewards Restrained's own real consequences (state-value.mjs's bestExpectedDamage restrained-exclusion + isOffGuardFromConditions's off-guard AC), not just that the candidate merely exists", () => {
+  const me = {
+    id: "me", name: "Me", side: "party", currentHP: 20, maxHP: 20, ac: 15, speed: 0,
+    athleticsModifier: 20,
+    strikes: [{ name: "Feeble Jab", strikeType: "melee", attackBonus: -20, traits: [], damage: [{ dice: "1d1", bonus: 0 }] }], // never hits AC 20
+    position: { col: 0, row: 0 }
+  };
+  const enemy = {
+    id: "enemy", name: "Enemy", side: "opposition", currentHP: 30, maxHP: 30, ac: 20,
+    saves: { fort: -10, ref: 5, will: 5 }, speed: 25,
+    strikes: [{ name: "Devastator", strikeType: "melee", attackBonus: 20, traits: [], damage: [{ dice: "8d6", bonus: 20 }] }], // a real, huge threat once free to attack
+    position: { col: 1, row: 0 }
+  };
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["me", me], ["enemy", enemy]]),
+    positions: new Map([["me", { ...me.position }], ["enemy", { ...enemy.position }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 0 } };
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.equal(chosen.type, "grapple", `expected Grapple (near-guaranteed to restrain, neutralizing the enemy's own devastating Strike) to outscore a near-guaranteed-miss Strike, chose: ${JSON.stringify(chosen)}`);
+});
+
 // --- Move through allies (design doc §24 — Ingram's own direct correction: "Characters can move
 // through friendly character spaces per the rules"), proven through the REAL pathfinding entry
 // points the AI actually calls, not just the lower-level reachableCells/blocksPassage unit tests. ---
@@ -235,10 +343,20 @@ test("bestDestinationToward: a DIFFERENT-side occupant in the same spot still fo
 // exactly the distinction design doc §22's own bug report turned on: a technically-correct formula
 // that never changes what the AI actually DOES isn't worth anything. ---
 
+/**
+ * design doc §43 (Stage 2): "me" carries a MELEE weapon on purpose, not the ranged Rifle this
+ * scenario used before whole-turn planning existed. A ranged attacker facing a melee-only threat can
+ * now correctly discover "retreat, but keep shooting" as a genuinely superior plan (see the dedicated
+ * kiting test below) — which is real, valuable new behavior, but it CONFOUNDS this pair's own
+ * purpose: isolating whether lowHpCaution's own HP-scaled urgency, specifically, is what flips
+ * retreat-vs-press between full and critical HP. A melee weapon closes that escape hatch (retreating
+ * sacrifices ALL of "me"'s own offense, same as it always did for the enemy), restoring the original
+ * clean isolation.
+ */
 function makeMeleeThreatState(hp) {
   const me = {
     id: "me", name: "Me", side: "party", currentHP: hp, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 },
-    speed: 25, strikes: [{ name: "Rifle", strikeType: "ranged", attackBonus: 8, rangeIncrement: 60, traits: [], damage: [{ dice: "1d6", bonus: 2, damageType: "piercing" }] }],
+    speed: 25, strikes: [{ name: "Knife", strikeType: "melee", attackBonus: 8, traits: [], damage: [{ dice: "1d6", bonus: 2, damageType: "piercing" }] }],
     position: { col: 10, row: 10 }
   };
   const enemy = {
@@ -255,7 +373,7 @@ function makeMeleeThreatState(hp) {
   return { state, turn };
 }
 
-test("lowHpCaution END TO END: at full HP, decide() presses the attack against a dangerous melee threat (my own ranged Rifle keeps working from range, so kiting away costs real offensiveReach — not worth it while healthy)", () => {
+test("lowHpCaution END TO END: at full HP, decide() presses the attack against a dangerous melee threat (retreating would sacrifice ALL of my own melee-only offense too — not worth it while healthy)", () => {
   const { state, turn } = makeMeleeThreatState(20);
   const chosen = decide(state, "me", turn, { competence: 1 });
   assert.equal(chosen.type, "strike", `expected a full-HP combatant to press the attack, chose: ${JSON.stringify(chosen)}`);
@@ -265,6 +383,59 @@ test("lowHpCaution END TO END: at critically low HP, decide() retreats out of th
   const { state, turn } = makeMeleeThreatState(2);
   const chosen = decide(state, "me", turn, { competence: 1 });
   assert.equal(chosen.type, "move", `expected a critically hurt combatant to disengage rather than trade blows with a devastating melee attacker, chose: ${JSON.stringify(chosen)}`);
+});
+
+/**
+ * design doc §43, Stage 2: a SECOND flagship proof case, distinct from Grapple→Strike→Strike — this
+ * one is about REPOSITIONING, not a control maneuver. A ranged attacker facing a devastating
+ * melee-only threat can retreat out of its reach and STILL land real shots this same turn (its own
+ * Rifle works at any range) — trading away only the worst, heavily MAP-penalized 3rd shot for real
+ * safety from a 4d6+10 return swing next round. Hand-verified via a scratch probe against the real
+ * evaluator before writing this assertion: standing and firing 3 shots nets +10.2; retreating and
+ * firing 2 nets +12.8 — genuinely better, not a wash — while a SINGLE isolated retreat action scores
+ * far below a single isolated Strike, which is exactly why greedy, called-fresh-each-action decide()
+ * could never have found this before Stage 2 existed.
+ */
+test("decide() END TO END, whole-turn planning: a RANGED attacker retreats from a devastating melee-only threat while still landing two real shots — 'reposition-and-shoot', not just 'control-then-attack'", () => {
+  const me = {
+    id: "me", name: "Me", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 },
+    speed: 25, strikes: [{ name: "Rifle", strikeType: "ranged", attackBonus: 8, rangeIncrement: 60, traits: [], damage: [{ dice: "1d6", bonus: 2, damageType: "piercing" }] }],
+    position: { col: 10, row: 10 }
+  };
+  const enemy = {
+    id: "enemy", name: "Enemy", side: "opposition", currentHP: 30, maxHP: 30, ac: 14, saves: { fort: 5, ref: 5, will: 5 },
+    speed: 25, strikes: [{ name: "Claws", strikeType: "melee", attackBonus: 15, traits: [], damage: [{ dice: "4d6", bonus: 10, damageType: "slashing" }] }],
+    position: { col: 11, row: 10 }
+  };
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 30, rows: 30 }, walls: [],
+    combatants: new Map([["me", me], ["enemy", enemy]]),
+    positions: new Map([["me", { ...me.position }], ["enemy", { ...enemy.position }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };
+
+  const before = evaluateState(state, "party", undefined, "me");
+  const isolatedStrike = (() => {
+    const sandbox = forkTurnSandbox({ state, turn });
+    sandbox.apply("me", { type: "strike", targetId: "enemy", strikeIndex: 0 });
+    return evaluateState(sandbox.state, "party", undefined, "me") - before;
+  })();
+  const isolatedMove = (() => {
+    const sandbox = forkTurnSandbox({ state, turn });
+    const result = sandbox.apply("me", { type: "move", to: { col: 5, row: 10 } });
+    assert.ok(result.legal, JSON.stringify(result));
+    return evaluateState(sandbox.state, "party", undefined, "me") - before;
+  })();
+  assert.ok(isolatedStrike > isolatedMove, `expected a lone Strike to outscore a lone retreat in isolation (strike ${isolatedStrike.toFixed(2)}, move ${isolatedMove.toFixed(2)}) — otherwise this doesn't test the greedy trap at all`);
+
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.equal(chosen.type, "move", `expected whole-turn planning to retreat first (still landing 2 real shots after) rather than press in with the greedier single Strike, chose: ${JSON.stringify(chosen)}`);
+  // "disengage-and-heal" and "reposition-and-shoot" are structurally IDENTICAL here — "me" has no
+  // healAbility at all, so disengage-and-heal's own 2nd-phase filter finds nothing and gracefully
+  // degrades to the full pool (Strike), same as reposition-and-shoot's own attack phase. Either name
+  // winning the tie is correct; the plan's actual shape (move, then two real strikes) is what matters.
+  assert.match(chosen.reason, /reposition-and-shoot|disengage-and-heal/);
+  assert.match(chosen.reason, /Strike with Rifle.*Strike with Rifle/);
 });
 
 function makeOutnumberedState(enemyCount) {
@@ -647,4 +818,242 @@ test("generateProposals (design doc §37 — Ingram's bug report: PCs oscillatin
   // wall-aware field instead knows row 0 is a dead end and biases toward the gap at rows 18-22.
   const movesTowardGap = moves.some((m) => m.to.row > 2);
   assert.ok(movesTowardGap, `expected the blended candidate to move toward the gap (row > 2), not hug the solid wall at row 0 — got: ${JSON.stringify(moves.map((m) => m.to))}`);
+});
+
+// ---------------------------------------------------------------------------
+// Retreat / morale (design doc §42, Stage 1 — GM Core §791, near-verbatim: "most creatures... back
+// down from a battle they're obviously losing"). OPT-IN via state.moraleEnabled — every test here
+// also proves the default (unset) path is completely inert, matching the tactical-planning report's
+// own "two modes" argument: this is table-assist behavior, never part of the honest baseline.
+// ---------------------------------------------------------------------------
+
+function makeMoraleState({ moraleEnabled = true, myHpFraction = 0.2, temperament, prone = false } = {}) {
+  const me = {
+    id: "me", name: "Me", side: "party", currentHP: Math.round(20 * myHpFraction), maxHP: 20, ac: 15,
+    saves: { fort: 5, ref: 5, will: 5 }, speed: 25,
+    strikes: [{ name: "Knife", strikeType: "melee", attackBonus: 5, traits: [], damage: [{ dice: "1d4", bonus: 0 }] }],
+    position: { col: 10, row: 10 },
+    ...(temperament ? { temperament } : {}),
+    ...(prone ? { prone: true } : {})
+  };
+  const enemy = {
+    id: "enemy", name: "Enemy", side: "opposition", currentHP: 20, maxHP: 20, ac: 14,
+    saves: { fort: 5, ref: 5, will: 5 }, speed: 25,
+    strikes: [{ name: "Claw", strikeType: "melee", attackBonus: 10, traits: [], damage: [{ dice: "2d6", bonus: 4 }] }],
+    position: { col: 11, row: 10 } // adjacent — a devastating melee threat right next to a badly hurt "me"
+  };
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [], moraleEnabled,
+    combatants: new Map([["me", me], ["enemy", enemy]]),
+    positions: new Map([["me", { ...me.position }], ["enemy", { ...enemy.position }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };
+  return { state, turn };
+}
+
+test("decide() END TO END: with morale ENABLED, a badly hurt combatant on a clearly losing side flees instead of fighting", () => {
+  const { state, turn } = makeMoraleState({ moraleEnabled: true, myHpFraction: 0.2 });
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.equal(chosen.type, "move", `expected a decisive flee override (a move), chose: ${JSON.stringify(chosen)}`);
+  assert.match(chosen.reason, /routing/i);
+});
+
+test("decide() END TO END: with morale NOT enabled (the default), the SAME badly-hurt, clearly-losing combatant never gets the decisive flee override", () => {
+  const { state, turn } = makeMoraleState({ moraleEnabled: false, myHpFraction: 0.2 });
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.ok(!chosen.reason?.includes("routing"), `expected no decisive flee override without state.moraleEnabled, chose: ${JSON.stringify(chosen)}`);
+});
+
+// REGRESSION (design doc §53, found by the systematic transcript audit): a PRONE fleeing combatant
+// used to get the ordinary "move" flee proposal regardless — but Player Core only allows Crawl or
+// Stand while prone, so checkMoveLegality always rejected it. Caught live as 17 identical illegal
+// proposals in one real 6-seed cautious-v1 sample (every one: prone, routing, rejected).
+test("decide() END TO END: with morale ENABLED, a badly hurt, clearly-losing, PRONE combatant stands up instead of attempting an illegal flee move", () => {
+  const { state, turn } = makeMoraleState({ moraleEnabled: true, myHpFraction: 0.2, prone: true });
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.equal(chosen.type, "stand", `expected the flee override to fall back to Stand while prone, chose: ${JSON.stringify(chosen)}`);
+  assert.match(chosen.reason, /routing/i);
+  const sandbox = forkTurnSandbox({ state, turn });
+  assert.equal(sandbox.apply("me", chosen).legal, true, "the chosen flee-while-prone action must actually be legal, not just returned");
+});
+
+test("decide() END TO END: the SAME badly hurt, clearly-losing combatant, no longer prone, flees with a real move again — the prone fallback doesn't leak into the ordinary case", () => {
+  const { state, turn } = makeMoraleState({ moraleEnabled: true, myHpFraction: 0.2, prone: false });
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.equal(chosen.type, "move");
+  assert.match(chosen.reason, /routing/i);
+});
+
+test("decide() END TO END: a MINDLESS combatant never flees, even badly hurt on a clearly losing side with morale enabled — GM Core's own named exception", () => {
+  const { state, turn } = makeMoraleState({ moraleEnabled: true, myHpFraction: 0.2, temperament: "mindless" });
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.ok(!chosen.reason?.includes("routing"), `expected a mindless combatant to never get the flee override, chose: ${JSON.stringify(chosen)}`);
+});
+
+test("decide() END TO END: a SINGLE-MINDED combatant never flees either — GM Core's other named exception", () => {
+  const { state, turn } = makeMoraleState({ moraleEnabled: true, myHpFraction: 0.2, temperament: "single-minded" });
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.ok(!chosen.reason?.includes("routing"), `expected a single-minded combatant to never get the flee override, chose: ${JSON.stringify(chosen)}`);
+});
+
+test("decide() END TO END: a FANATICAL combatant never flees either — GM Core's own real quoted exception ('truly fanatical zealots'), distinct from 'mindless' which is this project's own added extension", () => {
+  const { state, turn } = makeMoraleState({ moraleEnabled: true, myHpFraction: 0.2, temperament: "fanatical" });
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.ok(!chosen.reason?.includes("routing"), `expected a fanatical combatant to never get the flee override, chose: ${JSON.stringify(chosen)}`);
+});
+
+test("decide() END TO END: badly hurt but the SIDE is actually winning — no flee, since GM Core's own trigger is about the battle, not just personal injury", () => {
+  const me = {
+    id: "me", name: "Me", side: "party", currentHP: 4, maxHP: 20, ac: 15,
+    saves: { fort: 5, ref: 5, will: 5 }, speed: 25,
+    strikes: [{ name: "Knife", strikeType: "melee", attackBonus: 5, traits: [], damage: [{ dice: "1d4", bonus: 0 }] }],
+    position: { col: 10, row: 10 }
+  };
+  const winningAlly = {
+    id: "ally", name: "Ally", side: "party", currentHP: 20, maxHP: 20, ac: 15,
+    saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], position: { col: 9, row: 10 }
+  };
+  const nearlyDeadEnemy = {
+    id: "enemy", name: "Enemy", side: "opposition", currentHP: 1, maxHP: 20, ac: 14,
+    saves: { fort: 5, ref: 5, will: 5 }, speed: 25,
+    strikes: [{ name: "Claw", strikeType: "melee", attackBonus: 10, traits: [], damage: [{ dice: "2d6", bonus: 4 }] }],
+    position: { col: 11, row: 10 }
+  };
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [], moraleEnabled: true,
+    combatants: new Map([["me", me], ["ally", winningAlly], ["enemy", nearlyDeadEnemy]]),
+    positions: new Map([["me", { ...me.position }], ["ally", { ...winningAlly.position }], ["enemy", { ...nearlyDeadEnemy.position }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.ok(!chosen.reason?.includes("routing"), `expected no flee when the side is actually winning (mean HP fraction 60% vs the enemy's own 5%), chose: ${JSON.stringify(chosen)}`);
+});
+
+test("decide() END TO END: NOT personally bloodied enough yet (above the real 1/3 threshold) — no flee, even on a clearly losing side", () => {
+  const { state, turn } = makeMoraleState({ moraleEnabled: true, myHpFraction: 0.5 }); // hurt, but above the 1/3 trigger
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.ok(!chosen.reason?.includes("routing"), `expected no flee above the real bloodied threshold, chose: ${JSON.stringify(chosen)}`);
+});
+
+// ---------------------------------------------------------------------------
+// Whole-turn planning (design doc §43, Stage 2 of the tactical-planning report). Every scenario
+// here shares one real fixture pair, chosen and hand-verified via a scratch probe against the real
+// evaluator before being written into assertions (not hand-derived): an attacker with a real melee
+// Strike AND a real Athletics modifier, an enemy tough enough (AC 18 vs attackBonus 10) that a
+// single Strike's OWN isolated gain is nonetheless the single BEST isolated action available —
+// meaning a purely greedy, called-fresh chooser would pick Strike first, exactly the failure mode
+// the report's own "Trip, then capitalise" example describes.
+// ---------------------------------------------------------------------------
+
+function makeWholeTurnScenario({ athleticsModifier = 8, enemyAc = 18, enemyFort = 5, actionsUsed = 0 } = {}) {
+  const me = {
+    id: "me", name: "Me", side: "party", currentHP: 20, maxHP: 20, ac: 15,
+    saves: { fort: 5, ref: 5, will: 5 }, speed: 25, athleticsModifier,
+    strikes: [{ name: "Sword", strikeType: "melee", attackBonus: 10, traits: [], damage: [{ dice: "1d8", bonus: 4 }] }],
+    position: { col: 10, row: 10 }
+  };
+  const enemy = {
+    id: "enemy", name: "Enemy", side: "opposition", currentHP: 30, maxHP: 30, ac: enemyAc,
+    saves: { fort: enemyFort, ref: 5, will: 5 }, speed: 25,
+    strikes: [{ name: "Claw", strikeType: "melee", attackBonus: 8, traits: [], damage: [{ dice: "1d6", bonus: 2 }] }],
+    position: { col: 11, row: 10 }
+  };
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["me", me], ["enemy", enemy]]),
+    positions: new Map([["me", { ...me.position }], ["enemy", { ...enemy.position }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };
+  return { state, turn };
+}
+
+test("decide() END TO END, whole-turn planning: chooses Grapple first even though a single Strike's own ISOLATED gain is higher — the report's own 'greedy misses Trip/Grapple, then capitalise' case", () => {
+  const { state, turn } = makeWholeTurnScenario();
+
+  // Confirm the premise directly, not just assert the conclusion: a purely greedy, single-action
+  // chooser (score each real proposal in isolation, take the max) would pick Strike here, NOT
+  // Grapple — Strike's own isolated gain is the largest of the three.
+  const before = evaluateState(state, "party", undefined, "me");
+  const isolated = {};
+  for (const proposal of [{ type: "strike", targetId: "enemy", strikeIndex: 0 }, { type: "grapple", targetId: "enemy" }, { type: "trip", targetId: "enemy" }]) {
+    const sandbox = forkTurnSandbox({ state, turn });
+    const result = sandbox.apply("me", proposal);
+    isolated[proposal.type] = evaluateState(sandbox.state, "party", undefined, "me") - before;
+  }
+  assert.ok(isolated.strike > isolated.grapple && isolated.strike > isolated.trip,
+    `expected Strike to have the highest ISOLATED gain (strike ${isolated.strike.toFixed(2)}, grapple ${isolated.grapple.toFixed(2)}, trip ${isolated.trip.toFixed(2)}) — otherwise this scenario doesn't actually test the greedy trap`);
+
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.equal(chosen.type, "grapple", `expected whole-turn planning to choose Grapple (setting up two real Strikes) over the greedier single Strike, chose: ${JSON.stringify(chosen)}`);
+  assert.match(chosen.reason, /control-then-attack/, `expected the reason to name the winning template, got: "${chosen.reason}"`);
+  assert.match(chosen.reason, /Strike with Sword.*Strike with Sword/, `expected the reason to show BOTH follow-up strikes queued behind Grapple, got: "${chosen.reason}"`);
+  assert.ok(Math.abs(chosen.score - isolated.grapple) < 1e-9, "the returned score must be Grapple's own local (first-action) gain, not the whole plan's total — matching the pre-Stage-2 score contract exactly");
+});
+
+test("decide() END TO END, whole-turn planning: with only ONE action left this call, the plan degenerates EXACTLY to the pre-Stage-2 single-action choice", () => {
+  const { state, turn } = makeWholeTurnScenario({ actionsUsed: 2 }); // 3 available, 2 already spent -> 1 remaining
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.equal(chosen.type, "strike", `with only one action left, the single best available action IS the plan — chose: ${JSON.stringify(chosen)}`);
+  assert.match(chosen.reason, /\(1 action,/, `expected the plan to report exactly 1 action, got: "${chosen.reason}"`);
+  const before = evaluateState(state, "party", undefined, "me");
+  const sandbox = forkTurnSandbox({ state, turn });
+  sandbox.apply("me", { type: "strike", targetId: "enemy", strikeIndex: 0 });
+  const isolatedStrike = evaluateState(sandbox.state, "party", undefined, "me") - before;
+  assert.ok(Math.abs(chosen.score - isolatedStrike) < 1e-9, "the 1-action plan's score must exactly match the isolated single-action gain — proving no phantom lookahead credit leaks in once there's nothing left to look ahead INTO");
+});
+
+test("decide() END TO END, whole-turn planning: gracefully degrades to plain attacking when the combatant has no Athletics at all — 'control-then-attack' never crashes or dominates when it has nothing to offer", () => {
+  const { state, turn } = makeWholeTurnScenario();
+  state.combatants.get("me").athleticsModifier = null; // no Trip/Shove/Grapple candidates at all (generateProposals' own gate)
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.equal(chosen.type, "strike", `expected plain attacking once no control action is even available, chose: ${JSON.stringify(chosen)}`);
+  assert.ok(!/trip|grapple|shove/i.test(chosen.reason), `expected no control-maneuver mention when none was ever legal, got: "${chosen.reason}"`);
+});
+
+test("decide() END TO END, whole-turn planning: competence < 1 is completely untouched by any of this — still the pre-Stage-2 softmax-over-single-actions reason format, never a template plan", () => {
+  const { state, turn } = makeWholeTurnScenario();
+  const chosen = decide(state, "me", turn, { competence: 0.3 });
+  assert.ok(chosen, "expected a real choice even at low competence");
+  assert.match(chosen.reason, /best of \d+ legal options/, `expected the OLD single-action reason format at competence < 1, got: "${chosen.reason}"`);
+  assert.ok(!/plan \(\d+ actions?,/.test(chosen.reason), `expected NO whole-turn-plan reason format at competence < 1, got: "${chosen.reason}"`);
+});
+
+test("decide() END TO END, whole-turn planning: the flee override (design doc §42, Stage 1) still takes priority over any plan — a routing combatant never gets a multi-action template rationale", () => {
+  const { state, turn } = makeMoraleState({ moraleEnabled: true, myHpFraction: 0.2 });
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.match(chosen.reason, /routing/i);
+  assert.ok(!/plan \(\d+ actions?,/.test(chosen.reason), `a fleeing combatant must never carry a whole-turn-plan rationale, got: "${chosen.reason}"`);
+});
+
+/**
+ * PERFORMANCE REGRESSION (design doc §43): a real decide() call on the real 8-combatant, walled
+ * complex-battle map (34 real proposals) took an average of 2.66s in the first, naive whole-turn
+ * implementation — a 3.9x slowdown over the pre-Stage-2 baseline (~0.68s) that made a single
+ * blind-opening (up to 60-round) battle take the better part of an hour, discovered only when a real
+ * multi-seed test run never finished. Fixed by memoizing scored candidates across templates that
+ * reach the identical action sequence (see planTurn's own header) — measured afterward at ~1.08s,
+ * roughly 1.3x the pre-Stage-2 baseline. This test is deliberately generous (10x slower than the
+ * fix's own measured cost) so it only fails on a real regression back toward the old shape of this
+ * bug, not on ordinary machine-to-machine variance.
+ */
+test("PERFORMANCE: a real decide() call on the real 8-combatant walled complex-battle map completes well under the old bug's own cost", () => {
+  const scenario = buildComplexBattleScenario({
+    seed: 1,
+    partyFixtures: ["lunar-17.json", "tapkey.json", "bennit.json", "vorza-moonshot.json"],
+    oppositionFixtures: ["security-goon.json", "xenowarden-greenhorn.json", "erabryth.json", "tough.json"],
+    setup: "RANDOM_ARCS"
+  });
+  const state = {
+    round: 1, seed: scenario.seed, gridSize: scenario.gridSize, walls: scenario.walls,
+    combatants: new Map(scenario.combatants.map((c) => [c.id, { ...c }])),
+    positions: new Map(scenario.combatants.map((c) => [c.id, { ...c.position }]))
+  };
+  const meId = scenario.combatants.find((c) => c.side === "party").id;
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };
+
+  const start = Date.now();
+  const chosen = decide(state, meId, turn, { competence: 1 });
+  const elapsedMs = Date.now() - start;
+  assert.ok(chosen, "expected a real decision, not null, on a real populated scenario");
+  assert.ok(elapsedMs < 10000, `expected a single decide() call to complete in well under 10s (the old, buggy naive implementation averaged ~2.66s and a full battle of these never finished) — took ${elapsedMs}ms`);
 });

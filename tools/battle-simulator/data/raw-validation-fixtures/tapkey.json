@@ -51,5 +51,7 @@
     }
   ],
   "intimidationModifier": 4,
+  "athleticsModifier": 3,
+  "heroPoints": 1,
   "notes": "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §21. Nano-edge Rapier and Boom Pistol both derive through the existing deriveStrikes unmodified — Tapkey needed zero new engine or extraction code, per the design doc §21 research survey of the 5 remaining Player Core pregens. Her Incendiary Grenade (Commercial) is real but NOT wired as a usable action, for the same reason as Lunar-17's own grenade: its raw description is a 5ft-burst AREA effect (\"Activate 1 Area Fire ... @Template[burst|distance:5]\"), not a single-target attack personnel-engine's saveAttack action can correctly represent — see design doc §21."
 }

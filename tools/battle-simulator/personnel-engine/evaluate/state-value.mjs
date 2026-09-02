@@ -50,11 +50,12 @@
  * terms of their own — see the comment there for why.
  */
 import { resolveEffectiveStats } from "../combatant.mjs";
-import { expectedStrikeDamage, expectedSaveDamage } from "../../engine/resolve.mjs";
+import { expectedStrikeDamage, expectedSaveDamage, degreeProbabilities } from "../../engine/resolve.mjs";
 import { distanceFeet, reachFeetForStrike, FEET_PER_SQUARE } from "../grid.mjs";
 import { lineOfEffect, hasCover, STANDARD_COVER_AC_BONUS } from "../terrain.mjs";
 import { pathCost } from "../world/pathfind.mjs";
 import { splitByRelation } from "../factions.mjs";
+import { isRestrained, isImmobilized, isOffGuardFromConditions, attackerConditionPenalty } from "../conditions.mjs";
 
 /**
  * Straight-line distanceFeet becomes actively MISLEADING once a wall sits between two combatants —
@@ -145,14 +146,24 @@ export function maxLegalRangeFeet(item) {
  * all, since the TARGET rolls, not the attacker (see personnel-engine/engine.mjs's own header on
  * why this also means it's never subject to MAP).
  *
- * The attacker's own Frightened value IS folded in here (unlike MAP, which bestExpectedDamage
- * deliberately excludes as a transient per-attempt penalty) because Frightened is a genuinely
- * persistent state change — "how good is this combatant right now" — that the evaluator needs to
- * see to correctly value inflicting it on an enemy (or suffering it on an ally). This is the whole
- * mechanism behind the Demoralize-then-attack tactic scoring correctly: the moment a target's
- * `frightened` is set, EVERY subsequent evaluateState call sees their AC drop (combatant.mjs's
- * resolveEffectiveStats) and their own outgoing attackModifier drop (here) — both directions
- * automatically, with no separate weight term needed. NOT threaded into a saveAttack's own `dc`,
+ * The attacker's own Frightened AND Prone penalties ARE folded in here, via the shared
+ * attackerConditionPenalty (unlike MAP, which bestExpectedDamage deliberately excludes as a
+ * transient per-attempt penalty), because both are genuinely persistent state changes — "how good
+ * is this combatant right now" — that the evaluator needs to see to correctly value inflicting them
+ * on an enemy (or suffering them on an ally). This is the whole mechanism behind the
+ * Demoralize/Trip-then-attack tactics scoring correctly: the moment a target's `frightened` is set
+ * or `prone` becomes true, EVERY subsequent evaluateState call sees their AC drop (combatant.mjs's
+ * resolveEffectiveStats, via isOffGuardFromConditions) and their own outgoing attackModifier drop
+ * (here) — both directions automatically, with no separate weight term needed.
+ *
+ * REGRESSION FIX (design doc §41, Stage 0): this function used to hand-roll only the frightened
+ * half of attackerConditionPenalty inline (`- (attacker.frightened ?? 0)`) instead of calling the
+ * real shared function — the exact "two statements of one rule" drift class resolve.mjs's own
+ * header warns about. A prone attacker's real -2 was invisible to threatExposure/offensiveReach
+ * from the moment Trip shipped until this fix; conditions.mjs's own attackerConditionPenalty was
+ * always the correct, complete source of truth and is now the one this function actually calls.
+ *
+ * NOT threaded into a saveAttack's own `dc`,
  * even though a frightened attacker's DC should technically also drop ("a penalty to all your
  * checks and DCs") — a deliberate, small, stated scope cut: saveAttack DCs are precomputed at
  * fixture-generation time (deriveClassDC), not re-derived live from a rank+ability pair, and
@@ -171,6 +182,14 @@ export function bestExpectedDamage(attacker, fromPos, target, targetPos, walls) 
   let best = 0;
   const dist = distanceFeet(fromPos, targetPos);
   for (const option of attackOptions(attacker)) {
+    // Restrained (condition-34-restrained.json): "can't use any attack ... actions" — an
+    // attack-ROLL option (Strike/spellAttack; distinguished the same way this function already
+    // does one line below — carries attackBonus, not saveType) is impossible for a restrained
+    // attacker to actually use. A save-based option (saveAttack) isn't an attack-roll action at
+    // all and stays available, matching legality.mjs's own checkNotRestrained scope exactly — this
+    // is the piece that makes a successful Grapple's real tactical value ("this enemy mostly can't
+    // hurt us now") visible to threatExposure/offensiveReach with no new evaluator weight needed.
+    if (option.attackBonus != null && isRestrained(attacker)) continue;
     if (dist > usefulRangeFeet(option)) continue; // out of useful range from here
     const value = option.saveType != null
       ? expectedSaveDamage({
@@ -178,7 +197,7 @@ export function bestExpectedDamage(attacker, fromPos, target, targetPos, walls) 
           damage: option.damage, target, targetEffective
         })
       : expectedStrikeDamage({
-          attackModifier: option.attackBonus - (attacker.frightened ?? 0),
+          attackModifier: option.attackBonus + attackerConditionPenalty(attacker),
           targetAc: targetEffective.ac + coverBonus,
           strike: option, target, targetEffective
         });
@@ -205,26 +224,127 @@ export const DEFAULT_WEIGHTS = {
   // actions lost, Player Core pg. 421; a real "Stunned 2" costs exactly 2 actions, not two whole
   // rounds). Rescaled from an earlier 3.0-per-ROUND figure to keep the same rough magnitude at the
   // unit that actually matters now — 3 actions lost (≈ one full round) still prices out to ≈3.0.
-  stunDenial: 1.0,         // HP-equivalent of denying/suffering one lost action
+  //
+  // RENAMED from stunDenial (design doc §42, Stage 1): originally generalized beyond Stunned to
+  // price every "owed action" state at this SAME rate — Prone and Grabbed/Restrained included. Design
+  // doc §44 SPLIT that back apart: `tempoDenial` now prices ONLY Stunned, a CERTAIN, immediate,
+  // uncontested loss (Player Core pg. 421 — the value IS the actions lost, no further roll needed).
+  // Prone/Grabbed's own "owed" value is fundamentally different in kind — CONTESTED by a real future
+  // roll (Stand is one free action any time; Escape can simply succeed) and, for Grapple specifically,
+  // dependent on someone actually following up before it lapses — see `maneuverTempoDenial` below for
+  // why pricing it at this SAME certain-loss rate was the real bug. Deliberately does NOT re-price
+  // Restrained's own "can't attack" half a second time either way — that's already priced via
+  // bestExpectedDamage's restrained exclusion (design doc §40) through threatExposure/offensiveReach;
+  // re-adding it here would double-count the same real fact through two different mechanisms.
+  tempoDenial: 1.0,        // HP-equivalent of one CERTAIN lost action (Stunned only)
+  // NOT YET MEASURED — split out of tempoDenial (design doc §44), found chasing a real, measured
+  // win-rate regression: the no-maneuvers baseline (§43) won 66.7% of fights to the maneuver-capable
+  // party's 40.0%, despite 96%+ real conversion. Root cause, confirmed by direct probe against real
+  // fixtures: Trip/Grapple are skill checks, NEVER subject to Multiple Attack Penalty — so their
+  // FLAT tempo credit doesn't shrink on a turn's 2nd/3rd action the way a real Strike's own MAP-
+  // discounted expected damage does, making a fresh Grapple (dealing zero damage) look worth MORE
+  // than continuing to attack (Vorza vs. Erabryth, 3rd action of a turn, real fixtures: Strike 1.225,
+  // Grapple 1.958 — a 60% premium for doing nothing). Priced at setupValue's own existing rate (0.3)
+  // on purpose: both terms represent the SAME kind of thing — real value that depends on a future
+  // event (an ally's follow-up; the target's own failed escape roll) rather than Stunned's certain,
+  // already-resolved loss — reusing an established "conditional future value" rate rather than
+  // inventing a new one. Re-measured against the same no-maneuvers comparison after this change —
+  // see §44's own numbers; still flagged NOT YET MEASURED beyond that one real data point.
+  maneuverTempoDenial: 0.3,
   // NOT YET MEASURED (design doc §22 — Ingram's direct ask: "give PCs a greater reason to get out
   // of line of sight of baddies" when hurt, "and the same logic could apply to enemies"). Both are
   // MULTIPLIERS on threatExposure, not separate additive terms — see evaluateState's own comment at
   // the point of use for why. 1.0 at full health/parity (no change from today's behavior); scales
   // up smoothly, no threshold/cliff. Reasoned starting points, same "flag for a future ablation
-  // pass" status as closing/stunDenial above, not pre-tuned against real data yet.
+  // pass" status as closing/tempoDenial above, not pre-tuned against real data yet.
   // design doc §35: raised from 2.0, and the ramp changed from linear to cubic (see the point of
   // use) — the old 3x ceiling (0.36 effective) never got remotely close to competing with a real
   // attack's 1.0-per-HP scale; at 0 HP this now reaches 9x (1.08 effective), just past parity.
   lowHpCaution: 8.0,
-  outnumberedCaution: 1.0  // seeing 2 enemies per visible ally doubles it; 3 per ally triples it
+  outnumberedCaution: 1.0, // seeing 2 enemies per visible ally doubles it; 3 per ally triples it
+  // NOT YET MEASURED (design doc §42, Stage 1 — "setup value"). A debuff that lowers an enemy's
+  // effective AC is worth MORE the sooner someone can capitalize on it — a Trip with 3 allies still
+  // to act this round is a genuinely different play than the identical Trip on the round's last
+  // turn, even though offensiveReach alone scores them identically (it has no notion of initiative
+  // position at all). Reuses offensiveReach's own bestExpectedDamage / per-enemy-HP-cap machinery
+  // exactly, restricted to allies who haven't acted yet this round — additive ON TOP of
+  // offensiveReach on purpose (a still-to-act ally's potential is real AND immediate, so it's
+  // correctly worth strictly more than an already-acted ally's, with no need to subtract anything
+  // from the already-proven, monotonicity-safe term this borrows its structure from). Strictly below
+  // enemyDamage for the identical monotonicity reason offensiveReach already is — see the WEIGHTS
+  // test asserting this directly.
+  setupValue: 0.3,
+  // NOT YET MEASURED (design doc §42, Stage 1 — "mobility denial"). The symmetric counterpart to
+  // `closing`, scored about the ENEMY's own frustrated mobility rather than mine: closing only ever
+  // prices MY OWN side's need to approach, so an enemy pinned out of its own useful range by
+  // Grapple/Immobilized was previously invisible to this evaluator entirely — grappling a melee
+  // attacker who was already out of reach scored no differently than grappling one already adjacent.
+  // Same unit as closing (squares short of range), same starting magnitude, for the same "a denied
+  // approach is worth roughly what an urgent approach costs" intuition. Capped at the enemy's own
+  // remaining HP for the identical monotonicity reason as offensiveReach/setupValue — a naive
+  // currentHP<=0 gate here (rather than a smooth per-HP cap) would make the killing blow on a
+  // far-pinned enemy score WORSE than a graze, the exact bug class §17/§32 already found and fixed
+  // elsewhere; caught here by hand before it ever shipped, not by a failing test.
+  mobilityDenial: 0.75,
+  // NOT YET MEASURED (design doc §55 — the roster-generalization sweep's own real, diagnosed loss:
+  // baseline-v1 lost 75% of the time to aggressive-v1 on a roster with real hard-hitting melee
+  // weapons, from a Trip converted by TWO attackers in one round before the target could Stand).
+  // Unlike closing/setupValue/mobilityDenial above, this one's own inner computation already folds
+  // in a real success probability (degreeProbabilities, the same math maneuverTempoOwed uses) and a
+  // real probability-weighted damage delta (bestExpectedDamage, prone vs. not) — so the raw number
+  // per ally is already a genuine expected-HP figure, not a hand-picked unit. Started at roughly
+  // threatExposure's own order of magnitude (both are "real expected damage, discounted for being
+  // about a hypothetical future attack rather than the current turn") — a reasoned starting point
+  // for the search to correct, exactly the role closing/setupValue/mobilityDenial already play.
+  pileOnRisk: 0.25
 };
+
+/**
+ * How many actions this combatant CERTAINLY, immediately owes — Stunned alone (design doc §44 split
+ * this apart from the maneuver-applied conditions below; see `tempoDenial`'s own comment for why).
+ * A real, exact, already-tracked count (Player Core pg. 421).
+ */
+function tempoOwed(combatant) {
+  return combatant.stunnedValue ?? 0;
+}
+
+/**
+ * How much CONTESTED, future-dependent tempo this combatant owes — priced separately from
+ * `tempoOwed` at `maneuverTempoDenial`'s own, lower rate (design doc §44; see that weight's own
+ * comment for the real win-rate regression that motivated the split). Prone owes exactly 1 (the real
+ * cost of Stand — but Stand is a free action available any time, unlike Stunned's own no-choice
+ * loss). Grabbed/Restrained owes the REAL expected number of Escape attempts before freedom —
+ * computed from the actual Athletics-vs-DC odds (engine.mjs's own real Escape formula, design doc
+ * §41's regression fix: the grappler's Athletics DC only, never Fortitude), not a flat guess —
+ * capped at 4 attempts so a near-impossible escape doesn't send this term toward infinity. Both are
+ * CONTESTED by a real future roll the target might simply win, unlike Stunned's own already-resolved
+ * certainty. Deliberately does NOT price Restrained's own "can't attack" half a second time — see
+ * `tempoDenial`'s own comment on why.
+ */
+function maneuverTempoOwed(combatant, combatantsMap) {
+  let owed = 0;
+  if (combatant.prone) owed += 1;
+  if (combatant.grappledBy) {
+    const grappler = combatantsMap.get(combatant.grappledBy.attackerId);
+    const dc = 10 + (grappler?.athleticsModifier ?? 0);
+    const modifier = combatant.athleticsModifier ?? 0;
+    const probs = degreeProbabilities(modifier, dc);
+    const pFree = probs.success + probs.criticalSuccess;
+    owed += pFree > 0 ? Math.min(4, 1 / pFree) : 4;
+  }
+  return owed;
+}
 
 /**
  * Evaluate `state` from `side`'s point of view, in hit-point-equivalents. Higher is better for
  * that side. Absolute magnitude is meaningless; only DIFFERENCES between two states matter, which
  * is how it is always used.
+ *
+ * `actingCombatantId` (design doc §42, Stage 1) is OPTIONAL and defaults to null — every existing
+ * caller that omits it (every test, decide.mjs's own callers before this change) gets exactly the
+ * same score as before this parameter existed; only the new setupValue term below ever reads it.
  */
-export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
+export function evaluateState(state, side, weights = DEFAULT_WEIGHTS, actingCombatantId = null) {
   const all = [...state.combatants.values()];
   // Faction-aware (factions.mjs), not a raw side filter — see that file's own header.
   const { allies, enemies } = splitByRelation({ id: null, side }, all);
@@ -233,14 +353,16 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
 
   for (const ally of allies) {
     score += weights.allyDamage * ally.currentHP;
-    score -= weights.stunDenial * (ally.stunnedValue ?? 0); // each action a stunned ally still owes is a real, if temporary, cost
+    score -= weights.tempoDenial * tempoOwed(ally); // Stunned only — a certain, already-resolved lost action
+    score -= weights.maneuverTempoDenial * maneuverTempoOwed(ally, state.combatants); // Prone/Grabbed — contested by a real future roll, priced lower (design doc §44)
     for (const s of [...(ally.strikes ?? []), ...(ally.spells ?? []), ...(ally.healAbilities ?? []), ...(ally.saveAttacks ?? []), ...(ally.conditionSaves ?? [])]) {
       if (s.usesRemaining != null) score += weights.resource * s.usesRemaining;
     }
   }
   for (const enemy of enemies) {
     score -= weights.enemyDamage * enemy.currentHP;
-    score += weights.stunDenial * (enemy.stunnedValue ?? 0); // symmetric: an enemy's still-owed stunned action is exactly as valuable to us as our own would be costly
+    score += weights.tempoDenial * tempoOwed(enemy); // symmetric: an enemy's own certain lost action is exactly as valuable to us as our own would be costly
+    score += weights.maneuverTempoDenial * maneuverTempoOwed(enemy, state.combatants);
   }
 
   // Positional terms — computed for LIVING combatants only, and always as a symmetric pair so
@@ -271,15 +393,17 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
 
     // Deferred, not applied inline: the low-HP/outnumbered caution factors below need this ally's
     // FULL visible-enemy count first, so threatExposure's actual cost is applied in a second pass
-    // once both factors are known, not threaded mid-loop.
-    const visibleEnemyDamages = [];
+    // once both factors are known, not threaded mid-loop. Keeps enemy IDENTITY (not just the
+    // damage number) alongside each entry — pileOnRisk below needs to know WHICH enemy is which to
+    // separate "the one who might trip me" from "everyone else who'd cash in on it".
+    const visibleEnemies = [];
     for (const enemy of enemies) {
       if (enemy.currentHP <= 0) continue;
       const enemyPos = state.positions.get(enemy.id);
       if (!enemyPos) continue;
       if (state.walls?.length && !lineOfEffect(allyPos, enemyPos, state.walls)) continue; // no real shot exists from here
       reachByEnemy.set(enemy.id, (reachByEnemy.get(enemy.id) ?? 0) + bestExpectedDamage(ally, allyPos, enemy, enemyPos, state.walls));
-      visibleEnemyDamages.push(bestExpectedDamage(enemy, enemyPos, ally, allyPos, state.walls));
+      visibleEnemies.push({ enemy, enemyPos, damage: bestExpectedDamage(enemy, enemyPos, ally, allyPos, state.walls) });
     }
 
     // LOW-HP CAUTION (design doc §22 — "give PCs a greater reason to get out of line of sight of
@@ -317,7 +441,7 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
     // what can actually be perceived" epistemic framing already used everywhere else in this
     // engine. Neutral (1x) at parity or better (seeing at least as many allies+self as enemies);
     // scales up only once visible enemies genuinely outnumber visible allies+self.
-    // visibleEnemyDamages.length IS this ally's visible-enemy count (identical LOS gate already
+    // visibleEnemies.length IS this ally's visible-enemy count (identical LOS gate already
     // applied above) — only visibleAllies needs its own small pass.
     let visibleAllies = 0;
     for (const other of allies) {
@@ -325,7 +449,7 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
       const otherPos = state.positions.get(other.id);
       if (otherPos && (!state.walls?.length || lineOfEffect(allyPos, otherPos, state.walls))) visibleAllies++;
     }
-    const outnumberedRatio = visibleEnemyDamages.length / (visibleAllies + 1);
+    const outnumberedRatio = visibleEnemies.length / (visibleAllies + 1);
     const outnumberedFactor = 1 + weights.outnumberedCaution * Math.max(0, outnumberedRatio - 1);
 
     // AGGRESSION (design doc §35 — Ingram's own ask: "maybe we could have some characters act more
@@ -339,12 +463,78 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
     // below 1 would do the reverse for a deliberately skittish combatant, though nothing in the
     // current roster uses that direction.
     const cautionFactor = (lowHpFactor * outnumberedFactor) / (ally.aggression ?? 1);
-    for (const incoming of visibleEnemyDamages) score -= weights.threatExposure * cautionFactor * incoming;
+    for (const { damage } of visibleEnemies) score -= weights.threatExposure * cautionFactor * damage;
+
+    // PILE-ON RISK (design doc §55 — a real, diagnosed loss: baseline-v1 lost 75% of the time to
+    // aggressive-v1 on a roster with real hard-hitting melee weapons, because one enemy's Trip let a
+    // SECOND enemy also capitalize on the SAME off-guard window before the target could Stand — 18
+    // damage in one round on a 24-HP combatant, read directly from a real transcript). Nothing above
+    // catches this: threatExposure only prices each visible enemy's CURRENT independent damage, with
+    // no notion that a maneuver landing hands every OTHER attacker a shared bonus at once, and
+    // outnumberedCaution's own headcount ratio is neutral at the ordinary 2-enemies-vs-2-allies case
+    // even when both enemies are about to focus the SAME target.
+    //
+    // Skipped once already off-guard (isOffGuardFromConditions) — at that point the risk has already
+    // materialized into the CURRENT state, and threatExposure above already prices it correctly via
+    // bestExpectedDamage's own real prone/off-guard AC read; adding this on top would double-count.
+    if (!isOffGuardFromConditions(ally)) {
+      // Trip and Grapple share the IDENTICAL real DC formula (engine.mjs's own outcomes.trip/
+      // outcomes.grapple: Athletics modifier vs 10 + target's Fortitude save) — one probability
+      // covers "would some maneuver against this ally, from this enemy, land" for either.
+      let pileOnRisk = 0;
+      for (const { enemy: maneuverer, enemyPos: maneuvererPos } of visibleEnemies) {
+        if (maneuverer.athleticsModifier == null) continue; // opt-in, matching decide.mjs's own trip/shove/grapple gating
+        if (distanceFeet(allyPos, maneuvererPos) > FEET_PER_SQUARE) continue; // Trip/Grapple are both melee-range Athletics checks
+        const dc = 10 + ally.saves.fort;
+        const probs = degreeProbabilities(maneuverer.athleticsModifier, dc);
+        const pLands = probs.success + probs.criticalSuccess;
+        if (pLands <= 0) continue;
+        const proneAlly = { ...ally, prone: true };
+        for (const { enemy: other, enemyPos: otherPos, damage: normalDamage } of visibleEnemies) {
+          if (other.id === maneuverer.id) continue; // their OWN follow-up is already priced by threatExposure above
+          const offGuardDamage = bestExpectedDamage(other, otherPos, proneAlly, allyPos, state.walls);
+          pileOnRisk += pLands * Math.max(0, offGuardDamage - normalDamage);
+        }
+      }
+      score -= weights.pileOnRisk * cautionFactor * pileOnRisk;
+    }
   }
   for (const enemy of enemies) {
     const raw = reachByEnemy.get(enemy.id);
     if (!raw) continue;
     score += weights.offensiveReach * Math.min(raw, enemy.currentHP);
+  }
+
+  // SETUP VALUE (design doc §42, Stage 1) — see DEFAULT_WEIGHTS' own comment for the full
+  // reasoning. Structurally identical to offensiveReach just above (same bestExpectedDamage
+  // currency, same per-enemy-HP cap, same monotonicity proof by inheritance), restricted to allies
+  // who come AFTER actingCombatantId in this round's real initiative order — i.e. who haven't acted
+  // yet and can genuinely capitalize on a debuff applied right now. Deliberately additive on top of
+  // offensiveReach, not a replacement for it: an already-acted ally's potential is still real (worth
+  // something next round), just not worth AS much as an about-to-act ally's immediate one.
+  if (actingCombatantId && state.initiativeOrder) {
+    const myIndex = state.initiativeOrder.indexOf(actingCombatantId);
+    if (myIndex !== -1) {
+      const stillToActIds = new Set(state.initiativeOrder.slice(myIndex + 1));
+      const setupByEnemy = new Map();
+      for (const ally of allies) {
+        if (ally.currentHP <= 0 || !stillToActIds.has(ally.id)) continue;
+        const allyPos = state.positions.get(ally.id);
+        if (!allyPos) continue;
+        for (const enemy of enemies) {
+          if (enemy.currentHP <= 0) continue;
+          const enemyPos = state.positions.get(enemy.id);
+          if (!enemyPos) continue;
+          if (state.walls?.length && !lineOfEffect(allyPos, enemyPos, state.walls)) continue;
+          setupByEnemy.set(enemy.id, (setupByEnemy.get(enemy.id) ?? 0) + bestExpectedDamage(ally, allyPos, enemy, enemyPos, state.walls));
+        }
+      }
+      for (const enemy of enemies) {
+        const raw = setupByEnemy.get(enemy.id);
+        if (!raw) continue;
+        score += weights.setupValue * Math.min(raw, enemy.currentHP);
+      }
+    }
   }
 
   // CLOSING GRADIENT — the fix for a flat evaluator. offensiveReach and threatExposure are both
@@ -381,6 +571,31 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS) {
     }
     if (nearest === Infinity || nearest <= reach) continue; // in range already — no credit to farm
     score -= weights.closing * ((nearest - reach) / FEET_PER_SQUARE); // squares still short of a shot
+  }
+
+  // MOBILITY DENIAL (design doc §42, Stage 1) — see DEFAULT_WEIGHTS' own comment for the full
+  // reasoning. The symmetric counterpart to closing just above: the first term in this file to
+  // score an ENEMY's own positional frustration from my side's perspective, since closing only ever
+  // prices MY side's need to approach. Deliberately does NOT gate on `enemy.currentHP <= 0` the way
+  // an early draft of this term did — that would create exactly the discontinuous-cliff monotonicity
+  // bug §17/§32 already found and fixed for offensiveReach/closing (a far-pinned enemy's own credit
+  // here could be large; a hard cutoff at death would make the killing blow score WORSE than a
+  // graze). The `Math.min(denied, enemy.currentHP)` cap below is the same real fix, reused.
+  for (const enemy of enemies) {
+    if (!isImmobilized(enemy)) continue;
+    const enemyPos = state.positions.get(enemy.id);
+    if (!enemyPos) continue;
+    const ranges = proactiveAttackOptions(enemy).map(usefulRangeFeet).filter((r) => Number.isFinite(r));
+    if (!ranges.length) continue;
+    const reach = Math.max(...ranges);
+    let nearest = Infinity;
+    for (const ally of allies) {
+      const aPos = state.positions.get(ally.id);
+      if (aPos) nearest = Math.min(nearest, effectiveDistance(state, enemyPos, aPos));
+    }
+    if (nearest === Infinity || nearest <= reach) continue; // already in its own range — nothing meaningfully denied
+    const denied = (nearest - reach) / FEET_PER_SQUARE;
+    score += weights.mobilityDenial * Math.min(denied, enemy.currentHP);
   }
 
   // Objective progress. A combatant with a scripted `objective` is trying to reach it; its own

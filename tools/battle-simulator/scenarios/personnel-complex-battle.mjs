@@ -10,6 +10,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { decide } from "../personnel-engine/decide.mjs";
+import { applyProfileToCombatant, decideOptionsForProfile } from "../personnel-engine/ai-profiles.mjs";
 import { GRID_SIZE, WALLS, SETUPS } from "../data/personnel-test-complex.mjs";
 import { generateRandomArcDeployment } from "./random-deployment.mjs";
 import { makeRng } from "../engine/rng.mjs";
@@ -19,10 +20,6 @@ const fixturesDir = path.join(here, "..", "data", "raw-validation-fixtures");
 
 function loadFixture(file) {
   return JSON.parse(readFileSync(path.join(fixturesDir, file), "utf8"));
-}
-
-function ai(state, combatantId, turnState) {
-  return decide(state, combatantId, turnState);
 }
 
 /**
@@ -38,8 +35,33 @@ function ai(state, combatantId, turnState) {
  *   deployment-seeds-the-true-lineup default — the two are meant to be used together (see
  *   engine.mjs's own `blindDeployment` field and belief.mjs's own comment on it).
  * @param {number} [args.roundLimit]
+ * @param {boolean} [args.partyManeuvers] - design doc §43, Stage 2's own explicit verification ask:
+ *   "the same party with Trip, Shove and Grapple withheld, run head-to-head. If the maneuver-capable
+ *   AI does not measurably win more, the maneuvers are decoration." Defaults true (every other
+ *   scenario's real behavior, unchanged). false strips `athleticsModifier` from every PARTY fixture
+ *   after loading — generateProposals' own real gate ("only offered if this combatant actually has
+ *   an Athletics modifier extracted") means this disables EXACTLY Trip/Shove/Grapple for the party
+ *   and nothing else (Escape stays legal regardless — Player Core's own explicit "everyone can
+ *   always try" carve-out, decide.mjs's own header). The OPPOSITION's own athleticsModifier is
+ *   deliberately untouched either way — this measures whether the PARTY'S OWN maneuver capability
+ *   matters, not a symmetric nerf.
+ * @param {object} [args.partyProfile] - design doc §46 (AI profiles, `ai-profiles.mjs`). OPTIONAL,
+ *   OMITTED BY DEFAULT — every pre-§46 caller (which is every caller until now) gets `decide()`
+ *   called with NO options object at all, exactly as before, meaning it always tracks the LIVE
+ *   `DEFAULT_WEIGHTS`/full template set, never a frozen snapshot. Only when a caller explicitly
+ *   passes a real profile (e.g. `BASELINE_V1`) does that combatant's own competence/weights/
+ *   templates/morale/capability-restrictions come from the profile instead — deliberately NOT
+ *   defaulted to `BASELINE_V1` even though the two currently produce numerically identical results,
+ *   because defaulting to a FROZEN snapshot would silently stop every existing scenario from
+ *   tracking future evaluator tuning (exactly the "frozen in name only" risk `ai-profiles.mjs`'s own
+ *   header warns about, just inverted — the danger of freezing something that was never meant to be).
+ * @param {object} [args.oppositionProfile] - the same mechanism, for the opposition side.
  */
-export function buildScenario({ seed, partyFixtures, oppositionFixtures, setup = "DIAGONAL_SW_NE", roundLimit = 40 } = {}) {
+export function buildScenario({ seed, partyFixtures, oppositionFixtures, setup = "DIAGONAL_SW_NE", roundLimit = 40, partyManeuvers = true, partyProfile, oppositionProfile } = {}) {
+  function ai(state, combatantId, turnState) {
+    const profile = state.combatants.get(combatantId)?.side === "party" ? partyProfile : oppositionProfile;
+    return profile ? decide(state, combatantId, turnState, decideOptionsForProfile(profile)) : decide(state, combatantId, turnState);
+  }
   let positions;
   let blindDeployment = false;
   if (setup === "RANDOM_ARCS") {
@@ -73,8 +95,17 @@ export function buildScenario({ seed, partyFixtures, oppositionFixtures, setup =
     return { ...fixture, id: `${fixture.id}-${side}${index}` };
   }
   const combatants = [
-    ...partyFixtures.map((file, i) => ({ ...withUniqueId(loadFixture(file), i, "p"), position: { ...positions.partyPositions[i] } })),
-    ...oppositionFixtures.map((file, i) => ({ ...withUniqueId(loadFixture(file), i, "o"), position: { ...positions.oppositionPositions[i] } }))
+    ...partyFixtures.map((file, i) => {
+      const fixture = loadFixture(file);
+      const withManeuvers = partyManeuvers ? fixture : { ...fixture, athleticsModifier: null };
+      const withProfile = partyProfile ? applyProfileToCombatant(withManeuvers, partyProfile) : withManeuvers;
+      return { ...withUniqueId(withProfile, i, "p"), position: { ...positions.partyPositions[i] } };
+    }),
+    ...oppositionFixtures.map((file, i) => {
+      const fixture = loadFixture(file);
+      const withProfile = oppositionProfile ? applyProfileToCombatant(fixture, oppositionProfile) : fixture;
+      return { ...withUniqueId(withProfile, i, "o"), position: { ...positions.oppositionPositions[i] } };
+    })
   ];
 
   return { seed, gridSize: GRID_SIZE, roundLimit, combatants, ai, walls: WALLS, blindDeployment };

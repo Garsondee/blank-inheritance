@@ -461,6 +461,76 @@ export function coverUsageStats(log) {
   };
 }
 
+/**
+ * MANEUVER CONVERSION — design doc §43 (Stage 2's tactical-planning report, its own explicit ask:
+ * "usage rate alone is not evidence of intent — the question is whether an ally actually CASHED IN
+ * on the setup before it expired"). The direct analogue of coverUsageStats above, for Trip/Grapple
+ * specifically.
+ *
+ * BROKEN POLE: hollow maneuver use. "The AI Trips things" (a nonzero usage rate) is compatible with
+ * an AI that Trips an enemy and then never follows up before it stands back up — exactly what the
+ * evaluator's own §42 monotonicity fixes made cheap enough to attempt opportunistically even when
+ * nothing capitalizes on it. This metric is what distinguishes that from real setup-and-strike play.
+ *
+ * MEASURED AS: for every SUCCESSFUL Trip (targetProneAfter) or Grapple (targetGrappledAfter) in the
+ * log, scan forward through the whole battle's real chronological action order for the first of:
+ * (a) a real attack-roll action (strike/spellAttack/saveAttack, from ANYONE on the maneuvering
+ * side — matches design doc §42's own setupValue framing, "an ally still to act" capitalizing
+ * counts) against the SAME target → CONVERTED; (b) the target's own condition-clearing action
+ * (Stand for Trip, a successful Escape for Grapple) → the window closed unconverted; (c) Grapple's
+ * own real, already-logged `expiresEndOfRound` timer passing → natural expiry, unconverted; (d) the
+ * end of the log → never converted. Both stopping conditions are read straight off data the engine
+ * already logs, not re-derived or approximated — this is exact within the battle it measures, not a
+ * heuristic.
+ *
+ * Shove is deliberately excluded: it has no persistent condition and no equivalent "am I still
+ * benefiting from this" question a later attack roll can answer — a repositioned target isn't easier
+ * to hit BECAUSE it was shoved, so crediting a later attack against it as a "conversion" the same way
+ * Trip/Grapple's real off-guard bonus is would misattribute an unrelated hit, not measure the thing
+ * this metric exists to catch.
+ */
+export function maneuverConversionStats(log) {
+  const roster = log.roster ?? {};
+  const flat = flatActions(log);
+  const attempts = [];
+
+  flat.forEach((entry, index) => {
+    const { action } = entry;
+    if (action.legal === false) return;
+    if (action.type === "trip" && action.targetProneAfter) {
+      attempts.push({ type: "trip", targetId: action.targetId, actorSide: roster[entry.actorId]?.side, appliedIndex: index });
+    }
+    if (action.type === "grapple" && action.targetGrappledAfter) {
+      attempts.push({ type: "grapple", targetId: action.targetId, actorSide: roster[entry.actorId]?.side, appliedIndex: index, expiresEndOfRound: action.targetGrappledAfter.expiresEndOfRound ?? null });
+    }
+  });
+
+  for (const attempt of attempts) {
+    attempt.converted = false;
+    for (let i = attempt.appliedIndex + 1; i < flat.length; i++) {
+      const later = flat[i];
+      if (later.action.legal === false) continue;
+      if (attempt.type === "grapple" && attempt.expiresEndOfRound != null && later.round > attempt.expiresEndOfRound) break;
+      if (later.actorId === attempt.targetId) {
+        if (attempt.type === "trip" && later.action.type === "stand") break;
+        if (attempt.type === "grapple" && later.action.type === "escape" && later.action.freed) break;
+      }
+      if (ATTACK_TYPES.has(later.action.type) && later.action.targetId === attempt.targetId && roster[later.actorId]?.side === attempt.actorSide) {
+        attempt.converted = true;
+        break;
+      }
+    }
+  }
+
+  const rate = (list) => (list.length ? list.filter((a) => a.converted).length / list.length : null);
+  const summarize = (list) => ({ attempts: list.length, converted: list.filter((a) => a.converted).length, conversionRate: rate(list) });
+  return {
+    trip: summarize(attempts.filter((a) => a.type === "trip")),
+    grapple: summarize(attempts.filter((a) => a.type === "grapple")),
+    overall: summarize(attempts)
+  };
+}
+
 /** Everything above, for one battle log. */
 export function collectTacticalMetrics(log, options = {}) {
   return {
@@ -470,7 +540,8 @@ export function collectTacticalMetrics(log, options = {}) {
     resourceUse: resourceUseStats(log),
     threatPriority: threatPriorityStats(log, options),
     engagement: engagementStats(log),
-    coverUsage: coverUsageStats(log)
+    coverUsage: coverUsageStats(log),
+    maneuverConversion: maneuverConversionStats(log)
   };
 }
 
@@ -485,6 +556,7 @@ export function formatTacticalMetrics(m) {
     `resourceUse:    ${m.resourceUse.spent}/${m.resourceUse.tracked} limited options spent${m.resourceUse.options.length ? " [" + m.resourceUse.options.map((o) => `${o.name}:${o.spentRound ?? "never"}`).join(", ") + "]" : ""}`,
     `threatPriority: correlation=${num(m.threatPriority.threatAttackCorrelation)} over ${m.threatPriority.totalAttacks} attacks`,
     `engagement:     firstDamage=round ${m.engagement.firstDamageRound ?? "NEVER"}, totalDamage=${m.engagement.totalDamage}, rounds=${m.engagement.rounds}`,
-    `coverUsage:     moveIntoCover=${pct(m.coverUsage.moveIntoCoverRate)} (${m.coverUsage.movesIntoCover}/${m.coverUsage.movesTotal}), attackFromCover=${pct(m.coverUsage.attackFromCoverRate)} (${m.coverUsage.attacksFromCover}/${m.coverUsage.attacksTotal})`
+    `coverUsage:     moveIntoCover=${pct(m.coverUsage.moveIntoCoverRate)} (${m.coverUsage.movesIntoCover}/${m.coverUsage.movesTotal}), attackFromCover=${pct(m.coverUsage.attackFromCoverRate)} (${m.coverUsage.attacksFromCover}/${m.coverUsage.attacksTotal})`,
+    `maneuverConv:   trip=${pct(m.maneuverConversion.trip.conversionRate)} (${m.maneuverConversion.trip.converted}/${m.maneuverConversion.trip.attempts}), grapple=${pct(m.maneuverConversion.grapple.conversionRate)} (${m.maneuverConversion.grapple.converted}/${m.maneuverConversion.grapple.attempts})`
   ].join("\n");
 }

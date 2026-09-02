@@ -28,6 +28,16 @@
  * it, since Advance itself is Claimant-only). Nothing in the current plan's fixtures sets it, but
  * it costs nothing while unset (same opt-in-field pattern as `vision`/`walls`) and could plausibly
  * matter for a scripted NPC in a later personnel-scale scenario (e.g. "run for the alarm").
+ *
+ * WHOLE-TURN PLANNING (design doc §43, Stage 2 of the tactical-planning report): at full competence,
+ * `decide()` no longer scores one action at a time. Trip's own immediate delta is small — it spends
+ * an action for no direct HP/positional payoff — so a purely greedy, called-fresh-each-action
+ * chooser routinely misses "Trip, then Strike, Strike" even though the SEQUENCE is far stronger than
+ * any of its parts scored alone: by the time greedy re-evaluates after Trip, it has no memory of why
+ * Trip was worth it. `planTurn` searches a small, named portfolio of TURN TEMPLATES over the real
+ * remaining action budget instead — see TURN_TEMPLATES' own comment for why templates rather than a
+ * full branching search. `competence < 1` is deliberately untouched by any of this — see decide()'s
+ * own comment for the scoping reason.
  */
 import { forkTurnSandbox } from "./engine.mjs";
 import { makeRng } from "../engine/rng.mjs";
@@ -298,8 +308,30 @@ function bestCoverDestination(state, moverId, from, threatPos, maxFeet, myRangeF
 /**
  * Every action worth considering. Deliberately generous — the evaluator decides what is good,
  * this only decides what is *conceivable*.
+ *
+ * `externalDestCache` (design doc §43, Stage 2 performance fix) is OPTIONAL — every pre-Stage-2
+ * caller omits it and gets a fresh, single-use Map exactly as before. `planTurn` is the one caller
+ * that threads a cache it owns, SHARED across every `generateProposals` call in one whole-turn
+ * search: the expensive part of this function is real Dijkstra pathfinding
+ * (`reachableCells`/`trueDistanceField`, keyed by mover+origin+budget/target — see
+ * `cachedReachableCells`'s own key shape), and that geometry is identical across every template that
+ * hasn't moved THIS combatant to a new square, even when their non-movement conditions (HP, prone,
+ * grappled, MAP) differ. The one known, deliberately accepted imprecision: a Shove earlier in the
+ * SAME plan can move a DIFFERENT combatant, changing occupancy in a way this cache's key doesn't
+ * capture — a stale hit could offer a cell that's no longer actually reachable, or fail to offer one
+ * that newly is. Never a correctness risk either way: `attemptAction` is still the sole authority on
+ * legality, so a stale-optimistic candidate is simply rejected (`result.legal === false`) like any
+ * other illegal proposal, not silently accepted; the cost is, at most, a missed opportunity in the
+ * rare Shove-then-reposition case, not a wrong action taken.
+ *
+ * `includeMovement` (design doc §43, Stage 2 performance fix) is also OPTIONAL, default true —
+ * every pre-Stage-2 caller is unaffected. `planTurn` passes false for any phase whose filter could
+ * never select a "move" proposal in the first place (isControlType/isAttackType/isHealType, never
+ * isMoveType/anyType) — skipping the movement block entirely skips its real Dijkstra pathfinding
+ * cost, the dominant expense this function has, for a search phase that was always going to filter
+ * every "move" candidate straight back out regardless.
  */
-export function generateProposals(state, combatantId, turn) {
+export function generateProposals(state, combatantId, turn, externalDestCache, includeMovement = true) {
   const me = state.combatants.get(combatantId);
   const myPos = state.positions.get(combatantId);
   const proposals = [];
@@ -371,6 +403,40 @@ export function generateProposals(state, combatantId, turn) {
     }
   });
 
+  // --- Athletics maneuvers: Trip/Shove/Grapple (design doc §31's rules-gap sweep, priority 1) —
+  // only offered if this combatant actually has an Athletics modifier extracted, opt-in matching
+  // intimidationModifier's own pattern above. Against every targetable (conscious) enemy, same
+  // policy as every other offensive candidate loop in this function. ---
+  if (me.athleticsModifier != null) {
+    for (const e of targetableEnemies) {
+      proposals.push({ type: "trip", targetId: e.id });
+      proposals.push({ type: "shove", targetId: e.id });
+      proposals.push({ type: "grapple", targetId: e.id });
+    }
+  }
+
+  // --- Escape: offered whenever this combatant is currently grabbed/restrained — no target needed,
+  // it always targets whoever's holding it (combatant.mjs/legality.mjs read that off grappledBy
+  // directly). Not gated on athleticsModifier != null: Player Core allows attempting Escape with
+  // "an Athletics check (or another appropriate check)" — everyone can always try, even untrained
+  // (checkEscapeLegal/engine.mjs's own resolver default a missing modifier to 0, not to "can't try"). ---
+  if (me.grappledBy) {
+    proposals.push({ type: "escape" });
+  }
+
+  // --- Stand: offered whenever prone, unconditionally (no target, no requirement beyond being
+  // prone) — condition-32-prone.json's own real cost (-2 attack, off-guard) makes it worth
+  // considering every single time. Crawl is deliberately NOT generated here, mirroring this file's
+  // own existing precedent for Step (see this file's own header): with no Take Cover action and no
+  // difficult terrain yet, Crawl is dominated by Stand in literally every case this engine can
+  // currently produce — checkCrawlLegal/the "crawl" action type both still exist for a hand-authored
+  // AI or a future extension to use directly; this is only about what generateProposals bothers to
+  // manufacture on its own. Revisit once Take Cover or difficult terrain exist to make Crawl a real,
+  // distinct choice from simply standing back up. ---
+  if (me.prone) {
+    proposals.push({ type: "stand" });
+  }
+
   // --- Area/burst attacks (design doc §38, e.g. a thrown grenade) — one candidate per enemy square
   // to aim at, same shape as every other targeted candidate above. No hand-built "avoid allies"
   // filtering here on purpose: the sandbox (engine.mjs's areaAttack, both outcome tables) genuinely
@@ -387,7 +453,9 @@ export function generateProposals(state, combatantId, turn) {
     for (const t of [me, ...allies]) if (t.currentHP < t.maxHP) proposals.push({ type: "healAbility", targetId: t.id, abilityIndex: i });
   });
 
-  // --- Movement: ALWAYS offered, and at several distinct standoffs ---
+  // --- Movement: ALWAYS offered (unless the caller already knows a "move" could never be picked
+  // this phase — see includeMovement's own header note), at several distinct standoffs ---
+  if (includeMovement) {
   const destinations = new Map(); // keyed by cell so duplicates collapse
   const addDest = (d) => { if (d) destinations.set(`${d.col},${d.row}`, d); };
 
@@ -405,8 +473,9 @@ export function generateProposals(state, combatantId, turn) {
   const rangedOptionRanges = proactiveAttackOptions(me).filter((o) => o.strikeType !== "melee").map(maxLegalRangeFeet).filter((r) => Number.isFinite(r));
   const myRangedRange = rangedOptionRanges.length ? Math.max(...rangedOptionRanges) : 0;
   // Shared across every destination query this ONE generateProposals call makes — `from`/`walls`/
-  // occupancy are all constant for the whole burst.
-  const destCache = new Map();
+  // occupancy are all constant for the whole burst. Reuses the caller's own cache when one is
+  // threaded in (see this function's own header) rather than always starting fresh.
+  const destCache = externalDestCache ?? new Map();
   for (const e of enemies) {
     // Believed position, not ground truth (design doc §15s) — an enemy with no belief entry at
     // all has never been perceived by anyone on this side; proposing a move toward its true secret
@@ -488,6 +557,7 @@ export function generateProposals(state, combatantId, turn) {
   }
 
   for (const d of destinations.values()) proposals.push({ type: "move", to: d });
+  } // includeMovement
 
   return proposals;
 }
@@ -499,13 +569,281 @@ export function generateProposals(state, combatantId, turn) {
  * `competence` in [0,1] is the tunable skill knob: 1 picks the best action every time, lower
  * values sample more loosely among the good ones via a softmax temperature.
  */
-export function decide(state, combatantId, turn, { competence = 1, weights } = {}) {
+/**
+ * Retreat / morale (design doc §42, Stage 1; GM Core §791 pg. 78 "Morale", verbatim): "While PCs
+ * occasionally encounter truly fanatical zealots or single-minded creatures that would never back
+ * down from a fight, most creatures — even non-sapient creatures like animals — back down from a
+ * battle they're obviously losing." The temperament check below recognizes "fanatical" and
+ * "single-minded" as GM Core's own two named exceptions, verbatim; "mindless" is added as this
+ * project's own reasonable extension beyond the quoted text (a Mindless creature — no intelligence,
+ * immune to mental effects — has no self-preservation concept to invoke in the first place), flagged
+ * here as an addition, not a citation. OPT-IN via `state.moraleEnabled` (default falsy/undefined) —
+ * deliberately NOT part of this
+ * engine's own honest, competence-driven baseline used to validate whether an encounter's XP budget
+ * means what GM Core says it means; this is explicitly a separate, table-assist-mode behavior, per
+ * the tactical-planning report's own "two modes" argument. When it fires, it's a DECISIVE override,
+ * not one more candidate competing in the normal evaluator race — §31's own audit already found a
+ * losing "disengage" candidate routinely loses that exact competition to a mediocre attack even at
+ * 1 HP, which is precisely the failure mode a real fleeing creature wouldn't exhibit (it doesn't
+ * re-litigate "fight or flee" every single action once it's already decided). No numeric threshold
+ * exists in the mirrored rules — GM Core leaves the exact judgment to whoever's running the fight —
+ * so the two conditions below are a real, stated judgment call, not a guess dressed up as one:
+ * personally bloodied (own HP at or below a third) AND this side clearly worse off than the
+ * opposition (mean living-HP fraction strictly lower).
+ *
+ * `moraleEnabledOverride` (design doc §46 — AI profiles): OPTIONAL. When omitted (`undefined`), the
+ * only pre-§46 source of truth — `state.moraleEnabled` — still applies, so every existing caller is
+ * unaffected. A profile's own `moraleEnabled` flows in here as a real per-COMBATANT override,
+ * letting two combatants in the SAME battle differ (an aggressive archetype that never routs
+ * standing next to a cautious one that does) — something a single state-level flag structurally
+ * cannot express.
+ */
+function checkShouldFlee(state, combatantId, moraleEnabledOverride) {
+  const moraleEnabled = moraleEnabledOverride ?? state.moraleEnabled;
+  if (!moraleEnabled) return false;
+  const me = state.combatants.get(combatantId);
+  if (!me || me.currentHP <= 0) return false;
+  if (me.temperament === "mindless" || me.temperament === "fanatical" || me.temperament === "single-minded") return false; // "fanatical"/"single-minded" are GM Core's own named exceptions (pg. 78); "mindless" is this project's own extension — see doc comment above
+  const hpFraction = me.maxHP > 0 ? me.currentHP / me.maxHP : 1;
+  if (hpFraction > 1 / 3) return false;
+  const { allies, enemies } = splitByRelation(me, [...state.combatants.values()]);
+  const meanFraction = (list) => {
+    const living = list.filter((c) => c.currentHP > 0);
+    if (!living.length) return 0;
+    return living.reduce((sum, c) => sum + (c.maxHP > 0 ? c.currentHP / c.maxHP : 0), 0) / living.length;
+  };
+  return meanFraction([me, ...allies]) < meanFraction(enemies);
+}
+
+/**
+ * The actual flee move: directly away from the living enemy side's own center of mass, reusing the
+ * exact same real, wall-aware bestDestinationAway every ordinary disengage candidate already uses —
+ * a fleeing creature isn't inventing new movement, it's just always choosing this one.
+ *
+ * REGRESSION FIX (design doc §53, found by the systematic transcript audit): a PRONE fleeing
+ * combatant used to get this same plain "move" proposal regardless — but Player Core's own real rule
+ * (condition-32-prone.json, pg. 439) is "the only move actions you can use while prone are Crawl and
+ * Stand," which checkMoveLegality already enforces. The decisive flee override in decide() below
+ * returns whatever this function hands back WITHOUT the usual sandbox-legality check every other
+ * candidate in this file goes through (deliberately — see decide()'s own comment on why flee is a
+ * decisive override, not one more scored candidate) — so a prone flee attempt was a real, silent,
+ * guaranteed-illegal proposal, discovered live in the audit sample as 17 illegal proposals in one
+ * six-seed cautious-v1 run, all identical: prone, routing, rejected every time. Standing up is the
+ * real, necessary FIRST step toward actually escaping (Crawl only manages 5ft and stays prone,
+ * exactly the target profile morale is trying to get away from) — and with action economy usually
+ * still remaining this same turn, decide() is called again immediately afterward with prone now
+ * false, at which point this function correctly returns a real move away.
+ */
+function proposeFlee(state, combatantId, turn) {
+  const me = state.combatants.get(combatantId);
+  const myPos = state.positions.get(combatantId);
+  const speed = turn.effective?.speed ?? me.speed ?? 0;
+  if (speed <= 0 || !myPos) return null;
+  const { enemies } = splitByRelation(me, [...state.combatants.values()]);
+  const livingEnemyPositions = enemies.filter((e) => e.currentHP > 0).map((e) => state.positions.get(e.id)).filter(Boolean);
+  if (!livingEnemyPositions.length) return null;
+  if (me.prone) {
+    return {
+      type: "stand", score: null,
+      reason: `${me.name} is routing but prone — Player Core only allows Crawl or Stand while prone, and standing up is the real first step toward actually escaping (GM Core: most creatures back down from a battle they're obviously losing)`
+    };
+  }
+  const threat = averagePosition(livingEnemyPositions);
+  const destination = bestDestinationAway(state, combatantId, myPos, threat, speed);
+  if (!destination) return null;
+  return {
+    type: "move", to: destination, score: null,
+    reason: `${me.name} is routing — this side is clearly losing a fight it can't win, and ${me.name} isn't willing to die for it (GM Core: most creatures back down from a battle they're obviously losing)`
+  };
+}
+
+/**
+ * TURN TEMPLATES (design doc §43, Stage 2 — the tactical-planning report's own four named shapes,
+ * verbatim: "control-then-attack, double-strike, reposition-and-shoot, disengage-and-heal"). Each
+ * template is an ordered list of per-action TYPE FILTERS; the LAST filter repeats for any remaining
+ * actions once the list runs out, so a 2-phase template still fills a full 3-action turn ("Trip,
+ * Strike, Strike" — not "Trip, Strike, hold"). This is the report's own answer to the branching-
+ * factor risk it flags directly ("candidates cubed is not affordable... there is already a
+ * documented performance cliff here" — design doc §22 Bug 3): a handful of named shapes, filled by
+ * the existing per-action scoring machinery, instead of a full search over every combination of
+ * every proposal at every depth.
+ *
+ * `unconstrained` is this project's own fifth addition, not one of the report's four — a filter
+ * matching every proposal type, phase after phase. It reproduces the OLD single-action-at-a-time
+ * decide() exactly, and because `planTurn` always takes the max score across the whole portfolio,
+ * its presence is what guarantees the search can never settle on a worse plan than the pre-Stage-2
+ * baseline would have played — flagged as an addition, not a citation, same honesty convention §42
+ * already used for "mindless."
+ */
+const isControlType = (p) => p.type === "trip" || p.type === "shove" || p.type === "grapple" || p.type === "demoralize" || p.type === "conditionSave";
+const isAttackType = (p) => p.type === "strike" || p.type === "spellAttack" || p.type === "saveAttack" || p.type === "areaAttack";
+const isMoveType = (p) => p.type === "move";
+const isHealType = (p) => p.type === "healAbility";
+const anyType = () => true;
+
+const TURN_TEMPLATES = [
+  { name: "unconstrained", phases: [anyType] },
+  { name: "control-then-attack", phases: [isControlType, isAttackType] },
+  { name: "double-strike", phases: [isAttackType] },
+  { name: "reposition-and-shoot", phases: [isMoveType, isAttackType] },
+  { name: "disengage-and-heal", phases: [isMoveType, isHealType] }
+];
+
+/** A cheap, stable per-proposal key — every proposal generateProposals produces is a small, plain
+ * object with a fixed field layout per type, so plain JSON.stringify is a safe, fast fingerprint. */
+function proposalKey(proposal) {
+  return JSON.stringify(proposal);
+}
+
+/**
+ * Design doc §43, Stage 2: search over whole-turn action SEQUENCES instead of one action at a time.
+ * Runs every TURN_TEMPLATES entry, scores each COMPLETE plan by the total gain across the whole
+ * turn (`evaluateState(finalState) - evaluateState(startState)`, both from `me`'s own side), and
+ * returns the single best plan. Returns null only when every template filled zero actions — i.e.
+ * nothing at all is legal, the same honest condition the pre-Stage-2 decide() returned null for.
+ *
+ * PERFORMANCE (design doc §43 — profiled directly after a real run took over an hour and never
+ * finished, matching this project's own §22 Bug 3 precedent of measuring rather than guessing): a
+ * naive "fork one sandbox per template, run all 3 phases independently" implementation pays for
+ * `generateProposals` (a real pathfinding cost) and its own full candidate scoring ONCE PER
+ * TEMPLATE PER PHASE — up to 15 times for 5 templates × 3 phases — even though every template
+ * starts from the exact same (state, turn) at phase 0, and several templates share IDENTICAL
+ * filters at later phases too (`reposition-and-shoot` and `disengage-and-heal` both filter phase 0
+ * on `isMoveType` — they are GUARANTEED to reach the identical state after it). Measured: ~2.66s per
+ * decide() call on the real 8-combatant walled map (vs. ~0.68s pre-Stage-2) — enough to turn a
+ * single blind-opening (up to 60-round) battle into the better part of an hour.
+ *
+ * Fixed with `scoredCache`, keyed on the exact SEQUENCE of proposals applied so far (a plain string
+ * built from `proposalKey`). Two templates that have applied the identical sequence are PROVABLY in
+ * the identical state — `EXPECTED_OUTCOMES` is fully deterministic, no rng, the same guarantee
+ * `forkTurnSandbox`'s own header already documents — so reusing one template's scored candidate list
+ * for another that reaches the same sequence is exact, not an approximation. This captures sharing
+ * at EVERY phase depth, not just phase 0, with no hardcoded knowledge of which templates happen to
+ * overlap; the win falls out of how much the templates actually converge in a given real situation.
+ */
+function planTurn(state, combatantId, turn, weights, templates = TURN_TEMPLATES, disabledActionTypes) {
+  const me = state.combatants.get(combatantId);
+  if (!me) return null;
+  if (turn.actionsAvailable - turn.actionsUsed <= 0) return null;
+  const before = evaluateState(state, me.side, weights, combatantId);
+
+  const scoredCache = new Map(); // "sequenceKey::includeMovement" -> [{proposal, gain}]
+  // Shared pathfinding cache across the WHOLE search (every template, every phase) — see
+  // generateProposals' own header for exactly what this does and does not assume safe to reuse.
+  const sharedDestCache = new Map();
+  function scoredCandidatesFor(sequenceKey, sandboxState, sandboxTurn, includeMovement) {
+    const cacheKey = `${sequenceKey}::${includeMovement}`;
+    if (scoredCache.has(cacheKey)) return scoredCache.get(cacheKey);
+    const rawProposals = generateProposals(sandboxState, combatantId, sandboxTurn, sharedDestCache, includeMovement);
+    // §46 (AI profiles): a real CAPABILITY restriction, not a preference — filtered out before
+    // scoring even begins, so a disabled action type is never a candidate at all, in either the
+    // whole-turn search here or the competence<1 fallback below (both call this same helper).
+    const proposals = filterDisabledTypes(rawProposals, disabledActionTypes);
+    const localBefore = evaluateState(sandboxState, me.side, weights, combatantId);
+    const scored = [];
+    for (const proposal of proposals) {
+      const trial = forkTurnSandbox({ state: sandboxState, turn: sandboxTurn });
+      const result = trial.apply(combatantId, proposal);
+      if (!result.legal) continue; // the ENGINE decides legality; we never re-derive it
+      const gain = evaluateState(trial.state, me.side, weights, combatantId) - localBefore;
+      scored.push({ proposal, gain });
+    }
+    scoredCache.set(cacheKey, scored);
+    return scored;
+  }
+  function bestMatching(scored, filter) {
+    if (!scored.length) return null;
+    const matching = filter === anyType ? scored : scored.filter((s) => filter(s.proposal));
+    const pool = matching.length ? matching : scored;
+    return pool.reduce((best, cur) => (!best || cur.gain > best.gain ? cur : best), null);
+  }
+
+  const results = templates.map((template) => {
+    const sandbox = forkTurnSandbox({ state, turn });
+    const plan = [];
+    let sequenceKey = "";
+    while (sandbox.actionsRemaining() > 0) {
+      const filter = template.phases[Math.min(plan.length, template.phases.length - 1)];
+      // §43 performance: skip real pathfinding entirely for a phase whose filter could never
+      // select "move" anyway (isControlType/isAttackType/isHealType) — the dominant cost in
+      // generateProposals, paid for nothing on a phase that would just filter it back out.
+      // isMoveType/anyType are the only two filters that can ever match a "move" proposal.
+      const includeMovement = filter === anyType || filter === isMoveType;
+      const scored = scoredCandidatesFor(sequenceKey, sandbox.state, sandbox.turn, includeMovement);
+      const picked = bestMatching(scored, filter);
+      if (!picked) break;
+      const result = sandbox.apply(combatantId, picked.proposal);
+      plan.push({ proposal: picked.proposal, result, gain: picked.gain });
+      sequenceKey += `|${proposalKey(picked.proposal)}`;
+    }
+    return { templateName: template.name, plan, finalState: sandbox.state };
+  }).filter((r) => r.plan.length > 0);
+
+  if (!results.length) return null;
+  const scored = results.map((r) => ({ ...r, totalGain: evaluateState(r.finalState, me.side, weights, combatantId) - before }));
+  scored.sort((a, b) => (b.totalGain - a.totalGain) || a.templateName.localeCompare(b.templateName));
+  return scored[0];
+}
+
+/** Readable multi-action rationale — the report's own "readable rationales for free" benefit of
+ * the template approach: names the winning template and shows every action still queued behind the
+ * one actually being taken this call, not just that one action in isolation. */
+function describePlan(planned) {
+  const steps = planned.plan.map((s) => describe(s.proposal, s.result)).join(" → ");
+  const actionWord = planned.plan.length === 1 ? "action" : "actions";
+  return `${planned.templateName} plan (${planned.plan.length} ${actionWord}, projected total gain ${planned.totalGain.toFixed(1)}): ${steps}`;
+}
+
+/** design doc §46 (AI profiles): a real, honest capability restriction — proposals of a disabled
+ * TYPE are removed before anything ever scores them, not merely deprioritized. `undefined`/empty
+ * is the default, zero-cost path every pre-§46 caller takes. */
+function filterDisabledTypes(proposals, disabledActionTypes) {
+  if (!disabledActionTypes?.length) return proposals;
+  return proposals.filter((p) => !disabledActionTypes.includes(p.type));
+}
+
+/**
+ * `templates` (design doc §46 — AI profiles) is an OPTIONAL array of TURN_TEMPLATES entry NAMES
+ * (plain strings — a profile is data, not function references), resolved here against this file's
+ * own real template objects. Omitted means every named template is available, byte-identical to
+ * every pre-§46 caller. `moraleEnabled`/`disabledActionTypes` are the other two real per-profile
+ * overrides — see `checkShouldFlee`'s and `filterDisabledTypes`'s own headers for what each does.
+ */
+export function decide(state, combatantId, turn, { competence = 1, weights, templates: templateNames, moraleEnabled, disabledActionTypes } = {}) {
   const me = state.combatants.get(combatantId);
   if (!me) return null;
   if (turn.actionsAvailable - turn.actionsUsed <= 0) return null;
 
-  const before = evaluateState(state, me.side, weights);
-  const proposals = generateProposals(state, combatantId, turn);
+  if (checkShouldFlee(state, combatantId, moraleEnabled)) {
+    const flee = proposeFlee(state, combatantId, turn);
+    if (flee) return flee;
+  }
+
+  // Whole-turn planning (design doc §43, Stage 2) only at full competence. competence < 1 is
+  // deliberately left on the exact pre-Stage-2 single-action greedy-then-softmax path below,
+  // unchanged: competence already models an IMPERFECT actor sampling among single-action choices,
+  // and stacking multi-action lookahead on top of that is a real, separate design question (how
+  // should "imperfect play" behave over a whole plan?) this pass doesn't invent an answer to. A
+  // skilled tactician planning several actions ahead and a middling one reacting one action at a
+  // time is also the more natural reading of what "competence" already means in this file's own
+  // header ("1 picks the best action every time, lower values sample more loosely").
+  if (competence >= 1) {
+    const activeTemplates = templateNames ? TURN_TEMPLATES.filter((t) => templateNames.includes(t.name)) : TURN_TEMPLATES;
+    const planned = planTurn(state, combatantId, turn, weights, activeTemplates, disabledActionTypes);
+    if (planned) {
+      const first = planned.plan[0];
+      return {
+        ...first.proposal,
+        score: Number(first.gain.toFixed(3)),
+        reason: `${describe(first.proposal, first.result)} — ${describePlan(planned)}`
+      };
+    }
+    // Falls through only when NOTHING at all was legal (every template filled zero actions) — the
+    // loop below will independently discover the same thing and return null, same as always.
+  }
+
+  const before = evaluateState(state, me.side, weights, combatantId);
+  const proposals = filterDisabledTypes(generateProposals(state, combatantId, turn), disabledActionTypes);
   if (!proposals.length) return null;
 
   const scored = [];
@@ -513,7 +851,7 @@ export function decide(state, combatantId, turn, { competence = 1, weights } = {
     const sandbox = forkTurnSandbox({ state, turn });
     const result = sandbox.apply(combatantId, proposal);
     if (!result.legal) continue; // the ENGINE decides legality; we never re-derive it
-    const after = evaluateState(sandbox.state, me.side, weights);
+    const after = evaluateState(sandbox.state, me.side, weights, combatantId);
     scored.push({ proposal, gain: after - before, result });
   }
   if (!scored.length) return null;
@@ -564,6 +902,12 @@ function describe(proposal, result) {
     case "conditionSave": return `Use ${result?.conditionSaveName ?? "ability " + (proposal.conditionSaveIndex ?? 0)} against ${proposal.targetId}`;
     case "areaAttack": return `Throw ${result?.areaAttackName ?? "ability " + (proposal.areaAttackIndex ?? 0)} at ${proposal.originId}'s position`;
     case "healAbility": return `Heal ${proposal.targetId} with ${result?.abilityName ?? "ability"}`;
+    case "trip": return `Trip ${proposal.targetId}`;
+    case "shove": return `Shove ${proposal.targetId}`;
+    case "grapple": return `Grapple ${proposal.targetId}`;
+    case "escape": return "Escape";
+    case "stand": return "Stand";
+    case "crawl": return `Crawl to (${proposal.to.col},${proposal.to.row})`;
     default: return proposal.type;
   }
 }

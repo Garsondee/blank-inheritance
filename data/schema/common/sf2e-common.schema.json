@@ -418,7 +418,11 @@
         "spellcasting": { "$ref": "#/$defs/spellcasting" },
         "abilities": { "type": "array", "items": { "$ref": "#/$defs/ability" }, "description": "Special/reactive abilities: active, free-action, reaction, constant/automatic, and skill abilities per GM Core's ability-design categories." },
         "activeConditions": { "type": "array", "items": { "$ref": "#/$defs/activeCondition" } },
-        "flavorText": { "type": "string", "description": "Read-aloud/GM-facing description." }
+        "flavorText": { "type": "string", "description": "Read-aloud/GM-facing description." },
+        "profileRef": {
+          "type": ["string", "null"],
+          "description": "Design doc §50 (Archetype Ladder Stage E) — OPTIONAL, battle-simulator-tooling-only. Unlike every other *Ref field in this schema, this does NOT point at another /data JSON file: it's the id of a real, already-tested AI profile object defined in tools/battle-simulator/personnel-engine/ai-profiles.mjs (BASELINE_V1, NO_MANEUVERS_V1) or archetypes.mjs (aggressive-v1/cautious-v1/flanker-v1/brawler-v1/mindless-v1/zealot-v1 — ALL_PROFILES is the live, authoritative registry; check there for the current real list, since new archetypes are expected to be added over time and this description will not be kept in lockstep). Deliberately NOT an enum: the profile's own real numbers (weights, competence, templates...) belong in exactly one place — the JS module that's already built, tested, and battle-verified — duplicating them into campaign JSON here would just be a second copy that could silently drift from the real one, the same 'frozen in name only' risk ai-profiles.mjs's own header already warns about for a DIFFERENT reason. Purely descriptive metadata for a human (or a future encounter-validation tool) to know 'when this creature needs to fight in the simulator, play it like THIS' — never read by the Foundry sync pipeline, which has no concept of AI weights at all."
+        }
       }
     }
   }

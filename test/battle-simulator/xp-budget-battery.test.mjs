@@ -7,7 +7,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { runScenarioSweep, aggregateSweep, XP_BUDGET_TIERS, RANGED_DUEL } from "../../tools/battle-simulator/analysis/xp-budget-battery.mjs";
+import { runScenarioSweep, aggregateSweep, XP_BUDGET_TIERS, RANGED_DUEL, logProgress } from "../../tools/battle-simulator/analysis/xp-budget-battery.mjs";
 
 test("aggregateSweep: real means across hand-built results, outcomes tallied correctly", () => {
   const results = [
@@ -61,4 +61,31 @@ test("runScenarioSweep (real integration, 2 seeds): wires planRuns -> runBattle 
     assert.ok(r.party.maxHP > 0);
     assert.ok(r.tactical.coverUsage !== undefined);
   }
+});
+
+// --- onProgress (design doc §45 — a direct ask: distinguish a broken run from a slow-but-working
+// one). OPTIONAL, defaults to a no-op — the test above already proves the omitted-callback path is
+// silent and unaffected; these prove the OPT-IN path fires real, correctly-shaped events. ---
+
+test("runScenarioSweep: onProgress, when provided, fires a real seedComplete event per seed with the true outcome/rounds/seed, plus at least one real round event", () => {
+  const events = [];
+  const results = runScenarioSweep("complex-2v4-moderate-random-arcs", "1-2", { onProgress: (e) => events.push(e) });
+  const completes = events.filter((e) => e.type === "seedComplete");
+  assert.equal(completes.length, 2, "expected exactly one seedComplete event per seed");
+  for (let i = 0; i < 2; i++) {
+    assert.equal(completes[i].seedIndex, i);
+    assert.equal(completes[i].seedTotal, 2);
+    assert.equal(completes[i].seed, results[i].seed);
+    assert.equal(completes[i].outcome, results[i].runMetrics.outcome, "the progress event's own outcome must match the real returned result, not a guess");
+    assert.equal(completes[i].rounds, results[i].runMetrics.rounds);
+    assert.ok(completes[i].elapsedMs >= 0);
+  }
+  const rounds = events.filter((e) => e.type === "round");
+  assert.ok(rounds.length > 0, "expected at least the real round-1 event for each seed (round 1 always fires, unthrottled)");
+  assert.ok(rounds.every((e) => e.round === 1 || e.round % 5 === 0), `round events must be throttled to round 1 or every 5th round, saw: ${rounds.map((e) => e.round).join(",")}`);
+});
+
+test("logProgress: renders both real event shapes without throwing — a smoke test for the actual CLI-facing renderer, not just the data contract above", () => {
+  assert.doesNotThrow(() => logProgress({ type: "round", seedIndex: 0, seedTotal: 3, seed: 7, round: 5, roundLimit: 40 }));
+  assert.doesNotThrow(() => logProgress({ type: "seedComplete", seedIndex: 0, seedTotal: 3, seed: 7, outcome: "party-victory", rounds: 6, elapsedMs: 1234 }));
 });

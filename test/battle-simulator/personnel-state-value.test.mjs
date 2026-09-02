@@ -13,6 +13,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { evaluateState, DEFAULT_WEIGHTS, bestExpectedDamage } from "../../tools/battle-simulator/personnel-engine/evaluate/state-value.mjs";
+import { degreeProbabilities } from "../../tools/battle-simulator/engine/resolve.mjs";
 
 function makeState({ allyCount = 1, enemyCount = 1, enemyHP = 20, allyHP = 20 } = {}) {
   const combatants = new Map();
@@ -175,7 +176,34 @@ test("bestExpectedDamage: a real cover object between attacker and a REFLEX save
   assert.ok(coveredDamage < openDamage, `expected cover to reduce expected saveAttack damage too (open: ${openDamage.toFixed(2)}, covered: ${coveredDamage.toFixed(2)})`);
 });
 
-// --- stunDenial (design doc §22) ---
+/**
+ * REGRESSION (design doc §41, Stage 0): bestExpectedDamage used to hand-roll only Frightened's own
+ * penalty inline instead of calling the real shared attackerConditionPenalty (conditions.mjs) — the
+ * exact "two statements of one rule" drift class resolve.mjs's own header warns about. A prone
+ * attacker's real -2 to attack rolls (condition-32-prone.json) was invisible to threatExposure/
+ * offensiveReach from the moment Trip shipped until this fix, so a successfully Tripped enemy read
+ * as exactly as threatening as before — the whole point of the AC-based off-guard credit already
+ * working (see the cover tests above for that half) was undercut by this half silently not.
+ */
+test("bestExpectedDamage: a PRONE attacker's own real -2 attack penalty reduces its expected outgoing damage, with no separate evaluator weight", () => {
+  const attacker = { id: "a", name: "a", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [{ name: "Pistol", strikeType: "ranged", attackBonus: 10, rangeIncrement: 60, traits: [], damage: [{ dice: "1d6", bonus: 2, damageType: "piercing" }] }] };
+  const target = { id: "t", name: "t", side: "opposition", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [] };
+  const fromPos = { col: 0, row: 0 }, toPos = { col: 5, row: 0 };
+  const standingDamage = bestExpectedDamage(attacker, fromPos, target, toPos, []);
+  const proneDamage = bestExpectedDamage({ ...attacker, prone: true }, fromPos, target, toPos, []);
+  assert.ok(proneDamage < standingDamage, `expected prone to reduce this attacker's own expected outgoing damage (standing: ${standingDamage.toFixed(2)}, prone: ${proneDamage.toFixed(2)})`);
+});
+
+test("bestExpectedDamage: Frightened and Prone stack additively on the attacker's own modifier, matching attackerConditionPenalty's own real combined formula", () => {
+  const attacker = { id: "a", name: "a", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [{ name: "Pistol", strikeType: "ranged", attackBonus: 10, rangeIncrement: 60, traits: [], damage: [{ dice: "1d6", bonus: 2, damageType: "piercing" }] }] };
+  const target = { id: "t", name: "t", side: "opposition", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [] };
+  const fromPos = { col: 0, row: 0 }, toPos = { col: 5, row: 0 };
+  const frightenedOnly = bestExpectedDamage({ ...attacker, frightened: 1 }, fromPos, target, toPos, []);
+  const proneAndFrightened = bestExpectedDamage({ ...attacker, frightened: 1, prone: true }, fromPos, target, toPos, []);
+  assert.ok(proneAndFrightened < frightenedOnly, `expected stacking both penalties to reduce expected damage further than frightened alone (frightened only: ${frightenedOnly.toFixed(2)}, both: ${proneAndFrightened.toFixed(2)})`);
+});
+
+// --- tempoDenial (design doc §22, generalized beyond Stunned alone in §42's Stage 1) ---
 
 test("MONOTONICITY: a stunned enemy is worth strictly more to the party than the same enemy un-stunned, all else equal", () => {
   const base = makeState({ allyCount: 2, enemyCount: 1 });
@@ -197,7 +225,7 @@ test("MONOTONICITY: the same holds symmetrically — a stunned ALLY is worth str
   assert.ok(partyDelta > 0 && oppositionDelta < 0, `stunning the enemy must be good for the party and bad for the opposition (party: ${partyDelta.toFixed(2)}, opposition: ${oppositionDelta.toFixed(2)})`);
 });
 
-test("stunDenial scales with the real number of rounds stunned — 2 rounds is worth exactly twice 1 round", () => {
+test("tempoDenial scales with the real number of actions stunned — 2 is worth exactly twice 1", () => {
   const base = makeState({ allyCount: 1, enemyCount: 1 });
   const before = evaluateState(base, "party");
   const one = { ...base, combatants: new Map(base.combatants) };
@@ -206,7 +234,213 @@ test("stunDenial scales with the real number of rounds stunned — 2 rounds is w
   two.combatants.set("enemy-0", { ...base.combatants.get("enemy-0"), stunnedValue: 2 });
   const gainOne = evaluateState(one, "party") - before;
   const gainTwo = evaluateState(two, "party") - before;
-  assert.ok(Math.abs(gainTwo - 2 * gainOne) < 1e-9, `expected exactly linear scaling (1 round: +${gainOne.toFixed(3)}, 2 rounds: +${gainTwo.toFixed(3)})`);
+  assert.ok(Math.abs(gainTwo - 2 * gainOne) < 1e-9, `expected exactly linear scaling (1 action: +${gainOne.toFixed(3)}, 2 actions: +${gainTwo.toFixed(3)})`);
+});
+
+/**
+ * REGENERALIZATION (design doc §42, Stage 1): tempoDenial now prices Prone (1 owed action — the
+ * real cost of Stand) and Grabbed/Restrained (the real expected Escape-attempt count) on top of
+ * Stunned, all in the same "owed actions" currency, deliberately NOT re-pricing Restrained's own
+ * "can't attack" half a second time (already priced via bestExpectedDamage's restrained exclusion,
+ * design doc §40). The two Grabbed/Restrained cases below reuse the exact modifier/DC pairs already
+ * hand-verified in yesterday's Escape work — pFree=1.0 (guaranteed escape next try) and pFree=0
+ * (guaranteed stuck) — so the expected result is exact, not approximate.
+ */
+// Both tests below deliberately use STRIKELESS combatants on both sides: Prone also grants a real,
+// already-existing (design doc §40) off-guard AC credit against incoming attacks, on top of
+// tempoOwed's own action-cost pricing — makeState()'s default ranged-armed ally would let that
+// SECOND, correct effect leak into the diff and contaminate an "isolate tempoOwed alone" comparison
+// (caught live: a first draft using makeState() measured prone at +1.352 vs stunned's +1.000, not
+// because tempoOwed was wrong, but because the off-guard credit was firing too). No strikes on either
+// side means offensiveReach/bestExpectedDamage contribute a flat 0 regardless of prone, isolating
+// tempoOwed's own formula cleanly — the off-guard credit itself already has its own dedicated tests
+// above ("bestExpectedDamage: a PRONE attacker's own real -2 attack penalty...", cover tests).
+function makeStrikelessDuo() {
+  const enemy = { id: "enemy-0", name: "e", side: "opposition", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [] };
+  const ally = { id: "ally-0", name: "a", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [] };
+  const positions = new Map([["enemy-0", { col: 7, row: 5 }], ["ally-0", { col: 5, row: 5 }]]);
+  return { round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, combatants: new Map([["enemy-0", enemy], ["ally-0", ally]]), positions };
+}
+
+// design doc §44: Prone/Grabbed's own "owed" value is now priced at `maneuverTempoDenial` (0.3),
+// deliberately BELOW Stunned's own `tempoDenial` (1.0) — split apart after a real, measured
+// win-rate regression traced directly to pricing them at the same certain-loss rate (see that
+// weight's own comment for the full story and the real fixture-based probe that found it).
+test("maneuverTempoDenial: a PRONE enemy owes exactly 1 action, priced at maneuverTempoDenial's OWN (lower) rate — not Stunned's tempoDenial rate", () => {
+  const base = makeStrikelessDuo();
+  const before = evaluateState(base, "party");
+  const proneOne = { ...base, combatants: new Map(base.combatants) };
+  proneOne.combatants.set("enemy-0", { ...base.combatants.get("enemy-0"), prone: true });
+  const gainProne = evaluateState(proneOne, "party") - before;
+  assert.ok(Math.abs(gainProne - DEFAULT_WEIGHTS.maneuverTempoDenial * 1) < 1e-9, `expected Prone's 1 owed action priced at maneuverTempoDenial, isolated from the separate off-guard AC credit — got +${gainProne.toFixed(3)}`);
+});
+
+test("Stunned and Prone are now priced at DIFFERENT rates, and still stack additively at their own respective rates", () => {
+  const base = makeStrikelessDuo();
+  const before = evaluateState(base, "party");
+  const stunnedOnly = { ...base, combatants: new Map(base.combatants) };
+  stunnedOnly.combatants.set("enemy-0", { ...base.combatants.get("enemy-0"), stunnedValue: 1 });
+  const proneOnly = { ...base, combatants: new Map(base.combatants) };
+  proneOnly.combatants.set("enemy-0", { ...base.combatants.get("enemy-0"), prone: true });
+  const both = { ...base, combatants: new Map(base.combatants) };
+  both.combatants.set("enemy-0", { ...base.combatants.get("enemy-0"), stunnedValue: 1, prone: true });
+  const gainStunnedOnly = evaluateState(stunnedOnly, "party") - before;
+  const gainProneOnly = evaluateState(proneOnly, "party") - before;
+  const gainBoth = evaluateState(both, "party") - before;
+  assert.ok(Math.abs(gainStunnedOnly - DEFAULT_WEIGHTS.tempoDenial) < 1e-9, `Stunned 1 alone must price at tempoDenial's own rate, got +${gainStunnedOnly.toFixed(3)}`);
+  assert.ok(Math.abs(gainProneOnly - DEFAULT_WEIGHTS.maneuverTempoDenial) < 1e-9, `Prone alone must price at maneuverTempoDenial's own (lower) rate, got +${gainProneOnly.toFixed(3)}`);
+  assert.ok(Math.abs(gainBoth - (gainStunnedOnly + gainProneOnly)) < 1e-9, `expected the two DIFFERENT-rate credits to still stack additively (stunned +${gainStunnedOnly.toFixed(3)}, prone +${gainProneOnly.toFixed(3)}, both +${gainBoth.toFixed(3)})`);
+});
+
+test("maneuverTempoDenial: a Grabbed/Restrained enemy who can ALMOST CERTAINLY escape next try owes almost exactly the real floor of 1 action, priced at maneuverTempoDenial's own rate", () => {
+  const grappler = { id: "grappler", name: "Grappler", side: "opposition", currentHP: 20, maxHP: 20, athleticsModifier: -20, saves: { fort: 5, ref: 5, will: 5 } }; // DC = 10-20 = -10
+  const held = { id: "enemy-0", name: "Held", side: "opposition", currentHP: 20, maxHP: 20, athleticsModifier: 20, saves: { fort: 5, ref: 5, will: 5 }, grappledBy: { attackerId: "grappler", state: "restrained", expiresEndOfRound: 5 } }; // modifier 20 vs DC -10 -> guaranteed success-or-better (hand-verified §41)
+  const ally = { id: "ally-0", name: "Ally", side: "party", currentHP: 20, maxHP: 20, strikes: [] };
+  const positions = new Map([["grappler", { col: 7, row: 5 }], ["enemy-0", { col: 7, row: 6 }], ["ally-0", { col: 5, row: 5 }]]);
+  const state = { round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, combatants: new Map([["grappler", grappler], ["enemy-0", held], ["ally-0", ally]]), positions };
+  const free = { ...state, combatants: new Map(state.combatants) };
+  free.combatants.set("enemy-0", { ...held, grappledBy: null });
+  const gain = evaluateState(state, "party") - evaluateState(free, "party");
+  assert.ok(Math.abs(gain - DEFAULT_WEIGHTS.maneuverTempoDenial * 1) < 0.01, `expected almost exactly 1 owed action (near-certain escape next try) at maneuverTempoDenial's own rate, got a gain of ${gain.toFixed(4)}`);
+});
+
+test("maneuverTempoDenial: a Grabbed/Restrained enemy who can basically NEVER escape owes the real capped maximum (4 expected attempts), priced at maneuverTempoDenial's own rate, not an unbounded number", () => {
+  const grappler = { id: "grappler", name: "Grappler", side: "opposition", currentHP: 20, maxHP: 20, athleticsModifier: 20, saves: { fort: 5, ref: 5, will: 5 } }; // DC = 10+20 = 30
+  const held = { id: "enemy-0", name: "Held", side: "opposition", currentHP: 20, maxHP: 20, athleticsModifier: -20, saves: { fort: 5, ref: 5, will: 5 }, grappledBy: { attackerId: "grappler", state: "restrained", expiresEndOfRound: 5 } }; // modifier -20 vs DC 30 -> guaranteed failure-or-worse (hand-verified §41)
+  const ally = { id: "ally-0", name: "Ally", side: "party", currentHP: 20, maxHP: 20, strikes: [] };
+  const positions = new Map([["grappler", { col: 7, row: 5 }], ["enemy-0", { col: 7, row: 6 }], ["ally-0", { col: 5, row: 5 }]]);
+  const state = { round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, combatants: new Map([["grappler", grappler], ["enemy-0", held], ["ally-0", ally]]), positions };
+  const free = { ...state, combatants: new Map(state.combatants) };
+  free.combatants.set("enemy-0", { ...held, grappledBy: null });
+  const gain = evaluateState(state, "party") - evaluateState(free, "party");
+  assert.ok(Math.abs(gain - DEFAULT_WEIGHTS.maneuverTempoDenial * 4) < 1e-9, `expected exactly the capped 4 owed actions (near-zero escape chance) at maneuverTempoDenial's own rate, got a gain of ${gain.toFixed(4)}`);
+});
+
+// --- setupValue (design doc §42, Stage 1) ---
+
+test("setupValue: contributes exactly 0 when actingCombatantId is omitted — every pre-existing caller (all 2/3-arg calls) is completely unaffected", () => {
+  const base = makeState({ allyCount: 2, enemyCount: 1 });
+  const withInitiative = { ...base, initiativeOrder: ["ally-0", "ally-1", "enemy-0"] };
+  const proned = { ...withInitiative, combatants: new Map(withInitiative.combatants) };
+  proned.combatants.set("enemy-0", { ...withInitiative.combatants.get("enemy-0"), prone: true });
+  const scoreOmitted = evaluateState(proned, "party");
+  const scoreExplicitNull = evaluateState(proned, "party", DEFAULT_WEIGHTS, null);
+  assert.equal(scoreOmitted, scoreExplicitNull, "omitting actingCombatantId and passing null explicitly must produce identical scores");
+});
+
+test("setupValue: real credit when allies are still to act this round; none when evaluated as if nobody were left", () => {
+  const base = makeState({ allyCount: 2, enemyCount: 1 });
+  const proned = { ...base, combatants: new Map(base.combatants) };
+  proned.combatants.set("enemy-0", { ...base.combatants.get("enemy-0"), prone: true });
+
+  // A phantom earlier actor — both real allies are still to act relative to it.
+  const earlyOrder = { ...proned, initiativeOrder: ["scout", "ally-0", "ally-1", "enemy-0"] };
+  const scoreWithSetup = evaluateState(earlyOrder, "party", DEFAULT_WEIGHTS, "scout");
+
+  // Evaluated as if acting from the LAST ally's own turn — nobody on my side is left to act after me.
+  const lateOrder = { ...proned, initiativeOrder: ["ally-0", "ally-1", "enemy-0"] };
+  const scoreWithoutSetup = evaluateState(lateOrder, "party", DEFAULT_WEIGHTS, "ally-1");
+
+  assert.ok(scoreWithSetup > scoreWithoutSetup, `expected real setup-value credit when allies are still to act (${scoreWithSetup.toFixed(3)}) vs none left (${scoreWithoutSetup.toFixed(3)})`);
+});
+
+test("SETUP VALUE MONOTONICITY: reducing an enemy's HP never reduces the party's score, with actingCombatantId supplied and a real off-guard enemy in play", () => {
+  const base = makeState({ allyCount: 3, enemyCount: 1, enemyHP: 20 });
+  const proned = { ...base, combatants: new Map(base.combatants) };
+  proned.combatants.set("enemy-0", { ...base.combatants.get("enemy-0"), prone: true });
+  const withOrder = { ...proned, initiativeOrder: ["ally-0", "ally-1", "ally-2", "enemy-0"] };
+  let previous = null;
+  for (let hp = 20; hp >= 0; hp -= 1) {
+    const score = evaluateState(withEnemyHP(withOrder, "enemy-0", hp), "party", DEFAULT_WEIGHTS, "ally-0");
+    if (previous !== null) assert.ok(score >= previous - 1e-9, `dropping the enemy from ${hp + 1} to ${hp} HP LOWERED the score (${previous.toFixed(2)} -> ${score.toFixed(2)}) with setupValue active`);
+    previous = score;
+  }
+});
+
+test("WEIGHTS: setupValue is strictly below enemyDamage — the same structural condition offensiveReach's own monotonicity proof depends on", () => {
+  assert.ok(DEFAULT_WEIGHTS.setupValue < DEFAULT_WEIGHTS.enemyDamage,
+    `setupValue (${DEFAULT_WEIGHTS.setupValue}) must stay below enemyDamage (${DEFAULT_WEIGHTS.enemyDamage})`);
+});
+
+// --- mobilityDenial (design doc §42, Stage 1) ---
+
+function makePinnedScenario({ grappledBy = null, enemyPos = { col: 0, row: 0 }, allyPos = { col: 20, row: 0 }, enemyHP = 20 } = {}) {
+  const enemy = {
+    id: "enemy-0", name: "e", side: "opposition", currentHP: enemyHP, maxHP: 20, ac: 15,
+    saves: { fort: 5, ref: 5, will: 5 }, speed: 25,
+    strikes: [{ name: "Knife", strikeType: "melee", attackBonus: 8, traits: [], damage: [{ dice: "1d4", bonus: 0 }] }],
+    ...(grappledBy ? { grappledBy } : {})
+  };
+  const ally = { id: "ally-0", name: "a", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [] };
+  const positions = new Map([["enemy-0", enemyPos], ["ally-0", allyPos]]);
+  return { round: 1, seed: 1, gridSize: { cols: 30, rows: 30 }, combatants: new Map([["enemy-0", enemy], ["ally-0", ally]]), positions };
+}
+const GRABBED = { attackerId: "someone", state: "grabbed", expiresEndOfRound: 5 };
+
+test("mobilityDenial: an immobilized MELEE enemy stuck far out of its own reach scores better for the party than the same enemy free to move", () => {
+  const free = evaluateState(makePinnedScenario({ grappledBy: null }), "party");
+  const pinned = evaluateState(makePinnedScenario({ grappledBy: GRABBED }), "party");
+  assert.ok(pinned > free, `expected pinning an out-of-range melee enemy to raise the party's score (free: ${free.toFixed(3)}, pinned: ${pinned.toFixed(3)})`);
+});
+
+test("mobilityDenial: an immobilized enemy already WITHIN its own reach gets no credit — nothing was actually denied", () => {
+  const adjacentPositions = { enemyPos: { col: 0, row: 0 }, allyPos: { col: 1, row: 0 } }; // already adjacent — real melee reach
+  const free = evaluateState(makePinnedScenario({ grappledBy: null, ...adjacentPositions }), "party");
+  const pinned = evaluateState(makePinnedScenario({ grappledBy: GRABBED, ...adjacentPositions }), "party");
+  // Toggling grappledBy ALSO feeds maneuverTempoOwed's own (separate, correct — design doc §44)
+  // grapple-escape-cost pricing — unrelated to mobility and unconditional on distance, so it fires
+  // here too and must be subtracted out to isolate mobilityDenial alone, same technique as the
+  // NON-immobilized test below. makePinnedScenario's enemy has no athleticsModifier and GRABBED's
+  // attackerId matches no real combatant, so the grapple math falls back to modifier 0 vs DC 10 on
+  // both sides of that calculation.
+  const probs = degreeProbabilities(0, 10);
+  const pFree = probs.success + probs.criticalSuccess;
+  const expectedTempoOnly = free + DEFAULT_WEIGHTS.maneuverTempoDenial * Math.min(4, 1 / pFree);
+  assert.ok(Math.abs(pinned - expectedTempoOnly) < 1e-9, `no mobility-denial credit when the immobilized enemy was already in its own useful range (pinned: ${pinned.toFixed(3)}, expected maneuverTempoOwed-only: ${expectedTempoOnly.toFixed(3)})`);
+});
+
+test("mobilityDenial: a NON-immobilized (merely far away) enemy gets no credit either — only Grabbed/Restrained triggers this", () => {
+  const notImmobilized = evaluateState(makePinnedScenario({ grappledBy: null }), "party");
+  const stunnedButNotHeld = { ...makePinnedScenario({ grappledBy: null }) };
+  stunnedButNotHeld.combatants.set("enemy-0", { ...stunnedButNotHeld.combatants.get("enemy-0"), stunnedValue: 2 });
+  const withStunnedTempoDenial = evaluateState(stunnedButNotHeld, "party");
+  // isolate mobilityDenial specifically: subtract out the KNOWN tempoDenial contribution from stunnedValue 2
+  const expectedTempoOnly = notImmobilized + DEFAULT_WEIGHTS.tempoDenial * 2;
+  assert.ok(Math.abs(withStunnedTempoDenial - expectedTempoOnly) < 1e-9, "a merely-stunned (not immobilized) far-away enemy must get tempoDenial credit but NOT mobilityDenial credit");
+});
+
+/**
+ * REGRESSION-GUARD (caught and fixed by hand before ever shipping, design doc §42): an earlier draft
+ * of this term gated on `enemy.currentHP <= 0` directly instead of capping the credit at the
+ * enemy's own remaining HP — creating exactly the discontinuous-cliff bug §17/§32 already found and
+ * fixed for offensiveReach/closing. This is the direct, minimal proof the shipped version doesn't
+ * have that bug: a far-pinned enemy at 1 HP is worth a real, possibly large mobilityDenial credit;
+ * killing it must never score worse than leaving it at 1 HP.
+ */
+test("MOBILITY DENIAL MONOTONICITY: killing a far-pinned immobilized enemy must never score worse than leaving it alive at 1 HP", () => {
+  const nearlyDead = evaluateState(makePinnedScenario({ grappledBy: GRABBED, enemyHP: 1 }), "party");
+  const dead = evaluateState(makePinnedScenario({ grappledBy: GRABBED, enemyHP: 0 }), "party");
+  assert.ok(dead >= nearlyDead - 1e-9,
+    `killing the far-pinned enemy (${dead.toFixed(3)}) scored WORSE than leaving it at 1 HP (${nearlyDead.toFixed(3)}) — the exact cliff bug a naive currentHP<=0 gate would have shipped.`);
+});
+
+test("MOBILITY DENIAL MONOTONICITY: holds across the FULL HP range down to 0, not just the last step", () => {
+  let previous = null;
+  for (let hp = 20; hp >= 0; hp -= 1) {
+    const score = evaluateState(makePinnedScenario({ grappledBy: GRABBED, enemyHP: hp }), "party");
+    if (previous !== null) assert.ok(score >= previous - 1e-9, `dropping the far-pinned enemy from ${hp + 1} to ${hp} HP LOWERED the score (${previous.toFixed(3)} -> ${score.toFixed(3)})`);
+    previous = score;
+  }
+});
+
+test("WEIGHTS: mobilityDenial is strictly below enemyDamage — the same structural condition its own monotonicity proof depends on", () => {
+  assert.ok(DEFAULT_WEIGHTS.mobilityDenial < DEFAULT_WEIGHTS.enemyDamage,
+    `mobilityDenial (${DEFAULT_WEIGHTS.mobilityDenial}) must stay below enemyDamage (${DEFAULT_WEIGHTS.enemyDamage})`);
+});
+
+test("WEIGHTS (design doc §44): maneuverTempoDenial is strictly below tempoDenial — Prone/Grabbed's own CONTESTED, future-dependent value must never price as high as Stunned's certain, already-resolved one; this is the exact relationship whose violation caused the real, measured win-rate regression this weight split fixes", () => {
+  assert.ok(DEFAULT_WEIGHTS.maneuverTempoDenial < DEFAULT_WEIGHTS.tempoDenial,
+    `maneuverTempoDenial (${DEFAULT_WEIGHTS.maneuverTempoDenial}) must stay below tempoDenial (${DEFAULT_WEIGHTS.tempoDenial})`);
 });
 
 test("RESOURCE: a limited-use conditionSave with charges left is worth something to its side, same as any other limited-use ability", () => {
@@ -313,4 +547,99 @@ test("MONOTONICITY still holds with the new caution terms active and stacked (a 
 test("WEIGHTS: lowHpCaution and outnumberedCaution are both non-negative — a negative value would perversely reward exposing a hurt or outnumbered combatant", () => {
   assert.ok(DEFAULT_WEIGHTS.lowHpCaution >= 0);
   assert.ok(DEFAULT_WEIGHTS.outnumberedCaution >= 0);
+});
+
+// --- pileOnRisk (design doc §55 — the roster-generalization sweep's own real, diagnosed loss:
+// baseline-v1 lost 75% of the time to aggressive-v1 on a roster with real hard-hitting melee
+// weapons, because one enemy's Trip let a SECOND enemy also capitalize on the SAME off-guard window
+// before the target could Stand — 18 damage in one round on a 24-HP combatant, read directly from a
+// real transcript) ---
+
+function makePileOnScenario({ maneuvererAthletics = 8, maneuvererPos = { col: 6, row: 5 }, otherPos = { col: 5, row: 8 }, allyFort = 5, allyPos = { col: 5, row: 5 }, allyProne = false } = {}) {
+  const rangedStrike = { name: "Pistol", strikeType: "ranged", attackBonus: 8, rangeIncrement: 60, traits: [], damage: [{ dice: "1d6", bonus: 2, damageType: "piercing" }] };
+  const ally = {
+    id: "ally-0", name: "a", side: "party", currentHP: 20, maxHP: 20, ac: 15,
+    saves: { fort: allyFort, ref: 5, will: 5 }, speed: 25, strikes: [rangedStrike],
+    ...(allyProne ? { prone: true } : {})
+  };
+  const maneuverer = {
+    id: "maneuverer", name: "m", side: "opposition", currentHP: 20, maxHP: 20, ac: 15,
+    saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [rangedStrike],
+    ...(maneuvererAthletics != null ? { athleticsModifier: maneuvererAthletics } : {})
+  };
+  const other = {
+    id: "other", name: "o", side: "opposition", currentHP: 20, maxHP: 20, ac: 15,
+    saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [rangedStrike]
+  };
+  return {
+    round: 1, seed: 1, gridSize: { cols: 30, rows: 30 },
+    combatants: new Map([["ally-0", ally], ["maneuverer", maneuverer], ["other", other]]),
+    positions: new Map([["ally-0", allyPos], ["maneuverer", maneuvererPos], ["other", otherPos]])
+  };
+}
+
+test("pileOnRisk: a real cost when a second enemy could capitalize on a maneuver the first one might land", () => {
+  const withManeuverer = evaluateState(makePileOnScenario({ maneuvererAthletics: 8 }), "party");
+  const withoutAthletics = evaluateState(makePileOnScenario({ maneuvererAthletics: null }), "party");
+  assert.ok(withoutAthletics > withManeuverer, `expected an Athletics-capable adjacent enemy to cost the party something real (with: ${withManeuverer.toFixed(3)}, without: ${withoutAthletics.toFixed(3)})`);
+});
+
+test("pileOnRisk: exactly ZERO with only one enemy present — nobody else is left to cash in on the maneuver (this is what ai-profiles.test.mjs's own 1v1 golden sequences depend on staying unaffected)", () => {
+  const scenario = makePileOnScenario({ maneuvererAthletics: 8 });
+  scenario.combatants.delete("other");
+  scenario.positions.delete("other");
+  const withRealWeight = evaluateState(scenario, "party", DEFAULT_WEIGHTS);
+  const withZeroedWeight = evaluateState(scenario, "party", { ...DEFAULT_WEIGHTS, pileOnRisk: 0 });
+  assert.ok(Math.abs(withRealWeight - withZeroedWeight) < 1e-9, `expected pileOnRisk to contribute exactly 0 with a single enemy (real weight: ${withRealWeight.toFixed(3)}, zeroed: ${withZeroedWeight.toFixed(3)})`);
+});
+
+test("pileOnRisk: no cost once the ally is ALREADY off-guard (prone) — threatExposure already prices the real, current danger; this must not double it", () => {
+  const upright = evaluateState(makePileOnScenario({ allyProne: false }), "party");
+  const prone = evaluateState(makePileOnScenario({ allyProne: true }), "party");
+  // Being prone costs real, KNOWN things independent of pileOnRisk (maneuverTempoDenial's own owed
+  // Stand action, plus threatExposure itself rising via the real off-guard AC read already folded
+  // into bestExpectedDamage) — the point here isn't that prone scores identically to upright, it's
+  // that toggling allyProne with pileOnRisk's weight zeroed out changes nothing further, proven
+  // directly below rather than inferred from a single before/after number.
+  const zeroed = { ...DEFAULT_WEIGHTS, pileOnRisk: 0 };
+  const proneWithZeroedPileOnRisk = evaluateState(makePileOnScenario({ allyProne: true }), "party", zeroed);
+  const proneWithRealPileOnRisk = evaluateState(makePileOnScenario({ allyProne: true }), "party", DEFAULT_WEIGHTS);
+  assert.ok(Math.abs(proneWithRealPileOnRisk - proneWithZeroedPileOnRisk) < 1e-9, `pileOnRisk must contribute exactly 0 once already off-guard (with real weight: ${proneWithRealPileOnRisk.toFixed(3)}, with weight zeroed: ${proneWithZeroedPileOnRisk.toFixed(3)})`);
+  assert.ok(prone !== upright, "sanity check: prone must change SOMETHING about the score (via threatExposure/maneuverTempoDenial), or this test isn't checking anything real");
+});
+
+test("pileOnRisk: a maneuverer more than one square away never triggers it — Trip/Grapple are both melee-range Athletics checks", () => {
+  const adjacent = evaluateState(makePileOnScenario({ maneuvererPos: { col: 6, row: 5 } }), "party"); // 5ft
+  const farAway = evaluateState(makePileOnScenario({ maneuvererPos: { col: 20, row: 5 } }), "party"); // far beyond melee reach
+  const zeroed = { ...DEFAULT_WEIGHTS, pileOnRisk: 0 };
+  const farAwayZeroed = evaluateState(makePileOnScenario({ maneuvererPos: { col: 20, row: 5 } }), "party", zeroed);
+  assert.ok(Math.abs(farAway - farAwayZeroed) < 1e-9, "a maneuverer far outside melee range must contribute exactly 0 pileOnRisk");
+  assert.ok(adjacent < farAway, "sanity check: the adjacent case must actually cost more than the far-away case, or this test isn't distinguishing anything");
+});
+
+test("pileOnRisk: a strong Fortitude save lowers the real cost — it's weighted by the maneuver's own actual success probability, not a flat guess", () => {
+  const weakSave = evaluateState(makePileOnScenario({ allyFort: 0 }), "party");
+  const strongSave = evaluateState(makePileOnScenario({ allyFort: 15 }), "party");
+  assert.ok(strongSave > weakSave, `expected a strong Fortitude save to cost less pileOnRisk (weak save: ${weakSave.toFixed(3)}, strong save: ${strongSave.toFixed(3)})`);
+});
+
+test("PILE-ON RISK MONOTONICITY: killing the enemy who'd capitalize on the maneuver never scores worse than leaving it alive at 1 HP", () => {
+  const scenarioAt1HP = makePileOnScenario({});
+  scenarioAt1HP.combatants.set("other", { ...scenarioAt1HP.combatants.get("other"), currentHP: 1 });
+  const nearlyDead = evaluateState(scenarioAt1HP, "party");
+  const scenarioDead = makePileOnScenario({});
+  scenarioDead.combatants.set("other", { ...scenarioDead.combatants.get("other"), currentHP: 0 });
+  const dead = evaluateState(scenarioDead, "party");
+  assert.ok(dead >= nearlyDead - 1e-9, `killing the enemy who'd have capitalized (${dead.toFixed(3)}) scored WORSE than leaving it at 1 HP (${nearlyDead.toFixed(3)})`);
+});
+
+test("PILE-ON RISK MONOTONICITY: holds across the FULL HP range of the capitalizing enemy, down to 0", () => {
+  let previous = null;
+  for (let hp = 20; hp >= 0; hp -= 1) {
+    const scenario = makePileOnScenario({});
+    scenario.combatants.set("other", { ...scenario.combatants.get("other"), currentHP: hp });
+    const score = evaluateState(scenario, "party");
+    if (previous !== null) assert.ok(score >= previous - 1e-9, `dropping the capitalizing enemy from ${hp + 1} to ${hp} HP LOWERED the score (${previous.toFixed(3)} -> ${score.toFixed(3)})`);
+    previous = score;
+  }
 });

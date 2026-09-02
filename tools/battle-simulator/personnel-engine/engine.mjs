@@ -78,20 +78,52 @@
  * within it is affected, either side, no exception for allies or the attacker's own square. `rng`
  * still only ever advances the real battle's dice stream when REAL_OUTCOMES is in play, exactly
  * like every other action type here.
+ *
+ * EXTENDED AGAIN (design doc §31's rules-gap sweep, priority 1 — "the first REAL control actions"):
+ * "trip"/"shove"/"grapple"/"escape", Athletics maneuvers (Player Core pg. 193/437). None of the
+ * four is an attack ROLL (they're skill checks, Trip/Shove/Grapple against the target's Fortitude
+ * DC, Escape against the grappler's own), so none increments the shared Multiple Attack Penalty
+ * counter, same as saveAttack/demoralize/conditionSave above. Grapple introduces this engine's
+ * first RELATIONAL condition (conditions.mjs's `grappledBy` — Grabbed/Restrained), which in turn
+ * required three small, real changes elsewhere in THIS file: the move/step branches now release
+ * any grapple the MOVER holds ("ends... unless you move"), the round loop now expires a grapple at
+ * the end of the grappler's own next turn (mirroring Frightened's decay, same real per-turn timing
+ * point), and applyDyingTransition now also releases any grapple held by a combatant who's just
+ * been knocked to/past 0 HP, on EITHER side (a dead or unconscious creature can't maintain a
+ * physical hold — see conditions.mjs's releaseGrapplesHeldBy for why this is a real, necessary,
+ * if uncited, ruling rather than an invented one). Shove is the one genuinely new mechanical shape:
+ * code that writes a combatant OTHER than the acting one's position (`pushDestination`, below) —
+ * every other action type in this file only ever moves/damages/conditions whoever it targets, never
+ * repositions someone else.
+ *
+ * EXTENDED AGAIN (Stage 0 of the tactical-planning report — the prerequisite fix before Trip means
+ * anything): "stand"/"crawl", the only two move actions Player Core allows while prone
+ * (383-actions.json, pg. 408/410). Closes a real bug Trip exposed: nothing previously cleared
+ * `prone` except the heal-a-downed-PC path, and checkMoveLegality had no prone gate at all, so a
+ * tripped combatant simply strode away at full effective Speed, permanently off-guard and
+ * permanently -2 to attack, for the rest of the battle — Trip cost an action and never got paid
+ * back. `checkMoveLegality` gained an `allowWhileProne` escape hatch specifically so Crawl (which
+ * IS legal prone movement) can delegate to the same shared checks Stride/Step already use without
+ * being blocked by the very rule it exists to satisfy. Also fixed here, found re-verifying Escape
+ * against a live, individually-fetched source while researching Crawl/Stand: Escape's own DC never
+ * involved Fortitude at all — see REAL_OUTCOMES.escape's own regression note, below.
  */
 
 import { makeRng, rollD20, rollFormula } from "../engine/rng.mjs";
 import { resolveEffectiveStats } from "./combatant.mjs";
 import {
   checkMoveLegality, checkStepLegality, checkStrikeLegal, checkSpellAttackLegal, checkHealAbilityLegal,
-  checkSaveAttackLegal, checkDemoralizeLegal, checkConditionSaveLegal, checkAreaAttackLegal, multipleAttackPenalty, rangeIncrementPenalty
+  checkSaveAttackLegal, checkDemoralizeLegal, checkConditionSaveLegal, checkAreaAttackLegal,
+  checkTripLegal, checkShoveLegal, checkGrappleLegal, checkEscapeLegal, checkStandLegal, checkCrawlLegal,
+  multipleAttackPenalty, rangeIncrementPenalty
 } from "./legality.mjs";
-import { resolveStrike, mitigateDamage, expectedStrikeDamage, resolveSave, basicSaveDamage, expectedSaveDamage, degreeProbabilities, degreeOfSuccess } from "../engine/resolve.mjs";
-import { distanceFeet, FEET_PER_SQUARE } from "./grid.mjs";
-import { hasCover, STANDARD_COVER_AC_BONUS } from "./terrain.mjs";
+import { resolveStrike, mitigateDamage, expectedStrikeDamage, resolveSave, basicSaveDamage, expectedSaveDamage, degreeProbabilities, degreeOfSuccess, averageDamage } from "../engine/resolve.mjs";
+import { distanceFeet, isInBounds, isOccupied, FEET_PER_SQUARE } from "./grid.mjs";
+import { hasCover, STANDARD_COVER_AC_BONUS, moveBlockedBetween } from "./terrain.mjs";
 import {
   isDead, isUnconscious, isOffGuardFromConditions, attackerConditionPenalty,
-  applyKnockout, worsenDyingFromDamage, resolveRecoveryCheck, applyRevival
+  applyKnockout, worsenDyingFromDamage, resolveRecoveryCheck, applyRevival,
+  applyGrapple, releaseGrapple, releaseGrapplesHeldBy, usesDyingRules
 } from "./conditions.mjs";
 import { isFlanking } from "./flanking.mjs";
 
@@ -172,6 +204,99 @@ const REAL_OUTCOMES = {
       return { targetId: target.id, roll: { ...saveRoll, damage: { raw: rawDamage, afterSave } }, appliedDamage };
     });
     return { damage: { entries: damageEntries, raw: rawDamage }, results };
+  },
+  /**
+   * Trip (Athletics, Player Core pg. 193): an Athletics check against the target's Fortitude DC.
+   * Critical success adds real 1d6 bludgeoning damage (via the same shared mitigateDamage path as
+   * every other damage source) and both success degrees knock the target prone; critical failure
+   * knocks the ATTACKER prone instead — a self-effect Shove/Grapple share below.
+   */
+  trip(rng, { attacker, target, targetEffective }) {
+    const modifier = attacker.athleticsModifier ?? 0;
+    const dc = 10 + target.saves.fort;
+    const d20 = rollD20(rng);
+    const total = d20 + modifier;
+    const degree = degreeOfSuccess(d20, total, dc);
+    let appliedDamage = 0, damage = null;
+    if (degree === "criticalSuccess") {
+      const entry = rollFormula(rng, "1d6");
+      appliedDamage = mitigateDamage(entry.total, { target, targetEffective, strike: null });
+      target.currentHP = Math.max(0, target.currentHP - appliedDamage);
+      damage = { entries: [entry], raw: entry.total };
+    }
+    const fell = degree === "criticalSuccess" || degree === "success";
+    const selfFell = degree === "criticalFailure";
+    return { roll: { d20, modifier, total, dc, degree, damage }, appliedDamage, fell, selfFell };
+  },
+  /**
+   * Shove (Athletics, Player Core pg. 193): an Athletics check against the target's Fortitude DC.
+   * The actual repositioning (a real destination square, stopped early by bounds/occupancy/walls)
+   * is computed by attemptAction's own pushDestination helper, which has the state access this pure
+   * dice-resolution function deliberately doesn't — this only decides how far to attempt.
+   */
+  shove(rng, { attacker, target }) {
+    const modifier = attacker.athleticsModifier ?? 0;
+    const dc = 10 + target.saves.fort;
+    const d20 = rollD20(rng);
+    const total = d20 + modifier;
+    const degree = degreeOfSuccess(d20, total, dc);
+    const pushFeet = { criticalSuccess: 10, success: 5, failure: 0, criticalFailure: 0 }[degree];
+    const selfFell = degree === "criticalFailure";
+    return { roll: { d20, modifier, total, dc, degree }, pushFeet, selfFell };
+  },
+  /**
+   * Grapple (Athletics, Player Core pg. 193): an Athletics check against the target's Fortitude DC.
+   * Success grabs, critical success restrains (conditions.mjs's applyGrapple, called from
+   * attemptAction once this resolves). Player Core: on a FAILURE or CRITICAL FAILURE against a
+   * target this SAME attacker already holds, the hold ends; critical failure additionally knocks
+   * the attacker prone.
+   *
+   * REGRESSION NOTE, caught re-verifying against the individually-fetched live action page
+   * (https://2e.aonsrd.com/actions/64-grapple) while building Stand/Crawl: the real critical-failure
+   * text is "Your target can either grab you, as if it succeeded at using the Grapple action against
+   * you, or force you to fall and land prone" — NOT "push you up to 5 feet" as an earlier pass here
+   * mis-described it (based on a less precise mirror). The real alternative (the freed target
+   * grappling the attacker back) is the freed target's own tactical choice, which this engine has no
+   * mechanism for target-directed reactive choices to make; always resolving to the prone
+   * alternative, matching Trip/Shove's own self-fall shape, remains a real documented
+   * simplification — only the comment describing what's skipped was wrong, not the behavior.
+   */
+  grapple(rng, { attacker, target }) {
+    const modifier = attacker.athleticsModifier ?? 0;
+    const dc = 10 + target.saves.fort;
+    const d20 = rollD20(rng);
+    const total = d20 + modifier;
+    const degree = degreeOfSuccess(d20, total, dc);
+    const newState = degree === "criticalSuccess" ? "restrained" : degree === "success" ? "grabbed" : null;
+    const wasAlreadyHeldByMe = target.grappledBy?.attackerId === attacker.id;
+    const releasesExisting = wasAlreadyHeldByMe && !newState;
+    const selfFell = degree === "criticalFailure" && wasAlreadyHeldByMe;
+    return { roll: { d20, modifier, total, dc, degree }, newState, releasesExisting, selfFell };
+  },
+  /**
+   * Escape (Player Core pg. 408, the general Basic Actions listing — reference/srd/player-core/
+   * 383-actions.json, cross-checked live at https://2e.aonsrd.com/actions/5-escape): "Attempt a
+   * check using your unarmed attack modifier against the DC of the effect. This is typically the
+   * Athletics DC of a creature grabbing you... You can attempt an Acrobatics or Athletics check
+   * instead of using your attack modifier if you choose."
+   *
+   * REGRESSION FIX: the first version of this function used "the Fortitude or Athletics DC of the
+   * creature grabbing you, whichever is higher" — that phrasing comes from skill-3-athletics.json's
+   * OWN embedded summary of Escape, which turns out to disagree with both the canonical Basic
+   * Actions listing and the live, individually-fetched Escape page — neither mentions Fortitude at
+   * all. DC is the grappler's real Athletics DC only. This engine has no "unarmed attack modifier"
+   * concept distinct from a combatant's named weapon strikes, so the escaping creature's own real,
+   * RAW-legal Athletics-check option (explicitly offered as an alternative in the real text) is the
+   * one used — not a guess, a documented choice among the rule's own real options.
+   */
+  escape(rng, { actor, grappler }) {
+    const dc = 10 + (grappler.athleticsModifier ?? 0);
+    const modifier = actor.athleticsModifier ?? 0;
+    const d20 = rollD20(rng);
+    const total = d20 + modifier;
+    const degree = degreeOfSuccess(d20, total, dc);
+    const freed = degree === "criticalSuccess" || degree === "success";
+    return { roll: { d20, modifier, total, dc, degree }, freed };
   }
 };
 
@@ -240,6 +365,71 @@ const EXPECTED_OUTCOMES = {
       return { targetId: target.id, roll: { expected: true, saveBonus, dc: areaAttack.dc, damage: expected > 0 ? { raw: expected } : null }, appliedDamage: expected };
     });
     return { results };
+  },
+  /**
+   * Deterministic twins for Trip/Shove/Grapple/Escape — all four resolve a discrete, non-additive
+   * outcome (fell-or-not, a whole number of push squares, held-or-not) that can't be fractionally
+   * applied the way Frightened's own continuous value can (see its own EXPECTED_OUTCOMES above), so
+   * each picks its single MOST LIKELY degree via degreeProbabilities and resolves deterministically
+   * from that — a real, stated simplification, not a guess at behavior nothing here can measure.
+   */
+  trip(_rng, { attacker, target, targetEffective }) {
+    const modifier = attacker.athleticsModifier ?? 0;
+    const dc = 10 + target.saves.fort;
+    const probs = degreeProbabilities(modifier, dc);
+    const mostLikely = Object.entries(probs).sort((a, b) => b[1] - a[1])[0][0];
+    // REGRESSION FIX (design doc §43, Stage 2 — found chasing an unrelated anomaly: the whole-turn
+    // planner was finding "Trip an already-prone target, repeatedly" scored BETTER than actually
+    // attacking). The bug: this used to apply the FULL average 1d6 crit-trip damage whenever
+    // criticalSuccess merely had the HIGHEST probability among the four degrees, treating a 51%
+    // chance exactly the same as a 100% one — a real MODE-vs-MEAN conflation, the same class of
+    // error expectedStrikeDamage (resolve.mjs) has always correctly avoided by probability-weighting
+    // success and criticalSuccess separately. A single decide() call never had reason to attempt the
+    // SAME control action against the SAME target twice in a row (each real call re-evaluates fresh
+    // against the real post-action state), so this was latent — Stage 2's own multi-action lookahead
+    // is the first thing to actually chain repeated Trips within one search and expose it. Fixed to
+    // a true expectation: `probs.criticalSuccess` of the real 1d6, not a boolean gate.
+    const appliedDamage = mitigateDamage(probs.criticalSuccess * averageDamage("1d6", 0), { target, targetEffective, strike: null });
+    if (appliedDamage > 0) target.currentHP = Math.max(0, target.currentHP - appliedDamage);
+    const fell = mostLikely === "criticalSuccess" || mostLikely === "success";
+    // REGRESSION FIX (caught by this project's own required test coverage, not by inspection): the
+    // first version of this function hardcoded selfFell:false regardless of mostLikely — exactly
+    // the "REAL vs EXPECTED drift" bug class resolve.mjs's own header warns about (two statements of
+    // one rule, only one of them updated). A sandboxed Trip attempt would have silently never priced
+    // the attacker's own real chance of falling prone.
+    const selfFell = mostLikely === "criticalFailure";
+    return { roll: { expected: true, d20: null, modifier, total: null, dc, degree: mostLikely, damage: appliedDamage > 0 ? { raw: appliedDamage } : null }, appliedDamage, fell, selfFell };
+  },
+  shove(_rng, { attacker, target }) {
+    const modifier = attacker.athleticsModifier ?? 0;
+    const dc = 10 + target.saves.fort;
+    const probs = degreeProbabilities(modifier, dc);
+    const mostLikely = Object.entries(probs).sort((a, b) => b[1] - a[1])[0][0];
+    // Same MODE-vs-MEAN fix as trip's own twin, above: a true expectation over the real push
+    // distance (10ft/5ft/0ft by degree), not an all-or-nothing gate on whichever degree is merely
+    // most likely.
+    const pushFeet = probs.criticalSuccess * 10 + probs.success * 5;
+    const selfFell = mostLikely === "criticalFailure"; // same drift fix as trip's own twin, above
+    return { roll: { expected: true, d20: null, modifier, total: null, dc, degree: mostLikely }, pushFeet, selfFell };
+  },
+  grapple(_rng, { attacker, target }) {
+    const modifier = attacker.athleticsModifier ?? 0;
+    const dc = 10 + target.saves.fort;
+    const probs = degreeProbabilities(modifier, dc);
+    const mostLikely = Object.entries(probs).sort((a, b) => b[1] - a[1])[0][0];
+    const newState = mostLikely === "criticalSuccess" ? "restrained" : mostLikely === "success" ? "grabbed" : null;
+    const wasAlreadyHeldByMe = target.grappledBy?.attackerId === attacker.id;
+    const releasesExisting = wasAlreadyHeldByMe && !newState;
+    const selfFell = mostLikely === "criticalFailure" && wasAlreadyHeldByMe; // same drift fix, matching REAL_OUTCOMES.grapple's own condition exactly
+    return { roll: { expected: true, d20: null, modifier, total: null, dc, degree: mostLikely }, newState, releasesExisting, selfFell };
+  },
+  escape(_rng, { actor, grappler }) {
+    const dc = 10 + (grappler.athleticsModifier ?? 0); // same regression fix as REAL_OUTCOMES.escape, above — no Fortitude DC in the real text
+    const modifier = actor.athleticsModifier ?? 0;
+    const probs = degreeProbabilities(modifier, dc);
+    const mostLikely = Object.entries(probs).sort((a, b) => b[1] - a[1])[0][0];
+    const freed = mostLikely === "criticalSuccess" || mostLikely === "success";
+    return { roll: { expected: true, d20: null, modifier, total: null, dc, degree: mostLikely }, freed };
   }
 };
 
@@ -306,7 +496,8 @@ export function runBattle(scenario) {
         // See this file's own header for why reactions are deliberately not wired up in Phase 1.
         reactions: c.reactions ?? [],
         spells: c.spells ?? [], healAbilities: c.healAbilities ?? [],
-        saveAttacks: c.saveAttacks ?? [], conditionSaves: c.conditionSaves ?? [], areaAttacks: c.areaAttacks ?? [], intimidationModifier: c.intimidationModifier ?? null
+        saveAttacks: c.saveAttacks ?? [], conditionSaves: c.conditionSaves ?? [], areaAttacks: c.areaAttacks ?? [], intimidationModifier: c.intimidationModifier ?? null,
+        heroPoints: c.heroPoints ?? null // design doc §42 — real, shown for transcript honesty; null (not 0) for anyone this rule doesn't apply to at all (every NPC)
       }];
     })
   );
@@ -324,6 +515,11 @@ export function runBattle(scenario) {
 
   for (let round = 1; round <= scenario.roundLimit; round++) {
     state.round = round;
+    // OPTIONAL, opt-in progress visibility (design doc §45 — a real, direct ask: distinguish a
+    // broken run from a slow-but-working one). Ignored by every existing caller — `scenario` already
+    // flows straight through from a plain scenario-builder object, and an absent field is simply
+    // `undefined`, so this is a pure addition with zero behavior change for anyone not using it.
+    scenario.onRoundStart?.(round, scenario.roundLimit);
     const roundLog = { round, turns: [] };
 
     for (const combatantId of initiativeOrder) {
@@ -395,6 +591,19 @@ export function runBattle(scenario) {
       // after the combatant's own turn fully resolves, matching the real rule's own timing exactly
       // — NOT at the start of their next turn, and NOT decremented on anyone else's turn.
       if (combatant.frightened > 0) combatant.frightened -= 1;
+
+      // Grapple expiry (condition-20-grabbed.json/condition-34-restrained.json): "until the end of
+      // your next turn." `expiresEndOfRound` is set to (the round Grapple was applied) + 1 when
+      // applied (conditions.mjs's applyGrapple); checked here, the same "after this combatant's own
+      // turn fully resolves" point Frightened's own decay already uses, so it fires once THIS
+      // combatant (the grappler) has actually had that next turn, not on anyone else's. A grapple
+      // still ends immediately on the grappler's own move (see the move/step branches below) or via
+      // the target's own Escape — this is only the natural, un-forced expiry.
+      for (const c of state.combatants.values()) {
+        if (c.grappledBy?.attackerId === combatant.id && state.round >= c.grappledBy.expiresEndOfRound) {
+          releaseGrapple(c);
+        }
+      }
 
       turnLog.snapshot = snapshotState(state);
       roundLog.turns.push(turnLog);
@@ -526,17 +735,27 @@ function applyStrikeDamage(strikeResult, target, targetEffective, strike) {
 /**
  * Design doc §25 (Player Core pg. 402-403): the real dying spiral, checked after EVERY damage
  * application, for strike/spellAttack/saveAttack alike — a shared hook rather than three copies,
- * exactly the pattern this whole feature exists to establish. Only ever does anything for a
- * `side: "party"` target (conditions.mjs's isDead/applyKnockout carry the real PC-vs-NPC asymmetry;
- * an ordinary NPC reduced to 0 HP is just dead, nothing more to compute) and only when real damage
- * was actually dealt (a miss, or a save's own criticalSuccess-so-no-damage case, changes nothing).
+ * exactly the pattern this whole feature exists to establish. Only ever does anything for a target
+ * `usesDyingRules` (conditions.mjs's own isDead/applyKnockout carry the real PC-vs-NPC asymmetry —
+ * side-keyed by default, `pcDeathRules`-overridable per design doc §49's own erratum for mirror
+ * matches; an ordinary NPC reduced to 0 HP is just dead, nothing more to compute) and only when real
+ * damage was actually dealt (a miss, or a save's own criticalSuccess-so-no-damage case, changes nothing).
  * `hpBefore` distinguishes the FIRST knockout (gain dying 1/2, Player Core's own "when you're
  * reduced to 0 HP" trigger) from a follow-up hit on an already-downed target (dying increases by
  * 1/2 INSTEAD of further HP loss, since HP is already floored at 0) — both real, both possible in
  * the exact same combat, so both need covering, not just the first one.
  */
-function applyDyingTransition({ target, hpBefore, appliedDamage, critical }) {
-  if (target.side !== "party" || appliedDamage <= 0) return;
+function applyDyingTransition({ target, hpBefore, appliedDamage, critical, allCombatants }) {
+  // Grapple: a creature just knocked to (or further past) 0 HP can't maintain a physical hold on
+  // anyone — release any grapple THIS target holds over someone else, regardless of side, before
+  // the party-only dying-spiral logic below (conditions.mjs's own releaseGrapplesHeldBy header
+  // documents why this is a real, necessary ruling rather than an invented one). `allCombatants` is
+  // optional so every pre-existing call site keeps working unchanged; only Strike/spellAttack/
+  // saveAttack/areaAttack/Trip (the action types that can actually deal damage) pass it.
+  if (allCombatants && appliedDamage > 0 && hpBefore > 0 && target.currentHP <= 0) {
+    releaseGrapplesHeldBy(allCombatants, target.id);
+  }
+  if (!usesDyingRules(target) || appliedDamage <= 0) return;
   if (hpBefore > 0 && target.currentHP <= 0) applyKnockout(target, { critical });
   else if (hpBefore <= 0) worsenDyingFromDamage(target, { critical });
 }
@@ -596,6 +815,29 @@ function alliesWithPositions(state, combatant) {
     .map((c) => ({ id: c.id, pos: state.positions.get(c.id), combatant: c }));
 }
 
+/**
+ * Shove (Athletics, Player Core pg. 193): pushes the target directly away from the attacker, up to
+ * `squares` squares (1 for a success's real 5ft, 2 for a critical success's real 10ft — this engine
+ * uses whole squares as the push primitive rather than reconciling the 5-10-5 diagonal-cost formula
+ * for a diagonal push, the same simplification most real tables make at the table; Shove's target
+ * is always within the attacker's own melee reach, so the push direction is always one clean
+ * compass heading). Player Core: "can't move it into or through obstacles" — stops at the last
+ * clear square if something blocks the full push, rather than failing the push outright.
+ */
+function pushDestination(attackerPos, targetPos, squares, gridSize, otherPositions, walls) {
+  const dx = Math.sign(targetPos.col - attackerPos.col);
+  const dy = Math.sign(targetPos.row - attackerPos.row);
+  let cur = { ...targetPos };
+  for (let i = 0; i < squares; i++) {
+    const next = { col: cur.col + dx, row: cur.row + dy };
+    if (!isInBounds(next, gridSize)) break;
+    if (isOccupied(next, otherPositions)) break;
+    if (walls?.length && moveBlockedBetween(cur, next, walls)) break;
+    cur = next;
+  }
+  return cur;
+}
+
 /** The ONLY function in this codebase permitted to mutate combatant position/HP/flags. */
 function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLog, effective, outcomes = REAL_OUTCOMES }) {
   const combatant = state.combatants.get(combatantId);
@@ -617,6 +859,9 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     state.positions.set(combatantId, { ...to });
     turnProgress.feetMoved += stepDistance;
     turnProgress.actionsUsed += 1;
+
+    // Grapple: "ends... unless you move" — a Stride always releases anyone THIS combatant holds.
+    releaseGrapplesHeldBy(state.combatants.values(), combatantId);
 
     // design doc §26: unlike state.positions, the LOG is exactly where this real route belongs —
     // preserving it here is what lets the artifact viewer glide a token through its own actual
@@ -644,6 +889,9 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     state.positions.set(combatantId, { ...to });
     turnProgress.feetMoved += stepDistance;
     turnProgress.actionsUsed += 1;
+
+    // Grapple: "ends... unless you move" — a Step is still movement, so it releases too.
+    releaseGrapplesHeldBy(state.combatants.values(), combatantId);
 
     return { type: "step", from: { ...pos }, to: { ...to }, feet: stepDistance, legal: true, actionsCost: 1, decisionReason: proposal.reason ?? null };
   }
@@ -681,7 +929,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
       attacker: combatant, strike, target, targetEffective, mapPenalty: mapPenalty + rangePenalty + conditionPenalty
     });
     strikeResult.rangePenalty = rangePenalty;
-    applyDyingTransition({ target, hpBefore, appliedDamage, critical: strikeResult.degree === "criticalSuccess" });
+    applyDyingTransition({ target, hpBefore, appliedDamage, critical: strikeResult.degree === "criticalSuccess", allCombatants: state.combatants.values() });
     turnProgress.actionsUsed += 1;
 
     // Limited-use abilities (e.g. a strike granted by a consumable): decrement on a successful
@@ -723,7 +971,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     const { roll: spellResult, appliedDamage } = outcomes.strike(rng, {
       attacker: combatant, strike: spell, target, targetEffective, mapPenalty: mapPenalty + conditionPenalty
     });
-    applyDyingTransition({ target, hpBefore, appliedDamage, critical: spellResult.degree === "criticalSuccess" });
+    applyDyingTransition({ target, hpBefore, appliedDamage, critical: spellResult.degree === "criticalSuccess", allCombatants: state.combatants.values() });
     turnProgress.actionsUsed += spell.actions ?? 1;
 
     if (spell.usesRemaining != null) spell.usesRemaining -= 1;
@@ -785,7 +1033,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     // Design doc §25: no attack roll here (the TARGET rolls), so the relevant "critical" for the
     // real dying-value math is the target's own critical FAILURE of their save — Player Core's own
     // "or the result of your critical failure" clause, not the attacker's (nonexistent) crit.
-    applyDyingTransition({ target, hpBefore, appliedDamage, critical: saveResult.degree === "criticalFailure" });
+    applyDyingTransition({ target, hpBefore, appliedDamage, critical: saveResult.degree === "criticalFailure", allCombatants: state.combatants.values() });
     turnProgress.actionsUsed += saveAttackAbility.actions ?? 1;
 
     if (saveAttackAbility.usesRemaining != null) saveAttackAbility.usesRemaining -= 1;
@@ -898,7 +1146,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
 
     for (const r of results) {
       const target = state.combatants.get(r.targetId);
-      applyDyingTransition({ target, hpBefore: hpBefore.get(r.targetId), appliedDamage: r.appliedDamage, critical: r.roll?.degree === "criticalFailure" });
+      applyDyingTransition({ target, hpBefore: hpBefore.get(r.targetId), appliedDamage: r.appliedDamage, critical: r.roll?.degree === "criticalFailure", allCombatants: state.combatants.values() });
     }
     turnProgress.actionsUsed += areaAttackAbility.actions ?? 1;
     if (areaAttackAbility.usesRemaining != null) areaAttackAbility.usesRemaining -= 1;
@@ -912,6 +1160,129 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
       }),
       usesRemaining: areaAttackAbility.usesRemaining ?? null, decisionReason: proposal.reason ?? null
     };
+  }
+
+  // Trip (Athletics, Player Core pg. 193): a melee maneuver — an Athletics check against the
+  // target's Fortitude DC, not an attack roll, so (matching Demoralize/saveAttack above) it never
+  // increments the shared Multiple Attack Penalty counter.
+  if (proposal.type === "trip") {
+    const target = state.combatants.get(proposal.targetId);
+    const targetPos = state.positions.get(proposal.targetId);
+    const check = checkTripLegal({ attacker: combatant, attackerPos: pos, target, targetPos, turnState: turnProgress, walls: state.walls });
+    if (!check.legal) return { type: "trip", targetId: proposal.targetId, legal: false, reason: check.reason };
+
+    const targetEffective = resolveEffectiveStats(target);
+    const hpBefore = target.currentHP;
+    const { roll: tripResult, appliedDamage, fell, selfFell } = outcomes.trip(rng, { attacker: combatant, target, targetEffective });
+    if (fell) target.prone = true;
+    if (selfFell) combatant.prone = true;
+    applyDyingTransition({ target, hpBefore, appliedDamage, critical: tripResult.degree === "criticalSuccess", allCombatants: state.combatants.values() });
+    turnProgress.actionsUsed += 1;
+
+    return {
+      type: "trip", targetId: proposal.targetId, legal: true, actionsCost: 1,
+      roll: tripResult, appliedDamage, fell, selfFell, targetHPAfter: target.currentHP, ...targetConditionAfter(target),
+      decisionReason: proposal.reason ?? null
+    };
+  }
+
+  // Shove (Athletics, Player Core pg. 193): the genuinely new mechanical shape this project's own
+  // design doc flagged — code that moves a combatant OTHER than the acting one. Same non-attack-roll
+  // shape as Trip, never subject to MAP.
+  if (proposal.type === "shove") {
+    const target = state.combatants.get(proposal.targetId);
+    const targetPos = state.positions.get(proposal.targetId);
+    const check = checkShoveLegal({ attacker: combatant, attackerPos: pos, target, targetPos, turnState: turnProgress, walls: state.walls });
+    if (!check.legal) return { type: "shove", targetId: proposal.targetId, legal: false, reason: check.reason };
+
+    const { roll: shoveResult, pushFeet, selfFell } = outcomes.shove(rng, { attacker: combatant, target });
+    if (selfFell) combatant.prone = true;
+    let newTargetPos = targetPos;
+    if (pushFeet > 0) {
+      const squares = Math.round(pushFeet / FEET_PER_SQUARE);
+      const otherPositions = livingPositions(state).filter((p) => p.combatantId !== proposal.targetId).map((p) => ({ ...p.pos, side: p.side }));
+      newTargetPos = pushDestination(pos, targetPos, squares, state.gridSize, otherPositions, state.walls);
+      state.positions.set(proposal.targetId, newTargetPos);
+    }
+    turnProgress.actionsUsed += 1;
+
+    return {
+      type: "shove", targetId: proposal.targetId, legal: true, actionsCost: 1,
+      roll: shoveResult, pushFeet, selfFell, targetPositionAfter: { ...newTargetPos },
+      decisionReason: proposal.reason ?? null
+    };
+  }
+
+  // Grapple (Athletics, Player Core pg. 193): applies the new relational Grabbed/Restrained
+  // condition (conditions.mjs) rather than damage. Same non-attack-roll shape as Trip/Shove.
+  if (proposal.type === "grapple") {
+    const target = state.combatants.get(proposal.targetId);
+    const targetPos = state.positions.get(proposal.targetId);
+    const check = checkGrappleLegal({ attacker: combatant, attackerPos: pos, target, targetPos, turnState: turnProgress, walls: state.walls });
+    if (!check.legal) return { type: "grapple", targetId: proposal.targetId, legal: false, reason: check.reason };
+
+    const { roll: grappleResult, newState, releasesExisting, selfFell } = outcomes.grapple(rng, { attacker: combatant, target });
+    if (newState) applyGrapple(target, { attackerId: combatant.id, state: newState, round: state.round });
+    else if (releasesExisting) releaseGrapple(target);
+    if (selfFell) combatant.prone = true;
+    turnProgress.actionsUsed += 1;
+
+    return {
+      type: "grapple", targetId: proposal.targetId, legal: true, actionsCost: 1,
+      roll: grappleResult, appliedState: newState, selfFell,
+      targetGrappledAfter: target.grappledBy ? { ...target.grappledBy } : null,
+      ...targetConditionAfter(target), decisionReason: proposal.reason ?? null
+    };
+  }
+
+  // Escape (Athletics, Player Core pg. 193): the held creature's own action to shed Grabbed/
+  // Restrained/Immobilized — never subject to Restrained's own "no attack actions" gate (Player
+  // Core's explicit carve-out; checkEscapeLegal reflects this by never calling checkNotRestrained).
+  if (proposal.type === "escape") {
+    const check = checkEscapeLegal({ actor: combatant, turnState: turnProgress });
+    if (!check.legal) return { type: "escape", legal: false, reason: check.reason };
+
+    const grappler = state.combatants.get(combatant.grappledBy.attackerId);
+    const { roll: escapeResult, freed } = outcomes.escape(rng, { actor: combatant, grappler });
+    if (freed) releaseGrapple(combatant);
+    turnProgress.actionsUsed += 1;
+
+    return {
+      type: "escape", legal: true, actionsCost: 1,
+      roll: escapeResult, freed, grappledAfter: combatant.grappledBy ? { ...combatant.grappledBy } : null,
+      decisionReason: proposal.reason ?? null
+    };
+  }
+
+  // Stand (Player Core pg. 410): no check, no randomness — ends prone outright. Real, intended
+  // interaction with Immobilized: checkStandLegal blocks this while grabbed/restrained, same as
+  // ordinary movement, since Stand carries the move trait too.
+  if (proposal.type === "stand") {
+    const check = checkStandLegal({ actor: combatant, turnState: turnProgress });
+    if (!check.legal) return { type: "stand", legal: false, reason: check.reason };
+
+    combatant.prone = false;
+    turnProgress.actionsUsed += 1;
+
+    return { type: "stand", legal: true, actionsCost: 1, decisionReason: proposal.reason ?? null };
+  }
+
+  // Crawl (Player Core pg. 408): moves exactly 5ft while REMAINING prone — the only other move
+  // action a prone combatant may use besides Stand. No check, no randomness.
+  if (proposal.type === "crawl") {
+    const { path: _crawlPath, ...to } = proposal.to;
+    const check = checkCrawlLegal({
+      combatant, from: pos, to, effectiveSpeed: effective.speed,
+      allPositions: livingPositions(state), gridSize: state.gridSize, turnState: turnProgress, walls: state.walls
+    });
+    if (!check.legal) return { type: "crawl", to, legal: false, reason: check.reason };
+
+    const stepDistance = distanceFeet(pos, to);
+    state.positions.set(combatantId, { ...to });
+    turnProgress.feetMoved += stepDistance;
+    turnProgress.actionsUsed += 1;
+
+    return { type: "crawl", from: { ...pos }, to: { ...to }, feet: stepDistance, legal: true, actionsCost: 1, decisionReason: proposal.reason ?? null };
   }
 
   return { type: proposal.type, legal: false, reason: `Unknown action type "${proposal.type}".` };
@@ -937,7 +1308,14 @@ function snapshotState(state) {
       woundedValue: combatant.woundedValue ?? 0,
       prone: !!combatant.prone,
       unconscious: isUnconscious(combatant),
-      dead: isDead(combatant)
+      dead: isDead(combatant),
+      // design doc §31 — same reasoning: a relational condition still needs to be directly visible
+      // per-snapshot, not just on the one grapple action's own log entry, so later turns (a release
+      // from movement, expiry, or the grappler dying) are observable at every subsequent beat too.
+      grappledBy: combatant.grappledBy ?? null,
+      // design doc §42 — null for anyone this rule doesn't apply to at all (every NPC), not 0;
+      // real PCs start at 1 and drop to 0 the instant one is actually spent to avoid death.
+      heroPoints: combatant.heroPoints ?? null
     };
   }
   return snapshot;
@@ -972,15 +1350,23 @@ function checkOutcome(state) {
  *
  * `frightened` needs NO special handling here — see combatant.mjs's own header for why it's a flat
  * scalar rather than a nested `conditions` object specifically to make the plain `{...c}` shallow
- * copy below already correct for it, by construction.
+ * copy below already correct for it, by construction. `grappledBy` is an OBJECT, not a scalar, but
+ * needs no special handling for the identical reason: it is only ever REASSIGNED wholesale
+ * (`target.grappledBy = {...}` / `= null`, conditions.mjs's applyGrapple/releaseGrapple), never
+ * mutated in place, so a sandbox fork's shallow-shared reference can never be corrupted by planning
+ * alone — the same guarantee `{...c}` already gives every other flat field here.
  *
  * Mutable surface at personnel scale: state.round; state.combatants.<id>.{currentHP,
  * stunnedValue, frightened, dyingValue, woundedValue, prone, demoralizedTargets,
- * conditionSaveImmunities}; state.combatants.<id>.{strikes,spells,healAbilities,saveAttacks,
- * conditionSaves}[i].usesRemaining; state.positions.<id>.{col,row}. (No reactionAvailable map —
- * this tree fires no reactions, see this file's own header.) dyingValue/woundedValue/prone are
- * design doc §25 additions, flat scalars for the exact same reason frightened/stunnedValue already
- * are — see conditions.mjs's own header.
+ * conditionSaveImmunities, grappledBy, heroPoints}; state.combatants.<id>.{strikes,spells,
+ * healAbilities, saveAttacks, conditionSaves}[i].usesRemaining; state.positions.<id>.{col,row}. (No
+ * reactionAvailable map — this tree fires no reactions, see this file's own header.) `heroPoints`
+ * needs no special deep-copy handling for the identical reason `grappledBy` doesn't (design doc
+ * §41's own comment here) — trySpendHeroPointToAvoidDeath REASSIGNS it (`combatant.heroPoints = 0`),
+ * never mutates in place.
+ * dyingValue/woundedValue/prone are design doc §25 additions, flat scalars for the exact same
+ * reason frightened/stunnedValue already are — see conditions.mjs's own header. `grappledBy` is
+ * design doc §31's addition, the first relational one — see that same header for why.
  */
 export function cloneStateForPlanning(state) {
   const combatants = new Map();

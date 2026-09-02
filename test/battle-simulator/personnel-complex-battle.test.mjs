@@ -6,9 +6,11 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { runBattle } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
 import { buildScenario } from "../../tools/battle-simulator/scenarios/personnel-complex-battle.mjs";
 import { lineOfEffect } from "../../tools/battle-simulator/personnel-engine/terrain.mjs";
+import { BASELINE_V1, NO_MANEUVERS_V1 } from "../../tools/battle-simulator/personnel-engine/ai-profiles.mjs";
 
 const ATTACK_TYPES = ["strike", "spellAttack", "saveAttack", "demoralize", "conditionSave", "areaAttack"];
 
@@ -182,19 +184,116 @@ test("buildScenario: RANDOM_ARCS scales cleanly to 4v4 — genuinely zero cross-
   }
 });
 
-test("buildScenario: 4v4 RANDOM_ARCS resolves cleanly end to end — zero illegal attacks, all 8 combatants present, across many seeds", () => {
-  for (let seed = 1; seed <= 15; seed++) {
-    const log = runBattle(buildScenario({ seed, partyFixtures: PARTY_4V4, oppositionFixtures: OPPOSITION_4V4, setup: "RANDOM_ARCS", roundLimit: 60 }));
+// design doc §43, Stage 2: seed counts on this pair were cut back (15->6, 20->8) and roundLimit
+// capped well below the other RANDOM_ARCS tests' own 60, once whole-turn planning's real, measured
+// per-battle cost (up to the better part of a minute for a single 8-combatant fight — see that
+// section's own profiling writeup) made the original counts take the better part of an hour between
+// them. Neither test's own PURPOSE needs the original counts: an illegal action, if the corpse-in-
+// doorway/cover-mechanic regressions this pair guards against ever recurred, would show up well
+// within a handful of seeds and rounds, not require 15-20 to surface; a genuine mix of outcomes in a
+// fair fight shows up just as reliably in 6-8 seeds as 15-20.
+test("buildScenario: 4v4 RANDOM_ARCS resolves cleanly end to end — zero illegal attacks, all 8 combatants present, across several seeds", () => {
+  for (let seed = 1; seed <= 6; seed++) {
+    const log = runBattle(buildScenario({ seed, partyFixtures: PARTY_4V4, oppositionFixtures: OPPOSITION_4V4, setup: "RANDOM_ARCS", roundLimit: 30 }));
     assert.equal(Object.keys(log.roster).length, 8, `seed ${seed}: expected all 8 real combatants in the roster`);
     assert.equal(illegalAttacks(log), 0, `seed ${seed}: an attack was proposed-and-committed illegally`);
   }
 });
 
-test("buildScenario: 4v4 RANDOM_ARCS produces a real spread of outcomes across many seeds — not a guaranteed party win every time", () => {
+test("buildScenario: 4v4 RANDOM_ARCS produces a real spread of outcomes across several seeds — not a guaranteed party win every time", () => {
   const outcomes = new Set();
-  for (let seed = 1; seed <= 20; seed++) {
-    const log = runBattle(buildScenario({ seed, partyFixtures: PARTY_4V4, oppositionFixtures: OPPOSITION_4V4, setup: "RANDOM_ARCS", roundLimit: 60 }));
+  for (let seed = 1; seed <= 8; seed++) {
+    const log = runBattle(buildScenario({ seed, partyFixtures: PARTY_4V4, oppositionFixtures: OPPOSITION_4V4, setup: "RANDOM_ARCS", roundLimit: 40 }));
     outcomes.add(log.outcome);
   }
-  assert.ok(outcomes.size > 1, `expected a real mix of outcomes across 20 seeds at 4v4 (a fair, symmetric fight should NOT resolve identically every time), saw only: ${[...outcomes].join(", ")}`);
+  assert.ok(outcomes.size > 1, `expected a real mix of outcomes across 8 seeds at 4v4 (a fair, symmetric fight should NOT resolve identically every time), saw only: ${[...outcomes].join(", ")}`);
+});
+
+// --- partyManeuvers (design doc §43, Stage 2's own explicit verification ask: "the same party with
+// Trip, Shove and Grapple withheld, run head-to-head") ---
+
+test("buildScenario: partyManeuvers:false strips athleticsModifier from every PARTY fixture, leaves the OPPOSITION's own untouched", () => {
+  const withManeuvers = buildScenario({ seed: 1, partyFixtures: PARTY_4V4, oppositionFixtures: OPPOSITION_4V4, setup: "RANDOM_ARCS" });
+  const withoutManeuvers = buildScenario({ seed: 1, partyFixtures: PARTY_4V4, oppositionFixtures: OPPOSITION_4V4, setup: "RANDOM_ARCS", partyManeuvers: false });
+
+  const party = withManeuvers.combatants.filter((c) => c.side === "party");
+  assert.ok(party.some((c) => c.athleticsModifier != null), "sanity check: at least one real PC fixture must actually carry an athleticsModifier for this test to mean anything");
+
+  const strippedParty = withoutManeuvers.combatants.filter((c) => c.side === "party");
+  for (const c of strippedParty) assert.equal(c.athleticsModifier, null, `${c.id}: expected athleticsModifier stripped to null with partyManeuvers:false`);
+
+  // the OPPOSITION's own athleticsModifier must be completely unaffected either way — this is a
+  // one-sided nerf to the PARTY's own capability, not a symmetric rules change.
+  const oppositionWith = withManeuvers.combatants.filter((c) => c.side === "opposition").map((c) => c.athleticsModifier);
+  const oppositionWithout = withoutManeuvers.combatants.filter((c) => c.side === "opposition").map((c) => c.athleticsModifier);
+  assert.deepEqual(oppositionWith, oppositionWithout, "the opposition's own athleticsModifier must be identical regardless of the party's partyManeuvers setting");
+});
+
+// design doc §43, Stage 2's own real performance ceiling (a full 8-combatant, 60-round-cap RANDOM_
+// ARCS battle can take upward of half a minute each — see that section's own profiling writeup):
+// 3 seeds is deliberately small, and roundLimit is deliberately capped well below the other RANDOM_
+// ARCS tests' own 60 — a maneuver either shows up once real combat starts (well within 20 rounds,
+// consistent with this project's own measured mean-rounds-to-resolution figures elsewhere) or it
+// doesn't; running all the way to a rare 60-round timeout adds cost without adding power here.
+test("buildScenario: partyManeuvers:false is reflected end to end in a real runBattle — the party never attempts trip/shove/grapple across a few seeds, even though the identical roster does with maneuvers enabled", () => {
+  let sawPartyManeuverWith = false;
+  let sawPartyManeuverWithout = false;
+  for (let seed = 1; seed <= 3; seed++) {
+    const withLog = runBattle(buildScenario({ seed, partyFixtures: PARTY_4V4, oppositionFixtures: OPPOSITION_4V4, setup: "RANDOM_ARCS", roundLimit: 20, partyManeuvers: true }));
+    const withoutLog = runBattle(buildScenario({ seed, partyFixtures: PARTY_4V4, oppositionFixtures: OPPOSITION_4V4, setup: "RANDOM_ARCS", roundLimit: 20, partyManeuvers: false }));
+    for (const log of [withLog]) {
+      for (const round of log.rounds) for (const turn of round.turns) {
+        if (log.roster[turn.combatantId]?.side !== "party") continue;
+        if ((turn.actions ?? []).some((a) => ["trip", "shove", "grapple"].includes(a.type))) sawPartyManeuverWith = true;
+      }
+    }
+    for (const round of withoutLog.rounds) for (const turn of round.turns) {
+      if (withoutLog.roster[turn.combatantId]?.side !== "party") continue;
+      if ((turn.actions ?? []).some((a) => ["trip", "shove", "grapple"].includes(a.type))) sawPartyManeuverWithout = true;
+    }
+  }
+  assert.ok(sawPartyManeuverWith, "expected the party to actually attempt at least one real maneuver across 3 seeds WITH partyManeuvers enabled — otherwise this pair proves nothing");
+  assert.ok(!sawPartyManeuverWithout, "the party must NEVER attempt trip/shove/grapple with partyManeuvers:false, across any of the 3 seeds");
+});
+
+// --- partyProfile / oppositionProfile (design doc §46 — AI profiles) — all deliberately small/fast
+// (1v1, short roundLimit), since ai-profiles.test.mjs already carries the real golden-sequence
+// proof; these exist specifically to test buildScenario's OWN plumbing (the ai closure + combatant
+// field merging), not to re-prove ai-profiles.mjs's own logic a second time. ---
+
+test("buildScenario: partyProfile/oppositionProfile OMITTED (every pre-§46 call, including every test above) produces the EXACT SAME real battle as explicitly passing BASELINE_V1 for both sides — proves the opt-in default is truly a no-op, not just numerically close", () => {
+  function realActionSequence(scenario) {
+    const log = runBattle(scenario);
+    const seq = [];
+    for (const round of log.rounds) for (const turn of round.turns) for (const action of turn.actions ?? []) {
+      seq.push(`${turn.combatantId}:${action.type}${action.targetId ? "->" + action.targetId : ""}`);
+    }
+    return { outcome: log.outcome, seq };
+  }
+  const omitted = buildScenario({ seed: 5, partyFixtures: ["lunar-17.json"], oppositionFixtures: ["security-goon.json"], setup: "DIAGONAL_SW_NE", roundLimit: 15 });
+  const explicit = buildScenario({ seed: 5, partyFixtures: ["lunar-17.json"], oppositionFixtures: ["security-goon.json"], setup: "DIAGONAL_SW_NE", roundLimit: 15, partyProfile: BASELINE_V1, oppositionProfile: BASELINE_V1 });
+  assert.deepEqual(realActionSequence(omitted), realActionSequence(explicit));
+});
+
+test("buildScenario: oppositionProfile: NO_MANEUVERS_V1 is real end to end through the ACTUAL scenario builder (not a hand-rolled scenario) — opposition never attempts trip/shove/grapple across several seeds, even though its own real fixture carries a real athleticsModifier", () => {
+  const oppositionAthleticsModifier = JSON.parse(readFileSync("tools/battle-simulator/data/raw-validation-fixtures/security-goon.json", "utf8")).athleticsModifier;
+  assert.ok(oppositionAthleticsModifier != null, "sanity check: Security Goon must have a real athleticsModifier, or this test cannot distinguish the profile restriction from an already-absent capability");
+  let sawManeuver = false;
+  for (let seed = 1; seed <= 4; seed++) {
+    const scenario = buildScenario({ seed, partyFixtures: ["lunar-17.json"], oppositionFixtures: ["security-goon.json"], setup: "DIAGONAL_SW_NE", roundLimit: 15, oppositionProfile: NO_MANEUVERS_V1 });
+    assert.equal(scenario.combatants[1].athleticsModifier, oppositionAthleticsModifier, "the profile must NOT touch the fixture's own athleticsModifier — the restriction is a decision-time filter, not a data mutation");
+    const log = runBattle(scenario);
+    for (const round of log.rounds) for (const turn of round.turns) {
+      if (turn.combatantId !== scenario.combatants[1].id) continue;
+      if ((turn.actions ?? []).some((a) => ["trip", "shove", "grapple"].includes(a.type))) sawManeuver = true;
+    }
+  }
+  assert.ok(!sawManeuver, "the opposition must never attempt trip/shove/grapple across any of the 4 seeds with NO_MANEUVERS_V1 assigned");
+});
+
+test("buildScenario: a profile's temperament/aggression really do land on the deployed combatants — checked directly on the returned scenario, no battle needed", () => {
+  const scenario = buildScenario({ seed: 1, partyFixtures: ["lunar-17.json"], oppositionFixtures: ["security-goon.json"], setup: "DIAGONAL_SW_NE", roundLimit: 15, partyProfile: NO_MANEUVERS_V1, oppositionProfile: BASELINE_V1 });
+  assert.equal(scenario.combatants[0].temperament, NO_MANEUVERS_V1.temperament);
+  assert.equal(scenario.combatants[0].aggression, NO_MANEUVERS_V1.aggression);
+  assert.equal(scenario.combatants[1].temperament, BASELINE_V1.temperament);
 });

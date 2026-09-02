@@ -23,6 +23,12 @@ import {
   checkDemoralizeLegal,
   checkConditionSaveLegal,
   checkAreaAttackLegal,
+  checkTripLegal,
+  checkShoveLegal,
+  checkGrappleLegal,
+  checkEscapeLegal,
+  checkStandLegal,
+  checkCrawlLegal,
   multipleAttackPenalty,
   rangeIncrementPenalty
 } from "../../tools/battle-simulator/personnel-engine/legality.mjs";
@@ -654,4 +660,355 @@ test("checkAreaAttackLegal: rejects when the action budget doesn't allow it", ()
   const attacker = { id: "a", name: "Tough", currentHP: 24 };
   const result = checkAreaAttackLegal({ attacker, attackerPos: { col: 0, row: 0 }, originPos: { col: 0, row: 0 }, areaAttack: fragGrenade, turnState: { actionsAvailable: 3, actionsUsed: 3 }, affectedCount: 1 });
   assert.equal(result.legal, false);
+});
+
+// ---------------------------------------------------------------------------
+// checkTripLegal / checkShoveLegal / checkGrappleLegal / checkEscapeLegal — Athletics maneuvers
+// (design doc §31's rules-gap sweep, priority 1). Real Player Core pg. 193 rules
+// (reference/srd/player-core/skill-3-athletics.json), mirrored verbatim.
+// ---------------------------------------------------------------------------
+
+const grappler = { id: "a", name: "Grappler", currentHP: 15, athleticsModifier: 5 };
+const foe = { id: "t", name: "Foe", currentHP: 10, saves: { fort: 4, ref: 4, will: 4 } };
+
+test("checkTripLegal: legal against an adjacent target with enough actions", () => {
+  const result = checkTripLegal({ attacker: grappler, attackerPos: { col: 0, row: 0 }, target: foe, targetPos: { col: 1, row: 0 }, turnState: openBudget });
+  assert.equal(result.legal, true);
+});
+
+test("checkTripLegal: rejects a target beyond melee reach (default reach is one 5ft square, no melee weapon needed — bare hands are enough to Trip)", () => {
+  const result = checkTripLegal({ attacker: grappler, attackerPos: { col: 0, row: 0 }, target: foe, targetPos: { col: 5, row: 0 }, turnState: openBudget }); // 25ft
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /melee reach/);
+});
+
+test("checkTripLegal: a real reach-10 melee weapon extends the maneuver's own reach, same as a Strike", () => {
+  const reachAttacker = { ...grappler, strikes: [{ name: "Polearm", strikeType: "melee", traits: ["reach-10"] }] };
+  const result = checkTripLegal({ attacker: reachAttacker, attackerPos: { col: 0, row: 0 }, target: foe, targetPos: { col: 2, row: 0 }, turnState: openBudget }); // 10ft
+  assert.equal(result.legal, true);
+});
+
+test("checkTripLegal: rejects a target more than one size category larger than the (default Medium) attacker", () => {
+  const huge = { ...foe, size: "huge" }; // medium vs huge: 2 categories apart
+  const result = checkTripLegal({ attacker: grappler, attackerPos: { col: 0, row: 0 }, target: huge, targetPos: { col: 1, row: 0 }, turnState: openBudget });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /too large/);
+});
+
+test("checkTripLegal: allows a target exactly one size category larger — the real boundary is 'no MORE than one'", () => {
+  const large = { ...foe, size: "large" }; // medium vs large: exactly 1 category apart
+  const result = checkTripLegal({ attacker: grappler, attackerPos: { col: 0, row: 0 }, target: large, targetPos: { col: 1, row: 0 }, turnState: openBudget });
+  assert.equal(result.legal, true);
+});
+
+test("checkTripLegal: respects Line of Effect, same as every other targeted action", () => {
+  const wall = [{ c: [1, 0, 1, 1], move: 20, sight: 20 }];
+  const result = checkTripLegal({ attacker: grappler, attackerPos: { col: 0, row: 0 }, target: foe, targetPos: { col: 1, row: 0 }, turnState: openBudget, walls: wall });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /line of effect/i);
+});
+
+test("checkTripLegal: rejects when the actor is at 0 HP", () => {
+  const downed = { ...grappler, currentHP: 0 };
+  const result = checkTripLegal({ attacker: downed, attackerPos: { col: 0, row: 0 }, target: foe, targetPos: { col: 1, row: 0 }, turnState: openBudget });
+  assert.equal(result.legal, false);
+});
+
+test("checkTripLegal: rejects when the action budget doesn't allow it", () => {
+  const result = checkTripLegal({ attacker: grappler, attackerPos: { col: 0, row: 0 }, target: foe, targetPos: { col: 1, row: 0 }, turnState: { actionsAvailable: 3, actionsUsed: 3 } });
+  assert.equal(result.legal, false);
+});
+
+test("checkTripLegal: a restrained attacker can't attempt it — Trip carries the Attack trait (skill-3-athletics.json)", () => {
+  const restrained = { ...grappler, grappledBy: { attackerId: "someone-else", state: "restrained", expiresEndOfRound: 5 } };
+  const result = checkTripLegal({ attacker: restrained, attackerPos: { col: 0, row: 0 }, target: foe, targetPos: { col: 1, row: 0 }, turnState: openBudget });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /restrained/);
+});
+
+test("checkTripLegal: a GRABBED (not restrained) attacker can still attempt it — only Restrained blocks attack actions (condition-20-grabbed.json has no such restriction)", () => {
+  const grabbed = { ...grappler, grappledBy: { attackerId: "someone-else", state: "grabbed", expiresEndOfRound: 5 } };
+  const result = checkTripLegal({ attacker: grabbed, attackerPos: { col: 0, row: 0 }, target: foe, targetPos: { col: 1, row: 0 }, turnState: openBudget });
+  assert.equal(result.legal, true);
+});
+
+// --- checkShoveLegal: same legality shape as Trip, verified independently rather than assumed ---
+
+test("checkShoveLegal: legal against an adjacent target with enough actions", () => {
+  const result = checkShoveLegal({ attacker: grappler, attackerPos: { col: 0, row: 0 }, target: foe, targetPos: { col: 1, row: 0 }, turnState: openBudget });
+  assert.equal(result.legal, true);
+});
+
+test("checkShoveLegal: rejects a target beyond melee reach", () => {
+  const result = checkShoveLegal({ attacker: grappler, attackerPos: { col: 0, row: 0 }, target: foe, targetPos: { col: 5, row: 0 }, turnState: openBudget });
+  assert.equal(result.legal, false);
+});
+
+test("checkShoveLegal: rejects a target more than one size category larger", () => {
+  const gargantuan = { ...foe, size: "gargantuan" };
+  const result = checkShoveLegal({ attacker: grappler, attackerPos: { col: 0, row: 0 }, target: gargantuan, targetPos: { col: 1, row: 0 }, turnState: openBudget });
+  assert.equal(result.legal, false);
+});
+
+test("checkShoveLegal: respects Line of Effect", () => {
+  const wall = [{ c: [1, 0, 1, 1], move: 20, sight: 20 }];
+  const result = checkShoveLegal({ attacker: grappler, attackerPos: { col: 0, row: 0 }, target: foe, targetPos: { col: 1, row: 0 }, turnState: openBudget, walls: wall });
+  assert.equal(result.legal, false);
+});
+
+test("checkShoveLegal: a restrained attacker can't attempt it", () => {
+  const restrained = { ...grappler, grappledBy: { attackerId: "someone-else", state: "restrained", expiresEndOfRound: 5 } };
+  const result = checkShoveLegal({ attacker: restrained, attackerPos: { col: 0, row: 0 }, target: foe, targetPos: { col: 1, row: 0 }, turnState: openBudget });
+  assert.equal(result.legal, false);
+});
+
+// --- checkGrappleLegal: same legality shape again ---
+
+test("checkGrappleLegal: legal against an adjacent target with enough actions", () => {
+  const result = checkGrappleLegal({ attacker: grappler, attackerPos: { col: 0, row: 0 }, target: foe, targetPos: { col: 1, row: 0 }, turnState: openBudget });
+  assert.equal(result.legal, true);
+});
+
+test("checkGrappleLegal: rejects a target beyond melee reach", () => {
+  const result = checkGrappleLegal({ attacker: grappler, attackerPos: { col: 0, row: 0 }, target: foe, targetPos: { col: 5, row: 0 }, turnState: openBudget });
+  assert.equal(result.legal, false);
+});
+
+test("checkGrappleLegal: rejects a target more than one size category larger", () => {
+  const huge = { ...foe, size: "huge" };
+  const result = checkGrappleLegal({ attacker: grappler, attackerPos: { col: 0, row: 0 }, target: huge, targetPos: { col: 1, row: 0 }, turnState: openBudget });
+  assert.equal(result.legal, false);
+});
+
+test("checkGrappleLegal: respects Line of Effect", () => {
+  const wall = [{ c: [1, 0, 1, 1], move: 20, sight: 20 }];
+  const result = checkGrappleLegal({ attacker: grappler, attackerPos: { col: 0, row: 0 }, target: foe, targetPos: { col: 1, row: 0 }, turnState: openBudget, walls: wall });
+  assert.equal(result.legal, false);
+});
+
+test("checkGrappleLegal: rejects when the action budget doesn't allow it", () => {
+  const result = checkGrappleLegal({ attacker: grappler, attackerPos: { col: 0, row: 0 }, target: foe, targetPos: { col: 1, row: 0 }, turnState: { actionsAvailable: 3, actionsUsed: 3 } });
+  assert.equal(result.legal, false);
+});
+
+test("checkGrappleLegal: a restrained attacker can't attempt it", () => {
+  const restrained = { ...grappler, grappledBy: { attackerId: "someone-else", state: "restrained", expiresEndOfRound: 5 } };
+  const result = checkGrappleLegal({ attacker: restrained, attackerPos: { col: 0, row: 0 }, target: foe, targetPos: { col: 1, row: 0 }, turnState: openBudget });
+  assert.equal(result.legal, false);
+});
+
+// --- checkEscapeLegal (Athletics, Player Core pg. 193 — the held creature's own action) ---
+
+test("checkEscapeLegal: legal for a combatant currently grabbed/restrained", () => {
+  const held = { id: "held", name: "Held", currentHP: 10, grappledBy: { attackerId: "a", state: "grabbed", expiresEndOfRound: 5 } };
+  const result = checkEscapeLegal({ actor: held, turnState: openBudget });
+  assert.equal(result.legal, true);
+});
+
+test("checkEscapeLegal: rejects a combatant who isn't held at all — nothing to Escape", () => {
+  const free = { id: "free", name: "Free", currentHP: 10 };
+  const result = checkEscapeLegal({ actor: free, turnState: openBudget });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /nothing to Escape/);
+});
+
+test("checkEscapeLegal: rejects when the actor is at 0 HP", () => {
+  const downed = { id: "held", name: "Held", currentHP: 0, grappledBy: { attackerId: "a", state: "grabbed", expiresEndOfRound: 5 } };
+  const result = checkEscapeLegal({ actor: downed, turnState: openBudget });
+  assert.equal(result.legal, false);
+});
+
+test("checkEscapeLegal: rejects when the action budget doesn't allow it", () => {
+  const held = { id: "held", name: "Held", currentHP: 10, grappledBy: { attackerId: "a", state: "grabbed", expiresEndOfRound: 5 } };
+  const result = checkEscapeLegal({ actor: held, turnState: { actionsAvailable: 3, actionsUsed: 3 } });
+  assert.equal(result.legal, false);
+});
+
+// --- Restrained blocks attack-ROLL actions too, not just the new maneuvers themselves — proven
+// against the PRE-EXISTING checkStrikeLegal/checkSpellAttackLegal, and that Demoralize (no Attack
+// trait) is correctly UNAFFECTED (design doc §31) ---
+
+test("checkStrikeLegal: a restrained attacker can't Strike — Restrained's own real text ('can't use any attack ... actions')", () => {
+  const restrained = { name: "Restrained Attacker", currentHP: 15, grappledBy: { attackerId: "someone-else", state: "restrained", expiresEndOfRound: 5 } };
+  const result = checkStrikeLegal({
+    attacker: restrained, attackerPos: { col: 0, row: 0 }, target: { name: "Target", currentHP: 10 }, targetPos: { col: 1, row: 0 },
+    strike: pistol, turnState: openBudget
+  });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /restrained/);
+});
+
+test("checkSpellAttackLegal: a restrained caster can't cast an attack-roll spell either", () => {
+  const restrained = { ...aliveCaster, grappledBy: { attackerId: "someone-else", state: "restrained", expiresEndOfRound: 5 } };
+  const target = { id: "t", name: "Target", currentHP: 8 };
+  const result = checkSpellAttackLegal({
+    caster: restrained, casterPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 },
+    spell: eldritchLance, turnState: openBudget
+  });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /restrained/);
+});
+
+test("checkDemoralizeLegal: a restrained attacker CAN still Demoralize — Demoralize carries no Attack trait (skill-8-intimidation.json), Player Core's own exception", () => {
+  const restrained = { id: "a", name: "Goon", currentHP: 25, grappledBy: { attackerId: "someone-else", state: "restrained", expiresEndOfRound: 5 } };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkDemoralizeLegal({ attacker: restrained, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, turnState: openBudget });
+  assert.equal(result.legal, true);
+});
+
+// --- Immobilized (granted by Grabbed/Restrained) blocks Move/Step — condition-24-immobilized.json:
+// "can't use any actions that have the move trait." ---
+
+test("checkMoveLegality: a grabbed/restrained (immobilized) combatant can't Stride", () => {
+  const held = { id: "a", grappledBy: { attackerId: "x", state: "grabbed", expiresEndOfRound: 5 } };
+  const result = checkMoveLegality({
+    combatant: held, from: { col: 0, row: 0 }, to: { col: 1, row: 0 },
+    effectiveSpeed: 25, allPositions: [], gridSize, turnState: openBudget
+  });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /[Ii]mmobilized/);
+});
+
+test("checkStepLegality: an immobilized combatant can't Step either — Step delegates to checkMoveLegality for this exact check", () => {
+  const held = { id: "a", grappledBy: { attackerId: "x", state: "restrained", expiresEndOfRound: 5 } };
+  const result = checkStepLegality({
+    combatant: held, from: { col: 5, row: 5 }, to: { col: 6, row: 5 },
+    effectiveSpeed: 25, allPositions: [], gridSize, turnState: openBudget
+  });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /[Ii]mmobilized/);
+});
+
+test("checkMoveLegality: an ordinary (non-held) combatant is completely unaffected by the new immobilize gate", () => {
+  const result = checkMoveLegality({
+    combatant: { id: "a" }, from: { col: 0, row: 0 }, to: { col: 1, row: 0 },
+    effectiveSpeed: 25, allPositions: [], gridSize, turnState: openBudget
+  });
+  assert.equal(result.legal, true);
+});
+
+// ---------------------------------------------------------------------------
+// Prone blocks Stride/Step, and Stand/Crawl — the only two real exceptions (design doc §41, Stage 0
+// — condition-32-prone.json: "The only move actions you can use while prone are Crawl and Stand.")
+// ---------------------------------------------------------------------------
+
+test("checkMoveLegality: a prone combatant can't Stride", () => {
+  const result = checkMoveLegality({
+    combatant: { id: "a", prone: true }, from: { col: 0, row: 0 }, to: { col: 1, row: 0 },
+    effectiveSpeed: 25, allPositions: [], gridSize, turnState: openBudget
+  });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /[Pp]rone/);
+});
+
+test("checkStepLegality: a prone combatant can't Step either — delegates to checkMoveLegality for this exact check", () => {
+  const result = checkStepLegality({
+    combatant: { id: "a", prone: true }, from: { col: 5, row: 5 }, to: { col: 6, row: 5 },
+    effectiveSpeed: 25, allPositions: [], gridSize, turnState: openBudget
+  });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /[Pp]rone/);
+});
+
+test("checkMoveLegality: allowWhileProne:true bypasses the prone gate — the real exception Crawl's own wrapper uses, not a general escape hatch", () => {
+  const result = checkMoveLegality({
+    combatant: { id: "a", prone: true }, from: { col: 0, row: 0 }, to: { col: 1, row: 0 },
+    effectiveSpeed: 25, allPositions: [], gridSize, turnState: openBudget, allowWhileProne: true
+  });
+  assert.equal(result.legal, true);
+});
+
+test("checkMoveLegality: a NON-prone combatant is completely unaffected by the new prone gate", () => {
+  const result = checkMoveLegality({
+    combatant: { id: "a", prone: false }, from: { col: 0, row: 0 }, to: { col: 1, row: 0 },
+    effectiveSpeed: 25, allPositions: [], gridSize, turnState: openBudget
+  });
+  assert.equal(result.legal, true);
+});
+
+// --- checkStandLegal (Player Core pg. 410) ---
+
+test("checkStandLegal: legal for a prone combatant with enough actions", () => {
+  const result = checkStandLegal({ actor: { name: "a", currentHP: 10, prone: true }, turnState: openBudget });
+  assert.equal(result.legal, true);
+});
+
+test("checkStandLegal: rejects a combatant who isn't prone at all — nothing to Stand from", () => {
+  const result = checkStandLegal({ actor: { name: "a", currentHP: 10, prone: false }, turnState: openBudget });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /nothing to Stand/);
+});
+
+test("checkStandLegal: rejects when the actor is at 0 HP", () => {
+  const result = checkStandLegal({ actor: { name: "a", currentHP: 0, prone: true }, turnState: openBudget });
+  assert.equal(result.legal, false);
+});
+
+test("checkStandLegal: rejects when the action budget doesn't allow it", () => {
+  const result = checkStandLegal({ actor: { name: "a", currentHP: 10, prone: true }, turnState: { actionsAvailable: 3, actionsUsed: 3 } });
+  assert.equal(result.legal, false);
+});
+
+test("checkStandLegal: rejects a prone combatant who is ALSO immobilized — a real, intended interaction (Stand carries the move trait too), not a special case", () => {
+  const held = { name: "a", currentHP: 10, prone: true, grappledBy: { attackerId: "x", state: "restrained", expiresEndOfRound: 5 } };
+  const result = checkStandLegal({ actor: held, turnState: openBudget });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /immobilized/);
+});
+
+// --- checkCrawlLegal (Player Core pg. 408) ---
+
+test("checkCrawlLegal: legal for a prone combatant, Speed >= 10ft, moving exactly one square", () => {
+  const result = checkCrawlLegal({
+    combatant: { id: "a", prone: true }, from: { col: 0, row: 0 }, to: { col: 1, row: 0 },
+    effectiveSpeed: 25, allPositions: [], gridSize, turnState: openBudget
+  });
+  assert.equal(result.legal, true);
+});
+
+test("checkCrawlLegal: rejects a combatant who isn't prone", () => {
+  const result = checkCrawlLegal({
+    combatant: { id: "a", prone: false }, from: { col: 0, row: 0 }, to: { col: 1, row: 0 },
+    effectiveSpeed: 25, allPositions: [], gridSize, turnState: openBudget
+  });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /Not prone/);
+});
+
+test("checkCrawlLegal: rejects when effective Speed is below the real 10ft requirement", () => {
+  const result = checkCrawlLegal({
+    combatant: { id: "a", prone: true }, from: { col: 0, row: 0 }, to: { col: 1, row: 0 },
+    effectiveSpeed: 5, allPositions: [], gridSize, turnState: openBudget
+  });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /at least 10ft/);
+});
+
+test("checkCrawlLegal: rejects moving more than one square (the real 'move 5 feet' cap)", () => {
+  const result = checkCrawlLegal({
+    combatant: { id: "a", prone: true }, from: { col: 0, row: 0 }, to: { col: 2, row: 0 },
+    effectiveSpeed: 25, allPositions: [], gridSize, turnState: openBudget
+  });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /exactly one square/);
+});
+
+test("checkCrawlLegal: still respects walls/occupancy via its checkMoveLegality delegation", () => {
+  const wall = [{ c: [1, 0, 1, 1], move: 20, sight: 20 }];
+  const result = checkCrawlLegal({
+    combatant: { id: "a", prone: true }, from: { col: 0, row: 0 }, to: { col: 1, row: 0 },
+    effectiveSpeed: 25, allPositions: [], gridSize, turnState: openBudget, walls: wall
+  });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /blocked by a wall/);
+});
+
+test("checkCrawlLegal: rejects a prone combatant who is ALSO immobilized — inherited from checkMoveLegality's own immobilize gate", () => {
+  const held = { id: "a", prone: true, grappledBy: { attackerId: "x", state: "grabbed", expiresEndOfRound: 5 } };
+  const result = checkCrawlLegal({
+    combatant: held, from: { col: 0, row: 0 }, to: { col: 1, row: 0 },
+    effectiveSpeed: 25, allPositions: [], gridSize, turnState: openBudget
+  });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /[Ii]mmobilized/);
 });

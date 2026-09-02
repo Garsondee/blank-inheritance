@@ -16,10 +16,10 @@ import { shannonEntropy, collectRunMetrics, aggregateMetrics, formatMetrics } fr
 function makeLog({ rounds, outcome = "party-victory" }) {
   return { outcome: { result: outcome, detail: "" }, rounds };
 }
-function turn(combatantId, actions, { available = 3, stunned = false } = {}) {
+function turn(combatantId, actions, { available = 3, stunned = false, dying = false } = {}) {
   const spent = actions.filter((a) => a.legal !== false).reduce((s, a) => s + (a.actionsCost ?? 1), 0);
   return {
-    combatantId, stunned, actions,
+    combatantId, stunned, dying, actions,
     actionAccounting: { available, spent, held: available - spent, heldReason: stunned ? "Stunned — the whole turn is forfeit" : (available - spent > 0 ? "No legal action the AI could find" : null) }
   };
 }
@@ -58,6 +58,22 @@ test("collectRunMetrics: an un-stunned combatant that spends nothing counts as a
   const m = collectRunMetrics(log);
   assert.equal(m.idleTurns, 1, "only the un-stunned empty turn is idle");
   assert.equal(m.stunnedTurns, 1);
+  assert.equal(m.idleTurnRate, 0.5);
+});
+
+// REGRESSION (design doc §53's transcript-audit tool, run against squishier rosters than this file
+// was originally validated against): a downed-but-not-dead combatant's real dying/recovery-check
+// turn (engine.mjs's own `dying: true`, `actions: []`, `available: 0`) used to count as idle — same
+// bug class Stunned was already excluded for, just never hit until a roster that actually produces
+// real dying spirals got run through this metric.
+test("collectRunMetrics: a real DYING (unconscious, making a recovery check) turn does NOT count as idle, same as Stunned — but is tracked separately as dyingTurns", () => {
+  const log = makeLog({ rounds: [{ round: 1, turns: [
+    turn("idle", []),                                    // live but did nothing — genuinely idle
+    turn("dying", [], { dying: true, available: 0 })      // unconscious, making a real recovery check — not a choice at all
+  ] }] });
+  const m = collectRunMetrics(log);
+  assert.equal(m.idleTurns, 1, "only the genuinely idle turn counts — the dying turn must not inflate idleTurnRate");
+  assert.equal(m.dyingTurns, 1);
   assert.equal(m.idleTurnRate, 0.5);
 });
 

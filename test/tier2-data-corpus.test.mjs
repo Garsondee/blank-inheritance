@@ -18,6 +18,7 @@ import { fileURLToPath } from "node:url";
 
 import { buildCreatureActorData } from "../foundry/blank-inheritance/scripts/core/generators/creature.mjs";
 import { buildCharacterActorData } from "../foundry/blank-inheritance/scripts/core/generators/character.mjs";
+import { ALL_PROFILES } from "../tools/battle-simulator/personnel-engine/archetypes.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
@@ -34,8 +35,35 @@ function walkJson(dir, out = []) {
 
 // data/schema/ holds the schema *definitions* themselves (their own $schema
 // points at the draft 2020-12 meta-schema, not at one of our entity schemas)
-// — not part of the corpus this tier validates.
-const dataFiles = walkJson(dataRoot).filter((f) => !f.includes(`${path.sep}schema${path.sep}`));
+// — not part of the corpus this tier validates. data/map/editor-submissions/
+// is gitignored (see .gitignore) and CLAUDE.md's own documented ephemeral
+// pre-processing input from the city-map editor's "submit" flow — raw drafts
+// awaiting hand-conversion into real ops, never a schema'd entity themselves
+// — so a real submission left on disk from actually using the editor must
+// not fail this tier the way one did on 2026-08-25 (found while verifying
+// unrelated map-editor-rearchitecture work; walkJson does a plain filesystem
+// walk and does not consult .gitignore, so an explicit skip is required here
+// exactly like the schema/ one just above, not something git alone fixes).
+const EXCLUDED_PATH_SEGMENTS = [
+  `${path.sep}schema${path.sep}`,
+  `${path.sep}map${path.sep}editor-submissions${path.sep}`,
+];
+
+function isCorpusFile(absPath) {
+  return !EXCLUDED_PATH_SEGMENTS.some((segment) => absPath.includes(segment));
+}
+
+const dataFiles = walkJson(dataRoot).filter(isCorpusFile);
+
+test("isCorpusFile: excludes schema definitions and gitignored editor-submissions, includes real entity data", () => {
+  assert.equal(isCorpusFile(path.join(dataRoot, "schema", "kid.schema.json")), false);
+  assert.equal(
+    isCorpusFile(path.join(dataRoot, "map", "editor-submissions", "submission-20260823-202227-731688.json")),
+    false
+  );
+  assert.equal(isCorpusFile(path.join(dataRoot, "npcs", "commander.json")), true);
+  assert.equal(isCorpusFile(path.join(dataRoot, "map", "frames", "kurose-12km.json")), true);
+});
 
 let ajvAvailable = true;
 let Ajv2020;
@@ -80,6 +108,30 @@ test("every real data/ file validates against its declared $schema", async (t) =
       `${path.relative(repoRoot, file)} does not validate against ${path.relative(repoRoot, schemaAbsPath)}:\n${JSON.stringify(validate.errors, null, 2)}`
     );
   }
+});
+
+test("combatStatblock's new profileRef field (design doc §50, Archetype Ladder Stage E) accepts every real id currently in the battle-simulator's own ALL_PROFILES registry, plus null/omitted, and rejects a non-string/non-null value", async (t) => {
+  if (!ajvAvailable) {
+    t.skip("ajv is not installed (npm install) — schema validation skipped, not silently passed");
+    return;
+  }
+
+  const ajv = new Ajv2020({ strict: false, allErrors: true });
+  const commonSchema = JSON.parse(readFileSync(path.join(repoRoot, "data", "schema", "common", "sf2e-common.schema.json"), "utf8"));
+  ajv.addSchema(commonSchema);
+  const validate = ajv.compile({ $ref: "common/sf2e-common.schema.json#/$defs/combatStatblock" });
+
+  const minimalStatblock = { level: 1 };
+
+  const realProfileIds = Object.keys(ALL_PROFILES);
+  assert.ok(realProfileIds.length > 0, "ALL_PROFILES must actually contain real profiles for this check to mean anything");
+  for (const profileRef of realProfileIds) {
+    assert.equal(validate({ ...minimalStatblock, profileRef }), true, `profileRef "${profileRef}" (a REAL id from ALL_PROFILES) must validate:\n${JSON.stringify(validate.errors, null, 2)}`);
+  }
+
+  assert.equal(validate({ ...minimalStatblock, profileRef: null }), true, "profileRef: null must validate — the field is optional");
+  assert.equal(validate(minimalStatblock), true, "an omitted profileRef must validate — the field is optional");
+  assert.equal(validate({ ...minimalStatblock, profileRef: 42 }), false, "a non-string, non-null profileRef must be REJECTED — the type constraint must be real, not decorative");
 });
 
 const GENERATORS_BY_TYPE = {

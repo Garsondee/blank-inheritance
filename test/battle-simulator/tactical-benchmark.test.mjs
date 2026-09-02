@@ -21,7 +21,7 @@ import assert from "node:assert/strict";
 import { runBattle } from "../../tools/battle-simulator/engine/engine.mjs";
 import { ARCHETYPES } from "../../tools/battle-simulator/scenarios/archetypes.mjs";
 import { BASELINES } from "../../tools/battle-simulator/ai/baselines.mjs";
-import { collectTacticalMetrics, focusFireStats, threatPriorityStats, coverUsageStats, sideOutcomeStats, spearman } from "../../tools/battle-simulator/analysis/tactical-metrics.mjs";
+import { collectTacticalMetrics, focusFireStats, threatPriorityStats, coverUsageStats, sideOutcomeStats, spearman, maneuverConversionStats } from "../../tools/battle-simulator/analysis/tactical-metrics.mjs";
 import { auditActionUtilization } from "../../tools/battle-simulator/analysis/action-utilization.mjs";
 
 test("every archetype runs to completion with zero illegal proposals", () => {
@@ -219,6 +219,136 @@ test("coverUsageStats: returns null rates (not NaN or a crash) when a combatant 
   assert.equal(stats.moveIntoCoverRate, null);
   assert.equal(stats.attackFromCoverRate, null);
   assert.deepEqual(stats.combatants, [], "a turn with zero real moves/attacks never even creates a per-combatant record");
+});
+
+// --- maneuverConversionStats (design doc §43, Stage 2 — the tactical-planning report's own ask:
+// "the question is whether an ally actually cashed in on the setup before it expired") ---
+
+test("METRIC VALIDATION — maneuverConversionStats: a successful Trip followed by a real Strike against the SAME target, same side, counts as converted", () => {
+  const roster = { tripper: { side: "party" }, target: { side: "opposition" } };
+  const log = {
+    roster, walls: [],
+    rounds: [{ round: 1, turns: [{ combatantId: "tripper", snapshot: {}, actions: [
+      { type: "trip", legal: true, targetId: "target", targetProneAfter: true },
+      { type: "strike", legal: true, targetId: "target" }
+    ] }] }]
+  };
+  const stats = maneuverConversionStats(log);
+  assert.equal(stats.trip.attempts, 1);
+  assert.equal(stats.trip.converted, 1);
+  assert.equal(stats.trip.conversionRate, 1);
+});
+
+test("METRIC VALIDATION — maneuverConversionStats: a successful Trip where the target Stands back up before anyone attacks it counts as UNconverted", () => {
+  const roster = { tripper: { side: "party" }, target: { side: "opposition" } };
+  const log = {
+    roster, walls: [],
+    rounds: [{ round: 1, turns: [
+      { combatantId: "tripper", snapshot: {}, actions: [{ type: "trip", legal: true, targetId: "target", targetProneAfter: true }] },
+      { combatantId: "target", snapshot: {}, actions: [{ type: "stand", legal: true }] },
+      { combatantId: "tripper", snapshot: {}, actions: [{ type: "strike", legal: true, targetId: "target" }] } // too late — already standing
+    ] }]
+  };
+  const stats = maneuverConversionStats(log);
+  assert.equal(stats.trip.attempts, 1);
+  assert.equal(stats.trip.converted, 0, "Stand closes the window — a later Strike must not retroactively count");
+});
+
+test("METRIC VALIDATION — maneuverConversionStats: an ALLY (not the tripper) cashing in still counts — matches design doc §42's own setupValue framing", () => {
+  const roster = { tripper: { side: "party" }, ally: { side: "party" }, target: { side: "opposition" } };
+  const log = {
+    roster, walls: [],
+    rounds: [{ round: 1, turns: [
+      { combatantId: "tripper", snapshot: {}, actions: [{ type: "trip", legal: true, targetId: "target", targetProneAfter: true }] },
+      { combatantId: "ally", snapshot: {}, actions: [{ type: "strike", legal: true, targetId: "target" }] }
+    ] }]
+  };
+  const stats = maneuverConversionStats(log);
+  assert.equal(stats.trip.converted, 1, "an ally on the SAME side capitalizing on the setup is a real conversion, not just the tripper's own follow-up");
+});
+
+test("METRIC VALIDATION — maneuverConversionStats: an ENEMY attacking the prone target does NOT count as conversion — only the maneuvering side's own follow-up counts", () => {
+  const roster = { tripper: { side: "party" }, target: { side: "opposition" }, targetAlly: { side: "opposition" } };
+  const log = {
+    roster, walls: [],
+    rounds: [{ round: 1, turns: [
+      { combatantId: "tripper", snapshot: {}, actions: [{ type: "trip", legal: true, targetId: "target", targetProneAfter: true }] },
+      { combatantId: "targetAlly", snapshot: {}, actions: [{ type: "strike", legal: true, targetId: "target" }] } // friendly fire from the TARGET's own side — not a real conversion
+    ] }]
+  };
+  const stats = maneuverConversionStats(log);
+  assert.equal(stats.trip.converted, 0);
+});
+
+test("METRIC VALIDATION — maneuverConversionStats: a successful Grapple followed by a real attack before it expires counts as converted", () => {
+  const roster = { grappler: { side: "party" }, target: { side: "opposition" } };
+  const log = {
+    roster, walls: [],
+    rounds: [{ round: 1, turns: [{ combatantId: "grappler", snapshot: {}, actions: [
+      { type: "grapple", legal: true, targetId: "target", targetGrappledAfter: { attackerId: "grappler", state: "grabbed", expiresEndOfRound: 3 } },
+      { type: "strike", legal: true, targetId: "target" }
+    ] }] }]
+  };
+  const stats = maneuverConversionStats(log);
+  assert.equal(stats.grapple.attempts, 1);
+  assert.equal(stats.grapple.converted, 1);
+});
+
+test("METRIC VALIDATION — maneuverConversionStats: a Grapple that naturally expires (real expiresEndOfRound passing) before any follow-up counts as UNconverted", () => {
+  const roster = { grappler: { side: "party" }, target: { side: "opposition" } };
+  const log = {
+    roster, walls: [],
+    rounds: [
+      { round: 1, turns: [{ combatantId: "grappler", snapshot: {}, actions: [
+        { type: "grapple", legal: true, targetId: "target", targetGrappledAfter: { attackerId: "grappler", state: "grabbed", expiresEndOfRound: 1 } }
+      ] }] },
+      { round: 2, turns: [{ combatantId: "grappler", snapshot: {}, actions: [{ type: "strike", legal: true, targetId: "target" }] }] } // round 2 — after the real expiresEndOfRound:1 timer
+    ]
+  };
+  const stats = maneuverConversionStats(log);
+  assert.equal(stats.grapple.converted, 0, "the Strike lands a round after the real, logged expiry — must not count");
+});
+
+test("METRIC VALIDATION — maneuverConversionStats: an Escape that actually frees the target closes the window early, same as Stand does for Trip", () => {
+  const roster = { grappler: { side: "party" }, target: { side: "opposition" } };
+  const log = {
+    roster, walls: [],
+    rounds: [{ round: 1, turns: [
+      { combatantId: "grappler", snapshot: {}, actions: [{ type: "grapple", legal: true, targetId: "target", targetGrappledAfter: { attackerId: "grappler", state: "grabbed", expiresEndOfRound: 5 } }] },
+      { combatantId: "target", snapshot: {}, actions: [{ type: "escape", legal: true, freed: true }] },
+      { combatantId: "grappler", snapshot: {}, actions: [{ type: "strike", legal: true, targetId: "target" }] }
+    ] }]
+  };
+  const stats = maneuverConversionStats(log);
+  assert.equal(stats.grapple.converted, 0, "a real, successful Escape ends the hold — a later Strike is against a free target, not a converted setup");
+});
+
+test("METRIC VALIDATION — maneuverConversionStats: a FAILED Trip/Grapple is never counted as an attempt at all — nothing was set up to convert", () => {
+  const roster = { tripper: { side: "party" }, target: { side: "opposition" } };
+  const log = {
+    roster, walls: [],
+    rounds: [{ round: 1, turns: [{ combatantId: "tripper", snapshot: {}, actions: [
+      { type: "trip", legal: true, targetId: "target", targetProneAfter: false },
+      { type: "grapple", legal: true, targetId: "target", targetGrappledAfter: null }
+    ] }] }]
+  };
+  const stats = maneuverConversionStats(log);
+  assert.equal(stats.trip.attempts, 0);
+  assert.equal(stats.grapple.attempts, 0);
+  assert.equal(stats.overall.conversionRate, null, "no attempts at all — null, not NaN or a divide-by-zero");
+});
+
+test("METRIC VALIDATION — maneuverConversionStats: Trip's own window has NO round-based timer — a follow-up in a LATER round still converts, since only Stand (or death) ends it", () => {
+  const roster = { tripper: { side: "party" }, target: { side: "opposition" } };
+  const log = {
+    roster, walls: [],
+    rounds: [
+      { round: 1, turns: [{ combatantId: "tripper", snapshot: {}, actions: [{ type: "trip", legal: true, targetId: "target", targetProneAfter: true }] }] },
+      { round: 2, turns: [{ combatantId: "tripper", snapshot: {}, actions: [{ type: "strike", legal: true, targetId: "target" }] }] }
+    ]
+  };
+  const stats = maneuverConversionStats(log);
+  assert.equal(stats.trip.converted, 1, "Prone has no natural expiry timer the way Grapple does — it stays converted across a round boundary");
 });
 
 test("REGRESSION (design doc §15k, re-guarded by §18's closing-weight fix): a unit starting outside its own weapon range still closes distance and engages — the ORIGINAL bug this term exists for", () => {

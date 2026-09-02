@@ -22,7 +22,7 @@
 
 import { distanceFeet, isOccupied, blocksPassage, isInBounds, reachFeetForStrike, FEET_PER_SQUARE } from "./grid.mjs";
 import { moveBlockedBetween, lineOfEffect } from "./terrain.mjs";
-import { isDead } from "./conditions.mjs";
+import { isDead, isImmobilized, isRestrained } from "./conditions.mjs";
 
 /** Vision range (ported from engine/vision.mjs's own perception concept) — opt-in, no field = unlimited. */
 function checkPerceptionRange({ attacker, attackerPos, targetPos }) {
@@ -83,9 +83,26 @@ function firstWallBlockedEdge(from, to, walls) {
  * found running the Frame-scale stress-test mission: a straight line can cross exactly the
  * obstacle a real detour was routing around, rejecting an otherwise-legal move forever.
  */
-export function checkMoveLegality({ combatant, from, to, effectiveSpeed, allPositions, gridSize, turnState, walls, path }) {
+export function checkMoveLegality({ combatant, from, to, effectiveSpeed, allPositions, gridSize, turnState, walls, path, allowWhileProne = false }) {
   const budget = checkActionBudget(turnState, 1);
   if (!budget.legal) return budget;
+
+  // Immobilized (condition-24-immobilized.json, granted by Grabbed/Restrained — conditions.mjs's
+  // own isImmobilized): "can't use any actions that have the move trait." Stride and Step both
+  // carry it; Step delegates to this same function for everything past its own square-count check,
+  // so this one gate covers both.
+  if (isImmobilized(combatant)) {
+    return { legal: false, reason: "Immobilized (held) — can't use an action with the move trait." };
+  }
+
+  // Prone (condition-32-prone.json, Player Core pg. 439): "The only move actions you can use while
+  // prone are Crawl and Stand." Stride and Step both reach this function without setting
+  // allowWhileProne, so both are correctly blocked; Crawl's own wrapper (checkCrawlLegal, below) is
+  // the one caller that passes allowWhileProne:true — Player Core's own second real exception to
+  // this rule, not a bypass of it.
+  if (combatant.prone && !allowWhileProne) {
+    return { legal: false, reason: "Prone — can't use this move action while prone (only Crawl and Stand are available)." };
+  }
 
   if (!isInBounds(to, gridSize)) {
     return { legal: false, reason: `(${to.col},${to.row}) is off the map (${gridSize.cols}x${gridSize.rows}).` };
@@ -174,9 +191,29 @@ export function checkTargetAlive(target) {
   return { legal: true, reason: null };
 }
 
+/**
+ * Restrained (condition-34-restrained.json): "can't use any attack ... actions except to attempt
+ * to Escape or Force Open." Applied to every action type this engine models that genuinely carries
+ * the Attack trait — Strike, spellAttack, and the new Trip/Shove/Grapple below — NOT saveAttack/
+ * conditionSave/areaAttack (structurally not attack-ROLL actions at all: the TARGET rolls, never
+ * the attacker, see engine.mjs's own header) and NOT Demoralize (reference/srd/player-core/
+ * skill-8-intimidation.json's own action header carries no Attack trait, verified directly —
+ * contrast Trip/Shove/Grapple/Disarm's, which all explicitly say "Attack" under their own header,
+ * skill-3-athletics.json).
+ */
+function checkNotRestrained(attacker) {
+  if (isRestrained(attacker)) {
+    return { legal: false, reason: `${attacker.name} is restrained — can't attempt an attack action (only Escape or Force Open).` };
+  }
+  return { legal: true, reason: null };
+}
+
 export function checkStrikeLegal({ attacker, attackerPos, target, targetPos, strike, turnState, walls }) {
   const actorAlive = checkActorAlive(attacker);
   if (!actorAlive.legal) return actorAlive;
+
+  const notRestrained = checkNotRestrained(attacker);
+  if (!notRestrained.legal) return notRestrained;
 
   const budget = checkActionBudget(turnState, 1);
   if (!budget.legal) return budget;
@@ -222,6 +259,9 @@ export function checkSpellRange({ casterPos, targetPos, spell }) {
 export function checkSpellAttackLegal({ caster, casterPos, target, targetPos, spell, turnState, walls }) {
   const actorAlive = checkActorAlive(caster);
   if (!actorAlive.legal) return actorAlive;
+
+  const notRestrained = checkNotRestrained(caster);
+  if (!notRestrained.legal) return notRestrained;
 
   const budget = checkActionBudget(turnState, spell.actions ?? 1);
   if (!budget.legal) return budget;
@@ -457,4 +497,208 @@ export function checkAreaAttackLegal({ attacker, attackerPos, originPos, areaAtt
   }
 
   return { legal: true, reason: null };
+}
+
+/**
+ * Athletics maneuvers — Trip/Shove/Grapple (design doc §31's rules-gap sweep, priority 1: "the
+ * first REAL control actions — spending an action to degrade what an enemy can do next turn, rather
+ * than only ever spending it on damage"). Player Core pg. 193, reference/srd/player-core/
+ * skill-3-athletics.json, mirrored verbatim: all three are one action, carry the Attack trait, use
+ * your own melee/unarmed reach, and share the identical real requirement "target can't be more than
+ * one size larger than you." NOT modeled, same "don't invent" discipline as everywhere else in this
+ * project: the "at least one hand free" requirement — this engine has no hand/equipment-state
+ * tracking for any combatant, matching the already-documented precedent for Prone-requiring actions
+ * (build-combat-pregen.mjs's own header: "a genuinely different kind of gap... stays out of scope
+ * on its own terms").
+ */
+
+/** Trip/Shove/Grapple use your own melee/unarmed reach — normally adjacent (5ft) even with no
+ * melee Strike listed at all (everyone can use bare hands), or your longest real reach-N melee
+ * weapon if you have one. Deliberately NOT flanking.mjs's own meleeReachFeet (which returns null
+ * for "no melee option" — right for flanking's off-guard-granting question, wrong here: SF2E
+ * doesn't require a melee WEAPON to Trip/Shove/Grapple, just a free hand). */
+function athleticsReachFeet(combatant) {
+  const meleeStrikes = (combatant.strikes ?? []).filter((s) => s.strikeType === "melee");
+  if (!meleeStrikes.length) return FEET_PER_SQUARE;
+  return Math.max(FEET_PER_SQUARE, ...meleeStrikes.map((s) => reachFeetForStrike(s)));
+}
+
+/** Trip/Shove/Grapple/Disarm all share the identical real requirement (Player Core pg. 193):
+ * "[target] can't be more than one size larger than you." No combatant in this project's roster has
+ * ever carried a `size` field (every real fixture built so far is an ordinary Medium humanoid) —
+ * this still implements the real check rather than skip it, defaulting an unset size to "medium"
+ * (the correct, uncontroversial default for this roster, not a guess at a real creature's actual
+ * size) so the check is real and correct the day a Large+ opponent ever joins the roster. */
+const SIZE_ORDER = ["tiny", "small", "medium", "large", "huge", "gargantuan"];
+function sizeIndex(size) {
+  const idx = SIZE_ORDER.indexOf((size ?? "medium").toLowerCase());
+  return idx === -1 ? SIZE_ORDER.indexOf("medium") : idx;
+}
+function isTooLargeToManeuver(attacker, target) {
+  return sizeIndex(target.size) - sizeIndex(attacker.size) > 1;
+}
+
+export function checkTripLegal({ attacker, attackerPos, target, targetPos, turnState, walls }) {
+  const actorAlive = checkActorAlive(attacker);
+  if (!actorAlive.legal) return actorAlive;
+
+  const notRestrained = checkNotRestrained(attacker);
+  if (!notRestrained.legal) return notRestrained;
+
+  const budget = checkActionBudget(turnState, 1);
+  if (!budget.legal) return budget;
+
+  const alive = checkTargetAlive(target);
+  if (!alive.legal) return alive;
+
+  const reach = athleticsReachFeet(attacker);
+  const dist = distanceFeet(attackerPos, targetPos);
+  if (dist > reach) {
+    return { legal: false, reason: `Target is ${dist}ft away, outside Trip's melee reach (${reach}ft).` };
+  }
+
+  if (isTooLargeToManeuver(attacker, target)) {
+    return { legal: false, reason: `${target.name} is more than one size category larger than ${attacker.name} — too large to Trip.` };
+  }
+
+  const perception = checkPerceptionRange({ attacker, attackerPos, targetPos });
+  if (!perception.legal) return perception;
+
+  if (!lineOfEffect(attackerPos, targetPos, walls)) {
+    return { legal: false, reason: `No line of effect to ${target.name} — a wall entirely blocks it.` };
+  }
+
+  return { legal: true, reason: null };
+}
+
+export function checkShoveLegal({ attacker, attackerPos, target, targetPos, turnState, walls }) {
+  const actorAlive = checkActorAlive(attacker);
+  if (!actorAlive.legal) return actorAlive;
+
+  const notRestrained = checkNotRestrained(attacker);
+  if (!notRestrained.legal) return notRestrained;
+
+  const budget = checkActionBudget(turnState, 1);
+  if (!budget.legal) return budget;
+
+  const alive = checkTargetAlive(target);
+  if (!alive.legal) return alive;
+
+  const reach = athleticsReachFeet(attacker);
+  const dist = distanceFeet(attackerPos, targetPos);
+  if (dist > reach) {
+    return { legal: false, reason: `Target is ${dist}ft away, outside Shove's melee reach (${reach}ft).` };
+  }
+
+  if (isTooLargeToManeuver(attacker, target)) {
+    return { legal: false, reason: `${target.name} is more than one size category larger than ${attacker.name} — too large to Shove.` };
+  }
+
+  const perception = checkPerceptionRange({ attacker, attackerPos, targetPos });
+  if (!perception.legal) return perception;
+
+  if (!lineOfEffect(attackerPos, targetPos, walls)) {
+    return { legal: false, reason: `No line of effect to ${target.name} — a wall entirely blocks it.` };
+  }
+
+  return { legal: true, reason: null };
+}
+
+export function checkGrappleLegal({ attacker, attackerPos, target, targetPos, turnState, walls }) {
+  const actorAlive = checkActorAlive(attacker);
+  if (!actorAlive.legal) return actorAlive;
+
+  const notRestrained = checkNotRestrained(attacker);
+  if (!notRestrained.legal) return notRestrained;
+
+  const budget = checkActionBudget(turnState, 1);
+  if (!budget.legal) return budget;
+
+  const alive = checkTargetAlive(target);
+  if (!alive.legal) return alive;
+
+  const reach = athleticsReachFeet(attacker);
+  const dist = distanceFeet(attackerPos, targetPos);
+  if (dist > reach) {
+    return { legal: false, reason: `Target is ${dist}ft away, outside Grapple's melee reach (${reach}ft).` };
+  }
+
+  if (isTooLargeToManeuver(attacker, target)) {
+    return { legal: false, reason: `${target.name} is more than one size category larger than ${attacker.name} — too large to Grapple.` };
+  }
+
+  const perception = checkPerceptionRange({ attacker, attackerPos, targetPos });
+  if (!perception.legal) return perception;
+
+  if (!lineOfEffect(attackerPos, targetPos, walls)) {
+    return { legal: false, reason: `No line of effect to ${target.name} — a wall entirely blocks it.` };
+  }
+
+  return { legal: true, reason: null };
+}
+
+/**
+ * Escape (Athletics, Player Core pg. 193): the held creature's own action to shed Grabbed/
+ * Restrained/Immobilized. Real DC (Athletics text, parenthetical): "the Fortitude or Athletics DC
+ * of the creature grabbing you, whichever is higher" — computed at resolution time (engine.mjs,
+ * which has access to the grappler's own stats), not here; this only gates whether attempting it is
+ * legal at all. Deliberately has NO checkNotRestrained gate applied to IT — Player Core's own text
+ * explicitly carves this out: "...except to attempt to Escape or Force Open...".
+ */
+export function checkEscapeLegal({ actor, turnState }) {
+  const actorAlive = checkActorAlive(actor);
+  if (!actorAlive.legal) return actorAlive;
+
+  const budget = checkActionBudget(turnState, 1);
+  if (!budget.legal) return budget;
+
+  if (!actor.grappledBy) {
+    return { legal: false, reason: `${actor.name} is not grabbed, immobilized, or restrained — nothing to Escape.` };
+  }
+
+  return { legal: true, reason: null };
+}
+
+/**
+ * Stand (Player Core pg. 410, one action, Move trait): "You stand up from being prone." No check,
+ * no requirements beyond actually being prone. Carries the move trait like every other move action
+ * here, so — a real, intended interaction, not a special case — a combatant who is BOTH prone and
+ * immobilized (e.g. knocked down then grabbed) can't Stand until it Escapes the hold first.
+ */
+export function checkStandLegal({ actor, turnState }) {
+  const actorAlive = checkActorAlive(actor);
+  if (!actorAlive.legal) return actorAlive;
+
+  const budget = checkActionBudget(turnState, 1);
+  if (!budget.legal) return budget;
+
+  if (!actor.prone) {
+    return { legal: false, reason: `${actor.name} is not prone — nothing to Stand from.` };
+  }
+
+  if (isImmobilized(actor)) {
+    return { legal: false, reason: `${actor.name} is immobilized (held) — can't use an action with the move trait, including Stand.` };
+  }
+
+  return { legal: true, reason: null };
+}
+
+/**
+ * Crawl (Player Core pg. 408, one action, Move trait): "You move 5 feet by crawling and continue
+ * to stay prone." Requirements: prone, and Speed at least 10ft. Capped at exactly one square here
+ * (same shape as checkStepLegality's own one-square cap) before delegating to checkMoveLegality
+ * with allowWhileProne:true — Crawl is the rule's own real exception, not a bypass of it.
+ */
+export function checkCrawlLegal({ combatant, from, to, effectiveSpeed, allPositions, gridSize, turnState, walls }) {
+  if (!combatant.prone) {
+    return { legal: false, reason: "Not prone — nothing to Crawl from (Stride or Step instead)." };
+  }
+  if (effectiveSpeed < 10) {
+    return { legal: false, reason: `Crawl requires a Speed of at least 10ft (effective Speed is ${effectiveSpeed}ft).` };
+  }
+  const distance = distanceFeet(from, to);
+  if (distance > FEET_PER_SQUARE) {
+    return { legal: false, reason: `Crawl moves exactly one square (${FEET_PER_SQUARE}ft) — (${from.col},${from.row})->(${to.col},${to.row}) is ${distance}ft.` };
+  }
+  return checkMoveLegality({ combatant, from, to, effectiveSpeed, allPositions, gridSize, turnState, walls, allowWhileProne: true });
 }

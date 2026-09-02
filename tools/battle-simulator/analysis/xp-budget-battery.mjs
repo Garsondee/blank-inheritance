@@ -41,11 +41,32 @@ export const XP_BUDGET_TIERS = [
 
 export const RANGED_DUEL = { scenario: "ranged-duel-obozaya-vs-kuriaku", label: "Ranged duel (Obozaya vs. Kuriaku)" };
 
-/** Run one registered scenario across a seed range, collecting real per-run metrics — no aggregation yet. */
-export function runScenarioSweep(scenarioName, seedSpec) {
+/**
+ * Run one registered scenario across a seed range, collecting real per-run metrics — no aggregation
+ * yet. `onProgress` (design doc §45 — a real, direct ask: "I can tell the difference between a
+ * broken test, a slow test and a test which is at, say, 15% progress") is OPTIONAL and defaults to a
+ * no-op, so every existing caller (including the light integration test) sees zero behavior change.
+ * Fires two real event shapes, both cheap to ignore if a caller only cares about one:
+ *   {type: "round", seedIndex, seedTotal, seed, round, roundLimit} — throttled to every 5th round,
+ *     so a single long battle still shows real forward motion without flooding the console.
+ *   {type: "seedComplete", seedIndex, seedTotal, seed, outcome, rounds, elapsedMs} — always fires,
+ *     the main signal for a whole sweep's own progress.
+ */
+export function runScenarioSweep(scenarioName, seedSpec, { onProgress } = {}) {
   const plans = planRuns({ scenario: scenarioName, seed: seedSpec });
-  return plans.map((plan) => {
-    const log = runBattle(plan.build({ seed: plan.seed, roundLimit: plan.roundLimit }));
+  return plans.map((plan, seedIndex) => {
+    const seedTotal = plans.length;
+    const t0 = Date.now();
+    const scenario = plan.build({ seed: plan.seed, roundLimit: plan.roundLimit });
+    if (onProgress) {
+      scenario.onRoundStart = (round, roundLimit) => {
+        if (round === 1 || round % 5 === 0) onProgress({ type: "round", seedIndex, seedTotal, seed: plan.seed, round, roundLimit });
+      };
+    }
+    const log = runBattle(scenario);
+    if (onProgress) {
+      onProgress({ type: "seedComplete", seedIndex, seedTotal, seed: plan.seed, outcome: log.outcome.result, rounds: log.rounds.length, elapsedMs: Date.now() - t0 });
+    }
     return {
       seed: plan.seed,
       runMetrics: collectRunMetrics(log),
@@ -53,6 +74,19 @@ export function runScenarioSweep(scenarioName, seedSpec) {
       party: sideOutcomeStats(log, "party")
     };
   });
+}
+
+/** A reasonable default renderer for `onProgress` — one terse line per event, real numbers only.
+ * Not wired in automatically (every caller opts in explicitly) so library/test use stays silent by
+ * default; CLI entry points (this file's own `main`, and analysis/maneuver-baseline-comparison.mjs)
+ * pass this directly. */
+export function logProgress(event) {
+  const at = `[${event.seedIndex + 1}/${event.seedTotal}]`;
+  if (event.type === "round") {
+    console.log(`${at} seed ${event.seed}: round ${event.round}/${event.roundLimit}...`);
+  } else {
+    console.log(`${at} seed ${event.seed}: ${event.outcome} in ${event.rounds} rounds (${event.elapsedMs}ms)`);
+  }
 }
 
 /** Real means/distribution across a sweep's results — no invented numbers, every field a direct average of a real logged value. */
@@ -103,13 +137,15 @@ function formatTierSection(tierLabel, xpBudget, agg) {
 
 function runBattery(seedSpec) {
   const tierSections = XP_BUDGET_TIERS.map((tier) => {
-    const results = runScenarioSweep(tier.scenario, seedSpec);
+    console.log(`--- ${tier.label} (${tier.scenario}) ---`);
+    const results = runScenarioSweep(tier.scenario, seedSpec, { onProgress: logProgress });
     const agg = aggregateSweep(results);
     console.log(`${tier.label} (${tier.scenario}): ${JSON.stringify(agg.outcomes)}, mean party HP ${pct(agg.meanPartyFinalHPFraction)}`);
     return formatTierSection(tier.label, tier.xpBudget, agg);
   });
 
-  const duelResults = runScenarioSweep(RANGED_DUEL.scenario, seedSpec);
+  console.log(`--- ${RANGED_DUEL.label} (${RANGED_DUEL.scenario}) ---`);
+  const duelResults = runScenarioSweep(RANGED_DUEL.scenario, seedSpec, { onProgress: logProgress });
   const duelAgg = aggregateSweep(duelResults);
   console.log(`${RANGED_DUEL.label} (${RANGED_DUEL.scenario}): ${JSON.stringify(duelAgg.outcomes)}, moveIntoCover ${pct(duelAgg.meanMoveIntoCoverRate)}, attackFromCover ${pct(duelAgg.meanAttackFromCoverRate)}`);
   const duelSection = formatTierSection(RANGED_DUEL.label, null, duelAgg);
