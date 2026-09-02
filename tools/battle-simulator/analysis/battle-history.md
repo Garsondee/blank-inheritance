@@ -4366,3 +4366,37 @@ Final best: `baseline-v1` (no candidate was promoted — see per-generation log 
 Parallel tournament runner (worker_threads, concurrency=8): 3037ms vs. 6134ms sequential — 2.0x.
 
 ---
+## 2026-09-02 — Decision-cost profile
+
+### Decision-cost profile (design doc §59) — `greedy-v1` on the mirror arena, seeds 1-4, n=136 real decisions
+
+- Mean wall time per decision: 2.93ms
+- Max wall time for one decision: 11.00ms
+- Mean real sandbox evaluations per decision: 91.8
+- Max real sandbox evaluations for one decision: 203
+
+### Decision-cost profile (design doc §59) — `greedy-v1` on the complex arena, seeds 1-4, n=209 real decisions
+
+- Mean wall time per decision: 281.71ms
+- Max wall time for one decision: 1478.00ms
+- Mean real sandbox evaluations per decision: 131.7
+- Max real sandbox evaluations for one decision: 364
+
+---
+## 2026-09-02 — Mirror-match tournament
+
+### Mirror-match tournament (design doc §47) — lunar-17.json+security-goon.json, seeds 1-4, n=4
+
+`baseline-v1` (party) vs. `greedy-v1` (opposition) — identical roster on both sides, only the AI profile differs.
+
+- baseline-v1 win rate: 25.0%
+- greedy-v1 win rate: 25.0%
+- Timeout rate: 50.0%
+- Mean rounds to resolution: 20.8
+- Mean elapsed time per battle: 960.5ms
+
+Parallel tournament runner (worker_threads, concurrency=8): 1519ms vs. 2299ms sequential — 1.5x.
+
+Cost guard OK: mean 960.5ms/battle is 1.7x the greedy-v1 reference (552.3ms/battle), within the configured 3x limit.
+
+---

@@ -6,7 +6,7 @@
  * unmodified exports in the shared shape.
  */
 import { decisionRng, generateProposals, decide } from "../../personnel-engine/decide.mjs";
-import { forkTurnSandbox, checkOutcome } from "../../personnel-engine/engine.mjs";
+import { forkTurnSandbox, checkOutcome, resetSandboxForkCount, getSandboxForkCount } from "../../personnel-engine/engine.mjs";
 import { evaluateState, DEFAULT_WEIGHTS } from "../../personnel-engine/evaluate/state-value.mjs";
 import { FEET_PER_SQUARE } from "../../personnel-engine/grid.mjs";
 import { assertValidAdapter } from "../engine-adapter.mjs";
@@ -22,6 +22,12 @@ export const PERSONNEL_ADAPTER = Object.freeze({
   DEFAULT_WEIGHTS,
   // Real decide() unmodified — supports the full {competence, weights, templates, moraleEnabled,
   // disabledActionTypes} options shape (design doc §46's own AI-profile system).
-  nativeGreedyDecide: decide
+  nativeGreedyDecide: decide,
+  // OPTIONAL fields, not part of assertValidAdapter's REQUIRED_FIELDS (design doc §59, GH issue #5)
+  // — decision-cost profiling instrumentation. A caller that wants a real sandbox-evaluation count
+  // for one decision brackets it with resetSandboxForkCount()/getSandboxForkCount(); every other
+  // caller can ignore these entirely.
+  resetSandboxForkCount,
+  getSandboxForkCount
 });
 assertValidAdapter(PERSONNEL_ADAPTER); // real, immediate self-check — a missing field fails at import time

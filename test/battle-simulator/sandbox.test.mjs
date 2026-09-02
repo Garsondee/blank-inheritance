@@ -9,7 +9,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { runBattle, forkTurnSandbox, cloneStateForPlanning } from "../../tools/battle-simulator/engine/engine.mjs";
+import { runBattle, forkTurnSandbox, cloneStateForPlanning, resetSandboxForkCount, getSandboxForkCount } from "../../tools/battle-simulator/engine/engine.mjs";
 import { buildScenario } from "../../tools/battle-simulator/scenarios/five-vehicles-one-frame.mjs";
 
 /** Capture a live mid-battle state by hooking the AI, which is the only place state is exposed. */
@@ -69,6 +69,33 @@ test("SANDBOX: apply() never mutates the state it was forked from", () => {
 
   const after = structuredClone(state);
   assert.deepEqual(after, before, "forkTurnSandbox.apply() wrote through to the live state");
+});
+
+// SANDBOX-FORK COUNTER (design doc §59, GH issue #5) — the one true seam a decision-cost profiler
+// hooks: forkTurnSandbox is called on every real search step regardless of how much caching sits
+// above it, so counting AT this seam always reflects real work done, not an approximation derived
+// from candidate-list length.
+test("SANDBOX-FORK COUNTER: resetSandboxForkCount/getSandboxForkCount accurately track the real number of forkTurnSandbox calls made", () => {
+  const { state, turn } = captureLiveState();
+  resetSandboxForkCount();
+  assert.equal(getSandboxForkCount(), 0, "expected a clean count immediately after reset");
+  forkTurnSandbox({ state, turn });
+  forkTurnSandbox({ state, turn });
+  forkTurnSandbox({ state, turn });
+  assert.equal(getSandboxForkCount(), 3, "expected the counter to track exactly the 3 real forkTurnSandbox calls made");
+  resetSandboxForkCount();
+  assert.equal(getSandboxForkCount(), 0, "reset must zero the counter again");
+});
+
+test("SANDBOX-FORK COUNTER: a real battle runs byte-identically whether or not something is reading the counter — the instrumentation adds no behavior of its own", () => {
+  const withoutReads = runBattle(buildScenario({ seed: 4242, roundLimit: 8 }));
+  resetSandboxForkCount();
+  const scenario = buildScenario({ seed: 4242, roundLimit: 8 });
+  const realAi = scenario.ai;
+  scenario.ai = (state, combatantId, turnState) => { getSandboxForkCount(); return realAi(state, combatantId, turnState); };
+  const withReads = runBattle(scenario);
+  assert.deepEqual(withReads.outcome, withoutReads.outcome);
+  assert.equal(withReads.rounds.length, withoutReads.rounds.length);
 });
 
 test("SANDBOX: forkTurnSandbox takes no rng, so a full battle's dice are unaffected by how much planning happens", () => {

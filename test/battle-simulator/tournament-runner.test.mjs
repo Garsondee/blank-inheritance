@@ -13,7 +13,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { runTournamentParallel, runTournamentSequential, aggregateTournament, DEFAULT_CONCURRENCY } from "../../tools/battle-simulator/analysis/tournament-runner.mjs";
+import { runTournamentParallel, runTournamentSequential, aggregateTournament, DEFAULT_CONCURRENCY, checkCostGuard } from "../../tools/battle-simulator/analysis/tournament-runner.mjs";
 import { BASELINE_V1, NO_MANEUVERS_V1, PROFILES } from "../../tools/battle-simulator/personnel-engine/ai-profiles.mjs";
 
 const smallParams = {
@@ -91,4 +91,44 @@ test("runTournamentParallel: a real pull-based pool — concurrency SMALLER than
 test("DEFAULT_CONCURRENCY: a real, positive integer derived from the real host's CPU count", () => {
   assert.ok(Number.isInteger(DEFAULT_CONCURRENCY));
   assert.ok(DEFAULT_CONCURRENCY >= 1);
+});
+
+// --- checkCostGuard (design doc §59, GH issue #5 — "warn when a policy's battles exceed a
+// configurable multiple of greedy's, so a slow policy can't silently turn a 5-minute sweep into a
+// 5-hour one") ---
+
+test("checkCostGuard: NOT exceeded when the tested tournament's real cost is within the configured multiple of the reference", () => {
+  const agg = { meanElapsedMs: 150 };
+  const referenceAgg = { meanElapsedMs: 100 };
+  const result = checkCostGuard(agg, referenceAgg, 3);
+  assert.equal(result.exceeded, false);
+  assert.equal(result.ratio, 1.5);
+  assert.equal(result.meanElapsedMs, 150);
+  assert.equal(result.referenceMeanElapsedMs, 100);
+  assert.equal(result.multiple, 3);
+});
+
+test("checkCostGuard: EXCEEDED when the tested tournament's real cost is past the configured multiple of the reference", () => {
+  const agg = { meanElapsedMs: 500 };
+  const referenceAgg = { meanElapsedMs: 100 };
+  const result = checkCostGuard(agg, referenceAgg, 3);
+  assert.equal(result.exceeded, true);
+  assert.equal(result.ratio, 5);
+});
+
+test("checkCostGuard: the boundary itself (ratio exactly equal to the multiple) is NOT exceeded — the guard fires on exceeding the limit, not on merely reaching it", () => {
+  const agg = { meanElapsedMs: 300 };
+  const referenceAgg = { meanElapsedMs: 100 };
+  const result = checkCostGuard(agg, referenceAgg, 3);
+  assert.equal(result.ratio, 3);
+  assert.equal(result.exceeded, false);
+});
+
+test("checkCostGuard: a real, live tournament comparison — greedy-v1 vs. itself as both the tested and reference tournament never trips the guard at any reasonable multiple", () => {
+  const results = runTournamentSequential({ ...smallParams, partyProfile: BASELINE_V1, oppositionProfile: BASELINE_V1 });
+  const agg = aggregateTournament(results);
+  const referenceResults = runTournamentSequential({ ...smallParams, partyProfile: BASELINE_V1, oppositionProfile: BASELINE_V1 });
+  const referenceAgg = aggregateTournament(referenceResults);
+  const result = checkCostGuard(agg, referenceAgg, 2);
+  assert.equal(result.exceeded, false, `expected an identical policy compared against itself to never trip a 2x cost guard, got ratio ${result.ratio}`);
 });

@@ -10,7 +10,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { runBattle, accountForActions, forkTurnSandbox } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
+import { runBattle, accountForActions, forkTurnSandbox, resetSandboxForkCount, getSandboxForkCount } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
 import { decide } from "../../tools/battle-simulator/personnel-engine/decide.mjs";
 import { resolveEffectiveStats } from "../../tools/battle-simulator/personnel-engine/combatant.mjs";
 import { checkStrikeLegal } from "../../tools/battle-simulator/personnel-engine/legality.mjs";
@@ -850,6 +850,49 @@ test("areaAttack (EXPECTED-VALUE sandbox, via forkTurnSandbox — the exact path
   assert.equal(result.legal, true, JSON.stringify(result));
   const after = sandbox.state.combatants.get("enemy-of-grenadier");
   assert.ok(after.currentHP < enemy.currentHP, `expected the sandboxed enemy's currentHP to have dropped from the expected-value hit, was ${enemy.currentHP}, still ${after.currentHP}`);
+});
+
+// SANDBOX-FORK COUNTER (design doc §59, GH issue #5) — the one true seam a decision-cost profiler
+// hooks: forkTurnSandbox is called on every real search step regardless of how much caching sits
+// above it (planTurn's own scoredCache included — a cache HIT skips this call outright), so
+// counting AT this seam always reflects real work done, never an approximation.
+test("SANDBOX-FORK COUNTER: resetSandboxForkCount/getSandboxForkCount accurately track the real number of forkTurnSandbox calls made", () => {
+  const grenadier = makeGrenadier();
+  const enemy = makeBystander("enemy-of-grenadier", { position: { col: 1, row: 0 } });
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["grenadier", { ...grenadier }], ["enemy-of-grenadier", { ...enemy }]]),
+    positions: new Map([["grenadier", { col: 0, row: 0 }], ["enemy-of-grenadier", { col: 1, row: 0 }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0 };
+  resetSandboxForkCount();
+  assert.equal(getSandboxForkCount(), 0, "expected a clean count immediately after reset");
+  forkTurnSandbox({ state, turn });
+  forkTurnSandbox({ state, turn });
+  forkTurnSandbox({ state, turn });
+  assert.equal(getSandboxForkCount(), 3, "expected the counter to track exactly the 3 real forkTurnSandbox calls made");
+  resetSandboxForkCount();
+  assert.equal(getSandboxForkCount(), 0, "reset must zero the counter again");
+});
+
+test("SANDBOX-FORK COUNTER: a real decide() call (planTurn's own memoized path, competence>=1) runs byte-identically whether or not something is reading the counter", () => {
+  const lunar17 = { id: "lunar17", name: "L17", side: "party", maxHP: 20, currentHP: 20, ac: 17, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [{ name: "Dagger", strikeType: "melee", attackBonus: 8, traits: [], damage: [{ dice: "1d4", bonus: 0 }] }], position: { col: 0, row: 0 } };
+  const goon = { id: "goon", name: "Goon", side: "opposition", maxHP: 20, currentHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [{ name: "Baton", strikeType: "melee", attackBonus: 6, traits: [], damage: [{ dice: "1d6", bonus: 0 }] }], position: { col: 1, row: 0 } };
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["lunar17", { ...lunar17 }], ["goon", { ...goon }]]),
+    positions: new Map([["lunar17", { ...lunar17.position }], ["goon", { ...goon.position }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, decisionIndex: 0 };
+
+  const withoutReads = decide(state, "lunar17", turn, { competence: 1 });
+
+  resetSandboxForkCount();
+  const withReads = decide(state, "lunar17", turn, { competence: 1 });
+  const sandboxCalls = getSandboxForkCount();
+
+  assert.deepEqual(withReads, withoutReads, "reading the counter around a decide() call must not change its real decision");
+  assert.ok(sandboxCalls > 0, "expected real sandbox forks during a real decide() call on a populated scenario");
 });
 
 // ---------------------------------------------------------------------------

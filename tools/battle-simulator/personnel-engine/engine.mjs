@@ -1398,6 +1398,18 @@ export function cloneStateForPlanning(state) {
   };
 }
 
+// SANDBOX-FORK COUNTER (design doc §59, GH issue #5) — a real, minimal, additive instrumentation
+// hook: forkTurnSandbox is the one true seam every decision algorithm's real search cost passes
+// through, no matter how much caching/memoization sits above it (planTurn's own scoredCache, e.g.,
+// skips this call outright on a cache hit — decide.mjs:745 vs decide.mjs:762 — so counting AT this
+// seam, rather than trying to derive a count from generateProposals().length at the call site,
+// automatically and correctly reflects real work done regardless of which internal algorithm is
+// live). Inert for every existing caller: a plain increment that never touches the function's own
+// control flow or return value, only meaningful to a caller that explicitly resets and reads it.
+let sandboxForkCount = 0;
+export function resetSandboxForkCount() { sandboxForkCount = 0; }
+export function getSandboxForkCount() { return sandboxForkCount; }
+
 /**
  * Fork the current turn into a private sandbox the AI can plan inside. Same restrictive shape as
  * the Frame-scale original: clones unconditionally, takes no rng (expected-value resolution means
@@ -1409,6 +1421,7 @@ export function cloneStateForPlanning(state) {
  * @param {object} args.turn  - the turnProgress copy the AI was handed
  */
 export function forkTurnSandbox({ state, turn }) {
+  sandboxForkCount += 1;
   const sandboxState = cloneStateForPlanning(state);
   const sandboxTurn = { ...turn };
   const sandboxLog = { actions: [] }; // logging sink; nothing reads it during planning

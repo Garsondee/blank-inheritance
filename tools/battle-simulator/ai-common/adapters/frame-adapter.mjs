@@ -17,7 +17,7 @@
  *    with a 4th argument anyway is safe (JS silently drops an argument a function doesn't declare).
  */
 import { decisionRng, generateProposals, decide } from "../../ai/decide.mjs";
-import { forkTurnSandbox, checkOutcome } from "../../engine/engine.mjs";
+import { forkTurnSandbox, checkOutcome, resetSandboxForkCount, getSandboxForkCount } from "../../engine/engine.mjs";
 import { evaluateState, DEFAULT_WEIGHTS } from "../../ai/evaluate/state-value.mjs";
 import { FEET_PER_SQUARE } from "../../engine/grid.mjs";
 import { assertValidAdapter } from "../engine-adapter.mjs";
@@ -31,6 +31,10 @@ export const FRAME_ADAPTER = Object.freeze({
   checkOutcome,
   evaluateState,
   DEFAULT_WEIGHTS,
-  nativeGreedyDecide: decide
+  nativeGreedyDecide: decide,
+  // OPTIONAL, not part of assertValidAdapter's REQUIRED_FIELDS (design doc §59, GH issue #5) — see
+  // personnel-adapter.mjs's own identical fields for the real reasoning.
+  resetSandboxForkCount,
+  getSandboxForkCount
 });
 assertValidAdapter(FRAME_ADAPTER); // real, immediate self-check — a missing field fails at import time

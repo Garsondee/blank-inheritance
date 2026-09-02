@@ -869,6 +869,15 @@ export function cloneStateForPlanning(state) {
   };
 }
 
+// SANDBOX-FORK COUNTER (design doc §59, GH issue #5) — mirrors personnel-engine/engine.mjs's own
+// identical instrumentation. A real, minimal, additive hook: forkTurnSandbox is the one true seam
+// every decision algorithm's real search cost passes through. Inert for every existing caller —
+// a plain increment that never touches this function's own control flow or return value, only
+// meaningful to a caller that explicitly resets and reads it.
+let sandboxForkCount = 0;
+export function resetSandboxForkCount() { sandboxForkCount = 0; }
+export function getSandboxForkCount() { return sandboxForkCount; }
+
 /**
  * Fork the current turn into a private sandbox the AI can plan inside.
  *
@@ -897,6 +906,7 @@ export function cloneStateForPlanning(state) {
  * @returns {{state: object, turn: object, actionsRemaining: function, apply: function}}
  */
 export function forkTurnSandbox({ state, turn }) {
+  sandboxForkCount += 1;
   const sandboxState = cloneStateForPlanning(state);
   const sandboxTurn = { ...turn };
   // Logging sink: attemptAction appends results here. Nothing reads it during planning;

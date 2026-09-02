@@ -122,7 +122,20 @@ export function aggregateTournament(results) {
 
 function pct(x) { return (x * 100).toFixed(1) + "%"; }
 
-function formatTournament({ rosterLabel, partyProfile, oppositionProfile, seedSpec, agg, speedup }) {
+/**
+ * COST GUARD (design doc §59, GH issue #5) — "warn when a policy's battles exceed a configurable
+ * multiple of greedy's, so a slow policy can't silently turn a 5-minute sweep into a 5-hour one."
+ * Pure comparison, real numbers only: `agg`/`referenceAgg` are both real `aggregateTournament(...)`
+ * outputs (the tournament under test, and a known-cheap reference tournament run with the identical
+ * roster/seedSpec/roundLimit so the comparison is apples-to-apples), `multiple` is the real threshold
+ * a caller configured via `--costGuard=`.
+ */
+export function checkCostGuard(agg, referenceAgg, multiple) {
+  const ratio = agg.meanElapsedMs / referenceAgg.meanElapsedMs;
+  return { exceeded: ratio > multiple, ratio, multiple, meanElapsedMs: agg.meanElapsedMs, referenceMeanElapsedMs: referenceAgg.meanElapsedMs };
+}
+
+function formatTournament({ rosterLabel, partyProfile, oppositionProfile, seedSpec, agg, speedup, costGuard }) {
   const lines = [
     `### Mirror-match tournament (design doc §47) — ${rosterLabel}, seeds ${seedSpec}, n=${agg.n}`,
     "",
@@ -131,9 +144,18 @@ function formatTournament({ rosterLabel, partyProfile, oppositionProfile, seedSp
     `- ${partyProfile.id} win rate: ${pct(agg.partyWinRate)}`,
     `- ${oppositionProfile.id} win rate: ${pct(agg.oppositionWinRate)}`,
     `- Timeout rate: ${pct(agg.timeoutRate)}`,
-    `- Mean rounds to resolution: ${agg.meanRounds.toFixed(1)}`
+    `- Mean rounds to resolution: ${agg.meanRounds.toFixed(1)}`,
+    `- Mean elapsed time per battle: ${agg.meanElapsedMs.toFixed(1)}ms`
   ];
   if (speedup) lines.push("", `Parallel tournament runner (worker_threads, concurrency=${speedup.concurrency}): ${speedup.parallelMs}ms vs. ${speedup.sequentialMs}ms sequential — ${speedup.factor.toFixed(1)}x.`);
+  if (costGuard) {
+    lines.push(
+      "",
+      costGuard.exceeded
+        ? `⚠ Cost guard: mean ${costGuard.meanElapsedMs.toFixed(1)}ms/battle is ${costGuard.ratio.toFixed(1)}x the greedy-v1 reference (${costGuard.referenceMeanElapsedMs.toFixed(1)}ms/battle) — exceeds the configured ${costGuard.multiple}x limit.`
+        : `Cost guard OK: mean ${costGuard.meanElapsedMs.toFixed(1)}ms/battle is ${costGuard.ratio.toFixed(1)}x the greedy-v1 reference (${costGuard.referenceMeanElapsedMs.toFixed(1)}ms/battle), within the configured ${costGuard.multiple}x limit.`
+    );
+  }
   return lines.join("\n");
 }
 
@@ -160,6 +182,7 @@ async function main() {
   if (!oppositionProfile) throw new Error(`Unknown --opposition profile "${args.opposition}" — known: ${Object.keys(ALL_PROFILES).join(", ")}`);
   const seedSpec = args.seeds ?? "1-20";
   const roundLimit = args.roundLimit ? Number(args.roundLimit) : 30;
+  const costGuardMultiple = args.costGuard ? Number(args.costGuard) : null; // e.g. --costGuard=3 -> warn past 3x the greedy-v1 reference
 
   console.log(`Running ${parseSeeds(seedSpec).length} mirror-match seeds, ${roster.join("+")}, ${partyProfile.id} vs. ${oppositionProfile.id}, concurrency=${DEFAULT_CONCURRENCY}...`);
   const parallelT0 = Date.now();
@@ -173,7 +196,17 @@ async function main() {
 
   const agg = aggregateTournament(results);
   const speedup = { concurrency: DEFAULT_CONCURRENCY, parallelMs, sequentialMs, factor: sequentialMs / parallelMs };
-  const entryBody = formatTournament({ rosterLabel: roster.join("+"), partyProfile, oppositionProfile, seedSpec, agg, speedup });
+
+  let costGuard = null;
+  if (costGuardMultiple != null) {
+    console.log(`Running a greedy-v1-vs-greedy-v1 reference tournament for the cost guard (identical roster/seeds/roundLimit)...`);
+    const greedyV1 = ALL_PROFILES["greedy-v1"];
+    if (!greedyV1) throw new Error(`--costGuard requires the "greedy-v1" profile to be registered in ALL_PROFILES, but it is not — known: ${Object.keys(ALL_PROFILES).join(", ")}`);
+    const referenceResults = runTournamentSequential({ roster, partyProfile: greedyV1, oppositionProfile: greedyV1, seedSpec, roundLimit });
+    costGuard = checkCostGuard(agg, aggregateTournament(referenceResults), costGuardMultiple);
+  }
+
+  const entryBody = formatTournament({ rosterLabel: roster.join("+"), partyProfile, oppositionProfile, seedSpec, agg, speedup, costGuard });
   console.log("\n" + entryBody);
   appendToHistory(entryBody);
   console.log(`\nAppended tournament results to ${path.relative(process.cwd(), historyPath)}`);

@@ -114,3 +114,38 @@ export function listPolicyIds() {
 export function decideWithPolicy(policyId, adapter, state, combatantId, turn, options) {
   return resolvePolicy(policyId).decide(adapter, state, combatantId, turn, options);
 }
+
+/**
+ * A REAL, tested budget primitive for anytime search policies (design doc §59, GH issue #5).
+ * `options.budget` on the shared `decide(adapter, state, combatantId, turn, options)` contract is
+ * `{ maxIterations, maxMs }` — either field optional, both default to unlimited. `greedy-v1` never
+ * consults `options.budget` at all (JS silently drops a destructured field a function doesn't use),
+ * so "greedy ignores the budget" is true by construction, not by convention — nothing about it needed
+ * to change.
+ *
+ * A genuinely ITERATIVE policy (2-ply lookahead #1, MCTS #6) is the real intended caller: call
+ * `tick()` once per real unit of search work completed, check `exhausted()` before/after doing the
+ * next one, and return best-so-far the moment it is exhausted — the real *anytime* behavior the issue
+ * asks for. `budget-demo-v1` (`policies/budget-demo.mjs`) is the minimal, honest proof this contract
+ * actually works end to end, ahead of any real search policy existing to exercise it for real.
+ *
+ * Iteration budgets are exact and reproducible (no wall-clock jitter) — the right choice whenever
+ * determinism matters (tests, tournaments, weight-search). `maxMs` is real-clock and inherently a
+ * little fuzzy machine-to-machine — the right choice only for live table play, per the issue's own
+ * "iteration budgets whenever reproducibility matters; wall-clock only for live play" guidance.
+ */
+export function createBudgetTracker(budget = {}) {
+  const { maxIterations = Infinity, maxMs = Infinity } = budget ?? {};
+  const startedAt = Date.now();
+  let iterations = 0;
+  return {
+    /** Call once per real unit of search work completed (e.g. one candidate scored, one MCTS
+     * simulation run) — NOT once per loop iteration that might do nothing real. */
+    tick() { iterations += 1; },
+    get iterations() { return iterations; },
+    get elapsedMs() { return Date.now() - startedAt; },
+    exhausted() {
+      return iterations >= maxIterations || Date.now() - startedAt >= maxMs;
+    }
+  };
+}

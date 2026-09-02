@@ -14,11 +14,12 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 import {
-  assertValidAdapter, registerPolicy, resolvePolicy, listPolicyIds, decideWithPolicy
+  assertValidAdapter, registerPolicy, resolvePolicy, listPolicyIds, decideWithPolicy, createBudgetTracker
 } from "../../tools/battle-simulator/ai-common/engine-adapter.mjs";
 import { PERSONNEL_ADAPTER } from "../../tools/battle-simulator/ai-common/adapters/personnel-adapter.mjs";
 import { FRAME_ADAPTER } from "../../tools/battle-simulator/ai-common/adapters/frame-adapter.mjs";
 import "../../tools/battle-simulator/ai-common/policies/greedy.mjs"; // registers "greedy-v1" as a side effect
+import "../../tools/battle-simulator/ai-common/policies/budget-demo.mjs"; // registers "budget-demo-v1" as a side effect
 
 import { runBattle, checkOutcome as personnelCheckOutcome, forkTurnSandbox as personnelForkTurnSandbox } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
 import { decide as personnelDecide, decisionRng as personnelDecisionRng, generateProposals as personnelGenerateProposals } from "../../tools/battle-simulator/personnel-engine/decide.mjs";
@@ -228,4 +229,115 @@ test("Frame-scale: FRAME_ADAPTER silently ignores personnel-only option fields i
     templates: ["unconstrained"], moraleEnabled: true, disabledActionTypes: ["trip"]
   });
   assert.ok(result, "extra personnel-only fields must not break Frame's own decide()");
+});
+
+// --- createBudgetTracker + budget-demo-v1 (design doc §59, GH issue #5) ---
+
+test("createBudgetTracker: with no budget given, never reports exhausted across many real ticks — the real 'unlimited' default", () => {
+  const tracker = createBudgetTracker();
+  for (let i = 0; i < 10000; i++) {
+    tracker.tick();
+    assert.equal(tracker.exhausted(), false, `expected an unbounded tracker to never exhaust, but it did at iteration ${i}`);
+  }
+  assert.equal(tracker.iterations, 10000);
+});
+
+test("createBudgetTracker: maxIterations is exact — not exhausted one tick before the limit, exhausted exactly at it", () => {
+  const tracker = createBudgetTracker({ maxIterations: 5 });
+  for (let i = 0; i < 4; i++) {
+    tracker.tick();
+    assert.equal(tracker.exhausted(), false, `expected NOT exhausted after ${i + 1} of 5 ticks`);
+  }
+  tracker.tick();
+  assert.equal(tracker.iterations, 5);
+  assert.equal(tracker.exhausted(), true, "expected exhausted at exactly maxIterations ticks");
+});
+
+test("createBudgetTracker: maxMs is real and deterministic under a controlled busy-loop — exhausts once real elapsed time passes the limit, not before", () => {
+  const tracker = createBudgetTracker({ maxMs: 20 });
+  assert.equal(tracker.exhausted(), false, "expected not exhausted immediately after creation");
+  const start = Date.now();
+  while (Date.now() - start < 30) { /* real busy-loop, deterministic wall-clock wait */ }
+  assert.equal(tracker.exhausted(), true, `expected exhausted after a real ${Date.now() - start}ms busy-loop past a 20ms budget`);
+  assert.ok(tracker.elapsedMs >= 20, `expected elapsedMs to report real elapsed time, got ${tracker.elapsedMs}`);
+});
+
+test("createBudgetTracker: maxIterations and maxMs combine as an OR — exhausted the moment EITHER limit is reached", () => {
+  const tracker = createBudgetTracker({ maxIterations: 1000, maxMs: 20 });
+  const start = Date.now();
+  while (Date.now() - start < 30) { /* real busy-loop */ }
+  assert.equal(tracker.exhausted(), true, "expected the maxMs limit alone to exhaust the tracker despite maxIterations being nowhere close");
+});
+
+test("budget-demo-v1: registered in the policy registry alongside greedy-v1", () => {
+  assert.ok(listPolicyIds().includes("budget-demo-v1"));
+});
+
+test("budget-demo-v1: with an UNLIMITED budget, converges to the exact same 1-ply-optimal choice greedy-v1 makes — proves it adds no real strength of its own, only a different (budgeted) route to the same answer", () => {
+  const lunar17 = loadFixture("lunar-17.json");
+  const goon = loadFixture("security-goon.json");
+  const state = {
+    seed: 42, gridSize: { cols: 12, rows: 8 }, round: 1, walls: [],
+    combatants: new Map([["lunar17", { ...lunar17, id: "lunar17", position: { col: 4, row: 4 } }], ["goon", { ...goon, id: "goon", position: { col: 6, row: 4 } }]]),
+    positions: new Map([["lunar17", { col: 4, row: 4 }], ["goon", { col: 6, row: 4 }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, decisionIndex: 0 };
+  const greedyResult = decideWithPolicy("greedy-v1", PERSONNEL_ADAPTER, state, "lunar17", turn, { competence: 1 });
+  const demoResult = decideWithPolicy("budget-demo-v1", PERSONNEL_ADAPTER, state, "lunar17", turn, {});
+  assert.ok(greedyResult && demoResult, "expected real decisions from both policies");
+  assert.deepEqual(
+    { type: demoResult.type, targetId: demoResult.targetId, to: demoResult.to },
+    { type: greedyResult.type, targetId: greedyResult.targetId, to: greedyResult.to },
+    "with an unlimited budget, budget-demo-v1 must pick the same real action greedy-v1 does"
+  );
+});
+
+test("budget-demo-v1: a small maxIterations budget genuinely stops early (examines fewer than every candidate) yet STILL returns a real, legal action — the real anytime proof this issue's own 'done when' bar asks for", () => {
+  const lunar17 = loadFixture("lunar-17.json");
+  const goon = loadFixture("security-goon.json");
+  const state = {
+    seed: 1, gridSize: { cols: 12, rows: 8 }, round: 1, walls: [],
+    combatants: new Map([["lunar17", { ...lunar17, id: "lunar17", position: { col: 4, row: 4 } }], ["goon", { ...goon, id: "goon", position: { col: 6, row: 4 } }]]),
+    positions: new Map([["lunar17", { col: 4, row: 4 }], ["goon", { col: 6, row: 4 }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, decisionIndex: 0 };
+
+  const fullProposals = PERSONNEL_ADAPTER.generateProposals(state, "lunar17", turn);
+  assert.ok(fullProposals.length > 1, "need a real state with more than one candidate for this test to mean anything");
+
+  const budgeted = decideWithPolicy("budget-demo-v1", PERSONNEL_ADAPTER, state, "lunar17", turn, { budget: { maxIterations: 1 } });
+  assert.ok(budgeted, "expected a real, non-null decision even from a budget of exactly 1 iteration");
+  const examinedMatch = /best of (\d+)\//.exec(budgeted.reason);
+  assert.ok(examinedMatch, `expected the reason to report a real examined-count, got: "${budgeted.reason}"`);
+  const examined = Number(examinedMatch[1]);
+  assert.ok(examined < fullProposals.length, `expected a maxIterations:1 budget to genuinely stop before examining all ${fullProposals.length} real candidates, but it examined ${examined} — the budget had no effect`);
+
+  const sandbox = PERSONNEL_ADAPTER.forkTurnSandbox({ state, turn });
+  const result = sandbox.apply("lunar17", budgeted);
+  assert.equal(result.legal, true, `budget-demo-v1's own budget-cut-off choice must still be a real, legal action: ${JSON.stringify(budgeted)}`);
+});
+
+test("budget-demo-v1: works identically (adapter-agnostic) on FRAME_ADAPTER too — a tiny budget still returns a real, legal Frame-scale decision", () => {
+  const { state, turn } = makeFrameMeleeState();
+  const budgeted = decideWithPolicy("budget-demo-v1", FRAME_ADAPTER, state, "me", turn, { budget: { maxIterations: 1 }, weights: FRAME_DEFAULT_WEIGHTS });
+  assert.ok(budgeted, "expected a real, non-null decision from Frame-scale too");
+  const sandbox = FRAME_ADAPTER.forkTurnSandbox({ state, turn });
+  const result = sandbox.apply("me", budgeted);
+  assert.equal(result.legal, true, `budget-demo-v1's Frame-scale choice must be real and legal: ${JSON.stringify(budgeted)}`);
+});
+
+test("budget-demo-v1: a budget of {maxIterations: 0} (a degenerate config, budget exhausted before any real work) STILL returns a real legal action, never null — the exact regression this policy's own null-on-illegal-first-candidate bug would have shipped without this test", () => {
+  const lunar17 = loadFixture("lunar-17.json");
+  const goon = loadFixture("security-goon.json");
+  const state = {
+    seed: 3, gridSize: { cols: 12, rows: 8 }, round: 1, walls: [],
+    combatants: new Map([["lunar17", { ...lunar17, id: "lunar17", position: { col: 4, row: 4 } }], ["goon", { ...goon, id: "goon", position: { col: 6, row: 4 } }]]),
+    positions: new Map([["lunar17", { col: 4, row: 4 }], ["goon", { col: 6, row: 4 }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, decisionIndex: 0 };
+  const budgeted = decideWithPolicy("budget-demo-v1", PERSONNEL_ADAPTER, state, "lunar17", turn, { budget: { maxIterations: 0 } });
+  assert.ok(budgeted, "a budget exhausted before any work has even happened must still return a real legal action if one exists");
+  const sandbox = PERSONNEL_ADAPTER.forkTurnSandbox({ state, turn });
+  const result = sandbox.apply("lunar17", budgeted);
+  assert.equal(result.legal, true, `expected a real, legal action even under maxIterations:0, got: ${JSON.stringify(budgeted)}`);
 });
