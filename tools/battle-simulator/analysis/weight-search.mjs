@@ -244,11 +244,36 @@ export function shouldPromote({ league, archetypes }, options = {}) {
  * neither term alone can reach). `excludeKeys` is ignored while `targetKeys` is active (there is no
  * random draw for it to filter). Omitted (the default): byte-identical single-key behavior, exactly
  * as before this option existed.
+ *
+ * `confirmSeedSpec` (design doc §55/#2 — the real Chain B incident, 2026-09-02: a 36-member league
+ * built entirely from small-sample noise at the search's own default `seedSpec="1-16"`. Both the
+ * first promoted candidate — a `allyDamage x1.0037` mutation, barely different from its parent — and
+ * the 34th, most-mutated one, LOST to plain `baseline-v1` at an identical 45.8% once re-checked at
+ * n=24, the real verification standard this whole project uses everywhere else. The promotion bar
+ * (league ≥55%, archetype majority >50%) is only hard to clear by luck when the CURRENT champion is
+ * already dominant against its own pool; near parity — which `currentBest` genuinely was on that
+ * roster — random noise clears it constantly, and each accepted-by-luck candidate becomes the next
+ * one's own baseline, compounding). OPTIONAL, defaults to `null` (confirmation disabled) — every
+ * existing caller, including the already-completed 507/3352-generation runs, stays byte-identical if
+ * re-run with the same arguments. When set, a candidate that clears `shouldPromote` at the cheap
+ * `seedSpec` is NOT promoted yet — it is re-evaluated against the SAME league and archetype pool at
+ * `confirmSeedSpec` (a real, larger battery, e.g. "1-24"), and only actually promoted if THAT result
+ * also clears `shouldPromote` (via `confirmPromotionOptions`, defaulting to the same `promotionOptions`
+ * used for the cheap pass). A candidate that fails confirmation is rejected — `currentBest`/`league`
+ * are untouched, exactly as for any other rejection — but the attempt is recorded distinctly
+ * (`confirmResults`/`confirmVerdict` on the history entry) rather than looking identical to a candidate
+ * that never even cleared the cheap bar; this is the difference between "never looked promising" and
+ * "looked promising, checked properly, wasn't real," and this project has already learned the hard way
+ * that conflating the two throws away exactly the information that catches a mirage. Confirmation
+ * battles use real battle seeds (deterministic per seed, like every other tournament in this file) —
+ * they never draw from the search's own `rng`, so this option changes nothing about
+ * `drawsPerGeneration`/resume fast-forward math below.
  */
 export async function runWeightSearch({
   startProfile = BASELINE_V1, archetypePool = Object.values(ARCHETYPES), roster = ["lunar-17.json", "security-goon.json"],
   generations = 8, seedSpec = "1-16", roundLimit = 30, searchSeed = 1, promotionOptions, frozenAtDate = null, deadlineAt = null,
-  excludeKeys = [], targetKeys = null, resumeState = null, onProgress
+  excludeKeys = [], targetKeys = null, resumeState = null, onProgress,
+  confirmSeedSpec = null, confirmPromotionOptions = null
 } = {}) {
   const rng = makeRng(searchSeed);
   let currentBest = startProfile;
@@ -278,8 +303,19 @@ export async function runWeightSearch({
     const results = await evaluateCandidate(candidate, { league, archetypePool, roster, seedSpec, roundLimit });
     const verdict = shouldPromote(results, promotionOptions);
 
+    // CONFIRMATION (design doc §55/#2): a cheap-pass candidate is not promoted yet — see this
+    // function's own header for the real incident this guards against. `confirmResults`/
+    // `confirmVerdict` stay null unless confirmation was actually attempted, so a rejected-at-the-
+    // cheap-stage candidate (never even worth checking) stays visibly distinct from one that looked
+    // real and failed a proper check.
+    let confirmResults = null, confirmVerdict = null;
     let promotedId = null;
-    if (verdict.promoted) {
+    if (verdict.promoted && confirmSeedSpec) {
+      confirmResults = await evaluateCandidate(candidate, { league, archetypePool, roster, seedSpec: confirmSeedSpec, roundLimit });
+      confirmVerdict = shouldPromote(confirmResults, confirmPromotionOptions ?? promotionOptions);
+    }
+    const actuallyPromoted = verdict.promoted && (!confirmSeedSpec || confirmVerdict.promoted);
+    if (actuallyPromoted) {
       const checkpoint = Object.freeze({ ...candidate, id: `search-checkpoint-${league.length}`, frozenAt: frozenAtDate, provenance: "search-checkpoint" });
       league = [...league, checkpoint];
       currentBest = checkpoint;
@@ -289,10 +325,13 @@ export async function runWeightSearch({
     // `mutatedKey`/`factor` (singular) stay populated ONLY in single-key mode — exact backward
     // compatibility for every existing caller/test that reads them directly. `mutatedKeys`/`factors`
     // (plural) are ALWAYS populated, in both modes, as the real canonical shape going forward.
+    // `verdict.promoted` intentionally still reflects the CHEAP-pass result alone (unaffected by
+    // confirmation) — `promotedId` (null unless `actuallyPromoted`) is the one real signal for
+    // "did this candidate actually join the league."
     const entry = {
       generation, mutatedKeys, factors,
       mutatedKey: mutation.mutatedKey, factor: mutation.factor,
-      candidateId: candidate.id, results, verdict, promotedId
+      candidateId: candidate.id, results, verdict, confirmResults, confirmVerdict, promotedId
     };
     history.push(entry);
     onProgress?.(entry, { league, completedGenerations: generation });
@@ -309,8 +348,18 @@ function describeMutation(entry) {
   return entry.mutatedKeys.map((key) => `${key} x${entry.factors[key]}`).join(", ");
 }
 
+/** Real, human-readable summary for whichever of the four real outcomes this generation reached:
+ * rejected outright, promoted with no confirmation attempted (confirmSeedSpec unset), promoted AND
+ * confirmed, or — the one design doc §55/#2 exists to make visible — looked real, failed confirmation. */
 export function logProgress(entry) {
-  const verdictLabel = entry.verdict.promoted ? `PROMOTED -> ${entry.promotedId}` : `rejected (league ${entry.verdict.leaguePass ? "pass" : "FAIL"}, archetypes ${entry.verdict.archetypeWins}/${entry.verdict.archetypeTotal})`;
+  let verdictLabel;
+  if (entry.promotedId) {
+    verdictLabel = entry.confirmVerdict ? `PROMOTED -> ${entry.promotedId} (confirmed)` : `PROMOTED -> ${entry.promotedId}`;
+  } else if (entry.confirmVerdict && !entry.confirmVerdict.promoted) {
+    verdictLabel = `rejected — FAILED CONFIRMATION (cheap pass looked real, confirm archetypes ${entry.confirmVerdict.archetypeWins}/${entry.confirmVerdict.archetypeTotal})`;
+  } else {
+    verdictLabel = `rejected (league ${entry.verdict.leaguePass ? "pass" : "FAIL"}, archetypes ${entry.verdict.archetypeWins}/${entry.verdict.archetypeTotal})`;
+  }
   console.log(`[gen ${entry.generation}] mutate ${describeMutation(entry)} -> ${verdictLabel}`);
 }
 
@@ -332,7 +381,10 @@ function formatSearchReport({ rosterLabel, generations, seedSpec, result, resume
   for (const e of result.history) {
     const leagueSummary = e.results.league.map((r) => `${r.opponentId}:${pct(r.winRate)}`).join(", ");
     const archetypeSummary = `${e.verdict.archetypeWins}/${e.verdict.archetypeTotal} beaten`;
-    const verdict = e.verdict.promoted ? `**PROMOTED -> ${e.promotedId}**` : "rejected";
+    let verdict;
+    if (e.promotedId) verdict = e.confirmVerdict ? `**PROMOTED -> ${e.promotedId}** (confirmed)` : `**PROMOTED -> ${e.promotedId}**`;
+    else if (e.confirmVerdict && !e.confirmVerdict.promoted) verdict = `rejected — FAILED CONFIRMATION (${e.confirmVerdict.archetypeWins}/${e.confirmVerdict.archetypeTotal} archetypes)`;
+    else verdict = "rejected";
     lines.push(`| ${e.generation} | ${describeMutation(e)} | ${leagueSummary} | ${archetypeSummary} | ${verdict} |`);
   }
   return lines.join("\n");
@@ -358,7 +410,8 @@ function checkpointConfigKey(config) {
     ...rest,
     archetypePoolIds: [...rest.archetypePoolIds].sort(),
     excludeKeys: [...(rest.excludeKeys ?? [])].sort(),
-    targetKeys: rest.targetKeys ? [...rest.targetKeys].sort() : null
+    targetKeys: rest.targetKeys ? [...rest.targetKeys].sort() : null,
+    confirmSeedSpec: rest.confirmSeedSpec ?? null
   });
 }
 
@@ -399,9 +452,16 @@ async function main() {
   // directly with the same searchSeed. `--excludeKeys=` (empty string included) always wins.
   const excludeKeys = args.excludeKeys != null ? args.excludeKeys.split(",").filter(Boolean) : [...PROVEN_INERT_FOR_DEFAULT_ROSTER];
   const targetKeys = args.targetKeys ? args.targetKeys.split(",").filter(Boolean) : null;
+  // Design doc §55/#2: the CLI's own default is the smarter one here too, same reasoning as
+  // excludeKeys above — a fresh `node weight-search.mjs` invocation gets real confirmation batteries
+  // by default (the exact discipline that would have caught the Chain B mirage generation by
+  // generation instead of needing a manual after-the-fact audit); `runWeightSearch` itself stays
+  // conservative (default: no confirmation) for direct callers/tests. `--confirmSeeds=` (empty string
+  // included) always wins — pass it explicitly empty to disable.
+  const confirmSeedSpec = args.confirmSeeds != null ? (args.confirmSeeds || null) : "1-24";
   const t0 = Date.now();
 
-  const config = { roster, generations, seedSpec, roundLimit, searchSeed, excludeKeys, targetKeys, archetypePoolIds: Object.keys(ARCHETYPES) };
+  const config = { roster, generations, seedSpec, roundLimit, searchSeed, excludeKeys, targetKeys, confirmSeedSpec, archetypePoolIds: Object.keys(ARCHETYPES) };
   let resumeState = null;
   if (shouldResume) {
     const checkpoint = loadCheckpoint(config);
@@ -414,13 +474,13 @@ async function main() {
   }
 
   const modeLabel = targetKeys ? `TARGETED [${targetKeys.join(", ")}] together` : `${excludeKeys.length ? `excluding [${excludeKeys.join(", ")}]` : "no exclusions"}`;
-  console.log(`Weight search: up to ${generations} generations, ${seedSpec} seeds/matchup, roundLimit=${roundLimit}, roster=${roster.join("+")}, searchSeed=${searchSeed}${maxMinutes ? `, deadline in ${maxMinutes}min` : ""}, ${modeLabel}...`);
+  console.log(`Weight search: up to ${generations} generations, ${seedSpec} seeds/matchup, roundLimit=${roundLimit}, roster=${roster.join("+")}, searchSeed=${searchSeed}${maxMinutes ? `, deadline in ${maxMinutes}min` : ""}, ${modeLabel}, confirm=${confirmSeedSpec ?? "OFF"}...`);
   const onProgress = (entry, { league, completedGenerations }) => {
     logProgress(entry);
     writeCheckpoint({ config, league, completedGenerations });
     if (entry.generation % 10 === 0) console.log(`  (${entry.generation}/${generations} generations, ${((Date.now() - t0) / 60000).toFixed(1)}min elapsed, league size ${league.length})`);
   };
-  const result = await runWeightSearch({ roster, generations, seedSpec, roundLimit, searchSeed, frozenAtDate, deadlineAt, excludeKeys, targetKeys, resumeState, onProgress });
+  const result = await runWeightSearch({ roster, generations, seedSpec, roundLimit, searchSeed, frozenAtDate, deadlineAt, excludeKeys, targetKeys, confirmSeedSpec, resumeState, onProgress });
   if (result.stoppedEarly) console.log(`\nStopped early at generation ${result.history.length + (resumeState?.completedGenerations ?? 0)}/${generations} — deadline (${maxMinutes}min) reached. Re-run with --resume=true to continue.`);
 
   const totalGenerations = result.history.length + (resumeState?.completedGenerations ?? 0);

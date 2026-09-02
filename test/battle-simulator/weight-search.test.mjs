@@ -282,6 +282,70 @@ test("runWeightSearch: with a deliberately low promotion bar, a real candidate D
   assert.equal(result.finalBest.provenance, "search-checkpoint");
 });
 
+// --- confirmSeedSpec: the real Chain B fix (design doc §55/#2 — a 36-member league built entirely
+// from small-sample noise; both the first and the most-mutated "promoted" candidate lost to plain
+// baseline-v1 once re-checked at n=24). All four tests below force their outcome with a deliberately
+// easy or deliberately impossible promotionOptions bar (the SAME technique the test above already
+// uses), never by hunting for a real statistical fluke — the point is proving the ORCHESTRATION is
+// correct (confirmation runs when and only when it should, and correctly gates promotion), using real
+// battles throughout.
+
+test("runWeightSearch: confirmSeedSpec omitted (the default) — confirmResults/confirmVerdict stay null on every entry, promotion decided by the cheap pass alone, byte-identical to before this option existed", async () => {
+  const result = await runWeightSearch({
+    archetypePool: SMALL_ARCHETYPE_POOL, roster: ["lunar-17.json"], generations: 3, seedSpec: "1-4", searchSeed: 1, frozenAtDate: "2026-08-31",
+    promotionOptions: { leagueWinRateThreshold: 0.01, archetypeMajorityThreshold: 0 }
+  });
+  assert.ok(result.history.some((e) => e.promotedId), "sanity check: this bar must still produce a real promotion");
+  for (const e of result.history) {
+    assert.equal(e.confirmResults, null);
+    assert.equal(e.confirmVerdict, null);
+  }
+});
+
+test("runWeightSearch: confirmSeedSpec set — a candidate that clears BOTH the cheap and confirm bars is promoted, with a real confirmVerdict recorded", async () => {
+  const result = await runWeightSearch({
+    archetypePool: SMALL_ARCHETYPE_POOL, roster: ["lunar-17.json"], generations: 1, seedSpec: "1-4", searchSeed: 1, frozenAtDate: "2026-08-31",
+    promotionOptions: { leagueWinRateThreshold: 0.01, archetypeMajorityThreshold: 0 },
+    confirmSeedSpec: "5-8"
+  });
+  const promoted = result.history.find((e) => e.promotedId);
+  assert.ok(promoted, "an all-but-guaranteed bar on BOTH stages must still produce a real promotion");
+  assert.ok(promoted.confirmResults, "confirmation must have actually run for a candidate that cleared the cheap stage");
+  assert.equal(promoted.confirmVerdict.promoted, true);
+  assert.equal(result.league.at(-1).id, promoted.promotedId, "the confirmed candidate must be the one that actually joined the league");
+});
+
+test("runWeightSearch: confirmSeedSpec set — a candidate that clears the cheap bar but FAILS an impossible confirm bar is REJECTED, distinctly from an outright cheap-stage rejection", async () => {
+  const result = await runWeightSearch({
+    archetypePool: SMALL_ARCHETYPE_POOL, roster: ["lunar-17.json"], generations: 3, seedSpec: "1-4", searchSeed: 1, frozenAtDate: "2026-08-31",
+    promotionOptions: { leagueWinRateThreshold: 0.01, archetypeMajorityThreshold: 0 }, // trivially easy — cheap stage should pass
+    confirmSeedSpec: "5-8",
+    confirmPromotionOptions: { leagueWinRateThreshold: 1.01, archetypeMajorityThreshold: 0 } // impossible — confirm stage can never pass
+  });
+  const cheapPassed = result.history.filter((e) => e.verdict.promoted);
+  assert.ok(cheapPassed.length > 0, "sanity check: the easy cheap bar must actually be cleared at least once");
+  for (const e of cheapPassed) {
+    assert.ok(e.confirmResults, "confirmation must have run for every cheap-stage pass");
+    assert.equal(e.confirmVerdict.promoted, false, "the impossible confirm bar must never actually pass");
+    assert.equal(e.promotedId, null, "a candidate that fails confirmation must NOT be promoted");
+  }
+  assert.equal(result.league.length, 1, "the league must never grow when every confirmation fails");
+  assert.equal(result.finalBest.id, BASELINE_V1.id, "finalBest must stay at the real starting profile — nothing was ever actually promoted");
+});
+
+test("runWeightSearch: confirmSeedSpec set — confirmation is never attempted for a candidate that fails the cheap stage, saving the extra real battery", async () => {
+  const result = await runWeightSearch({
+    archetypePool: SMALL_ARCHETYPE_POOL, roster: ["lunar-17.json"], generations: 3, seedSpec: "1-4", searchSeed: 1, frozenAtDate: "2026-08-31",
+    promotionOptions: { leagueWinRateThreshold: 1.01, archetypeMajorityThreshold: 0 }, // impossible — cheap stage can never pass
+    confirmSeedSpec: "5-8"
+  });
+  assert.ok(result.history.every((e) => !e.verdict.promoted), "sanity check: the impossible cheap bar must reject every generation");
+  for (const e of result.history) {
+    assert.equal(e.confirmResults, null, "confirmation must never run for a candidate that never cleared the cheap stage");
+    assert.equal(e.confirmVerdict, null);
+  }
+});
+
 // --- deadlineAt: the real wall-clock safety valve (a growing league makes later generations more
 // expensive, so an uncapped run needs a real way to stop rather than running unpredictably long) ---
 
