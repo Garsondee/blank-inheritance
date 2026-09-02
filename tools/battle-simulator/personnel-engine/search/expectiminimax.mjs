@@ -1,34 +1,34 @@
 /**
- * THE EXACTNESS ORACLE (design doc §61, GH issue #21) — "every serious MCTS implementation is
+ * THE EXACTNESS ORACLE (design doc §61/§64, GH issue #21) — "every serious MCTS implementation is
  * validated against an exact search on positions small enough to solve. Without it, 'the search
  * works' is a feeling; with it, it is a test." This is a TEST INSTRUMENT, not a policy meant to win
  * real tournaments: it enumerates every real legal candidate, exhaustively, to a fixed ply depth, and
- * returns the true minimax value and the true best action for that depth — no pruning, no sampling,
- * no heuristics inside the search itself (the only heuristic is `evaluateState` at the depth cutoff,
- * exactly like every other policy already uses it).
+ * returns the true minimax-over-expectation value and the true best action for that depth — no
+ * pruning, no sampling, no heuristics inside the search itself (the only heuristic is `evaluateState`
+ * at the depth cutoff, exactly like every other policy already uses it).
  *
- * PHASE A (this file, as shipped): DETERMINISTIC transitions only — every action resolves through
- * the real `forkTurnSandbox`, which already uses `EXPECTED_OUTCOMES` (deterministic expected-value
- * damage/effects, never real dice — engine.mjs's own documented sandbox contract). This is not a
- * shortcut invented for this file: `decide()`'s own candidate scoring, `greedy-v1`, and `lookahead-v1`
- * all already work this same way, and design doc §52's own tactical puzzles are explicitly verified
- * against this exact deterministic path ("every candidate scored inside decide() is expected-value
- * only... which is precisely why a single seed is enough here"). A real oracle needs to agree with
- * those same puzzles, so a Phase-A oracle scoped to the SAME deterministic transitions they already
- * use is a genuine, correct ground truth for them — not a lesser approximation.
+ * PHASE A: DETERMINISTIC transitions for most action types — resolved through the real
+ * `forkTurnSandbox`'s own default `EXPECTED_OUTCOMES` path (deterministic expected-value damage,
+ * never real dice). Not a shortcut invented for this file: `decide()`'s own candidate scoring,
+ * `greedy-v1`, `lookahead-v1`, and design doc §52's own tactical puzzles all already work this same
+ * way — a Phase-A oracle scoped to that path is a genuine ground truth for them, not a lesser
+ * approximation.
  *
- * PHASE B (NOT built here, a real and separate future increment): stochastic CHANCE NODES — expanding
- * a proposal into its real crit/hit/miss/crit-miss branches via `degreeProbabilities`, each weighted
- * by its real probability, needed once GH issue #6's own MCTS build order reaches its chance-node step
- * (step 4). Building it now would be scope creep on top of an already substantial first component;
- * see the module's own `solve()` docs for exactly what this means in practice.
+ * PHASE B (design doc §64): real stochastic CHANCE NODES for `strike`/`trip` — `search/chance.mjs`'s
+ * own `expandChanceNode` branches such a proposal into its real crit/hit/miss/crit-fail children, each
+ * weighted by its real `degreeProbabilities`, and this file's own value for that proposal is the true
+ * probability-weighted average of the recursively-searched value of every branch — the actual
+ * "expectiminimax" the module's own name promises, not just "minimax over deterministic transitions."
+ * Every OTHER stochastic action type (shove, grapple, saveAttack, demoralize, conditionSave,
+ * areaAttack) still resolves through the deterministic `EXPECTED_OUTCOMES` path — `isStochasticProposal`
+ * names exactly what's covered; extending it is real, separate, additive future work, not a redesign.
  *
  * FORCED NODES (design doc §61/#6's own node taxonomy) — the deterministic subset IS handled, matching
  * `engine.mjs`'s own `runBattle` loop exactly: Stunned's real action-loss arithmetic (`resolveEffectiveStats`),
  * Frightened's end-of-turn decay, Grapple's round-based expiry, dead combatants skipped in initiative
  * order. The one genuinely STOCHASTIC forced event — an unconscious combatant's own recovery check
- * (`resolveRecoveryCheck`, a real d20 flat check) — is NOT modeled yet (that's a Phase B chance node
- * too); encountering one mid-search stops that branch at its current value rather than guessing.
+ * (`resolveRecoveryCheck`, a real d20 flat check) — is NOT modeled yet; encountering one mid-search
+ * stops that branch at its current value rather than guessing.
  *
  * SCOPE: personnels-scale only, matching issue #21's own suggested file path (inside `personnel-engine/`,
  * not `ai-common/`). Frame-scale support is real, separate future work, not attempted here.
@@ -37,6 +37,23 @@ import { generateProposals } from "../decide.mjs";
 import { forkTurnSandbox, checkOutcome } from "../engine.mjs";
 import { evaluateState, DEFAULT_WEIGHTS } from "../evaluate/state-value.mjs";
 import { outcomeValue, nextActorAfterAction } from "./tree-shared.mjs";
+import { isStochasticProposal, expandChanceNode } from "./chance.mjs";
+
+/** The real, recursively-searched value of one already-resolved branch state (deterministic child
+ * OR one real chance-node branch) — advances to the next real actor, or falls back to a direct
+ * `evaluateState` leaf on a Phase-A gap (`stochasticGap`/`noActor`), exactly like the deterministic
+ * path already does. Shared by both the plain and chance-node loops below so "what happens after one
+ * real resolved outcome" is written once. */
+function valueOfBranch({ branchState, branchTurn, actor, weights, rootSide, depthRemaining, initiativeOrder, addNodesExplored }) {
+  const nextActor = nextActorAfterAction({ childState: branchState, childTurn: branchTurn, actor, initiativeOrder });
+  if (nextActor.stochasticGap || nextActor.noActor) {
+    addNodesExplored(1);
+    return evaluateState(branchState, rootSide, weights);
+  }
+  const child = searchNode({ state: branchState, actor: nextActor, weights, rootSide, depthRemaining: depthRemaining - 1, initiativeOrder });
+  addNodesExplored(child.nodesExplored);
+  return child.value;
+}
 
 /**
  * The real recursive search. `actor = { actingId, initiativeIndex, round, turn }` is the combatant
@@ -60,21 +77,34 @@ function searchNode({ state, actor, weights, rootSide, depthRemaining, initiativ
     if (!best || (isMaximizing ? value > best.value : value < best.value)) best = { value, bestProposal: proposal };
   };
 
+  const addNodesExplored = (n) => { nodesExplored += n; };
+
   for (const proposal of proposals) {
+    if (isStochasticProposal(proposal)) {
+      // A REAL chance node (design doc §64): branch into every real degree of success with
+      // probability > 0, and this proposal's own value is the TRUE probability-weighted average of
+      // each branch's own recursively-searched value — the real "expectiminimax," not an estimate.
+      const branches = expandChanceNode({ state, turn: actor.turn, combatantId: actor.actingId, proposal });
+      if (branches.length === 1 && !branches[0].legal) continue; // illegal — same as any other illegal proposal
+      nodesExplored += branches.length;
+      let weightedValue = 0;
+      let anyLegalBranch = false;
+      for (const branch of branches) {
+        if (!branch.legal) continue; // defensive: legality shouldn't vary by degree, but never assume
+        anyLegalBranch = true;
+        const branchValue = valueOfBranch({ branchState: branch.state, branchTurn: branch.turn, actor, weights, rootSide, depthRemaining, initiativeOrder, addNodesExplored });
+        weightedValue += branch.probability * branchValue;
+      }
+      if (!anyLegalBranch) continue;
+      consider(weightedValue, proposal);
+      continue;
+    }
+
     const sandbox = forkTurnSandbox({ state, turn: actor.turn });
     const result = sandbox.apply(actor.actingId, proposal);
     if (!result.legal) continue;
-
-    const childState = sandbox.state;
-    const nextActor = nextActorAfterAction({ childState, childTurn: sandbox.turn, actor, initiativeOrder });
-    if (nextActor.stochasticGap || nextActor.noActor) {
-      nodesExplored += 1;
-      consider(evaluateState(childState, rootSide, weights), proposal);
-      continue;
-    }
-    const child = searchNode({ state: childState, actor: nextActor, weights, rootSide, depthRemaining: depthRemaining - 1, initiativeOrder });
-    nodesExplored += child.nodesExplored;
-    consider(child.value, proposal);
+    const branchValue = valueOfBranch({ branchState: sandbox.state, branchTurn: sandbox.turn, actor, weights, rootSide, depthRemaining, initiativeOrder, addNodesExplored });
+    consider(branchValue, proposal);
   }
 
   if (!best) return { value: evaluateState(state, rootSide, weights), bestProposal: null, nodesExplored };

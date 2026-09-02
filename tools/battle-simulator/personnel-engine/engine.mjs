@@ -1420,7 +1420,19 @@ export function getSandboxForkCount() { return sandboxForkCount; }
  * @param {object} args.state - the live state; cloned, never mutated
  * @param {object} args.turn  - the turnProgress copy the AI was handed
  */
-export function forkTurnSandbox({ state, turn }) {
+/**
+ * `outcomes` (design doc §64, GH issue #6 step 4 — real stochastic chance-node enumeration): OPTIONAL,
+ * defaults to `EXPECTED_OUTCOMES` exactly as before — every existing caller's behavior is completely
+ * unchanged, since omitting it (every call site until this pass) reproduces the identical default.
+ * A new caller (`search/chance.mjs`) can pass a degree-FORCED outcomes table instead, to ask "what
+ * would this exact proposal do if its roll came out at THIS specific degree of success" — the same
+ * real seam `REAL_OUTCOMES`/`EXPECTED_OUTCOMES` already are, just a third table. `attemptAction` itself
+ * (legality, action costs, mapPenalty/rangePenalty/flanking/cover modifier computation, dying
+ * transitions, prone application) is completely unaware of which table produced a given roll — this
+ * widening touches nothing about how any of that is decided, only which table's own function gets
+ * called at the one real "a die collapses to a number" seam.
+ */
+export function forkTurnSandbox({ state, turn, outcomes = EXPECTED_OUTCOMES }) {
   sandboxForkCount += 1;
   const sandboxState = cloneStateForPlanning(state);
   const sandboxTurn = { ...turn };
@@ -1433,17 +1445,18 @@ export function forkTurnSandbox({ state, turn }) {
       return sandboxTurn.actionsAvailable - sandboxTurn.actionsUsed;
     },
     /**
-     * Apply a proposal to the sandbox using the REAL rules and EXPECTED outcomes. Returns exactly
-     * what attemptAction returns, including `legal: false` with a reason when the proposal is
-     * illegal — so a planner discovers illegality the same way the engine would.
+     * Apply a proposal to the sandbox using the REAL rules and the real `outcomes` table this
+     * sandbox was forked with (`EXPECTED_OUTCOMES` unless a caller asked for something else).
+     * Returns exactly what attemptAction returns, including `legal: false` with a reason when the
+     * proposal is illegal — so a planner discovers illegality the same way the engine would.
      */
     apply(combatantId, proposal) {
       const effective = resolveEffectiveStats(sandboxState.combatants.get(combatantId));
       return attemptAction({
         state: sandboxState,
-        rng: null, // EXPECTED_OUTCOMES ignores it; passing null makes misuse throw loudly
+        rng: null, // EXPECTED_OUTCOMES/degree-forced tables both ignore it; passing null makes misuse throw loudly
         combatantId, proposal, turnProgress: sandboxTurn, turnLog: sandboxLog, effective,
-        outcomes: EXPECTED_OUTCOMES
+        outcomes
       });
     }
   };

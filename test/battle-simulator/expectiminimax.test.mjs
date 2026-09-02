@@ -18,6 +18,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { solve } from "../../tools/battle-simulator/personnel-engine/search/expectiminimax.mjs";
+import { expandChanceNode } from "../../tools/battle-simulator/personnel-engine/search/chance.mjs";
 import { decide } from "../../tools/battle-simulator/personnel-engine/decide.mjs";
 import { forkTurnSandbox } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
 import { evaluateState, DEFAULT_WEIGHTS } from "../../tools/battle-simulator/personnel-engine/evaluate/state-value.mjs";
@@ -31,7 +32,7 @@ function loadFixture(file) { return JSON.parse(readFileSync(`${fixturesDir}/${fi
 
 // --- 1: a hand-computable trivial position ---
 
-test("solve(): a 1-ply choice between two strikes on the same target picks the real higher-gain one, and reports the real absolute evaluateState as its value", () => {
+test("solve(): a 1-ply choice between two strikes on the same target picks the real higher-EV one, and reports the true probability-weighted value (design doc §64) — hand-verified against expandChanceNode directly, not a single deterministic apply", () => {
   const me = {
     id: "me", name: "Me", side: "party", maxHP: 30, currentHP: 30, ac: 17, saves: { fort: 8, ref: 8, will: 8 }, speed: 25,
     strikes: [
@@ -40,7 +41,10 @@ test("solve(): a 1-ply choice between two strikes on the same target picks the r
     ],
     position: { col: 5, row: 5 }
   };
-  const enemy = { id: "enemy", name: "Enemy", side: "opposition", maxHP: 30, currentHP: 30, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], position: { col: 6, row: 5 } };
+  // HP high enough that neither strike's crit is lethal — this test is about comparing two real
+  // stochastic proposals, not about a chance branch landing on a terminal state (that's its own
+  // dedicated test below).
+  const enemy = { id: "enemy", name: "Enemy", side: "opposition", maxHP: 100, currentHP: 100, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], position: { col: 6, row: 5 } };
   const state = {
     round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [], initiativeOrder: ["me", "enemy"],
     combatants: new Map([["me", { ...me }], ["enemy", { ...enemy }]]),
@@ -53,12 +57,43 @@ test("solve(): a 1-ply choice between two strikes on the same target picks the r
   assert.equal(result.bestProposal.strikeIndex, 0, "expected BigSword (the real higher-expected-damage strike) to win");
 
   const before = evaluateState(state, "party", DEFAULT_WEIGHTS, "me");
-  const sandbox = forkTurnSandbox({ state, turn });
-  const applied = sandbox.apply("me", result.bestProposal);
-  assert.equal(applied.legal, true);
-  const expectedValue = evaluateState(sandbox.state, "party", DEFAULT_WEIGHTS, "me");
-  assert.ok(Math.abs(result.value - expectedValue) < 1e-9, `expected the oracle's own value (${result.value}) to equal the real absolute evaluateState after its own chosen action (${expectedValue})`);
-  assert.ok(result.value - before > 0, "the chosen strike must be a real, positive gain over the starting position");
+  const branches = expandChanceNode({ state, turn, combatantId: "me", proposal: result.bestProposal });
+  const totalProbability = branches.reduce((sum, b) => sum + b.probability, 0);
+  assert.ok(Math.abs(totalProbability - 1) < 1e-9, `expected the real degree probabilities to sum to 1, got ${totalProbability}`);
+  const expectedWeightedValue = branches.reduce((sum, b) => sum + b.probability * evaluateState(b.state, "party", DEFAULT_WEIGHTS, "me"), 0);
+  assert.ok(Math.abs(result.value - expectedWeightedValue) < 1e-9, `expected the oracle's own value (${result.value}) to equal the real hand-computed probability-weighted average (${expectedWeightedValue})`);
+  assert.ok(result.value - before > 0, "the chosen strike must be a real, positive expected gain over the starting position");
+});
+
+test("solve(): a lethal-on-crit strike correctly folds the real WIN sentinel into its own probability-weighted value — a chance branch reaching a terminal state is not treated like any other leaf", () => {
+  const me = {
+    id: "me", name: "Me", side: "party", maxHP: 30, currentHP: 30, ac: 17, saves: { fort: 8, ref: 8, will: 8 }, speed: 25,
+    strikes: [{ name: "BigSword", strikeType: "melee", attackBonus: 14, traits: [], damage: [{ dice: "2d8", bonus: 6, damageType: "slashing" }] }],
+    position: { col: 5, row: 5 }
+  };
+  // A crit (mitigateDamage(2*avgRaw=30)=30) exactly kills this 30-HP, sole enemy — the criticalSuccess
+  // branch is a real party-victory terminal, not just "enemy at 0 HP."
+  const enemy = { id: "enemy", name: "Enemy", side: "opposition", maxHP: 30, currentHP: 30, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], position: { col: 6, row: 5 } };
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [], initiativeOrder: ["me", "enemy"],
+    combatants: new Map([["me", { ...me }], ["enemy", { ...enemy }]]),
+    positions: new Map([["me", { ...me.position }], ["enemy", { ...enemy.position }]])
+  };
+  const turn = { actionsAvailable: 1, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0 };
+  const proposal = { type: "strike", targetId: "enemy", strikeIndex: 0 };
+
+  const branches = expandChanceNode({ state, turn, combatantId: "me", proposal });
+  const critBranch = branches.find((b) => b.degree === "criticalSuccess");
+  assert.ok(critBranch, "expected a real criticalSuccess branch");
+  assert.equal(critBranch.state.combatants.get("enemy").currentHP, 0, "the crit branch must actually reduce the sole enemy to 0 HP");
+
+  const result = solve({ state, combatantId: "me", turn, depth: 1 });
+  const expectedWeightedValue = branches.reduce((sum, b) => {
+    const branchOutcome = b.state.combatants.get("enemy").currentHP <= 0 ? 1e6 : evaluateState(b.state, "party", DEFAULT_WEIGHTS, "me");
+    return sum + b.probability * branchOutcome;
+  }, 0);
+  assert.ok(Math.abs(result.value - expectedWeightedValue) < 1e-6, `expected the WIN sentinel to be folded into the weighted average correctly: oracle=${result.value}, hand-computed=${expectedWeightedValue}`);
+  assert.ok(result.value > 1e6 * critBranch.probability * 0.9, `expected a real, substantial WIN-sentinel contribution given a ${critBranch.probability.toFixed(2)} crit probability, got ${result.value}`);
 });
 
 // --- 2: agreement with a real §52 tactical puzzle at depth 1 ---
@@ -269,4 +304,55 @@ test("exactness-oracle-v1: registered in the policy registry, and decideWithPoli
   assert.ok(decision, "expected a real decision through the registry");
   const sandbox = PERSONNEL_ADAPTER.forkTurnSandbox({ state, turn });
   assert.equal(sandbox.apply("me", decision).legal, true);
+});
+
+// --- THE HEADLINE VALIDATION (design doc §64) — issue #21's own motivating example: "the exact
+// 3-ply value of stepping into melee next to two Athletics-capable enemies... with pileOnRisk=0, is
+// a number, not an opinion." Uses the ACTUAL diagnosed roster's own real, unmodified fixtures
+// (tough.json, xenowarden-greenhorn.json — design doc §54's real 75%-loss matchup), with real
+// stochastic Trip/Strike chance nodes now that Phase B exists. "me" is a real fixture (lunar-17) with
+// its attack kit stripped to move-only and a scripted objective pulling it toward the two enemies —
+// the same isolation technique the §60 lookahead trap already used, so the search is small enough to
+// solve (issue #21's own words) while still using two REAL, unmodified enemy stat blocks.
+
+function makeTripPileOnState() {
+  const lunar17 = loadFixture("lunar-17.json");
+  const tough = loadFixture("tough.json");
+  const xeno = loadFixture("xenowarden-greenhorn.json");
+  const me = {
+    ...lunar17, id: "me", side: "party", strikes: [], spells: [], healAbilities: [], intimidationModifier: null,
+    objective: { col: 12, row: 10 }, position: { col: 10, row: 10 }
+  };
+  const enemyA = { ...tough, id: "enemyA", side: "opposition", position: { col: 12, row: 10 } };
+  const enemyB = { ...xeno, id: "enemyB", side: "opposition", position: { col: 13, row: 10 } };
+  return {
+    round: 1, seed: 1, gridSize: { cols: 30, rows: 30 }, walls: [], initiativeOrder: ["me", "enemyA", "enemyB"],
+    combatants: new Map([["me", { ...me }], ["enemyA", { ...enemyA }], ["enemyB", { ...enemyB }]]),
+    positions: new Map([["me", { ...me.position }], ["enemyA", { ...enemyA.position }], ["enemyB", { ...enemyB.position }]])
+  };
+}
+
+test("THE HEADLINE VALIDATION: on the REAL diagnosed tough.json+xenowarden-greenhorn.json roster, with pileOnRisk=0, seeing only the FIRST enemy's real reply (depth 2) is not enough to reveal the danger — the search still prefers approaching", () => {
+  const turn = { actionsAvailable: 1, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0 };
+  const weights = { ...DEFAULT_WEIGHTS, pileOnRisk: 0 };
+  const result = solve({ state: makeTripPileOnState(), combatantId: "me", turn, depth: 2, weights });
+  assert.equal(result.bestProposal.type, "move");
+  assert.equal(result.bestProposal.to.col, 11, "expected depth=2 (one real enemy reply seen) to still favor approaching the objective, exactly the shallow-search blind spot pileOnRisk was hard-coded to patch");
+});
+
+test("THE HEADLINE VALIDATION: the SAME real position, one ply deeper (depth 3, the second enemy's real reply now included), correctly flips to retreating — an independent, chance-node-aware re-derivation of the exact pattern pileOnRisk prices by hand", () => {
+  const turn = { actionsAvailable: 1, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0 };
+  const weights = { ...DEFAULT_WEIGHTS, pileOnRisk: 0 };
+  const depth2 = solve({ state: makeTripPileOnState(), combatantId: "me", turn, depth: 2, weights });
+  const depth3 = solve({ state: makeTripPileOnState(), combatantId: "me", turn, depth: 3, weights });
+  assert.equal(depth3.bestProposal.type, "move");
+  assert.equal(depth3.bestProposal.to.col, 5, "expected depth=3 to correctly retreat once BOTH real enemies' replies are accounted for");
+  assert.notDeepEqual(
+    { type: depth2.bestProposal.type, to: depth2.bestProposal.to },
+    { type: depth3.bestProposal.type, to: depth3.bestProposal.to },
+    "expected a genuine, real flip between depth 2 and depth 3 on the identical position — not a coincidence, the direct real-number proof issue #21 asked for"
+  );
+  // A real, honest cost check (issue #21's own explicit ask: "recorded so nobody accidentally runs
+  // it at depth 6") — this stays well within reason for a real 3-combatant, real-fixture position.
+  assert.ok(depth3.nodesExplored < 2000, `expected a real, bounded node count at depth 3, got ${depth3.nodesExplored} — re-check before ever raising this scenario's own depth further`);
 });
