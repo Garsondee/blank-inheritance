@@ -26,6 +26,7 @@
     "terminal-login-landing-page",
     "in-scene-ui-panel-mimetic-controls",
     "dialogue-management-panel",
+    "watcher-reads-all-comms",
     "design/foundry-module-design.md#4-bidirectional-sync-and-the-file-system-question",
     "data/campaign/open-questions.json#frame-class-assignment",
     "data/schema/frame.schema.json"

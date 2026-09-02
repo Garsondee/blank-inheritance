@@ -23,6 +23,7 @@
     "in-scene-ui-panel-mimetic-controls",
     "in-universe-correspondence-negotiation-system",
     "automated-recall-knowledge-system",
+    "watcher-reads-all-comms",
     "data/campaign/open-questions.json#ratio-publication",
     "data/campaign/open-questions.json#bleed-visibility",
     "design/campaign-arc.md#supporting-cast-arc",

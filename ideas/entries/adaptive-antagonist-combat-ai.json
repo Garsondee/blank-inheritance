@@ -26,6 +26,8 @@
     "chat-log-knowledge-base",
     "antagonist-structure-cicada-org-moral-complexity",
     "watcher-recall-knowledge-on-party",
+    "watcher-reads-all-comms",
+    "gap-derived-tech-disparity",
     "data/antagonists/the-watcher.json",
     "tools/battle-simulator/ai/claimant-ai.mjs",
     "tools/battle-simulator/ai/evaluate/state-value.mjs",

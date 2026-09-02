@@ -11,6 +11,7 @@
   "lastTouchedDate": "2026-09-02",
   "sourceContext": "User message, 2026-09-02, offered as 'a fun idea worth recording... as a fun long term extra' while asking for a GitHub issue epic covering the campaign's non-programming/RP ideas.",
   "openSubQuestions": [
+    "Now sitting alongside a passive sibling channel, watcher-reads-all-comms: this idea's Recall Knowledge check stays the earned, dice-rolled, combat-specific act (predicting contested live behavior is hard, even for the Watcher), deliberately distinct from the comms channel's trivial passive reading (gap-derived-tech-disparity — reading static/transmitted text through Gap-native hardware isn't a comparable problem). Worth keeping that distinction sharp rather than letting the two blur into one 'the Watcher just knows everything' mechanic.",
     "Which creatures get this action — every Claimant, or only specific 'watcher-touched' ones — and how often can it be used (once per target per encounter/campaign, or repeatable)?",
     "Data shape for 'what the Watcher has learned about PC X' — likely a new structured field alongside automated-recall-knowledge-system's per-creature reveal data, but for the opposite direction (per-PC, per-Claimant-or-Watcher-global) — not designed.",
     "Does a successful check against a PC ever surface to the players directly (a chat message, a phone/field-guide entry mirroring the party's own automated Recall Knowledge UI), or does it stay entirely GM-side until the pattern is inferred from play?",
