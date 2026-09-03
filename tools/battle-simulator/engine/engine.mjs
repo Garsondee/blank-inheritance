@@ -785,8 +785,19 @@ function snapshotState(state) {
  */
 /** Exported (design doc §57/#20 — the shared engine-interface adapters need a real, callable terminal
  * check without re-deriving win/loss/stalemate logic) — behavior is completely unchanged, this is
- * only a visibility widening. */
-export function checkOutcome(state, scenario) {
+ * only a visibility widening.
+ *
+ * REAL BUG, found running mcts.mjs's own first real Frame-scale search (design doc §73, GH issue
+ * #20): every adapter-agnostic caller in `personnel-engine/search/` (this file's own EngineAdapter
+ * contract) calls `checkOutcome(state)` with exactly ONE argument — the shared, scale-agnostic
+ * convention personnel's own `checkOutcome(state)` already matches natively. This function's own
+ * ONLY prior call site (the native battle loop just above) always supplies a real `scenario`, so the
+ * missing default here was never exercised until now. `scenario = {}` makes an adapter-driven caller
+ * with no scenario concept at all resolve to "no stalemateNotBeforeRound floor, no scripted events" —
+ * exactly the correct, inert behavior for a context with no scripted stalemate to ever check against
+ * — while the native call site above is completely unaffected (always passes a real scenario).
+ */
+export function checkOutcome(state, scenario = {}) {
   const opposition = [...state.combatants.values()].filter((c) => c.side === "opposition");
   const party = [...state.combatants.values()].filter((c) => c.side === "party");
 

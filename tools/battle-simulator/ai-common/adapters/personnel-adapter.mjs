@@ -9,6 +9,8 @@ import { decisionRng, generateProposals, decide } from "../../personnel-engine/d
 import { forkTurnSandbox, checkOutcome, resetSandboxForkCount, getSandboxForkCount } from "../../personnel-engine/engine.mjs";
 import { evaluateState, DEFAULT_WEIGHTS } from "../../personnel-engine/evaluate/state-value.mjs";
 import { FEET_PER_SQUARE } from "../../personnel-engine/grid.mjs";
+import { isDead, isUnconscious } from "../../personnel-engine/conditions.mjs";
+import { resolveEffectiveStats } from "../../personnel-engine/combatant.mjs";
 import { assertValidAdapter } from "../engine-adapter.mjs";
 
 export const PERSONNEL_ADAPTER = Object.freeze({
@@ -28,6 +30,14 @@ export const PERSONNEL_ADAPTER = Object.freeze({
   // for one decision brackets it with resetSandboxForkCount()/getSandboxForkCount(); every other
   // caller can ignore these entirely.
   resetSandboxForkCount,
-  getSandboxForkCount
+  getSandboxForkCount,
+  // OPTIONAL, also not part of REQUIRED_FIELDS (design doc §73, GH issue #20) — real tree-search
+  // capability (personnel-engine/search/tree-shared.mjs's own forced-node handling). Real, unchanged,
+  // PC-dying-rules-aware functions — a search-capable policy (mcts-uct-v1) checks for these itself
+  // and fails clearly if an adapter doesn't provide them, rather than every non-search policy
+  // (greedy-v1, budget-demo-v1) being forced to carry fields it never touches.
+  isDead,
+  isUnconscious,
+  resolveEffectiveStats
 });
 assertValidAdapter(PERSONNEL_ADAPTER); // real, immediate self-check — a missing field fails at import time

@@ -17,6 +17,16 @@ import { resolveEffectiveStats } from "../combatant.mjs";
 export const WIN_VALUE = 1e6; // dominates any real evaluateState magnitude (bounded by real HP pools) by construction
 export const LOSS_VALUE = -WIN_VALUE;
 
+/**
+ * SCALE-AGNOSTIC FORCED-NODE HANDLING (design doc §73, GH issue #20) — `advanceToNextActor`/
+ * `nextActorAfterAction` below take an OPTIONAL `conditions` override (`{isDead, isUnconscious,
+ * resolveEffectiveStats}`), defaulting to this file's own existing, real personnel imports —
+ * omitted (every existing caller today), behavior is byte-for-byte unchanged, verified. A caller that
+ * wants to search Frame-scale (or any other engine) passes its own adapter's own equivalents instead;
+ * this file never imports anything Frame-specific itself.
+ */
+const PERSONNEL_CONDITIONS = { isDead, isUnconscious, resolveEffectiveStats };
+
 /** `outcome` is a real `checkOutcome(state)` result — `{result: "party-victory"|"party-defeat"}`.
  * Returns the real WIN/LOSS sentinel in `rootSide`'s own terms. */
 export function outcomeValue(outcome, rootSide) {
@@ -41,19 +51,26 @@ export function applyEndOfTurnEffects(state, actorId) {
 /**
  * Advances from just after `fromIndex`'s own turn to the next real actor with real actions to take,
  * applying the SAME deterministic forced effects `runBattle`'s own loop applies for everything short
- * of a real dice roll: dead combatants are skipped (matching `if (isDead(combatant)) continue`),
- * Stunned's real action-loss arithmetic is applied (matching `resolveEffectiveStats(combatant).actionsAvailable`
- * minus `stunnedValue`, mutating `stunnedValue` down the same way), and a combatant whose whole turn
- * is consumed by Stun is itself skipped with no decision node at all — exactly `runBattle`'s own
- * `continue` path.
+ * of a real dice roll: dead combatants are skipped (matching `if (conditions.isDead(combatant))
+ * continue`), Stunned's real action-loss arithmetic is applied (matching
+ * `conditions.resolveEffectiveStats(combatant).actionsAvailable` minus `stunnedValue`, mutating
+ * `stunnedValue` down the same way), and a combatant whose whole turn is consumed by Stun is itself
+ * skipped with no decision node at all — exactly `runBattle`'s own `continue` path.
+ *
+ * `combatant.stunnedRounds` (design doc §73) is a SEPARATE, Frame-only, deterministic mechanic — a
+ * plain round-based skip-and-decrement, no dice involved, so it's handled directly here (not via
+ * `conditions`, not as an unmodeled gap) rather than folded into the personnel-specific
+ * `stunnedValue`/`conditions` machinery — harmlessly inert on any personnel combatant, which never
+ * sets this field at all.
  *
  * Returns `{ actingId, initiativeIndex, round, turn }` for the next real decision node, or
  * `{ stochasticGap: true }` if the next real turn belongs to an UNCONSCIOUS combatant (a real
- * recovery-check chance node Phase A does not model — see `expectiminimax.mjs`'s own header), or
+ * recovery-check chance node Phase A does not model — see `expectiminimax.mjs`'s own header; always
+ * `false` under Frame's own `conditions.isUnconscious`, since Frame has no such concept), or
  * `{ noActor: true }` if no combatant can ever act again (every remaining combatant dead, or the
  * bounded search guard below was exhausted — a real, structural end-of-search condition, not a bug).
  */
-export function advanceToNextActor(state, initiativeOrder, fromIndex, round) {
+export function advanceToNextActor(state, initiativeOrder, fromIndex, round, conditions = PERSONNEL_CONDITIONS) {
   let index = fromIndex;
   let currentRound = round;
   for (let guard = 0; guard < initiativeOrder.length * 4 + 4; guard++) {
@@ -61,9 +78,10 @@ export function advanceToNextActor(state, initiativeOrder, fromIndex, round) {
     if (index >= initiativeOrder.length) { index = 0; currentRound += 1; }
     const id = initiativeOrder[index];
     const combatant = state.combatants.get(id);
-    if (isDead(combatant)) continue;
-    if (isUnconscious(combatant)) return { stochasticGap: true };
-    let actionsAvailable = resolveEffectiveStats(combatant).actionsAvailable;
+    if (conditions.isDead(combatant)) continue;
+    if (conditions.isUnconscious(combatant)) return { stochasticGap: true };
+    if (combatant.stunnedRounds > 0) { combatant.stunnedRounds -= 1; continue; }
+    let actionsAvailable = conditions.resolveEffectiveStats(combatant).actionsAvailable;
     if (combatant.stunnedValue > 0) {
       const lost = Math.min(actionsAvailable, combatant.stunnedValue);
       combatant.stunnedValue -= lost;
@@ -82,13 +100,14 @@ export function advanceToNextActor(state, initiativeOrder, fromIndex, round) {
  * NEXT decision node: the SAME actor (if they still have real actions left this turn) or the next
  * real actor in initiative order (applying end-of-turn effects and forced-node advancement). Shared
  * by every search algorithm in this directory so "whose turn is it now" is computed identically
- * everywhere — a real, previously-duplicated piece of logic, now written once. */
-export function nextActorAfterAction({ childState, childTurn, actor, initiativeOrder }) {
+ * everywhere — a real, previously-duplicated piece of logic, now written once. `conditions` (optional,
+ * defaults to real personnel behavior) is threaded straight through to `advanceToNextActor`. */
+export function nextActorAfterAction({ childState, childTurn, actor, initiativeOrder, conditions = PERSONNEL_CONDITIONS }) {
   if (childTurn.actionsAvailable - childTurn.actionsUsed > 0) {
     return { actingId: actor.actingId, initiativeIndex: actor.initiativeIndex, round: actor.round, turn: childTurn };
   }
   applyEndOfTurnEffects(childState, actor.actingId);
-  return advanceToNextActor(childState, initiativeOrder, actor.initiativeIndex, actor.round);
+  return advanceToNextActor(childState, initiativeOrder, actor.initiativeIndex, actor.round, conditions);
 }
 
 /** The same real proposal-identity key `decide.mjs`'s own module-private `proposalKey` uses

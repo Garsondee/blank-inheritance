@@ -25,6 +25,15 @@
  * MAXIMIZES the UCT score for a node owned by `rootSide`'s own team, MINIMIZES (mirrored) for the
  * opponent — the same two-team negamax reduction, just applied at selection time instead of via a
  * backprop sign flip.
+ *
+ * SCALE-AGNOSTIC (design doc §73, GH issue #20 — the first search file ported off personnel-only):
+ * `search()`'s own optional `adapter` parameter lets this run against ANY real `EngineAdapter`
+ * (Frame-scale included), not just personnel's own hard-imported functions below. This file never
+ * imports `ai-common/` to do this — it only ever RECEIVES a parameter shaped like the contract,
+ * exactly how every registered policy already receives `adapter` as a plain runtime value; the
+ * layering rule (`personnel-engine/` must never import `ai-common/`, `baselines.mjs`'s own header)
+ * stays intact. Omitted (every existing caller today): every internal call below uses this file's own
+ * real, direct imports exactly as before — verified byte-for-byte unchanged.
  */
 import { generateProposals } from "../decide.mjs";
 import { forkTurnSandbox, checkOutcome } from "../engine.mjs";
@@ -33,8 +42,8 @@ import { outcomeValue, nextActorAfterAction, proposalKey } from "./tree-shared.m
 
 const EXPLORATION_CONSTANT = Math.SQRT2; // standard UCT c = sqrt(2); tuning c/tau is issue #12's own job
 
-function makeNode(state, actor, rootSide, maxDepth, depth) {
-  const outcome = checkOutcome(state);
+function makeNode(state, actor, rootSide, maxDepth, depth, engine) {
+  const outcome = engine.checkOutcome(state);
   if (outcome) {
     return { state, actor, depth, visits: 0, valueSum: 0, children: new Map(), terminal: true, terminalValue: outcomeValue(outcome, rootSide), untriedProposals: [] };
   }
@@ -42,7 +51,7 @@ function makeNode(state, actor, rootSide, maxDepth, depth) {
   return {
     state, actor, depth, visits: 0, valueSum: 0, children: new Map(),
     terminal: false, horizon,
-    untriedProposals: horizon ? [] : generateProposals(state, actor.actingId, actor.turn)
+    untriedProposals: horizon ? [] : engine.generateProposals(state, actor.actingId, actor.turn)
   };
 }
 
@@ -69,18 +78,18 @@ function selectChild(node, rootSide) {
  * next actor hits a Phase-A `stochasticGap`/`noActor` (design doc §61) becomes an immediate horizon
  * leaf of its own — registered as a real child so it can still be selected/reported, just never
  * expanded further. */
-function expandOneChild(node, rootSide, maxDepth, initiativeOrder) {
+function expandOneChild(node, rootSide, maxDepth, initiativeOrder, engine) {
   while (node.untriedProposals.length > 0) {
     const proposal = node.untriedProposals.pop();
-    const sandbox = forkTurnSandbox({ state: node.state, turn: node.actor.turn });
+    const sandbox = engine.forkTurnSandbox({ state: node.state, turn: node.actor.turn });
     const result = sandbox.apply(node.actor.actingId, proposal);
     if (!result.legal) continue;
-    const nextActor = nextActorAfterAction({ childState: sandbox.state, childTurn: sandbox.turn, actor: node.actor, initiativeOrder });
+    const nextActor = nextActorAfterAction({ childState: sandbox.state, childTurn: sandbox.turn, actor: node.actor, initiativeOrder, conditions: engine.conditions });
     let child;
     if (nextActor.stochasticGap || nextActor.noActor) {
       child = { state: sandbox.state, actor: node.actor, depth: node.depth + 1, visits: 0, valueSum: 0, children: new Map(), terminal: false, horizon: true, untriedProposals: [] };
     } else {
-      child = makeNode(sandbox.state, nextActor, rootSide, maxDepth, node.depth + 1);
+      child = makeNode(sandbox.state, nextActor, rootSide, maxDepth, node.depth + 1, engine);
     }
     child.proposal = proposal;
     node.children.set(proposalKey(proposal), child);
@@ -92,7 +101,7 @@ function expandOneChild(node, rootSide, maxDepth, initiativeOrder) {
 /** One real MCTS iteration: SELECT down to an expandable/terminal/horizon node, EXPAND one real
  * child if applicable, read its leaf value ("leaf = evaluateState" — no rollout), BACKPROPAGATE that
  * value (root-relative, no sign flip) up the real path just walked. */
-function runIteration(root, rootSide, weights, maxDepth, initiativeOrder) {
+function runIteration(root, rootSide, weights, maxDepth, initiativeOrder, engine) {
   let node = root;
   const path = [node];
   while (!node.terminal && !node.horizon && node.untriedProposals.length === 0 && node.children.size > 0) {
@@ -104,14 +113,14 @@ function runIteration(root, rootSide, weights, maxDepth, initiativeOrder) {
   if (node.terminal) {
     leafValue = node.terminalValue;
   } else if (node.horizon) {
-    leafValue = evaluateState(node.state, rootSide, weights);
+    leafValue = engine.evaluateState(node.state, rootSide, weights);
   } else {
-    const expanded = expandOneChild(node, rootSide, maxDepth, initiativeOrder);
+    const expanded = expandOneChild(node, rootSide, maxDepth, initiativeOrder, engine);
     if (expanded) {
       path.push(expanded);
-      leafValue = expanded.terminal ? expanded.terminalValue : evaluateState(expanded.state, rootSide, weights);
+      leafValue = expanded.terminal ? expanded.terminalValue : engine.evaluateState(expanded.state, rootSide, weights);
     } else {
-      leafValue = evaluateState(node.state, rootSide, weights); // every remaining untried proposal was illegal
+      leafValue = engine.evaluateState(node.state, rootSide, weights); // every remaining untried proposal was illegal
     }
   }
 
@@ -135,8 +144,33 @@ function runIteration(root, rootSide, weights, maxDepth, initiativeOrder) {
  * budget expires"), not necessarily the highest-mean-value one (the standard, well-established MCTS
  * choice — visit count is a more stable signal than a possibly-under-sampled mean). `root` is exposed
  * for tests that need to inspect real visit counts/tree shape directly, not just the final pick.
+ *
+ * `adapter` (optional, design doc §73): a real `EngineAdapter` (`ai-common/adapters/*.mjs`) to search
+ * against instead of this file's own personnel-engine imports. Requires the adapter's own OPTIONAL
+ * `isDead`/`isUnconscious`/`resolveEffectiveStats` fields (not every adapter provides tree-search
+ * capability — this throws a clear, specific error naming exactly what's missing, right where the
+ * capability is actually needed, rather than every adapter paying for fields only a search policy
+ * uses). `weights`'s own default reads `adapter.DEFAULT_WEIGHTS` when an adapter is supplied — a
+ * caller who passes `adapter: FRAME_ADAPTER` but omits `weights` must NOT silently fall back to
+ * personnel's own static weight terms, which Frame's real evaluator doesn't share (confirmed:
+ * Frame-only terms like `actionDenial`/`spotted` would simply be `undefined` against personnel's own
+ * `DEFAULT_WEIGHTS`, silently poisoning every comparison with `NaN` rather than throwing).
  */
-export function search({ state, combatantId, turn, iterations = 500, maxDepth = 4, weights = DEFAULT_WEIGHTS }) {
+export function search({
+  state, combatantId, turn, iterations = 500, maxDepth = 4, adapter = null,
+  weights = adapter?.DEFAULT_WEIGHTS ?? DEFAULT_WEIGHTS
+}) {
+  if (adapter && (!adapter.isDead || !adapter.isUnconscious || !adapter.resolveEffectiveStats)) {
+    throw new Error(`mcts.mjs search(): adapter "${adapter.id ?? "unknown"}" is missing real tree-search capability — needs isDead/isUnconscious/resolveEffectiveStats, optional EngineAdapter fields not every adapter provides (design doc §73).`);
+  }
+  const engine = adapter
+    ? {
+        generateProposals: adapter.generateProposals, forkTurnSandbox: adapter.forkTurnSandbox,
+        checkOutcome: adapter.checkOutcome, evaluateState: adapter.evaluateState,
+        conditions: { isDead: adapter.isDead, isUnconscious: adapter.isUnconscious, resolveEffectiveStats: adapter.resolveEffectiveStats }
+      }
+    : { generateProposals, forkTurnSandbox, checkOutcome, evaluateState, conditions: undefined };
+
   const me = state.combatants.get(combatantId);
   if (!me) return { bestProposal: null, visits: 0, meanValue: 0, iterations: 0, root: null };
   const rootSide = me.side;
@@ -147,21 +181,21 @@ export function search({ state, combatantId, turn, iterations = 500, maxDepth = 
     turn
   };
   const initiativeOrder = state.initiativeOrder ?? [combatantId];
-  const root = makeNode(state, actor, rootSide, maxDepth, 0);
+  const root = makeNode(state, actor, rootSide, maxDepth, 0, engine);
 
   if (root.terminal || root.untriedProposals.length === 0) {
-    return { bestProposal: null, visits: 0, meanValue: root.terminal ? root.terminalValue : evaluateState(state, rootSide, weights), iterations: 0, root };
+    return { bestProposal: null, visits: 0, meanValue: root.terminal ? root.terminalValue : engine.evaluateState(state, rootSide, weights), iterations: 0, root };
   }
 
   let realIterations = 0;
   for (let i = 0; i < iterations; i++) {
-    runIteration(root, rootSide, weights, maxDepth, initiativeOrder);
+    runIteration(root, rootSide, weights, maxDepth, initiativeOrder, engine);
     realIterations += 1;
     if (root.untriedProposals.length === 0 && root.children.size === 0) break; // every real root candidate was illegal
   }
 
   if (root.children.size === 0) {
-    return { bestProposal: null, visits: 0, meanValue: evaluateState(state, rootSide, weights), iterations: realIterations, root };
+    return { bestProposal: null, visits: 0, meanValue: engine.evaluateState(state, rootSide, weights), iterations: realIterations, root };
   }
   let best = null;
   for (const child of root.children.values()) {

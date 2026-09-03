@@ -20,6 +20,7 @@ import { decisionRng, generateProposals, decide } from "../../ai/decide.mjs";
 import { forkTurnSandbox, checkOutcome, resetSandboxForkCount, getSandboxForkCount } from "../../engine/engine.mjs";
 import { evaluateState, DEFAULT_WEIGHTS } from "../../ai/evaluate/state-value.mjs";
 import { FEET_PER_SQUARE } from "../../engine/grid.mjs";
+import { resolveEffectiveStats } from "../../engine/combatant.mjs";
 import { assertValidAdapter } from "../engine-adapter.mjs";
 
 export const FRAME_ADAPTER = Object.freeze({
@@ -35,6 +36,17 @@ export const FRAME_ADAPTER = Object.freeze({
   // OPTIONAL, not part of assertValidAdapter's REQUIRED_FIELDS (design doc §59, GH issue #5) — see
   // personnel-adapter.mjs's own identical fields for the real reasoning.
   resetSandboxForkCount,
-  getSandboxForkCount
+  getSandboxForkCount,
+  // OPTIONAL, real tree-search capability (design doc §73, GH issue #20 — see personnel-adapter.mjs's
+  // own identical fields for the shared reasoning). Frame-scale has NO condition system at all
+  // (confirmed directly: no dying/unconscious concept anywhere in `engine/`, `engine/engine.mjs`'s own
+  // native battle loop just checks `combatant.currentHP <= 0` inline) — `isDead` reuses Frame's own
+  // already-computed HP-band signal rather than a second, hand-rolled check (verified identical to a
+  // raw currentHP<=0 check today: `resolveEffectiveStats`'s own `disabled` is `damageStateFor(...) ===
+  // HULKED`, which is unconditionally `currentHP<=0`, regardless of combatant kind). `isUnconscious`
+  // is always false — Frame has no "might still recover" state distinct from simply being done.
+  resolveEffectiveStats,
+  isDead: (c) => resolveEffectiveStats(c).disabled,
+  isUnconscious: () => false
 });
 assertValidAdapter(FRAME_ADAPTER); // real, immediate self-check — a missing field fails at import time

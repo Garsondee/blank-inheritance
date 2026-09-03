@@ -2,13 +2,16 @@
  * `mcts-uct-v1` (design doc §62, GH issue #6, step 2 of its own build order) — registers the plain-
  * UCT tree search (`personnel-engine/search/mcts.mjs`) through the policy interface.
  *
- * DELIBERATELY NOT "mcts-v1": that id is reserved for the COMPLETE system issue #6's own build order
- * produces at step 7, once PUCT priors (#12), real chance nodes (#7/Phase B), MCTS-Solver, and subtree
- * reuse (#9) all land. This is plain UCT with a depth cap and no rollout — a real, tested, but
- * intentionally partial step, not the finished policy. Naming it "mcts-v1" now would misrepresent how
- * far Stage 2 has actually gotten to anyone reading the registry later.
+ * DELIBERATELY NOT "mcts-v1": that id is reserved for `mcts-puct.mjs`'s own COMPLETE, composed system
+ * (§70) — this is plain UCT with a depth cap and no rollout, kept frozen as a comparison baseline, not
+ * the direction of travel PUCT/solver/trap-insurance/reuse/determinization were all built on top of.
  *
- * PERSONNEL-SCALE ONLY, matching the underlying search module's own Phase-A scope.
+ * DUAL-SCALE (design doc §73, GH issue #20): `personnel-engine/search/mcts.mjs`'s own `search()` now
+ * accepts any real `EngineAdapter` with tree-search capability (`isDead`/`isUnconscious`/
+ * `resolveEffectiveStats` — optional fields, not every adapter provides them; `search()` itself throws
+ * a clear, specific error if the one it's handed doesn't). No more hardcoded personnel-only guard here
+ * — this policy runs against whichever real adapter it's actually given, `PERSONNEL_ADAPTER` or
+ * `FRAME_ADAPTER` alike, the first search policy in this whole family to do so.
  */
 import { registerPolicy } from "../engine-adapter.mjs";
 import { search } from "../../personnel-engine/search/mcts.mjs";
@@ -16,13 +19,10 @@ import { search } from "../../personnel-engine/search/mcts.mjs";
 registerPolicy({
   id: "mcts-uct-v1",
   decide(adapter, state, combatantId, turn, options = {}) {
-    if (adapter.id !== "personnel") {
-      throw new Error(`mcts-uct-v1: personnel-scale only for now (design doc §62) — got adapter "${adapter.id}".`);
-    }
     const iterations = options.iterations ?? 500;
     const maxDepth = options.maxDepth ?? 4;
     const weights = options.weights ?? adapter.DEFAULT_WEIGHTS;
-    const result = search({ state, combatantId, turn, iterations, maxDepth, weights });
+    const result = search({ state, combatantId, turn, iterations, maxDepth, weights, adapter });
     if (!result.bestProposal) return null;
     return {
       ...result.bestProposal,
