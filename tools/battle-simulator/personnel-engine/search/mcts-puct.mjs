@@ -45,11 +45,18 @@
  * undecided lines instead. "Cheap and decisive near the end of a fight," per the issue's own words —
  * this is a real efficiency mechanism, not a correctness change: a solved node's real value is exact
  * either way, `useSolver` just stops paying for redundant confirmation of it.
+ *
+ * BUDGET AWARENESS (design doc §68, GH issue #6 step 7, the "budgets" third of it — #5/#11): an
+ * OPTIONAL `budget: {maxIterations, maxMs}` param, the exact same shape as `ai-common`'s own
+ * documented `options.budget` policy contract, composes with (never replaces) the existing plain
+ * `iterations` cap — omitted entirely (every existing caller), behavior is byte-for-byte unchanged.
+ * Gives real wall-clock cutoff for live table play, on top of the iteration-exact cap tests/tournaments
+ * already rely on for reproducibility.
  */
 import { generateProposals } from "../decide.mjs";
 import { forkTurnSandbox, checkOutcome } from "../engine.mjs";
 import { evaluateState, DEFAULT_WEIGHTS } from "../evaluate/state-value.mjs";
-import { outcomeValue, nextActorAfterAction, WIN_VALUE, LOSS_VALUE } from "./tree-shared.mjs";
+import { outcomeValue, nextActorAfterAction, WIN_VALUE, LOSS_VALUE, createBudgetTracker } from "./tree-shared.mjs";
 
 const DEFAULT_C_PUCT = 1.5; // real, reasonable, UNTUNED — issue #12 owns tuning this
 const DEFAULT_TAU = 10; // softmax temperature over real evaluateState gains — also untuned
@@ -200,14 +207,23 @@ function runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct,
  * that are THEMSELVES proven WIN (most-visited among those, real ties broken the same way as always) —
  * a certified-winning line beats a merely well-explored one. Any other outcome (not proven, or proven
  * a real LOSS — every line equally lost) falls back to the existing plain most-visited rule untouched.
+ *
+ * `budget` (design doc §68, GH issues #5/#11/#6 step 7) is the same real `{maxIterations, maxMs}`
+ * shape as `ai-common/engine-adapter.mjs`'s own documented `options.budget` policy contract — an
+ * iteration-exact cap for reproducible tests/tournaments, or a real wall-clock cap for live table
+ * play, or both at once (tightest of the two wins). It COMPOSES with `iterations` rather than
+ * replacing it — `iterations` always still applies as an outer ceiling, so omitting `budget` (every
+ * existing caller) reproduces the exact previous behavior byte-for-byte, verified. `elapsedMs` is
+ * always reported on the result so a caller (`battle-history.md` entries included, #11's own ask) can
+ * record what a search actually cost, not just how it was configured.
  */
 export function search({
   state, combatantId, turn, iterations = 500, maxDepth = 4, weights = DEFAULT_WEIGHTS,
   cPuct = DEFAULT_C_PUCT, tau = DEFAULT_TAU, wideningK = DEFAULT_WIDENING_K, wideningAlpha = DEFAULT_WIDENING_ALPHA,
-  useSolver = false
+  useSolver = false, budget = null
 }) {
   const me = state.combatants.get(combatantId);
-  if (!me) return { bestProposal: null, visits: 0, meanValue: 0, iterations: 0, root: null };
+  if (!me) return { bestProposal: null, visits: 0, meanValue: 0, iterations: 0, elapsedMs: 0, root: null };
   const rootSide = me.side;
   const actor = {
     actingId: combatantId,
@@ -219,13 +235,13 @@ export function search({
   const root = makeNode(state, actor, rootSide, weights, maxDepth, 0, tau);
 
   if (root.terminal || root.candidates.length === 0) {
-    return { bestProposal: null, visits: 0, meanValue: root.terminal ? root.terminalValue : evaluateState(state, rootSide, weights), iterations: 0, root };
+    return { bestProposal: null, visits: 0, meanValue: root.terminal ? root.terminalValue : evaluateState(state, rootSide, weights), iterations: 0, elapsedMs: 0, root };
   }
 
-  let realIterations = 0;
-  for (let i = 0; i < iterations; i++) {
+  const tracker = createBudgetTracker({ maxIterations: Math.min(iterations, budget?.maxIterations ?? Infinity), maxMs: budget?.maxMs ?? Infinity });
+  while (!tracker.exhausted()) {
     runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver);
-    realIterations += 1;
+    tracker.tick();
     if (useSolver && root.terminal) break; // proven — no further iteration can change the real answer
   }
 
@@ -240,7 +256,8 @@ export function search({
     bestProposal: best.proposal,
     visits: best.visits,
     meanValue: best.visits ? best.valueSum / best.visits : 0,
-    iterations: realIterations,
+    iterations: tracker.iterations,
+    elapsedMs: tracker.elapsedMs,
     root
   };
 }

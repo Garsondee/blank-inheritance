@@ -97,3 +97,28 @@ export function nextActorAfterAction({ childState, childTurn, actor, initiativeO
 export function proposalKey(proposal) {
   return JSON.stringify(proposal);
 }
+
+/**
+ * A personnel-engine-native copy of `ai-common/engine-adapter.mjs`'s own `createBudgetTracker`
+ * (design doc §59/§68, GH issues #5/#11/#6) — same contract (`{maxIterations, maxMs}` in,
+ * `{tick, iterations, elapsedMs, exhausted}` out), same behavior, deliberately a SEPARATE
+ * implementation rather than an import: `personnel-engine/` must never depend on `ai-common/` (see
+ * `baselines.mjs`'s own header — `ai-common/`'s adapters already depend on `personnel-engine/`, so
+ * the reverse import would be a real dependency cycle, inverting design doc §57's "sits above them,
+ * not between them"). A real search algorithm living IN `personnel-engine/search/` (MCTS included)
+ * still needs this exact mechanism, so it gets its own copy here — the shared file every search
+ * algorithm in this directory already reuses for identically-behaving mechanics, not a new pattern.
+ */
+export function createBudgetTracker(budget = {}) {
+  const { maxIterations = Infinity, maxMs = Infinity } = budget ?? {};
+  const startedAt = Date.now();
+  let iterations = 0;
+  return {
+    tick() { iterations += 1; },
+    get iterations() { return iterations; },
+    get elapsedMs() { return Date.now() - startedAt; },
+    exhausted() {
+      return iterations >= maxIterations || Date.now() - startedAt >= maxMs;
+    }
+  };
+}

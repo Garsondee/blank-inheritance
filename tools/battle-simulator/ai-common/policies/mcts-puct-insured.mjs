@@ -23,10 +23,10 @@ registerPolicy({
     }
     const {
       iterations = 500, maxDepth = 4, cPuct, tau, wideningK, wideningAlpha,
-      oracleDepth = 3, topK = 2
+      oracleDepth = 3, topK = 2, budget
     } = options;
     const weights = options.weights ?? adapter.DEFAULT_WEIGHTS;
-    const mctsResult = search({ state, combatantId, turn, iterations, maxDepth, weights, cPuct, tau, wideningK, wideningAlpha });
+    const mctsResult = search({ state, combatantId, turn, iterations, maxDepth, weights, cPuct, tau, wideningK, wideningAlpha, budget });
     const insured = applyTrapInsurance({ mctsResult, state, combatantId, turn, weights, oracleDepth, topK });
     if (!insured.bestProposal) return null;
     return {

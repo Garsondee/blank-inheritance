@@ -18,15 +18,15 @@ registerPolicy({
       throw new Error(`mcts-puct-v1: personnel-scale only for now (design doc §65) — got adapter "${adapter.id}".`);
     }
     const {
-      iterations = 500, maxDepth = 4, cPuct, tau, wideningK, wideningAlpha
+      iterations = 500, maxDepth = 4, cPuct, tau, wideningK, wideningAlpha, budget
     } = options;
     const weights = options.weights ?? adapter.DEFAULT_WEIGHTS;
-    const result = search({ state, combatantId, turn, iterations, maxDepth, weights, cPuct, tau, wideningK, wideningAlpha });
+    const result = search({ state, combatantId, turn, iterations, maxDepth, weights, cPuct, tau, wideningK, wideningAlpha, budget });
     if (!result.bestProposal) return null;
     return {
       ...result.bestProposal,
       score: result.meanValue,
-      reason: `mcts-puct-v1: ${result.visits} visits, mean value ${result.meanValue.toFixed(3)} (${result.iterations} iterations, maxDepth ${maxDepth})`
+      reason: `mcts-puct-v1: ${result.visits} visits, mean value ${result.meanValue.toFixed(3)} (${result.iterations} iterations, ${result.elapsedMs}ms, maxDepth ${maxDepth})`
     };
   }
 });
