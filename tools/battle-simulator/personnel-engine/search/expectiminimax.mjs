@@ -56,6 +56,40 @@ function valueOfBranch({ branchState, branchTurn, actor, weights, rootSide, dept
 }
 
 /**
+ * The real, exact value of committing to ONE SPECIFIC `proposal` at `actor`'s node, then searching
+ * `depthRemaining - 1` plies deeper — dispatches the same real stochastic-vs-deterministic handling
+ * `searchNode`'s own loop uses per-candidate, exposed here so a caller outside this file (design doc
+ * §66's own root trap-insurance check) can ask "what does the oracle really think of THIS ONE move"
+ * without re-deriving decision-node iteration logic. Returns `null` if `proposal` turns out illegal —
+ * the same real legality check every other path here already trusts, never re-derived.
+ */
+export function evaluateProposal({ state, actor, proposal, weights, rootSide, depthRemaining, initiativeOrder }) {
+  let nodesExplored = 0;
+  const addNodesExplored = (n) => { nodesExplored += n; };
+
+  if (isStochasticProposal(proposal)) {
+    const branches = expandChanceNode({ state, turn: actor.turn, combatantId: actor.actingId, proposal });
+    if (branches.length === 1 && !branches[0].legal) return null;
+    nodesExplored += branches.length;
+    let weightedValue = 0;
+    let anyLegalBranch = false;
+    for (const branch of branches) {
+      if (!branch.legal) continue;
+      anyLegalBranch = true;
+      const branchValue = valueOfBranch({ branchState: branch.state, branchTurn: branch.turn, actor, weights, rootSide, depthRemaining, initiativeOrder, addNodesExplored });
+      weightedValue += branch.probability * branchValue;
+    }
+    return anyLegalBranch ? { value: weightedValue, nodesExplored } : null;
+  }
+
+  const sandbox = forkTurnSandbox({ state, turn: actor.turn });
+  const result = sandbox.apply(actor.actingId, proposal);
+  if (!result.legal) return null;
+  const value = valueOfBranch({ branchState: sandbox.state, branchTurn: sandbox.turn, actor, weights, rootSide, depthRemaining, initiativeOrder, addNodesExplored });
+  return { value, nodesExplored };
+}
+
+/**
  * The real recursive search. `actor = { actingId, initiativeIndex, round, turn }` is the combatant
  * whose real decision this node explores. Returns `{ value, bestProposal, nodesExplored }` — `value`
  * is always in `rootSide`'s own terms (never flipped at the leaf; only the max/min choice at each
@@ -77,34 +111,11 @@ function searchNode({ state, actor, weights, rootSide, depthRemaining, initiativ
     if (!best || (isMaximizing ? value > best.value : value < best.value)) best = { value, bestProposal: proposal };
   };
 
-  const addNodesExplored = (n) => { nodesExplored += n; };
-
   for (const proposal of proposals) {
-    if (isStochasticProposal(proposal)) {
-      // A REAL chance node (design doc §64): branch into every real degree of success with
-      // probability > 0, and this proposal's own value is the TRUE probability-weighted average of
-      // each branch's own recursively-searched value — the real "expectiminimax," not an estimate.
-      const branches = expandChanceNode({ state, turn: actor.turn, combatantId: actor.actingId, proposal });
-      if (branches.length === 1 && !branches[0].legal) continue; // illegal — same as any other illegal proposal
-      nodesExplored += branches.length;
-      let weightedValue = 0;
-      let anyLegalBranch = false;
-      for (const branch of branches) {
-        if (!branch.legal) continue; // defensive: legality shouldn't vary by degree, but never assume
-        anyLegalBranch = true;
-        const branchValue = valueOfBranch({ branchState: branch.state, branchTurn: branch.turn, actor, weights, rootSide, depthRemaining, initiativeOrder, addNodesExplored });
-        weightedValue += branch.probability * branchValue;
-      }
-      if (!anyLegalBranch) continue;
-      consider(weightedValue, proposal);
-      continue;
-    }
-
-    const sandbox = forkTurnSandbox({ state, turn: actor.turn });
-    const result = sandbox.apply(actor.actingId, proposal);
-    if (!result.legal) continue;
-    const branchValue = valueOfBranch({ branchState: sandbox.state, branchTurn: sandbox.turn, actor, weights, rootSide, depthRemaining, initiativeOrder, addNodesExplored });
-    consider(branchValue, proposal);
+    const evaluated = evaluateProposal({ state, actor, proposal, weights, rootSide, depthRemaining, initiativeOrder });
+    if (!evaluated) continue; // illegal
+    nodesExplored += evaluated.nodesExplored;
+    consider(evaluated.value, proposal);
   }
 
   if (!best) return { value: evaluateState(state, rootSide, weights), bestProposal: null, nodesExplored };
