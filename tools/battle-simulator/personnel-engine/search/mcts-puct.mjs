@@ -31,11 +31,25 @@
  * as opposed to the deterministic one-ply gain used for the PRIOR only) is likewise NOT wired in here
  * — `mcts-uct-v1` doesn't have it either; it's real, separate, still-unstarted work for this whole
  * search family, tracked separately from PUCT itself.
+ *
+ * MCTS-SOLVER (design doc §67, GH issue #6 step 6's other half — Winands, Bjornsson & Saito 2008):
+ * OPT-IN via `useSolver` (default `false` — every existing caller, including the real `mcts-puct-v1`
+ * policy and every one of this file's own already-shipped tests, is completely unaffected; a real,
+ * verified zero-behavior-change default, matching every other widening this whole stage has done). A
+ * node reduced to a real, PROVEN win or loss — either a genuine `checkOutcome` terminal, or PROVEN by
+ * propagation (every real candidate at a node has been tried and every one of them proves the same
+ * fate, or even ONE candidate already proves the good fate) — stops being explored further: it's
+ * treated exactly like a real terminal node (reusing the same `node.terminal` short-circuit), so the
+ * tree never wastes a real iteration re-confirming a line that is already certain. Selection also
+ * deprioritizes a candidate PROVEN bad for the node's own mover, so budget goes to genuinely
+ * undecided lines instead. "Cheap and decisive near the end of a fight," per the issue's own words —
+ * this is a real efficiency mechanism, not a correctness change: a solved node's real value is exact
+ * either way, `useSolver` just stops paying for redundant confirmation of it.
  */
 import { generateProposals } from "../decide.mjs";
 import { forkTurnSandbox, checkOutcome } from "../engine.mjs";
 import { evaluateState, DEFAULT_WEIGHTS } from "../evaluate/state-value.mjs";
-import { outcomeValue, nextActorAfterAction } from "./tree-shared.mjs";
+import { outcomeValue, nextActorAfterAction, WIN_VALUE, LOSS_VALUE } from "./tree-shared.mjs";
 
 const DEFAULT_C_PUCT = 1.5; // real, reasonable, UNTUNED — issue #12 owns tuning this
 const DEFAULT_TAU = 10; // softmax temperature over real evaluateState gains — also untuned
@@ -76,22 +90,65 @@ function computeCandidates(state, actor, weights, tau) {
 
 function makeNode(state, actor, rootSide, weights, maxDepth, depth, tau) {
   const outcome = checkOutcome(state);
-  if (outcome) return { state, actor, depth, terminal: true, terminalValue: outcomeValue(outcome, rootSide), candidates: [] };
+  if (outcome) {
+    const terminalValue = outcomeValue(outcome, rootSide);
+    return { state, actor, depth, terminal: true, terminalValue, proven: terminalValue === WIN_VALUE ? "win" : "loss", candidates: [] };
+  }
   const horizon = depth >= maxDepth;
-  return { state, actor, depth, terminal: false, horizon, candidates: horizon ? [] : computeCandidates(state, actor, weights, tau) };
+  return { state, actor, depth, terminal: false, horizon, proven: null, candidates: horizon ? [] : computeCandidates(state, actor, weights, tau) };
+}
+
+/** MCTS-Solver (design doc §67): `node` becomes PROVEN either directly (it's a real `checkOutcome`
+ * terminal, handled in `makeNode` above) or here, by propagation from a deeper proven descendant, once
+ * `runIteration`'s own backprop has finished walking `path` bottom-up. Mirrors real minimax proof
+ * propagation: ONE candidate proven good for the node's own mover proves the node immediately (that
+ * mover would simply take the winning line); the node is proven bad only once EVERY real candidate has
+ * been tried at least once and every single one of them is proven bad (no untried candidate could still
+ * rescue it). A proven node is marked exactly like a real terminal (`terminal = true`, real WIN/LOSS
+ * `terminalValue`) so it reuses the SAME short-circuit `runIteration`'s own selection loop already has
+ * for real terminals — no separate check needed there. */
+function markProven(node, value) {
+  node.proven = value;
+  node.terminal = true;
+  node.terminalValue = value === "win" ? WIN_VALUE : LOSS_VALUE;
+}
+
+function propagateProven(path, rootSide) {
+  for (let i = path.length - 1; i >= 0; i--) {
+    const { parentNode, candidate } = path[i];
+    const childProven = candidate.child.proven;
+    if (!childProven) return; // this line isn't proven yet, so nothing propagates further up either
+
+    const isMaximizing = parentNode.state.combatants.get(parentNode.actor.actingId).side === rootSide;
+    const goodValue = isMaximizing ? "win" : "loss";
+    if (childProven === goodValue) {
+      markProven(parentNode, goodValue);
+      continue;
+    }
+    const badValue = isMaximizing ? "loss" : "win";
+    if (!parentNode.candidates.every((c) => c.child && c.child.proven === badValue)) return;
+    markProven(parentNode, badValue);
+  }
 }
 
 /** PUCT selection among the real, progressive-widening-eligible candidates of `node` (already sorted
  * prior-descending) — maximizes for `rootSide`'s own team, mirrors for the opponent, the same
- * two-team negamax reduction every search in this directory already uses. */
-function selectCandidate(node, rootSide, cPuct, wideningK, wideningAlpha) {
+ * two-team negamax reduction every search in this directory already uses. With `useSolver`, a
+ * candidate already PROVEN bad for this node's own mover is excluded before widening is even applied —
+ * it can never provide new information again, so re-selecting it would be pure waste; widening then
+ * opens up over the real REMAINING candidates, not the original full count, so a node is never stuck
+ * with nothing eligible just because its currently-widened window happens to be all proven-bad. */
+function selectCandidate(node, rootSide, cPuct, wideningK, wideningAlpha, useSolver) {
   const isMaximizing = node.state.combatants.get(node.actor.actingId).side === rootSide;
   const totalVisits = node.candidates.reduce((sum, c) => sum + c.visits, 0);
-  const allowedCount = Math.max(1, Math.min(node.candidates.length, Math.ceil(wideningK * Math.pow(totalVisits + 1, wideningAlpha))));
+  const eligible = useSolver
+    ? node.candidates.filter((c) => !(c.child && c.child.proven === (isMaximizing ? "loss" : "win")))
+    : node.candidates;
+  const allowedCount = Math.max(1, Math.min(eligible.length, Math.ceil(wideningK * Math.pow(totalVisits + 1, wideningAlpha))));
 
   let best = null, bestScore = -Infinity;
   for (let i = 0; i < allowedCount; i++) {
-    const c = node.candidates[i];
+    const c = eligible[i];
     const q = c.visits ? c.valueSum / c.visits : 0;
     const u = cPuct * c.prior * Math.sqrt(totalVisits) / (1 + c.visits);
     const score = (isMaximizing ? q : -q) + u;
@@ -100,17 +157,17 @@ function selectCandidate(node, rootSide, cPuct, wideningK, wideningAlpha) {
   return best;
 }
 
-function runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha) {
+function runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver) {
   let node = root;
-  const path = [];
+  const path = []; // { parentNode, candidate } pairs, shallowest first — MCTS-Solver walks this back to front
 
   while (!node.terminal && !node.horizon && node.candidates.length > 0) {
-    const candidate = selectCandidate(node, rootSide, cPuct, wideningK, wideningAlpha);
-    path.push(candidate);
+    const candidate = selectCandidate(node, rootSide, cPuct, wideningK, wideningAlpha, useSolver);
+    path.push({ parentNode: node, candidate });
     if (!candidate.child) {
       const nextActor = nextActorAfterAction({ childState: candidate.sandboxState, childTurn: candidate.sandboxTurn, actor: node.actor, initiativeOrder });
       candidate.child = (nextActor.stochasticGap || nextActor.noActor)
-        ? { state: candidate.sandboxState, actor: node.actor, depth: node.depth + 1, terminal: false, horizon: true, candidates: [] }
+        ? { state: candidate.sandboxState, actor: node.actor, depth: node.depth + 1, terminal: false, horizon: true, proven: null, candidates: [] }
         : makeNode(candidate.sandboxState, nextActor, rootSide, weights, maxDepth, node.depth + 1, tau);
       node = candidate.child;
       break; // "leaf = evaluateState": a freshly-expanded node is this iteration's own leaf, no further descent
@@ -119,10 +176,12 @@ function runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct,
   }
 
   const leafValue = node.terminal ? node.terminalValue : evaluateState(node.state, rootSide, weights);
-  for (const c of path) {
-    c.visits += 1;
-    c.valueSum += leafValue;
+  for (const { candidate } of path) {
+    candidate.visits += 1;
+    candidate.valueSum += leafValue;
   }
+
+  if (useSolver) propagateProven(path, rootSide);
 }
 
 /**
@@ -131,10 +190,21 @@ function runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct,
  * (most real visits, issue #6's own stated anytime rule), not the raw highest-prior or highest-mean
  * one. `cPuct`/`tau`/`wideningK`/`wideningAlpha` are real, overridable, but default to the
  * deliberately-untuned values documented above.
+ *
+ * `useSolver` (default `false`, MCTS-Solver, design doc §67) opts into proven win/loss propagation:
+ * once the root itself is proven, further iterations can't change the real answer, so the loop stops
+ * early — "cheap and decisive near the end of a fight," issue #6's own words for this mechanism. Final
+ * selection is solver-aware too: the root's own actor is always on `rootSide` (the root is always a
+ * maximizing node — the whole reason the "most-visited candidate" heuristic works everywhere else in
+ * this file), so if the root is proven a real WIN, `bestProposal` is chosen from among the candidates
+ * that are THEMSELVES proven WIN (most-visited among those, real ties broken the same way as always) —
+ * a certified-winning line beats a merely well-explored one. Any other outcome (not proven, or proven
+ * a real LOSS — every line equally lost) falls back to the existing plain most-visited rule untouched.
  */
 export function search({
   state, combatantId, turn, iterations = 500, maxDepth = 4, weights = DEFAULT_WEIGHTS,
-  cPuct = DEFAULT_C_PUCT, tau = DEFAULT_TAU, wideningK = DEFAULT_WIDENING_K, wideningAlpha = DEFAULT_WIDENING_ALPHA
+  cPuct = DEFAULT_C_PUCT, tau = DEFAULT_TAU, wideningK = DEFAULT_WIDENING_K, wideningAlpha = DEFAULT_WIDENING_ALPHA,
+  useSolver = false
 }) {
   const me = state.combatants.get(combatantId);
   if (!me) return { bestProposal: null, visits: 0, meanValue: 0, iterations: 0, root: null };
@@ -154,12 +224,16 @@ export function search({
 
   let realIterations = 0;
   for (let i = 0; i < iterations; i++) {
-    runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha);
+    runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver);
     realIterations += 1;
+    if (useSolver && root.terminal) break; // proven — no further iteration can change the real answer
   }
 
+  const pool = (useSolver && root.proven === "win")
+    ? root.candidates.filter((c) => c.child && c.child.proven === "win")
+    : root.candidates;
   let best = null;
-  for (const c of root.candidates) {
+  for (const c of pool) {
     if (!best || c.visits > best.visits) best = c;
   }
   return {
