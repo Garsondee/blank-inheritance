@@ -202,6 +202,12 @@ function categoryKey(proposal, actorTruePos) {
  * NOT wired into any live `decide()` sequence — matching subtree reuse's own explicit scope boundary,
  * this is the real, standalone, hand-callable mechanism; making an actual registered policy branch on
  * it is separate, later work.
+ *
+ * PERSONNEL-SCALE ONLY, unlike `mcts-puct.mjs`'s own `search()` below (design doc §74, GH issue #20):
+ * `...searchOptions` would pass an `adapter` straight through to `search()` if a future caller
+ * supplied one, but `decisionRng`/`isFullyVisible`/`sampleDeterminizedWorld` in this file all stay
+ * hardcoded to personnel-only imports — a caller doing that today would get a half-adapted result,
+ * not a real error. Porting THIS file is its own separate, dedicated future step, not covered here.
  */
 export function searchWithDeterminization({ state, combatantId, turn, k = 8, ...searchOptions }) {
   const me = state.combatants.get(combatantId);

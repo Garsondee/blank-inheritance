@@ -11,7 +11,10 @@
  * real decisions both still need to land first (issue #6's own remaining steps) before the complete
  * system exists.
  *
- * PERSONNEL-SCALE ONLY, matching the underlying search module's own current scope.
+ * DUAL-SCALE (design doc §74, GH issue #20): `mcts-puct.mjs`'s own `search()` now accepts any real
+ * `EngineAdapter` with tree-search capability, including MCTS-Solver's own proven-propagation logic —
+ * verified generic, zero personnel-specific code (design doc §74's own review). No more hardcoded
+ * personnel-only guard here, matching `mcts-uct-v1`'s own precedent (§73).
  */
 import { registerPolicy } from "../engine-adapter.mjs";
 import { search } from "../../personnel-engine/search/mcts-puct.mjs";
@@ -19,14 +22,11 @@ import { search } from "../../personnel-engine/search/mcts-puct.mjs";
 registerPolicy({
   id: "mcts-puct-solver-v1",
   decide(adapter, state, combatantId, turn, options = {}) {
-    if (adapter.id !== "personnel") {
-      throw new Error(`mcts-puct-solver-v1: personnel-scale only for now (design doc §67) — got adapter "${adapter.id}".`);
-    }
     const {
       iterations = 500, maxDepth = 4, cPuct, tau, wideningK, wideningAlpha, budget
     } = options;
     const weights = options.weights ?? adapter.DEFAULT_WEIGHTS;
-    const result = search({ state, combatantId, turn, iterations, maxDepth, weights, cPuct, tau, wideningK, wideningAlpha, useSolver: true, budget });
+    const result = search({ state, combatantId, turn, iterations, maxDepth, weights, cPuct, tau, wideningK, wideningAlpha, useSolver: true, budget, adapter });
     if (!result.bestProposal) return null;
     return {
       ...result.bestProposal,

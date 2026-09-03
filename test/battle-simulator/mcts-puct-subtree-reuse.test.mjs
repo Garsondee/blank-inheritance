@@ -201,3 +201,56 @@ test("REALISTIC LIFECYCLE: decide -> move (deterministic, reuse succeeds) -> dec
   const continued = continueSearch({ reused: advanced, combatantId: "me", iterations: 20, maxDepth: 2 });
   assert.ok(continued.bestProposal, "expected a real, legal decision from the partially-reused subtree");
 });
+
+// --- 7: builtAdapterId must be stamped at BOTH real node-construction sites (design doc §74, GH
+// issue #20) — not just makeNode. Found by adversarial review before any code shipped: runIteration's
+// own inline forced-node object (the stochasticGap/noActor case) already hand-duplicates
+// builtWeights/builtTau without going through makeNode at all, so a naive "stamp it in makeNode only"
+// implementation of the new cross-scale-mismatch guard would leave THIS path's own builtAdapterId
+// undefined, and continueSearch's new check would then throw a false-positive caller-error on a
+// completely legitimate, adapter-less, personnel-only continuation reached this way.
+
+/** `downed`, unconscious (real personnel dying-rules shape — party side, currentHP 0, dyingValue
+ * below 4), sits right after `me` in initiative order. `me`'s own single available action guarantees
+ * its whole turn is exhausted on the very first real expansion, so `advanceToNextActor` reaches
+ * `downed` and returns `stochasticGap` deterministically — the exact path that builds a node inline
+ * in `runIteration`, not through `makeNode`. */
+function makeStochasticGapState() {
+  const me = {
+    id: "me", name: "Me", side: "party", maxHP: 30, currentHP: 30, ac: 17,
+    saves: { fort: 8, ref: 8, will: 8 }, speed: 25, strikes: [],
+    position: { col: 0, row: 0 }, objective: { col: 20, row: 0 }
+  };
+  const downed = {
+    id: "downed", name: "Downed", side: "party", maxHP: 20, currentHP: 0, dyingValue: 0, ac: 15,
+    saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [],
+    position: { col: 5, row: 0 }
+  };
+  const enemy = {
+    id: "enemy", name: "Enemy", side: "opposition", maxHP: 30, currentHP: 30, ac: 15,
+    saves: { fort: 5, ref: 5, will: 5 }, speed: 0, strikes: [],
+    position: { col: 25, row: 25 }
+  };
+  return {
+    round: 1, seed: 1, gridSize: { cols: 30, rows: 30 }, walls: [], initiativeOrder: ["me", "downed", "enemy"],
+    combatants: new Map([["me", me], ["downed", downed], ["enemy", enemy]]),
+    positions: new Map([["me", me.position], ["downed", downed.position], ["enemy", enemy.position]])
+  };
+}
+
+test("continueSearch: a reused node reached via the stochasticGap forced-node path (built inline in runIteration, NOT through makeNode) still carries a real builtAdapterId — resuming it (personnel-scale, adapter omitted) must NOT throw a false-positive adapter-mismatch error", () => {
+  const turn = { actionsAvailable: 1, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0 };
+  const original = search({ state: makeStochasticGapState(), combatantId: "me", turn, iterations: 20, maxDepth: 2 });
+
+  const forcedChild = original.root.candidates.find((c) => c.child && c.child.horizon && !c.child.terminal && c.child.candidates.length === 0);
+  assert.ok(forcedChild, "expected at least one real depth-1 child reached via the stochasticGap forced-node path (me's single action exhausts its turn, downed is unconscious)");
+
+  const hop = findReusableNode({ previousRoot: original.root, realProposal: forcedChild.proposal, realState: forcedChild.child.state });
+  assert.equal(hop.reused, true);
+  assert.equal(hop.node, forcedChild.child, "PRECONDITION: this really is the inline-constructed forced node, not one built through makeNode");
+
+  assert.doesNotThrow(
+    () => continueSearch({ reused: hop, combatantId: "me", iterations: 5, maxDepth: 2 }),
+    "a personnel-only reuse through the stochasticGap forced-node path must not spuriously throw an adapter-mismatch error"
+  );
+});

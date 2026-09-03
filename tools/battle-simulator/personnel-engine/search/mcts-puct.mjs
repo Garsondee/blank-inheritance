@@ -71,6 +71,19 @@
  * `terminal=true` WITHOUT touching `candidates` (already true and already shipped, §67), so a REUSED
  * root that the ORIGINAL search already proved would otherwise be silently discarded by the old
  * guard — precisely the case reuse most needs to handle well.
+ *
+ * SCALE-AGNOSTIC (design doc §74, GH issue #20 — the second search file ported off personnel-only
+ * imports, after `mcts.mjs`'s own first slice, §73). `search()`/`continueSearch()` both take an
+ * optional `adapter` naming a real `EngineAdapter` to search against instead of this file's own
+ * direct personnel-engine imports. Unlike `mcts.mjs` (one public entry point), this file has TWO —
+ * `resolveEngine(adapter)` below is a shared helper so both build the identical `engine` object and
+ * run the identical adapter-capability-check throw, rather than duplicating that logic twice. Omitted
+ * (every existing caller today): every internal call uses this file's own real, direct imports exactly
+ * as before, verified byte-for-byte unchanged. `mcts-puct.mjs`/everything composed on it that ALSO
+ * needs chance-node expansion (`trap-insurance.mjs`, `mcts-v1`'s own `mcts-puct-insured-v1` sibling) is
+ * explicitly NOT covered by this — `chance.mjs` calls `forkTurnSandbox({..., outcomes: ...})`, a third
+ * parameter Frame's own `forkTurnSandbox({state, turn})` doesn't have at all; that whole branch is a
+ * separate, larger, still-blocked problem.
  */
 import { isDeepStrictEqual } from "node:util";
 import { generateProposals } from "../decide.mjs";
@@ -83,6 +96,42 @@ const DEFAULT_TAU = 10; // softmax temperature over real evaluateState gains —
 const DEFAULT_WIDENING_K = 2;
 const DEFAULT_WIDENING_ALPHA = 0.5;
 
+/** Builds the real engine-function bundle `search()`/`continueSearch()` both search against — see the
+ * header's own SCALE-AGNOSTIC paragraph. `adapter` omitted: this file's own real, direct imports,
+ * `conditions: undefined` (so `tree-shared.mjs`'s own `nextActorAfterAction` falls back to its own
+ * real personnel default), `adapterId: "personnel"`. Supplied: sourced from the adapter instead —
+ * throws a clear, specific error if it lacks real tree-search capability (`isDead`/`isUnconscious`/
+ * `resolveEffectiveStats` — optional `EngineAdapter` fields, not every adapter provides them), exactly
+ * mirroring `mcts.mjs`'s own established check. `adapterId` is always a real string either way — used
+ * by `nodeBuildMeta` below to stamp every node with which engine built it (design doc §74's own
+ * `builtAdapterId`, `continueSearch`'s new cross-scale-mismatch guard). */
+function resolveEngine(adapter) {
+  if (adapter && (!adapter.isDead || !adapter.isUnconscious || !adapter.resolveEffectiveStats)) {
+    throw new Error(`mcts-puct.mjs: adapter "${adapter.id ?? "unknown"}" is missing real tree-search capability — needs isDead/isUnconscious/resolveEffectiveStats, optional EngineAdapter fields not every adapter provides (design doc §74).`);
+  }
+  return adapter
+    ? {
+        generateProposals: adapter.generateProposals, forkTurnSandbox: adapter.forkTurnSandbox,
+        checkOutcome: adapter.checkOutcome, evaluateState: adapter.evaluateState,
+        conditions: { isDead: adapter.isDead, isUnconscious: adapter.isUnconscious, resolveEffectiveStats: adapter.resolveEffectiveStats },
+        adapterId: adapter.id
+      }
+    : { generateProposals, forkTurnSandbox, checkOutcome, evaluateState, conditions: undefined, adapterId: "personnel" };
+}
+
+/** The `builtWeights`/`builtTau`/`builtAdapterId` triple every real node in this tree carries (design
+ * doc §69's own stamping, extended by §74) — factored here because there are TWO real places a node
+ * gets built (`makeNode`'s own two return branches, and `runIteration`'s own inline forced-node
+ * object for the `stochasticGap`/`noActor` case) and `builtAdapterId` genuinely needs to land at BOTH,
+ * not just `makeNode` — a node reached via the forced-node path that skipped this stamp would carry
+ * `builtAdapterId: undefined`, and `continueSearch`'s own new mismatch guard would then throw a
+ * false-positive caller-error on a completely legitimate, adapter-less, personnel-only continuation
+ * (found by adversarial review before this shipped — `stochasticGap` is a mainline personnel-scale
+ * occurrence, not an edge case, since dying rules are central to this engine). */
+function nodeBuildMeta(weights, tau, engine) {
+  return { builtWeights: weights, builtTau: tau, builtAdapterId: engine.adapterId };
+}
+
 /**
  * Real one-ply candidates for `actor`, each pre-scored with its own real `evaluateState` gain (via
  * the SAME deterministic `forkTurnSandbox` path `decide()`'s own fallback and `mcts.mjs`'s own leaf
@@ -92,17 +141,17 @@ const DEFAULT_WIDENING_ALPHA = 0.5;
  * Each candidate carries its own already-forked `sandboxState`/`sandboxTurn` so a later expansion
  * never re-forks the same proposal twice.
  */
-function computeCandidates(state, actor, weights, tau) {
+function computeCandidates(state, actor, weights, tau, engine) {
   const me = state.combatants.get(actor.actingId);
-  const before = evaluateState(state, me.side, weights, actor.actingId);
-  const proposals = generateProposals(state, actor.actingId, actor.turn);
+  const before = engine.evaluateState(state, me.side, weights, actor.actingId);
+  const proposals = engine.generateProposals(state, actor.actingId, actor.turn);
 
   const scored = [];
   for (const proposal of proposals) {
-    const sandbox = forkTurnSandbox({ state, turn: actor.turn });
+    const sandbox = engine.forkTurnSandbox({ state, turn: actor.turn });
     const result = sandbox.apply(actor.actingId, proposal);
     if (!result.legal) continue;
-    const gain = evaluateState(sandbox.state, me.side, weights, actor.actingId) - before;
+    const gain = engine.evaluateState(sandbox.state, me.side, weights, actor.actingId) - before;
     scored.push({ proposal, gain, sandboxState: sandbox.state, sandboxTurn: sandbox.turn });
   }
   if (!scored.length) return [];
@@ -115,14 +164,14 @@ function computeCandidates(state, actor, weights, tau) {
     .sort((a, b) => b.prior - a.prior);
 }
 
-function makeNode(state, actor, rootSide, weights, maxDepth, depth, tau) {
-  const outcome = checkOutcome(state);
+function makeNode(state, actor, rootSide, weights, maxDepth, depth, tau, engine) {
+  const outcome = engine.checkOutcome(state);
   if (outcome) {
     const terminalValue = outcomeValue(outcome, rootSide);
-    return { state, actor, depth, terminal: true, terminalValue, proven: terminalValue === WIN_VALUE ? "win" : "loss", candidates: [], builtWeights: weights, builtTau: tau };
+    return { state, actor, depth, terminal: true, terminalValue, proven: terminalValue === WIN_VALUE ? "win" : "loss", candidates: [], ...nodeBuildMeta(weights, tau, engine) };
   }
   const horizon = depth >= maxDepth;
-  return { state, actor, depth, terminal: false, horizon, proven: null, candidates: horizon ? [] : computeCandidates(state, actor, weights, tau), builtWeights: weights, builtTau: tau };
+  return { state, actor, depth, terminal: false, horizon, proven: null, candidates: horizon ? [] : computeCandidates(state, actor, weights, tau, engine), ...nodeBuildMeta(weights, tau, engine) };
 }
 
 /** MCTS-Solver (design doc §67): `node` becomes PROVEN either directly (it's a real `checkOutcome`
@@ -184,7 +233,7 @@ function selectCandidate(node, rootSide, cPuct, wideningK, wideningAlpha, useSol
   return best;
 }
 
-function runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver) {
+function runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, engine) {
   let node = root;
   const path = []; // { parentNode, candidate } pairs, shallowest first — MCTS-Solver walks this back to front
 
@@ -192,10 +241,10 @@ function runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct,
     const candidate = selectCandidate(node, rootSide, cPuct, wideningK, wideningAlpha, useSolver);
     path.push({ parentNode: node, candidate });
     if (!candidate.child) {
-      const nextActor = nextActorAfterAction({ childState: candidate.sandboxState, childTurn: candidate.sandboxTurn, actor: node.actor, initiativeOrder });
+      const nextActor = nextActorAfterAction({ childState: candidate.sandboxState, childTurn: candidate.sandboxTurn, actor: node.actor, initiativeOrder, conditions: engine.conditions });
       candidate.child = (nextActor.stochasticGap || nextActor.noActor)
-        ? { state: candidate.sandboxState, actor: node.actor, depth: node.depth + 1, terminal: false, horizon: true, proven: null, candidates: [], builtWeights: weights, builtTau: tau }
-        : makeNode(candidate.sandboxState, nextActor, rootSide, weights, maxDepth, node.depth + 1, tau);
+        ? { state: candidate.sandboxState, actor: node.actor, depth: node.depth + 1, terminal: false, horizon: true, forcedHorizon: true, proven: null, candidates: [], ...nodeBuildMeta(weights, tau, engine) }
+        : makeNode(candidate.sandboxState, nextActor, rootSide, weights, maxDepth, node.depth + 1, tau, engine);
       node = candidate.child;
       break; // "leaf = evaluateState": a freshly-expanded node is this iteration's own leaf, no further descent
     }
@@ -209,12 +258,27 @@ function runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct,
   // impossible — provably inert for every existing caller. Reopened exactly once, treated as THIS
   // iteration's own leaf (the same "freshly-expanded node = leaf, no further descent this
   // iteration" convention already used above), not descended into further until a later iteration.
-  if (!node.terminal && node.horizon && node.depth < maxDepth) {
+  //
+  // REAL PRE-EXISTING BUG, found and fixed here (design doc §74, GH issue #20) — NOT introduced by
+  // this port, dates back to §69 itself, just never exercised by any existing test: the ORIGINAL
+  // §69 comment's own claim ("a node only ever becomes horizon because depth>=maxDepth") missed
+  // that the FORCED node built just above (`stochasticGap`/`noActor`) is ALSO built with
+  // `horizon:true`, unconditionally, regardless of `depth` — so whenever that forced node's own
+  // `depth < maxDepth` (the common case, not rare: any unconscious-combatant-in-initiative-order
+  // situation reached with real budget left under the depth cap), this check would immediately
+  // "reopen" it using `node.actor` — which for THIS shape is the PARENT's own actor, inherited by
+  // reference, carrying the PARENT's OWN turn object exactly as it was BEFORE the action that
+  // produced this forced node — silently computing real, populated candidates for an actor who has
+  // already used up that exact turn, using stale, already-spent action-economy numbers. The new
+  // `forcedHorizon` marker (set only on the inline forced-node literal above) distinguishes the two
+  // shapes explicitly, so this reopen path is now reserved for what it was actually designed for —
+  // a genuine depth-cap horizon reached via `continueSearch`'s own depth-offset.
+  if (!node.terminal && node.horizon && !node.forcedHorizon && node.depth < maxDepth) {
     node.horizon = false;
-    node.candidates = computeCandidates(node.state, node.actor, weights, tau);
+    node.candidates = computeCandidates(node.state, node.actor, weights, tau, engine);
   }
 
-  const leafValue = node.terminal ? node.terminalValue : evaluateState(node.state, rootSide, weights);
+  const leafValue = node.terminal ? node.terminalValue : engine.evaluateState(node.state, rootSide, weights);
   for (const { candidate } of path) {
     candidate.visits += 1;
     candidate.valueSum += leafValue;
@@ -248,12 +312,20 @@ function runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct,
  * existing caller) reproduces the exact previous behavior byte-for-byte, verified. `elapsedMs` is
  * always reported on the result so a caller (`battle-history.md` entries included, #11's own ask) can
  * record what a search actually cost, not just how it was configured.
+ *
+ * `adapter` (optional, design doc §74): a real `EngineAdapter` to search against instead of this
+ * file's own personnel-engine imports — see `resolveEngine`'s own header comment. `weights`'s own
+ * default reads `adapter.DEFAULT_WEIGHTS` when an adapter is supplied, exactly matching `mcts.mjs`'s
+ * own established fix — a caller who passes `adapter: FRAME_ADAPTER` but omits `weights` must NOT
+ * silently fall back to personnel's own static weight terms, which Frame's real evaluator doesn't
+ * share.
  */
 export function search({
-  state, combatantId, turn, iterations = 500, maxDepth = 4, weights = DEFAULT_WEIGHTS,
+  state, combatantId, turn, iterations = 500, maxDepth = 4, adapter = null, weights = adapter?.DEFAULT_WEIGHTS ?? DEFAULT_WEIGHTS,
   cPuct = DEFAULT_C_PUCT, tau = DEFAULT_TAU, wideningK = DEFAULT_WIDENING_K, wideningAlpha = DEFAULT_WIDENING_ALPHA,
   useSolver = false, budget = null
 }) {
+  const engine = resolveEngine(adapter);
   const me = state.combatants.get(combatantId);
   if (!me) return { bestProposal: null, visits: 0, meanValue: 0, iterations: 0, elapsedMs: 0, root: null };
   const rootSide = me.side;
@@ -264,8 +336,8 @@ export function search({
     turn
   };
   const initiativeOrder = state.initiativeOrder ?? [combatantId];
-  const root = makeNode(state, actor, rootSide, weights, maxDepth, 0, tau);
-  return runSearchToCompletion({ root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, budget, iterations });
+  const root = makeNode(state, actor, rootSide, weights, maxDepth, 0, tau, engine);
+  return runSearchToCompletion({ root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, budget, iterations, engine });
 }
 
 /**
@@ -285,20 +357,24 @@ export function search({
  * real "pick best" selection below using the root's own already-accumulated statistics, rather than
  * discarding a subtree that already contains the certified-correct answer).
  */
-function runSearchToCompletion({ root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, budget, iterations }) {
-  if (!root.terminal && root.horizon && root.depth < maxDepth) {
+function runSearchToCompletion({ root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, budget, iterations, engine }) {
+  // Same `forcedHorizon` guard as runIteration's own reopen-check, and the same real bug it fixes
+  // (design doc §74) — a REUSED root (via `continueSearch`) can itself be a forced node (`hop.node`
+  // from `findReusableNode`/`advanceRoot` is whatever `candidate.child` actually was, forced shape
+  // included), so this root-level reopen needed the identical fix, not just runIteration's own.
+  if (!root.terminal && root.horizon && !root.forcedHorizon && root.depth < maxDepth) {
     root.horizon = false;
-    root.candidates = computeCandidates(root.state, root.actor, weights, tau);
+    root.candidates = computeCandidates(root.state, root.actor, weights, tau, engine);
   }
 
   if (root.candidates.length === 0) {
-    return { bestProposal: null, visits: 0, meanValue: root.terminal ? root.terminalValue : evaluateState(root.state, rootSide, weights), iterations: 0, elapsedMs: 0, root };
+    return { bestProposal: null, visits: 0, meanValue: root.terminal ? root.terminalValue : engine.evaluateState(root.state, rootSide, weights), iterations: 0, elapsedMs: 0, root };
   }
 
   const tracker = createBudgetTracker({ maxIterations: Math.min(iterations, budget?.maxIterations ?? Infinity), maxMs: budget?.maxMs ?? Infinity });
   if (!root.terminal) { // an already-proven root (reused, MCTS-Solver) has nothing left to learn — skip straight to selection
     while (!tracker.exhausted()) {
-      runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver);
+      runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, engine);
       tracker.tick();
       if (useSolver && root.terminal) break; // proven — no further iteration can change the real answer
     }
@@ -333,7 +409,13 @@ function runSearchToCompletion({ root, rootSide, weights, maxDepth, initiativeOr
  * fresh search starting at this exact point would give, rather than silently eroding lookahead every
  * time reuse happens.
  *
- * Two throws, both real caller-error guards (matching this file's own established pattern — the
+ * `adapter` (optional, design doc §74): same real `EngineAdapter`/`weights`-default meaning as
+ * `search()`'s own, above — see `resolveEngine`. Resuming a subtree built against one engine with a
+ * DIFFERENT one would silently apply the wrong scale's `generateProposals`/`forkTurnSandbox`/
+ * `evaluateState` to an already-built tree — the same class of silent corruption the existing
+ * weights/tau check below already guards against — so this is checked too (third throw, below).
+ *
+ * Three throws, all real caller-error guards (matching this file's own established pattern — the
  * adapter-mismatch throws elsewhere in this search family), never a legitimate-divergence path
  * (those already fail closed, silently, inside `findReusableNode`/`advanceRoot` themselves — nothing
  * about a real, ordinary "the dice didn't match" case ever reaches here):
@@ -345,9 +427,10 @@ function runSearchToCompletion({ root, rootSide, weights, maxDepth, initiativeOr
  *   corruption, not just an exploration-balance nuance. `cPuct`/`wideningK`/`wideningAlpha` are
  *   deliberately NOT checked — they only shape future SELECTION, never stored data, so a mismatch
  *   there is the same kind of caller-trusted, untuned knob every other part of this file already is.
+ * - `adapter` mismatch against `reused.node.builtAdapterId`: see above.
  */
 export function continueSearch({
-  reused, combatantId, iterations = 500, maxDepth = 4, weights = DEFAULT_WEIGHTS,
+  reused, combatantId, iterations = 500, maxDepth = 4, adapter = null, weights = adapter?.DEFAULT_WEIGHTS ?? DEFAULT_WEIGHTS,
   cPuct = DEFAULT_C_PUCT, tau = DEFAULT_TAU, wideningK = DEFAULT_WIDENING_K, wideningAlpha = DEFAULT_WIDENING_ALPHA,
   useSolver = false, budget = null
 }) {
@@ -361,7 +444,11 @@ export function continueSearch({
   if (!isDeepStrictEqual(root.builtWeights, weights) || root.builtTau !== tau) {
     throw new Error("continueSearch: weights/tau must match what the reused subtree was originally built with — mixing them would silently corrupt its accumulated statistics.");
   }
+  const engine = resolveEngine(adapter);
+  if (root.builtAdapterId !== engine.adapterId) {
+    throw new Error(`continueSearch: the reused subtree was built against adapter "${root.builtAdapterId}", not "${engine.adapterId}" — resuming it with a different engine would silently apply the wrong scale's rules to an already-built tree.`);
+  }
   const rootSide = root.state.combatants.get(combatantId).side;
   const initiativeOrder = root.state.initiativeOrder ?? [combatantId];
-  return runSearchToCompletion({ root, rootSide, weights, maxDepth: root.depth + maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, budget, iterations });
+  return runSearchToCompletion({ root, rootSide, weights, maxDepth: root.depth + maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, budget, iterations, engine });
 }
