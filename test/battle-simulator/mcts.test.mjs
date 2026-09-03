@@ -7,9 +7,9 @@
  * (3) terminal detection short-circuits correctly;
  * (4) the robust child is chosen by real visit count, not merely a raw (possibly under-sampled) mean;
  * (5) the iteration budget is real and respected;
- * (6) registered in the policy registry under a clearly WIP name (NOT "mcts-v1" — that name is
- *     reserved for the complete system issue #6's own step 7 registers, once priors/chance-nodes/
- *     MCTS-Solver/subtree-reuse all land; this is plain UCT only).
+ * (6) registered in the policy registry under a clearly WIP name — `mcts-v1` itself is now real
+ *     (design doc §70, the complete PUCT-based system), but this file's own `mcts-uct-v1` is plain
+ *     UCT, deliberately NOT that name and deliberately untouched by everything built on top of PUCT.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -144,9 +144,8 @@ test("search(): the returned visits/iterations are real numbers reflecting genui
 
 // --- 5: registered as a policy under a clearly WIP (not "mcts-v1") name ---
 
-test("mcts-uct-v1: registered in the policy registry (deliberately NOT named mcts-v1 — that's reserved for the complete system), returns a real, legal action", () => {
+test("mcts-uct-v1: registered in the policy registry (deliberately NOT named mcts-v1 — mcts-v1 is now real, §70, but built on PUCT, not this plain-UCT file, which stays untouched), returns a real, legal action", () => {
   assert.ok(listPolicyIds().includes("mcts-uct-v1"));
-  assert.ok(!listPolicyIds().includes("mcts-v1"), "mcts-v1 must not exist yet — this is plain UCT only, not the complete build-order system");
   const me = {
     id: "me", name: "Me", side: "party", maxHP: 30, currentHP: 30, ac: 17, saves: { fort: 8, ref: 8, will: 8 }, speed: 25,
     strikes: [{ name: "Sword", strikeType: "melee", attackBonus: 14, traits: [], damage: [{ dice: "2d8", bonus: 6, damageType: "slashing" }] }],

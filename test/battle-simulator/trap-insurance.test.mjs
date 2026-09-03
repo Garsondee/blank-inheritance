@@ -138,7 +138,6 @@ test("applyTrapInsurance: works identically on plain UCT's own root.children Map
 
 test("mcts-puct-insured-v1: registered in the policy registry, and correctly avoids the real trip-pile-on trap through the registry, matching applyTrapInsurance called directly", () => {
   assert.ok(listPolicyIds().includes("mcts-puct-insured-v1"));
-  assert.ok(!listPolicyIds().includes("mcts-v1"), "mcts-v1 must not exist yet");
   const decision = decideWithPolicy("mcts-puct-insured-v1", PERSONNEL_ADAPTER, makeTripPileOnState(), "me", TURN, {
     iterations: 200, maxDepth: 3, weights: WEIGHTS_NO_PILEONRISK, oracleDepth: 3, topK: 2
   });

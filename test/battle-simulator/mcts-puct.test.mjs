@@ -12,7 +12,9 @@
  *     highest-gain candidate gets the highest prior;
  * (4) progressive widening genuinely bounds how many candidates are eligible early on;
  * (5) terminal detection;
- * (6) registered as `mcts-puct-v1`, deliberately NOT `mcts-v1`.
+ * (6) registered as `mcts-puct-v1`, deliberately NOT `mcts-v1` — `mcts-v1` is now real (design doc
+ *     §70), a separate, later composition of this file's own `search()` with `useSolver: true` +
+ *     trap insurance; this policy itself stays exactly what it always was, untouched.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -150,9 +152,8 @@ test("search(): an already-terminal state returns immediately with the real WIN 
 
 // --- 6: registered under a distinctly WIP name ---
 
-test("mcts-puct-v1: registered in the policy registry (deliberately NOT mcts-v1 — still no chance-node consumption, no MCTS-Solver, no subtree reuse), returns a real, legal action", () => {
+test("mcts-puct-v1: registered in the policy registry (deliberately NOT mcts-v1 — this policy itself still has no chance-node consumption, no MCTS-Solver, no trap insurance; mcts-v1 is a separate, later composition, §70), returns a real, legal action", () => {
   assert.ok(listPolicyIds().includes("mcts-puct-v1"));
-  assert.ok(!listPolicyIds().includes("mcts-v1"), "mcts-v1 must not exist yet");
   const turn = { actionsAvailable: 1, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0 };
   const decision = decideWithPolicy("mcts-puct-v1", PERSONNEL_ADAPTER, makeTrapState(), "me", turn, { iterations: 100, maxDepth: 2 });
   assert.ok(decision, "expected a real decision through the registry");
