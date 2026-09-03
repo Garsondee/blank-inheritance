@@ -52,7 +52,27 @@
  * `iterations` cap — omitted entirely (every existing caller), behavior is byte-for-byte unchanged.
  * Gives real wall-clock cutoff for live table play, on top of the iteration-exact cap tests/tournaments
  * already rely on for reproducibility.
+ *
+ * SUBTREE REUSE (design doc §69, GH issue #6 step 7, part 2 of 3 — `search/subtree-reuse.mjs` owns
+ * the pure, VERIFIED matching logic; `continueSearch` below is this file's own resume-from-a-reused-
+ * node entry point). Three small, additive changes make this sound, each provably inert for every
+ * EXISTING (non-reuse) caller: (1) `makeNode` stamps `builtWeights`/`builtTau` onto every node so a
+ * later `continueSearch` can refuse to mix two different evaluation scales into one running average;
+ * (2) a `horizon`-frozen node reached under a LARGER effective ceiling than originally built it
+ * (only possible via `continueSearch`'s own depth-offset — a fresh search's `maxDepth` never changes
+ * within one call, so a node can never be horizon under a SMALLER ceiling than the one deciding
+ * whether to reopen it) gets reopened in place instead of staying stuck forever at a stale depth —
+ * without this, the highest-value lines (exactly where MCTS concentrates visits, and so exactly
+ * where a horizon gets hit first) would silently lose lookahead depth every time they're reused; (3)
+ * `search()`'s own tail is extracted into a shared, module-private `runSearchToCompletion`, with its
+ * early-return guard rewritten from `root.terminal || root.candidates.length===0` to just
+ * `root.candidates.length===0` — the two conditions have always co-occurred for a FRESH root
+ * (`makeNode`'s terminal branch always sets `candidates:[]`), but MCTS-Solver's `markProven` sets
+ * `terminal=true` WITHOUT touching `candidates` (already true and already shipped, §67), so a REUSED
+ * root that the ORIGINAL search already proved would otherwise be silently discarded by the old
+ * guard — precisely the case reuse most needs to handle well.
  */
+import { isDeepStrictEqual } from "node:util";
 import { generateProposals } from "../decide.mjs";
 import { forkTurnSandbox, checkOutcome } from "../engine.mjs";
 import { evaluateState, DEFAULT_WEIGHTS } from "../evaluate/state-value.mjs";
@@ -99,10 +119,10 @@ function makeNode(state, actor, rootSide, weights, maxDepth, depth, tau) {
   const outcome = checkOutcome(state);
   if (outcome) {
     const terminalValue = outcomeValue(outcome, rootSide);
-    return { state, actor, depth, terminal: true, terminalValue, proven: terminalValue === WIN_VALUE ? "win" : "loss", candidates: [] };
+    return { state, actor, depth, terminal: true, terminalValue, proven: terminalValue === WIN_VALUE ? "win" : "loss", candidates: [], builtWeights: weights, builtTau: tau };
   }
   const horizon = depth >= maxDepth;
-  return { state, actor, depth, terminal: false, horizon, proven: null, candidates: horizon ? [] : computeCandidates(state, actor, weights, tau) };
+  return { state, actor, depth, terminal: false, horizon, proven: null, candidates: horizon ? [] : computeCandidates(state, actor, weights, tau), builtWeights: weights, builtTau: tau };
 }
 
 /** MCTS-Solver (design doc §67): `node` becomes PROVEN either directly (it's a real `checkOutcome`
@@ -174,12 +194,24 @@ function runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct,
     if (!candidate.child) {
       const nextActor = nextActorAfterAction({ childState: candidate.sandboxState, childTurn: candidate.sandboxTurn, actor: node.actor, initiativeOrder });
       candidate.child = (nextActor.stochasticGap || nextActor.noActor)
-        ? { state: candidate.sandboxState, actor: node.actor, depth: node.depth + 1, terminal: false, horizon: true, proven: null, candidates: [] }
+        ? { state: candidate.sandboxState, actor: node.actor, depth: node.depth + 1, terminal: false, horizon: true, proven: null, candidates: [], builtWeights: weights, builtTau: tau }
         : makeNode(candidate.sandboxState, nextActor, rootSide, weights, maxDepth, node.depth + 1, tau);
       node = candidate.child;
       break; // "leaf = evaluateState": a freshly-expanded node is this iteration's own leaf, no further descent
     }
     node = candidate.child;
+  }
+
+  // Subtree reuse (design doc §69): a node frozen `horizon:true` under an OLDER, SMALLER ceiling
+  // than THIS call's own `maxDepth` — only reachable via continueSearch's own depth-offset; for a
+  // fresh, non-reused search `maxDepth` never changes within one call, so a node only ever becomes
+  // horizon because `depth >= maxDepth` under that SAME constant, making `depth < maxDepth` here
+  // impossible — provably inert for every existing caller. Reopened exactly once, treated as THIS
+  // iteration's own leaf (the same "freshly-expanded node = leaf, no further descent this
+  // iteration" convention already used above), not descended into further until a later iteration.
+  if (!node.terminal && node.horizon && node.depth < maxDepth) {
+    node.horizon = false;
+    node.candidates = computeCandidates(node.state, node.actor, weights, tau);
   }
 
   const leafValue = node.terminal ? node.terminalValue : evaluateState(node.state, rootSide, weights);
@@ -233,16 +265,43 @@ export function search({
   };
   const initiativeOrder = state.initiativeOrder ?? [combatantId];
   const root = makeNode(state, actor, rootSide, weights, maxDepth, 0, tau);
+  return runSearchToCompletion({ root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, budget, iterations });
+}
 
-  if (root.terminal || root.candidates.length === 0) {
-    return { bestProposal: null, visits: 0, meanValue: root.terminal ? root.terminalValue : evaluateState(state, rootSide, weights), iterations: 0, elapsedMs: 0, root };
+/**
+ * The shared tail of both `search()` (fresh root) and `continueSearch()` (a verified-reused root) —
+ * the real budget-tracked iteration loop plus final candidate selection, extracted once so both entry
+ * points get identical, single-source-of-truth behavior (design doc §69). Pure, behavior-preserving
+ * extraction for `search()`'s own existing inputs — hand-verified against every `{terminal,
+ * candidates.length}` combination a FRESH root can produce, and re-confirmed by the full existing
+ * mcts-puct.mjs/trap-insurance.mjs/mcts-solver.mjs/mcts-puct-budget.mjs suite passing unchanged.
+ *
+ * The early guard is `root.candidates.length === 0` alone now, NOT the old `root.terminal ||
+ * root.candidates.length === 0` — those two conditions have always co-occurred for a fresh root
+ * (`makeNode`'s terminal branch always sets `candidates: []`), so this is byte-identical for every
+ * existing caller, but a REUSED root can be `terminal` (MCTS-Solver's own `markProven`, §67) while
+ * still carrying its full real candidate list — exactly the case reuse needs to handle correctly
+ * (skip the now-pointless iteration loop entirely, since the proof already stands, but still run the
+ * real "pick best" selection below using the root's own already-accumulated statistics, rather than
+ * discarding a subtree that already contains the certified-correct answer).
+ */
+function runSearchToCompletion({ root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, budget, iterations }) {
+  if (!root.terminal && root.horizon && root.depth < maxDepth) {
+    root.horizon = false;
+    root.candidates = computeCandidates(root.state, root.actor, weights, tau);
+  }
+
+  if (root.candidates.length === 0) {
+    return { bestProposal: null, visits: 0, meanValue: root.terminal ? root.terminalValue : evaluateState(root.state, rootSide, weights), iterations: 0, elapsedMs: 0, root };
   }
 
   const tracker = createBudgetTracker({ maxIterations: Math.min(iterations, budget?.maxIterations ?? Infinity), maxMs: budget?.maxMs ?? Infinity });
-  while (!tracker.exhausted()) {
-    runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver);
-    tracker.tick();
-    if (useSolver && root.terminal) break; // proven — no further iteration can change the real answer
+  if (!root.terminal) { // an already-proven root (reused, MCTS-Solver) has nothing left to learn — skip straight to selection
+    while (!tracker.exhausted()) {
+      runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver);
+      tracker.tick();
+      if (useSolver && root.terminal) break; // proven — no further iteration can change the real answer
+    }
   }
 
   const pool = (useSolver && root.proven === "win")
@@ -260,4 +319,49 @@ export function search({
     elapsedMs: tracker.elapsedMs,
     root
   };
+}
+
+/**
+ * Resume a VERIFIED-reusable node (`subtree-reuse.mjs`'s own `findReusableNode`/`advanceRoot` —
+ * `reused` is exactly one of their return values) as the new root, instead of building fresh. No
+ * `state`/`turn` params: everything needed is already self-contained on `reused.node` (its own
+ * `.state`, `.actor.turn`) — that's the whole point of having already verified it. `maxDepth` here
+ * means the SAME thing it means to `search()` — "how many more plies from here" — via the depth-
+ * offset trick (`root.depth + maxDepth` passed to the shared tail, not the raw `maxDepth`): the
+ * reused node's own `depth` already records how many real hops it took to reach this point, so
+ * offsetting by it is what makes "how much MORE depth from here" consistent with what a completely
+ * fresh search starting at this exact point would give, rather than silently eroding lookahead every
+ * time reuse happens.
+ *
+ * Two throws, both real caller-error guards (matching this file's own established pattern — the
+ * adapter-mismatch throws elsewhere in this search family), never a legitimate-divergence path
+ * (those already fail closed, silently, inside `findReusableNode`/`advanceRoot` themselves — nothing
+ * about a real, ordinary "the dice didn't match" case ever reaches here):
+ * - `reused.node` missing: call `advanceRoot`/`findReusableNode` first, and only call this when one
+ *   of them actually found something real to reuse.
+ * - `weights`/`tau` mismatch against `reused.node.builtWeights`/`builtTau`: silently continuing with
+ *   different values would mix two different evaluation scales into the SAME running `valueSum`
+ *   average and make old/new `prior`s inconsistent at the same node — real, silent statistic
+ *   corruption, not just an exploration-balance nuance. `cPuct`/`wideningK`/`wideningAlpha` are
+ *   deliberately NOT checked — they only shape future SELECTION, never stored data, so a mismatch
+ *   there is the same kind of caller-trusted, untuned knob every other part of this file already is.
+ */
+export function continueSearch({
+  reused, combatantId, iterations = 500, maxDepth = 4, weights = DEFAULT_WEIGHTS,
+  cPuct = DEFAULT_C_PUCT, tau = DEFAULT_TAU, wideningK = DEFAULT_WIDENING_K, wideningAlpha = DEFAULT_WIDENING_ALPHA,
+  useSolver = false, budget = null
+}) {
+  if (!reused?.node) {
+    throw new Error("continueSearch: reused.node is required — call advanceRoot/findReusableNode first and only continue when it found something real to reuse.");
+  }
+  const root = reused.node;
+  if (root.actor.actingId !== combatantId) {
+    throw new Error(`continueSearch: reused node belongs to "${root.actor.actingId}", not the requested "${combatantId}" — a caller mismatch, not a legitimate divergence.`);
+  }
+  if (!isDeepStrictEqual(root.builtWeights, weights) || root.builtTau !== tau) {
+    throw new Error("continueSearch: weights/tau must match what the reused subtree was originally built with — mixing them would silently corrupt its accumulated statistics.");
+  }
+  const rootSide = root.state.combatants.get(combatantId).side;
+  const initiativeOrder = root.state.initiativeOrder ?? [combatantId];
+  return runSearchToCompletion({ root, rootSide, weights, maxDepth: root.depth + maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, budget, iterations });
 }
