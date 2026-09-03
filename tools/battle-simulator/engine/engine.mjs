@@ -789,15 +789,30 @@ function snapshotState(state) {
  *
  * REAL BUG, found running mcts.mjs's own first real Frame-scale search (design doc §73, GH issue
  * #20): every adapter-agnostic caller in `personnel-engine/search/` (this file's own EngineAdapter
- * contract) calls `checkOutcome(state)` with exactly ONE argument — the shared, scale-agnostic
- * convention personnel's own `checkOutcome(state)` already matches natively. This function's own
- * ONLY prior call site (the native battle loop just above) always supplies a real `scenario`, so the
- * missing default here was never exercised until now. `scenario = {}` makes an adapter-driven caller
- * with no scenario concept at all resolve to "no stalemateNotBeforeRound floor, no scripted events" —
- * exactly the correct, inert behavior for a context with no scripted stalemate to ever check against
- * — while the native call site above is completely unaffected (always passes a real scenario).
+ * contract) calls `checkOutcome(state)` with exactly ONE argument. This function's own ONLY prior
+ * call site (the native battle loop just above) always supplies a real `scenario`, so a missing
+ * default crashed the first adapter-driven caller to ever reach this function at all.
+ *
+ * SECOND, MORE SEVERE BUG in that same fix, found by adversarial review while designing the
+ * chance-node/oracle port (design doc §75): the first fix defaulted to `scenario = {}`, reasoning
+ * "no stalemateNotBeforeRound floor, no scripted events... exactly the correct, inert behavior." That
+ * reasoning was backwards. With `scenario = {}`, `scenario.stalemateNotBeforeRound ?? 0` is always 0
+ * and `!scenario.scriptedEvents` is always true — so the gate that's supposed to require REAL
+ * scenario knowledge before declaring a permanent dead end was trivially, ALWAYS satisfied, not inert
+ * at all. Every tree search in this whole family calls `checkOutcome(state)` with no scenario, so the
+ * instant a search reached a Frame state where the opposition happened to be `immuneToAllDamage` (a
+ * real, first-class Frame mechanic — several real scenarios use exactly this shape, e.g.
+ * `scenarios/mystic-frame-solo.mjs`), the search would treat it as an immediate terminal leaf worth
+ * exactly 0 and stop exploring — regardless of whether a scripted shield-drop was actually still
+ * coming. For `useSolver: true` this is worse than merely wrong: a falsely-terminal node gets treated
+ * as PROVEN, propagating "certain" win/loss reasoning from a fabricated fact. Fixed properly this
+ * time: `scenario = null`, with the whole stalemate block gated behind `if (scenario && ...)` — a
+ * search-family caller structurally cannot know whether a real scripted event is still pending (it
+ * never has scenario context at all), so it now correctly NEVER reports stalemate, rather than
+ * incorrectly reporting it as soon as the opposition happens to be immune. The native battle loop
+ * above always passes a real scenario object, so its own behavior is completely unchanged.
  */
-export function checkOutcome(state, scenario = {}) {
+export function checkOutcome(state, scenario = null) {
   const opposition = [...state.combatants.values()].filter((c) => c.side === "opposition");
   const party = [...state.combatants.values()].filter((c) => c.side === "party");
 
@@ -816,13 +831,15 @@ export function checkOutcome(state, scenario = {}) {
   // tension of watching those first rounds. scenario.stalemateNotBeforeRound (optional; a
   // scenario builder sets it from its own domain knowledge — e.g. the ground layer's fixed
   // ROUNDS=3 bound) gates how early this check is even allowed to fire.
-  const notBeforeRound = scenario.stalemateNotBeforeRound ?? 0;
-  const noFutureScriptedEvents = !scenario.scriptedEvents || Object.keys(scenario.scriptedEvents).every((round) => Number(round) <= state.round);
-  if (state.round >= notBeforeRound && noFutureScriptedEvents && opposition.length > 0 && opposition.every((c) => c.immuneToAllDamage)) {
-    return {
-      result: "stalemate",
-      detail: "Every living opposition combatant remains immune to all damage with no scripted event left that could ever change that — a mechanical dead end (the ground team's field-break window closed without success), not a party failure or a fight either side could still turn around."
-    };
+  if (scenario) {
+    const notBeforeRound = scenario.stalemateNotBeforeRound ?? 0;
+    const noFutureScriptedEvents = !scenario.scriptedEvents || Object.keys(scenario.scriptedEvents).every((round) => Number(round) <= state.round);
+    if (state.round >= notBeforeRound && noFutureScriptedEvents && opposition.length > 0 && opposition.every((c) => c.immuneToAllDamage)) {
+      return {
+        result: "stalemate",
+        detail: "Every living opposition combatant remains immune to all damage with no scripted event left that could ever change that — a mechanical dead end (the ground team's field-break window closed without success), not a party failure or a fight either side could still turn around."
+      };
+    }
   }
 
   return null;
@@ -916,7 +933,17 @@ export function getSandboxForkCount() { return sandboxForkCount; }
  * @param {object} args.turn  - the turnProgress copy the AI was handed
  * @returns {{state: object, turn: object, actionsRemaining: function, apply: function}}
  */
-export function forkTurnSandbox({ state, turn }) {
+/**
+ * `outcomes` (design doc §75, GH issue #20 — real stochastic chance-node enumeration, mirroring
+ * personnel's own identical widening, design doc §64): OPTIONAL, defaults to `EXPECTED_OUTCOMES`
+ * exactly as before — every existing caller's behavior is completely unchanged, since omitting it
+ * reproduces the identical default. `attemptAction` itself already accepts `outcomes = REAL_OUTCOMES`
+ * as an overridable parameter (used internally); this was the one remaining seam that didn't thread
+ * an override through from the sandbox wrapper. A new caller (`search/chance.mjs`) can pass a
+ * degree-FORCED outcomes table instead, the same real seam `REAL_OUTCOMES`/`EXPECTED_OUTCOMES`
+ * already are, just a third table.
+ */
+export function forkTurnSandbox({ state, turn, outcomes = EXPECTED_OUTCOMES }) {
   sandboxForkCount += 1;
   const sandboxState = cloneStateForPlanning(state);
   const sandboxTurn = { ...turn };
@@ -931,7 +958,8 @@ export function forkTurnSandbox({ state, turn }) {
       return sandboxTurn.actionsAvailable - sandboxTurn.actionsUsed;
     },
     /**
-     * Apply a proposal to the sandbox using the REAL rules and EXPECTED outcomes.
+     * Apply a proposal to the sandbox using the REAL rules and the real `outcomes` table this
+     * sandbox was forked with (`EXPECTED_OUTCOMES` unless a caller asked for something else).
      * Returns exactly what attemptAction returns, including `legal: false` with a
      * reason when the proposal is illegal — so a planner discovers illegality the
      * same way the engine would, rather than by reimplementing legality checks.
@@ -940,13 +968,13 @@ export function forkTurnSandbox({ state, turn }) {
       const effective = resolveEffectiveStats(sandboxState.combatants.get(combatantId));
       return attemptAction({
         state: sandboxState,
-        rng: null, // EXPECTED_OUTCOMES ignores it; passing null makes misuse throw loudly
+        rng: null, // EXPECTED_OUTCOMES/degree-forced tables both ignore it; passing null makes misuse throw loudly
         combatantId,
         proposal,
         turnProgress: sandboxTurn,
         turnLog: sandboxLog,
         effective,
-        outcomes: EXPECTED_OUTCOMES
+        outcomes
       });
     }
   };

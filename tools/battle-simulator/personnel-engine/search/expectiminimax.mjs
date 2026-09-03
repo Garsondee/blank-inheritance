@@ -30,8 +30,8 @@
  * (`resolveRecoveryCheck`, a real d20 flat check) — is NOT modeled yet; encountering one mid-search
  * stops that branch at its current value rather than guessing.
  *
- * SCOPE: personnels-scale only, matching issue #21's own suggested file path (inside `personnel-engine/`,
- * not `ai-common/`). Frame-scale support is real, separate future work, not attempted here.
+ * SCOPE: was personnel-scale only through design doc §74; now scale-agnostic (design doc §75, GH
+ * issue #20) — see `resolveEngine`'s own header comment below for how.
  */
 import { generateProposals } from "../decide.mjs";
 import { forkTurnSandbox, checkOutcome } from "../engine.mjs";
@@ -39,20 +39,78 @@ import { evaluateState, DEFAULT_WEIGHTS } from "../evaluate/state-value.mjs";
 import { outcomeValue, nextActorAfterAction } from "./tree-shared.mjs";
 import { isStochasticProposal, expandChanceNode } from "./chance.mjs";
 
+/** Builds the real engine-function bundle `solve()`/`evaluateProposal()` both search against — same
+ * shape and reasoning as `mcts-puct.mjs`'s own `resolveEngine` (design doc §74), minus `adapterId`/
+ * node-stamping (this file has no persistent tree or subtree-reuse concept at all — every call is a
+ * fresh, stateless exhaustive search). `adapter` omitted: this file's own real, direct imports,
+ * `conditions: undefined` (falls back to `tree-shared.mjs`'s own real personnel default). Supplied:
+ * sourced from the adapter instead, throwing a clear error if it lacks real tree-search capability. */
+function resolveEngine(adapter) {
+  if (adapter && (!adapter.isDead || !adapter.isUnconscious || !adapter.resolveEffectiveStats)) {
+    throw new Error(`expectiminimax.mjs: adapter "${adapter.id ?? "unknown"}" is missing real tree-search capability — needs isDead/isUnconscious/resolveEffectiveStats, optional EngineAdapter fields not every adapter provides (design doc §75).`);
+  }
+  return adapter
+    ? {
+        generateProposals: adapter.generateProposals, forkTurnSandbox: adapter.forkTurnSandbox,
+        checkOutcome: adapter.checkOutcome, evaluateState: adapter.evaluateState,
+        conditions: { isDead: adapter.isDead, isUnconscious: adapter.isUnconscious, resolveEffectiveStats: adapter.resolveEffectiveStats }
+      }
+    : { generateProposals, forkTurnSandbox, checkOutcome, evaluateState, conditions: undefined };
+}
+
 /** The real, recursively-searched value of one already-resolved branch state (deterministic child
  * OR one real chance-node branch) — advances to the next real actor, or falls back to a direct
  * `evaluateState` leaf on a Phase-A gap (`stochasticGap`/`noActor`), exactly like the deterministic
  * path already does. Shared by both the plain and chance-node loops below so "what happens after one
- * real resolved outcome" is written once. */
-function valueOfBranch({ branchState, branchTurn, actor, weights, rootSide, depthRemaining, initiativeOrder, addNodesExplored }) {
-  const nextActor = nextActorAfterAction({ childState: branchState, childTurn: branchTurn, actor, initiativeOrder });
+ * real resolved outcome" is written once.
+ *
+ * `engine` is REQUIRED here, deliberately with no default (design doc §75, a real finding from
+ * adversarial review): this is an internal function, never called except from an already-resolved
+ * public entry point below. Giving it a convenience default would mean a single missed thread-through
+ * at this function's own recursive call into `searchNode` would silently and correctly resolve to
+ * personnel's own functions for every existing test (since that default happens to be right for
+ * them), while a real Frame-adapter search would silently recurse using the WRONG engine's functions
+ * against Frame-shaped state two or more plies deep — wrong values, no crash, no signal. With no
+ * default, a missed thread-through throws immediately, in any test, turning a silent-wrong-answer bug
+ * class into an unmissable one. */
+function valueOfBranch({ branchState, branchTurn, actor, weights, rootSide, depthRemaining, initiativeOrder, addNodesExplored, engine }) {
+  const nextActor = nextActorAfterAction({ childState: branchState, childTurn: branchTurn, actor, initiativeOrder, conditions: engine.conditions });
   if (nextActor.stochasticGap || nextActor.noActor) {
     addNodesExplored(1);
-    return evaluateState(branchState, rootSide, weights);
+    return engine.evaluateState(branchState, rootSide, weights);
   }
-  const child = searchNode({ state: branchState, actor: nextActor, weights, rootSide, depthRemaining: depthRemaining - 1, initiativeOrder });
+  const child = searchNode({ state: branchState, actor: nextActor, weights, rootSide, depthRemaining: depthRemaining - 1, initiativeOrder, engine });
   addNodesExplored(child.nodesExplored);
   return child.value;
+}
+
+/** The real logic behind the exported `evaluateProposal` below, taking an ALREADY-RESOLVED `engine`
+ * (required, no default — same reasoning as `valueOfBranch` above) so `searchNode`'s own per-candidate
+ * loop never pays for a repeated `resolveEngine` call across a potentially large exhaustive search
+ * tree. `expandChanceNode`'s own new `engine` parameter is satisfied directly by this file's own
+ * (richer) `engine` object — it only ever reads `.forkTurnSandbox` off it, so the extra fields this
+ * file's own `engine` carries are simply unused there, not a shape mismatch. */
+function evaluateProposalWithEngine({ state, actor, proposal, weights, rootSide, depthRemaining, initiativeOrder, addNodesExplored, engine }) {
+  if (isStochasticProposal(proposal)) {
+    const branches = expandChanceNode({ state, turn: actor.turn, combatantId: actor.actingId, proposal, engine });
+    if (branches.length === 1 && !branches[0].legal) return null;
+    addNodesExplored(branches.length);
+    let weightedValue = 0;
+    let anyLegalBranch = false;
+    for (const branch of branches) {
+      if (!branch.legal) continue;
+      anyLegalBranch = true;
+      const branchValue = valueOfBranch({ branchState: branch.state, branchTurn: branch.turn, actor, weights, rootSide, depthRemaining, initiativeOrder, addNodesExplored, engine });
+      weightedValue += branch.probability * branchValue;
+    }
+    return anyLegalBranch ? { value: weightedValue } : null;
+  }
+
+  const sandbox = engine.forkTurnSandbox({ state, turn: actor.turn });
+  const result = sandbox.apply(actor.actingId, proposal);
+  if (!result.legal) return null;
+  const value = valueOfBranch({ branchState: sandbox.state, branchTurn: sandbox.turn, actor, weights, rootSide, depthRemaining, initiativeOrder, addNodesExplored, engine });
+  return { value };
 }
 
 /**
@@ -62,31 +120,19 @@ function valueOfBranch({ branchState, branchTurn, actor, weights, rootSide, dept
  * §66's own root trap-insurance check) can ask "what does the oracle really think of THIS ONE move"
  * without re-deriving decision-node iteration logic. Returns `null` if `proposal` turns out illegal —
  * the same real legality check every other path here already trusts, never re-derived.
+ *
+ * `adapter` (optional, design doc §75): a real `EngineAdapter` to search against instead of this
+ * file's own personnel-engine imports — resolves `engine` once via `resolveEngine`, then delegates to
+ * the internal `evaluateProposalWithEngine` (which `searchNode` also calls directly, with its own
+ * already-resolved `engine`, to avoid resolving it twice per node). No `weights` default here — none
+ * existed before this port either, and no caller relies on one (confirmed directly).
  */
-export function evaluateProposal({ state, actor, proposal, weights, rootSide, depthRemaining, initiativeOrder }) {
+export function evaluateProposal({ state, actor, proposal, weights, rootSide, depthRemaining, initiativeOrder, adapter = null }) {
+  const engine = resolveEngine(adapter);
   let nodesExplored = 0;
   const addNodesExplored = (n) => { nodesExplored += n; };
-
-  if (isStochasticProposal(proposal)) {
-    const branches = expandChanceNode({ state, turn: actor.turn, combatantId: actor.actingId, proposal });
-    if (branches.length === 1 && !branches[0].legal) return null;
-    nodesExplored += branches.length;
-    let weightedValue = 0;
-    let anyLegalBranch = false;
-    for (const branch of branches) {
-      if (!branch.legal) continue;
-      anyLegalBranch = true;
-      const branchValue = valueOfBranch({ branchState: branch.state, branchTurn: branch.turn, actor, weights, rootSide, depthRemaining, initiativeOrder, addNodesExplored });
-      weightedValue += branch.probability * branchValue;
-    }
-    return anyLegalBranch ? { value: weightedValue, nodesExplored } : null;
-  }
-
-  const sandbox = forkTurnSandbox({ state, turn: actor.turn });
-  const result = sandbox.apply(actor.actingId, proposal);
-  if (!result.legal) return null;
-  const value = valueOfBranch({ branchState: sandbox.state, branchTurn: sandbox.turn, actor, weights, rootSide, depthRemaining, initiativeOrder, addNodesExplored });
-  return { value, nodesExplored };
+  const evaluated = evaluateProposalWithEngine({ state, actor, proposal, weights, rootSide, depthRemaining, initiativeOrder, addNodesExplored, engine });
+  return evaluated ? { value: evaluated.value, nodesExplored } : null;
 }
 
 /**
@@ -95,15 +141,17 @@ export function evaluateProposal({ state, actor, proposal, weights, rootSide, de
  * is always in `rootSide`'s own terms (never flipped at the leaf; only the max/min choice at each
  * node flips as ownership changes between `rootSide` and the opponent — the real negamax reduction
  * design doc §61/#6 specifies for two teams with per-team shared, side-relative, symmetric utility).
+ *
+ * `engine` is REQUIRED, no default — see `valueOfBranch`'s own header comment for why.
  */
-function searchNode({ state, actor, weights, rootSide, depthRemaining, initiativeOrder }) {
-  const outcome = checkOutcome(state);
+function searchNode({ state, actor, weights, rootSide, depthRemaining, initiativeOrder, engine }) {
+  const outcome = engine.checkOutcome(state);
   if (outcome) return { value: outcomeValue(outcome, rootSide), bestProposal: null, nodesExplored: 1 };
-  if (depthRemaining <= 0) return { value: evaluateState(state, rootSide, weights), bestProposal: null, nodesExplored: 1 };
+  if (depthRemaining <= 0) return { value: engine.evaluateState(state, rootSide, weights), bestProposal: null, nodesExplored: 1 };
 
   const me = state.combatants.get(actor.actingId);
   const isMaximizing = me.side === rootSide;
-  const proposals = generateProposals(state, actor.actingId, actor.turn);
+  const proposals = engine.generateProposals(state, actor.actingId, actor.turn);
 
   let nodesExplored = 1;
   let best = null;
@@ -112,13 +160,14 @@ function searchNode({ state, actor, weights, rootSide, depthRemaining, initiativ
   };
 
   for (const proposal of proposals) {
-    const evaluated = evaluateProposal({ state, actor, proposal, weights, rootSide, depthRemaining, initiativeOrder });
+    let evaluatedNodes = 0;
+    const evaluated = evaluateProposalWithEngine({ state, actor, proposal, weights, rootSide, depthRemaining, initiativeOrder, addNodesExplored: (n) => { evaluatedNodes += n; }, engine });
     if (!evaluated) continue; // illegal
-    nodesExplored += evaluated.nodesExplored;
+    nodesExplored += evaluatedNodes;
     consider(evaluated.value, proposal);
   }
 
-  if (!best) return { value: evaluateState(state, rootSide, weights), bestProposal: null, nodesExplored };
+  if (!best) return { value: engine.evaluateState(state, rootSide, weights), bestProposal: null, nodesExplored };
   return { value: best.value, bestProposal: best.bestProposal, nodesExplored };
 }
 
@@ -134,8 +183,14 @@ function searchNode({ state, actor, weights, rootSide, depthRemaining, initiativ
  * count actually visited, so a caller can see the real exhaustive-enumeration cost before running
  * this at a depth that would take an unreasonable amount of time (issue #21's own explicit test
  * requirement — "cost recorded so nobody accidentally runs it at depth 6").
+ *
+ * `adapter` (optional, design doc §75): a real `EngineAdapter` to search against instead of this
+ * file's own personnel-engine imports. `weights`'s own default reads `adapter.DEFAULT_WEIGHTS` when
+ * an adapter is supplied, matching every other file in this search family — confirmed extensively
+ * relied upon by existing tests that call `solve()` with `weights` omitted.
  */
-export function solve({ state, combatantId, turn, depth = 2, weights = DEFAULT_WEIGHTS }) {
+export function solve({ state, combatantId, turn, depth = 2, adapter = null, weights = adapter?.DEFAULT_WEIGHTS ?? DEFAULT_WEIGHTS }) {
+  const engine = resolveEngine(adapter);
   const me = state.combatants.get(combatantId);
   if (!me) return { value: 0, bestProposal: null, nodesExplored: 0 };
   const actor = {
@@ -145,5 +200,5 @@ export function solve({ state, combatantId, turn, depth = 2, weights = DEFAULT_W
     turn
   };
   const initiativeOrder = state.initiativeOrder ?? [combatantId];
-  return searchNode({ state, actor, weights, rootSide: me.side, depthRemaining: depth, initiativeOrder });
+  return searchNode({ state, actor, weights, rootSide: me.side, depthRemaining: depth, initiativeOrder, engine });
 }

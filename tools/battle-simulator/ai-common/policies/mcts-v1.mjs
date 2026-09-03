@@ -28,9 +28,12 @@
  *   is still the deterministic one-ply gain `decide()` already computes, matching every PUCT-family
  *   sibling before it.
  *
- * PERSONNEL-SCALE ONLY, matching every one of the four underlying modules' own current scope. Step 8
- * (determinization for fog, #10) remains real, separate, unstarted work, deliberately gated to run
- * only after this policy is proven on the open (full-information) arena.
+ * DUAL-SCALE (design doc §75, GH issue #20): every one of the four underlying modules now accepts a
+ * real `EngineAdapter` — no more hardcoded personnel-only guard here. This completes issue #20's
+ * whole MCTS search family; `mcts-v1` is now the complete, tournament-strength policy on EITHER
+ * scale. Step 8 (determinization for fog, #10) remains real, separate, unstarted work on either
+ * scale, deliberately gated to run only after this policy is proven on the open (full-information)
+ * arena.
  */
 import { registerPolicy } from "../engine-adapter.mjs";
 import { search } from "../../personnel-engine/search/mcts-puct.mjs";
@@ -39,16 +42,13 @@ import { applyTrapInsurance } from "../../personnel-engine/search/trap-insurance
 registerPolicy({
   id: "mcts-v1",
   decide(adapter, state, combatantId, turn, options = {}) {
-    if (adapter.id !== "personnel") {
-      throw new Error(`mcts-v1: personnel-scale only for now (design doc §70) — got adapter "${adapter.id}".`);
-    }
     const {
       iterations = 500, maxDepth = 4, cPuct, tau, wideningK, wideningAlpha,
       oracleDepth = 3, topK = 2, budget
     } = options;
     const weights = options.weights ?? adapter.DEFAULT_WEIGHTS;
-    const mctsResult = search({ state, combatantId, turn, iterations, maxDepth, weights, cPuct, tau, wideningK, wideningAlpha, useSolver: true, budget });
-    const insured = applyTrapInsurance({ mctsResult, state, combatantId, turn, weights, oracleDepth, topK });
+    const mctsResult = search({ state, combatantId, turn, iterations, maxDepth, weights, cPuct, tau, wideningK, wideningAlpha, useSolver: true, budget, adapter });
+    const insured = applyTrapInsurance({ mctsResult, state, combatantId, turn, weights, oracleDepth, topK, adapter });
     if (!insured.bestProposal) return null;
     const provenNote = mctsResult.root?.proven ? `, solver-proven=${mctsResult.root.proven}` : "";
     return {

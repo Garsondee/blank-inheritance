@@ -9,7 +9,9 @@
  * the insurance check's own oracle, which already has it), MCTS-Solver, and subtree reuse are all
  * still real, separate, unstarted work.
  *
- * PERSONNEL-SCALE ONLY, matching the underlying search/insurance modules' own current scope.
+ * DUAL-SCALE (design doc §75, GH issue #20): both `search()` (§74) and `applyTrapInsurance()`/
+ * `evaluateProposal()` (§75) now accept any real `EngineAdapter` — no more hardcoded personnel-only
+ * guard here, matching every other policy in this search family.
  */
 import { registerPolicy } from "../engine-adapter.mjs";
 import { search } from "../../personnel-engine/search/mcts-puct.mjs";
@@ -18,16 +20,13 @@ import { applyTrapInsurance } from "../../personnel-engine/search/trap-insurance
 registerPolicy({
   id: "mcts-puct-insured-v1",
   decide(adapter, state, combatantId, turn, options = {}) {
-    if (adapter.id !== "personnel") {
-      throw new Error(`mcts-puct-insured-v1: personnel-scale only for now (design doc §66) — got adapter "${adapter.id}".`);
-    }
     const {
       iterations = 500, maxDepth = 4, cPuct, tau, wideningK, wideningAlpha,
       oracleDepth = 3, topK = 2, budget
     } = options;
     const weights = options.weights ?? adapter.DEFAULT_WEIGHTS;
-    const mctsResult = search({ state, combatantId, turn, iterations, maxDepth, weights, cPuct, tau, wideningK, wideningAlpha, budget });
-    const insured = applyTrapInsurance({ mctsResult, state, combatantId, turn, weights, oracleDepth, topK });
+    const mctsResult = search({ state, combatantId, turn, iterations, maxDepth, weights, cPuct, tau, wideningK, wideningAlpha, budget, adapter });
+    const insured = applyTrapInsurance({ mctsResult, state, combatantId, turn, weights, oracleDepth, topK, adapter });
     if (!insured.bestProposal) return null;
     return {
       ...insured.bestProposal,

@@ -6,7 +6,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { runBattle, accountForActions } from "../../tools/battle-simulator/engine/engine.mjs";
+import { runBattle, accountForActions, checkOutcome } from "../../tools/battle-simulator/engine/engine.mjs";
 import { distanceFeet, isInBounds } from "../../tools/battle-simulator/engine/grid.mjs";
 import { buildScenario } from "../../tools/battle-simulator/scenarios/five-vehicles-one-frame.mjs";
 import * as mysticScenario from "../../tools/battle-simulator/scenarios/mystic-frame-solo.mjs";
@@ -425,6 +425,46 @@ test("Stalemate: scenario.stalemateNotBeforeRound delays detection until that ro
   const log = runBattle({ seed: 1, gridSize: { cols: 40, rows: 40 }, roundLimit: 10, combatants: [claimant, bystander], ai, scriptedEvents: {}, stalemateNotBeforeRound: 3 });
   assert.equal(log.outcome.result, "stalemate");
   assert.ok(log.rounds.length >= 3, `expected the stalemate to wait until round 3, ended after ${log.rounds.length} round(s) instead`);
+});
+
+/** `checkOutcome`'s own `scenario` parameter directly, not through a full `runBattle` run — design
+ * doc §75, GH issue #20. REGRESSION: the first fix for the missing-scenario crash (§73) defaulted to
+ * `scenario = {}`, which reads as "no stalemateNotBeforeRound floor, no scripted events" — trivially
+ * satisfying the stalemate gate on every call, not staying inert as intended. Every adapter-agnostic
+ * tree-search caller in `personnel-engine/search/` calls `checkOutcome(state)` with no scenario at
+ * all, so this silently turned "the opposition happens to be immuneToAllDamage" into an instant,
+ * falsely-terminal leaf for the WHOLE search family the moment it touched a Frame scenario shaped
+ * this way (several real ones are, `mystic-frame-solo.mjs` among them) — worse for `useSolver: true`,
+ * which would treat the fabricated terminal as PROVEN. */
+test("checkOutcome: called WITHOUT a scenario (every adapter-agnostic tree-search caller's own real convention) never reports stalemate, even when the opposition happens to be immuneToAllDamage — a caller with no scenario context structurally cannot know whether a scripted event might still lift it, so it must stay silent rather than falsely declare a permanent dead end", () => {
+  const claimant = {
+    id: "claimant-one", name: "Permanently Shielded", kind: "claimant", side: "opposition", size: "gargantuan",
+    maxHP: 999, currentHP: 999, ac: 10, hardness: 0, speed: 0, scaleBlind: false,
+    strikes: [], reactions: [], saves: { fort: 0, ref: 0, will: 0 }, immuneToAllDamage: true, position: { col: 0, row: 0 }
+  };
+  const bystander = {
+    id: "bystander", name: "Bystander", kind: "chassis", side: "party", size: "huge",
+    maxHP: 999, currentHP: 999, ac: 30, hardness: 0, speed: 0, scaleBlind: false,
+    strikes: [], reactions: [], saves: { fort: 0, ref: 0, will: 0 }, position: { col: 20, row: 20 }
+  };
+  const state = { round: 1, combatants: new Map([["claimant-one", claimant], ["bystander", bystander]]) };
+  assert.equal(checkOutcome(state), null, "expected an ongoing fight (no scenario context at all means no stalemate can ever be reported)");
+});
+
+test("checkOutcome: called WITH a real scenario still correctly reports stalemate exactly as before — the native battle-loop call path is completely unaffected by the scenario-omitted fix above", () => {
+  const claimant = {
+    id: "claimant-one", name: "Permanently Shielded", kind: "claimant", side: "opposition", size: "gargantuan",
+    maxHP: 999, currentHP: 999, ac: 10, hardness: 0, speed: 0, scaleBlind: false,
+    strikes: [], reactions: [], saves: { fort: 0, ref: 0, will: 0 }, immuneToAllDamage: true, position: { col: 0, row: 0 }
+  };
+  const bystander = {
+    id: "bystander", name: "Bystander", kind: "chassis", side: "party", size: "huge",
+    maxHP: 999, currentHP: 999, ac: 30, hardness: 0, speed: 0, scaleBlind: false,
+    strikes: [], reactions: [], saves: { fort: 0, ref: 0, will: 0 }, position: { col: 20, row: 20 }
+  };
+  const state = { round: 3, combatants: new Map([["claimant-one", claimant], ["bystander", bystander]]) };
+  const outcome = checkOutcome(state, { stalemateNotBeforeRound: 3, scriptedEvents: {} });
+  assert.equal(outcome?.result, "stalemate", `expected a real scenario to still gate and report stalemate correctly, got: ${JSON.stringify(outcome)}`);
 });
 
 test("Round 0 deployment: every combatant is positioned and visible before round 1 — log.deployment carries the full starting snapshot", () => {

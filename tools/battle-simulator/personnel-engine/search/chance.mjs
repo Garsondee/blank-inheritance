@@ -27,6 +27,22 @@
  * modifier/DC `attemptAction` actually computed for this attempt, so `expandChanceNode` can compute
  * `degreeProbabilities` from the SAME real numbers a live roll would use, without re-deriving
  * multiple-attack-penalty/range-penalty/flanking/cover math a second time.
+ *
+ * SCALE-AGNOSTIC (design doc §75, GH issue #20). `expandChanceNode` takes an optional `engine`
+ * naming a real `forkTurnSandbox` to fork against instead of this file's own personnel-engine import
+ * — Frame's own `attemptAction` already resolves `outcomes.strike(rng, {strike, target,
+ * targetEffective, mapPenalty})` with the exact same shape `makeDegreeForcedOutcomes`'s own `strike`
+ * method already builds (verified directly against Frame's real call sites, not assumed), so THAT
+ * function needs no changes at all — only the sandbox it forks through does. `trip` stays real and
+ * unmodified too, harmlessly unused on Frame scale, which has no Trip/Shove/Grapple maneuvers at all
+ * (`isStochasticProposal` simply never matches a `type: "trip"` proposal Frame's own `generateProposals`
+ * never produces). Frame's own reaction strikes (the Claimant's Claim, triggered off `move`/`advance`
+ * proposals) are a real, separate, NOT-yet-covered gap — `move`/`advance` aren't in `STOCHASTIC_TYPES`,
+ * so a search evaluating "step next to a reactive threat" only ever sees `EXPECTED_OUTCOMES`'s
+ * deterministic average reaction damage, never a real branch. Personnel has no reaction-strike concept
+ * at all to compare against; this is Frame-only, structurally the same shape of trap this whole feature
+ * exists to fix, just outside this slice's own scope (matching issue #6's own pre-existing "strike +
+ * trip only" limit) — named honestly, not silently dropped.
  */
 import { forkTurnSandbox } from "../engine.mjs";
 import { degreeProbabilities, averageStrikeDamage, averageDamage, mitigateDamage } from "../../engine/resolve.mjs";
@@ -55,7 +71,7 @@ function makeDegreeForcedOutcomes(degree, report) {
           attackBonus: strike.attackBonus, mapPenalty, targetAc: targetEffective.ac,
           damage: appliedDamage > 0 ? { raw: appliedDamage, entries: [] } : null
         },
-        appliedDamage, immune: false
+        appliedDamage, immune: target.immuneToAllDamage === true
       };
     },
     trip(_rng, { attacker, target, targetEffective }) {
@@ -90,10 +106,16 @@ function makeDegreeForcedOutcomes(degree, report) {
  * keeping (`probability > 0`), OR a single `{ degree: null, probability: 1, state, turn, legal: false }`
  * entry if the proposal turns out illegal (the engine's own legality check, never re-derived here —
  * an illegal proposal has no real degree to branch on at all).
+ *
+ * `engine` (optional, design doc §75): names a real `forkTurnSandbox` to fork against instead of this
+ * file's own personnel-engine import — defaults to `{ forkTurnSandbox }` built from that same import,
+ * so omitting it (every existing caller today) is byte-for-byte unchanged. A caller with a Frame-scale
+ * `EngineAdapter` passes `{forkTurnSandbox: adapter.forkTurnSandbox}` (or the same richer `engine`
+ * object a search file already built for itself) instead.
  */
-export function expandChanceNode({ state, turn, combatantId, proposal }) {
+export function expandChanceNode({ state, turn, combatantId, proposal, engine = { forkTurnSandbox } }) {
   const report = {};
-  const probeSandbox = forkTurnSandbox({ state, turn, outcomes: makeDegreeForcedOutcomes("success", report) });
+  const probeSandbox = engine.forkTurnSandbox({ state, turn, outcomes: makeDegreeForcedOutcomes("success", report) });
   const probeResult = probeSandbox.apply(combatantId, proposal);
   if (!probeResult.legal) {
     return [{ degree: null, probability: 1, state: probeSandbox.state, turn: probeSandbox.turn, legal: false }];
@@ -108,7 +130,7 @@ export function expandChanceNode({ state, turn, combatantId, proposal }) {
       branches.push({ degree, probability, state: probeSandbox.state, turn: probeSandbox.turn, legal: true });
       continue;
     }
-    const sandbox = forkTurnSandbox({ state, turn, outcomes: makeDegreeForcedOutcomes(degree, {}) });
+    const sandbox = engine.forkTurnSandbox({ state, turn, outcomes: makeDegreeForcedOutcomes(degree, {}) });
     const result = sandbox.apply(combatantId, proposal);
     branches.push({ degree, probability, state: sandbox.state, turn: sandbox.turn, legal: result.legal });
   }

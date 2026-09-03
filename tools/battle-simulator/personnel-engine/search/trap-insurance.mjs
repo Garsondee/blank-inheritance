@@ -21,9 +21,10 @@
  * not thousands — a real, cheap insurance premium against a real, confidently-wrong statistical pick,
  * exactly Baier & Winands' own "MCTS-Minimax Hybrid" framing this design doc section cites.
  *
- * SCOPE: personnel-scale only (inherits the oracle's own current scope). Requires an MCTS result
- * whose own `root` exposes either `root.candidates` (PUCT's shape) or `root.children` (plain UCT's
- * shape) — both `mcts-uct-v1` and `mcts-puct-v1` already do.
+ * SCOPE: scale-agnostic (design doc §75, GH issue #20) — inherits the oracle's own current scope,
+ * which is now dual-scale too. Requires an MCTS result whose own `root` exposes either
+ * `root.candidates` (PUCT's shape) or `root.children` (plain UCT's shape) — both `mcts-uct-v1` and
+ * `mcts-puct-v1` already do, on either scale.
  */
 import { evaluateProposal } from "./expectiminimax.mjs";
 
@@ -46,8 +47,12 @@ function topCandidatesByVisits(root, topK) {
  * unmodified (no `trapInsurance` field at all) if there's nothing real to check (no `bestProposal`, or
  * an MCTS result whose own root doesn't expose real candidates) — a caller can tell "insurance ran and
  * found nothing to change" (`trapInsurance.overridden === false`) apart from "insurance never ran."
+ *
+ * `adapter` (optional, design doc §75): threaded straight into `evaluateProposal`'s own real
+ * `EngineAdapter` support — no `weights` default needed here (none existed before this either; every
+ * real caller already resolves `weights` via `adapter.DEFAULT_WEIGHTS` before calling this function).
  */
-export function applyTrapInsurance({ mctsResult, state, combatantId, turn, weights, oracleDepth = 3, topK = 2 }) {
+export function applyTrapInsurance({ mctsResult, state, combatantId, turn, weights, oracleDepth = 3, topK = 2, adapter = null }) {
   if (!mctsResult.bestProposal || !mctsResult.root) return mctsResult;
   const candidates = topCandidatesByVisits(mctsResult.root, topK);
   if (!candidates.length) return mctsResult;
@@ -66,7 +71,7 @@ export function applyTrapInsurance({ mctsResult, state, combatantId, turn, weigh
   const checked = [];
   let best = null;
   for (const c of candidates) {
-    const evaluated = evaluateProposal({ state, actor, proposal: c.proposal, weights, rootSide, depthRemaining: oracleDepth, initiativeOrder });
+    const evaluated = evaluateProposal({ state, actor, proposal: c.proposal, weights, rootSide, depthRemaining: oracleDepth, initiativeOrder, adapter });
     if (!evaluated) continue; // a real illegal candidate should not occur (MCTS only ever visits legal ones), but never assume
     checked.push({ proposal: c.proposal, mctsVisits: c.visits, oracleValue: evaluated.value });
     if (!best || evaluated.value > best.oracleValue) best = { proposal: c.proposal, oracleValue: evaluated.value };
