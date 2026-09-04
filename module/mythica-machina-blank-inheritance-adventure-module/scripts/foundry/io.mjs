@@ -1,6 +1,7 @@
 /**
  * The ONLY module in this project allowed to touch Foundry's file-access
- * globals (`foundry.utils.getRoute`, `fetch`, `foundry.applications.apps.FilePicker`).
+ * globals (`foundry.utils.getRoute`, `fetch`, `foundry.applications.apps.FilePicker`)
+ * and the standard browser clipboard API (`navigator.clipboard`).
  * Everything here is thin plumbing around those APIs — no campaign logic.
  */
 
@@ -50,4 +51,15 @@ export async function writeReportFile(report) {
     throw new Error("uploadPersistent did not return a success result — see console for the FilePicker response.");
   }
   return relativePath;
+}
+
+/**
+ * Copies plain text to the OS clipboard via the standard `navigator.clipboard`
+ * API — the "paste it back to Claude" half of the diagnostic test sync.
+ * Can legitimately fail (no clipboard permission, an insecure/non-HTTPS
+ * context, headless environment) — callers must treat this as best-effort,
+ * not fatal to the sync it's attached to.
+ */
+export async function copyTextToClipboard(text) {
+  await navigator.clipboard.writeText(text);
 }

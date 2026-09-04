@@ -4,11 +4,11 @@ Technical work planned beyond the campaign document structure itself.
 
 ## 1. & 2. Foundry VTT module (sync + logistics, one module)
 
-These turned out to be one module, not two — `foundry/blank-inheritance/`, decided when actually designing it. It ships the campaign JSON and the module code together (one WinSCP push deploys both), syncs `/data` into Foundry documents (Scenes, Actors, JournalEntries, Playlists), supports pulling GM edits back down, and runs session logistics (time tracking, a director's panel for cueing scenes/transitions/music).
+These turned out to be one module, not two — `module/mythica-machina-blank-inheritance-adventure-module/` (originally `foundry/blank-inheritance/`; consolidated 2026-09-04/05, GitHub issue #71 — the manifest `id` stayed `blank-inheritance` on purpose). It ships the campaign JSON and the module code together (pushed as one unit via `tools/module-sync/`, or WinSCP by hand), syncs `/data` into Foundry documents (Scenes, Actors, JournalEntries, Playlists), supports pulling GM edits back down, and runs session logistics (time tracking, a director's panel for cueing scenes/transitions/music).
 
-- **Design**: [design/foundry-module-design.md](design/foundry-module-design.md) — architecture and decisions.
+- **Design**: [design/foundry-module-design.md](design/foundry-module-design.md) — architecture and decisions, including a Safety section on why world-document writes must go through Foundry's Document API, never raw file access.
 - **Reference**: [design/foundry-technical-reference.md](design/foundry-technical-reference.md) — the exact Foundry v14 / sf2e APIs the design relies on, verified against local source trees.
-- **Status**: designed, directory skeleton exists (`foundry/blank-inheritance/`), no generation/sync code written yet. See the design doc's §9 for the staged build order — core push pipeline first, director's panel and cold-open sequence last.
+- **Status**: Stage 1 (deterministic IDs, npc + character Actor generation, Scene with tokens, validation-by-reread) **built and verified against a live Foundry instance** — 15/15 checks passed 2026-08-22. The verified file-push half of the pipeline (repo → server) is also built (`tools/module-sync/`, issue #112). The in-Foundry document-sync half (turning pushed files into live documents, mid-session or on restart) is the current focus — tracked as GitHub epics #102 and #118, milestone "Foundry Module." See the design doc's §9 for the staged build order — core push pipeline first, director's panel and cold-open sequence last.
 
 Run manually, on demand. Not automatic, not LLM-mediated for the actual document mutation — that's the whole reason this project stores everything as JSON.
 

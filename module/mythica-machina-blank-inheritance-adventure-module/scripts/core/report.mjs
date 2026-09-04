@@ -1,4 +1,4 @@
-/** Pure report summarization and HTML rendering — no Foundry globals. */
+/** Pure report summarization, HTML rendering, and clipboard-text formatting — no Foundry globals. */
 
 export function summarizeReport(report) {
   let total = 0;
@@ -34,6 +34,30 @@ export function reportToHtml(report, summary) {
         ${rows}
       </table>
       ${report.reportFileWritten ? `<p>Full JSON report written to <code>storage/${report.reportPath}</code>.</p>` : `<p><em>Could not write the report file (see console) — results above are from this session only.</em></p>`}
+      ${report.clipboardCopied ? `<p><strong>Report copied to clipboard</strong> — paste it back to Claude for review.</p>` : `<p><em>Could not copy to clipboard automatically — copy the JSON report file's contents manually if you need to send it.</em></p>`}
     </div>
   `;
+}
+
+/**
+ * Renders the report as one plain-text block, meant to be copied verbatim
+ * (see foundry/io.mjs's copyTextToClipboard, called by sync.mjs) and pasted
+ * straight into a chat with Claude — a short human-readable header for the
+ * GM's own eyes, followed by the full JSON so it's unambiguous and precisely
+ * parseable on the receiving end. Deliberately not HTML — this is what goes
+ * on the OS clipboard, not into a chat message.
+ */
+export function reportToClipboardText(report, summary) {
+  const lines = [
+    "Blank Inheritance — Diagnostic Test Sync Report",
+    `Timestamp: ${report.timestamp}`,
+    `Result: ${summary.passed}/${summary.total} checks passed${summary.failed ? ` (${summary.failed} FAILED)` : ""}`
+  ];
+  if (report.fatalError) lines.push(`Fatal error: ${report.fatalError}`);
+  lines.push("");
+  lines.push("Paste this whole block back to Claude for review.");
+  lines.push("");
+  lines.push("--- Full report JSON ---");
+  lines.push(JSON.stringify(report, null, 2));
+  return lines.join("\n");
 }

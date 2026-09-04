@@ -14,16 +14,16 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { deriveFoundryId, contentHash } from "../foundry/blank-inheritance/scripts/core/ids.mjs";
-import { buildCreatureActorData } from "../foundry/blank-inheritance/scripts/core/generators/creature.mjs";
-import { buildCharacterActorData } from "../foundry/blank-inheritance/scripts/core/generators/character.mjs";
-import { buildSceneData } from "../foundry/blank-inheritance/scripts/core/generators/scene.mjs";
-import { validateActor, validateScene } from "../foundry/blank-inheritance/scripts/core/validate.mjs";
-import { summarizeReport } from "../foundry/blank-inheritance/scripts/core/report.mjs";
+import { deriveFoundryId, contentHash } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/ids.mjs";
+import { buildCreatureActorData } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/generators/creature.mjs";
+import { buildCharacterActorData } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/generators/character.mjs";
+import { buildSceneData } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/generators/scene.mjs";
+import { validateActor, validateScene } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/validate.mjs";
+import { summarizeReport, reportToClipboardText } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/report.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
-const fixturesDir = path.join(repoRoot, "foundry", "blank-inheritance", "data", "_test-fixtures");
+const fixturesDir = path.join(repoRoot, "module", "mythica-machina-blank-inheritance-adventure-module", "data", "_test-fixtures");
 const goldenDir = path.join(here, "golden");
 
 function readFixture(name) {
@@ -144,4 +144,27 @@ test("validateScene: token count check fails if a placement silently produced no
   const result = await validateScene(created, sceneSource, data._id, actorIdBySourceId);
   const tokenCountCheck = result.checks.find((c) => c.label === "token count matches placements");
   assert.equal(tokenCountCheck.pass, false);
+});
+
+test("reportToClipboardText: contains a human-readable summary AND the full report as parseable JSON", () => {
+  const report = { timestamp: "2026-09-04T00:00:00.000Z", results: [{ foo: "bar" }], fatalError: null };
+  const summary = { total: 5, passed: 5, failed: 0 };
+  const text = reportToClipboardText(report, summary);
+
+  assert.match(text, /5\/5 checks passed/);
+  assert.doesNotMatch(text, /FAILED/, "a fully-passing report must not mention FAILED");
+  assert.match(text, /paste.*back to Claude/i);
+
+  const jsonStart = text.indexOf("{");
+  const parsed = JSON.parse(text.slice(jsonStart));
+  assert.deepEqual(parsed, report, "the full original report object must be losslessly recoverable from the clipboard text");
+});
+
+test("reportToClipboardText: a failing report names the failure count and the fatal error", () => {
+  const report = { timestamp: "2026-09-04T00:00:00.000Z", results: [], fatalError: "boom" };
+  const summary = { total: 3, passed: 1, failed: 2 };
+  const text = reportToClipboardText(report, summary);
+
+  assert.match(text, /1\/3 checks passed \(2 FAILED\)/);
+  assert.match(text, /Fatal error: boom/);
 });

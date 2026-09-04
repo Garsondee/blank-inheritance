@@ -127,7 +127,8 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
     chatMessages: [],
     directories: new Set(["data", "modules"]),
     uploadedFiles: new Map(),
-    notifications: []
+    notifications: [],
+    clipboardText: null
   };
 
   const counter = { n: 1 };
@@ -154,6 +155,14 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
     foundry: globalThis.foundry,
     fetch: globalThis.fetch
   };
+
+  // navigator gets its own descriptor-based save/restore, not the plain
+  // assignment the rest of `previous` uses: Node 21+ ships its own built-in
+  // `globalThis.navigator` (userAgent, etc.) as a non-writable accessor
+  // property, so a bare `globalThis.navigator = ...` can throw depending on
+  // Node version. Object.defineProperty with configurable:true sidesteps
+  // that regardless of what shape (or absence) the real one has.
+  const previousNavigatorDescriptor = Object.getOwnPropertyDescriptor(globalThis, "navigator");
 
   const modules = new Map();
   if (moduleManifest) {
@@ -214,12 +223,24 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
     return { ok: true, status: 200, json: async () => content };
   };
 
+  Object.defineProperty(globalThis, "navigator", {
+    value: { clipboard: { writeText: async (text) => { world.clipboardText = text; } } },
+    configurable: true,
+    writable: true,
+    enumerable: true
+  });
+
   return {
     world,
     uninstall() {
       for (const [key, value] of Object.entries(previous)) {
         if (value === undefined) delete globalThis[key];
         else globalThis[key] = value;
+      }
+      if (previousNavigatorDescriptor) {
+        Object.defineProperty(globalThis, "navigator", previousNavigatorDescriptor);
+      } else {
+        delete globalThis.navigator;
       }
     }
   };

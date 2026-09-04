@@ -3,8 +3,8 @@ import { buildCreatureActorData } from "../core/generators/creature.mjs";
 import { buildCharacterActorData } from "../core/generators/character.mjs";
 import { buildSceneData } from "../core/generators/scene.mjs";
 import { validateActor, validateScene } from "../core/validate.mjs";
-import { summarizeReport, reportToHtml } from "../core/report.mjs";
-import { fetchModuleJson, writeReportFile } from "./io.mjs";
+import { summarizeReport, reportToHtml, reportToClipboardText } from "../core/report.mjs";
+import { fetchModuleJson, writeReportFile, copyTextToClipboard } from "./io.mjs";
 
 const MODULE_ID = "blank-inheritance";
 const FLAG_SCOPE = MODULE_ID;
@@ -100,7 +100,14 @@ export async function runDiagnosticTestSync() {
   ui.notifications.info(game.i18n.localize("BLANKINHERITANCE.TestSync.Running"));
   console.log("Blank Inheritance | Starting diagnostic test sync...");
 
-  const report = { timestamp: new Date().toISOString(), results: [], fatalError: null, reportFileWritten: false, reportPath: null };
+  const report = {
+    timestamp: new Date().toISOString(),
+    results: [],
+    fatalError: null,
+    reportFileWritten: false,
+    reportPath: null,
+    clipboardCopied: false
+  };
 
   try {
     const actorIdBySourceId = {};
@@ -124,6 +131,26 @@ export async function runDiagnosticTestSync() {
     report.reportFileWritten = true;
   } catch (err) {
     console.error("Blank Inheritance | Could not write report file:", err);
+  }
+
+  // Best-effort — a real GM session that isn't a secure/HTTPS context, or
+  // lacks clipboard permission, must not make the rest of the sync fail.
+  // The chat message below tells the GM either way (see reportToHtml).
+  //
+  // clipboardCopied is set to true BEFORE building the clipboard text, not
+  // after copyTextToClipboard resolves: the JSON that actually lands on the
+  // clipboard is a snapshot of `report` taken at serialization time, so
+  // setting the flag afterwards would mean a *successful* copy still reads
+  // "clipboardCopied: false" inside its own payload — caught by the tier-4
+  // test asserting the clipboard JSON matches the returned report exactly.
+  // Reset to false in the catch if the copy actually failed; in that case
+  // nothing reached the clipboard for the flag's value to be inconsistent with.
+  try {
+    report.clipboardCopied = true;
+    await copyTextToClipboard(reportToClipboardText(report, summary));
+  } catch (err) {
+    report.clipboardCopied = false;
+    console.error("Blank Inheritance | Could not copy report to clipboard:", err);
   }
 
   await ChatMessage.create({ content: reportToHtml(report, summary), whisper: [game.user.id] });

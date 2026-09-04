@@ -17,17 +17,17 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { installMockFoundry } from "./support/mock-foundry.mjs";
-import { deriveFoundryId } from "../foundry/blank-inheritance/scripts/core/ids.mjs";
-import { ensureDirectory, writeReportFile, fetchModuleJson } from "../foundry/blank-inheritance/scripts/foundry/io.mjs";
+import { deriveFoundryId } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/ids.mjs";
+import { ensureDirectory, writeReportFile, fetchModuleJson } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/foundry/io.mjs";
 // Safe as a static top-level import even though this is "the mocked globals"
 // file: sync.mjs only touches game/ui/Actor/etc. inside its exported
 // function bodies, never at module-evaluation time, so it's fine to import
 // once here and call its exports after installMockFoundry() runs per-test.
-import { runDiagnosticTestSync } from "../foundry/blank-inheritance/scripts/foundry/sync.mjs";
+import { runDiagnosticTestSync } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/foundry/sync.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
-const moduleRoot = path.join(repoRoot, "foundry", "blank-inheritance");
+const moduleRoot = path.join(repoRoot, "module", "mythica-machina-blank-inheritance-adventure-module");
 const templateJsonPath = path.join(repoRoot, "gamesystems", "sf2e", "template.json");
 
 const moduleManifest = JSON.parse(readFileSync(path.join(moduleRoot, "module.json"), "utf8"));
@@ -122,6 +122,33 @@ test("runDiagnosticTestSync: full run against the mock produces an all-passing r
     assert.equal(world.chatMessages.length, 1, "expected exactly one whispered chat message");
     assert.ok(report.reportFileWritten);
     assert.ok(world.uploadedFiles.has(`modules/blank-inheritance/storage/${report.reportPath}`));
+
+    assert.equal(report.clipboardCopied, true, "a successful run must report that it copied to the clipboard");
+    assert.ok(world.clipboardText, "expected the mock clipboard to have received text");
+    assert.match(world.clipboardText, /paste.*back to Claude/i);
+    const jsonStart = world.clipboardText.indexOf("{");
+    const parsedFromClipboard = JSON.parse(world.clipboardText.slice(jsonStart));
+    assert.deepEqual(parsedFromClipboard, report, "the clipboard's JSON must be the exact same report object returned to the caller");
+  } finally {
+    uninstall();
+  }
+});
+
+test("runDiagnosticTestSync: a clipboard failure does not fail the whole sync (best-effort, per design/foundry-module-design.md's Safety section)", async (t) => {
+  if (!templateJson) {
+    t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const { uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadFixtureModuleFiles(), templateJson });
+  try {
+    // Simulate a browser that refuses clipboard access (no permission, insecure context, etc.).
+    navigator.clipboard.writeText = async () => { throw new Error("clipboard permission denied"); };
+
+    const report = await runDiagnosticTestSync();
+
+    assert.equal(report.fatalError, null, "a clipboard failure must not become a fatal sync error");
+    assert.equal(report.clipboardCopied, false);
+    assert.equal(report.reportFileWritten, true, "the report file must still get written even if the clipboard copy failed");
   } finally {
     uninstall();
   }

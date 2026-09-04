@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
-const scriptsRoot = path.join(repoRoot, "foundry", "blank-inheritance", "scripts");
+const scriptsRoot = path.join(repoRoot, "module", "mythica-machina-blank-inheritance-adventure-module", "scripts");
 const coreRoot = path.join(scriptsRoot, "core");
 
 function walk(dir, out = []) {

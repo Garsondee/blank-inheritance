@@ -16,8 +16,8 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { buildCreatureActorData } from "../foundry/blank-inheritance/scripts/core/generators/creature.mjs";
-import { buildCharacterActorData } from "../foundry/blank-inheritance/scripts/core/generators/character.mjs";
+import { buildCreatureActorData } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/generators/creature.mjs";
+import { buildCharacterActorData } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/generators/character.mjs";
 import { ALL_PROFILES } from "../tools/battle-simulator/personnel-engine/archetypes.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));

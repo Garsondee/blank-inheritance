@@ -6,6 +6,14 @@ node_modules/
 __pycache__/
 *.pyc
 
+# SSH/private keys — never committed, regardless of where they land locally.
+*.ppk
+*.pem
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+
 # Large local reference trees — not project content, not for version control
 /gamesystems/
 /foundryvtt/
