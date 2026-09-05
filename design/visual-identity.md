@@ -516,6 +516,50 @@ spending the one colour that is supposed to stay rare.
 
 ---
 
+## 3g. The pilot ID panel: a clipping bug, fixed structurally, not by tuning a number
+
+**Found live, reported by the user against the running prototype.** The ident instrument (§3f)
+escaped its pod's top edge via `margin-top: calc(var(--bi-ident-size) * -0.36)` — but the pod it
+lived in is a `.bi-pod`, and `.bi-bar .bi-pod` sets `overflow: hidden` (load-bearing elsewhere:
+it is what stops a two-row key bank spilling into its neighbour). That same rule was silently
+clipping the instrument's own escape. It never actually cleared the pod on screen; the negative
+margin was calculating a position the parent then cut off. **This is why the fix is structural
+rather than a bigger negative number** — the pilot ID instrument (`.bi-ident`) is no longer a
+child of any `.bi-pod` at all. It now lives inside `.bi-pilot-id`, a plain positioning host
+(`position: relative; height: var(--bi-bar-height)`) — exactly the pattern `.bi-bar__cluster`
+already uses to let the main dome clear the chassis — with `.bi-ident` positioned
+`absolute; bottom: 0` inside it, the same escape the dome and subdomes already use. Nothing
+named `.bi-pod` sits between the instrument and `.bi-bar` any more, so there is no ancestor
+left that could clip it. A regression test pins the DOM shape directly (`.bi-ident` must be the
+first child of `.bi-pilot-id`, not nested inside the plate pod) so the bug cannot silently
+return under a different selector.
+
+**Given a clean escape, the user asked for the panel to go much further: "make this visual
+display x2 larger... and even have it protrude above the line of the main control panel"** —
+this time, above the whole chassis, not just its own pod. The instrument is now 150×252px
+(was 92×92px square) — 1.5x `--bi-bar-height` rather than a fixed pixel height, the same
+"structural, not tuned" invariant `--bi-dome-size` already uses for the main instrument — so
+84px of it rises into the scene above the bar's own top line, confirmed live via
+`getBoundingClientRect()` (identTop 1126 vs barTop 1210 at a 2560px console). It carries three
+readings instead of one: the candidate number, a Sync meter, and a **live Bleed meter wired to
+the same slider that already corrupts every other pane of glass on the chassis** — dragging
+Bleed now visibly degrades the pilot's own ID plate along with everything else, which it never
+did before. The Bleed reading is tinted Resonance violet deliberately, not as a new exception:
+Bleed is one of the categories the standing rule (§1) already names.
+
+A plain `<span class="bi-pilot-id__spacer">` reserves the instrument's footprint in the flex row
+beside it (the plate/legend pod), so pulling the instrument out of normal flow does not collapse
+the layout around it — the same trick a `::placeholder`-style spacer solves for any
+absolutely-positioned sibling.
+
+**Knock-on effect, caught by re-measuring rather than assumed:** the panel's on-screen footprint
+grew from 229px to 287px, so the left chassis shedding thresholds (§3f/pass 9) were stale by
+exactly that difference. Re-measured live and updated: 715/945/1150 → 773/1003/1208. Verified at
+the new t2 boundary (leftTrack 778px against a 772px content width — 6px of real slack, not an
+off-by-one) that nothing overflows.
+
+---
+
 ## 4. Foundry v14 structural facts (verified, and one corrects a common assumption)
 
 Read from `templates/views/game.hbs` and `public/css/foundry2.css` in the local v14.367

@@ -780,21 +780,28 @@
    track, so drift is caught the next time the page is opened, not the next
    time someone squints at a screenshot.
 
-   The left group holds the Direction module in GM mode IN PLACE of the ident
-   pod (225px vs 229px), so one set of left thresholds covers both modes.
+   The left group holds the Direction module in GM mode IN PLACE of the
+   pilot ID panel. The two used to be nearly the same width (225 vs 229px);
+   the pilot ID panel is now much bigger (287px, see 6b. THE PILOT ID PANEL)
+   and the Direction module is not, so the thresholds below are derived
+   from PLAYER mode's heavier footprint on purpose — the same "derive from
+   whichever scenario is bigger" rule the console's own min-width already
+   follows. The one consequence is GM mode sheds a module slightly EARLIER
+   than it strictly needs to at some widths, never later — the safe
+   direction for a threshold to be wrong in.
 
    Running totals (measured, player mode, 10px gaps):
-     LEFT   core checks 270 | +t2 ident 229, movement 196 -> 715
-            | +t3 dice 220 -> 945 | +t4 macro bank 195 -> 1150
+     LEFT   core checks 270 | +t2 pilot ID 287, movement 196 -> 773
+            | +t3 dice 220 -> 1003 | +t4 macro bank 195 -> 1208
      RIGHT  core actions 183 | +t2 conditions 310 -> 503
             | +t3 frame/view 207 -> 720 | +t4 audio desk 310 -> 1040
    Re-measure and update whenever a module changes width — the toolbar
    readout will tell you when. */
 .bi-bar__group--left  { container-type: inline-size; container-name: bi-bar-left; }
 .bi-bar__group--right { container-type: inline-size; container-name: bi-bar-right; }
-@container bi-bar-left (width < 1150px)  { .bi-bar__group--left  [data-bi-priority="4"] { display: none; } }
-@container bi-bar-left (width < 945px)   { .bi-bar__group--left  [data-bi-priority="3"] { display: none; } }
-@container bi-bar-left (width < 715px)   { .bi-bar__group--left  [data-bi-priority="2"] { display: none; } }
+@container bi-bar-left (width < 1208px)  { .bi-bar__group--left  [data-bi-priority="4"] { display: none; } }
+@container bi-bar-left (width < 1003px)  { .bi-bar__group--left  [data-bi-priority="3"] { display: none; } }
+@container bi-bar-left (width < 773px)   { .bi-bar__group--left  [data-bi-priority="2"] { display: none; } }
 @container bi-bar-right (width < 1040px) { .bi-bar__group--right [data-bi-priority="4"] { display: none; } }
 @container bi-bar-right (width < 720px)  { .bi-bar__group--right [data-bi-priority="3"] { display: none; } }
 @container bi-bar-right (width < 503px)  { .bi-bar__group--right [data-bi-priority="2"] { display: none; } }
@@ -1613,38 +1620,81 @@
 .bi-meter--tall      { height: 7px; }
 
 /* =====================================================================
-   MAP PINS — placed with --x / --y as percentages of the scene box
+   MAP MARKERS — muster boards on the scene
+   ---------------------------------------------------------------------
+   A marker used to be a dot and a two-line label. It is now two things
+   that must never be confused: the DOT, on the true map point, which never
+   moves; and the CARD — a steel muster board joined to the dot by a stem,
+   placed by scripts/core/marker-layout.mjs so it always lands inside the
+   visible band, clear of the floating rails and the banner lane, and not
+   on top of its neighbour. The card carries what a station officer would
+   actually want on a board bolted beside a plot table: a photograph, a
+   designation, a measured risk reading, and who has mustered to it.
+
+   SIX SIGN-UPS: a row of six BERTHS, one per candidate, in a FIXED order —
+   berth 3 is always Candidate 03, on every card. That is the load-bearing
+   decision: an unlit berth is information ("03 has not committed here"),
+   and after one session the GM reads the lamp pattern from across a 4K
+   screen without reading a digit. Identity is the candidate number, the
+   same key the ident instrument already uses — no names, no portraits (the
+   six real kids do not exist yet, and a 13px face is a smudge at distance
+   where a 13px lamp is not). Role is the lamp colour — the SAME colours the
+   Ground Stations rail already assigns, one source in console.js — with a
+   three-letter code under it for the near read. The pilot's lamp is bone,
+   not a jewel colour: one player is in the machine.
+
+   RISK is a CRT strip in SF2E's own five threat bands (TRIVIAL / LOW /
+   MODERATE / SEVERE / EXTREME): five chamfered segments lit to the band,
+   phosphor -> amber -> vermilion, and a detail line the GM authors ("DC 22
+   · SO-14 IN FORCE"). No made-up 0-100 number: the only real figure behind
+   a band is the XP budget, which is the GM's. NEVER violet — a Claimant
+   contact spends violet on the marker's own kind (dot, stem, lamp), and the
+   risk gauge still reads in band colours, because risk is one axis and
+   Resonance is another.
+
+   No Kanji on the board, per the brief. The Japanese stays in the marquee.
    ===================================================================== */
 
-.bi-pin {
-  --x: 50%;
-  --y: 50%;
+.bi-marker {
+  --x: 0.5;
+  --y: 0.5;
   --pin: var(--bi-cyan);
+  --bi-marker-width: 320px;
   position: absolute;
-  left: var(--x);
-  top: var(--y);
-  transform: translate(-50%, -50%);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  border: none;
-  background: none;
-  padding: 0;
-  cursor: pointer;
+  left: calc(var(--x) * 100%);
+  top: calc(var(--y) * 100%);
+  width: 0;
+  height: 0;
   z-index: 2;
 }
-.bi-pin__dot {
-  position: relative;
+.bi-marker:hover { z-index: 5; }
+.bi-marker--selected { z-index: 6; }
+
+.bi-marker--ok        { --pin: var(--bi-phosphor); }
+.bi-marker--warn      { --pin: var(--bi-amber); }
+.bi-marker--danger    { --pin: var(--bi-vermilion); }
+/* Claimant contacts ONLY. The one marker kind allowed to spend violet. */
+.bi-marker--resonance { --pin: var(--bi-resonance); }
+
+/* --- The dot: the true map point ------------------------------------ */
+.bi-marker__dot {
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 13px;
   height: 13px;
-  flex: none;
+  transform: translate(-50%, -50%);
+  border: none;
+  padding: 0;
+  cursor: pointer;
   border-radius: 50%;
   background: radial-gradient(circle at 40% 35%, #fff 0 1px, var(--pin) 2px, color-mix(in srgb, var(--pin) 40%, black) 100%);
   box-shadow: 0 0 0 1.5px rgb(0 0 0 / 70%), 0 0 10px var(--pin);
+  z-index: 2;
 }
-/* Radar ping. Staggered by --delay so the pins do not pulse in unison,
+/* Radar ping. Staggered by --delay so the stations do not pulse in unison,
    which would read as a screen refresh rather than separate stations. */
-.bi-pin__dot::after {
+.bi-marker__dot::after {
   content: "";
   position: absolute;
   inset: -3px;
@@ -1652,43 +1702,361 @@
   border: 1.5px solid var(--pin);
   animation: bi-ping 2.8s var(--delay, 0s) cubic-bezier(0.16, 0.8, 0.3, 1) infinite;
 }
+.bi-marker--selected .bi-marker__dot::after { animation-duration: 1.4s; }
+/* A targeting ring when selected — the HUD's designator language. */
+.bi-marker--selected .bi-marker__dot::before {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  border: 1.5px solid var(--bi-cyan);
+  box-shadow: 0 0 8px var(--bi-cyan);
+}
+.bi-marker__dot:focus-visible { outline: 2px solid var(--bi-cyan); outline-offset: 3px; }
 @keyframes bi-ping {
   0%        { transform: scale(0.6); opacity: 0.9; }
   70%, 100% { transform: scale(2.6); opacity: 0; }
 }
-@media (prefers-reduced-motion: reduce) { .bi-pin__dot::after { animation: none; opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .bi-marker__dot::after { animation: none; opacity: 0.35; } }
 
-.bi-pin__label {
-  font-family: var(--bi-font-condensed);
-  font-size: 13px;
+/* --- The stem: dot to the nearest point on the card's edge ---------- */
+/* Length and angle are written by the placement engine. A longer stem is
+   the honest signal that the card had to be moved off its point. */
+.bi-marker__stem {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 2px;
+  width: var(--len, 26px);
+  transform: translateY(-50%) rotate(var(--angle, 0deg));
+  transform-origin: 0 50%;
+  background: var(--pin);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 55%);
+  opacity: 0.85;
+  pointer-events: none;
+  z-index: 1;
+}
+/* A brass boss where the stem meets the plate: the lead is screwed on. */
+.bi-marker__stem::after {
+  content: "";
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: var(--bi-mat-brass);
+  box-shadow: 0 0 0 1px var(--bi-brass-shadow), 0 1px 2px rgb(0 0 0 / 70%);
+}
+.bi-marker:hover .bi-marker__stem,
+.bi-marker--selected .bi-marker__stem { opacity: 1; height: 3px; }
+
+/* --- The card -------------------------------------------------------- */
+.bi-marker__card {
+  /* Chamfered TL / BR — the dossier corner cut, the same clip-path move as
+     .bi-pod--slant and the marquee. Chamfers are square corners as far as
+     the plate-skin score line is concerned, so both corner tokens are 0. */
+  --bi-corner-tl: 0px;
+  --bi-corner-tr: 0px;
+  --chamfer: 12px;
+  position: absolute;
+  left: var(--dx, 26px);
+  top: var(--dy, 0px);
+  width: var(--bi-marker-width);
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  clip-path: polygon(
+    var(--chamfer) 0, 100% 0, 100% calc(100% - var(--chamfer)),
+    calc(100% - var(--chamfer)) 100%, 0 100%, 0 var(--chamfer)
+  );
+  /* clip-path discards box-shadow, so depth comes from a drop-shadow filter
+     on the wrapper below; the plate-skin's inset bevel survives the clip. */
+  cursor: default;
+  transition: transform var(--bi-dur-snap) var(--bi-ease-servo);
+}
+.bi-marker__card::after {
+  /* A brass rim, inset so the chamfer reads as a machined edge. */
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px var(--bi-brass-shadow);
+}
+.bi-marker__shadow {
+  position: absolute;
+  left: var(--dx, 26px);
+  top: var(--dy, 0px);
+  width: var(--bi-marker-width);
+  height: var(--card-h, 0px);
+  clip-path: inherit;
+  filter: drop-shadow(0 12px 24px rgb(0 0 0 / 72%));
+  pointer-events: none;
+}
+.bi-marker:hover .bi-marker__card { transform: translateY(-1px); }
+
+/* Head: station code (brass), designation (bone), status lamp. */
+.bi-marker__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+.bi-marker__code { padding: 3px 8px; font-size: 10px; font-weight: 700; flex: none; }
+.bi-marker__name {
+  flex: 1;
+  min-width: 0;
+  padding: 3px 10px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+.bi-marker__lamp { flex: none; }
+
+/* Scope: the photograph, on glass. */
+.bi-marker__scope {
+  position: relative;
+  margin: 0;
+  height: 197px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--bi-steel-900);
+  box-shadow: var(--bi-bevel-down), 0 0 0 1px var(--bi-brass-shadow);
+  /* No height transition on purpose: the placement engine measures the card
+     the instant density changes, and a card mid-transition measures at its
+     OLD height — found live at 1080p, where every card was laid out 133px
+     taller than it would end up. Density snaps; nothing else here moves. */
+  z-index: 1;
+}
+.bi-marker__scope img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  /* Dimmed so the plates and lamps outrank the picture until you look. */
+  filter: saturate(0.82) brightness(0.86);
+  transition: filter var(--bi-dur-snap) linear;
+}
+.bi-marker:hover .bi-marker__scope img,
+.bi-marker--selected .bi-marker__scope img { filter: none; }
+.bi-marker__scope::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--bi-mat-scanline);
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.bi-marker--selected .bi-marker__scope { outline: 1.5px solid var(--bi-cyan); outline-offset: 2px; }
+/* Data-back imprint, bottom-left: bearing and range from the Frame. */
+.bi-marker__fix,
+.bi-marker__status {
+  position: absolute;
+  bottom: 6px;
+  padding: 3px 7px;
+  background: rgb(7 12 12 / 80%);
+  border-radius: 2px;
+  line-height: 1.2;
+  z-index: 1;
+}
+.bi-marker__fix {
+  left: 6px;
+  font-family: var(--bi-font-readout);
+  font-size: 12px;
+  color: var(--bi-phosphor);
+  text-shadow: 0 0 6px currentColor;
+}
+.bi-marker__status {
+  right: 6px;
+  border-left: 2px solid var(--pin);
+  font-family: var(--bi-font-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--bi-bone);
-  background: rgb(7 12 12 / 80%);
-  padding: 4px 9px 5px;
-  border-radius: 2px;
-  border-left: 2px solid var(--pin);
-  white-space: nowrap;
-  text-shadow: 0 1px 2px #000;
-  line-height: 1.3;
 }
-.bi-pin__label small {
+
+/* Risk: a CRT strip. */
+.bi-marker__risk {
+  --risk: var(--bi-phosphor);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: "legend gauge band" "detail detail detail";
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 4px;
+  padding: 6px 10px 7px;
+  z-index: 1;
+}
+.bi-marker__risk[data-risk="3"] { --risk: var(--bi-amber); }
+.bi-marker__risk[data-risk="4"],
+.bi-marker__risk[data-risk="5"] { --risk: var(--bi-vermilion); }
+.bi-marker__risk > .bi-legend { grid-area: legend; color: var(--bi-phosphor-dim); position: relative; z-index: 1; }
+.bi-marker__gauge {
+  grid-area: gauge;
+  display: flex;
+  gap: 4px;
+  position: relative;
+  z-index: 1;
+}
+.bi-marker__gauge i {
   display: block;
-  font-family: var(--bi-font-gothic);
-  font-size: var(--bi-jp-size-sm);
-  line-height: var(--bi-jp-leading);
-  letter-spacing: 0.12em;
-  color: var(--bi-bone-dim);
-  text-transform: none;
+  width: 22px;
+  height: 9px;
+  clip-path: polygon(3px 0, 100% 0, calc(100% - 3px) 100%, 0 100%);
+  background: var(--bi-phosphor-bed);
+  box-shadow: inset 0 0 0 1px var(--bi-brass-shadow);
 }
-.bi-pin--danger    { --pin: var(--bi-vermilion); }
-.bi-pin--warn      { --pin: var(--bi-amber); }
-.bi-pin--ok        { --pin: var(--bi-phosphor); }
-.bi-pin--resonance { --pin: var(--bi-resonance); }
-/* Mirror the label so pins near the right edge stay in frame. */
-.bi-pin--flip { flex-direction: row-reverse; }
-.bi-pin--flip .bi-pin__label { border-left: none; border-right: 2px solid var(--pin); }
+.bi-marker__risk[data-risk="1"] i:nth-child(-n+1),
+.bi-marker__risk[data-risk="2"] i:nth-child(-n+2),
+.bi-marker__risk[data-risk="3"] i:nth-child(-n+3),
+.bi-marker__risk[data-risk="4"] i:nth-child(-n+4),
+.bi-marker__risk[data-risk="5"] i:nth-child(-n+5) {
+  background: var(--risk);
+  box-shadow: 0 0 7px var(--risk);
+}
+.bi-marker__band {
+  grid-area: band;
+  font-family: var(--bi-font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--risk);
+  text-shadow: 0 0 8px currentColor;
+  position: relative;
+  z-index: 1;
+}
+.bi-marker__risk[data-risk="5"] .bi-marker__band { animation: bi-lamp-pulse 1.4s var(--bi-ease-servo) infinite; }
+.bi-marker__detail {
+  grid-area: detail;
+  font-family: var(--bi-font-readout);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--bi-phosphor);
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+  z-index: 1;
+}
+
+/* Muster: six berths, fixed order. */
+.bi-marker__muster { display: flex; flex-direction: column; gap: 5px; position: relative; z-index: 1; }
+.bi-marker__muster-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--bi-brass-shadow);
+}
+.bi-marker__muster-head .bi-legend { color: var(--bi-brass); }
+.bi-marker__count {
+  font-family: var(--bi-font-readout);
+  font-size: 12px;
+  color: var(--bi-bone-dim);
+  letter-spacing: 0.05em;
+}
+.bi-marker__count b {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--bi-phosphor);
+  text-shadow: 0 0 8px currentColor;
+}
+.bi-marker--full .bi-marker__count b { color: var(--bi-amber); }
+.bi-marker__berths {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+.bi-berth {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 5px 2px 4px;
+  border-radius: 3px;
+  background: var(--bi-steel-900);
+  box-shadow: var(--bi-bevel-down), 0 0 0 1px var(--bi-brass-shadow);
+}
+.bi-berth__num {
+  font-family: var(--bi-font-readout);
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--bi-phosphor-dim);
+}
+.bi-berth__role {
+  font-family: var(--bi-font-legend);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--bi-bone-dark);
+}
+.bi-berth--on .bi-berth__num { color: var(--bi-phosphor); text-shadow: 0 0 8px currentColor; }
+.bi-berth--on .bi-berth__role { color: var(--bi-bone-dim); }
+/* Your own berth: a brass ring. Brass = yours, the same rule that makes the
+   ident instrument the one brass-bezelled thing on the pilot's pod. */
+.bi-berth--me { box-shadow: var(--bi-bevel-down), 0 0 0 1.5px var(--bi-brass-lit); }
+.bi-berth--me .bi-berth__num { color: #d8ffe8; }
+/* The pilot's lamp is incandescent bone, not a jewel colour. */
+.bi-lamp--bone { --lamp: var(--bi-bone); --lamp-dim: var(--bi-bone-dark); --lamp-bed: var(--bi-steel-800); }
+
+/* Foot: the one control that changes a sign-up. */
+.bi-marker__foot { display: flex; gap: 6px; position: relative; z-index: 1; }
+.bi-marker__commit { flex: 1; }
+.bi-marker__commit[aria-disabled="true"] { cursor: default; color: var(--bi-bone-dark); }
+.bi-marker__commit[aria-disabled="true"]:active { transform: none; box-shadow: var(--bi-bevel-up), 0 2px 0 var(--bi-void), 0 3px 5px rgb(0 0 0 / 55%); }
+.bi-marker__clear[hidden] { display: none; }
+
+/* Mine: the plate is live. */
+.bi-marker--mine .bi-marker__card::after { box-shadow: inset 0 0 0 1px var(--bi-phosphor-dim); }
+/* Danger: the lamp blinks; nothing else on the card does. */
+.bi-marker--danger .bi-marker__lamp { animation: bi-lamp-pulse 1.4s var(--bi-ease-servo) infinite; }
+.bi-marker--danger .bi-marker__card::after { box-shadow: inset 0 0 0 1px var(--bi-vermilion-dim); }
+.bi-marker--resonance .bi-marker__name { background: var(--bi-mat-brass); color: #241a06; }
+
+/* Density. Below a tall band the photograph collapses to a strip so six
+   boards do not blanket the map; the selected board always shows it all.
+   Set by console.js from the measured band, not a container query: this
+   needs HEIGHT, and .bi-console is inline-size-contained only (§3e). */
+.bi-console__scene[data-marker-density="compact"] .bi-marker:not(.bi-marker--selected) .bi-marker__scope { height: 64px; }
+.bi-console__scene[data-marker-density="compact"] .bi-marker:not(.bi-marker--selected) .bi-marker__scope img { object-position: 50% 40%; }
+/* Docket: when six boards physically cannot share the band (a 1290px floor
+   at 820px tall has ~400k px of usable scene for ~570k px of compact
+   cards), each collapses to its head and its risk strip — designation,
+   lamp, band and count still read — and opens on hover or selection. The
+   opened board is on top (z 5/6) and may briefly cover a neighbour, which
+   is what a hand lifting one docket off a pile does. */
+.bi-console__scene[data-marker-density="docket"] .bi-marker:not(.bi-marker--selected):not(:hover) .bi-marker__scope,
+.bi-console__scene[data-marker-density="docket"] .bi-marker:not(.bi-marker--selected):not(:hover) .bi-marker__muster,
+.bi-console__scene[data-marker-density="docket"] .bi-marker:not(.bi-marker--selected):not(:hover) .bi-marker__foot,
+.bi-console__scene[data-marker-density="docket"] .bi-marker:not(.bi-marker--selected):not(:hover) .bi-marker__detail { display: none; }
+.bi-console__scene[data-marker-density="docket"] .bi-marker:not(.bi-marker--selected):not(:hover) .bi-marker__risk {
+  grid-template-areas: "legend gauge band";
+  row-gap: 0;
+}
+.bi-console__scene[data-marker-density="docket"] .bi-marker:not(.bi-marker--selected):hover .bi-marker__scope { height: 64px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bi-marker__card { transition: none; }
+  .bi-marker__risk[data-risk="5"] .bi-marker__band, .bi-marker--danger .bi-marker__lamp { animation: none; }
+}
 
 /* =====================================================================
    THE MARQUEE — a lozenge long enough to actually read
@@ -1802,6 +2170,214 @@
   font-family: var(--bi-font-gothic);
   font-size: var(--bi-jp-size-lg);
   letter-spacing: 0.16em;
+}
+
+/* =====================================================================
+   SCENE BANNERS — a plate that drops out from under the top rail
+   ---------------------------------------------------------------------
+   Top, centred, bevelled, chevrons — the brief, taken literally, three
+   times over: the plate's ENDS are chevron points (a clip-path hexagon,
+   so it cannot read as a pill); the brass caps carry hazard-tape stripes
+   mirrored left and right, so together they form a chevron pointing at
+   the message; and three CSS chevrons march beside the text on an alarm.
+   "Bevelled" is a brass rim around the clipped shape with the steel face
+   inset inside it — clip-path discards box-shadow, so the bevel is built,
+   not cast. It EMERGES from under the top rail rather than drawing over
+   it: the lane starts at the rail's bottom edge and clips there.
+
+   One plate at a time. scripts/core/notices.mjs decides what shows next,
+   what pre-empts (an alarm over an advisory), what merges, what is
+   dropped; console.js only owns the timers. Every plate also goes to the
+   marquee, so nothing is lost when it leaves. The lane's rect is a
+   permanent exclusion for the marker cards, so a plate can never land on
+   a board.
+   ===================================================================== */
+
+.bi-console__banner {
+  position: absolute;
+  top: var(--bi-toprail-height);
+  left: 50%;
+  transform: translateX(-50%);
+  /* Clear of both floating rails at every console width down to the
+     1290px floor (1290 - 2 x 292 = 706px). cqw resolves against
+     .bi-console, which is already an inline-size container. */
+  width: min(880px, calc(100cqw - 2 * (var(--bi-rail-width) + 48px)));
+  min-width: 480px;
+  height: 72px;
+  padding-top: 10px;
+  overflow: hidden;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.bi-banner {
+  --kind: var(--bi-cyan);
+  --point: 18px;
+  position: relative;
+  height: 48px;
+  pointer-events: auto;
+  cursor: pointer;
+  clip-path: polygon(
+    0 50%, var(--point) 0, calc(100% - var(--point)) 0,
+    100% 50%, calc(100% - var(--point)) 100%, var(--point) 100%
+  );
+  background: linear-gradient(180deg, var(--bi-brass), var(--bi-brass-dark) 60%, var(--bi-brass-shadow));
+  animation: bi-banner-in 420ms var(--bi-ease-servo) both;
+}
+.bi-banner--out { animation: bi-banner-out 300ms var(--bi-ease-servo) forwards; }
+/* Depth: the lane's drop shadow has to follow the clipped shape, so it is
+   a filter on a sibling wrapper, not a box-shadow (which clip-path eats). */
+.bi-banner__wrap { filter: drop-shadow(0 8px 18px rgb(0 0 0 / 72%)); }
+.bi-banner__face {
+  position: absolute;
+  inset: 2px;
+  clip-path: polygon(
+    0 50%, calc(var(--point) - 1px) 0, calc(100% - var(--point) + 1px) 0,
+    100% 50%, calc(100% - var(--point) + 1px) 100%, calc(var(--point) - 1px) 100%
+  );
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 12%), transparent 3px, transparent calc(100% - 3px), rgb(0 0 0 / 55%)),
+    linear-gradient(180deg, var(--bi-steel-700), var(--bi-steel-800) 55%, var(--bi-steel-900));
+  display: flex;
+  align-items: center;
+}
+/* Hazard-tape caps, mirrored so the pair reads as one chevron. */
+.bi-banner__cap {
+  flex: none;
+  align-self: stretch;
+  width: 112px;
+  display: grid;
+  place-items: center;
+  padding-left: var(--point);
+  background: repeating-linear-gradient(
+    -45deg,
+    color-mix(in srgb, var(--kind) 62%, var(--bi-steel-900)) 0 7px,
+    var(--bi-steel-900) 7px 14px
+  );
+  box-shadow: inset -1px 0 0 rgb(0 0 0 / 55%);
+}
+.bi-banner__cap--right {
+  width: 96px;
+  padding-left: 0;
+  padding-right: var(--point);
+  background: repeating-linear-gradient(
+    45deg,
+    color-mix(in srgb, var(--kind) 62%, var(--bi-steel-900)) 0 7px,
+    var(--bi-steel-900) 7px 14px
+  );
+  box-shadow: inset 1px 0 0 rgb(0 0 0 / 55%);
+}
+.bi-banner__kind {
+  padding: 3px 8px;
+  background: var(--bi-mat-bone);
+  color: var(--bi-ink);
+  font-family: var(--bi-font-legend);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 70%), 0 1px 2px rgb(0 0 0 / 70%);
+  white-space: nowrap;
+}
+.bi-banner__time {
+  padding: 3px 8px;
+  border-radius: 2px;
+  background: var(--bi-steel-900);
+  box-shadow: var(--bi-bevel-down);
+  font-family: var(--bi-font-readout);
+  font-size: 12px;
+  color: var(--bi-bone-dim);
+  white-space: nowrap;
+}
+/* Three CSS chevrons pointing at the message. */
+.bi-banner__chev {
+  flex: none;
+  display: flex;
+  gap: 5px;
+  margin: 0 4px 0 10px;
+}
+.bi-banner__chev i {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-top: 2.5px solid var(--kind);
+  border-right: 2.5px solid var(--kind);
+  transform: rotate(45deg);
+  opacity: 0.45;
+}
+.bi-banner__chev i:nth-child(3) { opacity: 0.9; }
+.bi-banner__glass {
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  margin: 0 10px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  background: var(--bi-mat-screen);
+  border-radius: 3px;
+  box-shadow: var(--bi-bevel-down), 0 0 0 1px var(--bi-brass-shadow);
+  overflow: hidden;
+}
+.bi-banner__glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--bi-mat-scanline);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.bi-banner__text {
+  font-family: var(--bi-font-marquee);
+  font-size: 20px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--kind);
+  text-shadow: 0 0 7px currentColor;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
+}
+.bi-banner__count {
+  margin-left: 10px;
+  font-family: var(--bi-font-readout);
+  font-size: 12px;
+  color: var(--bi-amber);
+}
+.bi-banner__count[hidden] { display: none; }
+
+.bi-banner--info      { --kind: var(--bi-cyan); }
+.bi-banner--caution   { --kind: var(--bi-amber); }
+.bi-banner--alert     { --kind: var(--bi-vermilion); }
+/* Resonance, Bleed, Anchor and Claimant events ONLY — never "important". */
+.bi-banner--resonance { --kind: var(--bi-resonance); }
+.bi-banner--alert .bi-banner__kind,
+.bi-banner--resonance .bi-banner__kind { color: #fff; background: linear-gradient(180deg, color-mix(in srgb, var(--kind) 80%, white), var(--kind) 50%, color-mix(in srgb, var(--kind) 65%, black)); text-shadow: 0 1px 0 rgb(0 0 0 / 40%); }
+/* An alarm's chevrons march; everything else holds still. */
+.bi-banner--alert .bi-banner__chev i,
+.bi-banner--resonance .bi-banner__chev i { animation: bi-chev-march 0.9s steps(1) infinite; }
+.bi-banner--alert .bi-banner__chev i:nth-child(2),
+.bi-banner--resonance .bi-banner__chev i:nth-child(2) { animation-delay: 0.3s; }
+.bi-banner--alert .bi-banner__chev i:nth-child(3),
+.bi-banner--resonance .bi-banner__chev i:nth-child(3) { animation-delay: 0.6s; }
+@keyframes bi-chev-march { 0% { opacity: 1; } 34% { opacity: 0.3; } }
+
+/* It drops from behind the rail, overshoots 3px, and seats. */
+@keyframes bi-banner-in {
+  0%   { transform: translateY(calc(-100% - 12px)); }
+  72%  { transform: translateY(3px); }
+  100% { transform: none; }
+}
+@keyframes bi-banner-out {
+  to { transform: translateY(calc(-100% - 12px)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bi-banner { animation: none; }
+  .bi-banner--out { animation: none; opacity: 0; }
+  .bi-banner__chev i { animation: none !important; }
 }
 
 /* =====================================================================
@@ -1975,57 +2551,98 @@
 }
 
 /* =====================================================================
-   6b. THE IDENT DISPLAY
+   6b. THE PILOT ID PANEL
    ---------------------------------------------------------------------
-   FOUND LIVE: the pilot number lived in a plain 46px .bi-screen square
-   sitting flush inside the ident pod's rounded top-left corner (30px
-   radius) — a small flat rectangle abutting a big curve never sits right,
-   and at that size it read as an afterthought next to the plate/legend
-   beside it. Rather than fight the mismatch, this leans into it: a proper
-   brass-bezelled instrument, the same hardware family as the main dome and
-   the flanking subdomes, sized up and mounted PROUD of the pod — its top
-   third pokes above the pod's own edge into the scene background, echoing
-   how the dome breaks the chassis line. Carries more than a bare number now:
-   a role legend, the candidate number, and a live sync readout.
-   ===================================================================== */
+   FOUND LIVE, reported by the user against the running prototype: the
+   ident instrument escaped its pod's TOP edge via a negative margin-top,
+   but the pod is a `.bi-pod`, and `.bi-bar .bi-pod` sets `overflow: hidden`
+   (so a key bank two rows deep can never spill into a neighbour). That
+   same overflow:hidden was silently CROPPING the instrument's own escape --
+   it never actually rose clear of the pod on screen, no matter what the
+   margin said. The fix is architectural, not a bigger negative number:
+   the instrument is no longer a child of any `.bi-pod` at all. It is now
+   a sibling of the pod, inside a plain positioning host (`.bi-pilot-id`,
+   `position:relative; height:var(--bi-bar-height)`) -- exactly the pattern
+   `.bi-bar__cluster` already uses to let the main dome clear the chassis.
+   Nothing named `.bi-pod` sits between the instrument and `.bi-bar`, so
+   there is no ancestor left that could clip it; a test enforces this.
+
+   Given a clean escape, the user also asked for this to go much further:
+   bigger, and carrying more than a bare number. It is now taller than the
+   chassis itself (1.5x --bi-bar-height) rather than a third of one pod's
+   height, so it rises INTO THE SCENE above the bar's own top line -- not
+   just above its own pod, above the whole instrument row, the same
+   register the main dome and subdomes already read in. And it now carries
+   three readings instead of one: the candidate number, a Sync meter (how
+   well pilot and Frame are tracking each other), and a Bleed meter wired
+   to the SAME control that already corrupts every other pane of glass on
+   the chassis -- drag that slider and the pilot's own ID plate degrades
+   along with everything else, which it never did before.
+
+   A plain span spacer reserves the instrument's footprint in the flex row
+   beside it (the plate/legend pod), so pulling the instrument out of flow
+   does not collapse the layout around it. */
+
+.bi-pilot-id {
+  --bi-ident-w: 150px;
+  /* 1.5x the chassis row: tall enough that the instrument clears the
+     bar's own top line by a wide margin, the same "structural, not
+     tuned" invariant --bi-dome-size already uses for the main instrument. */
+  --bi-ident-h: calc(var(--bi-bar-height) * 1.5);
+  position: relative;
+  height: var(--bi-bar-height);
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex: none;
+}
+/* Reserves the instrument's footprint in the row; the instrument itself is
+   painted by .bi-ident, positioned absolutely over this same footprint. */
+.bi-pilot-id__spacer {
+  flex: none;
+  width: var(--bi-ident-w);
+  pointer-events: none;
+}
+/* The visible plate/legend/status pod. An ordinary .bi-pod in every way --
+   it is deliberately NOT where the instrument lives, so the instrument
+   never inherits .bi-pod's overflow:hidden again by accident. */
+.bi-pilot-id__plate {
+  flex: 1 1 auto;
+  min-width: 118px;
+}
 
 .bi-ident {
-  --bi-ident-size: 92px;
-  position: relative;
-  width: var(--bi-ident-size);
-  height: var(--bi-ident-size);
-  flex: none;
-  /* Roughly a third of the instrument rises above the pod's own top line —
-     a clear, deliberate poke rather than the small flush square it replaces. */
-  margin-top: calc(var(--bi-ident-size) * -0.36);
-  border-radius: 8px;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: var(--bi-ident-w);
+  height: var(--bi-ident-h);
+  border-radius: 10px;
   background: var(--bi-mat-brass);
-  box-shadow: 0 0 0 1px var(--bi-brass-shadow), 0 8px 18px rgb(0 0 0 / 75%);
-  display: grid;
-  place-items: center;
+  box-shadow: 0 0 0 1px var(--bi-brass-shadow), 0 10px 26px rgb(0 0 0 / 78%), 0 0 34px rgb(0 0 0 / 45%);
   z-index: 2;
 }
 .bi-ident::before {
   content: "";
   position: absolute;
-  inset: 6px;
-  border-radius: 6px;
+  inset: 8px;
+  border-radius: 7px;
   background: linear-gradient(180deg, var(--bi-steel-600), var(--bi-steel-900));
-  box-shadow: inset 0 2px 5px rgb(0 0 0 / 82%);
+  box-shadow: inset 0 2px 6px rgb(0 0 0 / 82%);
 }
 .bi-ident__glass {
-  position: relative;
-  width: calc(100% - 18px);
-  height: calc(100% - 18px);
-  border-radius: 3px;
+  position: absolute;
+  inset: 17px;
+  border-radius: 4px;
   background: var(--bi-mat-screen);
-  box-shadow: inset 0 0 16px rgb(0 0 0 / 88%);
+  box-shadow: inset 0 0 20px rgb(0 0 0 / 88%);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1px;
+  gap: 5px;
+  padding: 10px 10px 12px;
 }
 .bi-ident__glass::after {
   content: "";
@@ -2038,15 +2655,15 @@
 .bi-ident__gloss {
   position: absolute;
   inset: 0;
-  border-radius: 8px;
-  background: radial-gradient(55% 38% at 30% 14%, rgb(255 255 255 / 14%) 0%, transparent 70%);
+  border-radius: 10px;
+  background: radial-gradient(55% 32% at 30% 10%, rgb(255 255 255 / 14%) 0%, transparent 70%);
   pointer-events: none;
 }
 .bi-ident__label {
   position: relative;
   z-index: 1;
   font-family: var(--bi-font-legend);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--bi-phosphor-dim);
@@ -2056,18 +2673,51 @@
   z-index: 1;
   font-family: var(--bi-font-readout);
   font-weight: 700;
-  font-size: 30px;
+  font-size: 46px;
   line-height: 1;
   color: var(--bi-phosphor);
-  text-shadow: 0 0 8px currentColor, 0 0 20px rgb(111 227 154 / 35%);
+  text-shadow: 0 0 9px currentColor, 0 0 24px rgb(111 227 154 / 35%);
 }
-.bi-ident__sub {
+/* Separates the callsign from the telemetry below it -- the same idea as
+   the subdome's own hairline between its dial and its readout. */
+.bi-ident__rule {
   position: relative;
   z-index: 1;
-  font-family: var(--bi-font-readout);
-  font-size: 11px;
+  width: 100%;
+  height: 1px;
+  margin: 1px 0 2px;
+  background: linear-gradient(90deg, transparent, var(--bi-brass-dark) 18%, var(--bi-brass-dark) 82%, transparent);
+  opacity: 0.75;
+}
+.bi-ident__stats {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.bi-ident__stat { display: flex; flex-direction: column; gap: 3px; }
+.bi-ident__stat-row { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+.bi-ident__stat-label {
+  font-family: var(--bi-font-legend);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--bi-phosphor-dim);
 }
+.bi-ident__stat-value {
+  font-family: var(--bi-font-readout);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--bi-phosphor);
+}
+.bi-ident__stat .bi-meter { margin-top: 0; }
+/* Bleed is one of this palette's sanctioned uses of Resonance violet (see
+   design/visual-identity.md: "reserved for Resonance/Bleed/Anchors/
+   Claimants") -- this is a Bleed reading, not a new exception to that rule. */
+.bi-ident__stat--bleed .bi-ident__stat-label { color: var(--bi-resonance-dim); }
+.bi-ident__stat--bleed .bi-ident__stat-value { color: var(--bi-resonance); text-shadow: 0 0 6px currentColor; }
 
 /* =====================================================================
    7. CONTROL BANKS

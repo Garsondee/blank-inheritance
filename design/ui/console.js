@@ -3,26 +3,59 @@
  * Prototype-only. None of this is the module's real data layer; it exists so
  * the visual identity can be judged in motion rather than as a still, and so
  * the interactions the design promises can actually be tried. Anything here
- * that survives review moves into scripts/core/ as a pure function with tests.
+ * that survives review moves into scripts/core/ as a pure function with tests
+ * — the marker placement geometry and the notice queue already have, and this
+ * file imports them back rather than keeping a second copy.
  *
  * The content, though, is real: the ground roles are the five in
- * data/campaign/ground-roles.json, and the map pins are the locations
+ * data/campaign/ground-roles.json, and the map markers are the locations
  * campaign-arc.md describes on the reference art this scene is cropped from.
  */
-"use strict";
+
+import {
+  layoutMarkers,
+  visibleBand,
+  fixFrom
+} from "../../module/blank-inheritance/scripts/core/marker-layout.mjs";
+import {
+  NoticeQueue,
+  NOTICE_DWELL,
+  NOTICE_CAP,
+  weightedPick
+} from "../../module/blank-inheritance/scripts/core/notices.mjs";
 
 /* ------------------------------------------------------------------ *
  * Data — real campaign content, prototype-only shape.
  * ------------------------------------------------------------------ */
 
-// data/campaign/ground-roles.json, in its stated order.
+// data/campaign/ground-roles.json, in its stated order. The lamp colour is
+// the ONE place a role's colour is decided: the Ground Stations rail and the
+// marker berths both read it from here, so they can never disagree. Signals
+// is violet on purpose — the role "reduces Bleed, or holds a slipping
+// Resonance band", the same justification as the Anchor key.
 const ROLES = [
-  { id: "sensor-operator",     name: "Sensor Op",   jp: "探知",  who: "—", lamp: "cyan" },
-  { id: "umbilical-control",   name: "Umbilical",   jp: "臍帯",  who: "—", lamp: "amber" },
-  { id: "evacuation-marshal",  name: "Evac Marshal", jp: "避難", who: "—", lamp: "" },
-  { id: "structural-command",  name: "Structural",  jp: "構造",  who: "—", lamp: "red" },
-  { id: "signals-liaison",     name: "Signals",     jp: "通信",  who: "—", lamp: "resonance" }
+  { id: "sensor-operator",    name: "Sensor Op",    code: "SEN", jp: "探知", lamp: "cyan" },
+  { id: "umbilical-control",  name: "Umbilical",    code: "UMB", jp: "臍帯", lamp: "amber" },
+  { id: "evacuation-marshal", name: "Evac Marshal", code: "EVA", jp: "避難", lamp: "" },
+  { id: "structural-command", name: "Structural",   code: "STR", jp: "構造", lamp: "red" },
+  { id: "signals-liaison",    name: "Signals",      code: "SIG", jp: "通信", lamp: "resonance" }
 ];
+// The pilot is not a ground station; their lamp is incandescent bone.
+const PILOT_ROLE = { id: "pilot", name: "Pilot", code: "PLT", lamp: "bone" };
+const ROLE_BY_ID = Object.fromEntries([...ROLES, PILOT_ROLE].map((r) => [r.id, r]));
+
+// Six candidates, six roles. Placeholder assignments — the six real kids are
+// the user's to create, not ours to invent. The candidate NUMBER is the
+// identity the console uses everywhere (the ident instrument reads "04").
+const CANDIDATES = [
+  { no: "01", role: "sensor-operator" },
+  { no: "02", role: "umbilical-control" },
+  { no: "03", role: "evacuation-marshal" },
+  { no: "04", role: "pilot" },
+  { no: "05", role: "structural-command" },
+  { no: "06", role: "signals-liaison" }
+];
+const candidateRole = (no) => ROLE_BY_ID[CANDIDATES.find((c) => c.no === no).role];
 
 const UNITS = [
   { id: "claimant", name: "Claimant", jp: "占有者", init: 24, hp: 0.53, kind: "danger", ac: 34, hpText: "96/180", lvl: 13 },
@@ -40,14 +73,22 @@ const FACTS = [
   { text: "Reaction on approach", tone: "danger" }
 ];
 
-const PINS = {
-  fort:     { label: "Directorate HQ",   jp: "統制局 本部",   note: "Sea fort, mid-channel. Causeway is the only approach." },
-  causeway: { label: "Causeway Check",   jp: "堤道 検問所",   note: "Standing Order 14: no Frame passes under its own power." },
-  contact:  { label: "Contact",          jp: "接触 発生",     note: "Claimant, old town. Civilian density high." },
-  shelter:  { label: "Shelter 4",        jp: "第四避難所",    note: "1,240 of 2,000 clear. Evacuation Marshal has the track." },
-  pier:     { label: "Pier 3 — Sortie",  jp: "第三埠頭 発進", note: "Launch cradle. Umbilical still engaged." },
-  mast:     { label: "Sensor Mast",      jp: "探知塔",        note: "Sensor Operator station. Recall Knowledge from here." }
-};
+// SF2E's five threat bands (reference/tables/encounter-and-rewards-math.json).
+const RISK_BANDS = ["", "Trivial", "Low", "Moderate", "Severe", "Extreme"];
+
+// The stations on the scene. x/y are fractions of the scene box — the DOT
+// goes exactly there; the CARD is placed by marker-layout.mjs. `kind` is the
+// marker's own colour: resonance is for the Claimant contact ONLY. `jp` is
+// for the marquee, which keeps its Japanese; the boards carry none.
+const MARKERS = [
+  { id: "fort",     x: 0.76, y: 0.27, delay: 0,   kind: "info",      code: "ST-01", name: "Directorate HQ",     status: "Sealed",    risk: 2, detail: "SO-14 · CAUSEWAY ONLY",        jp: "統制局 本部",   note: "Sea fort, mid-channel. Causeway is the only approach.", crew: [] },
+  { id: "causeway", x: 0.59, y: 0.39, delay: 0.5, kind: "warn",      code: "ST-02", name: "Causeway Check",     status: "Held",      risk: 3, detail: "DC 22 · SO-14 IN FORCE",       jp: "堤道 検問所",   note: "Standing Order 14: no Frame passes under its own power.", crew: ["05"] },
+  { id: "contact",  x: 0.40, y: 0.55, delay: 1.1, kind: "resonance", code: "ST-03", name: "Contact — Old Town", status: "Contact",   risk: 5, detail: "CLAIMANT · CIVILIANS 1,200",   jp: "接触 発生",     note: "Claimant, old town. Civilian density high.", crew: ["04"] },
+  { id: "shelter",  x: 0.20, y: 0.69, delay: 1.7, kind: "ok",        code: "ST-04", name: "Shelter 4",          status: "62% clear", risk: 2, detail: "1,240 / 2,000 · TRACK HELD",   jp: "第四避難所",    note: "1,240 of 2,000 clear. Evacuation Marshal has the track.", crew: ["03"] },
+  { id: "pier",     x: 0.50, y: 0.79, delay: 2.2, kind: "warn",      code: "ST-05", name: "Pier 3 — Sortie",    status: "Cradle",    risk: 3, detail: "UMBILICAL · 2R BANKED",        jp: "第三埠頭 発進", note: "Launch cradle. Umbilical still engaged.", crew: ["02", "06"] },
+  { id: "mast",     x: 0.27, y: 0.21, delay: 2.6, kind: "info",      code: "ST-06", name: "Sensor Mast",        status: "Open",      risk: 1, detail: "RECALL KNOWLEDGE FROM HERE",   jp: "探知塔",        note: "Sensor Operator station. Recall Knowledge from here.", crew: ["01"] }
+];
+const FRAME_AT = MARKERS.find((m) => m.id === "pier");   // the Frame is in its cradle
 
 const MARQUEE_ITEMS = [
   { t: "同調率 6.2 — 帯域 安定", c: "jp" },
@@ -60,28 +101,51 @@ const MARQUEE_ITEMS = [
   { t: "SEA STATE 3 — WIND 14KT NORTHEAST — TIDE FALLING" }
 ];
 
+// The test bed's random notices, weighted 5 info : 3 caution : 1 alert : 1
+// resonance. Resonance lines are Resonance/Bleed/Anchor/Claimant events and
+// nothing else — a test greps this pool for that.
+const NOTICE_POOL = [
+  { kind: "info",      weight: 1.2, text: "Sea state 3 — wind 14kt northeast — tide falling" },
+  { kind: "info",      weight: 1.2, text: "Runabout departed Pier 3 — ETA causeway 4 min" },
+  { kind: "info",      weight: 1.2, text: "Sensor mast sweep complete — no new returns" },
+  { kind: "info",      weight: 1.2, text: "Shelter 4 headcount updated — 1,240 clear" },
+  { kind: "info",      weight: 1.2, text: "Directorate courier inbound — clearance pending" },
+  { kind: "caution",   weight: 1,   text: "Contact probability 24% and rising" },
+  { kind: "caution",   weight: 1,   text: "Umbilical pressure drift — check the cradle clamps" },
+  { kind: "caution",   weight: 1,   text: "Standing Order 14 in force — hold at the causeway" },
+  { kind: "alert",     weight: 1,   text: "Structural failure — old town waterfront", jp: "構造 崩壊 — 旧市街" },
+  { kind: "resonance", weight: 1,   text: "Resonance band slipping — Signals, talk the pilot down" }
+];
+
 /* ------------------------------------------------------------------ *
  * Small helpers
  * ------------------------------------------------------------------ */
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
+const lampClass = (lamp) => (lamp ? "bi-lamp--" + lamp : "");
 
 /** Map a 0..1 value onto the analog dials' -130°..+130° sweep. */
 const needleAngle = (v) => (clamp(v, 0, 1) * 260 - 130).toFixed(1) + "deg";
 
+const consoleEl = $("#console");
+const sceneEl = $("#scene");
+
 /* ------------------------------------------------------------------ *
  * Render: rails
  * ------------------------------------------------------------------ */
-$("#roles").innerHTML = ROLES.map((r, i) => `
+$("#roles").innerHTML = ROLES.map((r, i) => {
+  const holder = CANDIDATES.find((c) => c.role === r.id);
+  return `
   <button class="bi-role" data-role="${r.id}" aria-pressed="${i === 0}">
-    <span class="bi-lamp ${r.lamp ? "bi-lamp--" + r.lamp : ""} ${i === 0 ? "bi-lamp--lit" : ""}"></span>
+    <span class="bi-lamp ${lampClass(r.lamp)} ${i === 0 ? "bi-lamp--lit" : ""}"></span>
     <span class="bi-role__text">
       <span class="bi-role__name">${r.name}</span>
       <span class="bi-role__jp">${r.jp}</span>
     </span>
-    <span class="bi-role__who">${r.who}</span>
-  </button>`).join("");
+    <span class="bi-role__who">${holder ? holder.no : "—"}</span>
+  </button>`;
+}).join("");
 
 $("#units").innerHTML = UNITS.map((u, i) => `
   <button class="bi-unit" data-unit="${u.id}" aria-pressed="${i === 0}">
@@ -120,7 +184,7 @@ $("#macro-bank").innerHTML = MACRO_GLYPHS.map((g, i) => `
  * Instruments
  * ------------------------------------------------------------------ */
 const dome = $("#dome");
-const state = { res: 6.2, hp: 148, hpMax: 210, locked: false, target: UNITS[0], round: 3, prob: 0.18 };
+const state = { res: 6.2, hp: 148, hpMax: 210, locked: false, target: UNITS[0], round: 3, prob: 0.18, gm: false, me: "04" };
 
 function paintInstruments() {
   $("#res-out").textContent = state.res.toFixed(1);   // .bi-subdome__value
@@ -154,21 +218,6 @@ for (const btn of $$("[data-tier-btn]")) {
   });
 }
 
-/* ------------------------------------------------------------------ *
- * Map pins — clicking one targets it and writes it into the marquee.
- * ------------------------------------------------------------------ */
-for (const pin of $$(".bi-pin")) {
-  pin.addEventListener("click", () => {
-    const info = PINS[pin.dataset.pin];
-    if (!info) return;
-    for (const p of $$(".bi-pin")) p.style.filter = "";
-    pin.style.filter = "drop-shadow(0 0 10px currentColor)";
-    announce(`${info.jp} — ${info.label.toUpperCase()}: ${info.note.toUpperCase()}`,
-             pin.classList.contains("bi-pin--danger") ? "alert" : "");
-    if (pin.dataset.pin === "contact") setLock(true, UNITS[0]);
-  });
-}
-
 /** Push a line to the front of the marquee and restart its run. */
 function announce(text, tone) {
   const run = $("#marquee");
@@ -184,6 +233,337 @@ function announce(text, tone) {
   void run.offsetWidth;         // force reflow so the restart takes
   run.style.animation = "";
 }
+
+/* ------------------------------------------------------------------ *
+ * Map markers — muster boards. Rendered from MARKERS, placed by the
+ * core geometry, re-placed on every resize.
+ * ------------------------------------------------------------------ */
+const markerEls = new Map();
+let selectedMarker = null;
+
+function berthMarkup(m) {
+  return CANDIDATES.map((c) => {
+    const role = ROLE_BY_ID[c.role];
+    const on = m.crew.includes(c.no);
+    const me = state.me === c.no;
+    return `
+      <li class="bi-berth ${on ? "bi-berth--on" : ""} ${me ? "bi-berth--me" : ""}" data-candidate="${c.no}" title="Candidate ${c.no} — ${role.name}${on ? ", mustered" : ""}">
+        <span class="bi-lamp ${lampClass(role.lamp)} ${on ? "bi-lamp--lit" : ""}"></span>
+        <span class="bi-berth__num">${c.no}</span>
+        <span class="bi-berth__role">${role.code}</span>
+      </li>`;
+  }).join("");
+}
+
+function fixLine(m) {
+  const scene = consoleEl.getBoundingClientRect();
+  const f = fixFrom({ x: FRAME_AT.x, y: FRAME_AT.y }, { x: m.x, y: m.y }, { scale: 6, aspect: scene.height / Math.max(1, scene.width) });
+  if (m === FRAME_AT) return "CRADLE · 0.0 KM";
+  return `BRG ${String(f.bearing).padStart(3, "0")}° · ${f.range.toFixed(1)} KM`;
+}
+
+function renderMarkers() {
+  sceneEl.insertAdjacentHTML("beforeend", MARKERS.map((m) => `
+    <article class="bi-marker bi-marker--${m.kind}" data-marker="${m.id}" style="--x:${m.x};--y:${m.y};--delay:${m.delay}s">
+      <button class="bi-marker__dot" type="button" aria-label="Target ${m.name}" aria-pressed="false"></button>
+      <span class="bi-marker__stem" aria-hidden="true"></span>
+      <span class="bi-marker__shadow" aria-hidden="true"></span>
+      <div class="bi-marker__card bi-plate-skin">
+        <header class="bi-marker__head">
+          <span class="bi-plate bi-plate--brass bi-marker__code">${m.code}</span>
+          <span class="bi-plate bi-marker__name" title="${m.name}">${m.name}</span>
+          <span class="bi-lamp bi-lamp--lit bi-marker__lamp ${m.kind === "warn" ? "bi-lamp--amber" : m.kind === "danger" ? "bi-lamp--red" : m.kind === "resonance" ? "bi-lamp--resonance" : m.kind === "info" ? "bi-lamp--cyan" : ""}"></span>
+        </header>
+        <figure class="bi-marker__scope">
+          <img src="assets/pins/${m.id}.jpg" alt="" width="480" height="320">
+          <span class="bi-marker__fix">${fixLine(m)}</span>
+          <span class="bi-marker__status">${m.status}</span>
+        </figure>
+        <div class="bi-marker__risk bi-screen" data-risk="${m.risk}" aria-label="Risk ${RISK_BANDS[m.risk]}">
+          <span class="bi-legend">Risk</span>
+          <span class="bi-marker__gauge" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <span class="bi-marker__band">${RISK_BANDS[m.risk]}</span>
+          <span class="bi-marker__detail">${m.detail}</span>
+        </div>
+        <div class="bi-marker__muster">
+          <div class="bi-marker__muster-head">
+            <span class="bi-legend">Muster</span>
+            <span class="bi-marker__count"><b>${m.crew.length}</b>/6</span>
+          </div>
+          <ol class="bi-marker__berths" aria-label="Sign-ups, by candidate number">${berthMarkup(m)}</ol>
+        </div>
+        <footer class="bi-marker__foot">
+          <button class="bi-key bi-key--sm bi-key--go bi-marker__commit" type="button">Sign on</button>
+        </footer>
+      </div>
+    </article>`).join(""));
+
+  for (const el of $$(".bi-marker", sceneEl)) {
+    const m = MARKERS.find((x) => x.id === el.dataset.marker);
+    markerEls.set(m.id, el);
+    $(".bi-marker__dot", el).addEventListener("click", () => selectMarker(m.id));
+    $(".bi-marker__head", el).addEventListener("click", () => selectMarker(m.id));
+    $(".bi-marker__commit", el).addEventListener("click", () => commit(m.id));
+  }
+  paintMuster();
+}
+
+/** Repaint every board's berths, count and key from the crew lists. */
+function paintMuster() {
+  for (const m of MARKERS) {
+    const el = markerEls.get(m.id);
+    $(".bi-marker__berths", el).innerHTML = berthMarkup(m);
+    $(".bi-marker__count b", el).textContent = String(m.crew.length);
+    const mine = state.me !== null && m.crew.includes(state.me);
+    const full = m.crew.length >= 6;
+    el.classList.toggle("bi-marker--mine", mine);
+    el.classList.toggle("bi-marker--full", full);
+    const key = $(".bi-marker__commit", el);
+    key.classList.remove("bi-key--go", "bi-key--caution");
+    key.removeAttribute("aria-disabled");
+    if (state.gm) {
+      key.textContent = "Clear board";
+      key.classList.add("bi-key--caution");
+      key.hidden = m.crew.length === 0;
+    } else if (mine) {
+      key.textContent = "Stand down";
+      key.classList.add("bi-key--caution");
+      key.hidden = false;
+    } else if (full) {
+      key.textContent = "Full";
+      key.setAttribute("aria-disabled", "true");
+      key.hidden = false;
+    } else {
+      key.textContent = "Sign on";
+      key.classList.add("bi-key--go");
+      key.hidden = false;
+    }
+  }
+}
+
+/** The one action that changes a sign-up. A candidate is on ONE board. */
+function commit(id) {
+  const m = MARKERS.find((x) => x.id === id);
+  if (state.gm) {
+    m.crew = [];
+    paintMuster();
+    notify("caution", `${m.name} — board cleared by the Director`);
+    return;
+  }
+  const me = state.me;
+  if (m.crew.includes(me)) {
+    m.crew = m.crew.filter((c) => c !== me);
+    paintMuster();
+    notify("info", `Candidate ${me} stood down — ${m.name}`);
+    return;
+  }
+  if (m.crew.length >= 6) return;
+  for (const other of MARKERS) other.crew = other.crew.filter((c) => c !== me);
+  m.crew.push(me);
+  paintMuster();
+  const role = candidateRole(me);
+  notify("info", `Candidate ${me} (${role.name}) mustered — ${m.name}`);
+}
+
+function selectMarker(id) {
+  const next = selectedMarker === id ? null : id;
+  selectedMarker = next;
+  for (const [mid, el] of markerEls) {
+    const on = mid === next;
+    el.classList.toggle("bi-marker--selected", on);
+    $(".bi-marker__dot", el).setAttribute("aria-pressed", String(on));
+  }
+  if (next) {
+    const m = MARKERS.find((x) => x.id === next);
+    announce(`${m.jp} — ${m.name.toUpperCase()}: ${m.note.toUpperCase()}`, m.kind === "danger" || m.kind === "resonance" ? "alert" : "");
+    if (m.id === "contact") setLock(true, UNITS[0]);
+  }
+  layoutScene();
+}
+
+/**
+ * Measure the console and place every card. All geometry goes through the
+ * core module in console-local CSS px: rects come back scaled by the
+ * console's zoom, so they are divided out before anything is compared.
+ */
+function layoutScene() {
+  const z = Number(getComputedStyle(consoleEl).zoom) || 1;
+  const con = consoleEl.getBoundingClientRect();
+  const W = con.width / z;
+  const H = con.height / z;
+  const local = (el) => {
+    const r = el.getBoundingClientRect();
+    return { x0: (r.left - con.left) / z, y0: (r.top - con.top) / z, x1: (r.right - con.left) / z, y1: (r.bottom - con.top) / z };
+  };
+  const topRail = local($(".bi-console__top", consoleEl));
+  const chassis = local($(".bi-console__bar", consoleEl));
+  const band = visibleBand({ width: W, height: H, topRail: topRail.y1, chassis: H - chassis.y0 });
+
+  const exclusions = [];
+  let railsW = 0;
+  for (const rail of $$(".bi-console__left, .bi-console__right", consoleEl)) {
+    const r = local(rail);
+    railsW += r.x1 - r.x0 + 16;
+    exclusions.push({ x0: r.x0 - 8, y0: r.y0 - 8, x1: r.x1 + 8, y1: r.y1 + 8 });
+  }
+
+  // Density ladder. The photograph only earns its 197px when the band is
+  // tall; below that, six compact boards (320x295) need ~570k px of scene
+  // plus room to move, or they cannot help but overlap — measured, not
+  // assumed: usable area is what is left after the rails.
+  const bandH = band.y1 - band.y0;
+  const usable = (band.x1 - band.x0 - railsW) * bandH;
+  const compactArea = MARKERS.length * 320 * 300;
+  sceneEl.dataset.markerDensity =
+    (bandH >= 1000 && W >= 2000) ? "full" :
+    (usable >= compactArea * 1.6) ? "compact" : "docket";
+  const lane = $("#banner-lane");
+  if (lane) {
+    const r = local(lane);
+    exclusions.push({ x0: r.x0 - 8, y0: r.y0, x1: r.x1 + 8, y1: r.y1 + 8 });
+  }
+  const domeTop = local($(".bi-dome", consoleEl));
+  exclusions.push({ x0: domeTop.x0 - 8, y0: domeTop.y0 - 8, x1: domeTop.x1 + 8, y1: H });
+
+  const items = MARKERS.map((m) => {
+    const el = markerEls.get(m.id);
+    const card = $(".bi-marker__card", el);
+    const r = card.getBoundingClientRect();
+    return {
+      id: m.id,
+      anchor: { x: m.x * W, y: m.y * H },
+      size: { w: r.width / z, h: r.height / z },
+      priority: (m.id === selectedMarker ? 100 : 0) + m.risk
+    };
+  });
+  const placed = layoutMarkers(items, band, exclusions);
+  for (const p of placed) {
+    const m = MARKERS.find((x) => x.id === p.id);
+    const el = markerEls.get(p.id);
+    const ax = m.x * W;
+    const ay = m.y * H;
+    el.style.setProperty("--dx", (p.x - ax).toFixed(1) + "px");
+    el.style.setProperty("--dy", (p.y - ay).toFixed(1) + "px");
+    el.style.setProperty("--card-h", (p.rect.y1 - p.rect.y0).toFixed(1) + "px");
+    el.style.setProperty("--len", p.stem.length.toFixed(1) + "px");
+    el.style.setProperty("--angle", p.stem.angle.toFixed(2) + "deg");
+    el.dataset.side = p.side;
+    el.dataset.overlaps = p.overlaps.join(" ");
+  }
+  runDiagnostics();
+}
+
+renderMarkers();
+
+/* ------------------------------------------------------------------ *
+ * Scene banners — the queue decides, this owns the timers.
+ * ------------------------------------------------------------------ */
+const laneEl = $("#banner-lane");
+const notices = new NoticeQueue();
+let bannerEl = null;
+let dwellTimer = null;
+let dwellEndsAt = 0;
+
+function clockStamp() { return $("#clock-out").textContent; }
+
+function buildBanner(n) {
+  const wrap = document.createElement("div");
+  wrap.className = "bi-banner__wrap";
+  wrap.innerHTML = `
+    <div class="bi-banner bi-banner--${n.kind}" role="${n.kind === "alert" ? "alert" : "status"}">
+      <div class="bi-banner__face">
+        <span class="bi-banner__cap"><span class="bi-banner__kind">${NOTICE_CAP[n.kind]}</span></span>
+        <span class="bi-banner__chev" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="bi-banner__glass">
+          <span class="bi-banner__text">${n.text}</span>
+          <span class="bi-banner__count" ${n.count > 1 ? "" : "hidden"}>×${n.count}</span>
+        </span>
+        <span class="bi-banner__cap bi-banner__cap--right"><span class="bi-banner__time">${clockStamp()}</span></span>
+      </div>
+    </div>`;
+  return wrap;
+}
+
+function startDwell(ms) {
+  clearTimeout(dwellTimer);
+  dwellEndsAt = performance.now() + ms;
+  dwellTimer = setTimeout(endDwell, ms);
+}
+
+function showBanner(n) {
+  bannerEl = buildBanner(n);
+  laneEl.replaceChildren(bannerEl);
+  const plate = $(".bi-banner", bannerEl);
+  // Hover holds the timer — the marquee's rule: a strip you cannot stop is a
+  // strip you cannot finish reading. Click dismisses.
+  plate.addEventListener("mouseenter", () => clearTimeout(dwellTimer));
+  plate.addEventListener("mouseleave", () => startDwell(Math.max(1500, dwellEndsAt - performance.now())));
+  plate.addEventListener("click", endDwell);
+  startDwell(NOTICE_DWELL[n.kind]);
+  announce(n.jp ? `${n.jp} — ${n.text.toUpperCase()}` : n.text.toUpperCase(),
+           n.kind === "alert" ? "alert" : n.kind === "caution" ? "warn" : "");
+  layoutScene();
+}
+
+function retireBanner(done) {
+  clearTimeout(dwellTimer);
+  const plate = bannerEl && $(".bi-banner", bannerEl);
+  if (!plate) { done(); return; }
+  plate.classList.add("bi-banner--out");
+  const el = bannerEl;
+  bannerEl = null;
+  setTimeout(() => { el.remove(); done(); }, 320);
+}
+
+function endDwell() {
+  retireBanner(() => {
+    const next = notices.dismiss();
+    if (next) setTimeout(() => showBanner(next), 600);
+  });
+}
+
+/** Raise a notice. kind: info | caution | alert | resonance. */
+function notify(kind, text, extra = {}) {
+  const r = notices.push({ kind, text, ...extra }, performance.now());
+  switch (r.action) {
+    case "show":    showBanner(r.notice); break;
+    case "merge": {
+      const count = bannerEl && $(".bi-banner__count", bannerEl);
+      if (count) { count.textContent = "×" + r.notice.count; count.hidden = false; }
+      startDwell(NOTICE_DWELL[r.notice.kind]);
+      break;
+    }
+    case "preempt": retireBanner(() => setTimeout(() => showBanner(r.notice), 450)); break;
+    default: break;   // queued; endDwell will get to it
+  }
+  return r;
+}
+window.biNotify = notify;   // reachable from devtools / automation
+
+// The test bed's random traffic: one notice every 9-20s while the toggle is on.
+let bannerAuto = true;
+let bannerArm = null;
+function armRandomBanner() {
+  clearTimeout(bannerArm);
+  if (!bannerAuto) return;
+  bannerArm = setTimeout(() => {
+    const pick = weightedPick(NOTICE_POOL);
+    notify(pick.kind, pick.text, pick.jp ? { jp: pick.jp } : {});
+    armRandomBanner();
+  }, 9000 + Math.random() * 11000);
+}
+$("#banners-toggle")?.addEventListener("click", (ev) => {
+  bannerAuto = !bannerAuto;
+  ev.currentTarget.setAttribute("aria-pressed", String(bannerAuto));
+  armRandomBanner();
+});
+$("#fire-alert")?.addEventListener("click", () => {
+  const pick = NOTICE_POOL.find((p) => p.kind === "alert");
+  notify(pick.kind, pick.text, { jp: pick.jp });
+});
+armRandomBanner();
+// The first plate arrives soon after load so the review does not wait for it.
+setTimeout(() => { if (bannerAuto && !bannerEl) notify("info", "Console online — Harbour, Pier 3, Day 04"); }, 2200);
 
 /* ------------------------------------------------------------------ *
  * Rails: roles, units, turn order
@@ -236,7 +616,7 @@ $("#recall").addEventListener("click", () => {
   if (!next) { announce("NO FURTHER RECALL AVAILABLE THIS SCENE"); return; }
   FACTS.push(next);
   renderFacts();
-  announce(`RECALL KNOWLEDGE — ${next.text.toUpperCase()}`, "warn");
+  notify("info", `Recall Knowledge — ${next.text}`);
 });
 
 /* ------------------------------------------------------------------ *
@@ -280,6 +660,8 @@ for (const strip of $$(".bi-mixer__strip")) {
 const gmPod = $("#gm-pod");
 const identPod = $("#ident-pod");
 function setMode(gm) {
+  state.gm = gm;
+  state.me = gm ? null : "04";
   gmPod.hidden = !gm;
   // The Direction module needs ~150px the chassis does not have spare. A GM is
   // not flying a Frame, so the pilot ident plate is what pays for it — trading
@@ -287,7 +669,8 @@ function setMode(gm) {
   if (identPod) identPod.style.display = gm ? "none" : "";
   $("#mode-gm").setAttribute("aria-pressed", String(gm));
   $("#mode-player").setAttribute("aria-pressed", String(!gm));
-  requestAnimationFrame(runDiagnostics);
+  paintMuster();
+  requestAnimationFrame(layoutScene);
 }
 $("#mode-player").addEventListener("click", () => setMode(false));
 $("#mode-gm").addEventListener("click", () => setMode(true));
@@ -297,16 +680,16 @@ $("#mode-gm").addEventListener("click", () => setMode(true));
  * room, so the frame changes: the strip pulses, the scene goes red, the
  * marquee leads with it.
  * ------------------------------------------------------------------ */
-const consoleEl = $("#console");
 $("#klaxon").addEventListener("click", () => {
   const on = consoleEl.classList.toggle("bi-console--alert");
   $("#lamp-alert").classList.toggle("bi-lamp--lit", on);
   $("#lamp-alert").classList.toggle("bi-lamp--pulse", on);
   $("#alert-plate").hidden = !on;
   if (on) {
-    announce("接触 発生 — ALL PILOTS TO STATIONS — 全機 発進", "alert");
+    notify("alert", "Contact — all pilots to stations", { jp: "接触 発生 — 全機 発進", sticky: true });
     state.prob = 1;
   } else {
+    if (bannerEl && notices.current && notices.current.sticky) endDwell();
     state.prob = 0.18;
   }
   paintProb();
@@ -321,10 +704,18 @@ function paintProb() {
  * Bleed — the pilot's own interface degrades as it climbs.
  * ------------------------------------------------------------------ */
 const bleed = $("#bleed");
+const identBleedOut = $("#ident-bleed-out");
+const identBleedMeter = $("#ident-bleed-meter");
 bleed.addEventListener("input", () => {
   const v = Number(bleed.value) / 100;
-  $("#bleed-out").textContent = String(bleed.value).padStart(2, "0") + "%";
-  for (const el of $$(".bi-dome__glass, .bi-subdome__glass, .bi-screen, .bi-marquee__glass")) {
+  const pct = String(bleed.value).padStart(2, "0") + "%";
+  $("#bleed-out").textContent = pct;
+  // The pilot ID panel is the pilot's own instrument, so it degrades with
+  // everything else on the chassis — the same corruption, the same value,
+  // never a second copy of the effect.
+  identBleedOut.textContent = pct;
+  identBleedMeter.style.setProperty("--v", String(v));
+  for (const el of $$(".bi-dome__glass, .bi-subdome__glass, .bi-screen, .bi-marquee__glass, .bi-ident__glass")) {
     el.classList.toggle("bi-corrupt", v > 0.02);
     el.style.setProperty("--bi-bleed", String(v));
   }
@@ -404,10 +795,10 @@ function measureToolbarHeight() {
 
 function paintDemoSize() {
   if (!demoSize) return;
-  const c = document.getElementById("console").getBoundingClientRect();
+  const c = consoleEl.getBoundingClientRect();
   const mode = demoWrap.classList.contains("demo-fill") ? "fill — your window" : "16:9 demo";
   demoSize.textContent =
-    `viewport ${innerWidth}\u00d7${innerHeight}  \u00b7  console ${Math.round(c.width)}\u00d7${Math.round(c.height)} (${mode})`;
+    `viewport ${innerWidth}×${innerHeight}  ·  console ${Math.round(c.width)}×${Math.round(c.height)} (${mode})`;
 }
 
 function setFrameMode(fill) {
@@ -415,11 +806,11 @@ function setFrameMode(fill) {
   demoWrap.classList.toggle("demo-frame", !fill);
   document.body.classList.toggle("demo-fullscreen", fill);
   frameToggle.setAttribute("aria-pressed", String(fill));
-  frameToggle.textContent = fill ? "Frame: fill window" : "Frame: 16\u2060:\u20609";
+  frameToggle.textContent = fill ? "Frame: fill window" : "Frame: 16⁠:⁠9";
   measureToolbarHeight();
   // Two rAFs: one for the class/layout change to land, one for the browser
   // to have actually reflowed before we read sizes back out of it.
-  requestAnimationFrame(() => requestAnimationFrame(paintDemoSize));
+  requestAnimationFrame(() => requestAnimationFrame(() => { paintDemoSize(); layoutScene(); }));
 }
 
 frameToggle?.addEventListener("click", () => setFrameMode(!demoWrap.classList.contains("demo-fill")));
@@ -441,7 +832,7 @@ function setUiScale(pct) {
   const s = (pct / 100).toFixed(2);
   consoleEl.style.setProperty("--bi-ui-scale", s);
   $("#ui-scale-out").textContent = s;
-  requestAnimationFrame(() => requestAnimationFrame(() => { paintDemoSize(); runDiagnostics(); }));
+  requestAnimationFrame(() => requestAnimationFrame(() => { paintDemoSize(); layoutScene(); }));
 }
 uiScale?.addEventListener("input", () => setUiScale(Number(uiScale.value)));
 
@@ -454,15 +845,17 @@ uiScale?.addEventListener("input", () => setUiScale(Number(uiScale.value)));
  * measured numbers go stale silently. So the prototype now measures itself
  * on every layout change and says so in the toolbar: each side cluster's
  * visible extent against its own track, each subdome against its
- * neighbouring pod, and every map marker against the visible band (between
- * the top rail and the chassis) and the frame edges. Red means "fix the
- * CSS", not "resize the window". Also console.warn()ed, for devtools.
+ * neighbouring pod, and every marker CARD against the visible band (between
+ * the top rail and the chassis), the frame edges, the rails, the banner
+ * lane and every other card. Red means "fix the CSS", not "resize the
+ * window". Also console.warn()ed, for devtools.
  * ------------------------------------------------------------------ */
 function runDiagnostics() {
   const out = $("#demo-diag");
   if (!out) return;
   const rect = (el) => el.getBoundingClientRect();
   const visible = (el) => el && !el.hidden && getComputedStyle(el).display !== "none";
+  const hits = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
   const problems = [];
 
   const bar = $("#bar");
@@ -482,13 +875,20 @@ function runDiagnostics() {
   const c = rect(consoleEl);
   const top = rect($(".bi-console__top", consoleEl));
   const chassis = rect($(".bi-console__bar", consoleEl));
-  for (const m of $$(".bi-marker, .bi-pin", consoleEl)) {
-    if (!visible(m)) continue;
-    const r = rect(m);
-    const id = m.dataset.marker || m.dataset.pin || "?";
+  const rails = $$(".bi-console__left, .bi-console__right", consoleEl).map(rect);
+  const lane = $("#banner-lane") ? rect($("#banner-lane")) : null;
+  const cards = $$(".bi-marker", consoleEl).filter(visible).map((m) => ({ id: m.dataset.marker, r: rect($(".bi-marker__card", m)) }));
+  for (const { id, r } of cards) {
     if (r.top < top.bottom) problems.push(`marker ${id} under top rail`);
-    if (r.bottom > chassis.top) problems.push(`marker ${id} under chassis`);
+    if (r.bottom > chassis.top + 0.5) problems.push(`marker ${id} under chassis`);
     if (r.left < c.left || r.right > c.right) problems.push(`marker ${id} off the frame`);
+    if (rails.some((rail) => hits(r, rail))) problems.push(`marker ${id} under a rail`);
+    if (lane && hits(r, lane)) problems.push(`marker ${id} under the banner lane`);
+  }
+  for (let i = 0; i < cards.length; i++) {
+    for (let j = i + 1; j < cards.length; j++) {
+      if (hits(cards[i].r, cards[j].r)) problems.push(`markers ${cards[i].id}+${cards[j].id} overlap`);
+    }
   }
 
   const bad = problems.length > 0;
@@ -498,7 +898,8 @@ function runDiagnostics() {
   return problems;
 }
 window.biDiagnostics = runDiagnostics;   // reachable from devtools / automation
+window.biLayout = layoutScene;
 
-new ResizeObserver(() => requestAnimationFrame(runDiagnostics)).observe(consoleEl);
-document.fonts?.ready.then(runDiagnostics);
-runDiagnostics();
+new ResizeObserver(() => requestAnimationFrame(layoutScene)).observe(consoleEl);
+document.fonts?.ready.then(layoutScene);
+layoutScene();

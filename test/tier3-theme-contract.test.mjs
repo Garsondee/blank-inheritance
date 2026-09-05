@@ -675,22 +675,58 @@ test("--bi-resonance is used by exactly one key variant: .bi-key--anchor", () =>
   assert.ok(keyRules.length > 0, ".bi-key--anchor itself should be the one match — none found at all");
 });
 
-test("the ident display exists and protrudes above its own pod", () => {
+test("the pilot ID instrument escapes above the WHOLE chassis, not just its pod", () => {
+  // FOUND LIVE: the previous version escaped its pod via a negative
+  // margin-top, but the pod was a .bi-pod, and .bi-bar .bi-pod sets
+  // overflow:hidden (so a two-row key bank can never spill into a
+  // neighbour) — which silently clipped the escape. It never actually
+  // cleared the pod on screen. The fix is structural: the instrument is
+  // now a sibling of any .bi-pod, inside a plain positioning host, the
+  // same pattern .bi-bar__cluster already uses for the main dome. This
+  // test pins that structure down directly so the clipping bug cannot
+  // silently return under a different selector.
   const css = read(COMPONENTS);
-  const rule = css.match(/\.bi-ident\s*\{[^}]*\}/);
-  assert.ok(rule, ".bi-ident rule is missing");
-  assert.match(
-    rule[0], /margin-top:\s*calc\(var\(--bi-ident-size\)\s*\*\s*-/,
-    ".bi-ident must pull itself up by a negative margin proportional to its " +
-      "own size, not a literal pixel value, so resizing the instrument keeps " +
-      "the protrusion proportionate."
-  );
+  const html = readFileSync(path.join(repoRoot, "design", "ui", "style-prototype.html"), "utf8");
 
-  const html = readFileSync(
-    path.join(repoRoot, "design", "ui", "style-prototype.html"), "utf8"
-  );
-  assert.match(html, /class="bi-ident"/, "the prototype no longer uses .bi-ident");
+  const host = css.match(/\.bi-pilot-id\s*\{[^}]*\}/);
+  assert.ok(host, ".bi-pilot-id (the escape host) is missing");
+  assert.match(host[0], /position:\s*relative/, ".bi-pilot-id must be a positioning context");
+  assert.match(host[0], /height:\s*var\(--bi-bar-height\)/,
+    ".bi-pilot-id must span the FULL chassis row height — that is what makes " +
+      "an oversized child's bottom:0 clear the bar's own top edge, not just its pod's");
+  assert.doesNotMatch(host[0], /overflow:\s*hidden/, ".bi-pilot-id must not clip its own child");
+
+  const ident = css.match(/\.bi-ident\s*\{[^}]*\}/);
+  assert.ok(ident, ".bi-ident rule is missing");
+  assert.match(ident[0], /position:\s*absolute/, ".bi-ident must escape via absolute positioning, not flow");
+  assert.match(ident[0], /bottom:\s*0/, ".bi-ident must anchor to the bottom of its host, like the main dome");
+  assert.match(ident[0], /height:\s*var\(--bi-ident-h\)/, ".bi-ident must use the shared height token");
+
+  const hMatch = host[0].match(/--bi-ident-h:\s*calc\(var\(--bi-bar-height\)\s*\*\s*([\d.]+)\)/);
+  assert.ok(hMatch, "--bi-ident-h must be a multiple of the bar height, not a literal pixel value");
+  assert.ok(Number(hMatch[1]) > 1,
+    `the instrument must be TALLER than the chassis row (got ${hMatch[1]}x) — that is ` +
+      "the only way its bottom-anchored top can clear the bar's own top line");
+  const wMatch = host[0].match(/--bi-ident-w:\s*(\d+)px/);
+  assert.ok(wMatch && Number(wMatch[1]) >= 130, "--bi-ident-w should be meaningfully bigger than the old 92px square");
+
+  // The DOM check that actually rules the original bug back out: .bi-ident
+  // must be the FIRST thing inside .bi-pilot-id, not nested inside the
+  // plate pod (a .bi-pod) — if it ever moved back inside a .bi-pod, the
+  // global `.bi-bar .bi-pod { overflow: hidden }` rule would clip it again.
+  assert.match(html, /<div class="bi-pilot-id"[^>]*>\s*<div class="bi-ident">/,
+    ".bi-ident must be the direct first child of .bi-pilot-id, not nested inside a .bi-pod");
   assert.match(html, /bi-ident__value">04</, "the ident instrument should still show the candidate number");
+
+  // "More information": the panel now carries Sync AND a live Bleed
+  // reading, not a single bare readout.
+  assert.match(html, /bi-ident__stat--bleed/, "the ident should carry a Bleed reading");
+  assert.match(html, /id="ident-bleed-out"/, "the Bleed readout must be wired up, not decorative");
+  assert.match(html, /id="ident-bleed-meter"/, "the Bleed meter must be wired up, not decorative");
+
+  const js = readFileSync(path.join(repoRoot, "design", "ui", "console.js"), "utf8");
+  assert.match(js, /identBleedMeter[\s\S]*?setProperty\("--v"/,
+    "the ident's Bleed meter must be driven by the same Bleed control as the rest of the chassis");
 });
 
 /* ==================================================================
@@ -761,7 +797,10 @@ test("the prototype measures its own layout and reports it", () => {
   const js = readFileSync(path.join(repoRoot, "design", "ui", "console.js"), "utf8");
   assert.match(js, /function runDiagnostics\(\)/, "runDiagnostics() missing");
   assert.match(js, /window\.biDiagnostics\s*=\s*runDiagnostics/, "diagnostics must be reachable from automation");
-  assert.match(js, /new ResizeObserver\([\s\S]*?runDiagnostics/, "diagnostics must re-run on resize");
+  // Resize -> layoutScene -> runDiagnostics: the markers are re-placed
+  // first, then measured, so the readout never reports a stale layout.
+  assert.match(js, /new ResizeObserver\([\s\S]*?layoutScene/, "the scene must re-layout on resize");
+  assert.match(js, /function layoutScene\(\)[\s\S]*?runDiagnostics\(\);/, "layoutScene must end by running diagnostics");
   for (const check of ["over its track", "subdome overlapped", "under top rail", "under chassis", "off the frame"]) {
     assert.ok(js.includes(check), `diagnostics no longer checks: ${check}`);
   }
@@ -782,7 +821,7 @@ test("small keys and the ident labels clear the 4K readability floor", () => {
   };
   assert.ok(size(".bi-key--sm") >= 10, ".bi-key--sm below 10px");
   assert.ok(size(".bi-ident__label") >= 10, ".bi-ident__label below 10px");
-  assert.ok(size(".bi-ident__sub") >= 11, ".bi-ident__sub below 11px");
+  assert.ok(size(".bi-ident__stat-value") >= 11, ".bi-ident__stat-value below 11px");
   assert.ok(size(".bi-macro__key") >= 8, ".bi-macro__key below 8px");
   assert.ok(size(".bi-marquee__cap") >= 10, ".bi-marquee__cap below 10px");
 });

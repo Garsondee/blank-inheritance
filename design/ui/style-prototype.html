@@ -130,6 +130,10 @@ body.demo-fullscreen { overflow: hidden; }
     <div class="controls__sep"></div>
     <button class="bi-key bi-key--sm bi-key--armed" id="klaxon"><span class="bi-key__glyph">&#9888;</span>Klaxon</button>
     <div class="controls__sep"></div>
+    <span class="bi-legend">Banners</span>
+    <button class="bi-key bi-key--sm bi-key--info" id="banners-toggle" aria-pressed="true" title="Random notices every 9-20s">Auto</button>
+    <button class="bi-key bi-key--sm bi-key--caution" id="fire-alert" title="Raise an alarm banner now">Alarm</button>
+    <div class="controls__sep"></div>
     <span class="bi-legend">Bleed</span>
     <input type="range" id="bleed" min="0" max="100" value="0" style="width:110px" aria-label="Bleed level">
     <span class="bi-readout bi-readout--sm bi-readout--resonance" id="bleed-out">00%</span>
@@ -152,24 +156,7 @@ body.demo-fullscreen { overflow: hidden; }
 
     <div class="bi-console__scene" id="scene">
       <img src="assets/scene-harbour.jpg" alt="Aerial view of the harbour city and the Directorate sea fort standing in the channel">
-      <button class="bi-pin bi-pin--resonance" style="--x:76%;--y:27%;--delay:0s" data-pin="fort">
-        <span class="bi-pin__dot"></span><span class="bi-pin__label">Directorate<small>統制局 本部</small></span>
-      </button>
-      <button class="bi-pin bi-pin--flip" style="--x:59%;--y:39%;--delay:.5s" data-pin="causeway">
-        <span class="bi-pin__dot"></span><span class="bi-pin__label">Causeway Check<small>堤道 検問所</small></span>
-      </button>
-      <button class="bi-pin bi-pin--danger" style="--x:40%;--y:55%;--delay:1.1s" data-pin="contact">
-        <span class="bi-pin__dot"></span><span class="bi-pin__label">Contact<small>接触 発生</small></span>
-      </button>
-      <button class="bi-pin bi-pin--ok" style="--x:20%;--y:69%;--delay:1.7s" data-pin="shelter">
-        <span class="bi-pin__dot"></span><span class="bi-pin__label">Shelter 4<small>第四避難所</small></span>
-      </button>
-      <button class="bi-pin bi-pin--warn" style="--x:50%;--y:79%;--delay:2.2s" data-pin="pier">
-        <span class="bi-pin__dot"></span><span class="bi-pin__label">Pier 3 &mdash; Sortie<small>第三埠頭 発進</small></span>
-      </button>
-      <button class="bi-pin bi-pin--flip" style="--x:27%;--y:21%;--delay:2.6s" data-pin="mast">
-        <span class="bi-pin__dot"></span><span class="bi-pin__label">Sensor Mast<small>探知塔</small></span>
-      </button>
+      <!-- Markers are rendered here by console.js from MARKERS. -->
     </div>
 
     <!-- ---------- TOP RAIL ---------- -->
@@ -202,6 +189,9 @@ body.demo-fullscreen { overflow: hidden; }
         </div>
       </div>
     </div>
+
+    <!-- ---------- BANNER LANE: notices drop from under the top rail ---------- -->
+    <div class="bi-console__banner" id="banner-lane" aria-live="polite"></div>
 
     <!-- ---------- LEFT: floating station panels ---------- -->
     <div class="bi-console__left">
@@ -301,34 +291,52 @@ body.demo-fullscreen { overflow: hidden; }
             </div>
           </div>
 
-          <!-- Pilot ident. The instrument protrudes above the pod's own top
-               line (see .bi-ident) — align-items:end here is what lets the
-               plate/legend sit level with its IN-FLOW portion rather than
-               its vertical centre, which the protrusion would otherwise pull
-               up into the poking-out third. -->
-          <div class="bi-pod bi-pod--crest bi-plate-skin bi-pod--filled" data-bi-priority="2" id="ident-pod" style="min-width:224px">
-            <div style="display:flex;align-items:flex-end;gap:12px;position:relative;z-index:1">
-              <div class="bi-ident">
-                <div class="bi-ident__glass">
-                  <span class="bi-ident__label">Pilot</span>
-                  <span class="bi-ident__value">04</span>
-                  <span class="bi-ident__sub">SYNC 84%</span>
+          <!-- Pilot ID panel. The instrument (.bi-ident) is a SIBLING of the
+               plate pod, not a child of it — see the CSS comment on
+               .bi-pilot-id for why: nesting it inside a .bi-pod is exactly
+               what clipped it before. .bi-pilot-id__spacer reserves its
+               footprint in this flex row so pulling it out of flow does not
+               collapse the layout around it. -->
+          <div class="bi-pilot-id" data-bi-priority="2" id="ident-pod" style="min-width:270px">
+            <div class="bi-ident">
+              <div class="bi-ident__glass">
+                <span class="bi-ident__label">Pilot</span>
+                <span class="bi-ident__value">04</span>
+                <div class="bi-ident__rule"></div>
+                <div class="bi-ident__stats">
+                  <div class="bi-ident__stat">
+                    <div class="bi-ident__stat-row">
+                      <span class="bi-ident__stat-label">Sync</span>
+                      <span class="bi-ident__stat-value">84%</span>
+                    </div>
+                    <span class="bi-meter" style="--v:.84"></span>
+                  </div>
+                  <div class="bi-ident__stat bi-ident__stat--bleed">
+                    <div class="bi-ident__stat-row">
+                      <span class="bi-ident__stat-label">Bleed</span>
+                      <span class="bi-ident__stat-value" id="ident-bleed-out">00%</span>
+                    </div>
+                    <span class="bi-meter bi-meter--resonance" id="ident-bleed-meter" style="--v:0"></span>
+                  </div>
                 </div>
-                <div class="bi-ident__gloss"></div>
               </div>
-              <div>
+              <div class="bi-ident__gloss"></div>
+            </div>
+            <span class="bi-pilot-id__spacer" aria-hidden="true"></span>
+            <div class="bi-pilot-id__plate bi-pod bi-pod--crest bi-plate-skin bi-pod--filled">
+              <div style="position:relative;z-index:1">
                 <div class="bi-plate" style="padding:3px 9px">Candidate 04</div>
                 <div class="bi-legend bi-legend--jp" style="margin-top:6px">機体 三型</div>
               </div>
-            </div>
-            <div class="bi-bank">
-              <span class="bi-bank__label">Status <span class="bi-legend--jp">状態</span></span>
-              <div style="display:flex;gap:8px;align-items:center" id="conditions">
-                <button class="bi-lamp bi-lamp--amber" data-cond title="Off-Guard" aria-label="Off-Guard" aria-pressed="false"></button>
-                <button class="bi-lamp bi-lamp--red" data-cond title="Persistent damage" aria-label="Persistent damage" aria-pressed="false"></button>
-                <button class="bi-lamp bi-lamp--cyan" data-cond title="Comms" aria-label="Comms" aria-pressed="false"></button>
-                <button class="bi-lamp bi-lamp--resonance" data-cond title="Anchor" aria-label="Anchor" aria-pressed="false"></button>
-                <button class="bi-lamp" data-cond title="Nominal" aria-label="Nominal" aria-pressed="false"></button>
+              <div class="bi-bank">
+                <span class="bi-bank__label">Status <span class="bi-legend--jp">状態</span></span>
+                <div style="display:flex;gap:8px;align-items:center" id="conditions">
+                  <button class="bi-lamp bi-lamp--amber" data-cond title="Off-Guard" aria-label="Off-Guard" aria-pressed="false"></button>
+                  <button class="bi-lamp bi-lamp--red" data-cond title="Persistent damage" aria-label="Persistent damage" aria-pressed="false"></button>
+                  <button class="bi-lamp bi-lamp--cyan" data-cond title="Comms" aria-label="Comms" aria-pressed="false"></button>
+                  <button class="bi-lamp bi-lamp--resonance" data-cond title="Anchor" aria-label="Anchor" aria-pressed="false"></button>
+                  <button class="bi-lamp" data-cond title="Nominal" aria-label="Nominal" aria-pressed="false"></button>
+                </div>
               </div>
             </div>
           </div>
@@ -755,6 +763,6 @@ body.demo-fullscreen { overflow: hidden; }
 
 </div>
 
-<script src="console.js"></script>
+<script type="module" src="console.js"></script>
 </body>
 </html>
