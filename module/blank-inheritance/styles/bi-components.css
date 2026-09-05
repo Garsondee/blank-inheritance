@@ -1768,13 +1768,20 @@
   position: absolute;
   left: 0;
   top: 0;
-  height: 2px;
+  height: 2.5px;
   width: var(--len, 26px);
   transform: translateY(-50%) rotate(var(--angle, 0deg));
   transform-origin: 0 50%;
   background: var(--pin);
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 55%);
-  opacity: 0.85;
+  /* A thin line in a saturated colour still disappears against a busy,
+     brightly-lit aerial photo -- the 1px/55% halo this had wasn't enough
+     dark backing to read reliably against real map imagery, only the flat
+     demo colours it was built against. A wider, darker halo plus a soft
+     drop shadow gives the line a dark bed to sit on regardless of what is
+     directly underneath it, the same idea .bi-marker__fix's dark chip
+     already uses for text over the same photo. */
+  box-shadow: 0 0 0 1.5px rgb(0 0 0 / 75%), 0 1px 3px rgb(0 0 0 / 60%);
+  opacity: 0.95;
   pointer-events: none;
   z-index: 1;
 }
@@ -1955,7 +1962,20 @@
   width: 22px;
   height: 9px;
   clip-path: polygon(3px 0, 100% 0, calc(100% - 3px) 100%, 0 100%);
-  background: var(--bi-phosphor-bed);
+  /* FOUND LIVE, reported as "poor visibility": this used to be a flat
+     var(--bi-phosphor-bed) fill -- but the gauge sits on a .bi-screen
+     background (--bi-mat-screen), which fades to that exact colour
+     (#0f1a15 -> #0d1c14 vs the segment's own #0d1c14). An unlit segment
+     was, in practice, invisible: same colour as the glass behind it,
+     contrast ~1:1. A 5-segment gauge whose unlit segments cannot be SEEN
+     stops being a gauge -- there is no way to tell "1 lit of 5" from
+     "1 lit of 1", which was the entire point of showing risk as a scale
+     rather than a bare number. Tinted toward --risk (30% into dark steel,
+     not pure phosphor) so the unlit track reads as "this gauge's own
+     colour, dim" for every band -- amber gauges get a dim amber track,
+     vermilion gauges a dim red one -- rather than a fixed green that would
+     look mismatched next to a lit amber or vermilion segment. */
+  background: color-mix(in srgb, var(--risk, var(--bi-phosphor)) 30%, var(--bi-steel-900));
   box-shadow: inset 0 0 0 1px var(--bi-brass-shadow);
 }
 .bi-marker__risk[data-risk="1"] i:nth-child(-n+1),

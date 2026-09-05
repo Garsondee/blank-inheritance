@@ -634,6 +634,33 @@ that could go stale the next time the glow is retuned.
 
 ---
 
+## 3j. "Poor visibility": the risk gauge and the marker stems (pass 15)
+
+**The risk gauge's unlit segments were, in practice, invisible.** `.bi-marker__gauge i`'s unlit
+fill was a flat `var(--bi-phosphor-bed)` (`#0d1c14`) — but the gauge sits inside a `.bi-screen`,
+whose own glass background (`--bi-mat-screen`) fades to that *exact* colour. Contrast ratio
+against its own backdrop: ~1:1. A five-segment gauge whose unlit segments cannot be seen is not
+a gauge — there is no way to distinguish "1 of 5 lit" from "1 of 1 lit," which quietly threw away
+the entire reason the brief asked for a *scale* rather than a bare risk number. Fixed by tying
+the unlit fill to the gauge's own `--risk` colour instead of a fixed value
+(`color-mix(in srgb, var(--risk) 30%, var(--bi-steel-900))`) — every band now shows a dim tint of
+its *own* lit colour, so an amber gauge's unlit track reads as dim amber, not a mismatched fixed
+green sitting oddly next to an amber or vermilion lit segment.
+
+**The marker stems were built against flat demo colours and disappear against a real photo.**
+`.bi-marker__stem` is a 2px coloured line with only a `0 0 0 1px rgb(0 0 0 / 55%)` dark halo —
+enough to separate it from a flat background, not enough against a busy, brightly-lit aerial
+photo (which is what it actually crosses in every real scene). Widened to 2.5px with a stronger
+halo (`0 0 0 1.5px rgb(0 0 0 / 75%)`) plus a soft drop shadow, the same "give it a dark bed
+regardless of what's underneath" idea `.bi-marker__fix`'s own dark chip already uses for text
+over the same photo.
+
+Two new tests: one confirms the unlit gauge fill is no longer the literal glass colour and stays
+tied to `--risk`; the other checks the stem's actual halo spread/opacity against a real minimum
+rather than one specific tuned value, so a future retune can't silently thin it back out.
+
+---
+
 ## 4. Foundry v14 structural facts (verified, and one corrects a common assumption)
 
 Read from `templates/views/game.hbs` and `public/css/foundry2.css` in the local v14.367

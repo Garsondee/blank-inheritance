@@ -986,3 +986,47 @@ test("every lamp-bearing rail row keeps enough left clearance to clear a lit lam
     `the Known-facts row's left padding (${factsRow[1]}px) does not clear a lit lamp's glow (~${reach}px)`
   );
 });
+
+
+/* ==================================================================
+   Pass 14 — "poor visibility": the risk gauge's unlit segments were
+   the same colour as the glass they sit on, and the marker stems were
+   too thin/faint to reliably read against a real photo background.
+   ================================================================== */
+
+test("the risk gauge's unlit segments are visibly distinct from the screen glass behind them", () => {
+  // FOUND LIVE: .bi-marker__gauge i's unlit fill (--bi-phosphor-bed,
+  // #0d1c14) was effectively the SAME colour as .bi-screen's own glass
+  // background (--bi-mat-screen fades to that exact value), so an unlit
+  // segment was invisible against its own backdrop -- a 5-segment gauge
+  // that only ever shows the LIT segments is not a gauge, it is a stray
+  // green rectangle with no sense of scale.
+  const css = read(COMPONENTS);
+  const rule = css.match(/\.bi-marker__gauge i\s*\{[^}]*\}/);
+  assert.ok(rule, ".bi-marker__gauge i rule is missing");
+  assert.doesNotMatch(
+    rule[0], /background:\s*var\(--bi-phosphor-bed\)/,
+    "the unlit gauge segment must not fill with --bi-phosphor-bed -- that is " +
+      "the exact colour .bi-screen's own glass fades to, which is why it was invisible"
+  );
+  // Tied to --risk (not a fixed colour) so every band's unlit track stays
+  // visually related to that band's own lit colour, rather than a fixed
+  // green track sitting oddly under an amber or vermilion lit segment.
+  assert.match(rule[0], /var\(--risk/, "the unlit segment should stay tied to the gauge's own --risk colour");
+});
+
+test("marker stems keep a strong dark halo, since they cross real photo imagery, not a flat demo colour", () => {
+  // FOUND LIVE, reported as "poor visibility": a 2px coloured line with
+  // only a 1px/55%-opacity dark halo reads fine over the flat colours used
+  // while building the feature, and disappears against a busy, brightly
+  // lit real aerial photo. Verified against the actual box-shadow spread,
+  // not a specific opacity number, so this stays correct if the halo is
+  // ever retuned rather than only checking today's exact values.
+  const css = read(COMPONENTS);
+  const rule = css.match(/\.bi-marker__stem\s*\{[^}]*\}/);
+  assert.ok(rule, ".bi-marker__stem rule is missing");
+  const halo = rule[0].match(/box-shadow:\s*0\s+0\s+0\s+([\d.]+)px\s+rgb\(0 0 0 \/ (\d+)%\)/);
+  assert.ok(halo, ".bi-marker__stem must carry a dark halo box-shadow to read against photo imagery");
+  assert.ok(Number(halo[1]) >= 1.5, `stem halo spread is ${halo[1]}px; expected at least 1.5px`);
+  assert.ok(Number(halo[2]) >= 70, `stem halo opacity is ${halo[2]}%; expected at least 70%`);
+});
