@@ -22,12 +22,20 @@
       {
         "id": "sf2e",
         "type": "system",
-        "compatibility": { "minimum": "1.4.1" }
+        "compatibility": {
+          "minimum": "1.4.1"
+        }
       }
     ]
   },
   "esmodules": [
     "scripts/blank-inheritance.mjs"
+  ],
+  "styles": [
+    "styles/bi-fonts.css",
+    "styles/bi-tokens.css",
+    "styles/bi-components.css",
+    "styles/bi-foundry-bridge.css"
   ],
   "languages": [
     {

@@ -19,6 +19,16 @@
       "Complete": "Blank Inheritance: sync complete — {passed}/{total} checks passed.",
       "Failed": "Blank Inheritance: sync failed before completing. See console (F12) for the error, and report it back.",
       "NotGM": "Only a GM can run the Blank Inheritance content sync."
+    },
+    "Settings": {
+      "ThemeEnabled": {
+        "Name": "Directorate interface theme",
+        "Hint": "Restyle Foundry and the Starfinder 2e system in the campaign's visual identity. Turning this off returns Foundry to its stock appearance immediately, with no reload."
+      },
+      "RosterInBar": {
+        "Name": "Move the player list into the command bar",
+        "Hint": "Hides Foundry's own player list (which sits under the scene controls on the left in v14) once the command bar carries its own roster. Off by default so nothing disappears unexpectedly."
+      }
     }
   }
 }

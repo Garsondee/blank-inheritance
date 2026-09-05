@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "redacted-document-chain",
+  "type": "idea",
+  "title": "Redacted Directorate documents, and uncovering less-censored versions",
+  "status": "accepted",
+  "domains": ["narrative", "mechanics", "ui", "worldbuilding", "technical-architecture"],
+  "summary": "Every Directorate document the players see is censored to a security level. The same document exists at several clearances, and obtaining a less-censored version is itself a form of progress — potentially a structural part of the adventure, not just flavour. Redaction is implemented as removal at generation time, so it resists tampering.",
+  "description": "Originated as a purely visual flourish in the first visual-identity prototype (a black bar over text in a journal). The user saw it and promoted it to a story idea in the same breath: 'The players see lots of documents from the Directorate but all of them have been censored to fit a certain security level. We might even make part of the adventure about reading versions of the documents with less censoring and uncovering information.'\n\n**Why it fits this campaign specifically.** The Directorate is defined in campaign-arc.md as an institution that 'extracts everything from these kids while never once conceding that what they gave was enough.' Censorship is that relationship rendered as an object the players can hold. The redaction bar is not decoration; it is the institution telling a pilot, in writing, that what happened to them is not theirs to know. A chain of progressively less-censored versions of one document is therefore a very direct expression of the campaign's stated core theme — a group struggling to define their own objectives against a system of rigid, unexplained control.\n\nIt also gives the censorship itself informational value: the reader can see WHERE something was withheld and at what tier, count the bars, and infer shape and length without content. Withholding becomes legible, which is far more interesting at the table than an absence nobody knows about.\n\n**Second, explicit requirement from the user, and the reason the implementation is what it is:** 'we need to be 100% sure that we obscure the text under those from being easily revealed through the source viewer and things like that. I'm not expecting perfect security, but it should resist easy tampering.'\n\nSo redaction is REMOVAL, not concealment. `module/blank-inheritance/scripts/core/redact.mjs` strips the classified text at generation time; the words a player is not cleared for never reach that player's browser. View-source, devtools, disabling CSS, select-all-copy, Ctrl+F, and the accessibility tree all find nothing, because there is nothing there. Each clearance level is generated as its own Foundry page, and Foundry's own ownership permissions decide who can open which. No CSS trick is load-bearing anywhere in the chain, and the styling layer is documented as having no security job so nobody later gives it one.\n\nThe one acknowledged leak is bar width, which correlates loosely with phrase length. Widths are quantised and jittered, and long passages break into several bars, so the reader counts strokes rather than characters. Real redactions leak exactly this much and it is part of what makes them fun to stare at.\n\n**Authoring format** (already implemented): campaign JSON writes `<redact c=\"3\">text</redact>`, where c is the clearance a reader needs. Tiers use the real Japanese document markings — 公開 / 部外秘 / 秘 / 機密 / 極秘.\n\n**Visual treatment** (already implemented): bars are drawn with an SVG displacement filter so the edge is ragged and ink-soaked rather than a clean rectangle, with three seeds cycled so no two adjacent bars share an outline. The user asked for this specifically: 'a very slightly grainy and distorted edge so that it wasn't a perfect rectangle.'",
+  "capturedDate": "2026-09-05",
+  "lastTouchedDate": "2026-09-05",
+  "sourceContext": "User message, 2026-09-05, responding to the first visual-identity prototype: 'The redactions are a lot of fun!' — promoted a decorative CSS treatment into a story mechanic and attached a hard anti-tampering requirement to it.",
+  "openSubQuestions": [
+    "How a party actually OBTAINS a less-censored version — hacking check via the phone/intranet (terminal-login-landing-page), an NPC leak, physical theft, Directorate rank, or all of these? Not decided.",
+    "Whether clearance is per-player or party-wide. Per-player is more interesting (one pilot reads a version the others cannot) but means generating and permissioning more pages, and risks sidelining players at the table.",
+    "Whether the campaign uses all five tiers or a narrower ladder. Five may be more granularity than the table can track.",
+    "How much of the adventure is actually built on this. The user said 'we might even make part of the adventure about' it — deliberately tentative, and not a commitment to structure a whole arc around it.",
+    "Whether the GM authoring surface is raw <redact> tags in JSON or something friendlier in the director's panel.",
+    "Whether an uncovered document auto-broadcasts to the whole table (terminal-login-landing-page's mass-mailing mechanic) or stays with the finder — these two ideas answer this differently and need reconciling."
+  ],
+  "relatedRefs": [
+    "terminal-login-landing-page",
+    "phone-app-suite",
+    "in-universe-correspondence-negotiation-system",
+    "player-and-gm-journals-context-ingestion",
+    "chat-log-knowledge-base",
+    "design/visual-identity.md",
+    "design/campaign-arc.md#core-theme",
+    "module/blank-inheritance/scripts/core/redact.mjs",
+    "test/tier1-redaction.test.mjs"
+  ],
+  "resolution": "Mechanism built and tested 2026-09-05: core/redact.mjs (removal at generation time, clearance tiers, quantised multi-bar widths, hard errors on nested/unprocessed tags), wired into the journal generator with a safety assertion, styled in bi-components.css with SVG displacement-filter edges, and demonstrated in design/ui/style-prototype.html with a three-clearance switcher built from real generator output. What is NOT built: any of the narrative structure in openSubQuestions above — how documents are obtained, who gets which clearance, and whether this carries part of the adventure are all still open."
+}

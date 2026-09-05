@@ -1,0 +1,287 @@
+/* =====================================================================
+   BLANK INHERITANCE — FOUNDRY / SF2E BRIDGE
+   ---------------------------------------------------------------------
+   Layer 3 of 3. The only file in the theme that knows Foundry exists.
+
+   STATUS: authored against the local source trees (Foundry 14.367,
+   sf2e 1.4.1) and covered by test/tier3-css-contract.test.mjs, which
+   fails if any upstream variable named below stops existing. It has NOT
+   yet been loaded into a live Foundry — the structural overrides in §4
+   in particular need a real session before anyone trusts them.
+
+   STRATEGY
+   Foundry v14 and sf2e are both almost entirely custom-property driven
+   (foundry2.css declares --color-*, --font-*, --background-color and
+   friends; sf2e declares --primary, --secondary, --alt, --bg and its own
+   --color-pf-* ramp). So a total reskin is mostly a matter of REDEFINING
+   THOSE VARIABLES rather than out-specifying thousands of rules. That
+   keeps this file small, keeps upgrades survivable, and means anything
+   we did not think about still inherits the new palette for free.
+
+   THE KILL SWITCH
+   Everything here is gated behind `body.bi-theme`. Dropping that one
+   class returns Foundry to stock instantly. This is deliberate: a theme
+   that cannot be switched off is a theme that can end a session, and
+   this one is going to be live in front of six players.
+   ===================================================================== */
+
+/* ==========================================================
+   1. FOUNDRY CORE VARIABLE REMAP
+   Every property below is declared by foundry2.css upstream.
+   ========================================================== */
+
+body.bi-theme {
+  /* --- Text ramp --- */
+  --color-text-primary:   var(--bi-bone);
+  --color-text-secondary: var(--bi-bone-dim);
+  --color-text-emphatic:  #f3ecdb;
+  --color-text-subtle:    var(--bi-bone-dark);
+
+  /* --- Foundry's neutral ramps, retinted to steel ---
+     Foundry composes most of its chrome from these, so retinting them
+     is what carries the theme into dialogs we have never looked at. */
+  --color-dark-2: var(--bi-steel-800);
+  --color-light-2: var(--bi-bone-dim);
+
+  /* --- The cool/warm accent ramps --- */
+  --color-cool-3: var(--bi-steel-600);
+  --color-cool-4: var(--bi-brass-dark);
+  --color-cool-5: var(--bi-steel-900);
+  --color-warm-1: var(--bi-brass-lit);
+  --color-warm-2: var(--bi-brass);
+  --color-warm-3: var(--bi-brass-dark);
+
+  /* --- Status levels: keep meaning, change material --- */
+  --color-level-error:   var(--bi-vermilion);
+  --color-level-warning: var(--bi-amber);
+  --color-level-success: var(--bi-phosphor);
+  --color-level-info:    var(--bi-cyan);
+
+  /* --- Typography ---
+     Bruno Ace and Signika both ship inside Foundry already, so this adds
+     no network request and no font licensing question. */
+  --font-primary: var(--bi-font-body);
+  --font-body:    var(--bi-font-body);
+  --font-h1:      var(--bi-font-display);
+  --font-h2:      var(--bi-font-display);
+  --font-h3:      var(--bi-font-legend);
+
+  /* --- Scrollbars --- */
+  --color-scrollbar: var(--bi-brass-dark);
+}
+
+/* ==========================================================
+   2. FOUNDRY WINDOW CHROME
+   ApplicationV2 windows, dialogs, and the sidebar all share these
+   locally-scoped properties (--background-color, --border-color,
+   --input-background-color). Setting them on the window scope means
+   we restyle every application at once.
+   ========================================================== */
+
+body.bi-theme .application,
+body.bi-theme .app,
+body.bi-theme dialog.application {
+  --background-color: var(--bi-steel-800);
+  --border-color: var(--bi-brass-dark);
+  --input-background-color: var(--bi-steel-900);
+  --button-background-color: var(--bi-steel-600);
+  --button-border-color: var(--bi-brass-dark);
+  --button-text-color: var(--bi-bone);
+  --button-hover-background-color: var(--bi-steel-500);
+  --button-hover-border-color: var(--bi-brass);
+  --button-hover-text-color: #fff;
+
+  background: var(--bi-mat-steel);
+  box-shadow:
+    var(--bi-bevel-up),
+    0 12px 40px rgb(0 0 0 / 72%),
+    0 0 0 1px var(--bi-brass-shadow);
+}
+
+body.bi-theme .application > .window-header {
+  background: linear-gradient(180deg, var(--bi-steel-600) 0%, var(--bi-steel-800) 100%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 14%), 0 1px 0 var(--bi-void);
+  font-family: var(--bi-font-display);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bi-bone);
+  border: none;
+}
+
+/* ==========================================================
+   3. SF2E SYSTEM REMAP
+   sf2e ships PF2e's crimson (#5e0000) alongside Starfinder's steel blue
+   (#1d3c53) and a warm khaki alternate (#786452). That khaki/steel pair
+   is already most of the way to a naval-industrial palette, so this is a
+   pivot rather than a fight.
+   ========================================================== */
+
+body.bi-theme {
+  --primary:            var(--bi-steel-700);
+  --primary-dark:       var(--bi-steel-800);
+  --primary-darker:     var(--bi-steel-900);
+  --secondary:          var(--bi-brass-dark);
+  --alt:                var(--bi-brass);
+  --alt-dark:           var(--bi-brass-dark);
+  --bg:                 var(--bi-steel-800);
+  --bg-dark:            var(--bi-steel-900);
+  --primary-background: var(--bi-steel-800);
+  --secondary-background: var(--bi-steel-900);
+  --alternate-background: var(--bi-steel-700);
+  --font-primary:       var(--bi-font-body);
+  --body-serif:         var(--bi-font-body);
+
+  --color-pf-primary:         var(--bi-steel-700);
+  --color-pf-primary-dark:    var(--bi-steel-800);
+  --color-pf-primary-darker:  var(--bi-steel-900);
+  --color-pf-secondary:       var(--bi-brass-dark);
+  --color-pf-alternate:       var(--bi-brass);
+  --color-pf-alternate-dark:  var(--bi-brass-dark);
+
+  /* Degree of success — four bands, four materials. */
+  --color-pf-text-critical-success: var(--bi-phosphor);
+  --color-pf-text-success:          var(--bi-phosphor-dim);
+  --color-pf-text-failure:          var(--bi-amber);
+  --color-pf-text-critical-failure: var(--bi-vermilion);
+
+  --color-border-divider: var(--bi-brass-dark);
+  --color-bg-trait:       var(--bi-steel-700);
+  --color-border-trait:   var(--bi-brass-dark);
+}
+
+/* ==========================================================
+   4. STRUCTURAL LAYOUT — the command bar's berth
+   ---------------------------------------------------------
+   VERIFIED against templates/views/game.hbs and foundry2.css in
+   Foundry 14.367. Two facts matter and are easy to get wrong:
+
+     (a) In v14 the player list is NOT at the bottom of the screen. The
+         game.hbs skeleton puts <template id="players"> inside
+         #ui-left-column-1, under the scene controls, on the LEFT. The
+         only thing in #ui-bottom is the macro #hotbar.
+     (b) #ui-middle is width:60% with pointer-events:none, and is scaled
+         by --ui-scale. A full-width bar cannot live inside it.
+
+   So the bar mounts as a direct child of #interface rather than inside
+   #ui-middle, and we lift the hotbar clear of it. That avoids touching
+   Foundry's own flex layout at all.
+   ========================================================== */
+
+body.bi-theme #bi-command-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 70;              /* above the board, below dialogs */
+  pointer-events: none;     /* the chassis itself is inert... */
+}
+body.bi-theme #bi-command-bar > * {
+  pointer-events: auto;     /* ...its controls are not */
+}
+
+/* Give the macro hotbar room to sit above the chassis instead of behind
+   it. Height is read from the same token the bar is built from, so the
+   two can never drift apart. */
+body.bi-theme #ui-bottom {
+  padding-bottom: calc(var(--bi-bar-height) + 12px);
+}
+
+/* --- The player roster ---
+   Default: restyle in place, so nothing disappears unexpectedly.
+   Opt-in: body.bi-roster-in-bar hides it once the bar renders its own
+   roster module. Kept as a separate class so the swap is one toggle and
+   is trivially reversible mid-session. */
+body.bi-theme #players #players-active,
+body.bi-theme #players #players-inactive {
+  background: var(--bi-mat-steel);
+  border: 1px solid var(--bi-brass-dark);
+  border-radius: 4px;
+  box-shadow: var(--bi-bevel-up), 0 3px 10px rgb(0 0 0 / 60%);
+}
+body.bi-theme #players {
+  --background-color: var(--bi-steel-800);
+  --border-color: var(--bi-brass-dark);
+  --text-color: var(--bi-bone-dim);
+  --player-name-color: var(--bi-bone);
+  font-family: var(--bi-font-legend);
+  letter-spacing: 0.06em;
+}
+body.bi-theme.bi-roster-in-bar #players { display: none; }
+
+/* --- The right-hand sidebar ("the accordion") ---
+   Touched gracefully: retinted and given the same brass edge, but its
+   collapse/expand behaviour and width are left entirely alone. Foundry
+   owns that interaction and there is no reason for us to take it. */
+body.bi-theme #sidebar {
+  --background-color: var(--bi-steel-800);
+  --border-color: var(--bi-brass-dark);
+}
+body.bi-theme #sidebar-content {
+  background: var(--bi-mat-steel);
+  box-shadow: var(--bi-bevel-up), 0 0 0 1px var(--bi-brass-shadow);
+}
+body.bi-theme #sidebar-tabs {
+  background: linear-gradient(180deg, var(--bi-steel-600), var(--bi-steel-800));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 12%);
+}
+
+/* ==========================================================
+   5. JOURNALS
+   The campaign's journals are in-fiction documents, so they get the
+   document treatment rather than the panel treatment.
+   ========================================================== */
+
+/* Everything here goes through the SAME tokens .bi-doc uses, so a journal
+   page in Foundry and the document in the prototype cannot drift apart.
+   Nothing below hard-codes a colour or a font.
+
+   FOUND LIVE 2026-09-05: this block previously re-implemented the document
+   look with its own hex values and var(--bi-font-body). Because
+   `body.bi-theme .journal-entry-page` outspecifies `.bi-doc`, every real
+   Foundry journal silently got the UI body font instead of the document
+   serif — the exact drift the three-layer split exists to prevent, hiding
+   in the one file allowed to know about Foundry. */
+body.bi-theme .journal-entry-page,
+body.bi-theme .journal-page-content {
+  background: var(--bi-mat-paper);
+  color: var(--bi-paper-ink);
+  font-family: var(--bi-font-document);
+  font-size: 15px;
+  line-height: var(--bi-doc-leading);
+  letter-spacing: var(--bi-doc-tracking);
+}
+body.bi-theme .journal-entry-page h1,
+body.bi-theme .journal-entry-page h2,
+body.bi-theme .journal-entry-page h3 {
+  font-family: var(--bi-font-document);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #17130c;
+  border: none;
+}
+body.bi-theme .journal-entry-page h2 {
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--bi-paper-rule);
+}
+body.bi-theme .journal-entry-page strong { color: #5c1a0e; }
+
+/* ==========================================================
+   6. ACCESSIBILITY GUARD
+   The panel is dark, glowing and heavily textured. Under forced-colors
+   (Windows High Contrast), all of that actively harms legibility, so
+   the decoration is dropped and the OS palette is allowed through.
+   ========================================================== */
+
+@media (forced-colors: active) {
+  body.bi-theme .bi-key,
+  body.bi-theme .bi-pod,
+  body.bi-theme .bi-plate,
+  body.bi-theme .bi-screen {
+    background: Canvas;
+    color: CanvasText;
+    box-shadow: none;
+    border: 1px solid CanvasText;
+    forced-color-adjust: none;
+  }
+}

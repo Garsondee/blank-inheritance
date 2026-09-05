@@ -1,0 +1,396 @@
+// Tier 3 — contract tests for the visual-identity CSS layers.
+//
+// The failure mode this exists to kill is design/testing-strategy.md §0's
+// big one, in its CSS form: Foundry or sf2e renames a custom property, our
+// bridge keeps setting the old name, and NOTHING ERRORS. CSS silently
+// ignores an unknown custom property. The theme just quietly stops applying
+// in one corner of the UI, and nobody notices until it is on screen in front
+// of six players mid-session.
+//
+// So: every upstream variable the bridge overrides is checked against the
+// real foundry2.css / sf2e.css in the local (gitignored) source trees. Like
+// the other tier-3 tests, this skips LOUDLY when those trees are absent —
+// never fails, never silently passes.
+//
+// The non-contract tests below need no source trees and always run: they
+// enforce the same layering discipline the .mjs code has (§1's pure core /
+// thin adapter split, applied to CSS), and they pin the one real bug found
+// while building the prototype.
+
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(here, "..");
+const stylesRoot = path.join(repoRoot, "module", "blank-inheritance", "styles");
+
+const TOKENS = path.join(stylesRoot, "bi-tokens.css");
+const COMPONENTS = path.join(stylesRoot, "bi-components.css");
+const BRIDGE = path.join(stylesRoot, "bi-foundry-bridge.css");
+
+const foundryCss = path.join(
+  repoRoot, "foundryvtt", "Foundry Virtual Tabletop", "resources", "app",
+  "public", "css", "foundry2.css"
+);
+const sf2eCss = path.join(repoRoot, "gamesystems", "sf2e", "styles", "sf2e.css");
+
+const verifiedVersions = JSON.parse(
+  readFileSync(path.join(here, "fixtures", "verified-versions.json"), "utf8")
+);
+
+/** Strip comments so prose mentioning a selector or variable never matches. */
+function stripComments(css) {
+  return css.replace(/\/\*[\s\S]*?\*\//g, "");
+}
+
+const read = (p) => stripComments(readFileSync(p, "utf8"));
+
+/** Custom properties DECLARED by this stylesheet (`--x: value`). */
+function declaredVars(css) {
+  return new Set([...css.matchAll(/(--[\w-]+)\s*:/g)].map((m) => m[1]));
+}
+
+/** Custom properties CONSUMED by this stylesheet (`var(--x)`). */
+function usedVars(css) {
+  return new Set([...css.matchAll(/var\(\s*(--[\w-]+)/g)].map((m) => m[1]));
+}
+
+/* ==================================================================
+   Layering discipline — no source trees needed, always runs.
+   ================================================================== */
+
+test("theme CSS layers all exist", () => {
+  for (const file of [TOKENS, COMPONENTS, BRIDGE]) {
+    assert.ok(existsSync(file), `missing theme layer: ${path.relative(repoRoot, file)}`);
+  }
+});
+
+test("tokens and components stay Foundry-agnostic", () => {
+  // The CSS mirror of §1's rule that core/ may not touch Foundry globals.
+  // Tokens and components must render in a plain HTML page so the design can
+  // be reviewed without a running Foundry. Only the bridge knows Foundry.
+  const forbidden = [
+    /#ui-(?:bottom|left|right|top|middle)\b/,
+    /#sidebar\b/,
+    /#players\b/,
+    /#hotbar\b/,
+    /\.application\b/,
+    /\.window-header\b/,
+    /\.journal-entry-page\b/,
+    /body\.bi-theme\b/
+  ];
+  for (const file of [TOKENS, COMPONENTS]) {
+    const css = read(file);
+    for (const pattern of forbidden) {
+      assert.ok(
+        !pattern.test(css),
+        `${path.relative(repoRoot, file)} references a Foundry selector (${pattern}). ` +
+          `Foundry-specific rules belong in bi-foundry-bridge.css so the token and ` +
+          `component layers stay renderable outside Foundry.`
+      );
+    }
+  }
+});
+
+test("every --bi- variable used anywhere is defined in bi-tokens.css", () => {
+  const defined = declaredVars(read(TOKENS));
+  for (const file of [COMPONENTS, BRIDGE]) {
+    const css = read(file);
+    // Locally-scoped component knobs are declared where they are used
+    // (e.g. --lamp on .bi-lamp), so a var counts as satisfied by either
+    // the token layer or its own file.
+    const localDefs = declaredVars(css);
+    for (const v of usedVars(css)) {
+      if (!v.startsWith("--bi-")) continue;
+      assert.ok(
+        defined.has(v) || localDefs.has(v),
+        `${path.relative(repoRoot, file)} uses ${v}, which bi-tokens.css does not define.`
+      );
+    }
+  }
+});
+
+test("every bridge rule is gated behind the body.bi-theme kill switch", () => {
+  // A theme that cannot be switched off is a theme that can end a session.
+  // Every selector in the bridge must carry body.bi-theme so dropping one
+  // class returns Foundry to stock instantly.
+  const css = read(BRIDGE);
+  // Drop at-rule blocks (@media forced-colors etc.), whose inner selectors
+  // are checked as part of their own text below.
+  const selectors = [...css.matchAll(/(^|[}])\s*([^{}@]+?)\s*\{/gm)].map((m) => m[2].trim());
+  const offenders = selectors.filter((sel) => {
+    if (!sel || sel.startsWith("@")) return false;
+    // Every comma-separated selector in the group must be gated.
+    return sel.split(",").some((s) => !s.includes("body.bi-theme"));
+  });
+  assert.deepEqual(
+    offenders, [],
+    `bi-foundry-bridge.css has ungated rules; each would apply even with the ` +
+      `theme switched off:\n  ${offenders.join("\n  ")}`
+  );
+});
+
+/* ==================================================================
+   Regression — the real bug found while building the prototype.
+   ================================================================== */
+
+test("command bar height is pinned to the same token the hotbar padding uses", () => {
+  // FOUND LIVE, 2026-09-05: .bi-bar used min-height, so the chassis grew to
+  // its content (172px) while --bi-bar-height still said 128px. The bridge
+  // pads #ui-bottom by that token to lift Foundry's macro hotbar clear of
+  // the bar, so in Foundry the hotbar would have sat 44px inside the
+  // chassis. The two numbers must come from one source.
+  const components = read(COMPONENTS);
+  const bridge = read(BRIDGE);
+
+  const barRule = components.match(/\.bi-bar\s*\{[^}]*\}/);
+  assert.ok(barRule, "bi-components.css no longer declares a .bi-bar rule");
+  assert.match(
+    barRule[0],
+    /(?<!min-)height:\s*var\(--bi-bar-height\)/,
+    ".bi-bar must pin `height: var(--bi-bar-height)`, not min-height — a " +
+      "content-sized chassis drifts from the #ui-bottom padding in the bridge."
+  );
+  assert.match(
+    bridge,
+    /#ui-bottom[^}]*padding-bottom:[^;]*var\(--bi-bar-height\)/s,
+    "the bridge must derive #ui-bottom's padding from --bi-bar-height so the " +
+      "hotbar can never end up behind the command bar."
+  );
+});
+
+/* ==================================================================
+   Contract — needs the local source trees.
+   ================================================================== */
+
+test("local source trees match the versions this theme was authored against", (t) => {
+  if (!existsSync(foundryCss) || !existsSync(sf2eCss)) {
+    t.skip(
+      "gamesystems/sf2e/ and/or foundryvtt/ not present locally (both gitignored) — " +
+        "CSS contract tests need them, skipping loudly rather than failing or silently passing."
+    );
+    return;
+  }
+  const sf2eSystem = JSON.parse(
+    readFileSync(path.join(repoRoot, "gamesystems", "sf2e", "system.json"), "utf8")
+  );
+  const foundryPackage = JSON.parse(
+    readFileSync(
+      path.join(repoRoot, "foundryvtt", "Foundry Virtual Tabletop", "resources", "app", "package.json"),
+      "utf8"
+    )
+  );
+  assert.equal(sf2eSystem.version, verifiedVersions.sf2e);
+  assert.equal(foundryPackage.version, verifiedVersions.foundry);
+});
+
+test("every upstream variable the bridge overrides still exists in Foundry or sf2e", (t) => {
+  if (!existsSync(foundryCss) || !existsSync(sf2eCss)) {
+    t.skip("Foundry/sf2e source trees absent (gitignored) — cannot verify the CSS contract.");
+    return;
+  }
+
+  const upstream = new Set([
+    ...declaredVars(readFileSync(foundryCss, "utf8")),
+    ...declaredVars(readFileSync(sf2eCss, "utf8"))
+  ]);
+
+  const bridge = read(BRIDGE);
+  // Anything the bridge declares that is not one of ours is, by definition,
+  // an upstream property we are overriding.
+  const overridden = [...declaredVars(bridge)].filter((v) => !v.startsWith("--bi-"));
+
+  assert.ok(
+    overridden.length > 20,
+    `only ${overridden.length} upstream overrides found — the bridge should be ` +
+      `retinting Foundry/sf2e through their own variables, not out-specifying rules.`
+  );
+
+  const missing = overridden.filter((v) => !upstream.has(v));
+  assert.deepEqual(
+    missing, [],
+    `bi-foundry-bridge.css sets custom properties that no longer exist in ` +
+      `Foundry ${verifiedVersions.foundry} / sf2e ${verifiedVersions.sf2e}:\n  ${missing.join("\n  ")}\n` +
+      `CSS ignores unknown custom properties silently, so these would simply ` +
+      `stop theming their part of the UI with no error. Re-derive them from the ` +
+      `upgraded source trees, then bump test/fixtures/verified-versions.json.`
+  );
+});
+
+test("the prototype page loads the real shipped stylesheets", () => {
+  // design/ui/style-prototype.html is the review surface for this design. If
+  // it ever drifts into carrying its own copy of the palette, reviewing it
+  // stops telling us anything about what Foundry will actually render.
+  const proto = path.join(repoRoot, "design", "ui", "style-prototype.html");
+  assert.ok(existsSync(proto), "design/ui/style-prototype.html is missing");
+  const html = readFileSync(proto, "utf8");
+  for (const layer of ["bi-tokens.css", "bi-components.css", "bi-foundry-bridge.css"]) {
+    assert.ok(
+      html.includes(`module/blank-inheritance/styles/${layer}`),
+      `the prototype must link the real ${layer} rather than inlining a copy.`
+    );
+  }
+});
+
+test("the bridge styles journals through tokens, never with its own literals", () => {
+  // FOUND LIVE 2026-09-05: the bridge's journal block re-implemented the
+  // document look with hard-coded hex values and var(--bi-font-body).
+  // `body.bi-theme .journal-entry-page` outspecifies `.bi-doc`, so every real
+  // Foundry journal silently rendered in the UI body font instead of the
+  // document serif — drift hiding in the one file allowed to know Foundry.
+  const bridge = read(BRIDGE);
+  const journalBlock = bridge.slice(bridge.indexOf(".journal-entry-page"));
+  assert.ok(journalBlock.length > 0, "the bridge no longer styles journal pages");
+
+  assert.match(
+    journalBlock,
+    /font-family:\s*var\(--bi-font-document\)/,
+    "journal pages must use --bi-font-document. The body font is for UI prose; " +
+      "a Directorate document and a tooltip must not share a typeface."
+  );
+  assert.ok(
+    !/font-family:\s*var\(--bi-font-body\)/.test(journalBlock),
+    "the journal block still sets the UI body font somewhere"
+  );
+
+  // No raw colours in the journal block: paper colour lives in the tokens.
+  const literals = [...journalBlock.matchAll(/#[0-9a-f]{6}\b/gi)].map((m) => m[0]);
+  const allowed = new Set(["#17130c", "#5c1a0e"]); // heading + emphasis ink
+  const strays = literals.filter((c) => !allowed.has(c.toLowerCase()));
+  assert.deepEqual(
+    strays, [],
+    `the bridge hard-codes colours the token layer already owns: ${strays.join(", ")}`
+  );
+});
+
+test("paper and glass never share a typeface token", () => {
+  // The two registers do a functional job: a player must be able to tell at a
+  // glance whether they are reading something a person wrote or something a
+  // machine measured. Collapsing them into one font destroys that.
+  const tokens = read(TOKENS);
+  const grab = (name) => {
+    const m = tokens.match(new RegExp(`${name}:\s*([^;]+);`));
+    return m ? m[1].replace(/\s+/g, " ").trim() : null;
+  };
+  const document = grab("--bi-font-document");
+  const readout = grab("--bi-font-readout");
+  const legend = grab("--bi-font-legend");
+
+  assert.ok(document && readout && legend, "a type register token is missing");
+  assert.notEqual(document, readout);
+  assert.notEqual(document, legend);
+  // The document face must not be the panel face.
+  assert.ok(
+    !document.includes("Bruno Ace"),
+    "the document register must not use the engraved panel face"
+  );
+});
+
+/* ==================================================================
+   Wiring — the theme is actually loaded and applied by the module.
+   ================================================================== */
+
+test("module.json loads exactly the stylesheets core/theme.mjs declares, in order", async () => {
+  // Order is load-bearing: fonts declare the faces tokens name, tokens declare
+  // the properties components consume, and the bridge must come LAST because
+  // it deliberately out-specifies component defaults on Foundry's selectors.
+  const { STYLESHEETS } = await import("../module/blank-inheritance/scripts/core/theme.mjs");
+  const manifest = JSON.parse(
+    readFileSync(path.join(repoRoot, "module", "blank-inheritance", "module.json"), "utf8")
+  );
+
+  assert.ok(Array.isArray(manifest.styles), "module.json has no `styles` array — Foundry would load no CSS at all");
+  assert.deepEqual(
+    manifest.styles, [...STYLESHEETS],
+    "module.json's styles and core/theme.mjs's STYLESHEETS disagree. The manifest is " +
+      "what Foundry actually loads; the constant is what the code believes ships."
+  );
+
+  for (const rel of manifest.styles) {
+    assert.ok(
+      existsSync(path.join(repoRoot, "module", "blank-inheritance", rel)),
+      `module.json lists ${rel}, which does not exist — Foundry logs a 404 and moves on.`
+    );
+  }
+  assert.equal(
+    manifest.styles.at(-1), "styles/bi-foundry-bridge.css",
+    "the bridge must load last or its Foundry overrides lose to the component layer"
+  );
+});
+
+test("the redaction filter ids agree across all three files that use them", async () => {
+  // The silent-failure trio: core/redact.mjs writes data-edge="1|2|3",
+  // bi-components.css references filter: url(#bi-redact-edge-N), and
+  // core/theme.mjs defines those filters. A missing filter reference is
+  // ignored by the renderer without any error — the bars would just quietly
+  // lose their ragged edge and nobody would know until they looked closely.
+  const { filterDefsMarkup } = await import("../module/blank-inheritance/scripts/core/theme.mjs");
+  const { redactHtml, CLEARANCE } = await import("../module/blank-inheritance/scripts/core/redact.mjs");
+
+  const defined = new Set([...filterDefsMarkup().matchAll(/id="(bi-redact-edge-\d+)"/g)].map((m) => m[1]));
+  assert.ok(defined.size >= 3, "fewer than three edge filters are defined");
+
+  const referenced = new Set(
+    [...read(COMPONENTS).matchAll(/url\(#(bi-redact-edge-\d+)\)/g)].map((m) => m[1])
+  );
+  for (const id of referenced) {
+    assert.ok(defined.has(id), `bi-components.css references #${id}, which theme.mjs never defines`);
+  }
+
+  // And the variants redact.mjs actually emits must all be referenced by CSS.
+  const long = "a".repeat(400);
+  const { html } = redactHtml(`<redact c="4">${long}</redact>`, CLEARANCE.OPEN, { salt: "edge-coverage" });
+  const emitted = new Set([...html.matchAll(/data-edge="(\d+)"/g)].map((m) => `bi-redact-edge-${m[1]}`));
+  assert.ok(emitted.size >= 2, "the sample did not exercise multiple edge variants");
+  for (const id of emitted) {
+    assert.ok(
+      defined.has(id),
+      `core/redact.mjs emits ${id}, which theme.mjs never defines — those bars render as plain rectangles`
+    );
+  }
+});
+
+test("theme classes gate correctly, and off leaves nothing behind", async () => {
+  const { themeClasses, ALL_THEME_CLASSES, THEME_CLASS, ROSTER_IN_BAR_CLASS } =
+    await import("../module/blank-inheritance/scripts/core/theme.mjs");
+
+  assert.deepEqual(themeClasses({ enabled: false }), [], "disabled must add no classes at all");
+  assert.deepEqual(themeClasses({ enabled: true }), [THEME_CLASS]);
+  assert.deepEqual(
+    themeClasses({ enabled: true, rosterInBar: true }).sort(),
+    [ROSTER_IN_BAR_CLASS, THEME_CLASS].sort()
+  );
+  // rosterInBar without the theme would hide Foundry's player list while
+  // giving nothing back — the players would simply lose the roster.
+  assert.deepEqual(
+    themeClasses({ enabled: false, rosterInBar: true }), [],
+    "rosterInBar must never apply while the theme is off"
+  );
+  // Everything themeClasses can return must be in the removal list.
+  for (const combo of [{ enabled: true }, { enabled: true, rosterInBar: true }]) {
+    for (const cls of themeClasses(combo)) {
+      assert.ok(ALL_THEME_CLASSES.includes(cls), `${cls} is not in ALL_THEME_CLASSES, so it would never be removed`);
+    }
+  }
+});
+
+test("every registered setting has a translation string", async () => {
+  const { THEME_SETTINGS } = await import("../module/blank-inheritance/scripts/core/theme.mjs");
+  const lang = JSON.parse(
+    readFileSync(path.join(repoRoot, "module", "blank-inheritance", "lang", "en.json"), "utf8")
+  );
+  const resolve = (key) => key.split(".").reduce((o, k) => (o == null ? undefined : o[k]), lang);
+
+  for (const setting of THEME_SETTINGS) {
+    for (const field of ["name", "hint"]) {
+      assert.ok(
+        typeof resolve(setting[field]) === "string",
+        `setting "${setting.key}" has no ${field} string for ${setting[field]} — ` +
+          `Foundry renders the raw key in the settings menu.`
+      );
+    }
+  }
+});

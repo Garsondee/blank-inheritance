@@ -1,4 +1,5 @@
 import { deriveFoundryId } from "../ids.mjs";
+import { redactHtml, assertNoUnprocessedRedactions } from "../redact.mjs";
 
 const HTML_FORMAT = 1; // CONST.JOURNAL_ENTRY_PAGE_FORMATS.HTML (foundryvtt common/constants.mjs:993)
 const SORT_INTEGER_DENSITY = 100000; // spacing convention Foundry itself uses for sortable siblings (common/constants.mjs:955)
@@ -17,14 +18,28 @@ const SORT_INTEGER_DENSITY = 100000; // spacing convention Foundry itself uses f
 export async function buildJournalEntryData(source) {
   const id = await deriveFoundryId(source.id);
 
+  // `clearance` is the tier this generated version is FOR. Content authored
+  // with <redact c="n"> is stripped for anything above it — removed, not
+  // hidden (see core/redact.mjs). Default 0: an un-cleared version is the
+  // safe default, so forgetting to pass a clearance over-censors rather than
+  // publishing secrets.
+  const clearance = Number(source.clearance ?? 0);
+
   const pages = [];
   for (const [index, page] of (source.pages ?? []).entries()) {
+    const pageId = await deriveFoundryId(`${source.id}:page:${page.id}`);
+    const { html } = redactHtml(page.content ?? "", clearance, {
+      salt: `${source.id}:${page.id}`
+    });
+    // Belt and braces: nothing leaves this generator with a live redact tag.
+    assertNoUnprocessedRedactions(html);
+
     pages.push({
-      _id: await deriveFoundryId(`${source.id}:page:${page.id}`),
+      _id: pageId,
       name: page.name ?? page.id,
       type: "text",
       title: { level: page.titleLevel ?? 1 },
-      text: { content: page.content ?? "", format: HTML_FORMAT },
+      text: { content: html, format: HTML_FORMAT },
       sort: (index + 1) * SORT_INTEGER_DENSITY
     });
   }

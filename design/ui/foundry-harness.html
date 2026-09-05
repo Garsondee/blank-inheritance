@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" class="theme-dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blank Inheritance — Foundry Theme Harness</title>
+
+<!--
+  THE POINT OF THIS PAGE
+  bi-foundry-bridge.css claims it can retheme Foundry and the sf2e system by
+  redefining their own custom properties. This harness is where that claim is
+  actually tested: it loads the REAL foundry2.css and sf2e.css out of the
+  local source trees, builds Foundry's real DOM (ids and classes taken from
+  templates/views/game.hbs, templates/ui/players.hbs and the frame markup in
+  client/applications/api/application.mjs), and lets you toggle body.bi-theme.
+
+  Everything you see change when you press that button is the bridge working
+  against the genuine article. Nothing on this page restyles Foundry itself.
+
+  REQUIRES the two gitignored source trees (foundryvtt/, gamesystems/sf2e/).
+  Without them the page still loads, but there is no stock Foundry to compare
+  against — which is why it says so at the top rather than looking broken.
+-->
+<link rel="stylesheet" href="../../foundryvtt/Foundry%20Virtual%20Tabletop/resources/app/public/css/foundry2.css">
+<link rel="stylesheet" href="../../gamesystems/sf2e/styles/sf2e.css">
+
+<!-- Ours, in the exact order module.json declares them. -->
+<link rel="stylesheet" href="../../module/blank-inheritance/styles/bi-fonts.css">
+<link rel="stylesheet" href="../../module/blank-inheritance/styles/bi-tokens.css">
+<link rel="stylesheet" href="../../module/blank-inheritance/styles/bi-components.css">
+<link rel="stylesheet" href="../../module/blank-inheritance/styles/bi-foundry-bridge.css">
+
+<style>
+/* Harness furniture only — never ships, and deliberately restyles nothing
+   that belongs to Foundry. */
+#harness-bar {
+  position: fixed; inset: 0 0 auto 0; z-index: 9999;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 8px 14px;
+  background: #06090b; border-bottom: 1px solid #ac8a4d;
+  font: 12px/1.4 system-ui, sans-serif; color: #ddd3ba;
+}
+#harness-bar button {
+  font: inherit; font-weight: 700; cursor: pointer;
+  padding: 5px 12px; border-radius: 3px;
+  border: 1px solid #ac8a4d; background: #252c29; color: #ddd3ba;
+}
+#harness-bar button[aria-pressed="true"] { background: #ac8a4d; color: #16130d; }
+#harness-bar .spacer { flex: 1; }
+#harness-bar code { color: #f0a830; }
+#missing { color: #d1402a; font-weight: 700; }
+
+/* Foundry normally sizes #interface to the window; there is no canvas here,
+   so give it a body to occupy and a stand-in for the scene. */
+body { margin: 0; padding-top: 40px; min-height: 100vh; }
+#interface { position: relative; height: calc(100vh - 40px); }
+#fake-canvas {
+  position: absolute; inset: 0; z-index: -1;
+  background: url("assets/scene-harbour.jpg") center/cover no-repeat, #0d1414;
+  filter: brightness(0.55) saturate(0.7);
+}
+.harness-note {
+  position: absolute; left: 50%; top: 12px; transform: translateX(-50%);
+  z-index: 5; font: 11px system-ui, sans-serif; color: #a99f88;
+  background: rgb(6 9 11 / 78%); padding: 4px 10px; border-radius: 3px;
+}
+</style>
+</head>
+
+<body class="theme-dark">
+
+<div id="harness-bar">
+  <strong>Foundry theme harness</strong>
+  <button id="toggle" aria-pressed="false">Theme: OFF (stock Foundry)</button>
+  <button id="roster" aria-pressed="false">Roster in bar</button>
+  <span class="spacer"></span>
+  <span id="status"></span>
+  <span>loads real <code>foundry2.css</code> + <code>sf2e.css</code></span>
+</div>
+
+<!-- ==================================================================
+     FOUNDRY'S REAL INTERFACE SKELETON
+     Structure copied from templates/views/game.hbs (v14.367).
+     ================================================================== -->
+<div id="interface">
+  <div id="fake-canvas"></div>
+  <div class="harness-note">stand-in for the canvas — this page has no scene</div>
+  <div class="harness-note" style="top:auto;bottom:12px;max-width:60ch;text-align:center">
+    With the theme on, Foundry’s macro hotbar lifts clear of the bottom edge — that gap is
+    the berth <code>bi-foundry-bridge.css</code> reserves for the command bar, which lives in
+    <code>style-prototype.html</code>. Nothing draws it here on purpose: this page is about
+    what the bridge does to <em>Foundry’s own</em> furniture.
+  </div>
+
+  <section id="ui-left" class="flexrow">
+    <div id="ui-left-column-1" class="flexcol">
+
+      <!-- Scene controls -->
+      <menu id="scene-controls" class="faded-ui flexcol">
+        <li class="control ui-control icon fa-solid fa-arrow-pointer" data-tooltip="Token"></li>
+        <li class="control ui-control icon fa-solid fa-ruler" data-tooltip="Measure"></li>
+        <li class="control ui-control icon fa-solid fa-lightbulb" data-tooltip="Lighting"></li>
+      </menu>
+
+      <!-- Player list. Markup from templates/ui/players.hbs — note this is on
+           the LEFT in v14, not along the bottom. -->
+      <aside id="players" class="faded-ui flexcol">
+        <div id="players-active" class="flexcol">
+          <ol class="players-list plain flexcol">
+            <li class="player flexrow self" style="--player-color:#c8a04a">
+              <span class="player-name ellipsis">Gamemaster</span>
+            </li>
+            <li class="player flexrow" style="--player-color:#4fc8d8">
+              <span class="player-name ellipsis">Candidate 04</span>
+            </li>
+            <li class="player flexrow" style="--player-color:#6fe39a">
+              <span class="player-name ellipsis">Candidate 02</span>
+            </li>
+          </ol>
+          <div id="performance-stats" class="flexrow">
+            <div id="latency"><label>Latency</label><span class="average">42ms</span></div>
+            <div id="fps"><label>FPS</label><span class="average">60</span></div>
+            <button id="players-expand" type="button" class="icon fa-solid fa-caret-up"></button>
+          </div>
+        </div>
+      </aside>
+    </div>
+    <div id="ui-left-column-2" class="flexcol"></div>
+  </section>
+
+  <section id="ui-middle">
+    <header id="ui-top" class="flexcol"></header>
+    <footer id="ui-bottom" class="flexcol">
+      <!-- Foundry's macro hotbar. The command bar covers this, which is why
+           the bridge pads #ui-bottom to lift it clear. -->
+      <div id="hotbar" class="faded-ui">
+        <menu id="action-bar" class="flexrow unlist">
+          <li class="slot"><span class="slot-number">1</span></li>
+          <li class="slot"><span class="slot-number">2</span></li>
+          <li class="slot"><span class="slot-number">3</span></li>
+          <li class="slot"><span class="slot-number">4</span></li>
+          <li class="slot"><span class="slot-number">5</span></li>
+        </menu>
+      </div>
+    </footer>
+  </section>
+
+  <section id="ui-right" class="flexrow">
+    <div id="ui-right-column-1" class="flexcol"></div>
+    <div id="sidebar" class="app">
+      <nav id="sidebar-tabs" class="tabs flexrow">
+        <menu class="flexrow unlist">
+          <li><button class="ui-control icon fa-solid fa-comments" data-action="tab"></button></li>
+          <li><button class="ui-control icon fa-solid fa-users" data-action="tab"></button></li>
+          <li><button class="ui-control icon fa-solid fa-book-open" data-action="tab"></button></li>
+        </menu>
+      </nav>
+      <section id="sidebar-content" class="expanded">
+        <section class="tab active">
+          <!-- A chat card, using the roll-card treatment the bridge applies. -->
+          <div class="bi-card" style="margin:8px">
+            <div class="bi-card__header">Athletics &middot; Trained</div>
+            <div class="bi-card__result">
+              <span class="bi-readout bi-readout--lg">27</span>
+              <span class="bi-degree bi-degree--crit-success">Critical Success</span>
+            </div>
+            <div class="bi-card__body">
+              <span class="bi-trait">Frame</span>
+              <span class="bi-trait bi-trait--resonance">Resonance</span>
+            </div>
+          </div>
+        </section>
+      </section>
+    </div>
+  </section>
+</div>
+
+<!-- ==================================================================
+     A REAL APPLICATION WINDOW
+     Frame markup from client/applications/api/application.mjs:845.
+     ================================================================== -->
+<div class="application sheet" style="position:fixed;left:230px;top:90px;width:460px;z-index:60">
+  <header class="window-header">
+    <i class="window-icon fa-solid fa-file-lines"></i>
+    <h1 class="window-title">Standing Order 14</h1>
+    <button type="button" class="header-control icon fa-solid fa-ellipsis-vertical"></button>
+    <button type="button" class="header-control icon fa-solid fa-xmark"></button>
+  </header>
+  <section class="window-content">
+    <!-- Foundry's real journal page class. Everything it looks like comes
+         from the bridge; there is no page-local styling on it. -->
+    <div class="journal-entry-page">
+      <h2>Annex B — Disposition</h2>
+      <p>
+        Recovery of the unit designated HOLLOW-3 was completed at 04:11. The pilot
+        was <span class="bi-redacted" data-tier="3" data-edge="1" style="--bi-redact-w:14ch"
+        role="img" aria-label="Redacted — clearance SECRET required"></span>
+        <span class="bi-redacted" data-tier="3" data-edge="2" style="--bi-redact-w:11ch" aria-hidden="true"></span>
+        and is listed as <strong>unrecoverable</strong>.
+      </p>
+      <p>
+        Sync figures at time of contact exceeded
+        <span class="bi-redacted" data-tier="4" data-edge="3" style="--bi-redact-w:15ch"
+        role="img" aria-label="Redacted — clearance ABSOLUTE required"></span>
+        <span class="bi-redacted" data-tier="4" data-edge="1" style="--bi-redact-w:9ch" aria-hidden="true"></span>.
+      </p>
+      <div class="form-group">
+        <label>Clearance</label>
+        <div class="form-fields">
+          <select><option>部外秘 Internal</option><option>秘 Confidential</option></select>
+          <button type="button">Apply</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script type="module">
+  // The same pure functions the module uses in Foundry — the harness proves
+  // the real code path, not a hand-rolled imitation of it.
+  import { themeClasses, ALL_THEME_CLASSES, filterDefsMarkup, FILTER_DEFS_ID }
+    from "../../module/blank-inheritance/scripts/core/theme.mjs";
+
+  document.body.insertAdjacentHTML("afterbegin", filterDefsMarkup());
+
+  const state = { enabled: false, rosterInBar: false };
+  const toggle = document.getElementById("toggle");
+  const roster = document.getElementById("roster");
+
+  function apply() {
+    document.body.classList.remove(...ALL_THEME_CLASSES);
+    const wanted = themeClasses(state);
+    if (wanted.length) document.body.classList.add(...wanted);
+    toggle.setAttribute("aria-pressed", String(state.enabled));
+    toggle.textContent = state.enabled ? "Theme: ON (Directorate)" : "Theme: OFF (stock Foundry)";
+    roster.setAttribute("aria-pressed", String(state.rosterInBar));
+    document.getElementById(FILTER_DEFS_ID).style.display = state.enabled ? "" : "none";
+  }
+  toggle.addEventListener("click", () => { state.enabled = !state.enabled; apply(); });
+  roster.addEventListener("click", () => { state.rosterInBar = !state.rosterInBar; apply(); });
+  apply();
+
+  // Say plainly whether the real Foundry CSS actually loaded, rather than
+  // letting a 404 look like "the theme did nothing".
+  const loaded = [...document.styleSheets].filter((s) => {
+    try { return s.cssRules.length > 0; } catch { return true; }
+  }).map((s) => s.href || "");
+  const hasFoundry = loaded.some((h) => h.includes("foundry2.css"));
+  const hasSf2e = loaded.some((h) => h.includes("sf2e.css"));
+  document.getElementById("status").innerHTML = (hasFoundry && hasSf2e)
+    ? '<span style="color:#6fe39a">foundry2.css + sf2e.css loaded</span>'
+    : '<span id="missing">source trees missing — no stock Foundry to compare against</span>';
+</script>
+</body>
+</html>

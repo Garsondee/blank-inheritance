@@ -70,3 +70,8 @@ id_ed25519.*
 # artifact with its own generator script the way the entries above are, just
 # working scratch that accumulated in-tree. Never meant to be committed.
 /tools/city-map/_out/
+
+# Font pipeline download cache — full upstream TTFs (tens of MB) used only as
+# subsetting input. The shipped woff2 files in module/.../assets/fonts/ ARE
+# committed; these intermediates are reproducible via build_fonts.py.
+tools/font-pipeline/.cache/
