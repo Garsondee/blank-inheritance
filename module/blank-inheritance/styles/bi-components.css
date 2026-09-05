@@ -609,7 +609,13 @@
      disappear, and a centrepiece that slides sideways when a button shows
      up reads as a bug, not a feature. */
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  /* minmax(0, ...) is load-bearing. A bare 1fr track has an automatic
+     minimum of min-content, so an over-full left cluster GREW its track,
+     shoved the instruments right of centre and pushed the entire right
+     cluster off the end of the chassis. Capping the minimum at 0 keeps both
+     side tracks at exactly half, so the instrument stays centred and the
+     shedding ladder below is what decides what fits. */
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: end;
   gap: 10px;
   /* Pinned, not content-sized. bi-foundry-bridge pads #ui-bottom by this
@@ -666,35 +672,35 @@
   overflow: hidden;
 }
 
-/* A narrow CHASSIS sheds its least essential modules rather than letting
-   pods collide with the instrument cluster. Priority order is deliberate:
-   quick-roll checks and the action economy carry no priority at all and never
-   shed, because they are what the bar exists to provide.
+/* A narrow CHASSIS sheds its least essential modules rather than letting pods
+   collide with the instrument cluster. Checks and the action economy carry no
+   priority at all and never shed, because they are what the bar exists to
+   provide.
 
    These are CONTAINER queries, not viewport media queries, and that is
-   load-bearing. The chassis lives inside .bi-console, which is a 16:9 box
-   routinely much narrower than the window it sits in. Keyed to the viewport, a
-   1175px console inside a 1900px window hid modules that had ample room.
+   load-bearing: .bi-console is a 16:9 box routinely much narrower than the
+   window it sits in, and keying to the viewport hid modules that had room.
 
-   EACH BREAKPOINT IS THE MEASURED WIDTH THE CHASSIS NEEDS WITH THAT TIER AND
-   EVERYTHING ABOVE IT SHOWING, so there is no band where a tier is hidden but
-   the space it wanted sits empty:
+   THE BREAKPOINTS ARE DERIVED FROM THE HEAVIER SIDE, NOT THE TOTAL. The side
+   tracks are each exactly half the chassis, so what fits is decided by whichever
+   cluster is wider — budgeting by the sum let the left side overflow while the
+   right still had slack. Each tier therefore adds roughly equal width to both
+   sides, and the threshold is (heavier side x 2) + instruments + padding:
 
-     core only ....................... 1184px   never sheds
-     + tier 2 (pilot, movement, conditions)  1880px
-     + tier 3 (dice tray, macro bank)        2247px
-     + tier 4 (frame systems, audio desk)    2772px
+     core  checks | actions ................................. 1190px
+     + t2  pilot, movement | conditions ...................... 1938px
+     + t3  dice tray | frame systems, view ................... 2336px
+     + t4  macro bank | audio desk ........................... 2592px
 
    Re-measure and update these whenever a module changes width. */
-@container bi-console (max-width: 2772px) {
+@container bi-console (max-width: 2592px) {
   .bi-bar [data-bi-priority="4"] { display: none; }
 }
-@container bi-console (max-width: 2247px) {
+@container bi-console (max-width: 2336px) {
   .bi-bar [data-bi-priority="3"] { display: none; }
 }
-@container bi-console (max-width: 1880px) {
+@container bi-console (max-width: 1938px) {
   .bi-bar [data-bi-priority="2"] { display: none; }
-}
 }
 
 /* --- Macro bank: our replacement for Foundry's hotbar ----------------- */
@@ -1167,34 +1173,49 @@
    PANEL SKIN — riveted plate, and the break lines across it
    ---------------------------------------------------------------------
    One class every surface can wear, so the frame reads as ONE machine
-   rather than a set of unrelated boxes. --bi-seam-x / --bi-seam-y place
-   the break lines; a panel with different seams reads as a different
-   pressing bolted to the same frame.
+   rather than a set of unrelated boxes. The panel line runs around the
+   perimeter, inset from the edge, with brass corner ticks — machining,
+   not decoration.
    ===================================================================== */
 
 .bi-plate-skin {
-  --bi-seam-y: 38%;
-  --bi-seam-x: 62%;
   position: relative;
   background: var(--bi-mat-steel);
   box-shadow: var(--bi-bevel-up), 0 4px 14px rgb(0 0 0 / 62%);
 }
-/* Break lines: a dark cut with a light lower lip — the same physical
-   idea as the engraved legends, at panel scale. */
+/* Panel lines run around the PERIMETER, inset from the edge, the way a real
+   pressed panel is scored where it meets its frame. The first version drew one
+   horizontal and one vertical line across the middle of every pod at author-
+   chosen percentages, which read as random scoring rather than as machining —
+   arbitrary bisections nothing structural justified.
+
+   The line is an engraved cut: a dark score with light catching its lower lip,
+   the same physical idea as .bi-legend's engraving at panel scale. */
 .bi-plate-skin::before {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: 6px;
+  border-radius: 3px;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 45%),
+    0 0 0 1px rgb(255 255 255 / 6%);
+}
+
+/* Corner notches: the score line breaks at the corners, as a panel scored by a
+   router does. Drawn as four short brass ticks rather than by interrupting the
+   rectangle, which CSS cannot do cleanly. */
+.bi-plate-skin::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
   pointer-events: none;
   background:
-    linear-gradient(180deg, transparent calc(var(--bi-seam-y) - 1px),
-      rgb(0 0 0 / 55%) calc(var(--bi-seam-y) - 1px), rgb(0 0 0 / 55%) var(--bi-seam-y),
-      rgb(255 255 255 / 7%) var(--bi-seam-y), rgb(255 255 255 / 7%) calc(var(--bi-seam-y) + 1px),
-      transparent calc(var(--bi-seam-y) + 1px)),
-    linear-gradient(90deg, transparent calc(var(--bi-seam-x) - 1px),
-      rgb(0 0 0 / 45%) calc(var(--bi-seam-x) - 1px), rgb(0 0 0 / 45%) var(--bi-seam-x),
-      rgb(255 255 255 / 6%) var(--bi-seam-x), rgb(255 255 255 / 6%) calc(var(--bi-seam-x) + 1px),
-      transparent calc(var(--bi-seam-x) + 1px));
+    linear-gradient(90deg, var(--bi-brass-dark) 0 9px, transparent 9px) 0 0 / 100% 1px no-repeat,
+    linear-gradient(270deg, var(--bi-brass-dark) 0 9px, transparent 9px) 100% 0 / 100% 1px no-repeat,
+    linear-gradient(90deg, var(--bi-brass-dark) 0 9px, transparent 9px) 0 100% / 100% 1px no-repeat,
+    linear-gradient(270deg, var(--bi-brass-dark) 0 9px, transparent 9px) 100% 100% / 100% 1px no-repeat;
+  opacity: 0.7;
 }
 
 /* A run of rivets along one edge, drawn as a repeating radial so a panel
