@@ -17,17 +17,17 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { installMockFoundry } from "./support/mock-foundry.mjs";
-import { deriveFoundryId } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/ids.mjs";
-import { ensureDirectory, writeReportFile, fetchModuleJson } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/foundry/io.mjs";
+import { deriveFoundryId } from "../module/blank-inheritance/scripts/core/ids.mjs";
+import { ensureDirectory, writeReportFile, fetchModuleJson } from "../module/blank-inheritance/scripts/foundry/io.mjs";
 // Safe as a static top-level import even though this is "the mocked globals"
 // file: sync.mjs only touches game/ui/Actor/etc. inside its exported
 // function bodies, never at module-evaluation time, so it's fine to import
 // once here and call its exports after installMockFoundry() runs per-test.
-import { runDiagnosticTestSync } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/foundry/sync.mjs";
+import { runDiagnosticTestSync } from "../module/blank-inheritance/scripts/foundry/sync.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
-const moduleRoot = path.join(repoRoot, "module", "mythica-machina-blank-inheritance-adventure-module");
+const moduleRoot = path.join(repoRoot, "module", "blank-inheritance");
 const templateJsonPath = path.join(repoRoot, "gamesystems", "sf2e", "template.json");
 
 const moduleManifest = JSON.parse(readFileSync(path.join(moduleRoot, "module.json"), "utf8"));

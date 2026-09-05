@@ -2,7 +2,7 @@
 
 Design for the module that ships this campaign into Foundry VTT, keeps it in sync with the JSON authored in this repo, and runs session logistics. Concept-level: architecture and decisions, not code. Every technical claim here is backed by [foundry-technical-reference.md](foundry-technical-reference.md) — that document is the source of truth for exact field names/APIs; this one is the reasoning on top of it.
 
-**2026-09-04 note:** originally written against `foundry/blank-inheritance/`. A second module scaffold (`module/mythica-machina-blank-inheritance-adventure-module/`, a system-generated v14 package with compendium packs wired up) was created since, prompting a real reconciliation — see GitHub issue #70 and the amended §8 packs bullet below. The two are being consolidated into one module directory (issue #71); this doc's reasoning holds regardless of which physical path it ends up at.
+**2026-09-04 note:** originally written against `foundry/blank-inheritance/`. A second module scaffold (`module/blank-inheritance/`, a system-generated v14 package with compendium packs wired up) was created since, prompting a real reconciliation — see GitHub issue #70 and the amended §8 packs bullet below. The two are being consolidated into one module directory (issue #71); this doc's reasoning holds regardless of which physical path it ends up at.
 
 Written against the user's seven numbered goals (reproduced inline as headers below), Foundry VTT v14.367, and sf2e v1.4.1.
 

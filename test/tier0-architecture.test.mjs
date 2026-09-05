@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
-const scriptsRoot = path.join(repoRoot, "module", "mythica-machina-blank-inheritance-adventure-module", "scripts");
+const scriptsRoot = path.join(repoRoot, "module", "blank-inheritance", "scripts");
 const coreRoot = path.join(scriptsRoot, "core");
 
 function walk(dir, out = []) {
@@ -58,6 +58,28 @@ test("core/ never references a Foundry global", () => {
       );
     }
   }
+});
+
+test("the module's directory name matches its own manifest id (regression: found live 2026-09-05)", () => {
+  // Foundry's server-side package loader (dist/packages/package.mjs,
+  // BasePackage.fromManifestPath) rejects a module outright -- excluded from
+  // the packages Collection entirely, never installable/enableable -- if
+  // path.basename(dirname(module.json)) !== manifest.id. This is a HARD
+  // requirement, not a style preference: confirmed by reading that source
+  // and independently confirmed live (2026-09-05) when the 2026-09-04
+  // directory consolidation (GH issue #70) renamed the folder to something
+  // prettier while deliberately keeping id: "blank-inheritance" for the
+  // deterministic-id hashes -- which silently broke the module on the real
+  // server for a full day before a restart's error log caught it. The folder
+  // is named `blank-inheritance` again specifically because of this rule.
+  const moduleRoot = path.join(repoRoot, "module", "blank-inheritance");
+  const manifest = JSON.parse(readFileSync(path.join(moduleRoot, "module.json"), "utf8"));
+  assert.equal(
+    path.basename(moduleRoot),
+    manifest.id,
+    `module.json's "id" ("${manifest.id}") must exactly match the directory it lives in ("${path.basename(moduleRoot)}") -- ` +
+      `a mismatch here is rejected by Foundry's real package loader, not just an inconsistency.`
+  );
 });
 
 test("FilePicker is only ever accessed via foundry.applications.apps.FilePicker (regression: deprecated bare global, found 2026-08-22)", () => {

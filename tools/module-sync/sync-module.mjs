@@ -34,8 +34,8 @@ const repoRoot = path.resolve(here, "..", "..");
 const { values } = parseArgs({
   options: {
     "dry-run": { type: "boolean", default: false },
-    "local-dir": { type: "string", default: path.join(repoRoot, "module", "mythica-machina-blank-inheritance-adventure-module") },
-    "remote-dir": { type: "string", default: "/home/ubuntu/foundrydata/Data/modules/mythica-machina-blank-inheritance-adventure-module" },
+    "local-dir": { type: "string", default: path.join(repoRoot, "module", "blank-inheritance") },
+    "remote-dir": { type: "string", default: "/home/ubuntu/foundrydata/Data/modules/blank-inheritance" },
     "remote-host": { type: "string", default: "ubuntu@132.145.38.144" },
     "key-path": { type: "string", default: path.join(repoRoot, "SSH.ppk") },
     "host-key": { type: "string", default: "SHA256:7EsvSGvu2DqJfokfzaVnysbx/Ehf52fij/M9DLHo9cE" },

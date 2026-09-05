@@ -14,17 +14,17 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { deriveFoundryId, contentHash } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/ids.mjs";
-import { buildCreatureActorData } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/generators/creature.mjs";
-import { buildCharacterActorData } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/generators/character.mjs";
-import { buildSceneData } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/generators/scene.mjs";
-import { buildJournalEntryData } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/generators/journal.mjs";
-import { validateActor, validateScene, validateJournalEntry } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/validate.mjs";
-import { summarizeReport, reportToClipboardText } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/report.mjs";
+import { deriveFoundryId, contentHash } from "../module/blank-inheritance/scripts/core/ids.mjs";
+import { buildCreatureActorData } from "../module/blank-inheritance/scripts/core/generators/creature.mjs";
+import { buildCharacterActorData } from "../module/blank-inheritance/scripts/core/generators/character.mjs";
+import { buildSceneData } from "../module/blank-inheritance/scripts/core/generators/scene.mjs";
+import { buildJournalEntryData } from "../module/blank-inheritance/scripts/core/generators/journal.mjs";
+import { validateActor, validateScene, validateJournalEntry } from "../module/blank-inheritance/scripts/core/validate.mjs";
+import { summarizeReport, reportToClipboardText } from "../module/blank-inheritance/scripts/core/report.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
-const fixturesDir = path.join(repoRoot, "module", "mythica-machina-blank-inheritance-adventure-module", "data", "_test-fixtures");
+const fixturesDir = path.join(repoRoot, "module", "blank-inheritance", "data", "_test-fixtures");
 const goldenDir = path.join(here, "golden");
 
 function readFixture(name) {

@@ -4,7 +4,7 @@ Technical work planned beyond the campaign document structure itself.
 
 ## 1. & 2. Foundry VTT module (sync + logistics, one module)
 
-These turned out to be one module, not two — `module/mythica-machina-blank-inheritance-adventure-module/` (originally `foundry/blank-inheritance/`; consolidated 2026-09-04/05, GitHub issue #71 — the manifest `id` stayed `blank-inheritance` on purpose). It ships the campaign JSON and the module code together (pushed as one unit via `tools/module-sync/`, or WinSCP by hand), syncs `/data` into Foundry documents (Scenes, Actors, JournalEntries, Playlists), supports pulling GM edits back down, and runs session logistics (time tracking, a director's panel for cueing scenes/transitions/music).
+These turned out to be one module, not two — `module/blank-inheritance/` (originally `foundry/blank-inheritance/`; consolidated 2026-09-04/05, GitHub issue #71 — the manifest `id` stayed `blank-inheritance` on purpose). It ships the campaign JSON and the module code together (pushed as one unit via `tools/module-sync/`, or WinSCP by hand), syncs `/data` into Foundry documents (Scenes, Actors, JournalEntries, Playlists), supports pulling GM edits back down, and runs session logistics (time tracking, a director's panel for cueing scenes/transitions/music).
 
 - **Design**: [design/foundry-module-design.md](design/foundry-module-design.md) — architecture and decisions, including a Safety section on why world-document writes must go through Foundry's Document API, never raw file access.
 - **Reference**: [design/foundry-technical-reference.md](design/foundry-technical-reference.md) — the exact Foundry v14 / sf2e APIs the design relies on, verified against local source trees.

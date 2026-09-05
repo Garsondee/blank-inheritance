@@ -22,9 +22,9 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { buildCreatureActorData } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/generators/creature.mjs";
-import { buildCharacterActorData } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/generators/character.mjs";
-import { buildJournalEntryData } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/generators/journal.mjs";
+import { buildCreatureActorData } from "../module/blank-inheritance/scripts/core/generators/creature.mjs";
+import { buildCharacterActorData } from "../module/blank-inheritance/scripts/core/generators/character.mjs";
+import { buildJournalEntryData } from "../module/blank-inheritance/scripts/core/generators/journal.mjs";
 import { resolveActorTemplate, hasPath, flattenPaths, findInvalidActorFieldPaths } from "./support/sf2e-template.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));

@@ -6,7 +6,7 @@ Verified push of the Foundry module directory to the live server. Replaces manua
 node tools/module-sync/sync-module.mjs
 ```
 
-Uploads `module/mythica-machina-blank-inheritance-adventure-module/` to the server's `Data/modules/` folder, then independently re-hashes every file on **both** sides (SHA-256, via Node's own `crypto` locally and `sha256sum` remotely) and reports exactly what matches — never trusts a "the copy succeeded" exit code alone.
+Uploads `module/blank-inheritance/` to the server's `Data/modules/` folder, then independently re-hashes every file on **both** sides (SHA-256, via Node's own `crypto` locally and `sha256sum` remotely) and reports exactly what matches — never trusts a "the copy succeeded" exit code alone.
 
 Add `--dry-run` to compare against the server without uploading anything first (useful to see what a real run would change).
 
