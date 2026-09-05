@@ -692,3 +692,97 @@ test("the ident display exists and protrudes above its own pod", () => {
   assert.match(html, /class="bi-ident"/, "the prototype no longer uses .bi-ident");
   assert.match(html, /bi-ident__value">04</, "the ident instrument should still show the candidate number");
 });
+
+/* ==================================================================
+   Pass 9 — the chassis sheds PER SIDE, the floor is heavier-side math,
+   and the test bed measures itself.
+   ================================================================== */
+
+test("each chassis side group sheds against its OWN width, not the console's", () => {
+  // FOUND LIVE: a single console-wide ladder let the heavier (left) cluster
+  // slide 25px under the left subdome at a 2532px console while the right
+  // cluster still had 200px spare. Each side is now its own container.
+  const css = stripComments(read(COMPONENTS));
+  assert.match(css, /\.bi-bar__group--left\s*\{[^}]*container-type:\s*inline-size[^}]*container-name:\s*bi-bar-left/);
+  assert.match(css, /\.bi-bar__group--right\s*\{[^}]*container-type:\s*inline-size[^}]*container-name:\s*bi-bar-right/);
+  assert.doesNotMatch(css, /@container bi-console/, "the old console-wide shedding queries must be gone");
+  for (const side of ["left", "right"]) {
+    for (const pri of ["2", "3", "4"]) {
+      const re = new RegExp(String.raw`@container bi-bar-${side} \(width < \d+px\)\s*\{\s*\.bi-bar__group--${side}\s+\[data-bi-priority="${pri}"\]\s*\{\s*display:\s*none;?\s*\}\s*\}`);
+      assert.match(css, re, `${side} side lacks a priority-${pri} shedding query`);
+    }
+  }
+  // The ladder must be monotonic per side: higher priority number sheds first.
+  for (const side of ["left", "right"]) {
+    const px = ["2", "3", "4"].map((pri) =>
+      Number(css.match(new RegExp(String.raw`@container bi-bar-${side} \(width < (\d+)px\)\s*\{\s*\.bi-bar__group--${side}\s+\[data-bi-priority="${pri}"\]`))[1]));
+    assert.ok(px[0] < px[1] && px[1] < px[2], `${side} thresholds must rise with priority: ${px.join(" < ")}`);
+  }
+});
+
+test("the console width floor is derived from the heavier side, not a sum", () => {
+  // FOUND LIVE: 1200px was Checks + Actions + cluster. The side tracks are
+  // halves, so the floor is 2 x the widest never-shed pod + cluster + padding
+  // + gaps = 1276px. Anything below lets Checks run under the left subdome.
+  const css = stripComments(read(COMPONENTS));
+  const m = css.match(/\.bi-console\s*\{[^}]*min-width:\s*(\d+)px/);
+  assert.ok(m, ".bi-console has no min-width");
+  assert.ok(Number(m[1]) >= 1276, `min-width ${m[1]}px is below the measured 1276px floor`);
+});
+
+test("the Direction module sits in the LEFT group, in the ident pod's slot", () => {
+  // The two are traded (GM shows Direction, hides ident). Keeping them in the
+  // same group is what lets one set of left-side thresholds cover both modes;
+  // with Direction on the right, GM mode overflowed the right track by 16px.
+  const html = readFileSync(path.join(repoRoot, "design", "ui", "style-prototype.html"), "utf8");
+  const left = html.indexOf('class="bi-bar__group bi-bar__group--left"');
+  const right = html.indexOf('class="bi-bar__group bi-bar__group--right"');
+  const gm = html.indexOf('id="gm-pod"');
+  const ident = html.indexOf('id="ident-pod"');
+  assert.ok(left > -1 && right > -1 && gm > -1 && ident > -1, "expected markers missing from the prototype");
+  assert.ok(gm > left && gm < right, "#gm-pod is not inside the left group");
+  assert.ok(ident > left && ident < right, "#ident-pod is not inside the left group");
+  const js = readFileSync(path.join(repoRoot, "design", "ui", "console.js"), "utf8");
+  assert.match(js, /\$\("#ident-pod"\)/, "console.js must select the ident pod by id, not by priority attribute");
+});
+
+test("the console scales as one unit through --bi-ui-scale and zoom", () => {
+  const tokens = stripComments(read(TOKENS));
+  const css = stripComments(read(COMPONENTS));
+  assert.match(tokens, /--bi-ui-scale:\s*1;/, "--bi-ui-scale token (default 1) missing");
+  assert.match(css, /\.bi-console\s*\{[^}]*zoom:\s*var\(--bi-ui-scale,\s*1\)/, ".bi-console must zoom by --bi-ui-scale");
+  // zoom, not transform: a transform does not take part in layout, so the
+  // per-side container queries would measure unscaled px and the ladder
+  // would shed at the wrong widths.
+  assert.doesNotMatch(css, /\.bi-console\s*\{[^}]*transform:\s*scale/);
+});
+
+test("the prototype measures its own layout and reports it", () => {
+  const js = readFileSync(path.join(repoRoot, "design", "ui", "console.js"), "utf8");
+  assert.match(js, /function runDiagnostics\(\)/, "runDiagnostics() missing");
+  assert.match(js, /window\.biDiagnostics\s*=\s*runDiagnostics/, "diagnostics must be reachable from automation");
+  assert.match(js, /new ResizeObserver\([\s\S]*?runDiagnostics/, "diagnostics must re-run on resize");
+  for (const check of ["over its track", "subdome overlapped", "under top rail", "under chassis", "off the frame"]) {
+    assert.ok(js.includes(check), `diagnostics no longer checks: ${check}`);
+  }
+  const html = readFileSync(path.join(repoRoot, "design", "ui", "style-prototype.html"), "utf8");
+  assert.match(html, /id="demo-diag"/, "the toolbar readout element is missing");
+});
+
+test("small keys and the ident labels clear the 4K readability floor", () => {
+  // Nine-pixel tracked-out capitals were the most common "hard to read"
+  // element in the user's own 4K screenshots. 10px is the floor for any
+  // Latin label on the chassis; 7px macro keys and 8px ident legends were
+  // the worst offenders.
+  const css = stripComments(read(COMPONENTS));
+  const size = (sel) => {
+    const m = css.match(new RegExp(String.raw`${sel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\s*\{[^}]*font-size:\s*(\d+)px`));
+    assert.ok(m, `${sel} has no px font-size`);
+    return Number(m[1]);
+  };
+  assert.ok(size(".bi-key--sm") >= 10, ".bi-key--sm below 10px");
+  assert.ok(size(".bi-ident__label") >= 10, ".bi-ident__label below 10px");
+  assert.ok(size(".bi-ident__sub") >= 11, ".bi-ident__sub below 11px");
+  assert.ok(size(".bi-macro__key") >= 8, ".bi-macro__key below 8px");
+  assert.ok(size(".bi-marquee__cap") >= 10, ".bi-marquee__cap below 10px");
+});

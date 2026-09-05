@@ -278,7 +278,7 @@ for (const strip of $$(".bi-mixer__strip")) {
  * Pilot / Director
  * ------------------------------------------------------------------ */
 const gmPod = $("#gm-pod");
-const identPod = $('[data-bi-priority="2"]');
+const identPod = $("#ident-pod");
 function setMode(gm) {
   gmPod.hidden = !gm;
   // The Direction module needs ~150px the chassis does not have spare. A GM is
@@ -287,6 +287,7 @@ function setMode(gm) {
   if (identPod) identPod.style.display = gm ? "none" : "";
   $("#mode-gm").setAttribute("aria-pressed", String(gm));
   $("#mode-player").setAttribute("aria-pressed", String(!gm));
+  requestAnimationFrame(runDiagnostics);
 }
 $("#mode-player").addEventListener("click", () => setMode(false));
 $("#mode-gm").addEventListener("click", () => setMode(true));
@@ -430,3 +431,74 @@ addEventListener("resize", () => {
 
 measureToolbarHeight();
 paintDemoSize();
+
+/* ------------------------------------------------------------------ *
+ * UI SCALE — the whole console as one unit (see .bi-console's zoom).
+ * The scene under it does not scale; only the instrument does.
+ * ------------------------------------------------------------------ */
+const uiScale = $("#ui-scale");
+function setUiScale(pct) {
+  const s = (pct / 100).toFixed(2);
+  consoleEl.style.setProperty("--bi-ui-scale", s);
+  $("#ui-scale-out").textContent = s;
+  requestAnimationFrame(() => requestAnimationFrame(() => { paintDemoSize(); runDiagnostics(); }));
+}
+uiScale?.addEventListener("input", () => setUiScale(Number(uiScale.value)));
+
+/* ------------------------------------------------------------------ *
+ * LAYOUT DIAGNOSTICS — a live overflow detector for the test bed.
+ *
+ * Every layout bug the user has reported so far was of one kind: something
+ * slid under something else and no one noticed until a screenshot. The
+ * shedding ladder in bi-components.css is a set of MEASURED numbers, and
+ * measured numbers go stale silently. So the prototype now measures itself
+ * on every layout change and says so in the toolbar: each side cluster's
+ * visible extent against its own track, each subdome against its
+ * neighbouring pod, and every map marker against the visible band (between
+ * the top rail and the chassis) and the frame edges. Red means "fix the
+ * CSS", not "resize the window". Also console.warn()ed, for devtools.
+ * ------------------------------------------------------------------ */
+function runDiagnostics() {
+  const out = $("#demo-diag");
+  if (!out) return;
+  const rect = (el) => el.getBoundingClientRect();
+  const visible = (el) => el && !el.hidden && getComputedStyle(el).display !== "none";
+  const problems = [];
+
+  const bar = $("#bar");
+  for (const side of ["left", "right"]) {
+    const group = $(`.bi-bar__group--${side}`, bar);
+    const pods = $$(":scope > .bi-pod", group).filter(visible);
+    if (!pods.length) continue;
+    const l = Math.min(...pods.map((p) => rect(p).left));
+    const r = Math.max(...pods.map((p) => rect(p).right));
+    const over = Math.round((r - l) - rect(group).width);
+    if (over > 0) problems.push(`${side} cluster +${over}px over its track`);
+    const sub = $(`.bi-subdome--${side}`, bar);
+    const gap = side === "left" ? rect(sub).left - r : l - rect(sub).right;
+    if (gap < 0) problems.push(`${side} subdome overlapped by ${Math.round(-gap)}px`);
+  }
+
+  const c = rect(consoleEl);
+  const top = rect($(".bi-console__top", consoleEl));
+  const chassis = rect($(".bi-console__bar", consoleEl));
+  for (const m of $$(".bi-marker, .bi-pin", consoleEl)) {
+    if (!visible(m)) continue;
+    const r = rect(m);
+    const id = m.dataset.marker || m.dataset.pin || "?";
+    if (r.top < top.bottom) problems.push(`marker ${id} under top rail`);
+    if (r.bottom > chassis.top) problems.push(`marker ${id} under chassis`);
+    if (r.left < c.left || r.right > c.right) problems.push(`marker ${id} off the frame`);
+  }
+
+  const bad = problems.length > 0;
+  out.classList.toggle("is-bad", bad);
+  out.textContent = bad ? `LAYOUT: ${problems.join(" · ")}` : "LAYOUT: clean";
+  if (bad) console.warn("[bi-console diagnostics]", problems);
+  return problems;
+}
+window.biDiagnostics = runDiagnostics;   // reachable from devtools / automation
+
+new ResizeObserver(() => requestAnimationFrame(runDiagnostics)).observe(consoleEl);
+document.fonts?.ready.then(runDiagnostics);
+runDiagnostics();

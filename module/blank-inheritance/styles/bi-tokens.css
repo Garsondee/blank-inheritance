@@ -257,6 +257,10 @@
      default is documented and every surface has a sane value before
      anything has written to it.
      --------------------------------------------------------------- */
+  /* Whole-console scale (see .bi-console's zoom). 1 = authored size. The
+     prototype exposes a slider; in Foundry this becomes a client setting.
+     Scales the instrument as ONE unit — the scene under it is untouched. */
+  --bi-ui-scale: 1;
 
   /* 0..1. Drives .bi-corrupt — per the phone-app-suite idea, a pilot's
      own interface degrades as their Bleed climbs. Set per-element on the

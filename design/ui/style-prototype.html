@@ -63,6 +63,8 @@ h2.sec-title { font-family: var(--bi-font-display); font-size: 18px; letter-spac
 .controls__sep { width: 1px; height: 22px; background: rgb(172 138 77 / 30%); }
 .controls__spacer { flex: 1; }
 #demo-size { font-family: var(--bi-font-readout); font-size: 11px; color: var(--bi-brass); }
+#demo-diag { font-size: 10px; color: var(--bi-phosphor); }
+#demo-diag.is-bad { color: var(--bi-vermilion); text-shadow: 0 0 8px var(--bi-vermilion-dim); }
 
 /* ------------------------------------------------------------------
    DEMO FRAMING — deliberately NOT part of the shipped theme. .bi-console
@@ -131,9 +133,14 @@ body.demo-fullscreen { overflow: hidden; }
     <span class="bi-legend">Bleed</span>
     <input type="range" id="bleed" min="0" max="100" value="0" style="width:110px" aria-label="Bleed level">
     <span class="bi-readout bi-readout--sm bi-readout--resonance" id="bleed-out">00%</span>
+    <div class="controls__sep"></div>
+    <span class="bi-legend">UI scale</span>
+    <input type="range" id="ui-scale" min="100" max="180" step="5" value="100" style="width:110px" aria-label="Console scale">
+    <span class="bi-readout bi-readout--sm" id="ui-scale-out">1.00</span>
     <span class="controls__spacer"></span>
     <button class="bi-key bi-key--sm" id="frame-toggle" aria-pressed="false" title="Swap between the 16:9 comparison shot and filling your real browser window">Frame: 16&#8288;:&#8288;9</button>
     <span id="demo-size"></span>
+    <span id="demo-diag" class="bi-legend" title="Live layout diagnostics: goes red the moment any cluster exceeds its track, a subdome is overlapped, or a marker leaves the visible band"></span>
   </div>
 
   <!-- ================================================================
@@ -264,12 +271,42 @@ body.demo-fullscreen { overflow: hidden; }
 
         <div class="bi-bar__group bi-bar__group--left">
 
+          <!-- Director-only. Lives in the LEFT group, in the ident pod's slot,
+               because the two are traded: a GM is not flying a Frame, so the ident
+               plate is what pays for the Direction module. Same slot, near-identical
+               width (221 vs 229px), so the left shedding thresholds hold in both modes. -->
+          <div class="bi-pod bi-pod--crest bi-plate-skin bi-pod--filled" id="gm-pod" hidden >
+            <div class="bi-bank">
+              <span class="bi-bank__label">Direction <span class="bi-legend--jp">演出</span></span>
+              <div class="bi-bank__row">
+                <button class="bi-key bi-key--sm">Cue</button>
+                <button class="bi-key bi-key--sm">Turn</button>
+                <button class="bi-key bi-key--sm">Log</button>
+                <button class="bi-key bi-key--sm">Timer</button>
+              </div>
+            </div>
+            <div class="bi-bank">
+              <span class="bi-bank__label">Scene <span class="bi-legend--jp">場面</span></span>
+              <div class="bi-bank__row">
+                <button class="bi-key bi-key--sm bi-key--caution">Wx</button>
+                <button class="bi-key bi-key--sm bi-key--caution">Night</button>
+                <button class="bi-key bi-key--sm bi-key--caution">Pin</button>
+                <button class="bi-key bi-key--sm bi-key--caution">Fade</button>
+              </div>
+              <div class="bi-bank__row">
+                <button class="bi-key bi-key--sm bi-key--info">Docs</button>
+                <button class="bi-key bi-key--sm bi-key--caution">Reveal</button>
+                <button class="bi-key bi-key--sm bi-key--armed">Contact</button>
+              </div>
+            </div>
+          </div>
+
           <!-- Pilot ident. The instrument protrudes above the pod's own top
                line (see .bi-ident) — align-items:end here is what lets the
                plate/legend sit level with its IN-FLOW portion rather than
                its vertical centre, which the protrusion would otherwise pull
                up into the poking-out third. -->
-          <div class="bi-pod bi-pod--crest bi-plate-skin bi-pod--filled" data-bi-priority="2" style="min-width:224px">
+          <div class="bi-pod bi-pod--crest bi-plate-skin bi-pod--filled" data-bi-priority="2" id="ident-pod" style="min-width:224px">
             <div style="display:flex;align-items:flex-end;gap:12px;position:relative;z-index:1">
               <div class="bi-ident">
                 <div class="bi-ident__glass">
@@ -503,33 +540,6 @@ body.demo-fullscreen { overflow: hidden; }
         </div>
 
         <div class="bi-bar__group bi-bar__group--right">
-
-          <!-- Director-only -->
-          <div class="bi-pod bi-pod--crest-r bi-plate-skin bi-pod--filled" id="gm-pod" hidden >
-            <div class="bi-bank">
-              <span class="bi-bank__label">Direction <span class="bi-legend--jp">演出</span></span>
-              <div class="bi-bank__row">
-                <button class="bi-key bi-key--sm">Cue</button>
-                <button class="bi-key bi-key--sm">Turn</button>
-                <button class="bi-key bi-key--sm">Log</button>
-                <button class="bi-key bi-key--sm">Timer</button>
-              </div>
-            </div>
-            <div class="bi-bank">
-              <span class="bi-bank__label">Scene <span class="bi-legend--jp">場面</span></span>
-              <div class="bi-bank__row">
-                <button class="bi-key bi-key--sm bi-key--caution">Wx</button>
-                <button class="bi-key bi-key--sm bi-key--caution">Night</button>
-                <button class="bi-key bi-key--sm bi-key--caution">Pin</button>
-                <button class="bi-key bi-key--sm bi-key--caution">Fade</button>
-              </div>
-              <div class="bi-bank__row">
-                <button class="bi-key bi-key--sm bi-key--info">Docs</button>
-                <button class="bi-key bi-key--sm bi-key--caution">Reveal</button>
-                <button class="bi-key bi-key--sm bi-key--armed">Contact</button>
-              </div>
-            </div>
-          </div>
 
           <!-- Actions -->
           <div class="bi-pod bi-pod--tall bi-plate-skin bi-pod--filled" >
