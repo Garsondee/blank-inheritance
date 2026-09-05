@@ -2,7 +2,8 @@ import { deriveFoundryId, contentHash } from "../core/ids.mjs";
 import { buildCreatureActorData } from "../core/generators/creature.mjs";
 import { buildCharacterActorData } from "../core/generators/character.mjs";
 import { buildSceneData } from "../core/generators/scene.mjs";
-import { validateActor, validateScene } from "../core/validate.mjs";
+import { buildJournalEntryData } from "../core/generators/journal.mjs";
+import { validateActor, validateScene, validateJournalEntry } from "../core/validate.mjs";
 import { summarizeReport, reportToHtml, reportToClipboardText } from "../core/report.mjs";
 import { fetchModuleJson, writeReportFile, copyTextToClipboard } from "./io.mjs";
 
@@ -124,6 +125,25 @@ async function runSceneCase(actorIdBySourceId) {
   return { ...(await validateScene(createdScene, sceneSource, sceneData._id, actorIdBySourceId)), skipped: false };
 }
 
+async function runJournalCase() {
+  const journalSource = await fetchModuleJson("data/_test-fixtures/test-journal.json");
+  const journalData = await buildJournalEntryData(journalSource);
+  const journalHash = await contentHash(journalSource);
+
+  const existing = game.journal.get(journalData._id);
+  if (shouldSkip(existing, journalHash)) {
+    return { ...(await validateJournalEntry(existing, journalSource, journalData._id)), skipped: true };
+  }
+
+  await teardown(game.journal, journalData._id);
+  const createdJournal = await JournalEntry.create(journalData, { keepId: true, keepEmbeddedIds: true });
+  if (createdJournal) {
+    await createdJournal.setFlag(FLAG_SCOPE, "sourceId", journalSource.id);
+    await createdJournal.setFlag(FLAG_SCOPE, "sourceHash", journalHash);
+  }
+  return { ...(await validateJournalEntry(createdJournal, journalSource, journalData._id)), skipped: false };
+}
+
 export async function runDiagnosticTestSync() {
   if (!game.user.isGM) {
     ui.notifications.warn(game.i18n.localize("BLANKINHERITANCE.TestSync.NotGM"));
@@ -149,6 +169,7 @@ export async function runDiagnosticTestSync() {
     report.results.push(await runCase("creature", () => runCreatureCase(actorIdBySourceId)));
     report.results.push(await runCase("character", () => runCharacterCase(actorIdBySourceId)));
     report.results.push(await runCase("scene", () => runSceneCase(actorIdBySourceId)));
+    report.results.push(await runCase("journal", () => runJournalCase()));
   } catch (err) {
     // Belt-and-braces: nothing here should throw outside the three isolated
     // cases above, but if something unanticipated does, fail loudly rather

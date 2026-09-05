@@ -18,7 +18,8 @@ import { deriveFoundryId, contentHash } from "../module/mythica-machina-blank-in
 import { buildCreatureActorData } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/generators/creature.mjs";
 import { buildCharacterActorData } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/generators/character.mjs";
 import { buildSceneData } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/generators/scene.mjs";
-import { validateActor, validateScene } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/validate.mjs";
+import { buildJournalEntryData } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/generators/journal.mjs";
+import { validateActor, validateScene, validateJournalEntry } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/validate.mjs";
 import { summarizeReport, reportToClipboardText } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/report.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -113,6 +114,56 @@ test("buildSceneData: a placement referencing an actor not in the map is silentl
     {}
   );
   assert.deepEqual(data.tokens, []);
+});
+
+test("buildJournalEntryData matches golden output", async () => {
+  const source = readFixture("test-journal.json");
+  const actual = await buildJournalEntryData(source);
+  const expected = readGolden("journal-entry.json");
+  assert.deepEqual(actual, expected);
+});
+
+test("buildJournalEntryData: page ids are deterministic and independent of the parent journal's id", async () => {
+  const a = await buildJournalEntryData({ id: "j1", pages: [{ id: "p1", name: "Page" }] });
+  const b = await buildJournalEntryData({ id: "j1", pages: [{ id: "p1", name: "Page" }] });
+  assert.equal(a.pages[0]._id, b.pages[0]._id, "same journal id + same page id must always derive the same page id");
+
+  const differentJournal = await buildJournalEntryData({ id: "j2", pages: [{ id: "p1", name: "Page" }] });
+  assert.notEqual(a.pages[0]._id, differentJournal.pages[0]._id, "the same page id under a different journal must derive a different page id");
+});
+
+test("buildJournalEntryData: no pages in source produces an empty pages array, not throw", async () => {
+  const data = await buildJournalEntryData({ id: "bare-journal" });
+  assert.deepEqual(data.pages, []);
+  assert.equal(data.name, "bare-journal", "falls back to id when name is absent, same convention as the other generators");
+});
+
+test("buildJournalEntryData: pages default to text/HTML format and space sort values by Foundry's own SORT_INTEGER_DENSITY", async () => {
+  const data = await buildJournalEntryData({ id: "j", pages: [{ id: "a", name: "A" }, { id: "b", name: "B" }] });
+  for (const page of data.pages) {
+    assert.equal(page.type, "text");
+    assert.equal(page.text.format, 1, "must match CONST.JOURNAL_ENTRY_PAGE_FORMATS.HTML");
+  }
+  assert.equal(data.pages[0].sort, 100000);
+  assert.equal(data.pages[1].sort, 200000);
+});
+
+test("validateJournalEntry: a JournalEntry with all pages present and matching passes every check", async () => {
+  const source = readFixture("test-journal.json");
+  const data = await buildJournalEntryData(source);
+  const created = { ...data, id: data._id };
+  const result = await validateJournalEntry(created, source, data._id);
+  const summary = summarizeReport({ results: [result] });
+  assert.equal(summary.failed, 0, `expected all checks to pass, got: ${JSON.stringify(result.checks.filter((c) => !c.pass))}`);
+});
+
+test("validateJournalEntry: a missing page is reported as a failed check, not silently accepted", async () => {
+  const source = readFixture("test-journal.json");
+  const data = await buildJournalEntryData(source);
+  const created = { ...data, id: data._id, pages: data.pages.slice(0, 1) };
+  const result = await validateJournalEntry(created, source, data._id);
+  const failed = result.checks.filter((c) => !c.pass);
+  assert.ok(failed.length > 0, "dropping a page must surface at least one failed check");
 });
 
 test("validateActor + summarizeReport: a matching Actor passes every check", async () => {

@@ -1,0 +1,32 @@
+{
+  "_id": "cbd425d07d658e8e",
+  "name": "TEST FIXTURE — Diagnostic Journal",
+  "pages": [
+    {
+      "_id": "25fd535585223922",
+      "name": "Overview",
+      "type": "text",
+      "title": {
+        "level": 1
+      },
+      "text": {
+        "content": "<p>Synthetic test page. Not real campaign prose.</p>",
+        "format": 1
+      },
+      "sort": 100000
+    },
+    {
+      "_id": "32ee7b78510287a1",
+      "name": "GM Notes",
+      "type": "text",
+      "title": {
+        "level": 2
+      },
+      "text": {
+        "content": "<p>Second page, proving multi-page journals build correctly.</p>",
+        "format": 1
+      },
+      "sort": 200000
+    }
+  ]
+}

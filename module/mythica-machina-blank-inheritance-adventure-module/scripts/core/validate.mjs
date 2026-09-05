@@ -27,6 +27,21 @@ export async function validateActor(created, source, expectedId, entityLabel) {
   return { sourceId: source.id, foundryType: "Actor", entityLabel, expectedId, actualId: created?.id ?? null, checks };
 }
 
+export async function validateJournalEntry(created, source, expectedId) {
+  const checks = [];
+  check(checks, "document id === deterministic hash of source id", created?.id, expectedId);
+  check(checks, "name matches source", created?.name, source.name ?? source.id);
+  const sourcePages = source.pages ?? [];
+  check(checks, "page count matches source", created?.pages?.size ?? created?.pages?.length ?? 0, sourcePages.length);
+  for (const sourcePage of sourcePages) {
+    const expectedName = sourcePage.name ?? sourcePage.id;
+    const page = created?.pages?.find?.((p) => p.name === expectedName) ?? [...(created?.pages ?? [])].find((p) => p.name === expectedName);
+    check(checks, `page "${sourcePage.id}" exists with matching name`, Boolean(page), true);
+    check(checks, `page "${sourcePage.id}" content matches source`, page?.text?.content, sourcePage.content ?? "");
+  }
+  return { sourceId: source.id, foundryType: "JournalEntry", expectedId, actualId: created?.id ?? null, checks };
+}
+
 export async function validateScene(created, source, expectedId, actorIdBySourceId) {
   const checks = [];
   check(checks, "document id === deterministic hash of source id", created?.id, expectedId);

@@ -36,7 +36,7 @@ const templateJson = existsSync(templateJsonPath) ? JSON.parse(readFileSync(temp
 function loadFixtureModuleFiles() {
   const fixturesDir = path.join(moduleRoot, "data", "_test-fixtures");
   const moduleFiles = {};
-  for (const name of ["test-creature.json", "test-character.json", "test-scene.json"]) {
+  for (const name of ["test-creature.json", "test-character.json", "test-scene.json", "test-journal.json"]) {
     moduleFiles[`data/_test-fixtures/${name}`] = JSON.parse(readFileSync(path.join(fixturesDir, name), "utf8"));
   }
   return moduleFiles;
@@ -108,7 +108,7 @@ test("runDiagnosticTestSync: full run against the mock produces an all-passing r
     const report = await runDiagnosticTestSync();
 
     assert.equal(report.fatalError, null);
-    assert.equal(report.results.length, 3);
+    assert.equal(report.results.length, 4);
     for (const result of report.results) {
       const failed = result.checks.filter((c) => !c.pass);
       assert.deepEqual(failed, [], `expected all checks to pass for ${result.foundryType} ${result.sourceId}`);
@@ -118,6 +118,11 @@ test("runDiagnosticTestSync: full run against the mock produces an all-passing r
     const createdCreature = world.actors.get(creatureId);
     assert.ok(createdCreature, "expected the creature Actor to actually exist in the mock world");
     assert.equal(createdCreature.getFlag("blank-inheritance", "sourceId"), "test-fixture-creature-001");
+
+    const journalId = await deriveFoundryId("test-fixture-journal-001");
+    const createdJournal = world.journal.get(journalId);
+    assert.ok(createdJournal, "expected the JournalEntry to actually exist in the mock world");
+    assert.equal(createdJournal.pages.length, 2, "expected both pages from the test fixture");
 
     assert.equal(world.chatMessages.length, 1, "expected exactly one whispered chat message");
     assert.ok(report.reportFileWritten);
@@ -134,7 +139,7 @@ test("runDiagnosticTestSync: full run against the mock produces an all-passing r
   }
 });
 
-test("runDiagnosticTestSync: a second run with unchanged fixtures skips all three cases, without recreating any of them (GH issue #113)", async (t) => {
+test("runDiagnosticTestSync: a second run with unchanged fixtures skips all four cases, without recreating any of them (GH issue #113)", async (t) => {
   if (!templateJson) {
     t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
     return;
@@ -144,6 +149,7 @@ test("runDiagnosticTestSync: a second run with unchanged fixtures skips all thre
     const creatureId = await deriveFoundryId("test-fixture-creature-001");
     const characterId = await deriveFoundryId("test-fixture-kid-001");
     const sceneId = await deriveFoundryId("test-fixture-scene-001");
+    const journalId = await deriveFoundryId("test-fixture-journal-001");
 
     const firstRun = await runDiagnosticTestSync();
     assert.equal(firstRun.fatalError, null);
@@ -158,7 +164,8 @@ test("runDiagnosticTestSync: a second run with unchanged fixtures skips all thre
     const creatureRefAfterFirstRun = world.actors.get(creatureId);
     const characterRefAfterFirstRun = world.actors.get(characterId);
     const sceneRefAfterFirstRun = world.scenes.get(sceneId);
-    assert.ok(creatureRefAfterFirstRun && characterRefAfterFirstRun && sceneRefAfterFirstRun);
+    const journalRefAfterFirstRun = world.journal.get(journalId);
+    assert.ok(creatureRefAfterFirstRun && characterRefAfterFirstRun && sceneRefAfterFirstRun && journalRefAfterFirstRun);
 
     const secondRun = await runDiagnosticTestSync();
     assert.equal(secondRun.fatalError, null);
@@ -166,11 +173,12 @@ test("runDiagnosticTestSync: a second run with unchanged fixtures skips all thre
       assert.equal(result.skipped, true, `expected the second run against unchanged fixtures to skip ${result.sourceId}`);
       assert.deepEqual(result.checks.filter((c) => !c.pass), [], "a skipped case must still validate the existing document, not just assume it's fine");
     }
-    assert.equal(secondRun.results.length, 3);
+    assert.equal(secondRun.results.length, 4);
 
     assert.strictEqual(world.actors.get(creatureId), creatureRefAfterFirstRun, "the creature Actor must be the SAME object -- never torn down and recreated");
     assert.strictEqual(world.actors.get(characterId), characterRefAfterFirstRun, "the character Actor must be the SAME object");
     assert.strictEqual(world.scenes.get(sceneId), sceneRefAfterFirstRun, "the Scene must be the SAME object");
+    assert.strictEqual(world.journal.get(journalId), journalRefAfterFirstRun, "the JournalEntry must be the SAME object");
   } finally {
     uninstall();
   }
@@ -187,11 +195,13 @@ test("runDiagnosticTestSync: only the case whose source actually changed gets re
     const creatureId = await deriveFoundryId("test-fixture-creature-001");
     const characterId = await deriveFoundryId("test-fixture-kid-001");
     const sceneId = await deriveFoundryId("test-fixture-scene-001");
+    const journalId = await deriveFoundryId("test-fixture-journal-001");
 
     await runDiagnosticTestSync();
     const creatureRefAfterFirstRun = world.actors.get(creatureId);
     const characterRefAfterFirstRun = world.actors.get(characterId);
     const sceneRefAfterFirstRun = world.scenes.get(sceneId);
+    const journalRefAfterFirstRun = world.journal.get(journalId);
 
     // Mutate only the creature fixture in place -- moduleFiles is the same
     // object instance the mock's fetch() reads from, so this is visible to
@@ -205,14 +215,17 @@ test("runDiagnosticTestSync: only the case whose source actually changed gets re
     const creatureResult = secondRun.results.find((r) => r.entityLabel === "creature");
     const characterResult = secondRun.results.find((r) => r.entityLabel === "character");
     const sceneResult = secondRun.results.find((r) => r.foundryType === "Scene");
+    const journalResult = secondRun.results.find((r) => r.foundryType === "JournalEntry");
 
     assert.equal(creatureResult.skipped, false, "the changed creature must be recreated, not skipped");
     assert.equal(characterResult.skipped, true, "the unchanged character must still be skipped");
     assert.equal(sceneResult.skipped, true, "the unchanged scene must still be skipped");
+    assert.equal(journalResult.skipped, true, "the unchanged journal must still be skipped");
 
     assert.notStrictEqual(world.actors.get(creatureId), creatureRefAfterFirstRun, "the changed creature must be a genuinely NEW object, not just still present");
     assert.strictEqual(world.actors.get(characterId), characterRefAfterFirstRun, "the untouched character must remain the exact same object");
     assert.strictEqual(world.scenes.get(sceneId), sceneRefAfterFirstRun, "the untouched scene must remain the exact same object");
+    assert.strictEqual(world.journal.get(journalId), journalRefAfterFirstRun, "the untouched journal must remain the exact same object");
   } finally {
     uninstall();
   }
@@ -254,9 +267,10 @@ test("runDiagnosticTestSync: re-running immediately does not collide with the pr
       assert.deepEqual(result.checks.filter((c) => !c.pass), []);
     }
 
-    // Re-running should not accumulate duplicate documents — same three ids, still just three.
+    // Re-running should not accumulate duplicate documents — same ids, still just one each.
     assert.equal(world.actors.size, 2, "expected exactly the creature + character actors, not accumulated duplicates");
     assert.equal(world.scenes.size, 1);
+    assert.equal(world.journal.size, 1);
   } finally {
     uninstall();
   }
@@ -269,13 +283,14 @@ test("runDiagnosticTestSync: a non-GM user does not create anything", async () =
     const result = await runDiagnosticTestSync();
     assert.equal(result, null);
     assert.equal(world.actors.size, 0);
+    assert.equal(world.journal.size, 0);
     assert.equal(world.chatMessages.length, 0);
   } finally {
     uninstall();
   }
 });
 
-test("runDiagnosticTestSync: one case throwing does not prevent the other two from running and reporting (regression: found while bootstrapping tests, 2026-08-22)", async (t) => {
+test("runDiagnosticTestSync: one case throwing does not prevent the other three from running and reporting (regression: found while bootstrapping tests, 2026-08-22)", async (t) => {
   if (!templateJson) {
     t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
     return;
@@ -293,7 +308,7 @@ test("runDiagnosticTestSync: one case throwing does not prevent the other two fr
     const report = await runDiagnosticTestSync();
 
     assert.equal(report.fatalError, null, "the sync as a whole must not abort just because one case failed");
-    assert.equal(report.results.length, 3, "all three cases must still report a result");
+    assert.equal(report.results.length, 4, "all four cases must still report a result");
 
     const creatureResult = report.results.find((r) => r.sourceId === "creature");
     assert.ok(creatureResult, "the failed case should still produce a result, labeled by its case name");
@@ -304,6 +319,11 @@ test("runDiagnosticTestSync: one case throwing does not prevent the other two fr
     assert.ok(sceneResult, "the scene case must still have run even though the creature case failed");
     // The scene can't place a token for the never-created creature, but it must still exist.
     assert.equal(world.scenes.size, 1);
+
+    const journalResult = report.results.find((r) => r.foundryType === "JournalEntry");
+    assert.ok(journalResult, "the journal case must still have run even though the creature case failed");
+    assert.deepEqual(journalResult.checks.filter((c) => !c.pass), [], "the journal case doesn't depend on the creature at all, so it must fully pass");
+    assert.equal(world.journal.size, 1);
   } finally {
     uninstall();
   }

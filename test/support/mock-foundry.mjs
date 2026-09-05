@@ -124,6 +124,7 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
     actors: new Map(),
     scenes: new Map(),
     macros: new Map(),
+    journal: new Map(),
     chatMessages: [],
     directories: new Set(["data", "modules"]),
     uploadedFiles: new Map(),
@@ -151,6 +152,7 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
     Actor: globalThis.Actor,
     Scene: globalThis.Scene,
     Macro: globalThis.Macro,
+    JournalEntry: globalThis.JournalEntry,
     ChatMessage: globalThis.ChatMessage,
     foundry: globalThis.foundry,
     fetch: globalThis.fetch
@@ -179,6 +181,7 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
     actors: world.actors,
     scenes: world.scenes,
     macros: world.macros,
+    journal: world.journal,
     i18n: {
       localize: (key) => key,
       format: (key, data) => `${key} ${JSON.stringify(data)}`
@@ -202,6 +205,7 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
   globalThis.Actor = makeDocumentClass(world.actors, counter, { validateOnCreate: validateActorOnCreate });
   globalThis.Scene = makeDocumentClass(world.scenes, counter);
   globalThis.Macro = makeDocumentClass(world.macros, counter);
+  globalThis.JournalEntry = makeDocumentClass(world.journal, counter);
   globalThis.ChatMessage = {
     create: async (data) => {
       world.chatMessages.push(data);

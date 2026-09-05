@@ -24,7 +24,8 @@ import { fileURLToPath } from "node:url";
 
 import { buildCreatureActorData } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/generators/creature.mjs";
 import { buildCharacterActorData } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/generators/character.mjs";
-import { resolveActorTemplate, hasPath, findInvalidActorFieldPaths } from "./support/sf2e-template.mjs";
+import { buildJournalEntryData } from "../module/mythica-machina-blank-inheritance-adventure-module/scripts/core/generators/journal.mjs";
+import { resolveActorTemplate, hasPath, flattenPaths, findInvalidActorFieldPaths } from "./support/sf2e-template.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
@@ -144,4 +145,54 @@ test("buildCreatureActorData: strikes match a real shipped sf2e melee Item's fie
   const [realDamageEntry] = Object.values(realExample.system.damageRolls);
   assert.deepEqual(Object.keys(generatedDamageEntry).sort(), Object.keys(realDamageEntry).sort());
   assert.match(generatedDamageEntry.damage, /^\d+d\d+[+-]\d+$/, "damage string should be a dice formula shaped like the real example's \"1d4+1\"");
+});
+
+// JournalEntry/JournalEntryPage are core Foundry documents, not sf2e-specific
+// — there's no template.json equivalent to parse, since defineSchema() lives
+// in real (unminified) JS source, not data. Hand-extracted from
+// foundryvtt/.../common/documents/journal-entry.mjs:44-52 (JournalEntry) and
+// journal-entry-page.mjs:44-79 (JournalEntryPage), read directly, cited here
+// instead of machine-checked — same discipline as the version pin above:
+// if verifiedVersions.foundry bumps, re-read those two files by hand and
+// update this shape before trusting this test again.
+const JOURNAL_ENTRY_SCHEMA = {
+  _id: true, name: true, pages: true, folder: true, categories: true, sort: true, ownership: true, flags: true
+};
+const JOURNAL_ENTRY_PAGE_SCHEMA = {
+  _id: true, name: true, type: true, system: true,
+  title: { show: true, level: true },
+  image: { caption: true },
+  text: { content: true, markdown: true, format: true },
+  video: { controls: true, loop: true, autoplay: true, volume: true, timestamp: true, width: true, height: true },
+  src: true, category: true, sort: true, ownership: true, flags: true
+};
+
+test("buildJournalEntryData: every field path it writes exists on Foundry's real JournalEntry/JournalEntryPage schema", async (t) => {
+  if (!existsSync(foundryPackageJsonPath)) {
+    t.skip("foundryvtt/ not present locally (gitignored) — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+
+  const data = await buildJournalEntryData({
+    id: "contract-check",
+    name: "Contract Check",
+    pages: [{ id: "p1", name: "Page One", content: "<p>hi</p>", titleLevel: 2 }]
+  });
+
+  const { pages, ...topLevel } = data;
+  const invalidTop = flattenPaths(topLevel).filter((p) => !hasPath(JOURNAL_ENTRY_SCHEMA, p));
+  assert.deepEqual(
+    invalidTop,
+    [],
+    "these JournalEntry top-level paths don't exist on Foundry's real schema (foundryvtt/.../common/documents/journal-entry.mjs)"
+  );
+
+  for (const page of pages) {
+    const invalidPage = flattenPaths(page).filter((p) => !hasPath(JOURNAL_ENTRY_PAGE_SCHEMA, p));
+    assert.deepEqual(
+      invalidPage,
+      [],
+      `these JournalEntryPage paths don't exist on Foundry's real schema for page "${page.name}" (foundryvtt/.../common/documents/journal-entry-page.mjs)`
+    );
+  }
 });
