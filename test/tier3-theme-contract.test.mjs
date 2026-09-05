@@ -651,3 +651,44 @@ test("the marquee scrolls at half its original speed", () => {
   assert.ok(dur, "no animation-duration found on .bi-marquee__run");
   assert.equal(Number(dur[1]), 84, "expected 84s (double the original 42s — half speed, not half duration)");
 });
+
+/* ==================================================================
+   Pass 7 — the button colour language must respect the one standing
+   rule about Resonance violet, and the ident instrument must exist.
+   ================================================================== */
+
+test("--bi-resonance is used by exactly one key variant: .bi-key--anchor", () => {
+  // Standing rule (design/visual-identity.md §1): Resonance violet is
+  // reserved for Resonance/Bleed/Anchors/Claimants. Extending a functional
+  // colour language to buttons is exactly the kind of change that could
+  // spend it somewhere ordinary by accident, so this is checked directly
+  // rather than trusted to code review alone.
+  const css = read(COMPONENTS);
+  const keyRules = [...css.matchAll(/\.bi-key(--[\w-]+)?[^{]*\{[^}]*\}/g)]
+    .filter((m) => /--bi-resonance/.test(m[0]));
+  for (const rule of keyRules) {
+    assert.match(
+      rule[0], /\.bi-key--anchor/,
+      `a .bi-key rule other than --anchor uses --bi-resonance: ${rule[0].slice(0, 60)}...`
+    );
+  }
+  assert.ok(keyRules.length > 0, ".bi-key--anchor itself should be the one match — none found at all");
+});
+
+test("the ident display exists and protrudes above its own pod", () => {
+  const css = read(COMPONENTS);
+  const rule = css.match(/\.bi-ident\s*\{[^}]*\}/);
+  assert.ok(rule, ".bi-ident rule is missing");
+  assert.match(
+    rule[0], /margin-top:\s*calc\(var\(--bi-ident-size\)\s*\*\s*-/,
+    ".bi-ident must pull itself up by a negative margin proportional to its " +
+      "own size, not a literal pixel value, so resizing the instrument keeps " +
+      "the protrusion proportionate."
+  );
+
+  const html = readFileSync(
+    path.join(repoRoot, "design", "ui", "style-prototype.html"), "utf8"
+  );
+  assert.match(html, /class="bi-ident"/, "the prototype no longer uses .bi-ident");
+  assert.match(html, /bi-ident__value">04</, "the ident instrument should still show the candidate number");
+});

@@ -182,6 +182,66 @@
 .bi-key--armed:hover .bi-key__glyph { color: #ff8b73; }
 .bi-key--wide { min-width: 92px; flex-direction: row; gap: 7px; }
 
+/* Functional colour language — a key's CAP colour signals its category,
+   the same idea .bi-lamp's colour modifiers already carry for indicators,
+   extended to keys so sixty controls are not sixty identical grey buttons.
+   The TEXT colour carries the signal (not just an optional glyph), because
+   most keys here are plain text with no icon at all — Fort/Ref/Will has
+   nothing to tint but its own label. The steel material and bevel stay
+   exactly the same; only the cap's colour and a faint matching edge-glow
+   change, so a coloured key still reads as the same kind of object.
+
+   Four roles, deliberately not one per button:
+     --go       phosphor green — movement, and the one proactive stance
+                (Ready) among the reactions.
+     --info     cyan — comms, sensors, view, and anything that RETRIEVES
+                information rather than changing the world (Recall, Sync,
+                Lock, Docs, Centre/Follow/Emote, the transport keys).
+     --caution  amber — spends a resource, or is GM-only and consequential
+                (Hero, the fortune keys, every Scene control, the costlier
+                reactions).
+     --anchor   Resonance violet — Anchor ONLY. This is the one legitimate
+                use of that colour outside Resonance/Bleed/Claimant contexts
+                in the whole system, because Anchor genuinely is a
+                Resonance-linked mechanic; nothing else in this chassis may
+                reach for it. See design/visual-identity.md.
+
+   Checks, Saves, dice, Strike/Raise, Cue/Turn/Log/Timer, Umbil/Vent/Purge
+   and the condition-toggle keys stay neutral on purpose — they are the
+   bread-and-butter actions, and colouring everything would mean colouring
+   nothing. */
+.bi-key--go {
+  color: var(--bi-phosphor);
+  box-shadow: var(--bi-bevel-up), 0 2px 0 var(--bi-void), 0 3px 5px rgb(0 0 0 / 55%), inset 0 0 0 1px rgb(111 227 154 / 22%);
+}
+.bi-key--go .bi-key__glyph { color: var(--bi-phosphor-dim); }
+.bi-key--go:hover { color: #b9ffd4; }
+.bi-key--go:hover .bi-key__glyph { color: var(--bi-phosphor); }
+
+.bi-key--info {
+  color: var(--bi-cyan);
+  box-shadow: var(--bi-bevel-up), 0 2px 0 var(--bi-void), 0 3px 5px rgb(0 0 0 / 55%), inset 0 0 0 1px rgb(79 200 216 / 24%);
+}
+.bi-key--info .bi-key__glyph { color: var(--bi-cyan-dim); }
+.bi-key--info:hover { color: #bdf2fa; }
+.bi-key--info:hover .bi-key__glyph { color: var(--bi-cyan); }
+
+.bi-key--caution {
+  color: var(--bi-amber);
+  box-shadow: var(--bi-bevel-up), 0 2px 0 var(--bi-void), 0 3px 5px rgb(0 0 0 / 55%), inset 0 0 0 1px rgb(240 168 48 / 24%);
+}
+.bi-key--caution .bi-key__glyph { color: var(--bi-amber-dim); }
+.bi-key--caution:hover { color: #ffe6ad; }
+.bi-key--caution:hover .bi-key__glyph { color: var(--bi-amber); }
+
+.bi-key--anchor {
+  color: var(--bi-resonance);
+  box-shadow: var(--bi-bevel-up), 0 2px 0 var(--bi-void), 0 3px 5px rgb(0 0 0 / 55%), inset 0 0 0 1px rgb(169 134 232 / 26%);
+}
+.bi-key--anchor .bi-key__glyph { color: var(--bi-resonance-dim); }
+.bi-key--anchor:hover { color: #e4d4ff; }
+.bi-key--anchor:hover .bi-key__glyph { color: var(--bi-resonance); }
+
 /* --- Rocker toggle switch -------------------------------------------- */
 .bi-toggle {
   position: relative;
@@ -1284,8 +1344,8 @@
   flex: none;
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  padding: 10px 11px 12px;
+  gap: 9px;
+  padding: 13px 14px 15px;
   min-height: 0;               /* so a scrolling child can actually shrink */
   border-radius: 5px;
   background:
@@ -1313,7 +1373,7 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 7px;
   scrollbar-width: thin;
 }
 
@@ -1347,15 +1407,20 @@
    is explicit must not feel second-tier.
    ===================================================================== */
 
+/* FOUND LIVE: at 5px vertical padding and a 4px gap between rows, a lamp
+   plus two lines of text plus a trailing value all fighting for ~30px of
+   row height read as "crushed" — nothing was literally clipped, the
+   proportions were just too tight for what each row actually holds. Rows
+   are now built with real room on all four sides instead. */
 .bi-role {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 11px;
   width: 100%;
-  padding: 5px 9px;
+  padding: 10px 12px;
   border: none;
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: 4px;
   text-align: left;
   background: linear-gradient(180deg, var(--bi-steel-700), var(--bi-steel-900));
   box-shadow: var(--bi-bevel-up), 0 2px 4px rgb(0 0 0 / 55%);
@@ -1388,11 +1453,20 @@
   line-height: var(--bi-jp-leading);
   letter-spacing: 0.12em;
   color: var(--bi-bone-dim);
+  margin-top: 2px;
 }
+/* A recessed nameplate slot, not a bare dash floating at the edge — the
+   same "trailing value gets its own small well" treatment as .bi-unit__init,
+   so both floating panels read as one language. */
 .bi-role__who {
+  flex: none;
   margin-left: auto;
+  padding: 3px 9px;
+  border-radius: 3px;
+  background: var(--bi-steel-900);
+  box-shadow: var(--bi-bevel-down);
   font-family: var(--bi-font-readout);
-  font-size: 13px;
+  font-size: 12px;
   color: var(--bi-amber);
 }
 
@@ -1402,14 +1476,14 @@
 
 .bi-unit {
   display: grid;
-  grid-template-columns: 14px 1fr auto;
+  grid-template-columns: 16px 1fr auto;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  padding: 6px 8px;
+  padding: 9px 11px;
   border: none;
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: 4px;
   text-align: left;
   background: linear-gradient(180deg, rgb(255 255 255 / 4%), rgb(0 0 0 / 28%));
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 7%);
@@ -1440,7 +1514,17 @@
   letter-spacing: 0.1em;
   color: var(--bi-bone-dark);
 }
-.bi-unit__init { font-family: var(--bi-font-readout); font-size: 14px; color: var(--bi-bone-dim); }
+/* Same recessed-slot treatment as .bi-role__who — a shared trailing-value
+   language between both floating panels rather than two different habits. */
+.bi-unit__init {
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: var(--bi-steel-900);
+  box-shadow: var(--bi-bevel-down);
+  font-family: var(--bi-font-readout);
+  font-size: 13px;
+  color: var(--bi-bone-dim);
+}
 
 /* Thin integral meter. --v is 0..1. */
 .bi-meter {
@@ -1827,6 +1911,100 @@
   .bi-console--alert .bi-toprail { animation: none; box-shadow: inset 0 0 0 1px var(--bi-vermilion); }
 }
 
+/* =====================================================================
+   6b. THE IDENT DISPLAY
+   ---------------------------------------------------------------------
+   FOUND LIVE: the pilot number lived in a plain 46px .bi-screen square
+   sitting flush inside the ident pod's rounded top-left corner (30px
+   radius) — a small flat rectangle abutting a big curve never sits right,
+   and at that size it read as an afterthought next to the plate/legend
+   beside it. Rather than fight the mismatch, this leans into it: a proper
+   brass-bezelled instrument, the same hardware family as the main dome and
+   the flanking subdomes, sized up and mounted PROUD of the pod — its top
+   third pokes above the pod's own edge into the scene background, echoing
+   how the dome breaks the chassis line. Carries more than a bare number now:
+   a role legend, the candidate number, and a live sync readout.
+   ===================================================================== */
+
+.bi-ident {
+  --bi-ident-size: 92px;
+  position: relative;
+  width: var(--bi-ident-size);
+  height: var(--bi-ident-size);
+  flex: none;
+  /* Roughly a third of the instrument rises above the pod's own top line —
+     a clear, deliberate poke rather than the small flush square it replaces. */
+  margin-top: calc(var(--bi-ident-size) * -0.36);
+  border-radius: 8px;
+  background: var(--bi-mat-brass);
+  box-shadow: 0 0 0 1px var(--bi-brass-shadow), 0 8px 18px rgb(0 0 0 / 75%);
+  display: grid;
+  place-items: center;
+  z-index: 2;
+}
+.bi-ident::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, var(--bi-steel-600), var(--bi-steel-900));
+  box-shadow: inset 0 2px 5px rgb(0 0 0 / 82%);
+}
+.bi-ident__glass {
+  position: relative;
+  width: calc(100% - 18px);
+  height: calc(100% - 18px);
+  border-radius: 3px;
+  background: var(--bi-mat-screen);
+  box-shadow: inset 0 0 16px rgb(0 0 0 / 88%);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+.bi-ident__glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--bi-mat-scanline);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.bi-ident__gloss {
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  background: radial-gradient(55% 38% at 30% 14%, rgb(255 255 255 / 14%) 0%, transparent 70%);
+  pointer-events: none;
+}
+.bi-ident__label {
+  position: relative;
+  z-index: 1;
+  font-family: var(--bi-font-legend);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bi-phosphor-dim);
+}
+.bi-ident__value {
+  position: relative;
+  z-index: 1;
+  font-family: var(--bi-font-readout);
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1;
+  color: var(--bi-phosphor);
+  text-shadow: 0 0 8px currentColor, 0 0 20px rgb(111 227 154 / 35%);
+}
+.bi-ident__sub {
+  position: relative;
+  z-index: 1;
+  font-family: var(--bi-font-readout);
+  font-size: 10px;
+  color: var(--bi-phosphor-dim);
+}
 
 /* =====================================================================
    7. CONTROL BANKS

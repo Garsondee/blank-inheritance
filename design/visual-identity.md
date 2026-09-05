@@ -451,6 +451,62 @@ a screenshot only confirmed the final, settled state.
 
 ---
 
+## 3f. The floating panels, the ident instrument, and a colour language for keys (pass 8)
+
+Direct feedback on the floating side panels (§3d), plus two new pieces.
+
+**Rivets, removed rather than fixed.** They read as clutter at this scale rather than
+machining, so `.bi-rivet`, `.bi-pod__rivet`, `.bi-rivet-run` and every usage are gone —
+not hidden, gone, so a grep for the word finds nothing.
+
+**Rows were "crushed" — not clipped, just too tight.** Investigated live rather than
+guessed: `.bi-role` at 5px padding and a 4px inter-row gap has no actual overflow or
+clipping bug (`overflow: visible` throughout, no scrollbar active), but a lamp, two lines
+of text and a trailing value all fighting for ~30px of row height reads exactly like the
+reported "crushed... corners cut off" even without a literal render defect. Rows now carry
+real padding (`.bi-role` 5px→10-12px, `.bi-unit` 6px→9-11px) and more inter-row air (4px→7px).
+The trailing value (`.bi-role__who`, `.bi-unit__init`) was a bare dash/number floating at
+the edge; both now sit in a small recessed slot — the same "trailing value gets its own
+well" language in both panels rather than two different habits.
+
+**The ident instrument now protrudes, on purpose.** The candidate number lived in a flat
+46px square flush inside a 30px-radius rounded corner — a small rectangle abutting a big
+curve never sits right, which is what "the display is square but the panel isn't" was
+describing. Rather than resolve the mismatch by hiding it, `.bi-ident` leans into it: a
+92px brass-bezelled instrument (2x the original, per the ask), the same hardware family as
+the main dome and the flanking subdomes, with roughly a third of its height rising above
+the pod's own top edge — `margin-top: calc(var(--bi-ident-size) * -0.36)`, proportional to
+its own size rather than a fixed pixel offset, so resizing the instrument keeps the
+protrusion in proportion. It now shows a role legend, the candidate number, and a live sync
+readout — three lines where there was one. The row containing it uses
+`align-items: flex-end` so the plate/legend beside it sit level with the instrument's
+in-flow lower portion rather than being pulled up into the part that pokes out.
+
+**A colour language for keys.** Every key was the same steel grey regardless of function —
+sixty-odd controls with nothing but `.bi-key--armed` (red) to tell any of them apart.
+Extended the same idea `.bi-lamp`'s colour modifiers already carry — a control's colour
+signals its category — to keys, via the cap's own text colour plus a faint matching
+edge-glow, since most keys here are plain text with no icon to tint:
+
+| Class | Colour | Covers |
+|---|---|---|
+| `.bi-key--go` | phosphor green | Movement (Stride/Step/Face), and Ready — the one proactive stance among the reactions |
+| `.bi-key--info` | cyan | Comms, view, and anything that *retrieves* information rather than changing the world: Recall, Sync, Lock, Docs, Centre/Follow/Emote, the transport keys |
+| `.bi-key--caution` | amber | Spends a resource, or is GM-only and consequential: Hero, the fortune keys, every Scene control, the costlier reactions |
+| `.bi-key--anchor` | Resonance violet | **Anchor only** |
+
+Checks, Saves, dice, Strike/Raise, the routine GM bookkeeping keys (Cue/Turn/Log/Timer),
+routine Frame maintenance (Umbil/Vent/Purge) and the condition-toggle keys stay neutral
+deliberately — colouring everything would mean colouring nothing.
+
+`.bi-key--anchor` is the one new spend of Resonance violet outside Resonance/Bleed/Claimant
+contexts, and it is legitimate rather than a slip: Anchor genuinely is a Resonance-linked
+mechanic. A test asserts `--bi-resonance` appears in exactly one `.bi-key` rule, so a future
+pass reaching for "something feels special, make it violet" fails loudly instead of quietly
+spending the one colour that is supposed to stay rare.
+
+---
+
 ## 4. Foundry v14 structural facts (verified, and one corrects a common assumption)
 
 Read from `templates/views/game.hbs` and `public/css/foundry2.css` in the local v14.367

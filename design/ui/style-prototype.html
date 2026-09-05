@@ -220,7 +220,7 @@ body.demo-fullscreen { overflow: hidden; }
           <span class="bi-legend--jp">判明事項</span>
         </div>
         <div class="bi-rail__scroll" id="facts"></div>
-        <button class="bi-key bi-key--sm" style="width:100%;margin-top:2px" id="recall">
+        <button class="bi-key bi-key--sm bi-key--info" style="width:100%;margin-top:2px" id="recall">
           <span class="bi-key__glyph">&#9851;</span>Recall Knowledge
         </button>
       </div>
@@ -264,11 +264,20 @@ body.demo-fullscreen { overflow: hidden; }
 
         <div class="bi-bar__group bi-bar__group--left">
 
-          <!-- Pilot ident -->
-          <div class="bi-pod bi-pod--crest bi-plate-skin bi-pod--filled" data-bi-priority="2" style="min-width:190px">
-            <div style="display:flex;align-items:center;gap:10px;position:relative;z-index:1">
-              <div class="bi-screen" style="width:46px;height:46px;display:grid;place-items:center;flex:none">
-                <span class="bi-readout" style="font-size:19px">04</span>
+          <!-- Pilot ident. The instrument protrudes above the pod's own top
+               line (see .bi-ident) — align-items:end here is what lets the
+               plate/legend sit level with its IN-FLOW portion rather than
+               its vertical centre, which the protrusion would otherwise pull
+               up into the poking-out third. -->
+          <div class="bi-pod bi-pod--crest bi-plate-skin bi-pod--filled" data-bi-priority="2" style="min-width:224px">
+            <div style="display:flex;align-items:flex-end;gap:12px;position:relative;z-index:1">
+              <div class="bi-ident">
+                <div class="bi-ident__glass">
+                  <span class="bi-ident__label">Pilot</span>
+                  <span class="bi-ident__value">04</span>
+                  <span class="bi-ident__sub">SYNC 84%</span>
+                </div>
+                <div class="bi-ident__gloss"></div>
               </div>
               <div>
                 <div class="bi-plate" style="padding:3px 9px">Candidate 04</div>
@@ -333,9 +342,9 @@ body.demo-fullscreen { overflow: hidden; }
             <div class="bi-bank">
               <span class="bi-bank__label">Fortune <span class="bi-legend--jp">運</span></span>
               <div class="bi-bank__row">
-                <button class="bi-key bi-key--sm" title="Roll twice, keep the higher">Adv</button>
-                <button class="bi-key bi-key--sm" title="Roll twice, keep the lower">Dis</button>
-                <button class="bi-key bi-key--sm" title="Roll privately to the GM">Blind</button>
+                <button class="bi-key bi-key--sm bi-key--caution" title="Roll twice, keep the higher">Adv</button>
+                <button class="bi-key bi-key--sm bi-key--caution" title="Roll twice, keep the lower">Dis</button>
+                <button class="bi-key bi-key--sm bi-key--caution" title="Roll privately to the GM">Blind</button>
               </div>
             </div>
           </div>
@@ -345,22 +354,22 @@ body.demo-fullscreen { overflow: hidden; }
             <div class="bi-bank">
               <span class="bi-bank__label">Movement <span class="bi-legend--jp">機動</span></span>
               <div class="bi-bank__row">
-                <button class="bi-key bi-key--sm">Stride</button>
-                <button class="bi-key bi-key--sm">Step</button>
-                <button class="bi-key bi-key--sm">Face</button>
+                <button class="bi-key bi-key--sm bi-key--go">Stride</button>
+                <button class="bi-key bi-key--sm bi-key--go">Step</button>
+                <button class="bi-key bi-key--sm bi-key--go">Face</button>
               </div>
             </div>
             <div class="bi-bank">
               <span class="bi-bank__label">Reactions <span class="bi-legend--jp">反応</span></span>
               <div class="bi-bank__row">
-                <button class="bi-key bi-key--sm">Ready</button>
-                <button class="bi-key bi-key--sm">Delay</button>
-                <button class="bi-key bi-key--sm">Escape</button>
+                <button class="bi-key bi-key--sm bi-key--go">Ready</button>
+                <button class="bi-key bi-key--sm bi-key--caution">Delay</button>
+                <button class="bi-key bi-key--sm bi-key--caution">Escape</button>
               </div>
               <div class="bi-bank__row">
-                <button class="bi-key bi-key--sm">Sustain</button>
-                <button class="bi-key bi-key--sm">Aid</button>
-                <button class="bi-key bi-key--sm">Seek</button>
+                <button class="bi-key bi-key--sm bi-key--caution">Sustain</button>
+                <button class="bi-key bi-key--sm bi-key--caution">Aid</button>
+                <button class="bi-key bi-key--sm bi-key--caution">Seek</button>
               </div>
             </div>
           </div>
@@ -509,14 +518,14 @@ body.demo-fullscreen { overflow: hidden; }
             <div class="bi-bank">
               <span class="bi-bank__label">Scene <span class="bi-legend--jp">場面</span></span>
               <div class="bi-bank__row">
-                <button class="bi-key bi-key--sm">Wx</button>
-                <button class="bi-key bi-key--sm">Night</button>
-                <button class="bi-key bi-key--sm">Pin</button>
-                <button class="bi-key bi-key--sm">Fade</button>
+                <button class="bi-key bi-key--sm bi-key--caution">Wx</button>
+                <button class="bi-key bi-key--sm bi-key--caution">Night</button>
+                <button class="bi-key bi-key--sm bi-key--caution">Pin</button>
+                <button class="bi-key bi-key--sm bi-key--caution">Fade</button>
               </div>
               <div class="bi-bank__row">
-                <button class="bi-key bi-key--sm">Docs</button>
-                <button class="bi-key bi-key--sm">Reveal</button>
+                <button class="bi-key bi-key--sm bi-key--info">Docs</button>
+                <button class="bi-key bi-key--sm bi-key--caution">Reveal</button>
                 <button class="bi-key bi-key--sm bi-key--armed">Contact</button>
               </div>
             </div>
@@ -537,12 +546,12 @@ body.demo-fullscreen { overflow: hidden; }
               <div class="bi-bank__row">
                 <button class="bi-key bi-key--sm">Strike</button>
                 <button class="bi-key bi-key--sm">Raise</button>
-                <button class="bi-key bi-key--sm" data-lock>Lock</button>
+                <button class="bi-key bi-key--sm bi-key--info" data-lock>Lock</button>
               </div>
               <div class="bi-bank__row">
-                <button class="bi-key bi-key--sm">Hero</button>
-                <button class="bi-key bi-key--sm">Recall</button>
-                <button class="bi-key bi-key--sm">Sync</button>
+                <button class="bi-key bi-key--sm bi-key--caution">Hero</button>
+                <button class="bi-key bi-key--sm bi-key--info">Recall</button>
+                <button class="bi-key bi-key--sm bi-key--info">Sync</button>
               </div>
             </div>
           </div>
@@ -576,17 +585,17 @@ body.demo-fullscreen { overflow: hidden; }
                 <button class="bi-key bi-key--sm">Purge</button>
               </div>
               <div class="bi-bank__row">
-                <button class="bi-key bi-key--sm">Anchor</button>
-                <button class="bi-key bi-key--sm">Brace</button>
+                <button class="bi-key bi-key--sm bi-key--anchor">Anchor</button>
+                <button class="bi-key bi-key--sm bi-key--caution">Brace</button>
                 <button class="bi-key bi-key--sm bi-key--armed">Eject</button>
               </div>
             </div>
             <div class="bi-bank">
               <span class="bi-bank__label">View <span class="bi-legend--jp">視点</span></span>
               <div class="bi-bank__row">
-                <button class="bi-key bi-key--sm">Centre</button>
-                <button class="bi-key bi-key--sm">Follow</button>
-                <button class="bi-key bi-key--sm">Emote</button>
+                <button class="bi-key bi-key--sm bi-key--info">Centre</button>
+                <button class="bi-key bi-key--sm bi-key--info">Follow</button>
+                <button class="bi-key bi-key--sm bi-key--info">Emote</button>
               </div>
             </div>
           </div>
@@ -620,13 +629,13 @@ body.demo-fullscreen { overflow: hidden; }
                 </div>
                 <div style="display:flex;flex-direction:column;gap:5px;flex:1">
                   <div class="bi-bank__row">
-                    <button class="bi-key bi-key--sm" aria-label="Play">&#9654;</button>
-                    <button class="bi-key bi-key--sm" aria-label="Pause">&#10073;&#10073;</button>
-                    <button class="bi-key bi-key--sm" aria-label="Next track">&#9193;</button>
+                    <button class="bi-key bi-key--sm bi-key--info" aria-label="Play">&#9654;</button>
+                    <button class="bi-key bi-key--sm bi-key--info" aria-label="Pause">&#10073;&#10073;</button>
+                    <button class="bi-key bi-key--sm bi-key--info" aria-label="Next track">&#9193;</button>
                   </div>
-                  <button class="bi-key bi-key--sm">Comm</button>
-                  <button class="bi-key bi-key--sm">Phone</button>
-                  <button class="bi-key bi-key--sm">Docs</button>
+                  <button class="bi-key bi-key--sm bi-key--info">Comm</button>
+                  <button class="bi-key bi-key--sm bi-key--info">Phone</button>
+                  <button class="bi-key bi-key--sm bi-key--info">Docs</button>
                 </div>
               </div>
             </div>
