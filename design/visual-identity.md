@@ -330,6 +330,123 @@ would not have.
 
 ---
 
+## 3e. Any width, any height (pass 5)
+
+Reported by the user at their own real 4K display, after pass 4's balance fix:
+"the right elements are still not visible." Two genuine, separate bugs, found by
+measurement rather than by guessing at their screen's OS scaling factor.
+
+### Bug 1 — a demo convenience baked into the shippable class
+
+`.bi-console` — the class that eventually becomes the real Foundry interface —
+hardcoded `aspect-ratio: 16/9`. That contradicted the class's own next-line
+comment ("In Foundry this frame IS the viewport" — an arbitrary shape, never
+guaranteed 16:9). With `width:100%` and a forced ratio, a wide real browser
+window computes `height = width × 9/16`, which is routinely *taller* than what
+the browser chrome actually leaves visible. The bottom of the chassis — the
+whole right cluster included — ends up below the fold.
+
+The 16:9 box was only ever a demo convenience, for the earlier explicit request
+to "see what it would look like against a fake scene background." It should
+never have lived anywhere near the class other pages (or Foundry itself) would
+reuse. Fixed by moving it out entirely: `.bi-console` now declares only
+`width:100%; height:100%` — it fills whatever box contains it, at any ratio —
+and the 16:9 comparison view lives in **`design/ui/style-prototype.html`'s own
+`<style>` block**, as an opt-in `.demo-frame` wrapper the JS can swap out.
+
+### Bug 2 — CSS Grid's own track sizing, measured wrong under container queries
+
+Fixing bug 1 was necessary but not sufficient — the right cluster was *still*
+clipped. Direct measurement (not a screenshot, `getComputedStyle` on the actual
+element) found the real second bug:
+
+```
+.bi-console        getBoundingClientRect().width  →  1175px   (correct)
+.bi-console        computed gridTemplateColumns    →  3822.47px   (wrong)
+```
+
+`.bi-console` was `display:grid; grid-template-columns:1fr;`, and its own
+descendants — several levels down, inside `.bi-bar` — carry `@container
+bi-console (max-width: …)` queries that conditionally `display:none` the
+lower-priority pods. With that combination, the grid's own single `1fr` column
+track resolved against what looks like a pre-containment/intrinsic pass rather
+than the container's actual, final width: the track sized itself as though
+*every* pod (all four priority tiers) were visible at once, producing exactly
+`checks(270) + actions(178) + cluster(680) + both full tiers ≈ 3822px`, while
+the outer box correctly stayed clamped to 1175px. Content between x=1175 and
+x=3822 was silently clipped by `overflow:hidden` — always from the right,
+which is exactly "the right elements are still not visible." Confirmed as a
+real computed-style mismatch, not a measurement artifact, by placing an
+unrelated 500px probe element on the same page in the same pass and getting
+back exactly 500px.
+
+`.bi-console` never actually needed two-dimensional grid placement — it is
+three stacked, full-width overlay layers (top rail / scene / chassis), not a
+grid of areas. The fix removes the grid formatting context entirely:
+`.bi-console` is `position:relative` with **no** `display:grid`, and each
+layer (`.bi-console__scene`, `.bi-console__top`, `.bi-console__bar`) is
+`position:absolute` with explicit `top`/`bottom`/`left`/`right`/`height`. This
+is the single most basic layout primitive CSS has — there is no track-sizing
+pass left for a container-query/grid interaction to get wrong, in any engine.
+`test/tier3-theme-contract.test.mjs` asserts `.bi-console` never returns to
+`display:grid` and that its three layers stay `position:absolute`.
+
+### Stated floors, not silent collapse
+
+Sweeping widths from 600px up surfaced a real, separate, architectural limit:
+the instrument cluster is a **fixed** 680px (`--bi-dome-size` + two halves +
+gap — it does not shrink), and the two pods that never shed (Checks, Actions)
+measure 270px and 178px. Side by side that is a hard **1185px minimum** —
+below it, the design has nowhere left to put its own core content, full stop.
+
+Rather than let that squeeze/clip unpredictably, `.bi-console` now states
+both floors explicitly:
+
+```css
+min-height: 340px;   /* nowhere left to put the two fixed rows below this */
+min-width: 1200px;   /* the measured 1185px true minimum, +15px of air */
+```
+
+Below either floor, the console holds at its stated minimum and overflows its
+*own* parent visibly (a scrollbar, not a clip) — the honest failure mode for
+"you have asked for something this design does not support," rather than a
+silent breakage that looks like a different bug entirely.
+
+### A real test, not a claim: the fill-viewport toggle
+
+The prototype's toolbar now has a **Frame: 16:9 / Frame: fill window** toggle.
+"Fill window" pins the console to the actual browser viewport (below the
+toolbar, which becomes the exit control), at whatever width and height that
+really is — so resizing the real browser window is a live, honest test of
+"any width and height," not something asserted from a screenshot whose
+OS-level display scaling I cannot see from here. A live readout
+(`viewport W×H · console W×H`) sits next to the toggle for exactly this
+reason: so a screenshot or a shared number is unambiguous going forward.
+
+### Verified, by measurement, not by screenshot
+
+A containment sweep (every visible pod, dome, subdome, marquee, and rail
+checked against `.bi-console`'s own bounding box, in fill mode) at:
+
+| Size | Result |
+|---|---|
+| 1600×900 | clean |
+| 1920×1080 | clean |
+| 2560×1440 | clean |
+| 3840×2160 (exact 4K) | clean |
+| **3840×900** (wide, short — the scenario bug 1 actually produced) | clean |
+| 3840×500 (extreme short) | clean |
+| 7680×2160 (8K) | clean |
+| 1200×2000 (at the width floor, very tall) | clean |
+| 600×800 (below the width floor) | holds at the stated 1200px minimum; zero elements escape the console's own box |
+
+Screenshots of very wide renders in the review browser were frequently
+mid-repaint or downscaled illegibly during this investigation — the
+`getBoundingClientRect`/`getComputedStyle` sweep above is the actual evidence;
+a screenshot only confirmed the final, settled state.
+
+---
+
 ## 4. Foundry v14 structural facts (verified, and one corrects a common assumption)
 
 Read from `templates/views/game.hbs` and `public/css/foundry2.css` in the local v14.367
@@ -415,20 +532,25 @@ Foundry's ownership permissions or a GM-only page.
 
 ## 6. Not done yet
 
-- **Never loaded into a live Foundry.** The palette, components, typography and redaction
-  are verified in a browser and by test; the structural overrides in §4 need a real
-  session before anyone trusts them. Still the single biggest open item.
-- **`module.json` does not load these stylesheets.** Adding `"styles": [...]` is the one
-  line that makes the theme go live on the server, and it is deliberately not done —
-  that is the user's call, not a side effect of a design pass.
-- **The SVG filter `<defs>` must be injected** by the module once per client for the
-  ragged redaction edges to resolve. The prototype inlines them; nothing does this in
-  Foundry yet.
+- **Never loaded into a live Foundry.** `module.json` does load the stylesheets, and
+  `core/theme.mjs` + `foundry/theme.mjs` do apply `body.bi-theme` and inject the SVG
+  filter `<defs>` on `ready` — that wiring is real and tested (`test/tier3-theme-contract
+  .test.mjs`). What is still unverified is Foundry itself: the palette, typography,
+  redaction and the "any width/height" fixes are all proven in a plain browser against
+  the real `foundry2.css`/`sf2e.css` (`design/ui/foundry-harness.html`) and by
+  `getComputedStyle` sweeps, never inside an actual running Foundry session with a real
+  canvas, real ApplicationV2 windows, and real scene dimensions. Still the single
+  biggest open item.
+- **The command bar's physical chassis (dials, rails, pods, pins, marquee) exists only
+  in `design/ui/style-prototype.html`.** Nothing injects that markup into Foundry's
+  `#interface` yet — only the retint/redaction/font THEME is wired in. `.bi-console`'s
+  "fills whatever box contains it" behaviour (§3e) is therefore proven in the prototype's
+  own demo wrapper, not yet against Foundry's real `#interface`, which is the actual
+  target shape it needs to fill.
 - **Whether to bundle Shippori Mincho** (see §1b) — the difference between hoping for the
   Mincho look and guaranteeing it.
-- The bar is a static prototype: no Foundry data binding, no ApplicationV2 wrapper, no
-  socket wiring, no GM/player permission split in code, and the macro bank is not wired to
-  real macros.
+- The bar is a static prototype: no Foundry data binding, no socket wiring, no GM/player
+  permission split in code, and the macro bank is not wired to real macros.
 - Character sheet work is a fragment showing the treatment, not a re-skinned sf2e sheet.
 - No decision on whether the roster moves into the bar (`body.bi-roster-in-bar` exists and
   is off by default) — a table-feel call, not a technical one.

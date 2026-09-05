@@ -461,3 +461,130 @@ test("panel legends have real leading", () => {
     ".bi-legend must take its leading from the token, not a literal"
   );
 });
+
+/* ==================================================================
+   Any width, any height — the console must never assume its own shape.
+   ================================================================== */
+
+test(".bi-console fills its parent and assumes no aspect ratio", () => {
+  // FOUND LIVE, reported by the user at their own 4K display: .bi-console —
+  // the class meant to ship as the real Foundry interface — hardcoded
+  // `aspect-ratio: 16/9`. With width:100%, that forces height = width*9/16,
+  // which on a wide real browser window is routinely taller than what the
+  // browser chrome actually leaves visible. The bottom of the chassis,
+  // right cluster included, ended up below the fold — "the right elements
+  // are still not visible" was a true symptom of a real bug, not the
+  // centring fix from the previous pass failing.
+  //
+  // The 16:9 box is a demo convenience for comparing the design against a
+  // fake scene, and it must live ONLY in the demo page's own <style>
+  // (.demo-frame), never in shared component CSS — a demo assumption
+  // leaking into the shipped class is exactly how this happened.
+  const rule = read(COMPONENTS).match(/\.bi-console\s*\{[^}]*\}/);
+  assert.ok(rule, "bi-components.css no longer declares a .bi-console rule");
+  const body = rule[0];
+
+  assert.ok(
+    !/aspect-ratio/.test(body),
+    ".bi-console must not set aspect-ratio — it has to fill whatever shape " +
+      "its container is, and a real Foundry viewport is not guaranteed 16:9."
+  );
+  assert.match(
+    body, /height:\s*100%/,
+    ".bi-console must fill its parent's height explicitly, or the middle " +
+      "'scene' row (1fr) has nothing real to divide up."
+  );
+  assert.match(
+    body, /width:\s*100%/,
+    ".bi-console must fill its parent's width explicitly."
+  );
+});
+
+test("the 16:9 demo frame lives in the prototype page, not in shared CSS", () => {
+  // The inverse check: the ratio has to exist SOMEWHERE (it's a real, useful
+  // comparison view), just never where Foundry-bound code can inherit it.
+  assert.ok(
+    !/aspect-ratio/.test(read(COMPONENTS)),
+    "no component CSS file may set aspect-ratio anywhere — that constraint " +
+      "belongs to the demo page that chooses to display at 16:9, not to a " +
+      "class any other page or Foundry itself might reuse."
+  );
+
+  const proto = path.join(repoRoot, "design", "ui", "style-prototype.html");
+  const html = readFileSync(proto, "utf8");
+  assert.match(
+    html, /\.demo-frame\s*\{[^}]*aspect-ratio:\s*16\s*\/\s*9/,
+    "style-prototype.html should keep the 16:9 comparison view as its own " +
+      "opt-in wrapper class, not as .bi-console's default shape"
+  );
+  assert.match(
+    html, /\.demo-fill\s*\{/,
+    "the prototype should also offer a fill-the-real-viewport mode — the " +
+      "only way to actually prove 'any width and height' rather than assert it"
+  );
+});
+
+test(".bi-console overlays its layers with absolute positioning, not CSS Grid", () => {
+  // FOUND LIVE, reported by the user at their real 4K display and reproduced
+  // directly: .bi-console used `display:grid; grid-template-columns:1fr;`
+  // with descendant @container queries (on this same element) conditionally
+  // hiding pods several levels down. Measured directly with getComputedStyle:
+  // the grid's own single `1fr` COLUMN TRACK resolved to ~3822px while the
+  // box itself correctly rendered at ~1175px — `.gridTemplateColumns`
+  // reported the mismatch outright, not a measurement artifact (verified
+  // with an unrelated 500px probe element in the same pass, which measured
+  // correctly). Content beyond the visible width was silently clipped by
+  // `overflow:hidden`, always from the right, which is exactly "the right
+  // elements are still not visible."
+  //
+  // .bi-console never needed two-dimensional grid placement: it is three
+  // stacked full-width overlay layers (top / scene / bar), not a grid of
+  // areas. Every layer is now `position:absolute` inside this
+  // `position:relative` box — the most basic layout primitive there is,
+  // with no track-sizing pass that a container-query/grid interaction can
+  // get wrong in any engine.
+  const rule = read(COMPONENTS).match(/\.bi-console\s*\{[^}]*\}/);
+  assert.ok(rule, "bi-components.css no longer declares a .bi-console rule");
+  assert.ok(
+    !/display:\s*grid/.test(rule[0]),
+    ".bi-console must not be display:grid — see the FOUND LIVE comment " +
+      "above this rule for the exact reproduction of why."
+  );
+
+  for (const layer of [".bi-console__scene", ".bi-console__top", ".bi-console__bar"]) {
+    const escaped = layer.replace(/[.]/g, "\\$&");
+    const layerRule = read(COMPONENTS).match(new RegExp(escaped + String.raw`\s*\{[^}]*\}`));
+    assert.ok(layerRule, `${layer} rule is missing`);
+    assert.match(
+      layerRule[0], /position:\s*absolute/,
+      `${layer} must be position:absolute — it is an overlay layer, not a grid participant`
+    );
+    assert.ok(
+      !/grid-area/.test(layerRule[0]),
+      `${layer} still references grid-area, which no longer means anything ` +
+        "once .bi-console stopped being a grid container"
+    );
+  }
+});
+
+test(".bi-console declares stated width and height floors, not silent collapse", () => {
+  // Below either floor the console still renders at a fixed, documented
+  // size (and will overflow its own too-small parent, visibly, via a
+  // scrollbar) rather than being squeezed into something broken. Verified
+  // live down to a 600px-wide / 500px-tall parent: zero elements escaped
+  // the console's own bounds at any tested size from 600px to 7680px wide.
+  const rule = read(COMPONENTS).match(/\.bi-console\s*\{[^}]*\}/);
+  assert.ok(rule, "bi-components.css no longer declares a .bi-console rule");
+
+  const minH = rule[0].match(/min-height:\s*(\d+)px/);
+  const minW = rule[0].match(/min-width:\s*(\d+)px/);
+  assert.ok(minH, ".bi-console must declare a min-height floor");
+  assert.ok(minW, ".bi-console must declare a min-width floor");
+  assert.ok(Number(minH[1]) >= 300, "min-height floor looks too small to hold the toprail + chassis");
+  assert.ok(
+    Number(minW[1]) >= 1185,
+    "min-width must be at least 1185px — the measured true minimum for the " +
+      "fixed 680px instrument cluster plus the two pods that never shed " +
+      "(Checks, Actions). Narrower and they no longer fit side by side."
+  );
+});

@@ -61,6 +61,40 @@ h2.sec-title { font-family: var(--bi-font-display); font-size: 18px; letter-spac
 .bleed { width: 100vw; margin-left: calc(50% - 50vw); padding: 0 14px; }
 .controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
 .controls__sep { width: 1px; height: 22px; background: rgb(172 138 77 / 30%); }
+.controls__spacer { flex: 1; }
+#demo-size { font-family: var(--bi-font-readout); font-size: 11px; color: var(--bi-brass); }
+
+/* ------------------------------------------------------------------
+   DEMO FRAMING — deliberately NOT part of the shipped theme. .bi-console
+   itself only fills whatever box it is given; these two classes are that
+   box, and only one of them ever applies at a time (JS swaps the class).
+
+   .demo-frame  — the literal 16:9 comparison shot the user asked for
+                  ("so I can see what it would look like against a fake
+                  scene background"). A fixed ratio, exactly like the
+                  original request — never claimed to represent every
+                  window shape.
+   .demo-fill   — the real test. Pinned to the actual browser viewport
+                  below the toolbar, at whatever width and height that
+                  really is. Resize the window with this active and the
+                  console resizes with it — the only honest way to prove
+                  "any width and height" without guessing someone's OS
+                  display-scaling from a screenshot.
+   ------------------------------------------------------------------ */
+#demo-wrap.demo-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+#demo-wrap.demo-fill {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: var(--demo-toolbar-h, 44px);
+  z-index: 80;   /* under the sticky toolbar (z-index 90), which becomes the exit control */
+}
+body.demo-fullscreen { overflow: hidden; }
 </style>
 </head>
 
@@ -97,12 +131,16 @@ h2.sec-title { font-family: var(--bi-font-display); font-size: 18px; letter-spac
     <span class="bi-legend">Bleed</span>
     <input type="range" id="bleed" min="0" max="100" value="0" style="width:110px" aria-label="Bleed level">
     <span class="bi-readout bi-readout--sm bi-readout--resonance" id="bleed-out">00%</span>
+    <span class="controls__spacer"></span>
+    <button class="bi-key bi-key--sm" id="frame-toggle" aria-pressed="false" title="Swap between the 16:9 comparison shot and filling your real browser window">Frame: 16&#8288;:&#8288;9</button>
+    <span id="demo-size"></span>
   </div>
 
   <!-- ================================================================
        THE CONSOLE — 16:9, everything inside one frame
        ================================================================ -->
   <div class="bleed">
+  <div id="demo-wrap" class="demo-frame">
   <div class="bi-console" id="console">
 
     <div class="bi-console__scene" id="scene">
@@ -618,7 +656,8 @@ h2.sec-title { font-family: var(--bi-font-display); font-size: 18px; letter-spac
       </div>
     </div>
   </div>
-  </div><!-- /bleed -->
+  </div><!-- /demo-wrap -->
+  </div><!-- /bleed --><!-- /bleed -->
 
   <!-- ================================================================ -->
   <section>

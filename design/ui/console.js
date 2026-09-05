@@ -381,3 +381,52 @@ for (const b of $$("[data-clr]")) {
   b.addEventListener("click", () => showClearance(Number(b.dataset.clr)));
 }
 showClearance(1);
+
+/* ------------------------------------------------------------------ *
+ * ANY WIDTH, ANY HEIGHT — a real test, not a claim.
+ *
+ * .bi-console ships with no size assumption of its own; it fills whatever
+ * box contains it. The 16:9 box is a demo convenience (the literal "compare
+ * against a fake scene" request), so it lives ONLY here, never in the
+ * shared component CSS. This toggle swaps that box for the actual browser
+ * viewport, so resizing the real window is a genuine test of the console
+ * at any width and height — not something asserted from a screenshot.
+ * ------------------------------------------------------------------ */
+const demoWrap = $("#demo-wrap");
+const frameToggle = $("#frame-toggle");
+const demoSize = $("#demo-size");
+
+function measureToolbarHeight() {
+  const h = Math.ceil($(".controls").getBoundingClientRect().height);
+  document.documentElement.style.setProperty("--demo-toolbar-h", h + "px");
+}
+
+function paintDemoSize() {
+  if (!demoSize) return;
+  const c = document.getElementById("console").getBoundingClientRect();
+  const mode = demoWrap.classList.contains("demo-fill") ? "fill — your window" : "16:9 demo";
+  demoSize.textContent =
+    `viewport ${innerWidth}\u00d7${innerHeight}  \u00b7  console ${Math.round(c.width)}\u00d7${Math.round(c.height)} (${mode})`;
+}
+
+function setFrameMode(fill) {
+  demoWrap.classList.toggle("demo-fill", fill);
+  demoWrap.classList.toggle("demo-frame", !fill);
+  document.body.classList.toggle("demo-fullscreen", fill);
+  frameToggle.setAttribute("aria-pressed", String(fill));
+  frameToggle.textContent = fill ? "Frame: fill window" : "Frame: 16\u2060:\u20609";
+  measureToolbarHeight();
+  // Two rAFs: one for the class/layout change to land, one for the browser
+  // to have actually reflowed before we read sizes back out of it.
+  requestAnimationFrame(() => requestAnimationFrame(paintDemoSize));
+}
+
+frameToggle?.addEventListener("click", () => setFrameMode(!demoWrap.classList.contains("demo-fill")));
+
+addEventListener("resize", () => {
+  measureToolbarHeight();
+  paintDemoSize();
+});
+
+measureToolbarHeight();
+paintDemoSize();

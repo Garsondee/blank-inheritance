@@ -1094,14 +1094,54 @@
    prototype it is a bordered box with a fake scene behind it.
    ===================================================================== */
 
+/* FOUND LIVE, reported by the user at their own 4K display: this rule
+   hardcoded `aspect-ratio: 16/9`, which directly contradicts the very next
+   comment below ("In Foundry this frame IS the viewport" — an arbitrary
+   shape, never guaranteed 16:9). With `width:100%` and a forced ratio, a
+   wide real browser window computes `height = width * 9/16`, which is
+   routinely TALLER than what browser chrome actually leaves visible. The
+   bottom of the chassis — the whole right cluster included — ends up below
+   the fold, which reads as "the right elements are still not visible" even
+   though the fix from the previous pass (centring the grid) was correct.
+
+   .bi-console now fills whatever box contains it, at ANY ratio: 100% of the
+   parent's width AND height, nothing assumed. The parent is responsible for
+   giving it a real height — #interface already has one in Foundry; the demo
+   page supplies one via its own .demo-frame/.demo-fill wrapper, never here.
+   That split is deliberate: a demo convenience must never leak into the
+   class that ships as the real interface. test/tier3-theme-contract.test.mjs
+   asserts this rule carries no aspect-ratio, so it cannot regress silently. */
+/* FOUND LIVE, second bug in the same rule: this was originally CSS Grid
+   (`display:grid; grid-template-columns:1fr; grid-template-areas:"top"
+   "scene" "bar";`). Measured directly in a real session: with the priority-4
+   pods conditionally hidden by an @container query on this SAME element,
+   the grid's own single `1fr` COLUMN TRACK computed to ~3822px while the
+   box itself correctly rendered at ~1175px — `getComputedStyle(el)
+   .gridTemplateColumns` reported the mismatch outright, not a measurement
+   fluke. A grid container's track sizing can end up resolved against an
+   intrinsic/pre-containment pass in some engines when @container queries on
+   the same element conditionally hide descendants — a genuinely fragile
+   combination. Since `.bi-console` never needed two-dimensional grid
+   placement — it is three stacked full-width overlay layers, not a grid of
+   areas — it does not need to depend on that resolution at all. Every layer
+   is now plain `position:absolute` inside this `position:relative` box:
+   the most basic layout primitive there is, with no track-sizing pass to
+   get wrong in any engine. */
 .bi-console {
   position: relative;
-  aspect-ratio: 16 / 9;
   width: 100%;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: var(--bi-toprail-height) 1fr var(--bi-chassis-height);
-  grid-template-areas: "top" "scene" "bar";
+  height: 100%;
+  /* Floors, not targets — below either, the console still renders (nothing
+     collapses to zero or silently vanishes), it is simply tight. Below
+     min-height there is nowhere left to put the two fixed rows. Below
+     min-width, the instrument cluster (680px, fixed — see --bi-dome-size)
+     plus the two pods that never shed (Checks, Actions — 270px + 178px,
+     measured directly) no longer fit side by side: 1185px is that true
+     minimum, and 1200px leaves it a little air. Narrower than this is
+     outside what the design supports, same as a real cockpit panel has a
+     minimum panel width below which the gauges simply don't fit. */
+  min-height: 340px;
+  min-width: 1200px;
   overflow: hidden;
   background: var(--bi-void);
   border-radius: 3px;
@@ -1115,8 +1155,8 @@
    and chassis overlap it the way a cockpit surround overlaps a canopy,
    instead of shrinking the view to a letterbox. */
 .bi-console__scene {
-  grid-area: 1 / 1 / -1 / -1;
-  position: relative;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
   background: #0d1414;
   z-index: 0;
@@ -1139,8 +1179,22 @@
   pointer-events: none;
 }
 
-.bi-console__top { grid-area: top; z-index: 3; }
-.bi-console__bar { grid-area: bar; z-index: 4; align-self: end; }
+.bi-console__top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--bi-toprail-height);
+  z-index: 3;
+}
+.bi-console__bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--bi-chassis-height);
+  z-index: 4;
+}
 
 /* The side panels FLOAT over the scene rather than occupying grid columns.
    As full-height columns they were tall, thin and mostly empty — a flex
