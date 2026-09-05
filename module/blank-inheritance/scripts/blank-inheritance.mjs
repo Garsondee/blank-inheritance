@@ -14,6 +14,7 @@
 
 import { deriveFoundryId, contentHash } from "./core/ids.mjs";
 import { runDiagnosticTestSync, createTestSyncMacroIfMissing } from "./foundry/sync.mjs";
+import { promptToRunSync } from "./foundry/sync-dialog.mjs";
 
 const MODULE_ID = "blank-inheritance";
 
@@ -29,4 +30,12 @@ Hooks.once("ready", async () => {
   } catch (err) {
     console.error("Blank Inheritance | Could not create the test-sync macro (you can still run it from the console):", err);
   }
+});
+
+// GM-only, and Hooks.once means this fires exactly once per client session --
+// right as the FIRST scene finishes loading, not on every scene change
+// (canvasReady itself fires on every scene activation).
+Hooks.once("canvasReady", () => {
+  if (!game.user.isGM) return;
+  promptToRunSync().catch((err) => console.error("Blank Inheritance | Sync prompt failed:", err));
 });

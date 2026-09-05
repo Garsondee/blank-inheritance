@@ -18,13 +18,17 @@ Full design rationale: [`design/foundry-module-design.md`](../../design/foundry-
 
 Split into a pure core and a thin Foundry-touching adapter, enforced by an automated test suite (repo root `test/`, run with `npm test`) — see [`design/testing-strategy.md`](../../design/testing-strategy.md) for why and how:
 - `scripts/core/` — `ids.mjs`, `validate.mjs`, `report.mjs`, `generators/{creature,character,scene,journal}.mjs`. Zero Foundry globals; runs and is unit-tested in plain Node.
-- `scripts/foundry/` — `io.mjs` (FilePicker/fetch/clipboard wrappers), `sync.mjs` (orchestration, teardown-before-setup so re-running is safe, each case isolated so one failure doesn't hide the others). The only place Foundry globals may appear.
+- `scripts/foundry/` — `io.mjs` (FilePicker/fetch/clipboard wrappers), `sync.mjs` (orchestration, teardown-before-setup so re-running is safe, each case isolated so one failure doesn't hide the others), `sync-dialog.mjs` (the GM-facing confirm prompt, see below). The only place Foundry globals may appear.
 - `scripts/blank-inheritance.mjs` — thin entry point: hooks + macro creation only.
 
-**To run it:** WinSCP-push this whole folder to `<FoundryData>/Data/modules/blank-inheritance/`, enable the module in your world (requires the `sf2e` system active), then run the **"Blank Inheritance: Run Test Sync"** macro it creates on first load (GM only). It:
+**To run it:** WinSCP-push (or `tools/module-sync/`) this whole folder to `<FoundryData>/Data/modules/blank-inheritance/`, enable the module in your world (requires the `sf2e` system active). Two ways to trigger a sync, both run the exact same underlying logic:
+- **Automatic (GH issue #82):** the GM gets a confirm dialog as soon as the first scene finishes loading each session (`Hooks.once("canvasReady", ...)`, so it's once per login, not once per scene change) — click "Run Sync" or dismiss it.
+- **Manual, any time after that:** run the **"Blank Inheritance: Run Test Sync"** macro it creates on first load (GM only).
+
+Either way, it:
 1. Runs every case, reporting results in a whispered chat message.
 2. Writes a full JSON report to `storage/test-reports/`.
-3. **Copies the full report to the clipboard**, as a plain-text block — a short human-readable summary followed by the report as JSON. This is the reporting half of the two-way link with Claude: after running the macro, paste the clipboard contents straight into the chat for review. If the clipboard copy fails (no permission, non-HTTPS context), the chat message says so and the JSON report file is still the fallback.
+3. **Copies the full report to the clipboard**, as a plain-text block — a short human-readable summary followed by the report as JSON. This is the reporting half of the two-way link with Claude: paste the clipboard contents straight into the chat for review. If the clipboard copy fails (no permission, non-HTTPS context), the chat message says so and the JSON report file is still the fallback.
 
 Safe to re-run — it tears down its own previous test documents first.
 

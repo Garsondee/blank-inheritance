@@ -127,6 +127,23 @@ function makeMockFilePicker(world) {
   };
 }
 
+/**
+ * Real DialogV2.confirm() (client/applications/api/dialog.mjs) resolves to
+ * true/false/null depending on which button (if any) the user actually
+ * clicks -- there's no way to simulate a real click in a headless test, so
+ * this mock lets a test pre-set the GM's answer via world.dialogConfirmResponse
+ * (defaults to false, the safe "declined" choice) and records every call's
+ * config for assertions, same pattern as the clipboard mock below.
+ */
+function makeMockDialogV2(world) {
+  return {
+    async confirm(config) {
+      world.dialogConfirmCalls.push(config);
+      return world.dialogConfirmResponse ?? false;
+    }
+  };
+}
+
 export function installMockFoundry({ moduleFiles = {}, templateJson = null, moduleManifest = null } = {}) {
   if (!globalThis.crypto) globalThis.crypto = webcrypto;
   if (!globalThis.File) globalThis.File = NodeFile;
@@ -140,7 +157,9 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
     directories: new Set(["data", "modules"]),
     uploadedFiles: new Map(),
     notifications: [],
-    clipboardText: null
+    clipboardText: null,
+    dialogConfirmResponse: null,
+    dialogConfirmCalls: []
   };
 
   const counter = { n: 1 };
@@ -226,7 +245,10 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
 
   globalThis.foundry = {
     utils: { getRoute: (p) => `/${p}` },
-    applications: { apps: { FilePicker: makeMockFilePicker(world) } }
+    applications: {
+      apps: { FilePicker: makeMockFilePicker(world) },
+      api: { DialogV2: makeMockDialogV2(world) }
+    }
   };
 
   globalThis.fetch = async (url) => {

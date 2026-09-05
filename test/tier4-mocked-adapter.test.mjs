@@ -24,6 +24,7 @@ import { ensureDirectory, writeReportFile, fetchModuleJson } from "../module/bla
 // function bodies, never at module-evaluation time, so it's fine to import
 // once here and call its exports after installMockFoundry() runs per-test.
 import { runDiagnosticTestSync } from "../module/blank-inheritance/scripts/foundry/sync.mjs";
+import { promptToRunSync } from "../module/blank-inheritance/scripts/foundry/sync-dialog.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
@@ -348,6 +349,51 @@ test("runDiagnosticTestSync: one case throwing does not prevent the other three 
     assert.ok(journalResult, "the journal case must still have run even though the creature case failed");
     assert.deepEqual(journalResult.checks.filter((c) => !c.pass), [], "the journal case doesn't depend on the creature at all, so it must fully pass");
     assert.equal(world.journal.size, 1);
+  } finally {
+    uninstall();
+  }
+});
+
+test("promptToRunSync: the GM confirming the dialog runs the actual sync (GH issue #82)", async (t) => {
+  if (!templateJson) {
+    t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadFixtureModuleFiles(), templateJson });
+  try {
+    world.dialogConfirmResponse = true;
+    await promptToRunSync();
+
+    assert.equal(world.dialogConfirmCalls.length, 1, "expected exactly one confirmation dialog to have been shown");
+    assert.equal(world.actors.size, 2, "confirming must actually run the sync -- both actors created");
+    assert.equal(world.journal.size, 1);
+    assert.equal(world.chatMessages.length, 1, "the sync's own whispered report must still show up");
+  } finally {
+    uninstall();
+  }
+});
+
+test("promptToRunSync: declining the dialog does not touch the world at all", async () => {
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadFixtureModuleFiles(), templateJson });
+  try {
+    world.dialogConfirmResponse = false;
+    await promptToRunSync();
+
+    assert.equal(world.dialogConfirmCalls.length, 1);
+    assert.equal(world.actors.size, 0, "declining must not create anything");
+    assert.equal(world.journal.size, 0);
+    assert.equal(world.chatMessages.length, 0);
+  } finally {
+    uninstall();
+  }
+});
+
+test("promptToRunSync: a dismissed dialog (null response) is treated the same as declining, not as an error", async () => {
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadFixtureModuleFiles(), templateJson });
+  try {
+    world.dialogConfirmResponse = null;
+    await assert.doesNotReject(() => promptToRunSync());
+    assert.equal(world.actors.size, 0);
   } finally {
     uninstall();
   }

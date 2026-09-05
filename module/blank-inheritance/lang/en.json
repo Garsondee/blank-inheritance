@@ -6,6 +6,12 @@
       "Complete": "Blank Inheritance: test sync complete — {passed}/{total} checks passed. Full report written to storage/test-reports/.",
       "Failed": "Blank Inheritance: test sync failed before completing. See console (F12) for the error, and report it back.",
       "NotGM": "Only a GM can run the Blank Inheritance test sync."
+    },
+    "SyncPrompt": {
+      "Title": "Blank Inheritance",
+      "Body": "Run the Blank Inheritance content sync now?",
+      "Yes": "Run Sync",
+      "No": "Not Now"
     }
   }
 }
