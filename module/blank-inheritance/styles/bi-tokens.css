@@ -270,9 +270,11 @@
   --bi-redact-w: 6ch;
 
   /* Where an analog needle pivots inside its 200x200 viewBox. The flanking
-     instruments mount their dial in the top of the glass so the readout can
-     have the body of the circle, so their pivot is above centre. */
-  --bi-needle-pivot: 100px 78px;
+     instruments mount their dial in the TOP of the glass so the readout can
+     have the body of the circle. The arc runs to y=82 of 200 (41%), and the
+     readout starts at 48%, so the two never touch — the first attempt put
+     the pivot at y=78 and the Kanji landed on the dial. */
+  --bi-needle-pivot: 100px 60px;
 
   /* ---------------------------------------------------------------
      8. MATERIALS — composite backgrounds defined once, so a bevel is

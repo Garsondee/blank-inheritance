@@ -145,9 +145,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  min-width: 46px;
-  padding: 7px 9px 6px;
+  gap: 4px;
+  min-width: 56px;
+  padding: 9px 12px 8px;
   border: none;
   border-radius: var(--bi-radius-key);
   background: var(--bi-mat-pod);
@@ -180,9 +180,9 @@
   box-shadow: var(--bi-bevel-down), 0 0 0 var(--bi-void);
 }
 .bi-key:focus-visible { outline: 2px solid var(--bi-cyan); outline-offset: 2px; }
-.bi-key__glyph { font-size: 15px; line-height: 1; color: var(--bi-bone-dim); }
+.bi-key__glyph { font-size: 16px; line-height: 1; color: var(--bi-bone-dim); }
 .bi-key:hover .bi-key__glyph { color: var(--bi-cyan); }
-.bi-key--sm { min-width: 38px; padding: 5px 6px; font-size: 8px; }
+.bi-key--sm { min-width: 46px; padding: 7px 8px; font-size: 9px; }
 
 /* Armed = a key whose action is live and consequential. */
 .bi-key--armed {
@@ -668,25 +668,33 @@
 
 /* A narrow CHASSIS sheds its least essential modules rather than letting
    pods collide with the instrument cluster. Priority order is deliberate:
-   quick-roll checks, the macro bank and the action economy are what the bar
-   exists to provide, so they are the last to go.
+   quick-roll checks and the action economy carry no priority at all and never
+   shed, because they are what the bar exists to provide.
 
    These are CONTAINER queries, not viewport media queries, and that is
    load-bearing. The chassis lives inside .bi-console, which is a 16:9 box
-   that is routinely much narrower than the window it sits in. Keyed to the
-   viewport, a 1140px console inside a 1400px window would keep every pod at
-   full width and overflow, or — as it did on first run — hide pods that had
-   ample room. The chassis must respond to its own width.
+   routinely much narrower than the window it sits in. Keyed to the viewport, a
+   1175px console inside a 1900px window hid modules that had ample room.
 
-   The breakpoints are MEASURED, not guessed: at full size the chassis needs
-   1600px (left cluster 562 + instruments 680 + right cluster 322 + padding),
-   and dropping the priority-3 modules — the macro bank and the audio desk —
-   frees 347px. Re-measure and update these if a module's width changes. */
-@container bi-console (max-width: 1600px) {
+   EACH BREAKPOINT IS THE MEASURED WIDTH THE CHASSIS NEEDS WITH THAT TIER AND
+   EVERYTHING ABOVE IT SHOWING, so there is no band where a tier is hidden but
+   the space it wanted sits empty:
+
+     core only ....................... 1184px   never sheds
+     + tier 2 (pilot, movement, conditions)  1880px
+     + tier 3 (dice tray, macro bank)        2247px
+     + tier 4 (frame systems, audio desk)    2772px
+
+   Re-measure and update these whenever a module changes width. */
+@container bi-console (max-width: 2772px) {
+  .bi-bar [data-bi-priority="4"] { display: none; }
+}
+@container bi-console (max-width: 2247px) {
   .bi-bar [data-bi-priority="3"] { display: none; }
 }
-@container bi-console (max-width: 1233px) {
+@container bi-console (max-width: 1880px) {
   .bi-bar [data-bi-priority="2"] { display: none; }
+}
 }
 
 /* --- Macro bank: our replacement for Foundry's hotbar ----------------- */
@@ -1629,11 +1637,14 @@
    numbers room to be large enough to read across a table, which is the only
    reason the dial exists. */
 .bi-subdome__core {
+  /* The arc's lowest point is 82/200 = 41% of the glass, so the readout
+     starts at 48% and never touches it. The previous 44% overlapped the
+     band arc by a clear margin — the Kanji sat directly on the dial. */
   position: absolute;
-  top: 44%;
-  bottom: 13%;
-  left: 8%;
-  right: 8%;
+  top: 48%;
+  bottom: 7%;
+  left: 6%;
+  right: 6%;
   z-index: 3;
   display: flex;
   flex-direction: column;
@@ -1736,4 +1747,78 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .bi-console--alert .bi-toprail { animation: none; box-shadow: inset 0 0 0 1px var(--bi-vermilion); }
+}
+
+
+/* =====================================================================
+   7. CONTROL BANKS
+   ---------------------------------------------------------------------
+   The chassis was 91% empty either side of the instruments while every
+   module was crushed into the smallest shape that would hold its keys.
+   These are the layouts that let a pod spend the space it has.
+   ===================================================================== */
+
+/* A titled group of keys inside a pod. */
+.bi-bank {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  position: relative;
+  z-index: 1;
+}
+.bi-bank__label {
+  font-family: var(--bi-font-legend);
+  font-size: var(--bi-legend-size);
+  letter-spacing: var(--bi-legend-tracking);
+  line-height: var(--bi-legend-leading);
+  text-transform: uppercase;
+  color: var(--bi-brass);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid var(--bi-brass-shadow);
+  padding-bottom: 3px;
+}
+.bi-bank__label .bi-legend--jp { color: var(--bi-bone-dark); }
+.bi-bank__row { display: flex; gap: 4px; }
+.bi-bank__row > * { flex: 1; }
+
+/* An even grid of keys — dice trays, condition banks. */
+.bi-keygrid {
+  display: grid;
+  gap: 4px;
+  position: relative;
+  z-index: 1;
+}
+/* minmax(0,1fr) would let the tracks collapse to the widest glyph — the keys
+   came out 37px and read as crushed. A real floor keeps them thumb-sized. */
+.bi-keygrid--4 { grid-template-columns: repeat(4, minmax(46px, 1fr)); }
+.bi-keygrid--5 { grid-template-columns: repeat(5, minmax(46px, 1fr)); }
+.bi-keygrid--7 { grid-template-columns: repeat(7, minmax(42px, 1fr)); }
+.bi-keygrid .bi-key { min-width: 0; min-height: 26px; }
+
+/* A condition toggle: dark until set, then it holds an amber state so a
+   glance at the bank tells you what is currently on you. */
+.bi-key--cond[aria-pressed="true"] {
+  background: linear-gradient(176deg, #4a3512 0%, #2e2009 60%, #1d1406 100%);
+  color: #ffe6bd;
+  box-shadow: var(--bi-bevel-up), 0 0 0 1px var(--bi-amber-dim), 0 0 10px rgb(240 168 48 / 30%);
+}
+.bi-key--cond[aria-pressed="true"] .bi-key__glyph { color: var(--bi-amber); }
+
+/* Dice keys read as dice: monospace numerals, brass cap. */
+.bi-key--die {
+  font-family: var(--bi-font-readout);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--bi-bone);
+}
+.bi-key--die:hover { color: var(--bi-amber); }
+
+/* A pod that stacks two or three banks vertically and fills the chassis. */
+.bi-pod--filled {
+  justify-content: space-between;
+  padding: 9px 12px 11px;
 }

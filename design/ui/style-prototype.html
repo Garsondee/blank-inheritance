@@ -227,60 +227,127 @@ h2.sec-title { font-family: var(--bi-font-display); font-size: 18px; letter-spac
       <div class="bi-bar" id="bar">
 
         <div class="bi-bar__group bi-bar__group--left">
-          <div class="bi-pod bi-pod--crest bi-plate-skin" data-bi-priority="2" style="--bi-seam-y:52%;--bi-seam-x:70%;min-width:168px">
+
+          <!-- Pilot ident -->
+          <div class="bi-pod bi-pod--crest bi-plate-skin bi-pod--filled" data-bi-priority="2" style="--bi-seam-y:56%;--bi-seam-x:70%;min-width:190px">
             <span class="bi-pod__rivet bi-pod__rivet--tr"></span>
-            <div style="display:flex;align-items:center;gap:8px;position:relative;z-index:1">
-              <div class="bi-screen" style="width:36px;height:36px;display:grid;place-items:center;flex:none">
-                <span class="bi-readout" style="font-size:15px">04</span>
+            <div style="display:flex;align-items:center;gap:10px;position:relative;z-index:1">
+              <div class="bi-screen" style="width:46px;height:46px;display:grid;place-items:center;flex:none">
+                <span class="bi-readout" style="font-size:19px">04</span>
               </div>
               <div>
-                <div class="bi-plate" style="padding:2px 8px;font-size:8px">Candidate 04</div>
-                <div class="bi-legend bi-legend--jp" style="margin-top:5px">機体 三型</div>
+                <div class="bi-plate" style="padding:3px 9px">Candidate 04</div>
+                <div class="bi-legend bi-legend--jp" style="margin-top:6px">機体 三型</div>
               </div>
             </div>
-            <div style="display:flex;gap:5px;align-items:center;position:relative;z-index:1" id="conditions">
-              <button class="bi-lamp bi-lamp--amber" data-cond title="Off-Guard" aria-label="Off-Guard" aria-pressed="false"></button>
-              <button class="bi-lamp bi-lamp--red" data-cond title="Persistent" aria-label="Persistent" aria-pressed="false"></button>
-              <button class="bi-lamp bi-lamp--cyan" data-cond title="Comms" aria-label="Comms" aria-pressed="false"></button>
-              <button class="bi-lamp bi-lamp--resonance" data-cond title="Anchor" aria-label="Anchor" aria-pressed="false"></button>
-              <span class="bi-legend" style="margin-left:2px;font-size:8px">Cond</span>
+            <div class="bi-bank">
+              <span class="bi-bank__label">Status <span class="bi-legend--jp">状態</span></span>
+              <div style="display:flex;gap:8px;align-items:center" id="conditions">
+                <button class="bi-lamp bi-lamp--amber" data-cond title="Off-Guard" aria-label="Off-Guard" aria-pressed="false"></button>
+                <button class="bi-lamp bi-lamp--red" data-cond title="Persistent damage" aria-label="Persistent damage" aria-pressed="false"></button>
+                <button class="bi-lamp bi-lamp--cyan" data-cond title="Comms" aria-label="Comms" aria-pressed="false"></button>
+                <button class="bi-lamp bi-lamp--resonance" data-cond title="Anchor" aria-label="Anchor" aria-pressed="false"></button>
+                <button class="bi-lamp" data-cond title="Nominal" aria-label="Nominal" aria-pressed="false"></button>
+              </div>
             </div>
           </div>
 
-          <div class="bi-pod bi-pod--tall bi-plate-skin" style="--bi-seam-y:30%;--bi-seam-x:50%">
+          <!-- Checks -->
+          <div class="bi-pod bi-pod--tall bi-plate-skin bi-pod--filled" style="--bi-seam-y:34%;--bi-seam-x:50%">
             <span class="bi-pod__rivet bi-pod__rivet--tl"></span>
             <span class="bi-pod__rivet bi-pod__rivet--tr"></span>
-            <div class="bi-legend" style="text-align:center;position:relative;z-index:1">Checks &mdash; no sheet</div>
-            <div style="display:flex;gap:3px;position:relative;z-index:1">
-              <button class="bi-key bi-key--sm" style="min-width:34px">Per</button>
-              <button class="bi-key bi-key--sm" style="min-width:34px">Ath</button>
-              <button class="bi-key bi-key--sm" style="min-width:34px">Ste</button>
-              <button class="bi-key bi-key--sm" style="min-width:34px">Dip</button>
+            <div class="bi-bank">
+              <span class="bi-bank__label">Checks &mdash; no sheet <span class="bi-legend--jp">技能</span></span>
+              <div class="bi-keygrid bi-keygrid--5">
+                <button class="bi-key bi-key--sm">Per</button>
+                <button class="bi-key bi-key--sm">Ath</button>
+                <button class="bi-key bi-key--sm">Ste</button>
+                <button class="bi-key bi-key--sm">Dip</button>
+                <button class="bi-key bi-key--sm">Occ</button>
+                <button class="bi-key bi-key--sm">Cra</button>
+                <button class="bi-key bi-key--sm">Med</button>
+                <button class="bi-key bi-key--sm">Soc</button>
+                <button class="bi-key bi-key--sm">Nat</button>
+                <button class="bi-key bi-key--sm">Pil</button>
+              </div>
             </div>
-            <div style="display:flex;gap:3px;position:relative;z-index:1">
-              <button class="bi-key bi-key--sm" style="min-width:34px">Occ</button>
-              <button class="bi-key bi-key--sm" style="min-width:34px">Cra</button>
-              <button class="bi-key bi-key--sm" style="min-width:34px">Med</button>
-              <button class="bi-key bi-key--sm" style="min-width:34px">Soc</button>
-            </div>
-            <div style="display:flex;gap:3px;position:relative;z-index:1">
-              <button class="bi-key bi-key--sm" style="min-width:46px">Fort</button>
-              <button class="bi-key bi-key--sm" style="min-width:46px">Ref</button>
-              <button class="bi-key bi-key--sm" style="min-width:46px">Will</button>
+            <div class="bi-bank">
+              <span class="bi-bank__label">Saves <span class="bi-legend--jp">耐久</span></span>
+              <div class="bi-keygrid bi-keygrid--4">
+                <button class="bi-key bi-key--sm">Fort</button>
+                <button class="bi-key bi-key--sm">Ref</button>
+                <button class="bi-key bi-key--sm">Will</button>
+                <button class="bi-key bi-key--sm">Init</button>
+              </div>
             </div>
           </div>
 
-          <div class="bi-pod bi-plate-skin" data-bi-priority="3" style="--bi-seam-y:22%;--bi-seam-x:80%">
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;position:relative;z-index:1">
-              <span class="bi-legend">Macros</span>
-              <div style="display:flex;gap:3px;align-items:center">
-                <button class="bi-macro" style="width:15px;height:12px;font-size:8px" aria-label="Previous page">&#8249;</button>
-                <span class="bi-readout" style="font-size:9px;color:var(--bi-bone-dark)" id="macro-page">1</span>
-                <button class="bi-macro" style="width:15px;height:12px;font-size:8px" aria-label="Next page">&#8250;</button>
+          <!-- Dice tray -->
+          <div class="bi-pod bi-plate-skin bi-pod--filled" data-bi-priority="3" style="--bi-seam-y:44%;--bi-seam-x:64%">
+            <div class="bi-bank">
+              <span class="bi-bank__label">Dice <span class="bi-legend--jp">賽</span></span>
+              <div class="bi-keygrid bi-keygrid--4">
+                <button class="bi-key bi-key--sm bi-key--die">d4</button>
+                <button class="bi-key bi-key--sm bi-key--die">d6</button>
+                <button class="bi-key bi-key--sm bi-key--die">d8</button>
+                <button class="bi-key bi-key--sm bi-key--die">d10</button>
+                <button class="bi-key bi-key--sm bi-key--die">d12</button>
+                <button class="bi-key bi-key--sm bi-key--die">d20</button>
+                <button class="bi-key bi-key--sm bi-key--die">d100</button>
+                <button class="bi-key bi-key--sm bi-key--die">&#177;</button>
               </div>
             </div>
-            <div class="bi-macros" id="macro-bank" style="position:relative;z-index:1"></div>
+            <div class="bi-bank">
+              <span class="bi-bank__label">Fortune <span class="bi-legend--jp">運</span></span>
+              <div class="bi-bank__row">
+                <button class="bi-key bi-key--sm" title="Roll twice, keep the higher">Adv</button>
+                <button class="bi-key bi-key--sm" title="Roll twice, keep the lower">Dis</button>
+                <button class="bi-key bi-key--sm" title="Roll privately to the GM">Blind</button>
+              </div>
+            </div>
           </div>
+
+          <!-- Movement and reactions -->
+          <div class="bi-pod bi-pod--tall bi-plate-skin bi-pod--filled" data-bi-priority="2" style="--bi-seam-y:40%;--bi-seam-x:38%">
+            <span class="bi-pod__rivet bi-pod__rivet--tl"></span>
+            <div class="bi-bank">
+              <span class="bi-bank__label">Movement <span class="bi-legend--jp">機動</span></span>
+              <div class="bi-bank__row">
+                <button class="bi-key bi-key--sm">Stride</button>
+                <button class="bi-key bi-key--sm">Step</button>
+                <button class="bi-key bi-key--sm">Face</button>
+              </div>
+            </div>
+            <div class="bi-bank">
+              <span class="bi-bank__label">Reactions <span class="bi-legend--jp">反応</span></span>
+              <div class="bi-bank__row">
+                <button class="bi-key bi-key--sm">Ready</button>
+                <button class="bi-key bi-key--sm">Delay</button>
+                <button class="bi-key bi-key--sm">Escape</button>
+              </div>
+              <div class="bi-bank__row">
+                <button class="bi-key bi-key--sm">Sustain</button>
+                <button class="bi-key bi-key--sm">Aid</button>
+                <button class="bi-key bi-key--sm">Seek</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Macro bank -->
+          <div class="bi-pod bi-plate-skin bi-pod--filled" data-bi-priority="3" style="--bi-seam-y:26%;--bi-seam-x:80%">
+            <div class="bi-bank">
+              <span class="bi-bank__label">
+                Macros
+                <span style="display:flex;gap:4px;align-items:center">
+                  <button class="bi-macro" style="width:17px;height:14px;font-size:9px" aria-label="Previous page">&#8249;</button>
+                  <span class="bi-readout" style="font-size:10px;color:var(--bi-bone-dark)" id="macro-page">1</span>
+                  <button class="bi-macro" style="width:17px;height:14px;font-size:9px" aria-label="Next page">&#8250;</button>
+                </span>
+              </span>
+              <div class="bi-macros" id="macro-bank"></div>
+            </div>
+          </div>
+
         </div>
 
         <!-- ---------- INSTRUMENT CLUSTER ---------- -->
@@ -290,13 +357,13 @@ h2.sec-title { font-family: var(--bi-font-display); font-size: 18px; letter-spac
             <div class="bi-subdome__glass">
               <svg class="bi-subdome__svg" viewBox="0 0 200 200" aria-hidden="true">
                 <g class="bi-hud" style="--hud-stroke:1.8">
-                  <path d="M64.8 107.6 A 46 46 0 0 1 68.4 44.5" stroke="var(--bi-phosphor)" opacity=".55" stroke-width="5" fill="none"/>
-                  <path d="M68.4 44.5 A 46 46 0 0 1 131.6 44.5"  stroke="var(--bi-amber)" opacity=".55" stroke-width="5" fill="none"/>
-                  <path d="M131.6 44.5 A 46 46 0 0 1 135.2 107.6" stroke="var(--bi-resonance)" opacity=".7"  stroke-width="5" fill="none"/>
-                  <path d="M100 38 v-12 M63.8 61.1 L52.9 56.0 M136.2 61.1 L147.1 56.0 M69.4 103.7 L60.2 111.4 M130.6 103.7 L139.8 111.4"/>
+                  <path d="M74.0 81.9 A 34 34 0 0 1 76.7 35.3" stroke="var(--bi-phosphor)" opacity=".55" stroke-width="4.5" fill="none"/>
+                  <path d="M76.7 35.3 A 34 34 0 0 1 123.3 35.3"  stroke="var(--bi-amber)" opacity=".55" stroke-width="4.5" fill="none"/>
+                  <path d="M123.3 35.3 A 34 34 0 0 1 126.0 81.9" stroke="var(--bi-resonance)" opacity=".7"  stroke-width="4.5" fill="none"/>
+                  <path d="M100 32 v-12 M74.6 48.2 L63.8 43.1 M125.4 48.2 L136.3 43.1 M78.6 78.0 L69.4 85.7 M121.4 78.0 L130.6 85.7"/>
                   <g class="bi-needle" id="needle-res" style="--angle:18deg">
-                    <path d="M100 78 L100 38" stroke="var(--bi-resonance)" stroke-width="3"/>
-                    <circle cx="100" cy="78" r="5.5" fill="var(--bi-brass)" stroke="none"/>
+                    <path d="M100 60 L100 28" stroke="var(--bi-resonance)" stroke-width="3"/>
+                    <circle cx="100" cy="60" r="5" fill="var(--bi-brass)" stroke="none"/>
                   </g>
                 </g>
               </svg>
@@ -374,13 +441,13 @@ h2.sec-title { font-family: var(--bi-font-display); font-size: 18px; letter-spac
             <div class="bi-subdome__glass">
               <svg class="bi-subdome__svg" viewBox="0 0 200 200" aria-hidden="true">
                 <g class="bi-hud" style="--hud-stroke:1.8">
-                  <path d="M64.8 107.6 A 46 46 0 0 1 68.4 44.5" stroke="var(--bi-vermilion)" opacity=".55" stroke-width="5" fill="none"/>
-                  <path d="M68.4 44.5 A 46 46 0 0 1 131.6 44.5"  stroke="var(--bi-amber)" opacity=".55" stroke-width="5" fill="none"/>
-                  <path d="M131.6 44.5 A 46 46 0 0 1 135.2 107.6" stroke="var(--bi-phosphor)" opacity=".7"  stroke-width="5" fill="none"/>
-                  <path d="M100 38 v-12 M63.8 61.1 L52.9 56.0 M136.2 61.1 L147.1 56.0 M69.4 103.7 L60.2 111.4 M130.6 103.7 L139.8 111.4"/>
+                  <path d="M74.0 81.9 A 34 34 0 0 1 76.7 35.3" stroke="var(--bi-vermilion)" opacity=".55" stroke-width="4.5" fill="none"/>
+                  <path d="M76.7 35.3 A 34 34 0 0 1 123.3 35.3"  stroke="var(--bi-amber)" opacity=".55" stroke-width="4.5" fill="none"/>
+                  <path d="M123.3 35.3 A 34 34 0 0 1 126.0 81.9" stroke="var(--bi-phosphor)" opacity=".7"  stroke-width="4.5" fill="none"/>
+                  <path d="M100 32 v-12 M74.6 48.2 L63.8 43.1 M125.4 48.2 L136.3 43.1 M78.6 78.0 L69.4 85.7 M121.4 78.0 L130.6 85.7"/>
                   <g class="bi-needle" id="needle-pwr" style="--angle:44deg">
-                    <path d="M100 78 L100 38" stroke="var(--bi-phosphor)" stroke-width="3"/>
-                    <circle cx="100" cy="78" r="5.5" fill="var(--bi-brass)" stroke="none"/>
+                    <path d="M100 60 L100 28" stroke="var(--bi-phosphor)" stroke-width="3"/>
+                    <circle cx="100" cy="60" r="5" fill="var(--bi-brass)" stroke="none"/>
                   </g>
                 </g>
               </svg>
@@ -395,84 +462,154 @@ h2.sec-title { font-family: var(--bi-font-display); font-size: 18px; letter-spac
         </div>
 
         <div class="bi-bar__group bi-bar__group--right">
-          <div class="bi-pod bi-pod--crest-r bi-plate-skin" id="gm-pod" hidden style="--bi-seam-y:34%;--bi-seam-x:44%">
+
+          <!-- Director-only -->
+          <div class="bi-pod bi-pod--crest-r bi-plate-skin bi-pod--filled" id="gm-pod" hidden style="--bi-seam-y:38%;--bi-seam-x:44%">
             <span class="bi-pod__rivet bi-pod__rivet--tl"></span>
-            <div class="bi-legend" style="text-align:center;position:relative;z-index:1">Direction &middot; 演出</div>
-            <div style="display:flex;gap:3px;position:relative;z-index:1">
-              <button class="bi-key bi-key--sm"><span class="bi-key__glyph">&#9654;</span>Cue</button>
-              <button class="bi-key bi-key--sm"><span class="bi-key__glyph">&#8635;</span>Turn</button>
-              <button class="bi-key bi-key--sm"><span class="bi-key__glyph">&#9998;</span>Log</button>
+            <div class="bi-bank">
+              <span class="bi-bank__label">Direction <span class="bi-legend--jp">演出</span></span>
+              <div class="bi-bank__row">
+                <button class="bi-key bi-key--sm">Cue</button>
+                <button class="bi-key bi-key--sm">Turn</button>
+                <button class="bi-key bi-key--sm">Log</button>
+                <button class="bi-key bi-key--sm">Timer</button>
+              </div>
             </div>
-            <div style="display:flex;gap:3px;position:relative;z-index:1">
-              <button class="bi-key bi-key--sm"><span class="bi-key__glyph">&#9636;</span>Docs</button>
-              <button class="bi-key bi-key--sm"><span class="bi-key__glyph">&#9788;</span>Wx</button>
-              <button class="bi-key bi-key--sm"><span class="bi-key__glyph">&#9873;</span>Pin</button>
+            <div class="bi-bank">
+              <span class="bi-bank__label">Scene <span class="bi-legend--jp">場面</span></span>
+              <div class="bi-bank__row">
+                <button class="bi-key bi-key--sm">Wx</button>
+                <button class="bi-key bi-key--sm">Night</button>
+                <button class="bi-key bi-key--sm">Pin</button>
+                <button class="bi-key bi-key--sm">Fade</button>
+              </div>
+              <div class="bi-bank__row">
+                <button class="bi-key bi-key--sm">Docs</button>
+                <button class="bi-key bi-key--sm">Reveal</button>
+                <button class="bi-key bi-key--sm bi-key--armed">Contact</button>
+              </div>
             </div>
           </div>
 
-          <div class="bi-pod bi-pod--tall bi-plate-skin" style="--bi-seam-y:36%;--bi-seam-x:56%">
+          <!-- Actions -->
+          <div class="bi-pod bi-pod--tall bi-plate-skin bi-pod--filled" style="--bi-seam-y:38%;--bi-seam-x:56%">
             <span class="bi-pod__rivet bi-pod__rivet--tl"></span>
             <span class="bi-pod__rivet bi-pod__rivet--tr"></span>
-            <div style="display:flex;justify-content:center;position:relative;z-index:1">
-              <div class="bi-actions" id="pips">
-                <button class="bi-pip bi-pip--available" aria-label="Action 1"></button>
-                <button class="bi-pip bi-pip--available" aria-label="Action 2"></button>
-                <button class="bi-pip bi-pip--available" aria-label="Action 3"></button>
-                <button class="bi-pip bi-pip--reaction bi-pip--available" aria-label="Reaction"></button>
+            <div class="bi-bank">
+              <span class="bi-bank__label">Actions <span class="bi-legend--jp">行動</span></span>
+              <div style="display:flex;justify-content:center;padding:3px 0">
+                <div class="bi-actions" id="pips">
+                  <button class="bi-pip bi-pip--available" aria-label="Action 1"></button>
+                  <button class="bi-pip bi-pip--available" aria-label="Action 2"></button>
+                  <button class="bi-pip bi-pip--available" aria-label="Action 3"></button>
+                  <button class="bi-pip bi-pip--reaction bi-pip--available" aria-label="Reaction"></button>
+                </div>
               </div>
-            </div>
-            <div style="display:flex;gap:3px;position:relative;z-index:1">
-              <button class="bi-key bi-key--sm"><span class="bi-key__glyph">&#9670;</span>Strike</button>
-              <button class="bi-key bi-key--sm"><span class="bi-key__glyph">&#9650;</span>Raise</button>
-              <button class="bi-key bi-key--sm" data-lock><span class="bi-key__glyph">&#9678;</span>Lock</button>
-            </div>
-            <div style="display:flex;gap:3px;position:relative;z-index:1">
-              <button class="bi-key bi-key--sm"><span class="bi-key__glyph">&#10022;</span>Hero</button>
-              <button class="bi-key bi-key--sm"><span class="bi-key__glyph">&#9851;</span>Rec</button>
-              <button class="bi-key bi-key--sm"><span class="bi-key__glyph">&#9673;</span>Sync</button>
+              <div class="bi-bank__row">
+                <button class="bi-key bi-key--sm">Strike</button>
+                <button class="bi-key bi-key--sm">Raise</button>
+                <button class="bi-key bi-key--sm" data-lock>Lock</button>
+              </div>
+              <div class="bi-bank__row">
+                <button class="bi-key bi-key--sm">Hero</button>
+                <button class="bi-key bi-key--sm">Recall</button>
+                <button class="bi-key bi-key--sm">Sync</button>
+              </div>
             </div>
           </div>
 
-          <div class="bi-pod bi-pod--slant bi-plate-skin" data-bi-priority="3" style="--bi-seam-y:64%;--bi-seam-x:36%;min-width:128px">
-            <div class="bi-legend" style="position:relative;z-index:1">Audio &middot; 音響</div>
-            <div style="display:flex;flex-direction:column;gap:5px;position:relative;z-index:1">
-              <div class="bi-mixer" id="mixer">
-                <div class="bi-mixer__strip">
-                  <span class="bi-readout" style="font-size:8px" data-lvl>72</span>
-                  <input class="bi-fader bi-fader--short" type="range" min="0" max="100" value="72" aria-label="Music">
-                  <span class="bi-legend">Mus</span>
-                </div>
-                <div class="bi-mixer__strip">
-                  <span class="bi-readout" style="font-size:8px" data-lvl>55</span>
-                  <input class="bi-fader bi-fader--short" type="range" min="0" max="100" value="55" aria-label="Effects">
-                  <span class="bi-legend">Sfx</span>
-                </div>
-                <div class="bi-mixer__strip">
-                  <span class="bi-readout" style="font-size:8px" data-lvl>88</span>
-                  <input class="bi-fader bi-fader--short" type="range" min="0" max="100" value="88" aria-label="Voice">
-                  <span class="bi-legend">Vox</span>
-                </div>
-                <div class="bi-mixer__strip">
-                  <span class="bi-readout" style="font-size:8px" data-lvl>40</span>
-                  <input class="bi-fader bi-fader--short" type="range" min="0" max="100" value="40" aria-label="Ambience">
-                  <span class="bi-legend">Amb</span>
-                </div>
+          <!-- Conditions -->
+          <div class="bi-pod bi-plate-skin bi-pod--filled" data-bi-priority="2" style="--bi-seam-y:46%;--bi-seam-x:52%">
+            <div class="bi-bank">
+              <span class="bi-bank__label">Conditions <span class="bi-legend--jp">状態異常</span></span>
+              <div class="bi-keygrid bi-keygrid--5" id="cond-grid">
+                <button class="bi-key bi-key--sm bi-key--cond" aria-pressed="false">Off-G</button>
+                <button class="bi-key bi-key--sm bi-key--cond" aria-pressed="false">Frigh</button>
+                <button class="bi-key bi-key--sm bi-key--cond" aria-pressed="false">Prone</button>
+                <button class="bi-key bi-key--sm bi-key--cond" aria-pressed="false">Slow</button>
+                <button class="bi-key bi-key--sm bi-key--cond" aria-pressed="false">Stun</button>
+                <button class="bi-key bi-key--sm bi-key--cond" aria-pressed="false">Clum</button>
+                <button class="bi-key bi-key--sm bi-key--cond" aria-pressed="false">Enfb</button>
+                <button class="bi-key bi-key--sm bi-key--cond" aria-pressed="false">Drain</button>
+                <button class="bi-key bi-key--sm bi-key--cond" aria-pressed="false">Sick</button>
+                <button class="bi-key bi-key--sm bi-key--cond" aria-pressed="false">Quick</button>
               </div>
-              <div style="display:flex;gap:3px">
-                <button class="bi-key bi-key--sm" style="min-width:0;flex:1" aria-label="Play">&#9654;</button>
-                <button class="bi-key bi-key--sm" style="min-width:0;flex:1" aria-label="Pause">&#10073;&#10073;</button>
-                <button class="bi-key bi-key--sm" style="min-width:0;flex:1" aria-label="Next track">&#9193;</button>
-                <button class="bi-key bi-key--sm" style="min-width:0;flex:1" aria-label="Comms">&#9742;</button>
-                <button class="bi-key bi-key--sm" style="min-width:0;flex:1" aria-label="Phone">&#9635;</button>
-              </div>
-            </div>
-            <div class="bi-screen" style="padding:2px 7px;position:relative;z-index:1">
-              <span class="bi-readout" style="font-size:8px" id="now-playing">&#9834; HARBOUR &mdash; NIGHT WATCH</span>
             </div>
           </div>
+
+          <!-- Frame systems and view -->
+          <div class="bi-pod bi-pod--tall bi-plate-skin bi-pod--filled" data-bi-priority="4" style="--bi-seam-y:42%;--bi-seam-x:44%">
+            <span class="bi-pod__rivet bi-pod__rivet--tr"></span>
+            <div class="bi-bank">
+              <span class="bi-bank__label">Frame <span class="bi-legend--jp">機体 系統</span></span>
+              <div class="bi-bank__row">
+                <button class="bi-key bi-key--sm">Umbil</button>
+                <button class="bi-key bi-key--sm">Vent</button>
+                <button class="bi-key bi-key--sm">Purge</button>
+              </div>
+              <div class="bi-bank__row">
+                <button class="bi-key bi-key--sm">Anchor</button>
+                <button class="bi-key bi-key--sm">Brace</button>
+                <button class="bi-key bi-key--sm bi-key--armed">Eject</button>
+              </div>
+            </div>
+            <div class="bi-bank">
+              <span class="bi-bank__label">View <span class="bi-legend--jp">視点</span></span>
+              <div class="bi-bank__row">
+                <button class="bi-key bi-key--sm">Centre</button>
+                <button class="bi-key bi-key--sm">Follow</button>
+                <button class="bi-key bi-key--sm">Emote</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Audio -->
+          <div class="bi-pod bi-pod--slant bi-plate-skin bi-pod--filled" data-bi-priority="4" style="--bi-seam-y:62%;--bi-seam-x:36%;min-width:216px">
+            <div class="bi-bank">
+              <span class="bi-bank__label">Audio <span class="bi-legend--jp">音響</span></span>
+              <div style="display:flex;gap:12px;align-items:flex-end">
+                <div class="bi-mixer" id="mixer">
+                  <div class="bi-mixer__strip">
+                    <span class="bi-readout" style="font-size:9px" data-lvl>72</span>
+                    <input class="bi-fader" type="range" min="0" max="100" value="72" aria-label="Music">
+                    <span class="bi-legend">Mus</span>
+                  </div>
+                  <div class="bi-mixer__strip">
+                    <span class="bi-readout" style="font-size:9px" data-lvl>55</span>
+                    <input class="bi-fader" type="range" min="0" max="100" value="55" aria-label="Effects">
+                    <span class="bi-legend">Sfx</span>
+                  </div>
+                  <div class="bi-mixer__strip">
+                    <span class="bi-readout" style="font-size:9px" data-lvl>88</span>
+                    <input class="bi-fader" type="range" min="0" max="100" value="88" aria-label="Voice">
+                    <span class="bi-legend">Vox</span>
+                  </div>
+                  <div class="bi-mixer__strip">
+                    <span class="bi-readout" style="font-size:9px" data-lvl>40</span>
+                    <input class="bi-fader" type="range" min="0" max="100" value="40" aria-label="Ambience">
+                    <span class="bi-legend">Amb</span>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:5px;flex:1">
+                  <div class="bi-bank__row">
+                    <button class="bi-key bi-key--sm" aria-label="Play">&#9654;</button>
+                    <button class="bi-key bi-key--sm" aria-label="Pause">&#10073;&#10073;</button>
+                    <button class="bi-key bi-key--sm" aria-label="Next track">&#9193;</button>
+                  </div>
+                  <button class="bi-key bi-key--sm">Comm</button>
+                  <button class="bi-key bi-key--sm">Phone</button>
+                  <button class="bi-key bi-key--sm">Docs</button>
+                </div>
+              </div>
+            </div>
+            <div class="bi-screen" style="padding:3px 8px;position:relative;z-index:1">
+              <span class="bi-readout" style="font-size:9px" id="now-playing">&#9834; HARBOUR &mdash; NIGHT WATCH</span>
+            </div>
+          </div>
+
         </div>
 
-      </div>
+      </div><!-- /bi-bar -->
 
       <div class="bi-marquee" style="margin:0 10px 7px">
         <div class="bi-marquee__cap">通達 Bulletin</div>
