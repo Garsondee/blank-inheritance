@@ -242,8 +242,21 @@
      is a structural invariant rather than two numbers to keep in sync.
      The flanking instruments are exactly half again, so all three sit on
      one baseline with their centres on the same line. */
-  --bi-dome-size: calc(var(--bi-bar-height) * 2);
-  --bi-dome-half: calc(var(--bi-dome-size) / 2);
+  /* FOUND LIVE, reported against the running prototype: at 2x --bi-bar-height
+     (a full bar-height of protrusion above the chassis, 168px) the main dome
+     read as looming far higher than the two flanking subdomes beside it --
+     "make this much lower, about half way up the smaller circle displays."
+     1.5x halves that protrusion (84px, half of --bi-bar-height) while
+     staying a multiple of the bar height rather than a tuned pixel value --
+     the same "structural, not tuned" rule this token already followed. */
+  --bi-dome-size: calc(var(--bi-bar-height) * 1.5);
+  /* Deliberately NOT derived from --bi-dome-size any more. The two used to
+     share one formula (dome-half = half the dome), which meant resizing the
+     main dome would have silently resized the subdomes with it -- exactly
+     what the fix above must NOT do. Pinning this straight to --bi-bar-height
+     keeps the subdomes at their original 168px, completely independent of
+     whatever the main dome's own size is tuned to next. */
+  --bi-dome-half: var(--bi-bar-height);
 
   --bi-rail-width: 244px;      /* floating side panels        */
   --bi-toprail-height: 54px;   /* scene status strip          */

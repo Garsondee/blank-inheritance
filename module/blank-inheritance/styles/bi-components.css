@@ -921,11 +921,14 @@
 .bi-dome {
   --hud: var(--bi-phosphor);
   --hud-stroke: 2.4;
-  /* Anchored to the chassis floor. The instrument is exactly twice the
-     chassis height (see --bi-dome-size), so sitting its bottom on the
-     chassis bottom puts its centre precisely on the chassis TOP edge —
-     the top half rises clear of the bar, as a real console head does.
-     The invariant is structural: it cannot drift if the bar is retuned. */
+  /* Anchored to the chassis floor. Bottom-anchoring a circle taller than the
+     bar is what makes part of it rise clear of the bar at all -- exactly
+     how much is entirely --bi-dome-size's own call (see bi-tokens.css for
+     why it now sits at 1.5x rather than the original 2x: reported live as
+     looming too high next to the flanking subdomes). The invariant that
+     matters is structural, not the specific multiplier: dome-size is always
+     expressed as a multiple of --bi-bar-height, so it cannot drift out of
+     proportion if the bar itself is ever retuned. */
   position: absolute;
   left: 0;
   bottom: 0;
@@ -1001,13 +1004,20 @@
 .bi-hud__tape-label { font-size: 11px; }
 .bi-hud__value { font-size: 20px; }
 .bi-hud__mode { font-size: 12px; letter-spacing: 0.22em; }
-/* NOTE: these are SVG USER UNITS, not CSS pixels. The HUD's viewBox is 400
-   wide and renders at --bi-dome-size (336px), so everything here is scaled by
-   0.84 — 11 units was rendering at ~9px on screen, well under the Japanese
-   floor even though the number looked fine. 15 units lands at ~12.6px. */
+/* NOTE: these are SVG USER UNITS, not CSS pixels, and the conversion factor
+   moves whenever --bi-dome-size does -- it is NOT a fixed 0.84 forever. The
+   HUD's viewBox is 400 wide; at the dome's CURRENT size (252px, 1.5x
+   --bi-bar-height) that is a 0.63 scale, so a raw unit value must be
+   rescaled by the same ratio the dome itself changed by, or Japanese text
+   quietly drops below the 12px floor without a single px value in this file
+   changing. 20 units x 0.63 = 12.6px -- the same effective size this held
+   at the dome's original 336px/0.84 scale (15 x 0.84 = 12.6), preserved on
+   purpose rather than by luck. A test computes this ratio for real, because
+   a plain "is the px value >= 12" check cannot see SVG viewBox scaling at
+   all -- it would have waved this exact regression straight through. */
 .bi-hud__jp {
   font-family: var(--bi-font-gothic);
-  font-size: 15px;
+  font-size: 20px;
   letter-spacing: 0.16em;
 }
 
@@ -1243,12 +1253,17 @@
      chassis is not a sum: its side tracks are each exactly half, so the
      floor is set by the HEAVIER side alone. Measured at exactly 1200px the
      Checks pod (270px) sat in a 232px track and its right edge ran 28px under
-     the left subdome. The real floor is 270 x 2 + cluster 680 + padding 36 +
-     gaps 20 = 1276px; 1290px leaves it a little air. Narrower than this is
-     outside what the design supports, same as a real cockpit panel has a
-     minimum panel width below which the gauges simply don't fit. */
+     the left subdome. The real floor is 270 x 2 + cluster 596 + padding 36 +
+     gaps 20 = 1188px; 1200px leaves it a little air. (The cluster shrank
+     from 680 to 596 when the main dome's own protrusion was brought down —
+     see --bi-dome-size in bi-tokens.css — which loosened this floor; it is
+     re-derived here rather than left at the old, now-inaccurate 680/1276/
+     1290 figures, the same discipline the rest of this file follows.)
+     Narrower than this is outside what the design supports, same as a real
+     cockpit panel has a minimum panel width below which the gauges simply
+     don't fit. */
   min-height: 340px;
-  min-width: 1290px;
+  min-width: 1200px;
   /* UI scale. At 4K a 168px chassis is 7.8% of the screen and a 10px legend
      is 2mm tall; this is the one knob that scales the whole instrument as a
      unit (Foundry has an equivalent global setting — this is ours, so the

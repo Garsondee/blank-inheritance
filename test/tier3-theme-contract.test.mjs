@@ -763,7 +763,7 @@ test("the console width floor is derived from the heavier side, not a sum", () =
   const css = stripComments(read(COMPONENTS));
   const m = css.match(/\.bi-console\s*\{[^}]*min-width:\s*(\d+)px/);
   assert.ok(m, ".bi-console has no min-width");
-  assert.ok(Number(m[1]) >= 1276, `min-width ${m[1]}px is below the measured 1276px floor`);
+  assert.ok(Number(m[1]) >= 1188, `min-width ${m[1]}px is below the measured 1188px floor`);
 });
 
 test("the Direction module sits in the LEFT group, in the ident pod's slot", () => {
@@ -824,4 +824,72 @@ test("small keys and the ident labels clear the 4K readability floor", () => {
   assert.ok(size(".bi-ident__stat-value") >= 11, ".bi-ident__stat-value below 11px");
   assert.ok(size(".bi-macro__key") >= 8, ".bi-macro__key below 8px");
   assert.ok(size(".bi-marquee__cap") >= 10, ".bi-marquee__cap below 10px");
+});
+
+
+/* ==================================================================
+   Pass 10 — the main dome's protrusion was brought down on live
+   feedback ("about half way up the smaller circle displays"), without
+   dragging the flanking subdomes or the HUD's Japanese text down with it.
+   ================================================================== */
+
+test("the main dome's protrusion above the chassis was roughly halved, per live feedback", () => {
+  const tokens = read(TOKENS);
+  const m = tokens.match(/--bi-dome-size:\s*calc\(var\(--bi-bar-height\)\s*\*\s*([\d.]+)\)/);
+  assert.ok(m, "--bi-dome-size must stay expressed as a multiple of --bi-bar-height, not a literal pixel value");
+  const multiplier = Number(m[1]);
+  // Protrusion above the bar = (multiplier - 1) x bar-height, since the dome
+  // is bottom-anchored to the bar's own bottom edge. multiplier=2 gave a
+  // FULL bar-height of protrusion (168px), reported live as looming far
+  // higher than the flanking subdomes; multiplier=1.5 halves that to 84px.
+  assert.equal(multiplier, 1.5,
+    `--bi-dome-size multiplier is ${multiplier}x; expected exactly 1.5x -- half the ORIGINAL ` +
+      "protrusion (a full bar-height) above the bar, matching the request directly");
+});
+
+test("the flanking subdomes' size no longer depends on the main dome's own size", () => {
+  // FOUND LIVE: --bi-dome-half used to be `calc(var(--bi-dome-size) / 2)` --
+  // one formula shared by both instruments. Bringing the main dome down
+  // would therefore have silently shrunk the subdomes too, which nobody
+  // asked for. --bi-dome-half is now its own independent invariant.
+  const tokens = read(TOKENS);
+  const half = tokens.match(/--bi-dome-half:\s*([^;]+);/);
+  assert.ok(half, "--bi-dome-half is missing from bi-tokens.css");
+  assert.doesNotMatch(half[1], /--bi-dome-size/, "--bi-dome-half must not be derived from --bi-dome-size any more");
+  assert.match(half[1], /var\(--bi-bar-height\)/, "--bi-dome-half should be pinned directly to --bi-bar-height");
+});
+
+test("the dome HUD's Japanese text still clears the readable floor after the resize", () => {
+  // A plain "is the px value in this rule >= 12" check (the general
+  // Japanese-floor test above) cannot see this: .bi-hud__jp's font-size is
+  // in SVG USER UNITS, scaled by whatever --bi-dome-size/viewBox ratio is
+  // live at the time, not a literal CSS pixel value. Shrinking the dome
+  // without rescaling this number would pass that generic test while the
+  // real rendered text quietly dropped under the floor -- so this computes
+  // the actual effective size the same way the browser would.
+  const tokens = read(TOKENS);
+  const css = read(COMPONENTS);
+  const html = readFileSync(path.join(repoRoot, "design", "ui", "style-prototype.html"), "utf8");
+
+  const barHeight = Number(tokens.match(/--bi-bar-height:\s*(\d+)px/)[1]);
+  const multiplier = Number(tokens.match(/--bi-dome-size:\s*calc\(var\(--bi-bar-height\)\s*\*\s*([\d.]+)\)/)[1]);
+  const domeSizePx = barHeight * multiplier;
+
+  const viewBoxMatch = html.match(/class="bi-dome__svg" viewBox="0 0 (\d+)/);
+  assert.ok(viewBoxMatch, "could not find the dome HUD's SVG viewBox width in the prototype");
+  const viewBoxWidth = Number(viewBoxMatch[1]);
+
+  const jpRule = css.match(/\.bi-hud__jp\s*\{[^}]*\}/);
+  assert.ok(jpRule, ".bi-hud__jp rule is missing");
+  const jpUnits = Number(jpRule[0].match(/font-size:\s*(\d+(?:\.\d+)?)px/)[1]);
+
+  const scale = domeSizePx / viewBoxWidth;
+  const effectivePx = jpUnits * scale;
+  assert.ok(
+    effectivePx >= 12 - 1e-6,
+    `the dome's Japanese HUD text renders at ~${effectivePx.toFixed(1)}px ` +
+      `(dome ${domeSizePx}px / viewBox ${viewBoxWidth} x ${jpUnits} raw units) -- below the 12px floor. ` +
+      "If --bi-dome-size or the SVG viewBox ever changes again, .bi-hud__jp's raw unit value " +
+      "must be rescaled by the same ratio to compensate."
+  );
 });

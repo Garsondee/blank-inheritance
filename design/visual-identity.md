@@ -560,6 +560,42 @@ off-by-one) that nothing overflows.
 
 ---
 
+## 3h. The main dome, brought down (pass 11)
+
+**Reported live against the running prototype:** at 2x `--bi-bar-height` the main dome's
+protrusion above the chassis (a full bar-height, 168px) read as looming far higher than the two
+flanking subdomes beside it — "make this much lower, about half way up the smaller circle
+displays." `--bi-dome-size` is now `1.5x --bi-bar-height` (252px), halving the protrusion to
+84px — still expressed as a multiple of the bar height rather than a tuned pixel value, the same
+"structural, not tuned" invariant the token already followed.
+
+The one thing this could NOT be allowed to do quietly: `--bi-dome-half` (the flanking subdomes'
+own size) used to be `calc(var(--bi-dome-size) / 2)` — one formula shared by both instruments.
+Leaving that in place would have silently shrunk the subdomes along with the main dome, which
+nobody asked for. `--bi-dome-half` is now pinned directly to `var(--bi-bar-height)` — its own
+independent invariant that happens to land on the same 168px as before, rather than a fraction
+of a number that just changed. A test pins this decoupling down directly.
+
+**The HUD's Japanese text needed the same care.** `.bi-hud__jp`'s `font-size` is in SVG user
+units, scaled by whatever `--bi-dome-size`/viewBox ratio is live — 15 units at the original
+336px dome (0.84 scale) rendered at 12.6px, barely over the 12px floor. Shrinking the dome to
+252px (0.63 scale) without touching that number would have dropped it to ~9.5px, and the
+existing generic "no Japanese text below the floor" test would not have caught it — that test
+reads the raw px value in a CSS rule, and SVG user-unit scaling is invisible to it. Bumped to 20
+units (20 x 0.63 = 12.6px, the exact same effective size as before, not a coincidence) and added
+a dedicated test that computes the real dome-size/viewBox ratio rather than trusting a bare
+number, specifically so this class of regression cannot slip through a future resize unnoticed.
+
+**Knock-on effect, re-derived rather than left stale:** the centre instrument cluster's
+reserved width (`--bi-dome-size + --bi-dome-half * 2 + 8px`) shrank from 680px to 596px, which
+loosens `.bi-console`'s own min-width floor (re-derived from `270 x 2 + cluster + padding +
+gaps`: 1290px → 1200px). Left at the old, safer 1290px would not have been *wrong* — a looser
+floor than necessary never causes overflow — but this file's whole discipline is comments that
+say what is actually true, not what used to be, so it is re-derived and tightened rather than
+quietly stale.
+
+---
+
 ## 4. Foundry v14 structural facts (verified, and one corrects a common assumption)
 
 Read from `templates/views/game.hbs` and `public/css/foundry2.css` in the local v14.367
