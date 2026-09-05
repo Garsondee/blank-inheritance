@@ -9,8 +9,8 @@
    NAMING: .bi-<block>__<element> --<modifier>
 
    CONTENTS
-     1. Hardware primitives      legends, plates, rivets, lamps, keys,
-                                 toggles, knobs, faders, screens, readouts
+     1. Hardware primitives      legends, plates, lamps, keys, toggles,
+                                 knobs, faders, screens, readouts
      2. Paper                    documents, Kanji furniture, stamps,
                                  form rules, REDACTION
      3. Chassis                  pods, the command bar, the macro bank
@@ -79,18 +79,6 @@
 }
 .bi-plate--danger { background: linear-gradient(180deg, #e05a41 0%, var(--bi-vermilion) 46%, #9c2a19 100%); color: #1a0603; text-shadow: 0 1px 0 rgb(255 255 255 / 22%); }
 .bi-plate--brass  { background: var(--bi-mat-brass); color: #241a06; }
-
-/* --- Rivet / screw head ---------------------------------------------- */
-.bi-rivet {
-  width: var(--bi-rivet-size);
-  height: var(--bi-rivet-size);
-  border-radius: 50%;
-  background: linear-gradient(150deg, var(--bi-steel-400) 0%, var(--bi-steel-700) 55%, var(--bi-steel-900) 100%);
-  box-shadow: inset 0 0.5px 0 rgb(255 255 255 / 35%), 0 1px 1px rgb(0 0 0 / 80%);
-  flex: none;
-  pointer-events: none;
-}
-.bi-rivets { display: flex; gap: 10px; align-items: center; pointer-events: none; }
 
 /* --- Ventilation grille ---------------------------------------------- */
 .bi-grille {
@@ -566,8 +554,15 @@
 
 .bi-pod {
   position: relative;
+  /* The two TOP corner radii, named, so .bi-plate-skin's inset score line
+     (below) can read them back and stay CONCENTRIC with whatever corner
+     shape a given pod variant actually declares, instead of hard-coding a
+     radius that only matched one of them. Bottom corners are always square
+     (0) — every pod sits flush on the chassis — so nothing is needed there. */
+  --bi-corner-tl: var(--bi-radius-pod);
+  --bi-corner-tr: var(--bi-radius-pod);
   background: var(--bi-mat-steel);
-  border-radius: var(--bi-radius-pod) var(--bi-radius-pod) 0 0;
+  border-radius: var(--bi-corner-tl) var(--bi-corner-tr) 0 0;
   box-shadow: var(--bi-bevel-up), var(--bi-drop-pod);
   padding: 8px 12px 10px;
   display: flex;
@@ -581,24 +576,17 @@
 
 /* The "lumps and bumps": pods rise to different heights off a shared
    baseline, and their shoulders are asymmetric on purpose. A control
-   panel that was machined in stages, not extruded in one pass. */
-.bi-pod--tall    { border-radius: 22px 22px 0 0; }
-.bi-pod--crest   { border-radius: 30px 12px 0 0; }
-.bi-pod--crest-r { border-radius: 12px 30px 0 0; }
-.bi-pod--slant   { clip-path: polygon(0 14px, 14px 0, 100% 0, 100% 100%, 0 100%); border-radius: 0 var(--bi-radius-pod) 0 0; }
+   panel that was machined in stages, not extruded in one pass. Each variant
+   sets its OWN --bi-corner-tl/tr rather than just border-radius, so the
+   inset score line always knows the real shape it needs to follow. */
+.bi-pod--tall    { --bi-corner-tl: 22px; --bi-corner-tr: 22px; border-radius: var(--bi-corner-tl) var(--bi-corner-tr) 0 0; }
+.bi-pod--crest   { --bi-corner-tl: 30px; --bi-corner-tr: 12px; border-radius: var(--bi-corner-tl) var(--bi-corner-tr) 0 0; }
+.bi-pod--crest-r { --bi-corner-tl: 12px; --bi-corner-tr: 30px; border-radius: var(--bi-corner-tl) var(--bi-corner-tr) 0 0; }
+/* The top-left corner here is a diagonal chamfer cut by clip-path, not a
+   curve — --bi-corner-tl is 0 so the score line correctly stays square
+   there too, rather than rounding a corner that is actually cut straight. */
+.bi-pod--slant   { --bi-corner-tl: 0px; --bi-corner-tr: var(--bi-radius-pod); clip-path: polygon(0 14px, 14px 0, 100% 0, 100% 100%, 0 100%); border-radius: 0 var(--bi-corner-tr) 0 0; }
 .bi-pod--sunk    { background: linear-gradient(180deg, var(--bi-steel-800), var(--bi-steel-900)); box-shadow: var(--bi-bevel-down); }
-
-.bi-pod__rivet {
-  position: absolute;
-  width: var(--bi-rivet-size);
-  height: var(--bi-rivet-size);
-  border-radius: 50%;
-  background: linear-gradient(150deg, var(--bi-steel-400), var(--bi-steel-700) 55%, var(--bi-steel-900));
-  box-shadow: inset 0 0.5px 0 rgb(255 255 255 / 35%), 0 1px 1px rgb(0 0 0 / 80%);
-  pointer-events: none;
-}
-.bi-pod__rivet--tl { top: 6px; left: 7px; }
-.bi-pod__rivet--tr { top: 6px; right: 7px; }
 
 /* --- The command bar -------------------------------------------------- */
 .bi-bar {
@@ -1224,7 +1212,7 @@
 .bi-console__right > * { pointer-events: auto; }
 
 /* =====================================================================
-   PANEL SKIN — riveted plate, and the break lines across it
+   PANEL SKIN — the break lines across a machined plate
    ---------------------------------------------------------------------
    One class every surface can wear, so the frame reads as ONE machine
    rather than a set of unrelated boxes. The panel line runs around the
@@ -1238,10 +1226,20 @@
   box-shadow: var(--bi-bevel-up), 0 4px 14px rgb(0 0 0 / 62%);
 }
 /* Panel lines run around the PERIMETER, inset from the edge, the way a real
-   pressed panel is scored where it meets its frame. The first version drew one
-   horizontal and one vertical line across the middle of every pod at author-
-   chosen percentages, which read as random scoring rather than as machining —
-   arbitrary bisections nothing structural justified.
+   pressed panel is scored where it meets its frame. An earlier version drew
+   one horizontal and one vertical line across the middle of every pod at
+   author-chosen percentages, which read as random scoring rather than as
+   machining — arbitrary bisections nothing structural justified.
+
+   FOUND LIVE: the next version fixed that, but hard-coded this line's own
+   border-radius to a flat 3px regardless of the PANEL's actual corner —
+   pods with a 22-30px rounded shoulder (.bi-pod--tall/--crest/--crest-r)
+   got a sharp-cornered score line nested inside a big rounded corner, which
+   is exactly as wrong-looking as the bisections were. The radius here is now
+   read from the same --bi-corner-tl/--bi-corner-tr each pod variant already
+   declares (see .bi-pod above), minus this line's own 6px inset, floored at
+   0 — CONCENTRIC with the panel's real corner, whatever shape that is,
+   rather than a value that only ever matched one variant by accident.
 
    The line is an engraved cut: a dark score with light catching its lower lip,
    the same physical idea as .bi-legend's engraving at panel scale. */
@@ -1249,44 +1247,34 @@
   content: "";
   position: absolute;
   inset: 6px;
-  border-radius: 3px;
+  border-radius:
+    max(0px, calc(var(--bi-corner-tl, var(--bi-radius-pod)) - 6px))
+    max(0px, calc(var(--bi-corner-tr, var(--bi-radius-pod)) - 6px))
+    0 0;
   pointer-events: none;
   box-shadow:
     inset 0 0 0 1px rgb(0 0 0 / 45%),
     0 0 0 1px rgb(255 255 255 / 6%);
 }
 
-/* Corner notches: the score line breaks at the corners, as a panel scored by a
-   router does. Drawn as four short brass ticks rather than by interrupting the
-   rectangle, which CSS cannot do cleanly. */
+/* Corner ticks mark an actual sharp 90° break, the way tool marks from a
+   router only show up at a corner it actually cut square. Bottom corners
+   are always exactly that (every pod sits flush on the chassis) and get a
+   tick unconditionally. NO top corner in this panel language is ever a
+   plain 90° corner — it is either rounded (base/tall/crest/crest-r) or a
+   diagonal chamfer (--slant, cut by clip-path, not a curve, but still not
+   a square corner either) — so a top tick never has a real corner to mark
+   and is dropped rather than drawn wrong for every variant that exists. */
 .bi-plate-skin::after {
   content: "";
   position: absolute;
   inset: 6px;
   pointer-events: none;
   background:
-    linear-gradient(90deg, var(--bi-brass-dark) 0 9px, transparent 9px) 0 0 / 100% 1px no-repeat,
-    linear-gradient(270deg, var(--bi-brass-dark) 0 9px, transparent 9px) 100% 0 / 100% 1px no-repeat,
     linear-gradient(90deg, var(--bi-brass-dark) 0 9px, transparent 9px) 0 100% / 100% 1px no-repeat,
     linear-gradient(270deg, var(--bi-brass-dark) 0 9px, transparent 9px) 100% 100% / 100% 1px no-repeat;
   opacity: 0.7;
 }
-
-/* A run of rivets along one edge, drawn as a repeating radial so a panel
-   of any length gets an even run without one element per rivet. */
-.bi-rivet-run {
-  position: absolute;
-  pointer-events: none;
-  background-image: radial-gradient(circle at 50% 50%,
-    var(--bi-steel-400) 0 0.9px, var(--bi-steel-900) 1.3px, transparent 2.1px);
-  background-size: 13px 13px;
-  opacity: 0.85;
-  z-index: 1;
-}
-.bi-rivet-run--top    { top: 3px;    left: 10px; right: 10px; height: 13px; }
-.bi-rivet-run--bottom { bottom: 3px; left: 10px; right: 10px; height: 13px; }
-.bi-rivet-run--left   { left: 3px;   top: 10px;  bottom: 10px; width: 13px; }
-.bi-rivet-run--right  { right: 3px;  top: 10px;  bottom: 10px; width: 13px; }
 
 /* =====================================================================
    RAILS
@@ -1308,7 +1296,6 @@
     0 0 0 1px var(--bi-brass-shadow),
     0 10px 30px rgb(0 0 0 / 78%);
 }
-/* A floating panel is a bolted-on box, so it keeps its rivets. */
 .bi-rail--left  { border-left: 2px solid var(--bi-brass-dark); }
 .bi-rail--right { border-right: 2px solid var(--bi-brass-dark); }
 
@@ -1563,12 +1550,26 @@
    THE MARQUEE — a lozenge long enough to actually read
    ===================================================================== */
 
+/* FOUND LIVE: this used `border-radius: calc(height/2)`, which is a full
+   pill — both ends fully rounded into a capsule/lozenge. The comment on the
+   cap below already said the goal was "a machined bezel rather than a
+   pill"; the radius just never matched that intent. A pill reads as generic
+   software chrome (a search box, a badge) — nothing else in this panel
+   language is that soft. Chamfered corners (cut at an angle, not rounded)
+   are the same move already used on .bi-pod--slant, so this now matches the
+   rest of the panel instead of being the one soft shape in it. */
 .bi-marquee {
+  --bi-marquee-chamfer: 12px;
   position: relative;
   height: var(--bi-marquee-height);
   display: flex;
   align-items: stretch;
-  border-radius: calc(var(--bi-marquee-height) / 2);
+  clip-path: polygon(
+    var(--bi-marquee-chamfer) 0, calc(100% - var(--bi-marquee-chamfer)) 0,
+    100% var(--bi-marquee-chamfer), 100% calc(100% - var(--bi-marquee-chamfer)),
+    calc(100% - var(--bi-marquee-chamfer)) 100%, var(--bi-marquee-chamfer) 100%,
+    0 calc(100% - var(--bi-marquee-chamfer)), 0 var(--bi-marquee-chamfer)
+  );
   background: linear-gradient(180deg, var(--bi-steel-800), var(--bi-steel-900));
   box-shadow:
     var(--bi-bevel-down),
@@ -1635,7 +1636,9 @@
   letter-spacing: 0.05em;
   color: var(--bi-phosphor);
   text-shadow: 0 0 7px currentColor;
-  animation: bi-marquee 42s linear infinite;
+  /* Half speed of the original 42s — halving speed means DOUBLING the
+     duration for the same distance, not halving it. */
+  animation: bi-marquee 84s linear infinite;
 }
 /* Hover to hold — a scrolling strip you cannot stop is a strip you
    cannot finish reading. */

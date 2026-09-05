@@ -588,3 +588,66 @@ test(".bi-console declares stated width and height floors, not silent collapse",
       "(Checks, Actions). Narrower and they no longer fit side by side."
   );
 });
+
+/* ==================================================================
+   Pass 6 — rivets removed, concentric corners, a sharper marquee.
+   ================================================================== */
+
+test("rivets are gone, everywhere", () => {
+  // "Get rid of rivets, they don't work" — removed entirely rather than
+  // hidden, so this stays true rather than needing constant re-checking.
+  for (const file of [TOKENS, COMPONENTS]) {
+    assert.ok(
+      !/rivet/i.test(read(file)),
+      `${path.relative(repoRoot, file)} still mentions rivets`
+    );
+  }
+});
+
+test("a pod's inset panel line stays concentric with its own corner radius", () => {
+  // FOUND LIVE: the score line hard-coded border-radius:3px regardless of
+  // the panel's actual corner, so a 22-30px rounded shoulder got a sharp
+  // line nested inside a round one. Every --bi-corner-tl/tr a pod variant
+  // declares must be read back by the line, not re-guessed.
+  const css = read(COMPONENTS);
+  const before = css.match(/\.bi-plate-skin::before\s*\{[^}]*\}/);
+  assert.ok(before, ".bi-plate-skin::before rule is missing");
+  assert.match(
+    before[0], /var\(--bi-corner-tl/,
+    "the inset line's border-radius must read --bi-corner-tl, not a literal value"
+  );
+  assert.match(before[0], /var\(--bi-corner-tr/, "…and --bi-corner-tr for the other top corner");
+  assert.ok(
+    !/border-radius:\s*\d+px;/.test(before[0]),
+    "the inset line must not fall back to a flat literal radius"
+  );
+
+  // Every pod variant that sets its own top corners must expose them as
+  // --bi-corner-tl/tr, or the line above has nothing correct to read.
+  for (const variant of [".bi-pod", ".bi-pod--tall", ".bi-pod--crest", ".bi-pod--crest-r", ".bi-pod--slant"]) {
+    const escaped = variant.replace(/[.]/g, "\$&");
+    const rule = css.match(new RegExp(escaped + String.raw`\s*\{[^}]*\}`));
+    assert.ok(rule, `${variant} rule is missing`);
+    assert.match(rule[0], /--bi-corner-tl:/, `${variant} must declare --bi-corner-tl`);
+    assert.match(rule[0], /--bi-corner-tr:/, `${variant} must declare --bi-corner-tr`);
+  }
+});
+
+test("the marquee is chamfered, not a fully-rounded lozenge", () => {
+  const css = read(COMPONENTS);
+  const rule = css.match(/\.bi-marquee\s*\{[^}]*\}/);
+  assert.ok(rule, ".bi-marquee rule is missing");
+  assert.ok(
+    !/border-radius:\s*calc\(var\(--bi-marquee-height\)/.test(rule[0]),
+    ".bi-marquee must not derive a pill radius from half its own height"
+  );
+  assert.match(rule[0], /clip-path:\s*polygon/, ".bi-marquee should cut chamfered corners via clip-path");
+});
+
+test("the marquee scrolls at half its original speed", () => {
+  const run = read(COMPONENTS).match(/\.bi-marquee__run\s*\{[^}]*\}/);
+  assert.ok(run, ".bi-marquee__run rule is missing");
+  const dur = run[0].match(/animation:\s*bi-marquee\s+(\d+)s/);
+  assert.ok(dur, "no animation-duration found on .bi-marquee__run");
+  assert.equal(Number(dur[1]), 84, "expected 84s (double the original 42s — half speed, not half duration)");
+});

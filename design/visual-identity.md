@@ -233,10 +233,14 @@ a letterbox.
 and all three are anchored to the chassis floor, so their centres land on one line by
 construction rather than by adjustment.
 
-**Panel skin.** `.bi-plate-skin` gives any surface hammered steel with two break lines
-placed by `--bi-seam-x` / `--bi-seam-y`, and `.bi-rivet-run` draws an even run of rivets
-along an edge as a repeating radial gradient — no element per rivet. Different seam
-positions per pod read as different pressings bolted to the same frame.
+**Panel skin.** `.bi-plate-skin` gives any surface hammered steel with a single break line
+scored around its perimeter, inset from the edge, concentric with whatever corner radius
+that specific panel actually has — a pod with a 30px rounded shoulder gets a 30px-minus-inset
+line, not a flat value that only matched one variant by accident. Brass corner ticks mark the
+two bottom corners, which are always a genuine 90° break; no pod's top edge ever is (every
+variant is rounded or diagonally chamfered), so no tick is drawn there. Rivets were tried and
+removed — at this scale they read as clutter rather than machining, so the perimeter line and
+the corner ticks are what carry "this is a bolted panel" on their own.
 
 **Alert is a frame state, not a widget.** `bi-console--alert` pulses the top rail, casts
 the scene red and leads the marquee, because a real alarm changes the room.
