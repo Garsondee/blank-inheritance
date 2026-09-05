@@ -14,7 +14,7 @@ Full design rationale: [`design/foundry-module-design.md`](../../design/foundry-
 
 ## Current status: diagnostic test sync, verified against a live instance, now with a two-way reporting loop
 
-`scripts/` creates one test NPC Actor, one test PC Actor (identity fields only, see the comment in `buildCharacterActorData` for why), one Scene placing both, and one JournalEntry with two text pages, using the deterministic-ID and hash-flag mechanisms the real design calls for. **Run against a live Foundry instance 2026-08-22 — 15/15 checks passed** (the JournalEntry generator was added 2026-09-05, GH issue #114 — re-run the macro to get a fresh live count including it).
+`scripts/` creates one test NPC Actor, one test PC Actor (identity fields only, see the comment in `buildCharacterActorData` for why), one Scene placing both, and one JournalEntry with two text pages, using the deterministic-ID and hash-flag mechanisms the real design calls for. **Run against a live Foundry instance 2026-09-05 — 22/22 checks passed**, all four cases (GH issue #114 added the JournalEntry case; the run also caught and fixed a real bug where the persisted report file silently failed to write even though the clipboard copy succeeded — see `writeReportFile`'s comment in `scripts/foundry/io.mjs`).
 
 Split into a pure core and a thin Foundry-touching adapter, enforced by an automated test suite (repo root `test/`, run with `npm test`) — see [`design/testing-strategy.md`](../../design/testing-strategy.md) for why and how:
 - `scripts/core/` — `ids.mjs`, `validate.mjs`, `report.mjs`, `generators/{creature,character,scene,journal}.mjs`. Zero Foundry globals; runs and is unit-tested in plain Node.

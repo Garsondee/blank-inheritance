@@ -78,6 +78,30 @@ test("writeReportFile writes through to the mock's uploaded-files store", async 
   }
 });
 
+test("mock uploadPersistent: the path argument is a directory only, never dir+filename (regression: found live 2026-09-05)", async () => {
+  const { uninstall } = installMockFoundry({ moduleManifest });
+  try {
+    await ensureDirectory("modules/blank-inheritance/storage/test-reports");
+    const file = new File(["hello"], "report.json", { type: "application/json" });
+
+    // The exact shape of the bug: passing dir+filename as the "directory"
+    // must fail, matching the real server's fs.existsSync(destDir) check --
+    // no directory is ever literally named after the report file.
+    const wrongResult = await foundry.applications.apps.FilePicker.implementation.uploadPersistent(
+      "blank-inheritance", "test-reports/report.json", file, {}, { notify: false }
+    );
+    assert.equal(wrongResult, false, "a path that already includes the filename must be rejected, matching the real server");
+
+    const rightResult = await foundry.applications.apps.FilePicker.implementation.uploadPersistent(
+      "blank-inheritance", "test-reports", file, {}, { notify: false }
+    );
+    assert.ok(rightResult, "a directory-only path must succeed");
+    assert.equal(rightResult.path, "test-reports/report.json", "the filename must come from the File object's own .name");
+  } finally {
+    uninstall();
+  }
+});
+
 test("writeReportFile throws if the module manifest lacks persistentStorage (verified real uploadPersistent behavior)", async () => {
   const { uninstall } = installMockFoundry({ moduleManifest: { id: "blank-inheritance", persistentStorage: false } });
   try {

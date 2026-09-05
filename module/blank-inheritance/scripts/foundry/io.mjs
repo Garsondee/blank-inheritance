@@ -40,13 +40,25 @@ export async function ensureDirectory(fullPath) {
   }
 }
 
+/**
+ * uploadPersistent's `path` argument is the DESTINATION DIRECTORY, not a
+ * full file path — verified against the real server (foundryvtt's
+ * dist/files/local.mjs, LocalFileStorage#upload: `path.join(root, path)` is
+ * the directory it requires to already exist, and `path.join(thatDir,
+ * file.name)` — the File object's own name, appended separately — is the
+ * actual destination). Passing the filename in `path` too (as this
+ * originally did) makes the server look for a directory literally named
+ * after the report file, fail its existence check, and silently return
+ * `false`. Found live, 2026-09-05: the clipboard copy of the report
+ * succeeded, but the persisted JSON file did not, because of exactly this.
+ */
 export async function writeReportFile(report) {
-  const dirPath = `modules/${MODULE_ID}/storage/test-reports`;
-  await ensureDirectory(dirPath);
+  const dirName = "test-reports";
+  await ensureDirectory(`modules/${MODULE_ID}/storage/${dirName}`);
   const filename = `sync-report-${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
-  const relativePath = `test-reports/${filename}`;
+  const relativePath = `${dirName}/${filename}`;
   const file = new File([JSON.stringify(report, null, 2)], filename, { type: "application/json" });
-  const result = await foundry.applications.apps.FilePicker.implementation.uploadPersistent(MODULE_ID, relativePath, file, {}, { notify: false });
+  const result = await foundry.applications.apps.FilePicker.implementation.uploadPersistent(MODULE_ID, dirName, file, {}, { notify: false });
   if (!result || result === false) {
     throw new Error("uploadPersistent did not return a success result — see console for the FilePicker response.");
   }

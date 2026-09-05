@@ -92,7 +92,7 @@ function makeMockFilePicker(world) {
         }
         world.directories.add(dirPath);
       },
-      async uploadPersistent(moduleId, relativePath, file, _options, _notifyOpts) {
+      async uploadPersistent(moduleId, targetDir, file, _options, _notifyOpts) {
         // Verified against file-picker.mjs's real uploadPersistent: it looks
         // up game.modules.get(packageId) and throws synchronously if the
         // package is missing or lacks persistentStorage, BEFORE ever
@@ -104,11 +104,22 @@ function makeMockFilePicker(world) {
             `Package ${moduleId} does not have persistent storage enabled. Set the "persistentStorage" flag to true in the package manifest.`
           );
         }
-        const fullDir = `${pkg.type}s/${pkg.id}/storage/${relativePath.split("/").slice(0, -1).join("/")}`;
+        // `targetDir` is a DIRECTORY, never a full file path -- confirmed
+        // against the real server (dist/files/local.mjs#upload): the
+        // filename always comes from the File object's own .name, appended
+        // separately server-side, never taken from the path argument. This
+        // mock originally stripped a trailing segment off its path argument
+        // assuming it might already be dir+filename, which quietly matched
+        // a real bug in writeReportFile instead of catching it (found live,
+        // 2026-09-05 -- see that function's own comment). Don't reintroduce
+        // that leniency; a caller passing dir+filename here must fail, same
+        // as it would against the real server.
+        const fullDir = `${pkg.type}s/${pkg.id}/storage/${targetDir}`;
         if (!world.directories.has(fullDir)) {
           return false;
         }
         const content = await file.text();
+        const relativePath = `${targetDir}/${file.name}`;
         world.uploadedFiles.set(`${pkg.type}s/${pkg.id}/storage/${relativePath}`, content);
         return { path: relativePath };
       }
