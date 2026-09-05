@@ -1449,9 +1449,29 @@
   padding: 1px 1px 6px;
   border-bottom: 1px solid var(--bi-brass-dark);
 }
-/* Only the list inside a panel scrolls; the heading stays put. */
+/* Only the list inside a panel scrolls; the heading stays put.
+   FOUND LIVE, reported against the running prototype: lit lamps (Structural,
+   Signals, and the Known-facts markers) were showing with their left half
+   of the glow missing -- a hard flat cut, not a fade. Root cause is a real
+   CSS Overflow spec rule, not a typo: this rule set overflow-y:auto and left
+   overflow-x unset (initial value visible); per spec, "if one of overflow-x
+   or overflow-y is visible and the other is not, the visible one computes
+   to auto instead" -- so overflow-x was SILENTLY auto all along
+   (confirmed live: getComputedStyle(...).overflowX === "auto"), clipping
+   anything that painted past this element's own left edge, including a lit
+   lamp's box-shadow glow (.bi-lamp--lit's `0 0 10px 1px` reaches ~11px past
+   the lamp's own box). overflow-x is declared explicitly below -- not to
+   change the behaviour, which was already exactly this, but so the next
+   person reading this rule sees a real decision instead of rediscovering an
+   invisible spec gotcha the hard way. The actual fix is the row padding
+   (.bi-role, .bi-unit, and the Known-facts row in console.js all now keep
+   >=16px of clearance on the left for exactly this reason) -- padding is
+   the only thing that can satisfy "scrolls vertically, never clips
+   horizontally" at once, since overflow-x cannot be set to plain `visible`
+   while overflow-y scrolls; the spec does not allow that combination. */
 .bi-rail__scroll {
   overflow-y: auto;
+  overflow-x: hidden;
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -1499,7 +1519,11 @@
   align-items: center;
   gap: 11px;
   width: 100%;
-  padding: 10px 12px;
+  /* Left padding is deliberately wider than the right: the lamp is the
+     first child, and .bi-rail__scroll's own left edge is a real clip
+     boundary (see the comment there) -- 16px clears a lit lamp's ~11px
+     glow with real margin, not a bare pass. */
+  padding: 10px 12px 10px 16px;
   border: none;
   cursor: pointer;
   border-radius: 4px;
@@ -1562,7 +1586,10 @@
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 9px 11px;
+  /* Left padding wider than the rest for the same reason .bi-role's is --
+     the lamp is the first grid cell, sitting right at .bi-rail__scroll's
+     own clip boundary otherwise. See the comment on .bi-rail__scroll. */
+  padding: 9px 11px 9px 16px;
   border: none;
   cursor: pointer;
   border-radius: 4px;

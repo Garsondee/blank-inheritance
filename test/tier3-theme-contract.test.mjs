@@ -893,3 +893,96 @@ test("the dome HUD's Japanese text still clears the readable floor after the res
       "must be rescaled by the same ratio to compensate."
   );
 });
+
+
+/* ==================================================================
+   Pass 12 — lit lamps in the floating rails were showing with half
+   their glow clipped: a real CSS Overflow spec gotcha
+   (overflow-y:auto with overflow-x left unset silently computes BOTH
+   axes to auto), not a typo anywhere. Fixed by declaring overflow-x
+   explicitly and giving every lamp-bearing row real left clearance.
+   ================================================================== */
+
+/** Parse a CSS padding SHORTHAND value into {top,right,bottom,left} px. */
+function parsePadding(value) {
+  const parts = value.trim().split(/\s+/).map((p) => {
+    const m = p.match(/^(-?\d+(?:\.\d+)?)px$/);
+    return m ? Number(m[1]) : null;
+  });
+  if (parts.some((p) => p === null)) return null;
+  if (parts.length === 1) return { top: parts[0], right: parts[0], bottom: parts[0], left: parts[0] };
+  if (parts.length === 2) return { top: parts[0], bottom: parts[0], right: parts[1], left: parts[1] };
+  if (parts.length === 3) return { top: parts[0], right: parts[1], left: parts[1], bottom: parts[2] };
+  if (parts.length === 4) return { top: parts[0], right: parts[1], bottom: parts[2], left: parts[3] };
+  return null;
+}
+
+/** A lit lamp's worst-case outward bleed in px, computed from its own
+ *  box-shadow rule rather than assumed -- so this stays correct if the
+ *  glow is ever retuned. */
+function litLampGlowReach(css) {
+  const rule = css.match(/\.bi-lamp--lit\s*\{[^}]*\}/);
+  if (!rule) return null;
+  const decl = rule[0].match(/box-shadow:\s*([^;]+);/s);
+  if (!decl) return null;
+  let maxReach = 0;
+  for (const layer of decl[1].split(",")) {
+    if (/\binset\b/.test(layer)) continue;   // inset shadows don't bleed outward
+    // box-shadow layers are `offsetX offsetY [blur [spread]] color`, and a
+    // zero length is valid unitless CSS (`0`, not `0px`) — this reads the
+    // leading run of length tokens (however many there are) and stops at
+    // the colour (var(...), rgb(...), a hex value), rather than assuming
+    // every length carries a px suffix.
+    const m = layer.trim().match(/^((?:-?[\d.]+(?:px)?\s+){1,3}-?[\d.]+(?:px)?)/);
+    if (!m) continue;
+    const nums = m[1].trim().split(/\s+/).map((s) => Number(s.replace("px", "")));
+    const blur = nums[2] || 0;
+    const spread = nums[3] || 0;
+    maxReach = Math.max(maxReach, blur + spread);
+  }
+  return maxReach;
+}
+
+test("floating-rail scroll areas declare overflow-x explicitly, not by CSS Overflow accident", () => {
+  // FOUND LIVE: .bi-rail__scroll set overflow-y:auto and left overflow-x
+  // unset. Per the CSS Overflow spec, "if one of overflow-x/overflow-y is
+  // visible and the other is not, the visible one computes to auto
+  // instead" -- so overflow-x was silently auto all along, clipping a lit
+  // lamp's box-shadow glow at the container's own left edge. Confirmed
+  // live: getComputedStyle(scrollEl).overflowX === "auto" before this fix.
+  const css = read(COMPONENTS);
+  const rule = css.match(/\.bi-rail__scroll\s*\{[^}]*\}/);
+  assert.ok(rule, ".bi-rail__scroll rule is missing");
+  assert.match(rule[0], /overflow-x:\s*hidden/,
+    ".bi-rail__scroll must declare overflow-x explicitly -- leaving it unset lets the " +
+      "CSS Overflow spec silently pick `auto` for it, which is the exact bug this pins down");
+});
+
+test("every lamp-bearing rail row keeps enough left clearance to clear a lit lamp's own glow", () => {
+  const css = read(COMPONENTS);
+  const reach = litLampGlowReach(css);
+  assert.ok(reach > 0, "could not compute .bi-lamp--lit's glow reach from its own box-shadow rule");
+
+  for (const sel of [".bi-role", ".bi-unit"]) {
+    const rule = css.match(new RegExp(String.raw`${sel.replace(".", "\\.")}\s*\{[^}]*\}`));
+    assert.ok(rule, `${sel} rule is missing`);
+    const m = rule[0].match(/padding:\s*([^;]+);/);
+    assert.ok(m, `${sel} has no padding declaration`);
+    const pad = parsePadding(m[1]);
+    assert.ok(pad, `${sel}'s padding shorthand "${m[1]}" could not be parsed`);
+    assert.ok(
+      pad.left > reach,
+      `${sel}'s left padding (${pad.left}px) does not clear a lit lamp's glow ` +
+        `(reaches ~${reach}px) -- its lamp is the first child, sitting flush against ` +
+        `.bi-rail__scroll's own clipping edge otherwise`
+    );
+  }
+
+  const js = readFileSync(path.join(repoRoot, "design", "ui", "console.js"), "utf8");
+  const factsRow = js.match(/padding:\s*2px\s+[\d.]+px\s+2px\s+([\d.]+)px/);
+  assert.ok(factsRow, "the Known-facts row template no longer sets the expected 4-value padding shorthand");
+  assert.ok(
+    Number(factsRow[1]) > reach,
+    `the Known-facts row's left padding (${factsRow[1]}px) does not clear a lit lamp's glow (~${reach}px)`
+  );
+});

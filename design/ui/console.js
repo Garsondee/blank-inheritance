@@ -160,7 +160,7 @@ $("#units").innerHTML = UNITS.map((u, i) => `
 
 function renderFacts() {
   $("#facts").innerHTML = FACTS.map((f) => `
-    <div style="display:flex;align-items:center;gap:7px;padding:2px 0">
+    <div style="display:flex;align-items:center;gap:7px;padding:2px 8px 2px 16px">
       <span class="bi-lamp ${f.tone === "danger" ? "bi-lamp--red" : f.tone === "warn" ? "bi-lamp--amber" : ""} bi-lamp--lit" style="width:8px;height:8px"></span>
       <span style="font-family:var(--bi-font-condensed);font-size:13px;font-weight:600;letter-spacing:.02em;line-height:1.35;color:var(--bi-bone);white-space:normal">${f.text}</span>
     </div>`).join("");

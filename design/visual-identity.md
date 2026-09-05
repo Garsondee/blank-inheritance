@@ -596,6 +596,44 @@ quietly stale.
 
 ---
 
+## 3i. Lit lamps clipped at the rail edge: a real CSS Overflow spec gotcha (pass 13)
+
+**Reported live, against the running prototype:** the Structural and Signals station lamps (and
+the Known-facts lamps) were rendering with the left half of their glow missing — a hard flat
+cut, not a soft fade. Live geometry inspection (`getBoundingClientRect`) showed every lamp's own
+13px/11px/8px circle fully inside its row with room to spare — the BUG wasn't in any element's
+position. `getComputedStyle(.bi-rail__scroll).overflowX` was the real tell: `"auto"`, even though
+the rule only ever declared `overflow-y: auto`.
+
+This is a genuine CSS Overflow Module rule, not an authoring slip: *"if one of `overflow-x` or
+`overflow-y` is `visible` and the other is not, the `visible` one computes to `auto` instead."*
+Leaving `overflow-x` unset (its initial value is `visible`) while setting `overflow-y: auto`
+does not give you scroll-vertically/paint-freely-horizontally — the browser silently promotes
+the unset axis to `auto` too, and `auto` clips anything painted past its own border edge,
+including a **lit lamp's box-shadow glow** (`.bi-lamp--lit`'s `0 0 10px 1px var(--lamp)` reaches
+~11px past the lamp's own box). The lamp's circle itself was never clipped; only the glow that
+makes a "lit" state actually read as lit was — and only on whichever side had the least
+clearance, which for a first-child lamp with a tight row padding is the left.
+
+**Fix, in two parts, because only one of them is real:**
+1. `.bi-rail__scroll` now declares `overflow-x: hidden` explicitly. This changes nothing about
+   the actual clipping (it was already exactly this) — it exists so the next person reading the
+   rule sees a real, documented decision instead of an invisible spec gotcha waiting to be
+   rediscovered the hard way, the same reason `--bi-corner-tl/tr` exists instead of a bare radius.
+2. `.bi-role`, `.bi-unit`, and the Known-facts row (`console.js`, previously `padding: 2px 0` —
+   *zero* horizontal padding) all now keep **at least 16px of left clearance**, comfortably past
+   the lamp glow's ~11px computed reach. Padding is the only real fix here: `overflow-x` cannot
+   be set to plain `visible` while `overflow-y` scrolls — the spec explicitly disallows that
+   combination — so there is no way to make the container simply stop clipping; the content has
+   to stay clear of the boundary instead.
+
+Two new tests: one asserts `overflow-x` is declared, not left to spec-default inference; the
+other computes the lit lamp's actual glow reach from its own `box-shadow` rule and checks every
+lamp-bearing row's real left padding against it, rather than trusting a specific pixel number
+that could go stale the next time the glow is retuned.
+
+---
+
 ## 4. Foundry v14 structural facts (verified, and one corrects a common assumption)
 
 Read from `templates/views/game.hbs` and `public/css/foundry2.css` in the local v14.367
