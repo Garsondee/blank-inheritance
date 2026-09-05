@@ -134,6 +134,90 @@ test("runDiagnosticTestSync: full run against the mock produces an all-passing r
   }
 });
 
+test("runDiagnosticTestSync: a second run with unchanged fixtures skips all three cases, without recreating any of them (GH issue #113)", async (t) => {
+  if (!templateJson) {
+    t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadFixtureModuleFiles(), templateJson });
+  try {
+    const creatureId = await deriveFoundryId("test-fixture-creature-001");
+    const characterId = await deriveFoundryId("test-fixture-kid-001");
+    const sceneId = await deriveFoundryId("test-fixture-scene-001");
+
+    const firstRun = await runDiagnosticTestSync();
+    assert.equal(firstRun.fatalError, null);
+    for (const result of firstRun.results) {
+      assert.equal(result.skipped, false, `expected the first-ever run to create, not skip, ${result.sourceId}`);
+    }
+    // Capture object identity, not just id equality -- a skip that quietly
+    // deleted and recreated an identical-looking document would still pass
+    // an id/flag comparison, but MockDocument.create() always makes a new
+    // object instance (see test/support/mock-foundry.mjs), so only a genuine
+    // skip (no teardown, no create call at all) leaves these references untouched.
+    const creatureRefAfterFirstRun = world.actors.get(creatureId);
+    const characterRefAfterFirstRun = world.actors.get(characterId);
+    const sceneRefAfterFirstRun = world.scenes.get(sceneId);
+    assert.ok(creatureRefAfterFirstRun && characterRefAfterFirstRun && sceneRefAfterFirstRun);
+
+    const secondRun = await runDiagnosticTestSync();
+    assert.equal(secondRun.fatalError, null);
+    for (const result of secondRun.results) {
+      assert.equal(result.skipped, true, `expected the second run against unchanged fixtures to skip ${result.sourceId}`);
+      assert.deepEqual(result.checks.filter((c) => !c.pass), [], "a skipped case must still validate the existing document, not just assume it's fine");
+    }
+    assert.equal(secondRun.results.length, 3);
+
+    assert.strictEqual(world.actors.get(creatureId), creatureRefAfterFirstRun, "the creature Actor must be the SAME object -- never torn down and recreated");
+    assert.strictEqual(world.actors.get(characterId), characterRefAfterFirstRun, "the character Actor must be the SAME object");
+    assert.strictEqual(world.scenes.get(sceneId), sceneRefAfterFirstRun, "the Scene must be the SAME object");
+  } finally {
+    uninstall();
+  }
+});
+
+test("runDiagnosticTestSync: only the case whose source actually changed gets recreated -- the other two stay skipped", async (t) => {
+  if (!templateJson) {
+    t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const moduleFiles = loadFixtureModuleFiles();
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles, templateJson });
+  try {
+    const creatureId = await deriveFoundryId("test-fixture-creature-001");
+    const characterId = await deriveFoundryId("test-fixture-kid-001");
+    const sceneId = await deriveFoundryId("test-fixture-scene-001");
+
+    await runDiagnosticTestSync();
+    const creatureRefAfterFirstRun = world.actors.get(creatureId);
+    const characterRefAfterFirstRun = world.actors.get(characterId);
+    const sceneRefAfterFirstRun = world.scenes.get(sceneId);
+
+    // Mutate only the creature fixture in place -- moduleFiles is the same
+    // object instance the mock's fetch() reads from, so this is visible to
+    // the very next runDiagnosticTestSync() call without reinstalling anything.
+    moduleFiles["data/_test-fixtures/test-creature.json"] = {
+      ...moduleFiles["data/_test-fixtures/test-creature.json"],
+      name: "A Genuinely Different Name",
+    };
+
+    const secondRun = await runDiagnosticTestSync();
+    const creatureResult = secondRun.results.find((r) => r.entityLabel === "creature");
+    const characterResult = secondRun.results.find((r) => r.entityLabel === "character");
+    const sceneResult = secondRun.results.find((r) => r.foundryType === "Scene");
+
+    assert.equal(creatureResult.skipped, false, "the changed creature must be recreated, not skipped");
+    assert.equal(characterResult.skipped, true, "the unchanged character must still be skipped");
+    assert.equal(sceneResult.skipped, true, "the unchanged scene must still be skipped");
+
+    assert.notStrictEqual(world.actors.get(creatureId), creatureRefAfterFirstRun, "the changed creature must be a genuinely NEW object, not just still present");
+    assert.strictEqual(world.actors.get(characterId), characterRefAfterFirstRun, "the untouched character must remain the exact same object");
+    assert.strictEqual(world.scenes.get(sceneId), sceneRefAfterFirstRun, "the untouched scene must remain the exact same object");
+  } finally {
+    uninstall();
+  }
+});
+
 test("runDiagnosticTestSync: a clipboard failure does not fail the whole sync (best-effort, per design/foundry-module-design.md's Safety section)", async (t) => {
   if (!templateJson) {
     t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");

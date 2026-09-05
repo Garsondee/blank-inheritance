@@ -27,6 +27,19 @@ async function teardown(collection, id) {
 }
 
 /**
+ * Compares a freshly computed source hash against whatever hash flag is
+ * already stored on an existing document at that deterministic id. Returns
+ * false (never skip) if there's no existing document, or no stored hash yet
+ * — this is the read half of the write-only hash-flag mechanism that's
+ * existed since Stage 1 (`contentHash` was always computed and stored, but
+ * nothing compared against it until now — GH issue #113).
+ */
+function shouldSkip(existingDocument, freshHash) {
+  if (!existingDocument) return false;
+  return existingDocument.getFlag(FLAG_SCOPE, "sourceHash") === freshHash;
+}
+
+/**
  * Run one case in isolation: if it throws, report that as a failed result
  * for THIS case only and keep going, rather than the whole sync aborting
  * because one case failed. (Gap found while bootstrapping the test suite,
@@ -54,6 +67,13 @@ async function runCreatureCase(actorIdBySourceId) {
   const creatureSource = await fetchModuleJson("data/_test-fixtures/test-creature.json");
   const creatureData = await buildCreatureActorData(creatureSource);
   const creatureHash = await contentHash(creatureSource);
+
+  const existing = game.actors.get(creatureData._id);
+  if (shouldSkip(existing, creatureHash)) {
+    actorIdBySourceId[creatureSource.id] = existing.id;
+    return { ...(await validateActor(existing, creatureSource, creatureData._id, "creature")), skipped: true };
+  }
+
   await teardown(game.actors, creatureData._id);
   const createdCreature = await Actor.create(creatureData, { keepId: true });
   if (createdCreature) {
@@ -61,13 +81,20 @@ async function runCreatureCase(actorIdBySourceId) {
     await createdCreature.setFlag(FLAG_SCOPE, "sourceHash", creatureHash);
     actorIdBySourceId[creatureSource.id] = createdCreature.id;
   }
-  return validateActor(createdCreature, creatureSource, creatureData._id, "creature");
+  return { ...(await validateActor(createdCreature, creatureSource, creatureData._id, "creature")), skipped: false };
 }
 
 async function runCharacterCase(actorIdBySourceId) {
   const characterSource = await fetchModuleJson("data/_test-fixtures/test-character.json");
   const characterData = await buildCharacterActorData(characterSource);
   const characterHash = await contentHash(characterSource);
+
+  const existing = game.actors.get(characterData._id);
+  if (shouldSkip(existing, characterHash)) {
+    actorIdBySourceId[characterSource.id] = existing.id;
+    return { ...(await validateActor(existing, characterSource, characterData._id, "character")), skipped: true };
+  }
+
   await teardown(game.actors, characterData._id);
   const createdCharacter = await Actor.create(characterData, { keepId: true });
   if (createdCharacter) {
@@ -75,20 +102,26 @@ async function runCharacterCase(actorIdBySourceId) {
     await createdCharacter.setFlag(FLAG_SCOPE, "sourceHash", characterHash);
     actorIdBySourceId[characterSource.id] = createdCharacter.id;
   }
-  return validateActor(createdCharacter, characterSource, characterData._id, "character");
+  return { ...(await validateActor(createdCharacter, characterSource, characterData._id, "character")), skipped: false };
 }
 
 async function runSceneCase(actorIdBySourceId) {
   const sceneSource = await fetchModuleJson("data/_test-fixtures/test-scene.json");
   const sceneData = await buildSceneData(sceneSource, actorIdBySourceId);
   const sceneHash = await contentHash(sceneSource);
+
+  const existing = game.scenes.get(sceneData._id);
+  if (shouldSkip(existing, sceneHash)) {
+    return { ...(await validateScene(existing, sceneSource, sceneData._id, actorIdBySourceId)), skipped: true };
+  }
+
   await teardown(game.scenes, sceneData._id);
   const createdScene = await Scene.create(sceneData, { keepId: true, keepEmbeddedIds: true });
   if (createdScene) {
     await createdScene.setFlag(FLAG_SCOPE, "sourceId", sceneSource.id);
     await createdScene.setFlag(FLAG_SCOPE, "sourceHash", sceneHash);
   }
-  return validateScene(createdScene, sceneSource, sceneData._id, actorIdBySourceId);
+  return { ...(await validateScene(createdScene, sceneSource, sceneData._id, actorIdBySourceId)), skipped: false };
 }
 
 export async function runDiagnosticTestSync() {

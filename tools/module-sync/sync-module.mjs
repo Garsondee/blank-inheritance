@@ -58,8 +58,8 @@ async function main() {
   if (values["dry-run"]) {
     console.log("=== --dry-run: comparing against remote WITHOUT uploading ===");
   } else {
-    console.log(`=== 2. Uploading to ${config.remoteHost}:${config.remoteDir} ===`);
-    await uploadDirectory(config);
+    console.log(`=== 2. Uploading to ${config.remoteHost}:${config.remoteDir} (${localMap.size} files, one at a time -- see remote.mjs for why) ===`);
+    await uploadDirectory({ ...config, localMap });
   }
 
   console.log("=== 3. Remote checksums ===");

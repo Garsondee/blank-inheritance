@@ -3,13 +3,15 @@
 export function summarizeReport(report) {
   let total = 0;
   let passed = 0;
+  let skipped = 0;
   for (const result of report.results) {
+    if (result.skipped) skipped += 1;
     for (const c of result.checks) {
       total += 1;
       if (c.pass) passed += 1;
     }
   }
-  return { total, passed, failed: total - passed };
+  return { total, passed, failed: total - passed, skipped };
 }
 
 export function reportToHtml(report, summary) {
@@ -21,13 +23,14 @@ export function reportToHtml(report, summary) {
             `<tr style="color:${c.pass ? "inherit" : "#c0392b"}"><td>${c.label}</td><td>${JSON.stringify(c.expected)}</td><td>${JSON.stringify(c.actual)}</td><td>${c.pass ? "✓" : "✗ FAIL"}</td></tr>`
         )
         .join("");
-      return `<tr><td colspan="4"><strong>${result.foundryType}: ${result.sourceId}</strong> (id ${result.actualId === result.expectedId ? "OK" : "MISMATCH"})</td></tr>${checkRows}`;
+      const skipNote = result.skipped ? ` <em>(unchanged since last sync — skipped, not recreated)</em>` : "";
+      return `<tr><td colspan="4"><strong>${result.foundryType}: ${result.sourceId}</strong> (id ${result.actualId === result.expectedId ? "OK" : "MISMATCH"})${skipNote}</td></tr>${checkRows}`;
     })
     .join("");
   return `
     <div class="blank-inheritance-report">
       <h3>Blank Inheritance — Diagnostic Test Sync</h3>
-      <p><strong>${summary.passed}/${summary.total}</strong> checks passed${summary.failed ? `, <strong style="color:#c0392b">${summary.failed} failed</strong>` : ""}.</p>
+      <p><strong>${summary.passed}/${summary.total}</strong> checks passed${summary.failed ? `, <strong style="color:#c0392b">${summary.failed} failed</strong>` : ""}${summary.skipped ? `, <strong>${summary.skipped} skipped</strong> (unchanged since last sync)` : ""}.</p>
       ${report.fatalError ? `<p style="color:#c0392b"><strong>Did not complete:</strong> ${report.fatalError}</p>` : ""}
       <table style="width:100%; font-size: 0.85em;">
         <tr><th>Check</th><th>Expected</th><th>Actual</th><th></th></tr>
@@ -51,7 +54,7 @@ export function reportToClipboardText(report, summary) {
   const lines = [
     "Blank Inheritance — Diagnostic Test Sync Report",
     `Timestamp: ${report.timestamp}`,
-    `Result: ${summary.passed}/${summary.total} checks passed${summary.failed ? ` (${summary.failed} FAILED)` : ""}`
+    `Result: ${summary.passed}/${summary.total} checks passed${summary.failed ? ` (${summary.failed} FAILED)` : ""}${summary.skipped ? ` (${summary.skipped} skipped, unchanged)` : ""}`
   ];
   if (report.fatalError) lines.push(`Fatal error: ${report.fatalError}`);
   lines.push("");

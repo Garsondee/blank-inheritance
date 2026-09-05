@@ -14,6 +14,7 @@
  */
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import path from "node:path";
 import { parseChecksumLines } from "./checksums.mjs";
 
 const execFileAsync = promisify(execFile);
@@ -30,16 +31,41 @@ const PSCP = "C:\\Program Files\\PuTTY\\pscp.exe";
  * @param {string} config.remoteHost - "user@host"
  */
 
-/** Recursively uploads localDir's *contents* into remoteDir (overwrite, no delete of anything not present locally -- see the module README for that limitation). */
-export async function uploadDirectory({ localDir, remoteDir, keyPath, hostKey, remoteHost }) {
-  await execFileAsync(PSCP, [
-    "-r",
-    "-i", keyPath,
-    "-hostkey", hostKey,
-    "-batch",
-    `${localDir}\\.`,
-    `${remoteHost}:${remoteDir}/`,
-  ]);
+/**
+ * Uploads every file named in localMap (a path->hash Map, exactly what
+ * computeLocalChecksums() returns -- sync-module.mjs already computes one
+ * before calling this, so it's passed in rather than re-walked here) into
+ * remoteDir, one file at a time.
+ *
+ * Deliberately NOT `pscp -r localDir/. remote:dir/` -- found by hand,
+ * 2026-09-05: a single recursive pscp reliably CREATES files that don't
+ * exist remotely yet, but does not reliably UPDATE files that already exist
+ * at that path from a previous sync (confirmed reproducible: two files
+ * edited in the same run were silently left at their old content after a
+ * recursive push reported success, while a plain single-file pscp of the
+ * exact same file overwrote it correctly every time). Verification (see
+ * sync-module.mjs's checksum diff) is exactly what caught this -- but a
+ * "100% reliable" push needs to actually not fail, not just detect that it
+ * did. File-by-file is slower for many files but has none of that ambiguity.
+ */
+export async function uploadDirectory({ localDir, remoteDir, keyPath, hostKey, remoteHost, localMap }) {
+  const remoteDirs = new Set();
+  for (const relativePath of localMap.keys()) {
+    const remoteFileDir = path.posix.dirname(`${remoteDir}/${relativePath}`);
+    remoteDirs.add(remoteFileDir);
+  }
+  const mkdirCommand = [...remoteDirs].map((d) => `mkdir -p '${d}'`).join(" && ");
+  await execFileAsync(PLINK, ["-ssh", "-i", keyPath, "-hostkey", hostKey, "-batch", remoteHost, mkdirCommand]);
+
+  for (const relativePath of localMap.keys()) {
+    await execFileAsync(PSCP, [
+      "-i", keyPath,
+      "-hostkey", hostKey,
+      "-batch",
+      path.join(localDir, relativePath),
+      `${remoteHost}:${remoteDir}/${relativePath}`,
+    ]);
+  }
 }
 
 /** Runs sha256sum over every file under remoteDir, returns the same Map shape as computeLocalChecksums(). */

@@ -21,6 +21,7 @@ This only pushes files onto disk in the module's `data`/`scripts` folders — it
 - `remote.mjs` — the only file allowed to shell out to `plink`/`pscp`. Not unit tested (needs a real key, a real reachable server, PuTTY installed at a fixed path) — Tier-5-equivalent, exercised by actually running the tool, not by CI. Uses `execFile` with an argument array rather than a shell string, specifically to avoid the nested-quoting bugs that bit earlier scratchpad versions of this script.
 - `sync-module.mjs` — the CLI entry point wiring the above together.
 
-## Known limitation
+## Known limitations
 
-This is overwrite-and-verify, not a mirror. A file deleted locally is reported as "only remote" but is **not** deleted from the server — deleting something that turns out to still matter is a worse failure mode than a harmless stale file sitting there. Remove stale remote files by hand once you've confirmed they're really not needed.
+- This is overwrite-and-verify, not a mirror. A file deleted locally is reported as "only remote" but is **not** deleted from the server — deleting something that turns out to still matter is a worse failure mode than a harmless stale file sitting there. Remove stale remote files by hand once you've confirmed they're really not needed.
+- Uploads happen one file at a time, not via a single recursive `pscp -r`. Found by hand, 2026-09-05: a single recursive push reliably *creates* files that don't exist remotely yet, but does not reliably *update* files that already exist there from a previous sync — confirmed reproducible (two files edited in the same run were silently left at their old content after a recursive push reported success), and confirmed fixed by uploading each file individually instead. Slower for a directory with many files, but the checksum verification step is what caught this in the first place — "the copy command exited 0" was never actually proof.

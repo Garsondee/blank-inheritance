@@ -125,6 +125,21 @@ test("validateActor + summarizeReport: a matching Actor passes every check", asy
   assert.equal(summary.failed, 0, `expected all checks to pass, got: ${JSON.stringify(result.checks.filter((c) => !c.pass))}`);
 });
 
+test("summarizeReport: counts skipped results separately from pass/fail, without affecting the check totals", () => {
+  const skippedResult = { skipped: true, checks: [{ pass: true }, { pass: true }] };
+  const createdResult = { skipped: false, checks: [{ pass: true }, { pass: false }] };
+  const summary = summarizeReport({ results: [skippedResult, createdResult] });
+  assert.equal(summary.skipped, 1);
+  assert.equal(summary.total, 4, "skipping a case must not exclude its own checks from the totals -- a skip is still validated");
+  assert.equal(summary.passed, 3);
+  assert.equal(summary.failed, 1);
+});
+
+test("summarizeReport: a result with no 'skipped' field at all (older report shape) counts as 0 skipped, not a crash", () => {
+  const summary = summarizeReport({ results: [{ checks: [{ pass: true }] }] });
+  assert.equal(summary.skipped, 0);
+});
+
 test("validateActor: a mismatched field is reported as a failed check, not silently accepted", async () => {
   const source = readFixture("test-creature.json");
   const data = await buildCreatureActorData(source);
