@@ -1,440 +1,485 @@
-/* Blank Inheritance — the personal comm device.
+/* Blank Inheritance — the personal terminal.
  *
- * Prototype-only, same rules as console.js: this is the framework and the
- * first pass at the eight confirmed apps from ideas/entries/phone-app-
- * suite.json ("I love all of them"), built to be judged and played with,
- * not treated as finished. Pure logic (dice, the staggered-alert delays,
- * the fortune picker, the pet's tiny state machine, the Resonance band
- * lookup) lives in scripts/core/phone.mjs and is unit-tested there; this
- * file is the thin DOM adapter on top of it, plus the eight app pages
- * themselves, which are deliberately light — "lay the groundwork, tackle
- * the complex ones one at a time," not nine finished features in one pass.
+ * Prototype-only, same rules as console.js. Second pass at
+ * ideas/entries/phone-app-suite.json: the first pass built a small
+ * draggable phone with a pixel-art OS, and the user reviewed it live and
+ * changed course on both counts — "very modern" (the small floating
+ * window IS the generic modern-app-mockup form factor, regardless of
+ * what runs inside it) and "deciding against pixelated." This pass is a
+ * genuine rebuild, not a patch: a large panel that rises from the
+ * chassis floor and fills 80% of the scene, rendered in this project's
+ * own established GLASS register instead of a pixel font, because it
+ * now has to hold real content — website-page-shaped email, a real
+ * messaging log, a media grid — that a phone-sized window cannot
+ * honestly show.
  *
- * Self-contained on purpose: it owns its own small copy of the roster
- * roles (Contacts) rather than importing console.js's, so the two
- * prototype files can be read and changed independently for now. The
- * moment either the marker roster or the phone's contact list needs to be
- * the SAME live data (a player's actual sign-up state, say), that's the
- * point to factor it out — not before, per this project's own "don't
- * abstract until two real call sites actually need to agree" instinct.
+ * Pure logic (dice, staggered-alert delays, fortune, the pet's state
+ * machine, Snake) lives in scripts/core/phone.mjs and is unit-tested
+ * there; this file is the thin DOM adapter plus the six apps' own
+ * layouts, which are deliberately light — first-pass content, not
+ * finished features.
  */
 
 import {
-  resonanceBand,
-  rollDice,
-  staggeredAlertDelays,
   drawFortune,
   petMood,
   feedPet,
   playWithPet,
-  decayPet
+  createSnake,
+  turnSnake,
+  stepSnake
 } from "../../module/blank-inheritance/scripts/core/phone.mjs";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
-const el = (tag, className, html) => {
-  const e = document.createElement(tag);
-  if (className) e.className = className;
-  if (html !== undefined) e.innerHTML = html;
-  return e;
-};
 
 /* ------------------------------------------------------------------ *
- * Real campaign content, lightly held. The six candidates/roles are the
- * same shape console.js's own CANDIDATES/ROLES use (data/campaign/
- * ground-roles.json); the three Directorate contacts are data/npcs/*.json
- * verbatim, one line each. Nothing here invents an identity for the six
- * real kids -- candidate NUMBER is still the only name a contact card uses.
+ * Real campaign content, lightly held — the same roster shape
+ * console.js's own CANDIDATES/ROLES use (data/campaign/ground-roles.json)
+ * and the three Directorate NPCs verbatim (data/npcs/*.json), one line
+ * each. Candidate NUMBER is still the only identity a message/email uses;
+ * nothing here invents a name for the six real kids.
  * ------------------------------------------------------------------ */
 const ROSTER = [
-  { no: "01", role: "Sensor Op", jp: "探知" },
-  { no: "02", role: "Umbilical", jp: "臍帯" },
-  { no: "03", role: "Evac Marshal", jp: "避難" },
-  { no: "04", role: "Pilot", jp: "機体" },
-  { no: "05", role: "Structural", jp: "構造" },
-  { no: "06", role: "Signals", jp: "通信" }
+  { no: "01", role: "Sensor Op" },
+  { no: "02", role: "Umbilical" },
+  { no: "03", role: "Evac Marshal" },
+  { no: "05", role: "Structural" },
+  { no: "06", role: "Signals" }
 ];
-const DIRECTORATE_CONTACTS = [
-  { name: "The Commander", blurb: "Puts the mission above the individuals carrying it out." },
-  { name: "The Caretaker", blurb: "Tries, misguidedly, to give the kids something like a normal adolescence." },
-  { name: "Transparency Advocate", blurb: "Believes the kids should be told everything, immediately." }
-];
+const ME = "04"; // the terminal's owner — the Frame pilot, per the console's own default
 
-// Field Guide: the one entry Recall Knowledge has actually filled in so
-// far (data/antagonists/claimants/contact-unclassified.json), plus two
-// still-locked slots to show the "auto-fills itself" mechanic in motion.
-const FIELD_GUIDE = {
-  known: {
-    name: "Contact, Unclassified",
-    level: 12,
-    traits: ["aberration", "claimant"],
-    flavor: "It does not hunt and it does not posture. It walks a straight line toward something it has apparently already decided belongs to it.",
-    facts: ["Weak to sonic", "Resists physical 10", "Reaction on approach"]
+const CHANNELS = [
+  {
+    id: "squad", label: "# squad", group: true,
+    messages: [
+      { from: "05", text: "Causeway checkpoint holding. SO-14 in force — nobody moves the Frame under its own power." },
+      { from: "02", text: "Cradle's engaged on my end. +2 rounds banked whenever you need them, 04." },
+      { from: "03", text: "Shelter 4 at 62%. Slow, but it's moving the right way." },
+      { from: "06", text: "Resonance reading steady from up here. I'll say something the second that changes." }
+    ]
   },
-  lockedCount: 2
-};
+  {
+    id: "ops-relay", label: "# ops-relay", group: true,
+    messages: [
+      { from: "directorate", text: "Reminder: unauthorized Frame movement past the causeway is a Standing Order 14 violation. This applies regardless of Contact status." }
+    ]
+  }
+];
+const DMS = [
+  { id: "01", label: "01 · Sensor Op", messages: [{ from: "01", text: "Contact reads EXTREME on the gauge. Whatever it is, it's not on any manifest I've got access to." }] },
+  { id: "05", label: "05 · Structural", messages: [{ from: "05", text: "Hey. You good? That was close out there." }] },
+  { id: "03", label: "03 · Evac Marshal", messages: [] },
+  { id: "02", label: "02 · Umbilical", messages: [] },
+  { id: "06", label: "06 · Signals", messages: [] }
+];
+const SENDER_LABEL = (id) => (id === "directorate" ? "DIRECTORATE" : id === ME ? "YOU" : `${id} · ${(ROSTER.find((r) => r.no === id) || {}).role || ""}`.trim());
 
-const BULLETIN_ITEMS = [
-  { text: "Runabout Pilot — Ens. K.", status: "on duty" },
-  { text: "Sensor Mast Watch", status: "on duty" },
-  { text: "Frame 04, previous pilot", status: "reassigned · Day 2", gone: true },
-  { text: "Pier 3 ground crew", status: "on duty" }
+const EMAILS = [
+  {
+    from: "The Commander", subject: "Debrief — Day 04", unread: true,
+    body: "Candidate 04.\n\nThe causeway hold cost us four hours we did not have. I am not interested in why — I am interested in it not happening again. Standing Order 14 exists because a Frame under its own power on that structure is a liability to everyone standing on it, your ground crew included.\n\nFile a full action report by end of day. This is not a request."
+  },
+  {
+    from: "The Caretaker", subject: "Rest Rotation", unread: true,
+    body: "I know you're tired. I got you two extra hours off rotation this week — it cost three technician-days out of the pool that also repairs your Frame, so I need you to actually use them and not spend them on the simulator again.\n\nEat something that isn't from the machine. That's not a joke, that's a note in your file if you don't."
+  },
+  {
+    from: "Transparency Advocate", subject: "What You're Owed", unread: false,
+    body: "You should have been told about the causeway's structural rating before you were asked to hold position on it. You weren't, because someone decided it would 'complicate the order.'\n\nI'm telling you now because I think you're owed the truth more than I think you're owed my job security. Do with that what you will."
+  },
+  {
+    from: "Medical Administration", subject: "Evaluation Scheduled", unread: false,
+    body: "Your quarterly aptitude and fitness evaluation has been scheduled. Report to the Medical Division terminal at your earliest convenience to review your standing file.\n\nThis is routine. It is always routine, right up until it isn't."
+  },
+  {
+    from: "Directorate Notices", subject: "Standing Order 14 — Reminder", unread: false,
+    body: "This is an automated reminder. Standing Order 14 remains in force: no Frame passes the causeway under its own power. Violations are logged automatically and reviewed weekly.\n\nThis message was not sent in response to any specific incident."
+  }
+];
+
+const MEDIA_ITEMS = [
+  { id: "fort", title: "Directorate HQ", kind: "IMAGE", src: "assets/pins/fort.jpg" },
+  { id: "causeway", title: "Causeway Check", kind: "IMAGE", src: "assets/pins/causeway.jpg" },
+  { id: "contact", title: "Contact — Old Town", kind: "IMAGE", src: "assets/pins/contact.jpg" },
+  { id: "shelter", title: "Shelter 4", kind: "IMAGE", src: "assets/pins/shelter.jpg" },
+  { id: "pier", title: "Pier 3 — Sortie", kind: "IMAGE", src: "assets/pins/pier.jpg" },
+  { id: "mast", title: "Sensor Mast", kind: "IMAGE", src: "assets/pins/mast.jpg" },
+  {
+    id: "so14", title: "Standing Order 14", kind: "DOCUMENT",
+    doc: {
+      titleJp: "統制局 命令第十四号", title: "Standing Order 14", meta: "D-14/0411-B · 04.11 · copy 3 of 11",
+      body: "No Frame may pass the causeway under its own power while Standing Order 14 remains in force. Ground crew are authorised to physically restrain non-compliant units by any means short of lethal force."
+    }
+  }
 ];
 
 const FORTUNE_POOL = [
   { text: "A quiet day is still a day.", weight: 3 },
   { text: "Do not trust anything that thanks you for your patience.", weight: 3 },
-  { text: "Today favors the cautious. Tomorrow will not.", weight: 3 },
+  { text: "Today favours the cautious. Tomorrow will not.", weight: 3 },
   { text: "The Directorate cannot see everything. Neither can you.", weight: 3 },
   { text: "Something you filed as unimportant is not.", real: true, weight: 1 },
   { text: "You will be asked a question you already know the answer to.", weight: 3 }
 ];
 
-const DICE = [4, 6, 8, 10, 12, 20, 100];
-
 /* ------------------------------------------------------------------ *
- * Persisted, per-viewer, purely textural state (the Pet). localStorage
- * is the right tool here -- nothing about a phone toy needs to survive a
- * cleared browser or sync anywhere; it only needs to still be there next
- * time the SAME person opens the SAME browser.
+ * Persisted, per-viewer, purely textural state (the Pet — kept exactly
+ * per the user's request, redrawn to fit the new register).
  * ------------------------------------------------------------------ */
-const PET_KEY = "bi-phone-pet-v1";
+const PET_KEY = "bi-terminal-pet-v1";
 function loadPet() {
   try {
     const raw = localStorage.getItem(PET_KEY);
-    if (!raw) return { fed: 60, played: 60, last: Date.now() };
+    if (!raw) return { fed: 60, played: 60 };
     return JSON.parse(raw);
-  } catch {
-    return { fed: 60, played: 60, last: Date.now() };
-  }
+  } catch { return { fed: 60, played: 60 }; }
 }
 function savePet(state) {
   try { localStorage.setItem(PET_KEY, JSON.stringify(state)); } catch { /* private mode, etc — fine to lose */ }
 }
 
 /* ------------------------------------------------------------------ *
- * The eight confirmed apps. Each renders itself into the view container
- * and returns an optional cleanup function (called when navigating away —
- * so intervals/listeners a page starts don't keep running behind it).
+ * Small hand-drawn icons, in the same "flat coloured line-shapes" idiom
+ * the chassis already uses for its own hardware details (chevrons,
+ * corner ticks) — chosen over relying on font glyph coverage, and over a
+ * pixel sprite sheet, which is exactly the register being moved away
+ * from this pass.
  * ------------------------------------------------------------------ */
-const APPS = [
-  {
-    id: "alert", label: "Alert", glyph: "⚠", tile: "var(--bi-vermilion)",
-    render(view) {
-      view.innerHTML = `
-        <div class="bi-phone__card" id="alert-status">
-          <b style="color:var(--bi-phosphor)">ALL CLEAR</b><br>
-          <span style="opacity:.7">No active Contact.</span>
-        </div>
-        <p class="bi-phone__body">A Contact reaches candidates on a stagger, not all at once — nobody at this table learns at exactly the same second.</p>
-        <button class="bi-phone__key" id="alert-sim">SIMULATE CONTACT</button>
-        <div class="bi-phone__row" id="alert-roster" style="flex-direction:column;gap:4px;margin-top:8px"></div>`;
-      const roster = $("#alert-roster", view);
-      roster.innerHTML = ROSTER.map((c) => `
-        <div class="bi-phone__card" style="margin-bottom:0;display:flex;justify-content:space-between" data-no="${c.no}">
-          <span>${c.no} · ${c.role}</span><span class="bi-phone__t" style="opacity:.5">—</span>
-        </div>`).join("");
-      let timers = [];
-      $("#alert-sim", view).addEventListener("click", () => {
-        timers.forEach(clearTimeout);
-        timers = [];
-        $("#alert-status", view).innerHTML = `<b style="color:var(--bi-vermilion)">CONTACT</b><br><span style="opacity:.7">Alerting candidates...</span>`;
-        $$("[data-no] .bi-phone__t", roster).forEach((t) => { t.textContent = "—"; t.style.opacity = 0.5; t.style.color = ""; });
-        const delays = staggeredAlertDelays(ROSTER.length, { minMs: 300, maxMs: 3200 });
-        ROSTER.forEach((c, i) => {
-          const t = setTimeout(() => {
-            const cell = $(`[data-no="${c.no}"] .bi-phone__t`, roster);
-            if (cell) { cell.textContent = "ALERTED"; cell.style.opacity = 1; cell.style.color = "var(--bi-vermilion)"; }
-          }, delays[i]);
-          timers.push(t);
-        });
-      });
-      return () => timers.forEach(clearTimeout);
-    }
-  },
-  {
-    id: "field-guide", label: "Field Guide", glyph: "▤", tile: "var(--bi-cyan)",
-    render(view) {
-      const f = FIELD_GUIDE.known;
-      view.innerHTML = `
-        <div class="bi-phone__card">
-          <b>${f.name}</b> <span style="opacity:.6">· L${f.level}</span><br>
-          <span style="opacity:.6;text-transform:uppercase;font-size:6.5px">${f.traits.join(" · ")}</span>
-          <p class="bi-phone__body" style="margin:4px 0 6px">${f.flavor}</p>
-          ${f.facts.map((x) => `<div style="color:var(--bi-cyan)">▸ ${x}</div>`).join("")}
-        </div>
-        ${Array.from({ length: FIELD_GUIDE.lockedCount }).map(() => `
-          <div class="bi-phone__card" style="opacity:.45">
-            <b>??? UNIDENTIFIED</b><br><span style="opacity:.7">Insufficient Recall Knowledge.</span>
-          </div>`).join("")}
-        <p class="bi-phone__body" style="opacity:.6">Entries fill themselves in from successful Recall Knowledge — nothing to do here but keep looking.</p>`;
-    }
-  },
-  {
-    id: "resonance", label: "Resonance", glyph: "≈", tile: "var(--bi-resonance)",
-    render(view) {
-      view.innerHTML = `
-        <div class="bi-phone__card" style="text-align:center">
-          <div style="font-size:22px;color:var(--bi-resonance);text-shadow:0 0 8px currentColor" id="res-val">62</div>
-          <div id="res-band" style="color:var(--bi-resonance)">HARMONISED</div>
-        </div>
-        <div class="bi-phone__row" style="flex-direction:column;gap:3px" id="res-bands"></div>`;
-      const bandsEl = $("#res-bands", view);
-      let value = 62;
-      const paint = () => {
-        const b = resonanceBand(value);
-        $("#res-val", view).textContent = String(Math.round(value));
-        $("#res-band", view).textContent = b.name.toUpperCase();
-        bandsEl.innerHTML = ["dead-weight", "nominal", "harmonised", "absolute"].map((id) => `
-          <div style="display:flex;justify-content:space-between;padding:2px 4px;${id === b.id ? "background:#1a0e2a;color:var(--bi-resonance)" : "opacity:.4"}">
-            <span>${id.replace("-", " ")}</span></div>`).join("");
-      };
-      paint();
-      const iv = setInterval(() => {
-        value = Math.max(0, Math.min(100, value + (Math.random() - 0.5) * 4));
-        paint();
-      }, 2200);
-      return () => clearInterval(iv);
-    }
-  },
-  {
-    id: "bulletin", label: "Bulletin", glyph: "≡", tile: "var(--bi-amber)",
-    render(view) {
-      view.innerHTML = `<div class="bi-phone__body" style="margin-bottom:6px">GROUND CREW BOARD</div>` +
-        BULLETIN_ITEMS.map((b) => `
-          <div class="bi-phone__card" style="${b.gone ? "opacity:.4;text-decoration:line-through" : ""}">
-            ${b.text}<br><span style="opacity:.6;text-decoration:none;display:inline-block">${b.status}</span>
-          </div>`).join("");
-    }
-  },
-  {
-    id: "contacts", label: "Contacts", glyph: "☺", tile: "var(--bi-phosphor)",
-    render(view) {
-      view.innerHTML = `<div id="contacts-list"></div><div id="contacts-msg"></div>`;
-      const list = $("#contacts-list", view);
-      const msg = $("#contacts-msg", view);
-      const card = (title, sub, tag) => `
-        <button class="bi-phone__key" data-title="${title}" style="width:100%;text-align:left;margin-bottom:5px;display:flex;justify-content:space-between">
-          <span>${title}<br><span style="opacity:.6;font-size:6.5px">${sub}</span></span>
-          ${tag ? `<span style="opacity:.5;font-size:6px;align-self:flex-start">${tag}</span>` : ""}
-        </button>`;
-      list.innerHTML =
-        ROSTER.map((c) => card(`${c.no} · ${c.role}`, c.jp, "")).join("") +
-        DIRECTORATE_CONTACTS.map((c) => card(c.name, c.blurb, "OFFICIAL")).join("");
-      list.addEventListener("click", (ev) => {
-        const btn = ev.target.closest("[data-title]");
-        if (!btn) return;
-        msg.innerHTML = `<div class="bi-phone__card" style="margin-top:6px">${btn.dataset.title}<br><span style="opacity:.6">No messages yet.</span></div>`;
-      });
-    }
-  },
-  {
-    id: "fortune", label: "Fortune", glyph: "✦", tile: "var(--bi-brass)",
-    render(view) {
-      view.innerHTML = `
-        <div class="bi-phone__card" style="min-height:40px" id="fortune-card">Tap below for today's reading.</div>
-        <button class="bi-phone__key" id="fortune-draw">DRAW A FORTUNE</button>`;
-      $("#fortune-draw", view).addEventListener("click", () => {
-        const f = drawFortune(FORTUNE_POOL);
-        $("#fortune-card", view).textContent = f.text;
-      });
-    }
-  },
-  {
-    id: "pet", label: "Pet", glyph: "", tile: "color-mix(in srgb, var(--bi-resonance) 40%, var(--bi-amber))",
-    render(view) {
-      let state = loadPet();
-      const elapsedMinutes = (Date.now() - (state.last || Date.now())) / 60000;
-      if (elapsedMinutes > 1) state = { ...decayPet(state, Math.min(40, elapsedMinutes)), last: Date.now() };
-      view.innerHTML = `
-        <div style="text-align:center">
-          <div id="pet-sprite" style="margin:4px auto"></div>
-          <div id="pet-mood" style="margin:6px 0"></div>
-        </div>
-        FED<div class="bi-phone__meter"><i id="pet-fed"></i></div>
-        PLAYED<div class="bi-phone__meter"><i id="pet-played"></i></div>
-        <div class="bi-phone__row">
-          <button class="bi-phone__key" id="pet-feed">FEED</button>
-          <button class="bi-phone__key" id="pet-play">PLAY</button>
-        </div>`;
-      renderPetSprite($("#pet-sprite", view));
-      const paint = () => {
-        $("#pet-fed", view).style.width = state.fed + "%";
-        $("#pet-played", view).style.width = state.played + "%";
-        $("#pet-mood", view).textContent = petMood(state).toUpperCase();
-        savePet({ ...state, last: Date.now() });
-      };
-      paint();
-      $("#pet-feed", view).addEventListener("click", () => { state = feedPet(state); paint(); bounce($("#pet-sprite", view)); });
-      $("#pet-play", view).addEventListener("click", () => { state = playWithPet(state); paint(); bounce($("#pet-sprite", view)); });
-    }
-  },
-  {
-    id: "roll", label: "Roll", glyph: "⚄", tile: "var(--bi-bone)",
-    render(view) {
-      view.innerHTML = `
-        <div class="bi-phone__card" style="text-align:center;font-size:16px" id="roll-out">—</div>
-        <div class="bi-phone__row" id="roll-keys"></div>
-        <div class="bi-phone__body" id="roll-log" style="margin-top:6px"></div>`;
-      $("#roll-keys", view).innerHTML = DICE.map((d) => `<button class="bi-phone__key" data-d="${d}">d${d}</button>`).join("");
-      const log = [];
-      $("#roll-keys", view).addEventListener("click", (ev) => {
-        const btn = ev.target.closest("[data-d]");
-        if (!btn) return;
-        const r = rollDice(Number(btn.dataset.d), 1);
-        $("#roll-out", view).textContent = String(r.total);
-        log.unshift(`d${r.sides} → ${r.total}`);
-        log.length = 6;
-        $("#roll-log", view).innerHTML = log.filter(Boolean).join("<br>");
-      });
-    }
-  }
-];
+const ICONS = {
+  messaging: `<svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.6"/></svg>`,
+  email: `<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="1.2" stroke="currentColor" stroke-width="1.6"/><path d="M4 6.5 12 13l8-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>`,
+  media: `<svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="3.5" width="8" height="8" stroke="currentColor" stroke-width="1.6"/><rect x="12.5" y="3.5" width="8" height="8" stroke="currentColor" stroke-width="1.6"/><rect x="3.5" y="12.5" width="8" height="8" stroke="currentColor" stroke-width="1.6"/><rect x="12.5" y="12.5" width="8" height="8" stroke="currentColor" stroke-width="1.6"/></svg>`,
+  snake: `<svg viewBox="0 0 24 24" fill="none"><path d="M4 8h6v6H10V8h6v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/></svg>`,
+  pet: `<svg viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="14" rx="7" ry="5.5" stroke="currentColor" stroke-width="1.6"/><circle cx="9.5" cy="13" r="1" fill="currentColor"/><circle cx="14.5" cy="13" r="1" fill="currentColor"/><path d="M8 6.5 9.5 9M16 6.5 14.5 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>`,
+  medical: `<svg viewBox="0 0 24 24" fill="none"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7V4Z" fill="currentColor"/></svg>`
+};
 
-function renderPetSprite(host) {
-  // A tiny 7x7 pixel grid, drawn as CSS grid cells rather than an image —
-  // "bonus points for cute," produced with what this project already has
-  // rather than needing a real sprite asset for a first pass.
-  const rows = [
-    "..XXX..",
-    ".XXXXX.",
-    "X.X.X.X",
-    "XXXXXXX",
-    "X.XXX.X",
-    ".X...X.",
-    "..X.X.."
-  ];
-  host.style.display = "grid";
-  host.style.gridTemplateColumns = "repeat(7, 4px)";
-  host.style.gridTemplateRows = "repeat(7, 4px)";
-  host.style.gap = "1px";
-  // The sprite's own track size (34px) is smaller than a 40px home-screen
-  // tile face; without this the browser's default "stretch" grid alignment
-  // spreads the tracks to fill the box instead of centering the drawing.
-  host.style.justifyContent = "center";
-  host.style.alignContent = "center";
-  // FOUND LIVE: .bi-phone__tile-face's own `place-items: center` (needed
-  // so a bare glyph character centers in its 40px tile) also applies here
-  // once this host reuses that class — but `center` sizes a grid ITEM to
-  // its own content rather than stretching it to fill the track, and a
-  // content-less <span> has no intrinsic size. Every cell rendered at
-  // 0x0, fully invisible, even though the colours and grid were correct.
-  // Explicit width/height on each cell sidesteps the inherited alignment
-  // entirely, rather than depending on overriding a rule owned elsewhere.
-  host.innerHTML = rows.flatMap((row) => [...row].map((c) =>
-    `<span style="display:block;width:100%;height:100%;background:${c === "X" ? "var(--bi-resonance)" : "transparent"}"></span>`
-  )).join("");
-}
-function bounce(node) {
-  node.style.transform = "translateY(-3px)";
-  setTimeout(() => { node.style.transform = ""; }, 160);
+function petSvg() {
+  return `<svg class="bi-pet__svg" viewBox="0 0 100 100" fill="none">
+    <ellipse cx="50" cy="60" rx="34" ry="26" stroke="var(--bi-phosphor)" stroke-width="2.5" fill="rgb(111 227 154 / 8%)"/>
+    <circle cx="38" cy="52" r="4.5" fill="var(--bi-phosphor)"/>
+    <circle cx="62" cy="52" r="4.5" fill="var(--bi-phosphor)"/>
+    <path d="M28 30 38 42M72 30 62 42" stroke="var(--bi-phosphor)" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M40 70q10 8 20 0" stroke="var(--bi-phosphor)" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>`;
 }
 
 /* ------------------------------------------------------------------ *
- * The shell: build once, lazily, on first open.
+ * The six apps. Each render()s into the main pane and may return a
+ * cleanup function (intervals/listeners a page starts that must not
+ * keep running once you navigate away from it).
  * ------------------------------------------------------------------ */
-let phoneEl = null;
+const APPS = [
+  { id: "messaging", label: "Messaging", glyph: ICONS.messaging, color: "var(--bi-cyan)", render: renderMessaging },
+  { id: "email", label: "Email", glyph: ICONS.email, color: "var(--bi-amber)", render: renderEmail },
+  { id: "media", label: "Media", glyph: ICONS.media, color: "var(--bi-phosphor)", render: renderMedia },
+  { id: "snake", label: "Snake", glyph: ICONS.snake, color: "var(--bi-vermilion)", render: renderSnake },
+  { id: "pet", label: "Pet", glyph: ICONS.pet, color: "var(--bi-resonance)", render: renderPet },
+  { id: "medical", label: "Medical Report", glyph: ICONS.medical, color: "var(--bi-brass)", render: renderMedical, paper: true }
+];
+
+/* --- Messaging --------------------------------------------------------- */
+function renderMessaging(main) {
+  main.innerHTML = `
+    <div class="bi-msg">
+      <div class="bi-msg__list" id="msg-list">
+        <div class="bi-msg__section">Channels</div>
+        ${CHANNELS.map((c) => `<button class="bi-msg__item" data-thread="${c.id}"><span>${c.label}</span></button>`).join("")}
+        <div class="bi-msg__section">Direct</div>
+        ${DMS.map((d) => `<button class="bi-msg__item" data-thread="${d.id}"><span>${d.label}</span><span class="bi-msg__item-unread" ${d.messages.length ? "" : "hidden"}></span></button>`).join("")}
+      </div>
+      <div class="bi-msg__thread" id="msg-thread"></div>
+    </div>`;
+  const threadEl = $("#msg-thread", main);
+  const findThread = (id) => CHANNELS.find((c) => c.id === id) || DMS.find((d) => d.id === id);
+  let openId = null;
+
+  function openThread(id) {
+    openId = id;
+    for (const b of $$(".bi-msg__item", main)) b.setAttribute("aria-pressed", String(b.dataset.thread === id));
+    const t = findThread(id);
+    threadEl.innerHTML = `
+      <div class="bi-msg__log" id="msg-log"></div>
+      <div class="bi-msg__composer">
+        <input class="bi-msg__input" id="msg-input" placeholder="Message ${t.label}..." autocomplete="off">
+        <button class="bi-msg__send" id="msg-send">SEND</button>
+      </div>`;
+    paintLog(t);
+    $("#msg-send", threadEl).addEventListener("click", () => sendMessage(t));
+    $("#msg-input", threadEl).addEventListener("keydown", (ev) => { if (ev.key === "Enter") sendMessage(t); });
+  }
+  function paintLog(t) {
+    const log = $("#msg-log", threadEl);
+    if (!log) return;
+    log.innerHTML = t.messages.map((m) => `
+      <div class="bi-msg__row ${m.from === ME ? "bi-msg__row--me" : ""}">
+        <span class="bi-msg__avatar">${m.from === "directorate" ? "D" : m.from}</span>
+        <div>
+          <div class="bi-msg__who">${SENDER_LABEL(m.from)}</div>
+          <div class="bi-msg__bubble"><div class="bi-msg__text">${escapeHtml(m.text)}</div></div>
+        </div>
+      </div>`).join("");
+    log.scrollTop = log.scrollHeight;
+  }
+  function sendMessage(t) {
+    const input = $("#msg-input", threadEl);
+    const text = input.value.trim();
+    if (!text) return;
+    t.messages.push({ from: ME, text });
+    input.value = "";
+    paintLog(t);
+  }
+
+  $("#msg-list", main).addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-thread]");
+    if (!btn) return;
+    const item = DMS.find((d) => d.id === btn.dataset.thread);
+    if (item) $(".bi-msg__item-unread", btn)?.setAttribute("hidden", "");
+    openThread(btn.dataset.thread);
+  });
+  openThread(CHANNELS[0].id);
+}
+
+/* --- Email --------------------------------------------------------------- */
+function renderEmail(main) {
+  main.innerHTML = `
+    <div class="bi-mail">
+      <div class="bi-mail__list" id="mail-list"></div>
+      <div class="bi-mail__reader" id="mail-reader"><div class="bi-mail__empty">Select a message.</div></div>
+    </div>`;
+  const list = $("#mail-list", main);
+  const reader = $("#mail-reader", main);
+  list.innerHTML = EMAILS.map((e, i) => `
+    <button class="bi-mail__item" data-i="${i}" data-unread="${e.unread}">
+      <div class="bi-mail__from"><span>${e.from}</span><span class="bi-mail__date">DAY 04</span></div>
+      <div class="bi-mail__subject">${e.subject}</div>
+      <div class="bi-mail__snippet">${escapeHtml(e.body.split("\n")[0])}</div>
+    </button>`).join("");
+  list.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-i]");
+    if (!btn) return;
+    const e = EMAILS[Number(btn.dataset.i)];
+    e.unread = false;
+    btn.dataset.unread = "false";
+    for (const b of $$(".bi-mail__item", list)) b.setAttribute("aria-pressed", String(b === btn));
+    reader.innerHTML = `
+      <div class="bi-mail__reader-head">
+        <div class="bi-mail__reader-subject">${e.subject}</div>
+        <div class="bi-mail__reader-meta"><span>FROM <b>${e.from}</b></span><span>TO <b>Candidate ${ME}</b></span><span>DAY <b>04</b></span></div>
+      </div>
+      <div class="bi-mail__reader-body">${escapeHtml(e.body)}</div>`;
+  });
+}
+
+/* --- Media organiser ------------------------------------------------------ */
+function renderMedia(main) {
+  main.innerHTML = `
+    <div style="position:relative;height:100%">
+      <div class="bi-media__grid" id="media-grid"></div>
+      <div class="bi-media__viewer" id="media-viewer" hidden>
+        <div class="bi-media__viewer-bar"><button class="bi-term-key" id="media-close">&lt; BACK</button><span class="bi-media__viewer-title" id="media-title"></span></div>
+        <div class="bi-media__viewer-body" id="media-body"></div>
+      </div>
+    </div>`;
+  $("#media-grid", main).innerHTML = MEDIA_ITEMS.map((m) => `
+    <button class="bi-media__tile" data-id="${m.id}">
+      ${m.kind === "IMAGE" ? `<img class="bi-media__thumb" src="${m.src}" alt="">` : `<div class="bi-media__doc-face">▤</div>`}
+      <div class="bi-media__caption"><span class="bi-media__title">${m.title}</span><span class="bi-media__kind">${m.kind}</span></div>
+    </button>`).join("");
+  const viewer = $("#media-viewer", main);
+  $("#media-grid", main).addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-id]");
+    if (!btn) return;
+    const item = MEDIA_ITEMS.find((m) => m.id === btn.dataset.id);
+    $("#media-title", viewer).textContent = item.title;
+    $("#media-body", viewer).innerHTML = item.kind === "IMAGE"
+      ? `<img src="${item.src}" alt="${item.title}">`
+      : `<div class="bi-doc">
+           <div class="bi-doc__head"><div><span class="bi-doc__title-jp">${item.doc.titleJp}</span><h1 class="bi-doc__title">${item.doc.title}</h1></div><div class="bi-doc__meta">${item.doc.meta}</div></div>
+           <p>${item.doc.body}</p>
+         </div>`;
+    viewer.hidden = false;
+  });
+  $("#media-close", main).addEventListener("click", () => { viewer.hidden = true; });
+}
+
+/* --- Snake ----------------------------------------------------------------- */
+function renderSnake(main) {
+  const W = 20, H = 14, CELL = 20;
+  main.innerHTML = `
+    <div class="bi-snake">
+      <div class="bi-snake__hud"><span class="bi-legend">Score</span><span class="bi-readout bi-readout--lg" id="snake-score">0</span></div>
+      <div class="bi-snake__board-wrap">
+        <div class="bi-snake__board" id="snake-board" style="grid-template-columns:repeat(${W}, ${CELL}px);grid-template-rows:repeat(${H}, ${CELL}px)"></div>
+        <div class="bi-snake__overlay" id="snake-overlay" hidden>
+          <div id="snake-overlay-text">GAME OVER</div>
+          <button class="bi-term-key" id="snake-restart">RESTART</button>
+        </div>
+      </div>
+      <p class="bi-phone__body" style="opacity:.6;font-family:var(--bi-font-readout);font-size:11px">Arrow keys to steer.</p>
+    </div>`;
+  const board = $("#snake-board", main);
+  const cells = [];
+  for (let i = 0; i < W * H; i++) { const c = document.createElement("div"); c.className = "bi-snake__cell"; board.appendChild(c); cells.push(c); }
+
+  let state = createSnake(W, H);
+  let tickId = null;
+
+  function paint() {
+    for (const c of cells) c.className = "bi-snake__cell";
+    state.snake.forEach((p, i) => {
+      const cell = cells[p.y * W + p.x];
+      if (cell) cell.className = "bi-snake__cell " + (i === 0 ? "bi-snake__cell--head" : "bi-snake__cell--snake");
+    });
+    if (state.food) { const f = cells[state.food.y * W + state.food.x]; if (f) f.classList.add("bi-snake__cell--food"); }
+    $("#snake-score", main).textContent = String(state.score);
+    $("#snake-overlay", main).hidden = state.alive;
+  }
+  function tick() {
+    state = stepSnake(state);
+    paint();
+    if (!state.alive) clearInterval(tickId);
+  }
+  function restart() {
+    state = createSnake(W, H);
+    $("#snake-overlay", main).hidden = true;
+    paint();
+    clearInterval(tickId);
+    tickId = setInterval(tick, 140);
+  }
+  function onKey(ev) {
+    const map = { ArrowUp: { x: 0, y: -1 }, ArrowDown: { x: 0, y: 1 }, ArrowLeft: { x: -1, y: 0 }, ArrowRight: { x: 1, y: 0 } };
+    const dir = map[ev.key];
+    if (!dir) return;
+    ev.preventDefault();
+    state = turnSnake(state, dir);
+  }
+  document.addEventListener("keydown", onKey);
+  $("#snake-restart", main).addEventListener("click", restart);
+  restart();
+  return () => { clearInterval(tickId); document.removeEventListener("keydown", onKey); };
+}
+
+/* --- Pet --------------------------------------------------------------------- */
+function renderPet(main) {
+  let state = loadPet();
+  main.innerHTML = `
+    <div class="bi-pet">
+      <div class="bi-pet__stage">${petSvg()}</div>
+      <div class="bi-pet__mood" id="pet-mood"></div>
+      <div class="bi-pet__meters">
+        <div class="bi-pet__meter-col"><span class="bi-pet__meter-label">Fed</span><div class="bi-pet__meter-track"><div class="bi-pet__meter-fill" id="pet-fed"></div></div></div>
+        <div class="bi-pet__meter-col"><span class="bi-pet__meter-label">Played</span><div class="bi-pet__meter-track"><div class="bi-pet__meter-fill" id="pet-played"></div></div></div>
+      </div>
+      <div style="display:flex;gap:10px"><button class="bi-term-key" id="pet-feed">FEED</button><button class="bi-term-key" id="pet-play">PLAY</button></div>
+    </div>`;
+  const paint = () => {
+    $("#pet-fed", main).style.width = state.fed + "%";
+    $("#pet-played", main).style.width = state.played + "%";
+    $("#pet-mood", main).textContent = petMood(state).toUpperCase();
+    savePet(state);
+  };
+  paint();
+  $("#pet-feed", main).addEventListener("click", () => { state = feedPet(state); paint(); });
+  $("#pet-play", main).addEventListener("click", () => { state = playWithPet(state); paint(); });
+}
+
+/* --- Medical Report (mocked character sheet) --------------------------------- */
+function renderMedical(main) {
+  // Explicitly a template, not a real candidate's file — the six real
+  // kids' stats have not been decided, and this is not the place to
+  // invent them. The "grades -> ability boosts" conceit is the user's
+  // own idea for how the eventual real onboarding flow should work.
+  main.innerHTML = `
+    <div class="bi-doc">
+      <div class="bi-vertical bi-vertical--edge">見本 &middot; 訓練用書式</div>
+      <div class="bi-doc__head">
+        <div>
+          <span class="bi-doc__title-jp">統制局 医務部 &middot; 適性評価書</span>
+          <h1 class="bi-doc__title">Aptitude &amp; Fitness Report</h1>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:14px">
+          <div class="bi-doc__meta">書式番号<br><b>MED-00/0000</b><br>候補生 <b>SAMPLE</b><br>写 <b>TEMPLATE</b></div>
+          <span class="bi-stamp bi-stamp--amber"><span class="bi-stamp__jp">見本</span><span class="bi-stamp__en">Sample</span></span>
+        </div>
+      </div>
+
+      <h2>Aptitude Assessment — School Transcript</h2>
+      <p style="font-size:12px;opacity:.75">Recorded at intake. Grades are converted to standing bonuses at evaluation.</p>
+      <div class="bi-form-row"><span class="bi-form-row__label">Physical Conditioning</span><span class="bi-form-row__lead"></span><span class="bi-form-row__value">B+ &middot; STR +1</span></div>
+      <div class="bi-form-row"><span class="bi-form-row__label">Reflex &amp; Coordination Drills</span><span class="bi-form-row__lead"></span><span class="bi-form-row__value">A- &middot; DEX +2</span></div>
+      <div class="bi-form-row"><span class="bi-form-row__label">Endurance Trials</span><span class="bi-form-row__lead"></span><span class="bi-form-row__value">B &middot; CON +1</span></div>
+      <div class="bi-form-row"><span class="bi-form-row__label">Tactical Theory</span><span class="bi-form-row__lead"></span><span class="bi-form-row__value">A &middot; INT +2</span></div>
+      <div class="bi-form-row"><span class="bi-form-row__label">Composure Under Stress</span><span class="bi-form-row__lead"></span><span class="bi-form-row__value">C+ &middot; WIS +0</span></div>
+      <div class="bi-form-row"><span class="bi-form-row__label">Command Presence</span><span class="bi-form-row__lead"></span><span class="bi-form-row__value">B- &middot; CHA +1</span></div>
+
+      <h2>Clinical Readings</h2>
+      <div class="bi-form-row"><span class="bi-form-row__label">Structural Integrity (AC)</span><span class="bi-form-row__lead"></span><span class="bi-form-row__value">18</span></div>
+      <div class="bi-form-row"><span class="bi-form-row__label">Cardiovascular Reserve (HP)</span><span class="bi-form-row__lead"></span><span class="bi-form-row__value">18 / 18</span></div>
+      <div class="bi-form-row"><span class="bi-form-row__label">Situational Awareness (Perception)</span><span class="bi-form-row__lead"></span><span class="bi-form-row__value">+5</span></div>
+      <div class="bi-form-row"><span class="bi-form-row__label">Stress Response — Physical (Fortitude)</span><span class="bi-form-row__lead"></span><span class="bi-form-row__value">+6</span></div>
+      <div class="bi-form-row"><span class="bi-form-row__label">Stress Response — Evasive (Reflex)</span><span class="bi-form-row__lead"></span><span class="bi-form-row__value">+7</span></div>
+      <div class="bi-form-row"><span class="bi-form-row__label">Stress Response — Mental (Will)</span><span class="bi-form-row__lead"></span><span class="bi-form-row__value">+4</span></div>
+      <div class="bi-form-row"><span class="bi-form-row__label">Mobility (Speed)</span><span class="bi-form-row__lead"></span><span class="bi-form-row__value">25 ft.</span></div>
+
+      <p style="margin-top:20px;font-size:11px;opacity:.6">Template only. No candidate's actual standing is recorded here — see onboarding, not yet implemented.</p>
+    </div>`;
+}
+
+function escapeHtml(s) { return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+/* ------------------------------------------------------------------ *
+ * The shell.
+ * ------------------------------------------------------------------ */
+let termEl = null;
 let cleanupCurrentApp = null;
 
-function buildPhone(mountInto) {
-  const phone = el("div", "bi-phone");
-  phone.id = "phone";
-  phone.hidden = true;
-  phone.innerHTML = `
-    <button class="bi-phone__close" id="phone-close" aria-label="Close">&times;</button>
-    <div class="bi-phone__grip" id="phone-grip"><i></i><i></i><i></i><i></i><i></i></div>
-    <div class="bi-phone__ear"></div>
-    <div class="bi-phone__screen" id="phone-screen">
-      <div class="bi-phone__statusbar">
-        <span class="bi-phone__bars"><i class="bi-lit"></i><i class="bi-lit"></i><i class="bi-lit"></i><i></i></span>
-        <span class="bi-phone__clock" id="phone-clock">16:42</span>
-        <span class="bi-phone__batt"><i></i></span>
+function buildTerminal(mountInto) {
+  const term = document.createElement("div");
+  term.className = "bi-terminal";
+  term.id = "terminal";
+  term.innerHTML = `
+    <div class="bi-terminal__frame">
+      <div class="bi-terminal__titlebar">
+        <span class="bi-terminal__title-glyph" id="term-title-glyph"></span>
+        <span class="bi-terminal__title" id="term-title">Terminal</span>
+        <span class="bi-terminal__spacer"></span>
+        <span class="bi-terminal__clock" id="term-clock">16:42</span>
+        <button class="bi-terminal__close" id="term-close" aria-label="Close">&times;</button>
       </div>
-      <div class="bi-phone__view" id="phone-view"></div>
-    </div>
-    <span class="bi-phone__screw--bl"></span><span class="bi-phone__screw--br"></span>
-    <button class="bi-phone__homebtn" id="phone-home" aria-label="Home" title="Home"></button>`;
-  mountInto.appendChild(phone);
-  // Idea #4, confirmed: "as a pilot's Bleed climbs, their own phone's
-  // pixel UI degrades." The phone is built lazily on first open, so if
-  // Bleed was already dragged up before that happened, the ONE existing
-  // handler (console.js) never found this screen to corrupt — it did not
-  // exist yet. Read the console's own current Bleed value once, here, so
-  // a phone opened AFTER the fact still looks the way it should. Every
-  // frame after this, console.js's own handler (now also targeting
-  // .bi-phone__screen) keeps it in sync — this is a one-time catch-up,
-  // not a second source of truth.
-  const bleedInput = document.getElementById("bleed");
-  const screen = $(".bi-phone__screen", phone);
-  if (bleedInput && screen) {
-    const v = Number(bleedInput.value) / 100;
-    screen.classList.toggle("bi-corrupt", v > 0.02);
-    screen.style.setProperty("--bi-bleed", String(v));
-  }
-  return phone;
-}
+      <div class="bi-terminal__body">
+        <nav class="bi-terminal__nav" id="term-nav"></nav>
+        <div class="bi-terminal__main" id="term-main"></div>
+      </div>
+    </div>`;
+  mountInto.appendChild(term);
 
-function showHome(view) {
-  if (cleanupCurrentApp) { cleanupCurrentApp(); cleanupCurrentApp = null; }
-  view.innerHTML = `<div class="bi-phone__home" id="phone-home-grid"></div>`;
-  const grid = $("#phone-home-grid", view);
-  grid.innerHTML = APPS.map((a) => `
-    <button class="bi-phone__tile" style="--tile:${a.tile}" data-app="${a.id}">
-      <span class="bi-phone__tile-face">${a.id === "pet" ? "" : a.glyph}
-        <span class="bi-phone__tile-badge" ${a.id === "alert" ? "" : "hidden"}>!</span>
-      </span>
-      <span class="bi-phone__tile-label">${a.label}</span>
+  $("#term-nav", term).innerHTML = APPS.map((a) => `
+    <button class="bi-terminal__navbtn" style="--app:${a.color}" data-app="${a.id}" aria-pressed="false">
+      <span class="bi-terminal__navbtn-glyph">${a.glyph}</span>
+      <span>${a.label}</span>
     </button>`).join("");
-  if (grid.querySelector('[data-app="pet"] .bi-phone__tile-face')) {
-    renderPetSprite(grid.querySelector('[data-app="pet"] .bi-phone__tile-face'));
-  }
-  grid.addEventListener("click", (ev) => {
+  $("#term-nav", term).addEventListener("click", (ev) => {
     const btn = ev.target.closest("[data-app]");
-    if (!btn) return;
-    openApp(view, btn.dataset.app);
-  }, { once: true });
+    if (btn) openApp(term, btn.dataset.app);
+  });
+  return term;
 }
 
-function openApp(view, id) {
+function openApp(term, id) {
   const app = APPS.find((a) => a.id === id);
   if (!app) return;
   if (cleanupCurrentApp) { cleanupCurrentApp(); cleanupCurrentApp = null; }
-  view.innerHTML = `
-    <div class="bi-phone__appbar">
-      <button class="bi-phone__back" id="phone-back">&lt; BACK</button>
-      <span class="bi-phone__title">${app.label.toUpperCase()}</span>
-    </div>
-    <div id="phone-app-body"></div>`;
-  $("#phone-back", view).addEventListener("click", () => showHome(view));
-  const cleanup = app.render($("#phone-app-body", view));
+  for (const b of $$(".bi-terminal__navbtn", term)) b.setAttribute("aria-pressed", String(b.dataset.app === id));
+  $("#term-title", term).textContent = app.label;
+  $("#term-title-glyph", term).innerHTML = app.glyph;
+  $("#term-title-glyph", term).style.color = app.color;
+  const main = $("#term-main", term);
+  main.className = "bi-terminal__main" + (app.paper ? " bi-terminal__main--paper" : "");
+  main.innerHTML = "";
+  const cleanup = app.render(main);
   if (typeof cleanup === "function") cleanupCurrentApp = cleanup;
-}
-
-/* ------------------------------------------------------------------ *
- * Dragging. Confined to the console's own box, per the idea entry's
- * "draggable — a floating window, not a fixed dock like the control bar."
- * ------------------------------------------------------------------ */
-function makeDraggable(phone, grip, container) {
-  let dragging = false;
-  let startX = 0, startY = 0, baseX = 0, baseY = 0;
-  grip.addEventListener("pointerdown", (ev) => {
-    dragging = true;
-    grip.setPointerCapture(ev.pointerId);
-    const r = phone.getBoundingClientRect();
-    const b = container.getBoundingClientRect();
-    startX = ev.clientX; startY = ev.clientY;
-    baseX = r.left - b.left; baseY = r.top - b.top;
-  });
-  grip.addEventListener("pointermove", (ev) => {
-    if (!dragging) return;
-    const b = container.getBoundingClientRect();
-    const w = phone.offsetWidth, h = phone.offsetHeight;
-    const x = Math.max(4, Math.min(b.width - w - 4, baseX + (ev.clientX - startX)));
-    const y = Math.max(4, Math.min(b.height - h - 4, baseY + (ev.clientY - startY)));
-    phone.style.setProperty("--phone-x", x + "px");
-    phone.style.setProperty("--phone-y", y + "px");
-  });
-  grip.addEventListener("pointerup", () => { dragging = false; });
 }
 
 /* ------------------------------------------------------------------ *
@@ -447,26 +492,24 @@ export function initPhone({ mountInto, badgeCount = 3 }) {
   if (!btn) return;
 
   btn.addEventListener("click", () => {
-    if (!phoneEl) {
-      phoneEl = buildPhone(mountInto);
-      makeDraggable(phoneEl, $("#phone-grip", phoneEl), mountInto);
-      $("#phone-close", phoneEl).addEventListener("click", () => setOpen(false));
-      $("#phone-home", phoneEl).addEventListener("click", () => showHome($("#phone-view", phoneEl)));
-      showHome($("#phone-view", phoneEl));
+    if (!termEl) {
+      termEl = buildTerminal(mountInto);
+      $("#term-close", termEl).addEventListener("click", () => setOpen(false));
       const tick = () => {
-        const clock = $("#phone-clock", phoneEl);
+        const clock = $("#term-clock", termEl);
         const src = $("#clock-out");
         if (clock && src) clock.textContent = src.textContent;
       };
       tick();
       setInterval(tick, 4000);
+      openApp(termEl, APPS[0].id);
     }
-    setOpen(phoneEl.hidden);
+    setOpen(!termEl.classList.contains("bi-terminal--open"));
   });
 
   function setOpen(open) {
-    phoneEl.hidden = !open;
+    termEl.classList.toggle("bi-terminal--open", open);
     btn.setAttribute("aria-pressed", String(open));
-    if (open && badge) badge.hidden = true;   // opening the phone reads the "mail"
+    if (open && badge) badge.hidden = true;
   }
 }

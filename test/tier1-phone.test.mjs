@@ -18,7 +18,11 @@ import {
   petMood,
   feedPet,
   playWithPet,
-  decayPet
+  decayPet,
+  createSnake,
+  spawnFood,
+  turnSnake,
+  stepSnake
 } from "../module/blank-inheritance/scripts/core/phone.mjs";
 
 test("the Resonance bands are contiguous across the whole 0-100 range", () => {
@@ -104,4 +108,96 @@ test("feeding, playing and decay clamp to 0-100 and never mutate the input", () 
   const decayed = decayPet({ fed: 3, played: 0 }, 10);
   assert.equal(decayed.fed, 0, "decay must clamp at 0, not go negative");
   assert.equal(decayed.played, 0);
+});
+
+/* ==================================================================
+   Snake — one of the terminal's apps (design/ui/phone.js paints it;
+   this is all the logic it paints).
+   ================================================================== */
+
+test("createSnake starts a 3-long snake, alive, centred, with food placed off it", () => {
+  const s = createSnake(10, 10, () => 0);
+  assert.equal(s.snake.length, 3);
+  assert.equal(s.alive, true);
+  assert.equal(s.score, 0);
+  assert.deepEqual(s.dir, { x: 1, y: 0 });
+  assert.ok(s.food, "food must be placed");
+  assert.ok(!s.snake.some((p) => p.x === s.food.x && p.y === s.food.y), "food must not spawn on the snake");
+});
+
+test("createSnake rejects a board too small to hold the starting snake sensibly", () => {
+  assert.throws(() => createSnake(4, 4), /too small/);
+});
+
+test("spawnFood never lands on an occupied cell, and returns null on a full board", () => {
+  let call = 0;
+  const scripted = [0.99]; // pick the LAST free cell, to prove it's actually free
+  const random = () => scripted[call++ % scripted.length];
+  const snake = [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 2, y: 0 }];
+  const food = spawnFood(snake, 3, 1, random); // only 0 free cells other than... wait, 3x1 board fully occupied
+  assert.equal(food, null, "a fully-occupied board must report null, not crash or overlap");
+
+  const food2 = spawnFood(snake, 5, 1, random);
+  assert.ok(food2);
+  assert.ok(!snake.some((p) => p.x === food2.x && p.y === food2.y));
+});
+
+test("turnSnake ignores a direct reversal but accepts any other heading", () => {
+  const s = createSnake(10, 10, () => 0); // dir {x:1,y:0}
+  const reversed = turnSnake(s, { x: -1, y: 0 });
+  assert.deepEqual(reversed.dir, { x: 1, y: 0 }, "turning straight back into your own neck must be ignored");
+  const turned = turnSnake(s, { x: 0, y: 1 });
+  assert.deepEqual(turned.dir, { x: 0, y: 1 }, "a perpendicular turn must be accepted");
+});
+
+test("stepSnake moves the head and drops the tail when no food is eaten", () => {
+  const s = createSnake(10, 10, () => 0);
+  const before = s.snake.map((p) => ({ ...p }));
+  const after = stepSnake({ ...s, food: { x: -1, y: -1 } }); // food off-board: guaranteed no eat this tick
+  assert.equal(after.snake.length, 3, "length must not change without eating");
+  assert.deepEqual(after.snake[0], { x: before[0].x + 1, y: before[0].y });
+  assert.equal(after.score, 0);
+});
+
+test("stepSnake grows the snake and increments score on eating food", () => {
+  const s = createSnake(10, 10, () => 0);
+  const head = s.snake[0];
+  const foodAhead = { x: head.x + 1, y: head.y };
+  const after = stepSnake({ ...s, food: foodAhead }, () => 0.5);
+  assert.equal(after.snake.length, 4, "eating food must grow the snake by one segment");
+  assert.equal(after.score, 1);
+  assert.notDeepEqual(after.food, foodAhead, "a new food position must be drawn after eating");
+});
+
+test("stepSnake kills the snake on a wall collision", () => {
+  const s = createSnake(10, 10, () => 0);
+  const atRightWall = { ...s, snake: [{ x: 9, y: 5 }, { x: 8, y: 5 }, { x: 7, y: 5 }], dir: { x: 1, y: 0 }, food: { x: -1, y: -1 } };
+  const after = stepSnake(atRightWall);
+  assert.equal(after.alive, false);
+});
+
+test("stepSnake kills the snake on self-collision, but not on vacating its own tail cell", () => {
+  // A snake curled so the next move would hit its own body (not the tail
+  // it is about to vacate) must die. Traces head(5,5) -> (6,5) -> (6,6) ->
+  // (5,6) -> tail(5,7); moving down from the head lands on (5,6), the
+  // THIRD segment, not the tail that is about to move away.
+  const curled = {
+    width: 10, height: 10, dir: { x: 0, y: 1 }, alive: true, score: 0, food: { x: -1, y: -1 },
+    snake: [{ x: 5, y: 5 }, { x: 6, y: 5 }, { x: 6, y: 6 }, { x: 5, y: 6 }, { x: 5, y: 7 }]
+  };
+  const after = stepSnake(curled);
+  assert.equal(after.alive, false, "moving onto an occupied body segment must be fatal");
+
+  // A straight-line snake moving forward must NOT die by "hitting" the
+  // cell its own tail is currently sitting in, since the tail moves away
+  // on the same tick.
+  const straight = { width: 10, height: 10, dir: { x: 1, y: 0 }, alive: true, score: 0, food: { x: -1, y: -1 }, snake: [{ x: 5, y: 5 }, { x: 4, y: 5 }, { x: 3, y: 5 }] };
+  const stillAlive = stepSnake(straight);
+  assert.equal(stillAlive.alive, true, "moving forward must not be treated as colliding with the tail it just vacated");
+});
+
+test("stepSnake on a dead snake is a no-op", () => {
+  const dead = { width: 10, height: 10, dir: { x: 1, y: 0 }, alive: false, score: 3, food: null, snake: [{ x: 1, y: 1 }] };
+  const after = stepSnake(dead);
+  assert.deepEqual(after, dead);
 });

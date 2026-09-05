@@ -124,3 +124,71 @@ export function decayPet(state, amount = 5) {
     played: Math.max(0, state.played - amount)
   };
 }
+
+/* ------------------------------------------------------------------ *
+ * Snake — one of the terminal's own apps. A grid game is allowed to be
+ * a grid; the "not pixelated" direction was about the OS chrome, not
+ * about a game whose entire point is a grid. All state here is plain
+ * data ({x,y} points), so design/ui/phone.js only ever needs to paint
+ * whatever this returns — no game logic lives in the DOM layer.
+ * ------------------------------------------------------------------ */
+
+/** A board position not currently under the snake, or null if the board
+ *  is completely full (a genuine win state, vanishingly unlikely). */
+export function spawnFood(snake, width, height, random = Math.random) {
+  const occupied = new Set(snake.map((p) => `${p.x},${p.y}`));
+  const free = [];
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (!occupied.has(`${x},${y}`)) free.push({ x, y });
+    }
+  }
+  if (!free.length) return null;
+  return free[Math.floor(random() * free.length)];
+}
+
+/** A fresh 3-long snake, centred, moving right, with one food already placed. */
+export function createSnake(width, height, random = Math.random) {
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width < 5 || height < 5) {
+    throw new Error(`board too small: ${width}x${height} (minimum 5x5)`);
+  }
+  const cx = Math.floor(width / 2);
+  const cy = Math.floor(height / 2);
+  const snake = [{ x: cx, y: cy }, { x: cx - 1, y: cy }, { x: cx - 2, y: cy }];
+  return { width, height, snake, dir: { x: 1, y: 0 }, food: spawnFood(snake, width, height, random), alive: true, score: 0 };
+}
+
+/** Change heading. A direct reversal (turning straight back into your own
+ *  neck) is ignored rather than accepted-then-immediately-fatal — every
+ *  real Snake does this, and it is the one input-handling rule worth a
+ *  test, since it is exactly the kind of thing an "obviously correct"
+ *  implementation gets wrong by taking every keypress literally. */
+export function turnSnake(state, dir) {
+  if (dir.x === -state.dir.x && dir.y === -state.dir.y) return state;
+  return { ...state, dir };
+}
+
+/** Advance one tick: move, check wall/self collision, check food. A dead
+ *  snake stepping again is a no-op, not an error — the caller (a
+ *  setInterval loop) does not need to know to stop calling immediately. */
+export function stepSnake(state, random = Math.random) {
+  if (!state.alive) return state;
+  const head = state.snake[0];
+  const next = { x: head.x + state.dir.x, y: head.y + state.dir.y };
+  const hitWall = next.x < 0 || next.x >= state.width || next.y < 0 || next.y >= state.height;
+  const ateFood = !!state.food && next.x === state.food.x && next.y === state.food.y;
+  // The tail cell is about to vacate (unless the snake is growing this
+  // tick), so colliding with what is CURRENTLY the last segment is not
+  // actually fatal — checking against the post-move body, not the
+  // pre-move one, is the second easy-to-get-wrong rule here.
+  const body = ateFood ? state.snake : state.snake.slice(0, -1);
+  const hitSelf = body.some((p) => p.x === next.x && p.y === next.y);
+  if (hitWall || hitSelf) return { ...state, alive: false };
+  const snake = [next, ...body];
+  return {
+    ...state,
+    snake,
+    score: ateFood ? state.score + 1 : state.score,
+    food: ateFood ? spawnFood(snake, state.width, state.height, random) : state.food
+  };
+}

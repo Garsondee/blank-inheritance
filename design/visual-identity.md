@@ -802,6 +802,100 @@ to agree with the first, not before.
 
 ---
 
+## 5c. The terminal — §5b rebuilt after live review (pass 17)
+
+**§5b was reviewed live and the user changed course on both of its headline decisions.** Not a
+refinement — a genuine rebuild, reusing only the Pet mechanic and the overall "big obvious button
+in the top rail" idea. Both calls are the user's own and are stated here verbatim because they
+correct something this doc previously called "locked":
+
+1. *"The phone you've made is very modern."* The small floating draggable window IS the generic
+   modern-app-mockup form factor, independent of whatever renders inside it — a phone silhouette
+   is how every landing page shows an app, so building one reads as "a mockup of a phone app," not
+   as "a piece of 1950s hardware." Killed outright, not resized.
+2. *"I'm deciding against pixelated."* `ideas/entries/terminal-login-landing-page.json` had
+   explicitly locked a chunky low-res pixel OS for the on-screen visuals. The user has full
+   authority to revisit their own earlier call, and does so here — that idea entry has been
+   updated in place (2026-09-06) rather than left contradicting the current build.
+
+**The replacement, `.bi-terminal` (`design/ui/phone.js`, `bi-components.css` §8):** a panel that
+rises from the chassis floor and fills 80% of the scene on open — the concrete reason given is
+worth keeping verbatim, since it is the actual design constraint driving every other choice here:
+*"we'll have to serve website pages and emails so this amount of space is better."* A phone-sized
+window cannot honestly hold an inbox.
+
+**Rendering direction: "a computer subset of the design decisions we've made so far."** Not a new
+register — GLASS, the one the main dome/subdomes/pilot-ID panel/marker cards already use (Chakra
+Petch legends, Oxanium display, Share Tech Mono for the terminal's actual message/email body
+text — a monospace chat log reads as "a computer terminal," which is exactly right for a
+1950s-tech setting, and is not the same move as the abandoned pixel OS). One deliberate exception:
+the Medical Report is a genuine *document*, so it renders in **PAPER** (`.bi-doc`, `.bi-stamp`,
+`.bi-form-row` — all reused verbatim from the existing Standing Order 14 work, not reinvented).
+This is not a special case bolted on for variety; it is the two-register rule (§1) applied
+correctly — a document does not stop looking like a document because a computer is displaying it
+instead of a hand, so `.bi-terminal__main--paper` swaps the surrounding field to a neutral dark
+"viewer canvas" the same way a real PDF viewer frames a white page, rather than trying to make the
+document itself look like a screen.
+
+**Content, per the new brief, six apps on a left-hand switcher rail:**
+- **Messaging** — real two-pane channels/DMs, live send (typing and hitting Enter appends a
+  message as you, `04`), seeded with campaign-grounded flavour lines from the existing roster.
+- **Email** — inbox + reader, five formal messages in the three Directorate NPCs' established
+  voices (`data/npcs/*.json`) plus two system notices.
+- **Media Organiser** — answers `terminal-login-landing-page`'s own "a carefully organised form
+  so people can look back through lore" requirement directly: a grid of the six location photos
+  already generated for the marker cards, plus Standing Order 14 as a document tile, with a
+  lightbox-style viewer for either kind.
+- **Snake** — a real game, not a demo: `createSnake`/`turnSnake`/`stepSnake` in `phone.mjs` are
+  pure grid logic (movement, wall/self collision — correctly distinguishing "hit an occupied body
+  segment" from "moved into the tail cell that is vacating this same tick" — food, growth, score),
+  tested in `test/tier1-phone.test.mjs`. Rendered in the chassis's own phosphor/steel palette as
+  plain grid cells, not sprite tiles — "not pixelated" was about the OS chrome, not about a game
+  whose entire point is a grid.
+- **Pet** — kept, exactly as asked, redrawn: a small hand-drawn SVG creature in the same
+  phosphor-line idiom the main dome's own HUD SVG already uses, replacing the pixel sprite. Same
+  `localStorage`-persisted fed/played state as before.
+- **Medical Report** — a mocked stand-in for the eventual real character sheet, per the user's
+  own idea for how the future onboarding flow should work: ability boosts framed as a school
+  "grades" transcript (`.bi-form-row` pairs like "Reflex & Coordination Drills — A- · DEX +2"),
+  plus the rest of an SF2E level-1 primary sheet reframed as clinical readings ("Cardiovascular
+  Reserve (HP)," "Stress Response — Evasive (Reflex)"). Explicitly stamped and labelled a
+  template/sample — this is not any of the six real kids' actual numbers, which have not been
+  decided and are not this feature's call to invent.
+
+**Two bugs found live, both DOM/layout behaviour rather than pure logic — the same category
+several `console.js` bugs already fell into, so neither is a surprise that the node suite couldn't
+have caught:** none, this pass — the two real bugs from §5b's own build (the pet sprite's 0×0
+grid cells, the `bounds()`-is-not-a-function drag failure) do not recur here, since the terminal
+has no drag behaviour at all (deliberately: a bottom-anchored panel does not need to move) and the
+Pet's new SVG rendering does not depend on CSS grid sizing.
+
+**Tooling note, confirmed conclusively while investigating what turned out to be a non-bug:**
+`read_console_messages` in this session's Browser pane returns a **stale, cross-navigation
+buffer** — it kept reporting the exact `bounds is not a function` error from §5b's now-deleted
+`makeDraggable` code, by file:line, across multiple fresh page loads of a `phone.js` that no
+longer contains the string `bounds` anywhere (`grep -c` confirmed zero matches). Live functional
+checks (`getBoundingClientRect`, dispatched events, actual DOM state) are unaffected and remain
+the reliable source of truth; this join the project's existing list of "trust measurement over
+this particular tool output" gotchas.
+
+A second apparent bug (Snake showing "GAME OVER" immediately after switching to it) was chased
+and disproved the same way: direct reproduction of the exact click sequence showed correct
+behaviour both on a fresh load and deliberately repeated. The real explanation was simpler than a
+bug — the snake had genuinely never been steered (no arrow key was pressed across the whole
+testing session) and, given enough real elapsed wall-clock time across many round-trips, had
+simply and correctly run into a wall on its own. Confirmed by restarting and steering it once:
+the head moved exactly two rows in the pressed direction, column unchanged.
+
+**Still open, unchanged from §5b's own list, plus one new item:** the real correspondence UI, the
+hacking-gated intranet, Foundry wiring, and now explicitly a **condensed companion view** — the
+user named this directly as a plausible future piece ("we may produce a condensed version of the
+UI... so that people can use messaging without it taking up the entire screen") and was equally
+direct that it is a *separate component*, not a resize of `.bi-terminal` — noted here so a future
+pass does not try to make one component serve both jobs.
+
+---
+
 ## 6. Not done yet
 
 - **Never loaded into a live Foundry.** `module.json` does load the stylesheets, and

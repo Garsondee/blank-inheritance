@@ -2855,368 +2855,502 @@
 }
 
 /* =====================================================================
-   8. THE PHONE
+   8. THE TERMINAL
    ---------------------------------------------------------------------
-   ideas/entries/phone-app-suite.json (accepted, user: "I love all of
-   them") + ideas/entries/terminal-login-landing-page.json's art direction,
-   now locked: the physical DEVICE is a smoother 1960s retro-industrial
-   object -- not a modern phone, but allowed real curves and real brass --
-   while its OWN SCREEN runs a deliberately blocky, chunky, low-res OS.
-   Two different registers meeting at one seam, on purpose: the chassis
-   outside is this project's usual hardware language (steel, brass, real
-   bevels); the glass inside is PIXEL -- Press Start 2P / DotGothic16,
-   hard corners, no anti-aliased blur -- because a crude pixel display
-   inside a well-made period object is the actual look being chased, not
-   a phone that is pixel art all the way through.
+   FOUND LIVE, reported directly against the first build: "the phone
+   you've made is very modern... I'm deciding against pixelated." Two
+   separate calls, both the user's to make and both honoured completely
+   here, not softened:
 
-   Physically DRAGGABLE (a floating window, not a dock -- the idea entry
-   is explicit that this must not be fixed in place like the control bar),
-   confined to the console's own box so it can't wander into the page
-   below it.
+   1. FORM FACTOR. A small floating draggable rounded-rect window is the
+      generic modern-app-mockup trope, regardless of what runs inside it.
+      Killed outright. This now rises from the chassis floor and fills
+      80% of the scene -- the reasoning given is concrete and correct:
+      "we'll have to serve website pages and emails so this amount of
+      space is better." A phone-sized panel cannot honestly hold an inbox.
+   2. RENDERING. No pixel font, no chunky low-res OS screen. Instead: "a
+      computer subset of the design decisions we've made so far" -- this
+      is GLASS (the register the main dome/subdomes/pilot-ID panel/marker
+      cards already use: Chakra Petch legends, Oxanium display, Share
+      Tech Mono readouts) for the terminal's own chrome, with ONE
+      deliberate exception -- the Medical Report is a DOCUMENT, so it
+      renders in PAPER (.bi-doc, already built for Standing Order 14),
+      exactly as the two-register rule already says a document should,
+      regardless of what screen is showing it. A rendered document does
+      not stop looking like a document because a computer is displaying
+      it instead of a hand.
+
+   ideas/entries/phone-app-suite.json's PET survives (explicitly asked to
+   keep it), redrawn as a small SVG creature in the same hand-drawn-line
+   idiom the main dome's own HUD already uses, rather than a pixel sprite.
+   Everything else here is new: Messaging, Email, Media, Snake, and a
+   mocked Medical Report standing in for the eventual character sheet.
+
+   Explicitly NOT a docked/fixed element (matches the "not a fixed dock
+   like the control bar" instinct from the original phone brief) -- this
+   is a big panel that appears and withdraws, never permanently on screen,
+   which is also why a smaller "condensed" companion view (mentioned as a
+   possible future piece, for messaging without eating the whole scene)
+   is a genuinely separate component later, not a resize of this one.
    ===================================================================== */
 
-/* A warm, dark bakelite-adjacent surface for the phone's OWN shell -- the
-   console is cool steel and brass; the phone reads as a different object
-   class if it leans warm instead of matching that palette outright. */
-.bi-phone {
-  --bakelite-hi: #3a2f28;
-  --bakelite-mid: #241c17;
-  --bakelite-lo: #14100c;
+.bi-terminal {
+  --nav-w: 176px;
   position: absolute;
-  left: var(--phone-x, calc(50% - 108px));
-  top: var(--phone-y, 90px);
-  width: 216px;
-  z-index: 7;
-  display: flex;
-  flex-direction: column;
-  border-radius: 22px;
-  background: linear-gradient(155deg, var(--bakelite-hi) 0%, var(--bakelite-mid) 55%, var(--bakelite-lo) 100%);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 10%),
-    inset 0 0 0 1px rgb(0 0 0 / 60%),
-    0 0 0 2px var(--bi-brass-shadow),
-    0 22px 44px rgb(0 0 0 / 78%);
-  padding: 10px 10px 14px;
-  user-select: none;
-}
-.bi-phone[hidden] { display: none; }
-/* Four brass corner screws -- the one piece of chassis hardware language
-   the shell borrows, so it still reads as built by the same workshop. */
-.bi-phone::before,
-.bi-phone::after {
-  content: "";
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  top: 10px;
-  background: var(--bi-mat-brass);
-  box-shadow: 0 0 0 1px var(--bi-brass-shadow), inset 0 1px 0 rgb(255 255 255 / 40%);
-}
-.bi-phone::before { left: 10px; }
-.bi-phone::after { right: 10px; }
-.bi-phone__screw--bl,
-.bi-phone__screw--br {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  bottom: 62px;
-  background: var(--bi-mat-brass);
-  box-shadow: 0 0 0 1px var(--bi-brass-shadow), inset 0 1px 0 rgb(255 255 255 / 40%);
-}
-.bi-phone__screw--bl { left: 10px; }
-.bi-phone__screw--br { right: 10px; }
-
-/* Drag handle: a small grip (five dots) plus a close key. Dragging the
-   shell anywhere else risks eating a tap meant for the screen below it. */
-.bi-phone__grip {
-  flex: none;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  cursor: grab;
-  touch-action: none;
-}
-.bi-phone__grip:active { cursor: grabbing; }
-.bi-phone__grip i {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: rgb(255 255 255 / 18%);
-  box-shadow: inset 0 1px 1px rgb(0 0 0 / 50%);
-}
-.bi-phone__close {
-  position: absolute;
-  top: 8px;
-  right: 22px;
-  width: 16px;
-  height: 16px;
-  border: none;
-  border-radius: 50%;
-  background: linear-gradient(180deg, #4a3a30, #221a15);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 12%), 0 1px 2px rgb(0 0 0 / 70%);
-  color: rgb(255 255 255 / 55%);
-  font-size: 9px;
-  line-height: 1;
-  cursor: pointer;
-}
-.bi-phone__close:hover { color: var(--bi-vermilion); }
-
-/* The earpiece grille -- pure texture, the one bit of "this is a handset"
-   signalling above the screen. */
-.bi-phone__ear {
-  flex: none;
-  align-self: center;
-  width: 46px;
-  height: 5px;
-  margin-bottom: 8px;
-  border-radius: 3px;
-  background: repeating-linear-gradient(90deg, var(--bakelite-lo) 0 3px, var(--bakelite-hi) 3px 4px);
-  box-shadow: inset 0 1px 2px rgb(0 0 0 / 70%);
-}
-
-/* --- The screen: PIXEL register starts here -------------------------- */
-.bi-phone__screen {
-  position: relative;
-  flex: none;
-  height: 288px;
-  border-radius: 6px;
-  overflow: hidden;
-  background: #0a0f0a;
-  box-shadow: inset 0 0 0 3px #050705, inset 0 0 18px rgb(0 0 0 / 85%);
-  font-family: var(--bi-font-pixel);
-  color: var(--bi-phosphor);
-  display: flex;
-  flex-direction: column;
-}
-.bi-phone__screen::after {
-  /* Chunkier, more visible scanlines than the console's own -- a genuine
-     low-res panel, not a hi-res display pretending to be retro. */
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(180deg, rgb(0 0 0 / 22%) 0 1px, transparent 1px 3px);
-  mix-blend-mode: multiply;
+  left: 50%;
+  bottom: 0;
+  width: min(1520px, 94%);
+  height: 80%;
+  min-height: 320px;
+  z-index: 8;
+  transform: translate(-50%, calc(100% + 24px));
+  transition: transform var(--bi-dur-servo) var(--bi-ease-servo);
   pointer-events: none;
-  z-index: 5;
 }
-.bi-phone__screen.bi-corrupt::before { z-index: 6; }
+.bi-terminal--open {
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+@media (prefers-reduced-motion: reduce) { .bi-terminal { transition: none; } }
 
-.bi-phone__statusbar {
-  flex: none;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  height: 16px;
-  padding: 0 5px;
-  background: #0d160d;
-  box-shadow: 0 1px 0 rgb(0 0 0 / 60%);
-  font-size: 7px;
-  letter-spacing: 0.04em;
-}
-.bi-phone__bars { display: flex; align-items: flex-end; gap: 1px; height: 8px; }
-.bi-phone__bars i { width: 2px; background: var(--bi-phosphor); opacity: 0.35; }
-.bi-phone__bars i:nth-child(1) { height: 3px; }
-.bi-phone__bars i:nth-child(2) { height: 5px; }
-.bi-phone__bars i:nth-child(3) { height: 6px; }
-.bi-phone__bars i:nth-child(4) { height: 8px; }
-.bi-phone__bars i.bi-lit { opacity: 1; }
-.bi-phone__statusbar .bi-phone__clock { flex: 1; text-align: center; }
-.bi-phone__batt {
-  width: 14px;
-  height: 7px;
-  border: 1px solid var(--bi-phosphor);
-  position: relative;
-  opacity: 0.9;
-}
-.bi-phone__batt::after {
-  content: "";
-  position: absolute;
-  right: -3px;
-  top: 2px;
-  width: 2px;
-  height: 3px;
-  background: var(--bi-phosphor);
-}
-.bi-phone__batt i { display: block; height: 100%; background: var(--bi-phosphor); width: 70%; }
-
-.bi-phone__view {
-  position: relative;
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 8px;
-  scrollbar-width: none;
-}
-.bi-phone__view::-webkit-scrollbar { display: none; }
-
-/* --- Home screen: the eight confirmed apps, as one obvious grid ------ */
-.bi-phone__home {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 9px;
-}
-.bi-phone__tile {
-  --tile: var(--bi-phosphor);
+.bi-terminal__frame {
+  height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  border: none;
-  background: none;
-  padding: 2px;
-  cursor: pointer;
-  color: inherit;
-  font-family: var(--bi-font-pixel);
+  border-radius: 14px 14px 0 0;
+  overflow: hidden;
+  background: var(--bi-mat-steel);
+  box-shadow:
+    0 0 0 1px var(--bi-brass-shadow),
+    inset 0 1px 0 rgb(255 255 255 / 8%),
+    0 -18px 50px rgb(0 0 0 / 80%);
 }
-.bi-phone__tile-face {
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-  border-radius: 5px;
-  font-size: 17px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--tile) 55%, #0a0f0a), color-mix(in srgb, var(--tile) 30%, #0a0f0a));
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 20%), inset 0 -3px 0 rgb(0 0 0 / 35%), 0 2px 0 rgb(0 0 0 / 60%);
-  color: #0a0f0a;
-  position: relative;
-}
-.bi-phone__tile:active .bi-phone__tile-face { transform: translateY(1px); box-shadow: inset 0 1px 0 rgb(255 255 255 / 20%), inset 0 -1px 0 rgb(0 0 0 / 35%); }
-.bi-phone__tile-badge {
+/* A brass strake across the top edge -- the same "ties separate modules
+   into one machine" idea .bi-bar::before already uses on the chassis. */
+.bi-terminal__frame::before {
+  content: "";
   position: absolute;
-  top: -3px;
-  right: -3px;
-  min-width: 11px;
-  height: 11px;
-  padding: 0 2px;
-  border-radius: 6px;
-  background: var(--bi-vermilion);
-  color: #fff;
-  font-size: 6px;
-  display: grid;
-  place-items: center;
-  box-shadow: 0 0 0 1.5px #0a0f0a;
-}
-.bi-phone__tile-badge[hidden] { display: none; }
-.bi-phone__tile-label {
-  font-size: 6.5px;
-  letter-spacing: 0.02em;
-  text-align: center;
-  line-height: 1.3;
-  color: var(--bi-phosphor);
-  text-shadow: 0 0 4px currentColor;
+  left: 14px;
+  right: 14px;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--bi-brass) 15%, var(--bi-brass-lit) 50%, var(--bi-brass) 85%, transparent);
+  opacity: 0.85;
 }
 
-/* --- App chrome: shared by every page other than home ----------------- */
-.bi-phone__appbar {
+.bi-terminal__titlebar {
+  position: relative;
+  flex: none;
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 8px;
+  gap: 10px;
+  height: 44px;
+  padding: 0 8px 0 14px;
+  background: linear-gradient(180deg, var(--bi-steel-600) 0%, var(--bi-steel-800) 80%, var(--bi-steel-900) 100%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 10%), 0 2px 8px rgb(0 0 0 / 60%);
+  border-bottom: 1px solid var(--bi-brass-shadow);
 }
-.bi-phone__back {
-  flex: none;
-  border: none;
-  background: #132013;
-  color: var(--bi-phosphor);
-  font-family: var(--bi-font-pixel);
-  font-size: 8px;
-  padding: 4px 6px;
-  cursor: pointer;
-  box-shadow: inset 0 0 0 1px rgb(111 227 154 / 30%);
-}
-.bi-phone__back:hover { background: #1a2e1a; }
-.bi-phone__title {
-  font-family: var(--bi-font-pixel);
-  font-size: 9px;
-  letter-spacing: 0.03em;
+.bi-terminal__title-glyph { flex: none; width: 18px; height: 18px; display: grid; place-items: center; color: var(--bi-phosphor); }
+.bi-terminal__title {
+  font-family: var(--bi-font-display);
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--bi-bone);
 }
-.bi-phone__body {
-  font-family: var(--bi-font-pixel);
-  font-size: 7.5px;
-  line-height: 1.9;
-  color: var(--bi-bone-dim);
-}
-.bi-phone__key {
-  display: inline-block;
-  border: none;
-  background: #132013;
-  color: var(--bi-phosphor);
-  font-family: var(--bi-font-pixel);
-  font-size: 7.5px;
-  padding: 6px 8px;
-  cursor: pointer;
-  box-shadow: inset 0 0 0 1px rgb(111 227 154 / 30%), 0 2px 0 #050a05;
-}
-.bi-phone__key:active { transform: translateY(2px); box-shadow: inset 0 0 0 1px rgb(111 227 154 / 30%); }
-.bi-phone__row { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
-.bi-phone__card {
-  padding: 7px 8px;
-  margin-bottom: 6px;
-  background: #0d160d;
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 6%);
-}
-.bi-phone__meter {
-  height: 6px;
-  background: #050a05;
-  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 60%);
-  margin: 3px 0 6px;
-}
-.bi-phone__meter i { display: block; height: 100%; background: var(--bi-phosphor); }
-
-/* Bottom physical button: press it, go home from anywhere. */
-.bi-phone__homebtn {
+.bi-terminal__spacer { flex: 1; }
+.bi-terminal__clock { font-family: var(--bi-font-readout); font-size: 12px; color: var(--bi-phosphor-dim); margin-right: 6px; }
+.bi-terminal__close {
   flex: none;
-  align-self: center;
-  width: 34px;
-  height: 34px;
-  margin-top: 12px;
+  width: 28px;
+  height: 28px;
   border: none;
-  border-radius: 50%;
+  border-radius: 4px;
+  background: var(--bi-mat-pod);
+  box-shadow: var(--bi-bevel-up), 0 0 0 1px var(--bi-brass-shadow);
+  color: var(--bi-bone-dim);
+  font-size: 14px;
   cursor: pointer;
-  background: radial-gradient(circle at 35% 30%, var(--bakelite-hi), var(--bakelite-lo) 82%);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 14%), inset 0 -3px 4px rgb(0 0 0 / 60%), 0 2px 0 rgb(0 0 0 / 70%), 0 0 0 1px var(--bi-brass-shadow);
 }
-.bi-phone__homebtn:active { transform: translateY(1px); }
-.bi-phone__homebtn::after {
+.bi-terminal__close:hover { color: var(--bi-vermilion); }
+
+.bi-terminal__body { flex: 1; min-height: 0; display: flex; }
+
+/* --- Left: the app switcher ------------------------------------------- */
+.bi-terminal__nav {
+  flex: none;
+  width: var(--nav-w);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 8px;
+  background: var(--bi-steel-900);
+  border-right: 1px solid var(--bi-brass-shadow);
+  overflow-y: auto;
+}
+.bi-terminal__navbtn {
+  --app: var(--bi-phosphor);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 10px 9px 12px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--bi-bone-dim);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--bi-font-legend);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  transition: background var(--bi-dur-snap) linear, color var(--bi-dur-snap) linear;
+}
+.bi-terminal__navbtn::before {
+  /* Left accent bar in the app's own colour -- the same "the trailing
+     value gets its own well" instinct as elsewhere, mirrored to the left
+     edge here since this is a nav rail, not a data row. */
   content: "";
   position: absolute;
-  width: 8px;
-  height: 8px;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
   border-radius: 2px;
-  border: 1.5px solid rgb(255 255 255 / 30%);
+  background: var(--app);
+  opacity: 0.35;
 }
+.bi-terminal__navbtn-glyph {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  color: var(--app);
+}
+.bi-terminal__navbtn:hover { background: rgb(255 255 255 / 4%); color: var(--bi-bone); }
+.bi-terminal__navbtn[aria-pressed="true"] {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--app) 16%, transparent), transparent);
+  color: var(--bi-bone);
+}
+.bi-terminal__navbtn[aria-pressed="true"]::before { opacity: 1; box-shadow: 0 0 8px var(--app); }
+.bi-terminal__navbtn-badge {
+  margin-left: auto;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 8px;
+  background: var(--bi-vermilion);
+  color: #fff;
+  font-family: var(--bi-font-readout);
+  font-size: 9px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+.bi-terminal__navbtn-badge[hidden] { display: none; }
 
-/* Bleed corruption on the phone's OWN glass -- confirmed idea #4: "as a
-   pilot's Bleed climbs, their own phone's pixel UI degrades." Reuses the
-   same .bi-corrupt mechanism and --bi-bleed value the console's own glass
-   already answers to (see console.js's single Bleed handler), so there is
-   one source of truth for "how corrupted is everything," not two. */
-.bi-phone__screen.bi-corrupt { animation: bi-phone-glitch 2.4s steps(6) infinite; }
-@keyframes bi-phone-glitch {
-  0%, 100% { filter: none; }
-  46% { filter: none; }
-  48% { filter: hue-rotate(40deg) contrast(1.4); transform: translateX(1px); }
-  50% { filter: none; transform: none; }
-  81% { filter: none; }
-  83% { filter: saturate(0) brightness(1.6); transform: translateX(-1px); }
-  85% { filter: none; transform: none; }
+/* --- Right: the app itself --------------------------------------------- */
+.bi-terminal__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bi-steel-800);
+  overflow: hidden;
 }
-@media (prefers-reduced-motion: reduce) { .bi-phone__screen.bi-corrupt { animation: none; } }
+/* When a document (the Medical Report) is open, the surrounding field
+   goes neutral and dark, the way a real document viewer's canvas does,
+   so the paper sheet reads as an object sitting ON the screen rather
+   than as part of the screen's own chrome. */
+.bi-terminal__main--paper { background: var(--bi-steel-900); align-items: center; }
+.bi-terminal__main--paper > * { max-width: 900px; margin: 20px auto; width: calc(100% - 40px); }
 
 /* =====================================================================
-   THE BIG OBVIOUS PHONE BUTTON
+   MESSAGING — two panes, Share Tech Mono for the log itself: a chat
+   transcript reading like a terminal session is exactly the right amount
+   of "computer" for a 1950s-tech setting, not a bubble-and-avatar app.
+   ===================================================================== */
+.bi-msg { display: flex; height: 100%; }
+.bi-msg__list {
+  flex: none;
+  width: 220px;
+  overflow-y: auto;
+  border-right: 1px solid rgb(0 0 0 / 40%);
+  padding: 8px;
+}
+.bi-msg__section {
+  font-family: var(--bi-font-legend);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bi-brass);
+  margin: 10px 4px 5px;
+}
+.bi-msg__section:first-child { margin-top: 2px; }
+.bi-msg__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 7px 8px;
+  border-radius: 4px;
+  color: var(--bi-bone-dim);
+  cursor: pointer;
+  font-family: var(--bi-font-condensed);
+  font-size: 13px;
+  text-align: left;
+}
+.bi-msg__item:hover { background: rgb(255 255 255 / 5%); }
+.bi-msg__item[aria-pressed="true"] { background: rgb(111 227 154 / 10%); color: var(--bi-bone); }
+.bi-msg__item .bi-lamp { flex: none; }
+.bi-msg__item-unread {
+  margin-left: auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--bi-vermilion);
+  box-shadow: 0 0 5px var(--bi-vermilion);
+}
+.bi-msg__item-unread[hidden] { display: none; }
+
+.bi-msg__thread { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.bi-msg__log { flex: 1; overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.bi-msg__row { display: flex; gap: 10px; max-width: 82%; }
+.bi-msg__row--me { align-self: flex-end; flex-direction: row-reverse; }
+.bi-msg__avatar {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--bi-mat-pod);
+  box-shadow: var(--bi-bevel-up), 0 0 0 1px var(--bi-brass-shadow);
+  font-family: var(--bi-font-readout);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--bi-phosphor);
+}
+.bi-msg__bubble {
+  background: var(--bi-steel-900);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 6%);
+  border-radius: 3px;
+  padding: 8px 10px;
+}
+.bi-msg__row--me .bi-msg__bubble { background: #0d2015; box-shadow: inset 0 0 0 1px rgb(111 227 154 / 20%); }
+.bi-msg__who { font-family: var(--bi-font-legend); font-size: 10px; color: var(--bi-brass); margin-bottom: 3px; }
+.bi-msg__text { font-family: var(--bi-font-readout); font-size: 13px; line-height: 1.5; color: var(--bi-bone); white-space: pre-wrap; }
+.bi-msg__time { font-family: var(--bi-font-readout); font-size: 9px; color: var(--bi-bone-dark); margin-top: 4px; }
+.bi-msg__composer {
+  flex: none;
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid rgb(0 0 0 / 40%);
+}
+.bi-msg__input {
+  flex: 1;
+  background: var(--bi-steel-900);
+  border: none;
+  box-shadow: var(--bi-bevel-down);
+  border-radius: 3px;
+  padding: 9px 10px;
+  color: var(--bi-bone);
+  font-family: var(--bi-font-readout);
+  font-size: 13px;
+}
+.bi-msg__input:focus { outline: 2px solid var(--bi-cyan); outline-offset: 1px; }
+.bi-msg__send {
+  flex: none;
+  border: none;
+  border-radius: 3px;
+  padding: 0 16px;
+  background: var(--bi-mat-pod);
+  color: var(--bi-phosphor);
+  font-family: var(--bi-font-legend);
+  font-size: 11px;
+  cursor: pointer;
+  box-shadow: var(--bi-bevel-up), 0 0 0 1px var(--bi-brass-shadow);
+}
+.bi-msg__send:hover { color: #b9ffd4; }
+.bi-msg__empty { flex: 1; display: grid; place-items: center; color: var(--bi-bone-dark); font-family: var(--bi-font-legend); font-size: 12px; }
+
+/* =====================================================================
+   EMAIL — the same two-pane instinct, formal register: Chakra Petch for
+   the list (this is metadata, the same face .bi-legend already uses),
+   Share Tech Mono for the body (still a screen, still GLASS).
+   ===================================================================== */
+.bi-mail { display: flex; height: 100%; }
+.bi-mail__list { flex: none; width: 260px; overflow-y: auto; border-right: 1px solid rgb(0 0 0 / 40%); }
+.bi-mail__item {
+  display: block;
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid rgb(0 0 0 / 35%);
+  background: none;
+  padding: 10px 12px;
+  cursor: pointer;
+  text-align: left;
+}
+.bi-mail__item:hover { background: rgb(255 255 255 / 4%); }
+.bi-mail__item[aria-pressed="true"] { background: rgb(79 200 216 / 10%); }
+.bi-mail__from { display: flex; justify-content: space-between; gap: 6px; font-family: var(--bi-font-legend); font-size: 11px; color: var(--bi-bone); }
+.bi-mail__item[data-unread="true"] .bi-mail__from { color: var(--bi-cyan); }
+.bi-mail__item[data-unread="true"] .bi-mail__from::before { content: "● "; font-size: 8px; color: var(--bi-cyan); }
+.bi-mail__date { color: var(--bi-bone-dark); font-family: var(--bi-font-readout); font-size: 9px; }
+.bi-mail__subject { font-family: var(--bi-font-condensed); font-size: 13px; color: var(--bi-bone-dim); margin-top: 3px; }
+.bi-mail__snippet { font-family: var(--bi-font-readout); font-size: 10px; color: var(--bi-bone-dark); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.bi-mail__reader { flex: 1; overflow-y: auto; padding: 20px 26px; }
+.bi-mail__reader-head { padding-bottom: 12px; margin-bottom: 14px; border-bottom: 1px solid var(--bi-brass-shadow); }
+.bi-mail__reader-subject { font-family: var(--bi-font-display); font-size: 19px; color: var(--bi-bone); margin-bottom: 8px; }
+.bi-mail__reader-meta { font-family: var(--bi-font-readout); font-size: 11px; color: var(--bi-bone-dim); display: flex; gap: 14px; flex-wrap: wrap; }
+.bi-mail__reader-meta b { color: var(--bi-bone); }
+.bi-mail__reader-body { font-family: var(--bi-font-readout); font-size: 13px; line-height: 1.8; color: var(--bi-bone-dim); max-width: 62ch; white-space: pre-wrap; }
+.bi-mail__empty { flex: 1; display: grid; place-items: center; color: var(--bi-bone-dark); font-family: var(--bi-font-legend); font-size: 12px; }
+
+/* =====================================================================
+   MEDIA ORGANISER — "a quick way to access journals (images or
+   documents) which they've been given access to." A grid of what has
+   actually been shared, image and document tiles both, one lightbox
+   for whichever is open.
+   ===================================================================== */
+.bi-media__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  padding: 16px;
+  overflow-y: auto;
+  height: 100%;
+  align-content: start;
+}
+.bi-media__tile {
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: var(--bi-steel-900);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: var(--bi-bevel-up), 0 3px 8px rgb(0 0 0 / 55%);
+  text-align: left;
+}
+.bi-media__thumb { width: 100%; height: 96px; object-fit: cover; display: block; filter: saturate(0.85) brightness(0.88); }
+.bi-media__tile:hover .bi-media__thumb { filter: none; }
+.bi-media__doc-face {
+  width: 100%;
+  height: 96px;
+  display: grid;
+  place-items: center;
+  background: var(--bi-mat-paper);
+  font-family: var(--bi-font-document);
+  color: var(--bi-paper-ink-2);
+  font-size: 28px;
+}
+.bi-media__caption { padding: 7px 9px 9px; }
+.bi-media__title { font-family: var(--bi-font-condensed); font-size: 12px; font-weight: 600; color: var(--bi-bone); display: block; }
+.bi-media__kind { font-family: var(--bi-font-legend); font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bi-bone-dark); }
+
+.bi-media__viewer { position: absolute; inset: 0; background: rgb(4 6 5 / 92%); display: flex; flex-direction: column; z-index: 2; }
+.bi-media__viewer[hidden] { display: none; }
+.bi-media__viewer-bar { flex: none; display: flex; align-items: center; padding: 8px 12px; gap: 10px; }
+.bi-media__viewer-title { font-family: var(--bi-font-legend); font-size: 12px; color: var(--bi-bone); }
+.bi-media__viewer-body { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 0 20px 20px; }
+.bi-media__viewer-body img { max-width: 100%; max-height: 100%; object-fit: contain; box-shadow: 0 10px 40px rgb(0 0 0 / 70%); }
+.bi-media__viewer-body .bi-doc { max-height: 100%; overflow-y: auto; max-width: 640px; }
+
+/* =====================================================================
+   SNAKE — a grid game is allowed to be a grid; "not pixelated" was about
+   the OS chrome, not about a game whose whole point is a grid. Rendered
+   in the chassis's own phosphor/steel palette, not sprite tiles.
+   ===================================================================== */
+.bi-snake { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 10px; padding: 16px; }
+.bi-snake__hud { display: flex; gap: 20px; align-items: baseline; }
+.bi-snake__board {
+  display: grid;
+  background: var(--bi-steel-900);
+  box-shadow: var(--bi-bevel-down), 0 0 0 1px var(--bi-brass-shadow);
+  border-radius: 3px;
+}
+.bi-snake__cell { box-shadow: inset 0 0 0 1px rgb(0 0 0 / 25%); }
+.bi-snake__cell--snake { background: var(--bi-phosphor); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 25%), 0 0 4px var(--bi-phosphor); }
+.bi-snake__cell--head { background: #d8ffe8; }
+.bi-snake__cell--food { background: var(--bi-amber); border-radius: 50%; box-shadow: 0 0 6px var(--bi-amber); }
+.bi-snake__overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(4 6 5 / 78%);
+  font-family: var(--bi-font-display);
+  color: var(--bi-bone);
+  text-align: center;
+  gap: 10px;
+}
+.bi-snake__overlay[hidden] { display: none; }
+.bi-snake__board-wrap { position: relative; }
+
+/* =====================================================================
+   PET — kept, per the user's explicit request, redrawn to match: a small
+   hand-drawn SVG creature in the same phosphor-line idiom the main dome's
+   own HUD already uses, instead of a pixel sprite.
+   ===================================================================== */
+.bi-pet { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 14px; }
+.bi-pet__stage {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle, var(--bi-phosphor-bed) 0%, #060a06 80%);
+  box-shadow: inset 0 0 30px rgb(0 0 0 / 70%), 0 0 0 1px var(--bi-brass-shadow);
+}
+.bi-pet__svg { width: 100px; height: 100px; animation: bi-pet-bob 3.4s ease-in-out infinite; }
+@keyframes bi-pet-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .bi-pet__svg { animation: none; } }
+.bi-pet__mood { font-family: var(--bi-font-display); font-size: 15px; letter-spacing: 0.1em; color: var(--bi-phosphor); text-shadow: 0 0 8px currentColor; }
+.bi-pet__meters { display: flex; gap: 20px; }
+.bi-pet__meter-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.bi-pet__meter-label { font-family: var(--bi-font-legend); font-size: 9px; letter-spacing: 0.12em; color: var(--bi-bone-dim); }
+.bi-pet__meter-track { width: 100px; height: 6px; background: var(--bi-steel-900); box-shadow: var(--bi-bevel-down); border-radius: 3px; overflow: hidden; }
+.bi-pet__meter-fill { height: 100%; background: linear-gradient(90deg, var(--bi-phosphor), color-mix(in srgb, var(--bi-phosphor) 55%, black)); }
+
+/* =====================================================================
+   Shared small chrome: a generic key + section header used by more than
+   one app, so Media/Snake/Pet/Email don't each invent their own button.
+   ===================================================================== */
+.bi-term-key {
+  border: none;
+  border-radius: 3px;
+  padding: 8px 16px;
+  background: var(--bi-mat-pod);
+  color: var(--bi-phosphor);
+  font-family: var(--bi-font-legend);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  box-shadow: var(--bi-bevel-up), 0 0 0 1px var(--bi-brass-shadow);
+}
+.bi-term-key:hover { color: #b9ffd4; }
+.bi-term-key:active { transform: translateY(1px); }
+
+
+/* =====================================================================
+   THE BIG OBVIOUS BUTTON
    ---------------------------------------------------------------------
    Lives in the top rail, the one strip of chassis with real space to
    spare (measured: ~80% empty at 4K). Deliberately bigger than the row
    that holds it -- the same "instrument breaks the chassis line" idea
    the dome/subdomes/pilot-ID panel all already use, at a much smaller
-   scale befitting a corner accent rather than a centrepiece.
+   scale befitting a corner accent rather than a centrepiece. Still your
+   "phone" in the sense that matters (ideas/entries/phone-app-suite.json's
+   own terminology for the device) -- it now opens into a full terminal
+   rather than a small floating window, the same way a real phone can
+   still open into a full-screen app. Class/id names kept as bi-phone-btn
+   / #phone-btn on purpose: the OBJECT the button represents did not
+   change, only how it presents itself once opened.
    ===================================================================== */
 .bi-phone-btn {
   position: relative;
