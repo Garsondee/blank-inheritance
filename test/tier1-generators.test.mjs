@@ -18,7 +18,7 @@ import { deriveFoundryId, contentHash } from "../module/blank-inheritance/script
 import { buildCreatureActorData } from "../module/blank-inheritance/scripts/core/generators/creature.mjs";
 import { buildCharacterActorData } from "../module/blank-inheritance/scripts/core/generators/character.mjs";
 import { buildSceneData } from "../module/blank-inheritance/scripts/core/generators/scene.mjs";
-import { buildJournalEntryData } from "../module/blank-inheritance/scripts/core/generators/journal.mjs";
+import { buildJournalEntryData, episodeToJournalSource } from "../module/blank-inheritance/scripts/core/generators/journal.mjs";
 import { validateActor, validateScene, validateJournalEntry } from "../module/blank-inheritance/scripts/core/validate.mjs";
 import { summarizeReport, reportToClipboardText } from "../module/blank-inheritance/scripts/core/report.mjs";
 
@@ -32,6 +32,9 @@ function readFixture(name) {
 }
 function readGolden(name) {
   return JSON.parse(readFileSync(path.join(goldenDir, name), "utf8"));
+}
+function readRealData(relativePath) {
+  return JSON.parse(readFileSync(path.join(repoRoot, "data", relativePath), "utf8"));
 }
 
 test("deriveFoundryId is deterministic and Foundry-id-shaped", async () => {
@@ -164,6 +167,44 @@ test("validateJournalEntry: a missing page is reported as a failed check, not si
   const result = await validateJournalEntry(created, source, data._id);
   const failed = result.checks.filter((c) => !c.pass);
   assert.ok(failed.length > 0, "dropping a page must surface at least one failed check");
+});
+
+test("episodeToJournalSource: a real episode with authored scenes (episode-01) produces one overview page plus one page per scene", async () => {
+  const episode = readRealData("episodes/episode-01-contact-unclassified.json");
+  const source = episodeToJournalSource(episode);
+
+  assert.equal(source.id, "episode-01-contact-unclassified");
+  assert.equal(source.name, "Contact, Unclassified");
+  assert.equal(source.pages.length, 1 + episode.scenes.length, "one overview page plus one per authored scene");
+  assert.equal(source.pages[0].id, "overview");
+  assert.match(source.pages[0].content, /Only one Frame launches/, "overview page must include the episode summary");
+  assert.match(source.pages[0].content, /Hand the pilot role/, "overview page must include the casting note");
+
+  const fightPage = source.pages.find((p) => p.id === "scene-7");
+  assert.ok(fightPage, "expected a page for scene 7 (the fight)");
+  assert.equal(fightPage.name, "7. The fight");
+  assert.match(fightPage.content, /Bleed hits 10/, "scene page must include the scene's own description");
+  assert.match(fightPage.content, /day-1-the-fight/, "scene page must surface its encounterRef");
+  assert.match(fightPage.content, /day-1-ground-layer/, "scene page must surface its subsystemRef");
+
+  // This is real prose, so it must actually build into a valid JournalEntry, not just look right.
+  const data = await buildJournalEntryData(source);
+  assert.equal(data.pages.length, source.pages.length);
+});
+
+test("episodeToJournalSource: an episode with no authored scenes yet (the interlude) still produces a real overview page, not an empty journal", () => {
+  const episode = readRealData("episodes/interlude-days-2-5-the-squeeze.json");
+  const source = episodeToJournalSource(episode);
+
+  assert.equal(source.pages.length, 1, "no scenes authored yet -- exactly the overview page, honestly, not a fabricated one");
+  assert.match(source.pages[0].content, /Mandatory school/);
+  assert.match(source.pages[0].content, /Seed exactly one dangling thread/, "requiredBeats must be rendered as prose, since they're real GM-facing content, not just a cross-reference id");
+  assert.doesNotMatch(source.pages[0].content, /who-was-meant-to-pilot-day-1/, "danglingThreads is a bare cross-reference id list, not prose -- must not be dumped into the journal as if it were");
+});
+
+test("episodeToJournalSource: HTML-special characters in prose are escaped, not injected as markup", () => {
+  const source = episodeToJournalSource({ id: "x", title: "X", summary: "Kids & Frames <fight>" });
+  assert.match(source.pages[0].content, /Kids &amp; Frames &lt;fight&gt;/);
 });
 
 test("validateActor + summarizeReport: a matching Actor passes every check", async () => {

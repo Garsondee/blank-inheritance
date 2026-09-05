@@ -13,22 +13,28 @@
  */
 
 import { deriveFoundryId, contentHash } from "./core/ids.mjs";
-import { runDiagnosticTestSync, createTestSyncMacroIfMissing } from "./foundry/sync.mjs";
+import {
+  runDiagnosticTestSync,
+  runRealContentSync,
+  createTestSyncMacroIfMissing,
+  createRealSyncMacroIfMissing
+} from "./foundry/sync.mjs";
 import { promptToRunSync } from "./foundry/sync-dialog.mjs";
 
 const MODULE_ID = "blank-inheritance";
 
 Hooks.once("init", () => {
   const mod = game.modules.get(MODULE_ID);
-  if (mod) mod.api = { runDiagnosticTestSync, deriveFoundryId, contentHash };
+  if (mod) mod.api = { runDiagnosticTestSync, runRealContentSync, deriveFoundryId, contentHash };
 });
 
 Hooks.once("ready", async () => {
   if (!game.user.isGM) return;
   try {
     await createTestSyncMacroIfMissing();
+    await createRealSyncMacroIfMissing();
   } catch (err) {
-    console.error("Blank Inheritance | Could not create the test-sync macro (you can still run it from the console):", err);
+    console.error("Blank Inheritance | Could not create a sync macro (you can still run it from the console):", err);
   }
 });
 

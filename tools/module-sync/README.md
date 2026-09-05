@@ -10,6 +10,14 @@ Uploads `module/blank-inheritance/` to the server's `Data/modules/` folder, then
 
 Add `--dry-run` to compare against the server without uploading anything first (useful to see what a real run would change).
 
+A second, separate script pushes the campaign's real content:
+
+```
+node tools/module-sync/sync-campaign-data.mjs
+```
+
+Stages an explicit allow-list of repo-root `data/` subdirectories (see `stage-campaign-data.mjs`'s `SYNCED_CAMPAIGN_DIRS`) into a fresh temp folder — a single, clean "sync content" directory — then verified-pushes *that*, the same way as above, to `Data/modules/blank-inheritance/data/campaign/`. Kept separate from the module-code push above since code and data change on different cadences. Deliberately does **not** push `data/` wholesale: `data/map/` alone is 115MB+ of `tools/city-map`'s own unrelated GIS source data, and an allow-list (not an exclude-list) means a new, unrelated top-level `data/` directory added later silently stays out by default, rather than silently landing on a live game server by default.
+
 ## Why this is safe
 
 This only pushes files onto disk in the module's `data`/`scripts` folders — it never touches a live Foundry document. Per `design/foundry-module-design.md`'s Safety section, that's a meaningfully lower risk level than the actual in-Foundry Sync step, which has to go through Foundry's Document API. Getting files onto the server and turning them into live documents are two different levels of trust; this tool is only the first one.
@@ -19,7 +27,9 @@ This only pushes files onto disk in the module's `data`/`scripts` folders — it
 - `checksums.mjs` — pure parsing/diffing, zero I/O. Fully unit tested (`test/module-sync/checksums.test.mjs`).
 - `local-hash.mjs` — real filesystem reads, no network. Deterministic, testable against a fixture directory (`test/module-sync/local-hash.test.mjs`).
 - `remote.mjs` — the only file allowed to shell out to `plink`/`pscp`. Not unit tested (needs a real key, a real reachable server, PuTTY installed at a fixed path) — Tier-5-equivalent, exercised by actually running the tool, not by CI. Uses `execFile` with an argument array rather than a shell string, specifically to avoid the nested-quoting bugs that bit earlier scratchpad versions of this script.
-- `sync-module.mjs` — the CLI entry point wiring the above together.
+- `sync-module.mjs` — the CLI entry point wiring the above together, for the module code.
+- `stage-campaign-data.mjs` — real filesystem reads/copies, no network. Unit tested against a fixture directory (`test/module-sync/stage-campaign-data.test.mjs`).
+- `sync-campaign-data.mjs` — the CLI entry point for the campaign data, wiring `stage-campaign-data.mjs` plus the same checksum/upload pieces above together.
 
 ## Known limitations
 

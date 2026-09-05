@@ -9,9 +9,16 @@
     },
     "SyncPrompt": {
       "Title": "Blank Inheritance",
-      "Body": "Run the Blank Inheritance content sync now?",
+      "Body": "Sync campaign content now? (episodes, and the Contact Unclassified Claimant)",
       "Yes": "Run Sync",
       "No": "Not Now"
+    },
+    "RealSync": {
+      "MacroName": "Blank Inheritance: Sync Campaign Content",
+      "Running": "Blank Inheritance: syncing campaign content...",
+      "Complete": "Blank Inheritance: sync complete — {passed}/{total} checks passed.",
+      "Failed": "Blank Inheritance: sync failed before completing. See console (F12) for the error, and report it back.",
+      "NotGM": "Only a GM can run the Blank Inheritance content sync."
     }
   }
 }

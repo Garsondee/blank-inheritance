@@ -23,7 +23,7 @@ import { ensureDirectory, writeReportFile, fetchModuleJson } from "../module/bla
 // file: sync.mjs only touches game/ui/Actor/etc. inside its exported
 // function bodies, never at module-evaluation time, so it's fine to import
 // once here and call its exports after installMockFoundry() runs per-test.
-import { runDiagnosticTestSync } from "../module/blank-inheritance/scripts/foundry/sync.mjs";
+import { runDiagnosticTestSync, runRealContentSync } from "../module/blank-inheritance/scripts/foundry/sync.mjs";
 import { promptToRunSync } from "../module/blank-inheritance/scripts/foundry/sync-dialog.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -39,6 +39,24 @@ function loadFixtureModuleFiles() {
   const moduleFiles = {};
   for (const name of ["test-creature.json", "test-character.json", "test-scene.json", "test-journal.json"]) {
     moduleFiles[`data/_test-fixtures/${name}`] = JSON.parse(readFileSync(path.join(fixturesDir, name), "utf8"));
+  }
+  return moduleFiles;
+}
+
+/**
+ * Real campaign data (repo root data/), keyed the same way
+ * tools/module-sync/sync-campaign-data.mjs deploys it -- under the module's
+ * own data/campaign/ so fetchModuleJson (relative to the module root) reads
+ * it identically to how it reads the test fixtures above.
+ */
+function loadRealCampaignModuleFiles() {
+  const dataRoot = path.join(repoRoot, "data");
+  const moduleFiles = {};
+  moduleFiles["data/campaign/antagonists/claimants/contact-unclassified.json"] = JSON.parse(
+    readFileSync(path.join(dataRoot, "antagonists", "claimants", "contact-unclassified.json"), "utf8")
+  );
+  for (const name of ["episode-01-contact-unclassified.json", "episode-02-second-contact.json", "interlude-days-2-5-the-squeeze.json"]) {
+    moduleFiles[`data/campaign/episodes/${name}`] = JSON.parse(readFileSync(path.join(dataRoot, "episodes", name), "utf8"));
   }
   return moduleFiles;
 }
@@ -354,19 +372,107 @@ test("runDiagnosticTestSync: one case throwing does not prevent the other three 
   }
 });
 
-test("promptToRunSync: the GM confirming the dialog runs the actual sync (GH issue #82)", async (t) => {
+test("runRealContentSync: the real Claimant and all three real episodes sync cleanly against actual campaign data", async (t) => {
   if (!templateJson) {
     t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
     return;
   }
-  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadFixtureModuleFiles(), templateJson });
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadRealCampaignModuleFiles(), templateJson });
+  try {
+    const report = await runRealContentSync();
+
+    assert.equal(report.fatalError, null);
+    assert.equal(report.results.length, 4, "1 claimant + 3 episodes");
+    for (const result of report.results) {
+      const failed = result.checks.filter((c) => !c.pass);
+      assert.deepEqual(failed, [], `expected all checks to pass for ${result.sourceId}: ${JSON.stringify(failed)}`);
+      assert.equal(result.skipped, false, "first-ever run must create, not skip");
+    }
+
+    const claimantId = await deriveFoundryId("contact-unclassified");
+    const claimant = world.actors.get(claimantId);
+    assert.ok(claimant, "the real Claimant Actor must actually exist in the mock world");
+    assert.equal(claimant.name, "Contact, Unclassified");
+    assert.equal(claimant.system.attributes.hp.max, 165);
+
+    const episode1Id = await deriveFoundryId("episode-01-contact-unclassified");
+    const episode1Journal = world.journal.get(episode1Id);
+    assert.ok(episode1Journal, "episode-01's JournalEntry must exist");
+    assert.equal(episode1Journal.pages.length, 10, "1 overview page + 9 authored scenes");
+
+    // Real content must not touch the diagnostic path's documents or vice versa.
+    assert.equal(world.actors.size, 1, "only the claimant -- no test-fixture actors from this run");
+    assert.equal(world.journal.size, 3, "one JournalEntry per real episode file");
+  } finally {
+    uninstall();
+  }
+});
+
+test("runRealContentSync: a second run against unchanged real data skips everything (hash-skip applies to real content too)", async (t) => {
+  if (!templateJson) {
+    t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadRealCampaignModuleFiles(), templateJson });
+  try {
+    await runRealContentSync();
+    const claimantId = await deriveFoundryId("contact-unclassified");
+    const claimantRef = world.actors.get(claimantId);
+
+    const secondRun = await runRealContentSync();
+    for (const result of secondRun.results) {
+      assert.equal(result.skipped, true, `expected ${result.sourceId} to be skipped on an unchanged second run`);
+    }
+    assert.strictEqual(world.actors.get(claimantId), claimantRef, "unchanged real data must never be torn down and recreated");
+  } finally {
+    uninstall();
+  }
+});
+
+test("runRealContentSync: does not touch the six kids/Frames or the NPCs -- they're still draft/placeholder, not this pipeline's call to finalize", async (t) => {
+  if (!templateJson) {
+    t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadRealCampaignModuleFiles(), templateJson });
+  try {
+    await runRealContentSync();
+    // Only the one real Actor (the Claimant) may exist -- none of the
+    // draft kid/Frame characters, which would also be type "character"
+    // Actors if this pipeline ever created them.
+    const characterActors = [...world.actors.values()].filter((a) => a.type === "character");
+    assert.deepEqual(characterActors, [], "no draft kid/Frame character should be synced without explicit confirmation");
+  } finally {
+    uninstall();
+  }
+});
+
+test("runRealContentSync: a non-GM user does not create anything", async () => {
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadRealCampaignModuleFiles(), templateJson });
+  try {
+    globalThis.game.user.isGM = false;
+    const result = await runRealContentSync();
+    assert.equal(result, null);
+    assert.equal(world.actors.size, 0);
+    assert.equal(world.journal.size, 0);
+  } finally {
+    uninstall();
+  }
+});
+
+test("promptToRunSync: the GM confirming the dialog runs the real content sync (GH issue #82)", async (t) => {
+  if (!templateJson) {
+    t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadRealCampaignModuleFiles(), templateJson });
   try {
     world.dialogConfirmResponse = true;
     await promptToRunSync();
 
     assert.equal(world.dialogConfirmCalls.length, 1, "expected exactly one confirmation dialog to have been shown");
-    assert.equal(world.actors.size, 2, "confirming must actually run the sync -- both actors created");
-    assert.equal(world.journal.size, 1);
+    assert.equal(world.actors.size, 1, "confirming must actually run the REAL sync -- the real Claimant, not test fixtures");
+    assert.equal(world.journal.size, 3, "one JournalEntry per real episode");
     assert.equal(world.chatMessages.length, 1, "the sync's own whispered report must still show up");
   } finally {
     uninstall();

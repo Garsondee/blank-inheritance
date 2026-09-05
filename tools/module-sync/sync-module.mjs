@@ -64,7 +64,16 @@ async function main() {
 
   console.log("=== 3. Remote checksums ===");
   const remoteMap = await remoteChecksums(config);
-  console.log(`${remoteMap.size} files remotely`);
+  for (const relativePath of [...remoteMap.keys()]) {
+    // storage/ is Foundry's own write channel (test reports, harvested GM
+    // edits) -- never part of this git-tracked folder, never pushed FROM
+    // local, per the module README's own table. Without this exclusion,
+    // the very first report Foundry ever writes makes every push from then
+    // on permanently report a false "only remote" mismatch, since nothing
+    // local can ever match a directory that's never supposed to exist here.
+    if (relativePath.startsWith("storage/")) remoteMap.delete(relativePath);
+  }
+  console.log(`${remoteMap.size} files remotely (excluding storage/, Foundry's own write channel)`);
 
   console.log("=== 4. Comparing (path + content hash together, not hashes alone) ===");
   const diff = diffChecksums(localMap, remoteMap);

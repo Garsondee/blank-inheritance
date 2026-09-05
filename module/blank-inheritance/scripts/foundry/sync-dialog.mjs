@@ -1,11 +1,12 @@
-import { runDiagnosticTestSync } from "./sync.mjs";
+import { runRealContentSync } from "./sync.mjs";
 
 /**
  * Interim step toward GH issue #82's real production Sync button: instead of
  * requiring the GM to dig into the Macro directory, offer a one-click prompt
- * right when their session starts. Still runs the exact same
- * runDiagnosticTestSync() under the hood -- this changes only how/when it's
- * triggered, not what it does.
+ * right when their session starts. Runs runRealContentSync() -- real
+ * campaign content (episodes, the real Claimant), not the diagnostic test
+ * fixtures. The diagnostic macro is still available separately as a
+ * pipeline health-check, independent of real content correctness.
  *
  * Wired from Hooks.once("canvasReady", ...) in blank-inheritance.mjs, so
  * this fires exactly once per client session, right as the first scene
@@ -22,5 +23,5 @@ export async function promptToRunSync() {
     no: { label: game.i18n.localize("BLANKINHERITANCE.SyncPrompt.No") },
     rejectClose: false
   });
-  if (proceed) await runDiagnosticTestSync();
+  if (proceed) await runRealContentSync();
 }
