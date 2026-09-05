@@ -187,6 +187,12 @@ body.demo-fullscreen { overflow: hidden; }
           <span class="bi-lamp bi-lamp--amber bi-lamp--lit" title="Caution"></span>
           <span class="bi-lamp bi-lamp--cyan bi-lamp--lit" title="Comms"></span>
         </div>
+        <!-- THE BIG OBVIOUS PHONE BUTTON. See design/ui/phone.js and
+             ideas/entries/phone-app-suite.json. -->
+        <button class="bi-phone-btn" id="phone-btn" aria-label="Personal comm device" aria-pressed="false" title="Personal comm device">
+          <span class="bi-phone-btn__glyph" aria-hidden="true">&#9742;</span>
+          <span class="bi-phone-btn__badge" id="phone-badge">3</span>
+        </button>
       </div>
     </div>
 
@@ -764,5 +770,12 @@ body.demo-fullscreen { overflow: hidden; }
 </div>
 
 <script type="module" src="console.js"></script>
+<script type="module">
+  import { initPhone } from "./phone.js";
+  // Mounted into #console (not document.body) so the phone is confined to
+  // the same box the rest of the chassis lives in — dragging it is a
+  // feature, dragging it into the type-library text below would not be.
+  initPhone({ mountInto: document.getElementById("console"), badgeCount: 3 });
+</script>
 </body>
 </html>

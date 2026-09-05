@@ -2853,3 +2853,425 @@
   justify-content: space-between;
   padding: 9px 12px 11px;
 }
+
+/* =====================================================================
+   8. THE PHONE
+   ---------------------------------------------------------------------
+   ideas/entries/phone-app-suite.json (accepted, user: "I love all of
+   them") + ideas/entries/terminal-login-landing-page.json's art direction,
+   now locked: the physical DEVICE is a smoother 1960s retro-industrial
+   object -- not a modern phone, but allowed real curves and real brass --
+   while its OWN SCREEN runs a deliberately blocky, chunky, low-res OS.
+   Two different registers meeting at one seam, on purpose: the chassis
+   outside is this project's usual hardware language (steel, brass, real
+   bevels); the glass inside is PIXEL -- Press Start 2P / DotGothic16,
+   hard corners, no anti-aliased blur -- because a crude pixel display
+   inside a well-made period object is the actual look being chased, not
+   a phone that is pixel art all the way through.
+
+   Physically DRAGGABLE (a floating window, not a dock -- the idea entry
+   is explicit that this must not be fixed in place like the control bar),
+   confined to the console's own box so it can't wander into the page
+   below it.
+   ===================================================================== */
+
+/* A warm, dark bakelite-adjacent surface for the phone's OWN shell -- the
+   console is cool steel and brass; the phone reads as a different object
+   class if it leans warm instead of matching that palette outright. */
+.bi-phone {
+  --bakelite-hi: #3a2f28;
+  --bakelite-mid: #241c17;
+  --bakelite-lo: #14100c;
+  position: absolute;
+  left: var(--phone-x, calc(50% - 108px));
+  top: var(--phone-y, 90px);
+  width: 216px;
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  border-radius: 22px;
+  background: linear-gradient(155deg, var(--bakelite-hi) 0%, var(--bakelite-mid) 55%, var(--bakelite-lo) 100%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 10%),
+    inset 0 0 0 1px rgb(0 0 0 / 60%),
+    0 0 0 2px var(--bi-brass-shadow),
+    0 22px 44px rgb(0 0 0 / 78%);
+  padding: 10px 10px 14px;
+  user-select: none;
+}
+.bi-phone[hidden] { display: none; }
+/* Four brass corner screws -- the one piece of chassis hardware language
+   the shell borrows, so it still reads as built by the same workshop. */
+.bi-phone::before,
+.bi-phone::after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  top: 10px;
+  background: var(--bi-mat-brass);
+  box-shadow: 0 0 0 1px var(--bi-brass-shadow), inset 0 1px 0 rgb(255 255 255 / 40%);
+}
+.bi-phone::before { left: 10px; }
+.bi-phone::after { right: 10px; }
+.bi-phone__screw--bl,
+.bi-phone__screw--br {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  bottom: 62px;
+  background: var(--bi-mat-brass);
+  box-shadow: 0 0 0 1px var(--bi-brass-shadow), inset 0 1px 0 rgb(255 255 255 / 40%);
+}
+.bi-phone__screw--bl { left: 10px; }
+.bi-phone__screw--br { right: 10px; }
+
+/* Drag handle: a small grip (five dots) plus a close key. Dragging the
+   shell anywhere else risks eating a tap meant for the screen below it. */
+.bi-phone__grip {
+  flex: none;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: grab;
+  touch-action: none;
+}
+.bi-phone__grip:active { cursor: grabbing; }
+.bi-phone__grip i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 18%);
+  box-shadow: inset 0 1px 1px rgb(0 0 0 / 50%);
+}
+.bi-phone__close {
+  position: absolute;
+  top: 8px;
+  right: 22px;
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #4a3a30, #221a15);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 12%), 0 1px 2px rgb(0 0 0 / 70%);
+  color: rgb(255 255 255 / 55%);
+  font-size: 9px;
+  line-height: 1;
+  cursor: pointer;
+}
+.bi-phone__close:hover { color: var(--bi-vermilion); }
+
+/* The earpiece grille -- pure texture, the one bit of "this is a handset"
+   signalling above the screen. */
+.bi-phone__ear {
+  flex: none;
+  align-self: center;
+  width: 46px;
+  height: 5px;
+  margin-bottom: 8px;
+  border-radius: 3px;
+  background: repeating-linear-gradient(90deg, var(--bakelite-lo) 0 3px, var(--bakelite-hi) 3px 4px);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 70%);
+}
+
+/* --- The screen: PIXEL register starts here -------------------------- */
+.bi-phone__screen {
+  position: relative;
+  flex: none;
+  height: 288px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #0a0f0a;
+  box-shadow: inset 0 0 0 3px #050705, inset 0 0 18px rgb(0 0 0 / 85%);
+  font-family: var(--bi-font-pixel);
+  color: var(--bi-phosphor);
+  display: flex;
+  flex-direction: column;
+}
+.bi-phone__screen::after {
+  /* Chunkier, more visible scanlines than the console's own -- a genuine
+     low-res panel, not a hi-res display pretending to be retro. */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(180deg, rgb(0 0 0 / 22%) 0 1px, transparent 1px 3px);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 5;
+}
+.bi-phone__screen.bi-corrupt::before { z-index: 6; }
+
+.bi-phone__statusbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 16px;
+  padding: 0 5px;
+  background: #0d160d;
+  box-shadow: 0 1px 0 rgb(0 0 0 / 60%);
+  font-size: 7px;
+  letter-spacing: 0.04em;
+}
+.bi-phone__bars { display: flex; align-items: flex-end; gap: 1px; height: 8px; }
+.bi-phone__bars i { width: 2px; background: var(--bi-phosphor); opacity: 0.35; }
+.bi-phone__bars i:nth-child(1) { height: 3px; }
+.bi-phone__bars i:nth-child(2) { height: 5px; }
+.bi-phone__bars i:nth-child(3) { height: 6px; }
+.bi-phone__bars i:nth-child(4) { height: 8px; }
+.bi-phone__bars i.bi-lit { opacity: 1; }
+.bi-phone__statusbar .bi-phone__clock { flex: 1; text-align: center; }
+.bi-phone__batt {
+  width: 14px;
+  height: 7px;
+  border: 1px solid var(--bi-phosphor);
+  position: relative;
+  opacity: 0.9;
+}
+.bi-phone__batt::after {
+  content: "";
+  position: absolute;
+  right: -3px;
+  top: 2px;
+  width: 2px;
+  height: 3px;
+  background: var(--bi-phosphor);
+}
+.bi-phone__batt i { display: block; height: 100%; background: var(--bi-phosphor); width: 70%; }
+
+.bi-phone__view {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px;
+  scrollbar-width: none;
+}
+.bi-phone__view::-webkit-scrollbar { display: none; }
+
+/* --- Home screen: the eight confirmed apps, as one obvious grid ------ */
+.bi-phone__home {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+}
+.bi-phone__tile {
+  --tile: var(--bi-phosphor);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  border: none;
+  background: none;
+  padding: 2px;
+  cursor: pointer;
+  color: inherit;
+  font-family: var(--bi-font-pixel);
+}
+.bi-phone__tile-face {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  font-size: 17px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--tile) 55%, #0a0f0a), color-mix(in srgb, var(--tile) 30%, #0a0f0a));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 20%), inset 0 -3px 0 rgb(0 0 0 / 35%), 0 2px 0 rgb(0 0 0 / 60%);
+  color: #0a0f0a;
+  position: relative;
+}
+.bi-phone__tile:active .bi-phone__tile-face { transform: translateY(1px); box-shadow: inset 0 1px 0 rgb(255 255 255 / 20%), inset 0 -1px 0 rgb(0 0 0 / 35%); }
+.bi-phone__tile-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 11px;
+  height: 11px;
+  padding: 0 2px;
+  border-radius: 6px;
+  background: var(--bi-vermilion);
+  color: #fff;
+  font-size: 6px;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 0 1.5px #0a0f0a;
+}
+.bi-phone__tile-badge[hidden] { display: none; }
+.bi-phone__tile-label {
+  font-size: 6.5px;
+  letter-spacing: 0.02em;
+  text-align: center;
+  line-height: 1.3;
+  color: var(--bi-phosphor);
+  text-shadow: 0 0 4px currentColor;
+}
+
+/* --- App chrome: shared by every page other than home ----------------- */
+.bi-phone__appbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.bi-phone__back {
+  flex: none;
+  border: none;
+  background: #132013;
+  color: var(--bi-phosphor);
+  font-family: var(--bi-font-pixel);
+  font-size: 8px;
+  padding: 4px 6px;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgb(111 227 154 / 30%);
+}
+.bi-phone__back:hover { background: #1a2e1a; }
+.bi-phone__title {
+  font-family: var(--bi-font-pixel);
+  font-size: 9px;
+  letter-spacing: 0.03em;
+  color: var(--bi-bone);
+}
+.bi-phone__body {
+  font-family: var(--bi-font-pixel);
+  font-size: 7.5px;
+  line-height: 1.9;
+  color: var(--bi-bone-dim);
+}
+.bi-phone__key {
+  display: inline-block;
+  border: none;
+  background: #132013;
+  color: var(--bi-phosphor);
+  font-family: var(--bi-font-pixel);
+  font-size: 7.5px;
+  padding: 6px 8px;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgb(111 227 154 / 30%), 0 2px 0 #050a05;
+}
+.bi-phone__key:active { transform: translateY(2px); box-shadow: inset 0 0 0 1px rgb(111 227 154 / 30%); }
+.bi-phone__row { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
+.bi-phone__card {
+  padding: 7px 8px;
+  margin-bottom: 6px;
+  background: #0d160d;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 6%);
+}
+.bi-phone__meter {
+  height: 6px;
+  background: #050a05;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 60%);
+  margin: 3px 0 6px;
+}
+.bi-phone__meter i { display: block; height: 100%; background: var(--bi-phosphor); }
+
+/* Bottom physical button: press it, go home from anywhere. */
+.bi-phone__homebtn {
+  flex: none;
+  align-self: center;
+  width: 34px;
+  height: 34px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: radial-gradient(circle at 35% 30%, var(--bakelite-hi), var(--bakelite-lo) 82%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 14%), inset 0 -3px 4px rgb(0 0 0 / 60%), 0 2px 0 rgb(0 0 0 / 70%), 0 0 0 1px var(--bi-brass-shadow);
+}
+.bi-phone__homebtn:active { transform: translateY(1px); }
+.bi-phone__homebtn::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  border: 1.5px solid rgb(255 255 255 / 30%);
+}
+
+/* Bleed corruption on the phone's OWN glass -- confirmed idea #4: "as a
+   pilot's Bleed climbs, their own phone's pixel UI degrades." Reuses the
+   same .bi-corrupt mechanism and --bi-bleed value the console's own glass
+   already answers to (see console.js's single Bleed handler), so there is
+   one source of truth for "how corrupted is everything," not two. */
+.bi-phone__screen.bi-corrupt { animation: bi-phone-glitch 2.4s steps(6) infinite; }
+@keyframes bi-phone-glitch {
+  0%, 100% { filter: none; }
+  46% { filter: none; }
+  48% { filter: hue-rotate(40deg) contrast(1.4); transform: translateX(1px); }
+  50% { filter: none; transform: none; }
+  81% { filter: none; }
+  83% { filter: saturate(0) brightness(1.6); transform: translateX(-1px); }
+  85% { filter: none; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .bi-phone__screen.bi-corrupt { animation: none; } }
+
+/* =====================================================================
+   THE BIG OBVIOUS PHONE BUTTON
+   ---------------------------------------------------------------------
+   Lives in the top rail, the one strip of chassis with real space to
+   spare (measured: ~80% empty at 4K). Deliberately bigger than the row
+   that holds it -- the same "instrument breaks the chassis line" idea
+   the dome/subdomes/pilot-ID panel all already use, at a much smaller
+   scale befitting a corner accent rather than a centrepiece.
+   ===================================================================== */
+.bi-phone-btn {
+  position: relative;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  margin: 0 2px 0 4px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: var(--bi-mat-brass);
+  box-shadow: 0 0 0 1px var(--bi-brass-shadow), 0 3px 8px rgb(0 0 0 / 70%);
+  display: grid;
+  place-items: center;
+  transition: transform var(--bi-dur-snap) var(--bi-ease-servo);
+}
+.bi-phone-btn::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, var(--bi-steel-600), var(--bi-steel-900));
+  box-shadow: inset 0 2px 4px rgb(0 0 0 / 80%);
+}
+.bi-phone-btn__glyph {
+  position: relative;
+  z-index: 1;
+  font-size: 17px;
+  line-height: 1;
+  color: var(--bi-phosphor);
+  text-shadow: 0 0 8px currentColor;
+  transform: rotate(-15deg);
+}
+.bi-phone-btn:hover { transform: scale(1.06); }
+.bi-phone-btn:active { transform: scale(0.96); }
+.bi-phone-btn[aria-pressed="true"] .bi-phone-btn__glyph { color: var(--bi-cyan); }
+.bi-phone-btn[aria-pressed="true"]::before { box-shadow: inset 0 2px 4px rgb(0 0 0 / 80%), inset 0 0 0 1.5px var(--bi-cyan); }
+.bi-phone-btn__badge {
+  position: absolute;
+  z-index: 2;
+  top: -3px;
+  right: -3px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 8px;
+  background: var(--bi-vermilion);
+  box-shadow: 0 0 0 2px var(--bi-steel-800), 0 0 8px rgb(209 64 42 / 60%);
+  color: #fff;
+  font-family: var(--bi-font-readout);
+  font-size: 10px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  animation: bi-lamp-pulse 1.8s var(--bi-ease-servo) infinite;
+}
+.bi-phone-btn__badge[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) { .bi-phone-btn__badge { animation: none; } }

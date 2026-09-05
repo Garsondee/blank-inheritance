@@ -744,6 +744,64 @@ Foundry's ownership permissions or a GM-only page.
 
 ---
 
+## 5b. The phone — a first pass at all eight confirmed apps (pass 16)
+
+**Explicitly framed by the user as play, not a spec to hit: "have some fun... go wide, things
+that are easy to produce."** `ideas/entries/phone-app-suite.json` already had a fully-confirmed
+list of nine pieces ("I love all of them") and `terminal-login-landing-page.json` already had a
+locked art direction, so this pass built the framework plus a genuinely interactive first page
+for all eight actual apps (the ninth, Bleed-driven UI corruption, is an ambient effect applied
+*to* the phone, not a page on it).
+
+**Two registers meeting at one seam, per the locked art direction.** The physical shell
+(`.bi-phone`) is a warm bakelite object — deliberately NOT the console's cool steel-and-brass
+palette, so it reads as a different class of object the pilot carries rather than another chassis
+panel — with real brass corner screws as the one piece of shared hardware language. Its screen
+(`.bi-phone__screen`) is the OS side: `--bi-font-pixel` (Press Start 2P / DotGothic16), hard
+corners, chunky scanlines, no attempt to look high-resolution. One object, two different
+manufacturing eras represented at once, exactly as specified.
+
+**The big obvious button lives in the top rail**, the one strip of chassis already measured as
+~80% empty at 4K (§3d/pass 9's own audit). It is deliberately bigger than the row that holds it —
+the same "instrument breaks the chassis line" idea the dome/subdomes/pilot-ID panel already use,
+at corner-accent scale rather than centrepiece scale.
+
+**All eight apps are real, not stubs**, backed by pure logic in
+`module/blank-inheritance/scripts/core/phone.mjs` (tested, `test/tier1-phone.test.mjs`): Alert
+actually staggers six per-candidate notifications with real, sorted, never-identical delays (the
+idea entry's own callout: "the best part"); Field Guide shows the one Claimant entry Recall
+Knowledge has actually filled in (`data/antagonists/claimants/contact-unclassified.json`) next to
+two still-locked slots; Resonance drifts and looks up the real campaign bands
+(`data/campaign/config.json`); Bulletin quietly strikes through one reassigned name; Contacts
+carries the six-candidate roster plus the three real Directorate NPCs
+(`data/npcs/*.json`) as "OFFICIAL"; Fortune draws from a weighted pool where exactly one entry is
+a real hint, indistinguishable in tone from the jokes around it; Pet is a tiny hand-drawn 7×7
+pixel sprite (CSS grid cells, no image asset) with a fed/played state that persists across a
+reload via `localStorage`; Roll rolls real dice.
+
+**Two bugs found live while building this, both fixed before shipping, neither caught by the
+node test suite** (this is DOM/layout behaviour, the same category as several console.js bugs
+this project has already hit, not pure logic):
+- The pet sprite rendered at 0×0 everywhere it appeared. `.bi-phone__tile-face`'s own
+  `place-items: center` — needed so a bare glyph *character* centres in its 40px tile — sizes a
+  grid item to its own content instead of stretching it to fill the track, and a content-less
+  `<span>` has no intrinsic size. Fixed with explicit `width:100%;height:100%` on each sprite
+  cell, sidestepping the inherited alignment rather than depending on overriding a rule owned
+  elsewhere.
+- Dragging did nothing, silently: `makeDraggable`'s third parameter was the container *element*,
+  called as `bounds()` as though it were a function. Renamed the parameter to `container` and
+  called `.getBoundingClientRect()` on it directly. Confirmed live with a dispatched
+  pointerdown/pointermove/pointerup sequence and an exact pixel-delta match, not just "no error."
+
+**Deliberately not built, per "lay the groundwork, tackle the complex ones one at a time":** the
+real correspondence-tree UI behind Contacts, the hacking-gated intranet/browser from
+`terminal-login-landing-page`, and any Foundry wiring. The phone reads its own small local copy of
+the six-candidate roster rather than sharing live state with `console.js`'s marker system — the
+two are independent prototypes for now; factor that out only once a real second call site needs
+to agree with the first, not before.
+
+---
+
 ## 6. Not done yet
 
 - **Never loaded into a live Foundry.** `module.json` does load the stylesheets, and

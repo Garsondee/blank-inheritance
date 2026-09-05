@@ -715,7 +715,7 @@ bleed.addEventListener("input", () => {
   // never a second copy of the effect.
   identBleedOut.textContent = pct;
   identBleedMeter.style.setProperty("--v", String(v));
-  for (const el of $$(".bi-dome__glass, .bi-subdome__glass, .bi-screen, .bi-marquee__glass, .bi-ident__glass")) {
+  for (const el of $$(".bi-dome__glass, .bi-subdome__glass, .bi-screen, .bi-marquee__glass, .bi-ident__glass, .bi-phone__screen")) {
     el.classList.toggle("bi-corrupt", v > 0.02);
     el.style.setProperty("--bi-bleed", String(v));
   }
