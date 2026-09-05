@@ -185,11 +185,20 @@
 /* Functional colour language — a key's CAP colour signals its category,
    the same idea .bi-lamp's colour modifiers already carry for indicators,
    extended to keys so sixty controls are not sixty identical grey buttons.
-   The TEXT colour carries the signal (not just an optional glyph), because
-   most keys here are plain text with no icon at all — Fort/Ref/Will has
-   nothing to tint but its own label. The steel material and bevel stay
-   exactly the same; only the cap's colour and a faint matching edge-glow
-   change, so a coloured key still reads as the same kind of object.
+
+   FOUND LIVE, on the user's own 4K display: the first version (text colour
+   plus a 1px inset glow) was correct in code — verified pixel-exact by
+   getComputedStyle — but too subtle to actually READ as categorised at
+   real viewing distance on a real screen. A hairline the same size as the
+   text it outlines does not compete with the text for attention.
+
+   Two changes fix that without turning a key into a solid colour block:
+   a visible ACCENT STRIP inset from the top edge (a colour-coded cap
+   insert, not a hairline — thick enough to register before the label
+   does), and a background that shifts the steel gradient itself toward
+   the accent by ~15-20%, so the whole key reads as tinted metal rather
+   than grey metal with a faint outline. The text stays the strongest
+   signal, but it is no longer the ONLY one.
 
    Four roles, deliberately not one per button:
      --go       phosphor green — movement, and the one proactive stance
@@ -212,7 +221,14 @@
    nothing. */
 .bi-key--go {
   color: var(--bi-phosphor);
-  box-shadow: var(--bi-bevel-up), 0 2px 0 var(--bi-void), 0 3px 5px rgb(0 0 0 / 55%), inset 0 0 0 1px rgb(111 227 154 / 22%);
+  background: linear-gradient(176deg,
+    color-mix(in srgb, var(--bi-phosphor) 22%, var(--bi-steel-500)) 0%,
+    color-mix(in srgb, var(--bi-phosphor) 11%, var(--bi-steel-600)) 45%,
+    var(--bi-steel-700) 100%);
+  box-shadow:
+    var(--bi-bevel-up), 0 2px 0 var(--bi-void), 0 3px 5px rgb(0 0 0 / 55%),
+    inset 0 0 0 1px rgb(111 227 154 / 30%),
+    inset 0 2px 0 rgb(111 227 154 / 65%);
 }
 .bi-key--go .bi-key__glyph { color: var(--bi-phosphor-dim); }
 .bi-key--go:hover { color: #b9ffd4; }
@@ -220,7 +236,14 @@
 
 .bi-key--info {
   color: var(--bi-cyan);
-  box-shadow: var(--bi-bevel-up), 0 2px 0 var(--bi-void), 0 3px 5px rgb(0 0 0 / 55%), inset 0 0 0 1px rgb(79 200 216 / 24%);
+  background: linear-gradient(176deg,
+    color-mix(in srgb, var(--bi-cyan) 22%, var(--bi-steel-500)) 0%,
+    color-mix(in srgb, var(--bi-cyan) 11%, var(--bi-steel-600)) 45%,
+    var(--bi-steel-700) 100%);
+  box-shadow:
+    var(--bi-bevel-up), 0 2px 0 var(--bi-void), 0 3px 5px rgb(0 0 0 / 55%),
+    inset 0 0 0 1px rgb(79 200 216 / 32%),
+    inset 0 2px 0 rgb(79 200 216 / 65%);
 }
 .bi-key--info .bi-key__glyph { color: var(--bi-cyan-dim); }
 .bi-key--info:hover { color: #bdf2fa; }
@@ -228,7 +251,14 @@
 
 .bi-key--caution {
   color: var(--bi-amber);
-  box-shadow: var(--bi-bevel-up), 0 2px 0 var(--bi-void), 0 3px 5px rgb(0 0 0 / 55%), inset 0 0 0 1px rgb(240 168 48 / 24%);
+  background: linear-gradient(176deg,
+    color-mix(in srgb, var(--bi-amber) 22%, var(--bi-steel-500)) 0%,
+    color-mix(in srgb, var(--bi-amber) 11%, var(--bi-steel-600)) 45%,
+    var(--bi-steel-700) 100%);
+  box-shadow:
+    var(--bi-bevel-up), 0 2px 0 var(--bi-void), 0 3px 5px rgb(0 0 0 / 55%),
+    inset 0 0 0 1px rgb(240 168 48 / 32%),
+    inset 0 2px 0 rgb(240 168 48 / 65%);
 }
 .bi-key--caution .bi-key__glyph { color: var(--bi-amber-dim); }
 .bi-key--caution:hover { color: #ffe6ad; }
@@ -236,7 +266,14 @@
 
 .bi-key--anchor {
   color: var(--bi-resonance);
-  box-shadow: var(--bi-bevel-up), 0 2px 0 var(--bi-void), 0 3px 5px rgb(0 0 0 / 55%), inset 0 0 0 1px rgb(169 134 232 / 26%);
+  background: linear-gradient(176deg,
+    color-mix(in srgb, var(--bi-resonance) 22%, var(--bi-steel-500)) 0%,
+    color-mix(in srgb, var(--bi-resonance) 11%, var(--bi-steel-600)) 45%,
+    var(--bi-steel-700) 100%);
+  box-shadow:
+    var(--bi-bevel-up), 0 2px 0 var(--bi-void), 0 3px 5px rgb(0 0 0 / 55%),
+    inset 0 0 0 1px rgb(169 134 232 / 34%),
+    inset 0 2px 0 rgb(169 134 232 / 70%);
 }
 .bi-key--anchor .bi-key__glyph { color: var(--bi-resonance-dim); }
 .bi-key--anchor:hover { color: #e4d4ff; }

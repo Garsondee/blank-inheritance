@@ -486,7 +486,16 @@ in-flow lower portion rather than being pulled up into the part that pokes out.
 sixty-odd controls with nothing but `.bi-key--armed` (red) to tell any of them apart.
 Extended the same idea `.bi-lamp`'s colour modifiers already carry — a control's colour
 signals its category — to keys, via the cap's own text colour plus a faint matching
-edge-glow, since most keys here are plain text with no icon to tint:
+edge-glow, since most keys here are plain text with no icon to tint.
+
+**Found live, on the user's own 4K display, and strengthened.** The first version was
+correct in code — every colour verified pixel-exact via `getComputedStyle` — but a 1px
+inset glow the same size as the text it outlines does not compete with the text for
+attention at real viewing distance, and read as "still grey" rather than "categorised."
+Fixed with two changes rather than one bigger one: a visible accent strip inset from the
+key's top edge (a colour-coded cap insert, not a hairline), and the steel gradient itself
+shifted ~15-20% toward the accent via `color-mix()`, so the whole key reads as tinted
+metal. The text stays the strongest signal; it is no longer the only one.
 
 | Class | Colour | Covers |
 |---|---|---|
