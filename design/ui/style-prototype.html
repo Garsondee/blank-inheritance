@@ -31,7 +31,7 @@ body {
 .wrap { max-width: 1520px; margin: 0 auto; padding: 0 24px 80px; }
 
 .pagehead { padding: 38px 0 20px; }
-.pagehead__kicker { font-family: var(--bi-font-gothic); font-size: 11px; letter-spacing: 0.38em; color: var(--bi-brass); margin-bottom: 14px; }
+.pagehead__kicker { font-family: var(--bi-font-gothic); font-size: 13px; letter-spacing: 0.38em; color: var(--bi-brass); margin-bottom: 14px; }
 .pagehead__title {
   font-family: var(--bi-font-wordmark); font-size: clamp(22px, 3.4vw, 42px);
   letter-spacing: 0.03em; text-transform: uppercase; margin: 0 0 8px;
@@ -133,7 +133,7 @@ h2.sec-title { font-family: var(--bi-font-display); font-size: 18px; letter-spac
         <div class="bi-rivet-run bi-rivet-run--bottom" style="left:0;right:0;bottom:-2px"></div>
         <div class="bi-toprail__group">
           <span class="bi-lamp bi-lamp--lit" title="Uplink"></span>
-          <span style="font-family:var(--bi-font-display-jp);font-size:12px;letter-spacing:.2em;color:var(--bi-bone-dim)">港湾区 第三埠頭</span>
+          <span style="font-family:var(--bi-font-display-jp);font-size:var(--bi-jp-size);letter-spacing:.18em;color:var(--bi-bone-dim)">港湾区 第三埠頭</span>
           <span class="bi-legend bi-legend--bright" style="font-size:10px">Harbour &mdash; Pier 3</span>
         </div>
         <div class="bi-toprail__group">
@@ -159,63 +159,67 @@ h2.sec-title { font-family: var(--bi-font-display); font-size: 18px; letter-spac
       </div>
     </div>
 
-    <!-- ---------- LEFT RAIL: ground stations ---------- -->
+    <!-- ---------- LEFT: floating station panels ---------- -->
     <div class="bi-console__left">
-      <div class="bi-rail bi-rail--left" style="height:100%">
+
+      <div class="bi-rail bi-rail--left">
         <div class="bi-rivet-run bi-rivet-run--right"></div>
         <div class="bi-rail__head">
-          <span class="bi-legend bi-legend--bright">Ground</span>
-          <span class="bi-legend bi-legend--jp" style="font-size:9px">地上班</span>
+          <span class="bi-legend bi-legend--bright">Ground stations</span>
+          <span class="bi-legend--jp">地上班</span>
         </div>
-        <div id="roles" style="display:flex;flex-direction:column;gap:4px"></div>
-
-        <div class="bi-rail__head" style="margin-top:2px">
+        <div class="bi-rail__scroll" id="roles"></div>
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:4px;padding-top:7px;border-top:1px solid var(--bi-brass-dark)">
           <span class="bi-legend bi-legend--bright">Evacuation</span>
-          <span class="bi-readout bi-readout--sm" id="evac-out">62%</span>
+          <span class="bi-legend--jp">避難</span>
+          <span class="bi-readout" style="font-size:19px;margin-left:auto" id="evac-out">62%</span>
         </div>
         <div class="bi-meter bi-meter--tall" style="--v:.62;margin:0" id="evac-meter"></div>
-        <div class="bi-legend" style="font-size:8px;color:var(--bi-bone-dark)" id="evac-note">1,240 of 2,000 clear</div>
-
-        <div class="bi-rail__head" style="margin-top:2px">
-          <span class="bi-legend bi-legend--bright">Known</span>
-          <span class="bi-legend bi-legend--jp" style="font-size:9px">判明</span>
-        </div>
-        <div id="facts" style="display:flex;flex-direction:column;gap:3px;overflow:hidden"></div>
-
-        <span class="bi-toprail__spacer"></span>
-        <button class="bi-key bi-key--sm" style="width:100%" id="recall"><span class="bi-key__glyph">&#9851;</span>Recall</button>
+        <div class="bi-legend" style="color:var(--bi-bone-dark)" id="evac-note">1,240 / 2,000 clear</div>
       </div>
+
+      <div class="bi-rail bi-rail--left" style="min-height:0">
+        <div class="bi-rail__head">
+          <span class="bi-legend bi-legend--bright">Known</span>
+          <span class="bi-legend--jp">判明事項</span>
+        </div>
+        <div class="bi-rail__scroll" id="facts"></div>
+        <button class="bi-key bi-key--sm" style="width:100%;margin-top:2px" id="recall">
+          <span class="bi-key__glyph">&#9851;</span>Recall Knowledge
+        </button>
+      </div>
+
     </div>
 
-    <!-- ---------- RIGHT RAIL: order of battle ---------- -->
+    <!-- ---------- RIGHT: floating order-of-battle panels ---------- -->
     <div class="bi-console__right">
-      <div class="bi-rail bi-rail--right" style="height:100%">
-        <div class="bi-rivet-run bi-rivet-run--left"></div>
-        <div class="bi-rail__head">
-          <span class="bi-legend bi-legend--bright">Order</span>
-          <span class="bi-legend bi-legend--jp" style="font-size:9px">行動順</span>
-        </div>
-        <div id="units" style="display:flex;flex-direction:column;gap:3px"></div>
 
-        <div class="bi-rail__head" style="margin-top:4px">
-          <span class="bi-legend bi-legend--bright">Round</span>
-          <span class="bi-readout bi-readout--sm bi-readout--amber" id="round-out">3</span>
+      <div class="bi-rail bi-rail--right" style="min-height:0">
+        <div class="bi-rail__head">
+          <span class="bi-legend bi-legend--bright">Order of battle</span>
+          <span class="bi-legend--jp">行動順</span>
         </div>
-        <div style="display:flex;gap:4px">
+        <div class="bi-rail__scroll" id="units"></div>
+        <div style="display:flex;align-items:center;gap:7px;margin-top:3px">
+          <span class="bi-legend">Round</span>
+          <span class="bi-readout bi-readout--amber" style="font-size:20px" id="round-out">3</span>
           <button class="bi-key bi-key--sm" style="min-width:0;flex:1" id="prev-turn" aria-label="Previous turn">&#8592;</button>
           <button class="bi-key bi-key--sm" style="min-width:0;flex:2" id="next-turn">Next</button>
         </div>
+      </div>
 
-        <span class="bi-toprail__spacer"></span>
+      <div class="bi-rail bi-rail--right">
         <div class="bi-rail__head">
           <span class="bi-legend bi-legend--bright">Umbilical</span>
-          <span class="bi-legend bi-legend--jp" style="font-size:9px">臍帯</span>
+          <span class="bi-legend--jp">臍帯 接続</span>
         </div>
-        <div style="display:flex;align-items:center;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px">
           <button class="bi-toggle" aria-pressed="true" aria-label="Umbilical engaged"><span class="bi-toggle__cap"></span></button>
-          <span class="bi-readout bi-readout--sm">+2R</span>
+          <span class="bi-readout" style="font-size:18px">+2R</span>
+          <span class="bi-legend" style="color:var(--bi-bone-dark);white-space:normal">rounds banked</span>
         </div>
       </div>
+
     </div>
 
     <!-- ---------- CHASSIS ---------- -->
@@ -231,7 +235,7 @@ h2.sec-title { font-family: var(--bi-font-display); font-size: 18px; letter-spac
               </div>
               <div>
                 <div class="bi-plate" style="padding:2px 8px;font-size:8px">Candidate 04</div>
-                <div class="bi-legend bi-legend--jp" style="margin-top:4px;font-size:9px">機体 三型</div>
+                <div class="bi-legend bi-legend--jp" style="margin-top:5px">機体 三型</div>
               </div>
             </div>
             <div style="display:flex;gap:5px;align-items:center;position:relative;z-index:1" id="conditions">
@@ -285,21 +289,21 @@ h2.sec-title { font-family: var(--bi-font-display); font-size: 18px; letter-spac
           <div class="bi-subdome bi-subdome--left" id="sub-left">
             <div class="bi-subdome__glass">
               <svg class="bi-subdome__svg" viewBox="0 0 200 200" aria-hidden="true">
-                <g class="bi-hud" style="--hud-stroke:2">
-                  <path d="M46 138 A 68 68 0 0 1 61 60" stroke="var(--bi-phosphor)" opacity=".5" stroke-width="6" fill="none"/>
-                  <path d="M61 60 A 68 68 0 0 1 139 60" stroke="var(--bi-amber)" opacity=".5" stroke-width="6" fill="none"/>
-                  <path d="M139 60 A 68 68 0 0 1 154 138" stroke="var(--bi-resonance)" opacity=".7" stroke-width="6" fill="none"/>
-                  <path d="M100 44 v8 M56 60 l6 6 M144 60 l-6 6 M48 104 h8 M144 104 h8"/>
+                <g class="bi-hud" style="--hud-stroke:1.8">
+                  <path d="M64.8 107.6 A 46 46 0 0 1 68.4 44.5" stroke="var(--bi-phosphor)" opacity=".55" stroke-width="5" fill="none"/>
+                  <path d="M68.4 44.5 A 46 46 0 0 1 131.6 44.5"  stroke="var(--bi-amber)" opacity=".55" stroke-width="5" fill="none"/>
+                  <path d="M131.6 44.5 A 46 46 0 0 1 135.2 107.6" stroke="var(--bi-resonance)" opacity=".7"  stroke-width="5" fill="none"/>
+                  <path d="M100 38 v-12 M63.8 61.1 L52.9 56.0 M136.2 61.1 L147.1 56.0 M69.4 103.7 L60.2 111.4 M130.6 103.7 L139.8 111.4"/>
                   <g class="bi-needle" id="needle-res" style="--angle:18deg">
-                    <path d="M100 100 L100 52" stroke="var(--bi-resonance)" stroke-width="3"/>
-                    <circle cx="100" cy="100" r="6" fill="var(--bi-brass)" stroke="none"/>
+                    <path d="M100 78 L100 38" stroke="var(--bi-resonance)" stroke-width="3"/>
+                    <circle cx="100" cy="78" r="5.5" fill="var(--bi-brass)" stroke="none"/>
                   </g>
                 </g>
               </svg>
               <div class="bi-subdome__core">
-                <span class="bi-legend bi-legend--jp" style="font-size:8px">同調率</span>
-                <span class="bi-readout bi-readout--resonance" style="font-size:21px" id="res-out">6.2</span>
-                <span class="bi-legend" style="font-size:7px;color:var(--bi-bone-dark)">Resonance</span>
+                <span class="bi-subdome__jp">同調率</span>
+                <span class="bi-subdome__value bi-subdome__value--resonance" id="res-out">--</span>
+                <span class="bi-subdome__sub">Resonance</span>
               </div>
               <div class="bi-subdome__gloss"></div>
             </div>
@@ -369,21 +373,21 @@ h2.sec-title { font-family: var(--bi-font-display); font-size: 18px; letter-spac
           <div class="bi-subdome bi-subdome--right" id="sub-right">
             <div class="bi-subdome__glass">
               <svg class="bi-subdome__svg" viewBox="0 0 200 200" aria-hidden="true">
-                <g class="bi-hud" style="--hud-stroke:2">
-                  <path d="M46 138 A 68 68 0 0 1 61 60" stroke="var(--bi-vermilion)" opacity=".5" stroke-width="6" fill="none"/>
-                  <path d="M61 60 A 68 68 0 0 1 139 60" stroke="var(--bi-amber)" opacity=".5" stroke-width="6" fill="none"/>
-                  <path d="M139 60 A 68 68 0 0 1 154 138" stroke="var(--bi-phosphor)" opacity=".6" stroke-width="6" fill="none"/>
-                  <path d="M100 44 v8 M56 60 l6 6 M144 60 l-6 6 M48 104 h8 M144 104 h8"/>
+                <g class="bi-hud" style="--hud-stroke:1.8">
+                  <path d="M64.8 107.6 A 46 46 0 0 1 68.4 44.5" stroke="var(--bi-vermilion)" opacity=".55" stroke-width="5" fill="none"/>
+                  <path d="M68.4 44.5 A 46 46 0 0 1 131.6 44.5"  stroke="var(--bi-amber)" opacity=".55" stroke-width="5" fill="none"/>
+                  <path d="M131.6 44.5 A 46 46 0 0 1 135.2 107.6" stroke="var(--bi-phosphor)" opacity=".7"  stroke-width="5" fill="none"/>
+                  <path d="M100 38 v-12 M63.8 61.1 L52.9 56.0 M136.2 61.1 L147.1 56.0 M69.4 103.7 L60.2 111.4 M130.6 103.7 L139.8 111.4"/>
                   <g class="bi-needle" id="needle-pwr" style="--angle:44deg">
-                    <path d="M100 100 L100 52" stroke="var(--bi-phosphor)" stroke-width="3"/>
-                    <circle cx="100" cy="100" r="6" fill="var(--bi-brass)" stroke="none"/>
+                    <path d="M100 78 L100 38" stroke="var(--bi-phosphor)" stroke-width="3"/>
+                    <circle cx="100" cy="78" r="5.5" fill="var(--bi-brass)" stroke="none"/>
                   </g>
                 </g>
               </svg>
               <div class="bi-subdome__core">
-                <span class="bi-legend bi-legend--jp" style="font-size:8px">完全度</span>
-                <span class="bi-readout" style="font-size:21px" id="hp-out">148</span>
-                <span class="bi-legend" style="font-size:7px;color:var(--bi-bone-dark)">of 210</span>
+                <span class="bi-subdome__jp">機体 完全度</span>
+                <span class="bi-subdome__value" id="hp-out">--</span>
+                <span class="bi-subdome__sub">Integrity 210</span>
               </div>
               <div class="bi-subdome__gloss"></div>
             </div>

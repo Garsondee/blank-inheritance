@@ -394,3 +394,70 @@ test("every registered setting has a translation string", async () => {
     }
   }
 });
+
+/* ==================================================================
+   Legibility — the Japanese is content, not texture.
+   ================================================================== */
+
+test("no Japanese text is set below the readable floor", () => {
+  // FOUND LIVE 2026-09-05: 20 of 21 Japanese elements rendered under 12px,
+  // the smallest at 7px. A 7px Latin label is merely small; a 7px Kanji is a
+  // smudge, because the strokes merge before the glyph resolves. There are
+  // Japanese readers at this table, so this is a legibility bug, not a
+  // nitpick — and it is the kind that creeps back one inline style at a time.
+  const jpFontTokens = [
+    "--bi-font-gothic", "--bi-font-mincho", "--bi-font-display-jp",
+    "--bi-font-brush", "--bi-font-hand", "--bi-font-pixel-jp"
+  ];
+  const tokens = read(TOKENS);
+  const floorMatch = tokens.match(/--bi-jp-size-sm:\s*(\d+)px/);
+  assert.ok(floorMatch, "bi-tokens.css must declare --bi-jp-size-sm as the floor");
+  const floor = Number(floorMatch[1]);
+  assert.ok(floor >= 12, `the Japanese floor is ${floor}px; Kanji need at least 12px`);
+
+  const offenders = [];
+
+  // (a) CSS rule blocks that select a Japanese face and also set a size.
+  const css = read(COMPONENTS);
+  for (const block of css.match(/[^{}]*\{[^{}]*\}/g) ?? []) {
+    if (!jpFontTokens.some((t) => block.includes(t))) continue;
+    for (const m of block.matchAll(/font-size:\s*(\d+(?:\.\d+)?)px/g)) {
+      if (Number(m[1]) < floor) {
+        offenders.push(`bi-components.css: ${m[0]} in "${block.split("{")[0].trim()}"`);
+      }
+    }
+  }
+
+  // (b) Inline styles in the prototype, which is where it crept in before:
+  //     a token-driven rule is easy to police, an inline override is not.
+  const html = readFileSync(path.join(repoRoot, "design", "ui", "style-prototype.html"), "utf8");
+  for (const m of html.matchAll(/style="([^"]*)"/g)) {
+    const decl = m[1];
+    if (!jpFontTokens.some((t) => decl.includes(t))) continue;
+    for (const f of decl.matchAll(/font-size:\s*(\d+(?:\.\d+)?)px/g)) {
+      if (Number(f[1]) < floor) offenders.push(`style-prototype.html: ${f[0]} in inline style`);
+    }
+  }
+
+  assert.deepEqual(
+    offenders, [],
+    `Japanese text set below the ${floor}px floor:\n  ${offenders.join("\n  ")}\n` +
+      `Use var(--bi-jp-size-sm/-jp-size/-jp-size-lg) rather than a raw value.`
+  );
+});
+
+test("panel legends have real leading", () => {
+  // line-height:1 on a tracked-out 10px label reads as a printed strip rather
+  // than as type, and stacked labels collide outright.
+  const tokens = read(TOKENS);
+  const lead = tokens.match(/--bi-legend-leading:\s*([\d.]+)/);
+  assert.ok(lead, "bi-tokens.css must declare --bi-legend-leading");
+  assert.ok(Number(lead[1]) >= 1.3, `legend leading is ${lead[1]}; needs at least 1.3`);
+
+  const legendRule = read(COMPONENTS).match(/\.bi-legend\s*\{[^}]*\}/);
+  assert.ok(legendRule, ".bi-legend rule is missing");
+  assert.match(
+    legendRule[0], /line-height:\s*var\(--bi-legend-leading\)/,
+    ".bi-legend must take its leading from the token, not a literal"
+  );
+});

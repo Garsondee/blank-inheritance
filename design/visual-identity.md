@@ -280,6 +280,56 @@ a comment, so nobody later gives the styling layer a security job it cannot do.
 
 ---
 
+## 3d. Density and legibility (pass 4)
+
+An adversarial pass on wasted space, prompted by the observation that the frame
+was mostly empty rail.
+
+**The side rails were the worst offender and are now floating panels.** As
+full-height grid columns they were tall, thin and roughly half empty — a flex
+spacer literally holding a hole open — and they stole width from the scene to do
+it. They are now absolutely positioned panels that size to their own content,
+stack with a gap, and let the scene run full width behind them like a canopy.
+The column scrolls if it outgrows its berth, because the previous behaviour was
+to clip silently: the Recall button simply vanished below the fold.
+
+**The flanking instruments were fighting themselves.** Dial and readout were both
+centred, so the needle and the numbers wanted the same space and the text was
+squeezed into a 64%-wide slot at the widest point of the circle. The dial now
+mounts in the top of the glass and the readout takes the whole body beneath it,
+separated by a hairline — which is the only arrangement that lets the numbers be
+large enough to read across a table, which is the entire reason the dial exists.
+
+### Japanese has a hard size floor
+
+Measured before the pass: **20 of 21 Japanese elements rendered under 12px, the
+smallest at 7px**, and `.bi-legend` had `line-height: 1` — zero leading.
+
+A 7px Latin label is merely small. A 7px Kanji is a smudge, because the strokes
+merge before the glyph resolves. There are Japanese readers at this table, so the
+Japanese is *content*, not texture, and `--bi-jp-size-sm: 12px` is a floor that
+nothing goes under. A test enforces it across both the stylesheet and the
+prototype's inline styles, since that is exactly where it crept in.
+
+**The trap worth remembering:** SVG `font-size` is in user units, not CSS pixels.
+The HUD's viewBox is 400 wide and renders at 336px, so everything in it is scaled
+by 0.84 — `.bi-hud__jp` at 11 units was rendering at ~9px while the number in the
+stylesheet looked perfectly reasonable. The test caught it; a reading of the CSS
+would not have.
+
+### Also fixed
+
+- `--bi-legend-leading: 1.45`. Tracked-out 10px labels at `line-height: 1` read as
+  a printed strip rather than as type, and stacked labels collided.
+- Role, unit and Recall-fact rows all gained real padding and type sizes; the
+  facts list in particular was 9px, and it is Recall Knowledge results a player
+  has to act on.
+- The dev server now sends `no-store` (`design/ui/serve.py`). `python -m
+  http.server` let the browser hold stale stylesheets across reloads, which cost
+  several rounds of chasing a layout bug that had already been fixed.
+
+---
+
 ## 4. Foundry v14 structural facts (verified, and one corrects a common assumption)
 
 Read from `templates/views/game.hbs` and `public/css/foundry2.css` in the local v14.367

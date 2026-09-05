@@ -88,6 +88,7 @@ $("#units").innerHTML = UNITS.map((u, i) => `
     <span class="bi-lamp ${u.kind === "danger" ? "bi-lamp--red" : u.kind === "warn" ? "bi-lamp--amber" : ""} bi-lamp--lit" style="width:11px;height:11px"></span>
     <span class="bi-unit__body">
       <span class="bi-unit__name">${u.name}</span>
+      <span class="bi-unit__jp">${u.jp}</span>
       <span class="bi-meter ${u.kind === "danger" ? "bi-meter--danger" : u.kind === "warn" ? "bi-meter--warn" : ""}" style="--v:${u.hp}"></span>
     </span>
     <span class="bi-unit__init">${u.init}</span>
@@ -95,9 +96,9 @@ $("#units").innerHTML = UNITS.map((u, i) => `
 
 function renderFacts() {
   $("#facts").innerHTML = FACTS.map((f) => `
-    <div style="display:flex;align-items:center;gap:5px">
+    <div style="display:flex;align-items:center;gap:7px;padding:2px 0">
       <span class="bi-lamp ${f.tone === "danger" ? "bi-lamp--red" : f.tone === "warn" ? "bi-lamp--amber" : ""} bi-lamp--lit" style="width:8px;height:8px"></span>
-      <span class="bi-legend" style="font-size:9px;letter-spacing:.04em;color:var(--bi-bone-dim);white-space:normal">${f.text}</span>
+      <span style="font-family:var(--bi-font-condensed);font-size:13px;font-weight:600;letter-spacing:.02em;line-height:1.35;color:var(--bi-bone);white-space:normal">${f.text}</span>
     </div>`).join("");
 }
 renderFacts();
@@ -122,7 +123,7 @@ const dome = $("#dome");
 const state = { res: 6.2, hp: 148, hpMax: 210, locked: false, target: UNITS[0], round: 3, prob: 0.18 };
 
 function paintInstruments() {
-  $("#res-out").textContent = state.res.toFixed(1);
+  $("#res-out").textContent = state.res.toFixed(1);   // .bi-subdome__value
   $("#hud-res").textContent = state.res.toFixed(1);
   $("#hp-out").textContent = String(state.hp);
   $("#hud-hp").textContent = String(state.hp);

@@ -202,10 +202,26 @@
   /* UI prose that is neither document nor readout — tooltips, chat. */
   --bi-font-body: Signika, ui-sans-serif, system-ui, sans-serif;
 
-  /* --- Type mechanics ------------------------------------------ */
-  --bi-legend-tracking: 0.16em;  /* stamped-plate letterspacing        */
-  --bi-legend-size:     9px;
-  --bi-kanji-tracking:  0.28em;  /* Kanji need far more air than Latin */
+  /* --- Type mechanics ------------------------------------------
+     KANJI HAVE A HARD SIZE FLOOR. A 7px Latin label is merely small;
+     a 7px Kanji is a smudge, because the strokes merge before the
+     glyph is legible. There are Japanese readers at this table, so
+     the Japanese is content, not texture. Nothing sets a Japanese
+     font size below --bi-jp-size-sm, and a test enforces it.
+
+     Latin legends get real leading too: line-height 1 on a 9px
+     tracked-out label reads as a printed strip rather than type, and
+     stacked labels collide. --bi-legend-leading is that fix. */
+  --bi-legend-tracking: 0.14em;  /* stamped-plate letterspacing        */
+  --bi-legend-size:     10px;
+  --bi-legend-leading:  1.45;
+  --bi-kanji-tracking:  0.22em;  /* Kanji need more air than Latin     */
+
+  --bi-jp-size:      14px;  /* default Japanese run                    */
+  --bi-jp-size-sm:   12px;  /* the absolute floor — nothing goes under */
+  --bi-jp-size-lg:   17px;  /* headings, stamps, anything set to read  */
+  --bi-jp-leading:   1.55;  /* Kanji need generous line spacing        */
+
   --bi-doc-tracking:    0.01em;
   --bi-doc-leading:     1.8;
 
@@ -218,7 +234,7 @@
                               full chassis height to lift Foundry's hotbar
                               clear. Content-sizing it would let the two drift
                               and put the hotbar behind the panel. */
-  --bi-marquee-height: 38px;   /* the status lozenge below the instrument row */
+  --bi-marquee-height: 46px;   /* the status lozenge below the instrument row */
   --bi-chassis-height: calc(var(--bi-bar-height) + var(--bi-marquee-height));
 
   /* The main instrument is defined AS twice the instrument row, and is
@@ -229,8 +245,8 @@
   --bi-dome-size: calc(var(--bi-bar-height) * 2);
   --bi-dome-half: calc(var(--bi-dome-size) / 2);
 
-  --bi-rail-width: 178px;      /* left/right vertical rails   */
-  --bi-toprail-height: 44px;   /* scene status strip          */
+  --bi-rail-width: 244px;      /* floating side panels        */
+  --bi-toprail-height: 54px;   /* scene status strip          */
 
   --bi-radius-pod: 14px;
   --bi-radius-key: 5px;
@@ -252,6 +268,11 @@
   /* Width of one redaction bar, written by core/redact.mjs. Declared so
      a bar still has a sane size if the attribute is ever missing. */
   --bi-redact-w: 6ch;
+
+  /* Where an analog needle pivots inside its 200x200 viewBox. The flanking
+     instruments mount their dial in the top of the glass so the readout can
+     have the body of the circle, so their pivot is above centre. */
+  --bi-needle-pivot: 100px 78px;
 
   /* ---------------------------------------------------------------
      8. MATERIALS — composite backgrounds defined once, so a bevel is
