@@ -169,6 +169,30 @@
       "resolution": null,
       "relatedRefs": ["campaign/config.json#frameEconomy", "design/downtime-activities.md", "campaign/config.json#timeEconomy"],
       "notes": "The two resources are cleanly non-redundant and should stay that way: the technician-day pool is the Directorate's SHARED allocation \u2014 how much repair time you are granted, competed for between pilots \u2014 while crew standing is PERSONAL and scales how much you get OUT of that time. Allocation vs effectiveness, two different axes. This also gives the Night Out rest activity (design/downtime-activities.md \u00a72) a second payoff beyond Bleed reduction, and gives every pilot a recurring named NPC relationship that is professional rather than personal, sitting alongside Anchors rather than duplicating them. TERMINOLOGY WARNING: the user said 'ground crews' in passing, but these are NPC repair technicians and must stay verbally distinct from the PC-played Ground Roles in campaign/ground-roles.json (Sensor Operator, Umbilical Control, etc.), which are something else entirely."
+    },
+    {
+      "id": "npc-fact-reveal-scope",
+      "question": "When one player learns a Character Card Fact about an NPC (design/npc-social-intel.md), does it become known to the whole party from then on, or only to the player/character who earned it? Proposed default: party-wide, matching how the muster board already treats party knowledge as one shared flag and how the Sensor Operator ground role already frames a discovered fact as something 'the pilot can act on' regardless of who found it.",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["design/npc-social-intel.md", "data/schema/npc.schema.json#socialProfile"],
+      "notes": "Raised 2026-09-06. Changes whether 'who was actually in the room' ever matters for what the table can act on."
+    },
+    {
+      "id": "npc-fact-leverage-bonus-size",
+      "question": "design/npc-social-intel.md proposes a +2 circumstance bonus when a player's stated approach clearly uses a revealed Fact against an NPC. Is +2 the right size, matching the existing Night Out rest bonus, or should it scale with how directly the Fact applies?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["design/npc-social-intel.md", "design/downtime-activities.md"],
+      "notes": "Raised 2026-09-06. Low-stakes to leave open \u2014 easy to tune at the table without touching the surrounding design."
+    },
+    {
+      "id": "npc-attitude-player-visibility",
+      "question": "Should an NPC's current Attitude (Hostile/Unfriendly/Indifferent/Friendly/Helpful, on the Character Card) ever be shown to players as the literal word, or only narrated through how the GM plays the scene? design/npc-social-intel.md proposes narrated-only by default.",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["design/npc-social-intel.md", "data/schema/npc.schema.json#socialProfile"],
+      "notes": "Raised 2026-09-06. Distinct from bleed-visibility's resolution (tested, on request) \u2014 Attitude changes far more often and from many small actions, so a testing model may not fit as cleanly; open rather than assumed."
     }
   ]
 }

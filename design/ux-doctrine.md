@@ -520,7 +520,10 @@ The user named this case specifically, and it changes the answer. With no map:
 - **Range becomes a band, not a number.** Engaged / Near / Far, not "35 feet." This matters more
   here than in most campaigns because distances run at 10× the standard grid
   (`design/scale-and-chassis.md` §14), so raw footage is actively unhelpful to intuition.
-- **Who is present must be listed**, because it cannot be seen.
+- **Who is present must be listed**, because it cannot be seen. That listing now has a real shape:
+  the **Character Card** (`design/npc-social-intel.md`), a GM-toggled popup showing exactly who is
+  in a scene, with GM-only full visibility and a player-facing view redacted to only what's been
+  learned — Law 11 applied to a person rather than a document.
 
 This also aligns with the already-`accepted` requirement in
 `ideas/entries/in-scene-ui-panel-mimetic-controls.json`, in the user's own words: common actions
@@ -1201,10 +1204,13 @@ Context-swapped, one at a time, in the right column:
   buildable today and answers the rulebook's own first-listed GM priority, *answering questions
   quickly and decisively*. Results are short, with the page citation, because a GM mid-scene needs
   an answer and a reference, not an article.
-- **Cast** — NPCs, and for important conversations the dialogue panel already specified in
+- **Cast** — every NPC's **Character Card** (`design/npc-social-intel.md`): full-visibility Facts
+  list, current Attitude, and the reveal control that marks a Fact learned. For important
+  conversations, the same card opens straight into the dialogue panel already specified in
   `ideas/entries/dialogue-management-panel.json`: player goals, the NPC's goals, hard lines they
   will not cross, what is coercible, and a list of subjects each with a DC and one-click
-  degree-of-success recording. Those recorded outcomes are log entries like any other.
+  degree-of-success recording. Those recorded outcomes are log entries like any other, and a
+  revealed Fact is too, via the log bar's existing `npc` tag.
 - **Campaign** — the slow clocks. Contact Pool, Frame damage states, technician-days, Bleed,
   Anchors, casualty track, Time Economy. Director Mode already prototypes four of these.
 - **Log** — the full history, filterable by type and scene. The review surface, and where a

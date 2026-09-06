@@ -13,16 +13,19 @@
   "openSubQuestions": [
     "Full button/light set beyond the message-received light — not enumerated yet.",
     "How faction theming maps to actual data — a per-faction style sheet keyed off something already in the schema (npc.schema.json/creature.schema.json don't currently carry a faction field), or hand-authored per frame.",
-    "How NPC flavor lines get authored and stored — a hand-written pool per NPC, something semi-generated, and where that would live in data/schema.",
-    "What triggers a flavor bubble to appear (scene entry, an idle timer, a random chance each scene, a GM-triggered button) — not specified.",
-    "Relationship to dialogue-management-panel's NPC-conversation tooling — these ambient flavor bubbles read as a lighter-weight, always-on sibling to that panel's live critical-conversation tool, not a replacement."
+    "What triggers a flavor bubble to appear (scene entry, an idle timer, a random chance each scene, a GM-triggered button) — not specified."
+  ],
+  "resolvedSubQuestions": [
+    "How NPC flavor lines get authored and stored — a hand-written pool per NPC, something semi-generated, and where that would live in data/schema? PARTIALLY RESOLVED 2026-09-06, under the name 'the Character Card' (design/npc-social-intel.md), developed independently from a separate request: hand-authored per NPC, as npc.schema.json's new socialProfile.facts field — each Fact hidden until a specific reveal trigger (usually a check) fires, then permanently known and reusable in any future scene. Stronger than free-floating flavor bubbles: gathered intel with real mechanical teeth (a well-matched known Fact grants a bonus when leveraged) rather than always-visible steering text. Marked partial because it answers storage/authoring for FACTS specifically, not the lighter always-on speech-bubble concept this idea also describes — those may end up being the same content shown two ways, or may stay genuinely separate; not decided.",
+    "Relationship to dialogue-management-panel's NPC-conversation tooling — these ambient flavor bubbles read as a lighter-weight, always-on sibling to that panel's live critical-conversation tool, not a replacement. CONFIRMED as more than a sibling relationship, 2026-09-06: the Character Card is the standing reference the dialogue panel reads from directly, not just a related-but-separate tool."
   ],
   "relatedRefs": [
     "in-scene-ui-panel-mimetic-controls",
     "in-universe-correspondence-negotiation-system",
     "terminal-login-landing-page",
     "dialogue-management-panel",
-    "design/foundry-module-design.md#3-scenes-theatre-of-mind-and-the-asset-pipeline"
+    "design/foundry-module-design.md#3-scenes-theatre-of-mind-and-the-asset-pipeline",
+    "design/npc-social-intel.md"
   ],
   "resolution": null
 }
