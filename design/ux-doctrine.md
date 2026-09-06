@@ -507,8 +507,12 @@ picture:
 - **Contention is the point, so show it.** Two things eligible in the same quarter, with two slices
   and four candidates, *is* the game. The ring should make a conflict obvious rather than letting a
   player discover it after committing.
-- **Personal missions are one player's,** so on a player's own ring theirs are prominent and other
-  people's are context. On the Director's board they are all equally visible.
+- **Personal missions are one player's** on their own ring. Whether *other* players see that a
+  teammate has a personal mission at all — even without its content — is genuinely undecided and
+  is not the same question as journal privacy (§10.2): a diary entry is thought, a pending scene is
+  a fact about the world. It could go either way for good reasons — visible builds "something's
+  going on with them" table tension, hidden protects a twist. Not asserted either way here; see §12.
+  On the Director's board they are all visible regardless, since the GM already runs everyone's.
 
 That also resolves how slices and quarters relate, which was previously open: quarters carry
 *eligibility* and slices are the *budget*, so a scene constrains when it can be taken and the two
@@ -740,6 +744,12 @@ not; we know only who and what number. Between those sits a real middle case wor
 confidence. The end-of-session review surfaces whatever is still unattributed, in a short list, for
 the GM to fill in. Confidence is recorded rather than smoothed over, because a guess presented as a
 fact is exactly the kind of thing that later gets cited as though it were observed.
+
+**The Director's log is itself attribution evidence, not just a separate stream.** A raw roll with
+no attached check and a `reaction`-tagged log entry landing the same minute are not two unrelated
+facts about the same moment; the entry is context the attribution pass should use. This costs
+nothing extra to build — both already carry timestamps — and it is the difference between "unknown
+roll, 14, at 20:03" and "unknown roll, 14, at 20:03, right after 'the guard nearly spots them.'"
 
 **On the player journals, settled 2026-09-06: the players are not told.** The user's reasoning is
 that the campaign's premise is surveillance and the players do not yet know it, so disclosure would
@@ -1102,8 +1112,10 @@ automates the homebrew hardest: it is the only part where we are the reference i
 
 ## 12. Open questions — the user's calls, not mine
 
-**All fifteen questions this document has raised are now answered.** They are recorded in the
-sections they govern; this is the index, so that nothing gets silently re-litigated.
+**Fifteen of the sixteen questions this document has raised are answered.** They are recorded in
+the sections they govern; this is the index, so that nothing gets silently re-litigated. One is
+left open on purpose, flagged rather than guessed at, because guessing at a privacy question is
+how the journal-disclosure issue would have been handled if it had not been asked directly.
 
 | # | Question | Answer | Where |
 |---|---|---|---|
@@ -1122,6 +1134,7 @@ sections they govern; this is the index, so that nothing gets silently re-litiga
 | 13 | What does a scene break look like? | A forced scene-close dialogue: complete?, required outcome dropdowns, notes | §10.3a |
 | 14 | How far apart are the two costumes? | Far. Frame scale is GLASS, personnel scale is PAPER | §7b |
 | 15 | Do slices map to quarters or float? | Quarters carry eligibility, slices carry the budget | §7a |
+| 16 | Do other players see a teammate has a personal mission? | **Open.** Not the same question as journal privacy — a pending scene is a fact, not a thought | §7a |
 
 Three of those carry a consequence worth stating on its own:
 
@@ -1157,6 +1170,9 @@ What genuinely remains:
 3. **How a paper interface signals that it is interactive.** §7b names this as the one real risk in
    the personnel costume and suggests printed-form vocabulary rather than glass buttons on paper.
    It will not be settled by argument; it needs one screen built and looked at.
+4. **Whether a personal mission's existence is visible to the other players (question 16, §7a).**
+   Deliberately not guessed at, and deliberately not the same shape as the journal question: a
+   private thought and a pending scene on the shared calendar are different kinds of secret.
 
 ---
 
@@ -1168,8 +1184,10 @@ What genuinely remains:
   thing on screen, the layout is wrong regardless of how it looks.
 - Before adding a GM feature, check it against **Law 15**. If it asks the GM to do bookkeeping as a
   task of its own rather than as a side effect of running the game, it will not get used.
-- Before automating anything, place it in one of **§10.4's three tiers** and let that decide how
-  loudly it acts. If you cannot place it confidently, it belongs in Tier C as a suggestion.
+- Before automating anything, ask **§10.4's actual question: did we invent this rule, or did sf2e?**
+  Ours gets automated hardest (Law 16); sf2e's gets presented, never recomputed (Law 18); an
+  artistic judgment never gets automated at all. If it will reach the players, it also needs a
+  confirm regardless of which band it's in (Law 17).
 - When this document and `design/visual-identity.md` disagree, this one wins, and the disagreement
   should be recorded in both.
 - When a claim here turns out to be wrong at a real table, change it here first, then change the
