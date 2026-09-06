@@ -20,6 +20,16 @@
       "Failed": "Blank Inheritance: sync failed before completing. See console (F12) for the error, and report it back.",
       "NotGM": "Only a GM can run the Blank Inheritance content sync."
     },
+    "Console": {
+      "Zone": {
+        "Ident": "Ident",
+        "Dome": "Day",
+        "Checks": "Checks",
+        "Segment": "Schedule",
+        "Cast": "Cast",
+        "Log": "Log"
+      }
+    },
     "Settings": {
       "ThemeEnabled": {
         "Name": "Directorate interface theme",

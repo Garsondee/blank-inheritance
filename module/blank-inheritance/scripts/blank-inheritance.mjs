@@ -26,6 +26,9 @@ import {
 } from "./foundry/sync.mjs";
 import { promptToRunSync } from "./foundry/sync-dialog.mjs";
 import { registerThemeSettings, applyTheme } from "./foundry/theme.mjs";
+import { mountCommandBar, refreshCommandBar } from "./foundry/command-bar.mjs";
+import { PlayerBar } from "./foundry/player-bar.mjs";
+import { DirectorBar } from "./foundry/director-bar.mjs";
 
 const MODULE_ID = "blank-inheritance";
 
@@ -48,6 +51,16 @@ Hooks.once("ready", async () => {
     console.error("Blank Inheritance | Could not apply the interface theme:", err);
   }
 
+  // The console. Every client, both seats -- the class is picked here once and
+  // never switched, so a player's browser never constructs the Director's
+  // board at all. Its own try: a bar that fails to mount must not stop the
+  // sync macros below from being created.
+  try {
+    mountCommandBar(game.user.isGM ? DirectorBar : PlayerBar);
+  } catch (err) {
+    console.error("Blank Inheritance | Could not mount the command bar:", err);
+  }
+
   if (!game.user.isGM) return;
   try {
     await createTestSyncMacroIfMissing();
@@ -64,3 +77,28 @@ Hooks.once("canvasReady", () => {
   if (!game.user.isGM) return;
   promptToRunSync().catch((err) => console.error("Blank Inheritance | Sync prompt failed:", err));
 });
+
+// Re-assert the bar on every scene change. Cheap, and idempotent by way of
+// CommandBar#_insertElement replacing a same-id node rather than stacking a
+// second one. Hooks.on, not once: canvasReady fires per scene activation, and
+// it fires BEFORE ready on first load, so this is usually the first mount and
+// the ready hook above is the safety net for a world with no canvas.
+//
+// Braces on purpose: canvasReady is dispatched with Hooks.call, so returning
+// false from any listener silently suppresses every other one. Returning
+// undefined can never do that.
+Hooks.on("canvasReady", () => {
+  try {
+    mountCommandBar(game.user.isGM ? DirectorBar : PlayerBar);
+  } catch (err) {
+    console.error("Blank Inheritance | Could not re-assert the command bar:", err);
+  }
+});
+
+// The mode is derived from combat state rather than stored, so these are
+// exactly the moments it can change underneath us.
+for (const hook of ["combatStart", "combatRound", "combatTurn", "combatTurnChange", "deleteCombat"]) {
+  Hooks.on(hook, () => {
+    refreshCommandBar();
+  });
+}

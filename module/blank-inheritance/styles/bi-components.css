@@ -748,6 +748,13 @@
 .bi-bar__group--left  { justify-content: flex-start; }
 .bi-bar__group--right { justify-content: flex-end; }
 
+/* Same trap as .bi-pod[hidden] above: display:flex beats the hidden
+   attribute's UA display:none, so a track with every zone shed would stay
+   in the grid as an empty half-width strip -- still catching clicks,
+   because bi-foundry-bridge gives #bi-command-bar's children
+   pointer-events:auto. Restore it explicitly. */
+.bi-bar__group[hidden] { display: none; }
+
 /* Pods inside the chassis may not exceed its height, and may not be
    squashed below their content width either. FOUND LIVE: without flex:none
    the side clusters compressed a four-column key bank down to 77px and the

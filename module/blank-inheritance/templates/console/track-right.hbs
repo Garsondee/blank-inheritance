@@ -1,0 +1,12 @@
+{{!--
+    Right track: what I do. Checks for a player, the log for the Director.
+
+    Must render exactly ONE top-level element — see track-left.hbs.
+--}}
+<div class="bi-bar__group bi-bar__group--right" data-track="right" {{#if tracks.right.hidden}}hidden{{/if}}>
+    {{#each tracks.right.zones}}
+    <section class="bi-pod" data-zone="{{this.id}}" data-partial="{{this.partial}}" {{#if this.hidden}}hidden{{/if}}>
+        <h2 class="bi-legend">{{localize this.labelKey}}</h2>
+    </section>
+    {{/each}}
+</div>

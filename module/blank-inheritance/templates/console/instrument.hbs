@@ -1,0 +1,20 @@
+{{!--
+    Centre track: the instrument's berth.
+
+    In theatre of the mind this carries the day ring — the four quarters of
+    the in-fiction day. It is empty in a fight on purpose: downtime is theatre
+    of the mind played at city scale, and in combat time is measured in rounds,
+    so a quarter-of-the-day dial there would be noise.
+
+    The berth has a FIXED width (--bi-dome-size), so when it is empty it has to
+    be hidden rather than merely childless or it holds a 252px gap open in the
+    middle of the chassis. .bi-bar__instrument sets no `display`, so the plain
+    [hidden] attribute is enough here (unlike the flex tracks either side).
+--}}
+<div class="bi-bar__instrument" data-track="instrument" {{#if tracks.instrument.hidden}}hidden{{/if}}>
+    {{#each tracks.instrument.zones}}
+    <section class="bi-pod" data-zone="{{this.id}}" data-partial="{{this.partial}}" {{#if this.hidden}}hidden{{/if}}>
+        <h2 class="bi-legend">{{localize this.labelKey}}</h2>
+    </section>
+    {{/each}}
+</div>
