@@ -178,10 +178,12 @@ Key constraints:
 - `{{localize "KEY" ...hashArgs}}` is a real helper; **`{{#localize}}` block form does not exist**.
 
 ### Hooks — order and gotchas
-Verified firing order: `init` → (settings registered) → `i18nInit` → `setup` → (canvas init kicked off) → `initializeUI` (this is when `ui.*` becomes non-null) → `canvasReady` → `ready`.
+Verified firing order: `init` → (settings registered) → `i18nInit` → `setup` → (canvas init kicked off, `ui.*` becomes non-null) → `canvasReady` → `ready`.
+
+> **`initializeUI` is NOT a hook.** Corrected 2026-09-06: an earlier version of this line listed it inline in the order above, which reads as something you can `Hooks.on`. You cannot — it is a `Game` method (called at `client/game.mjs:764`, defined at `:1020`), and nothing anywhere in `client/` dispatches it. A listener registered for it never fires, silently. It matters only as the *moment* `ui.*` becomes non-null, which sits between `setup` and `canvasReady`. To attach persistent UI, mount on `ready` and re-assert on `canvasReady`.
 
 - `game.i18n.localize` doesn't work in `init` (fires before i18n loads).
-- `ui.controls`/`ui.sidebar` don't exist in `setup` (fires before `initializeUI`).
+- `ui.controls`/`ui.sidebar` don't exist in `setup` (which runs before the `initializeUI` step).
 - **`canvasReady` fires before `ready`**, and again on every scene change — and uniquely among canvas hooks, it's dispatched with `Hooks.call` (cancellable), not `callAll`. Never return `false` from a `canvasReady` handler, it silently suppresses every other listener.
 
 **`getSceneControlButtons(controls)`** — v14 shape is **`Record<string, SceneControl>`, not an array**, and each control's `tools` is likewise `Record<string, SceneControlTool>`. This is the v11-era breaking change that's easy to get wrong from stale examples:

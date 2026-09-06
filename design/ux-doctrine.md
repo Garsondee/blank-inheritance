@@ -818,9 +818,16 @@ Applying Law 13 to what exists today. This is a proposal, not a change already m
 ### Fix
 
 - **The skill list is wrong.** The Checks pod has ten keys (Per, Ath, Ste, Dip, Occ, Cra, Med, Soc,
-  Nat, Pil). SF2E has nineteen skills, and the pod is missing **Computers** — a Starfinder
-  signature skill, and the one behind Hack and Access Infosphere — plus Acrobatics, Arcana,
-  Deception, Intimidation, Religion, Survival, Thievery, and Lore.
+  Nat, Pil) — nine skills plus Perception, which is a statistic rather than a skill but is
+  correctly a button. SF2E's fixed skill list is **eighteen**: `CONFIG.PF2E.skills` in the
+  shipped system, read directly 2026-09-06. (An earlier draft of this section said nineteen,
+  counting Lore as one of them. **Lore is not fixed** — lores are per-actor Items that
+  surface as extra `actor.skills` entries carrying `.lore`, so the real list is the eighteen
+  plus whatever that character happens to have, and must never be hardcoded.)
+  The pod is missing nine of the eighteen: **Computers** — a Starfinder signature skill, and
+  the one behind Hack and Access Infosphere — plus Acrobatics, Arcana, Deception,
+  Intimidation, **Performance**, Religion, Survival and Thievery. Performance was missing from
+  the earlier version of this list too.
 - **Conditions** should render their effects, and should change the numbers on the action buttons.
 - **Movement and Reactions pods** should merge into the action tray. Movement *is* an action;
   reactions belong beside the reaction pip.
