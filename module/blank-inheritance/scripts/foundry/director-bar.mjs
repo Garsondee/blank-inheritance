@@ -10,6 +10,7 @@ import { CommandBar, refreshCommandBar } from "./command-bar.mjs";
 import { SEATS } from "../core/console-model.mjs";
 import { actorForSeat, checkGroupsFor, postInlineCheck, rollCheck } from "./rolls.mjs";
 import { castForScene, selectCastRow } from "./cast.mjs";
+import { openCharacterCard } from "./character-card.mjs";
 import { currentEntries, loadSessionLog, recordLogEntry } from "./session-log.mjs";
 import { currentMode } from "./command-bar.mjs";
 
@@ -20,7 +21,8 @@ export class DirectorBar extends CommandBar {
     classes: ["bi-bar--director"],
     actions: {
       rollCheck: DirectorBar.#onRollCheck,
-      selectCast: DirectorBar.#onSelectCast
+      selectCast: DirectorBar.#onSelectCast,
+      openCard: DirectorBar.#onOpenCard
     }
   };
 
@@ -90,6 +92,10 @@ export class DirectorBar extends CommandBar {
 
   static async #onSelectCast(event, target) {
     selectCastRow(target.dataset.tokenId);
+  }
+
+  static async #onOpenCard(event, target) {
+    openCharacterCard(target.dataset.actorId);
   }
 
   /**

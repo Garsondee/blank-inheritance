@@ -48,6 +48,10 @@ export function dispositionName(value) {
 export function buildCast(entries = []) {
   const rows = entries.map((entry) => ({
     id: entry.id,
+    // The token is what gets selected; the ACTOR is what the Character Card
+    // is about. A token is a placement, and social intel belongs to the
+    // person, not to where they happen to be standing.
+    actorId: entry.actorId ?? null,
     name: entry.name || "—",
     isPC: !!entry.isPC,
     hidden: !!entry.hidden,

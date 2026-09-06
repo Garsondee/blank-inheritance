@@ -30,12 +30,27 @@ import { mountCommandBar, refreshCommandBar } from "./foundry/command-bar.mjs";
 import { PlayerBar } from "./foundry/player-bar.mjs";
 import { DirectorBar } from "./foundry/director-bar.mjs";
 import { loadSessionLog } from "./foundry/session-log.mjs";
+import { ensureIntelVault, writeAuthoredProfile } from "./foundry/social-store.mjs";
 
 const MODULE_ID = "blank-inheritance";
 
 Hooks.once("init", () => {
   const mod = game.modules.get(MODULE_ID);
-  if (mod) mod.api = { runDiagnosticTestSync, runRealContentSync, deriveFoundryId, contentHash, applyTheme };
+  // writeAuthoredProfile is exposed rather than only called from a pipeline
+  // because no NPC has an authored socialProfile yet -- the store is finished,
+  // the content is not. This is how a profile gets seeded until the sync
+  // pipeline carries them (see GitHub #131).
+  if (mod) {
+    mod.api = {
+      runDiagnosticTestSync,
+      runRealContentSync,
+      deriveFoundryId,
+      contentHash,
+      applyTheme,
+      ensureIntelVault,
+      writeAuthoredProfile
+    };
+  }
 
   // Settings must be registered during init. The stylesheets themselves are
   // loaded declaratively from module.json's `styles`; this only controls the

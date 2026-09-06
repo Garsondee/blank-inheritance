@@ -30,6 +30,29 @@
         "Requested": "Requesting a {label} check.",
         "UnknownStatistic": "This character has nothing called \"{slug}\" to roll."
       },
+      "Card": {
+        "Title": "Character Card",
+        "Open": "Open character card",
+        "Missing": "That character is no longer available.",
+        "AttitudeLabel": "Attitude",
+        "ActionsLabel": "What moves it",
+        "FactsLabel": "What is known",
+        "NoFacts": "Nothing authored for this character yet.",
+        "Reveal": "Reveal",
+        "Unlearned": "{count} more to learn.",
+        "Attitude": {
+          "Hostile": "Hostile",
+          "Unfriendly": "Unfriendly",
+          "Indifferent": "Indifferent",
+          "Friendly": "Friendly",
+          "Helpful": "Helpful"
+        },
+        "Action": {
+          "MakeAnImpression": "Make an Impression",
+          "Request": "Request",
+          "Coerce": "Coerce"
+        }
+      },
       "Cast": {
         "Empty": "No tokens in this scene.",
         "Summary": "{players} PC / {others} other",

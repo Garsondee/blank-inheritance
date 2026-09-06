@@ -20,6 +20,7 @@ export function castForScene() {
   const rows = buildCast(
     tokens.map((token) => ({
       id: token.id,
+      actorId: token.actor?.id ?? null,
       name: token.document?.name ?? token.actor?.name ?? null,
       isPC: token.actor?.hasPlayerOwner ?? false,
       hidden: token.document?.hidden ?? false,

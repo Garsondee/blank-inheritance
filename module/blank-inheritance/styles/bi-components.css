@@ -846,6 +846,169 @@
   color: var(--bi-amber);
 }
 
+/* A cast row is now a row PLUS a card button, so the <li> is the flex line
+   and the row itself keeps growing to fill it. */
+.bi-cast__item {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+}
+.bi-cast__item .bi-cast__row { flex: 1; min-width: 0; }
+
+.bi-cast__card {
+  flex: none;
+  width: 22px;
+  border: none;
+  border-radius: var(--bi-radius-key);
+  background: var(--bi-mat-pod);
+  color: var(--bi-brass);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+.bi-cast__card:hover { background: var(--bi-steel-600); color: var(--bi-amber); }
+
+/* --- The Character Card ------------------------------------------------
+   A framed window rather than a pod: it is opened about one person at one
+   moment and then dismissed, and a variable-length fact list would fight the
+   chassis's pinned height. */
+.bi-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 12px 12px;
+  background: var(--bi-mat-steel);
+  color: var(--bi-bone);
+}
+
+.bi-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid var(--bi-brass-dark);
+  padding-bottom: 6px;
+}
+
+.bi-card__name {
+  margin: 0;
+  font-family: var(--bi-font-display);
+  font-size: 16px;
+  color: var(--bi-bone);
+}
+
+.bi-card__attitude-now {
+  font-family: var(--bi-font-legend);
+  font-size: var(--bi-legend-size);
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  color: var(--bi-amber);
+}
+
+.bi-card__block { display: flex; flex-direction: column; gap: 5px; }
+
+/* The five steps as a scale, not a dropdown: the whole point of SF2E's
+   attitude track is that it is a LINE somebody moves along, and a select box
+   hides both where they are and how far there is left to go. */
+.bi-card__scale { display: flex; gap: 2px; }
+
+.bi-card__step {
+  flex: 1;
+  padding: 5px 2px;
+  border: none;
+  border-radius: 2px;
+  background: var(--bi-mat-pod);
+  color: var(--bi-bone-dim);
+  font-family: var(--bi-font-legend);
+  font-size: 9px;
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.bi-card__step:hover { background: var(--bi-steel-600); color: var(--bi-bone); }
+.bi-card__step--current {
+  background: var(--bi-steel-600);
+  color: var(--bi-amber);
+  box-shadow: inset 0 0 0 1px var(--bi-amber);
+}
+
+.bi-card__actions,
+.bi-card__facts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.bi-card__action {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--bi-font-readout);
+  font-size: 11px;
+  color: var(--bi-bone-dim);
+}
+.bi-card__action-name { flex: 1; color: var(--bi-bone); }
+.bi-card__action-skill { color: var(--bi-brass); text-transform: uppercase; font-size: 9px; }
+.bi-card__action-steps { font-variant-numeric: tabular-nums; }
+
+.bi-card__fact {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 6px;
+  border-radius: 2px;
+  background: var(--bi-mat-pod);
+  font-family: var(--bi-font-readout);
+  font-size: 11px;
+}
+
+/* Unrevealed facts read as provisional, because on a GM's card they are the
+   things not yet true at the table. */
+.bi-card__fact--unrevealed {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--bi-steel-600);
+  color: var(--bi-bone-dim);
+  font-style: italic;
+}
+
+.bi-card__fact-text { flex: 1; min-width: 0; }
+
+.bi-card__reveal {
+  flex: none;
+  border: none;
+  border-radius: 2px;
+  padding: 2px 6px;
+  background: var(--bi-brass-dark);
+  color: var(--bi-void);
+  font-family: var(--bi-font-legend);
+  font-size: 9px;
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.bi-card__reveal:hover { background: var(--bi-brass); }
+
+.bi-card__trigger {
+  flex: none;
+  font-family: var(--bi-font-legend);
+  font-size: 9px;
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  color: var(--bi-brass);
+}
+
+.bi-card__unlearned {
+  margin: 2px 0 0;
+  font-family: var(--bi-font-legend);
+  font-size: var(--bi-legend-size);
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  color: var(--bi-bone-dim);
+}
+
 /* --- The Director's log ------------------------------------------------
    One field, always on. Running the session and recording it are one act, so
    there is no save button and no dialog -- the only affordance is a place to
