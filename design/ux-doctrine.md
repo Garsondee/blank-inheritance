@@ -252,14 +252,45 @@ rolled at **the kid's own level's DC**, and the *effect* lands at Frame scale
 *Obligation:* ground crew and pilots get different readouts, not the same readout with different
 numbers in it.
 
-### Downtime is already a solved UI problem
+### Downtime is a scheduling problem, not a menu
 
-Two discretionary slices per day, seven options
-(`data/campaign/config.json`, `timeEconomy`). "More options exist than slices to spend them on —
-that gap is the entire engine of downtime play."
+An earlier draft of this section called downtime "a menu with a visible budget of 2" and said it
+should be the easiest mode to build. That was too small an idea. The user's description on
+2026-09-06 makes it the campaign's second real game:
 
-*Obligation:* downtime is a menu with a visible budget of 2. That is the entire screen. It should
-be the easiest mode to build and should not be allowed to sprawl.
+> "Some events happen only at certain times of day. The players are students, so they have the
+> chance to take part in school events morning, night and even evening. However, they are also
+> civil defence so there are operations where the players will need to decide when to do them and
+> finally there are personal missions. Each of these are scenes, they might expire if not dealt
+> with quickly enough, they might debuff the group or a player if not dealt with."
+
+So downtime is: **a day divided into four quarters, a set of available scenes each eligible only in
+certain quarters, three kinds of scene competing for the same time, two discretionary slices to
+spend, and a decay timer on everything you do not pick.** That is a genuine resource game, and it
+is the engine `config.json` already predicted when it said "more options exist than slices to spend
+them on — that gap is the entire engine of downtime play."
+
+Three kinds, each with a different relationship to time:
+
+| Kind | Timing | Whose |
+|---|---|---|
+| **School events** | fixed windows — morning, evening, night | the group, or whoever attends |
+| **Civil defence operations** | the players choose when | the group |
+| **Personal missions** | the players choose when | one player |
+
+*Obligation, and it is a substantial one:* the interface must make **four things visible at once** —
+what is available, which quarters each thing can happen in, what expires soonest, and what it costs
+to let something lapse. Miss any one of those and the mode stops being a decision and becomes a
+guess. §7a designs the surface; the fourth item is important enough that it is now Law 19.
+
+*Data this needs and does not have.* `episode.schema.json`'s scene shape currently carries only
+`order`, `title`, `description` and refs to an encounter, challenge or subsystem. Scheduling
+implies at minimum a `kind`, an availability window in day quarters, an expiry, a
+consequence-if-missed, an assignee for personal missions, and the closed list of outcomes the
+scene-close dialogue offers (§10.3a). Also worth noting: `order` presumes a fixed sequence, which
+is right for the authored Episode 1 and wrong for scheduled play, where scenes are offered rather
+than sequenced. Designing those fields is a data task, not this document's, but the interface
+cannot be built before they exist.
 
 ---
 
@@ -429,11 +460,15 @@ completely different object.
 
 | Zone | Encounter | Exploration | Downtime |
 |---|---|---|---|
-| Who I am | Resonance band, damage state, Bleed, HP | same, quieter | current condition only |
+| Who I am | Resonance band, damage state, Bleed, HP | same, quieter | current condition, standing debuffs |
 | Budget | action pips + reaction | *hidden* | **2 slices** |
-| What I face | current target | the scene / who's present | — |
-| What I may do | Tier 1 + 2 + repertoire | exploration activities + skills | the seven Time Economy options |
-| Who else | initiative order + on deck | party roster | — |
+| What I face | current target | the scene / who's present | the day ring, and what is on it (§7a) |
+| What I may do | Tier 1 + 2 + repertoire | exploration activities + skills | available scenes + Time Economy options |
+| Who else | initiative order + on deck | party roster | who else has committed their slices |
+
+Note what the day ring does to the Downtime column. It is not a menu bolted into the "what I may
+do" zone; it takes the **dome**, because in downtime the thing you are dealing with *is* the shape
+of the day. That is the same rule the dome follows everywhere else, applied honestly.
 
 The dome — the console's most prominent element — always shows **the thing you are currently
 dealing with**: your target in a fight, the scene in exploration, the active combatant for a GM.
@@ -458,6 +493,27 @@ systems are already keyed to the day rather than the hour:
 - The **Contact Pool** rolls on quiet *mornings*, with Contact forced from the eighth. A ring that
   knows what quarter it is knows when that roll is due.
 
+**And it is the board the scheduling game is played on.** Given §3's time-of-day scenes, the ring
+stops being a readout and becomes the primary downtime interface. Available scenes sit against the
+quarters they are eligible for, so the shape of the day and the shape of the choice are the same
+picture:
+
+- **Each pending scene is a marker on the ring**, placed against its eligible quarters. A school
+  event sits on morning, evening and night; an operation floats, because the players choose when.
+- **The three kinds read differently at a glance.** School, operation and personal are distinct
+  enough in the fiction that they should be distinct on the ring without reading a label.
+- **Urgency is the second visual channel.** How many days a thing has left before it lapses is the
+  information that actually drives the decision, so it cannot be buried in a tooltip.
+- **Contention is the point, so show it.** Two things eligible in the same quarter, with two slices
+  and four candidates, *is* the game. The ring should make a conflict obvious rather than letting a
+  player discover it after committing.
+- **Personal missions are one player's,** so on a player's own ring theirs are prominent and other
+  people's are context. On the Director's board they are all equally visible.
+
+That also resolves how slices and quarters relate, which was previously open: quarters carry
+*eligibility* and slices are the *budget*, so a scene constrains when it can be taken and the two
+slices constrain how much can be taken at all. Neither purely fixed nor purely floating.
+
 **Two clocks, and they must never be confused.** The ring is the *fiction's* time of day. The
 session bar along the top is the *table's* real elapsed evening (§10, and already built). They are
 deliberately different instruments in different places: one wraps the dome and moves in four steps,
@@ -469,19 +525,48 @@ the same clock is a bug.
 Also settled 2026-09-06: *"We might change the UI quite a bit between personnel scale scenes and
 frame scale scenes, that would be a lot of fun."*
 
-Take that literally. Scale is the one swap allowed to change how the console *looks*, not just what
-it holds — because the fiction says you are sitting in a different machine, and the interface
-agreeing with that is free characterisation. A Frame's console should feel heavier, denser and more
-industrial; personnel scale lighter, sparser and more mobile.
+Take that literally, and the answer to *how* different turns out to be already sitting in the
+project. Asked how far apart the two costumes should sit, the user said:
 
-What changes: palette weight, chrome, density, the action vocabulary, what the dome frames, and how
-the board groups. What does **not** change: the zones themselves. Muscle memory is the whole reason
-zones are stable, and a costume change that moved the action tray would cost more than it earns.
+> "Lots. We could have completely unique interfaces with the frame scale one being the current
+> design, radar dishes, metal panels. Then the personnel scale we do with a different paper
+> aesthetic. That sounds nice."
 
-This also gives Law 8 its natural home. The two scales must never share a readout, and the cleanest
-way to guarantee that is for them to never be on screen together in the first place — the console is
-in one costume or the other. The transition between them is a moment worth spending something on;
-Foundry ships thirteen `canvas.transition` effects that cost nothing to use.
+**Frame scale is GLASS. Personnel scale is PAPER.** Those are not new looks that need inventing;
+they are the two type registers `design/visual-identity.md` §1 already established and already
+built. The Frame console is the current chassis — radar dishes, metal panels, phosphor, Chakra
+Petch and Oxanium. The personnel console is the register the Standing Order documents and the
+Medical Report already use — Spectral, Shippori Mincho, Special Elite, stamps, form rows, ruled
+paper.
+
+This is the best kind of design answer, because it is free and it means something:
+
+- **It costs almost nothing.** Both registers exist, are tested, and are in the stylesheet.
+- **It characterises without a word of exposition.** In a Frame you are inside a war machine. On
+  the ground you are a child with a duty folder, a timetable and a form to fill in. The interface
+  says which one you are before anyone narrates it.
+- **It makes Law 8 structural.** Two scales must never share a readout, and the surest way to
+  guarantee that is that they cannot appear together — a paper form and a phosphor gauge simply
+  cannot be mistaken for one instrument.
+
+What still does **not** change: the zones. Muscle memory is the entire reason zones are stable, and
+a costume change that relocated the action tray would cost more than it earns. The same information
+lives in the same place; it is rendered on paper instead of behind glass.
+
+Two things to get right when this is built, both real risks rather than hypotheticals:
+
+1. **Paper must not lose affordance.** The GLASS register makes it obvious what is pressable. A
+   paper aesthetic can quietly stop looking interactive, which would be a direct violation of Law 7.
+   Printed forms have their own vocabulary for this — boxes to tick, ruled fields, carbon-copy
+   duplicates, rubber stamps landing when something is committed — and that vocabulary should do
+   the work rather than pressing glass buttons onto paper.
+2. **The ground has vehicles, and a vehicle is not paper.** Personnel scale includes the fast,
+   fragile civil-defence chassis. The resolution that fits the period: the folder is the console,
+   and the vehicle is a **status card clipped into it** — a small instrumented insert on an
+   otherwise paper surface. Offered as an idea, not a decision.
+
+The transition between the two is worth spending something on, since it is the moment the fiction
+changes. Foundry ships thirteen `canvas.transition` effects that cost nothing to use.
 
 ---
 
@@ -525,6 +610,10 @@ Numbered so they can be cited in review. These are meant to settle arguments.
 18. **Never recompute what sf2e already computes.** Multiple attack penalty, persistent damage,
     conditions, flanking, off-guard, degree of success and initiative are all in the shipped system.
     Our job for those is presentation. A proposal to recompute one is a bug in the proposal. See §11.
+19. **Nothing expires without its cost having been visible first.** If letting a scene lapse debuffs
+    a player, they must have been able to see that it would, and roughly when, before it happened.
+    A timer whose consequence is only revealed on expiry is a gotcha, not a decision. This covers
+    every clock in the campaign, not only scheduled scenes.
 
 ---
 
@@ -574,7 +663,9 @@ Applying Law 13 to what exists today. This is a proposal, not a change already m
   arithmetic; it is in giving those variants a large, fixed, unmissable home, which the current
   three-key row does not.
 - On-deck indicator.
-- The **day ring** around the dome — four quarters, current one lit (§7a).
+- The **day ring** around the dome — four quarters, current one lit, and the board that downtime
+  scheduling is played on (§7a).
+- The **scene-close dialogue** (§10.3a) and the **scene board** in the Director's Scene drawer.
 - Start-of-turn and end-of-turn checklist prompts, especially persistent damage.
 - A clock component.
 - The GM's combatant board.
@@ -722,6 +813,51 @@ which a chat command could never do cleanly.
 An earlier draft of this section proposed a Foundry chat command as a second access path. It is
 withdrawn for the reason above.
 
+### 10.3a The scene-close dialogue
+
+The log bar handles capture *during* a scene at zero friction. Scene boundaries get the opposite
+treatment, and this is the user's own design, given 2026-09-06:
+
+> "When changing scenes we can bring up a dialogue that lets me mark if a scene is complete, if it
+> is then I'm forced to select from dropdowns what the result of the scene was. There will also be
+> a text box for adding my own notes."
+
+The word doing the work is **forced**. This is the one place in the whole design where friction is
+wanted, and the instinct is right: a scene boundary is a natural pause, the GM has just finished a
+coherent unit and has not yet forgotten it, and the outcome is the single highest-value piece of
+data the whole corpus will collect. Everywhere else the interface gets out of the way; here it
+stands in the doorway.
+
+**The dialogue, on cueing the next scene:**
+
+1. **Is this scene complete?** If no, it stays open and carries forward — an unfinished scene is a
+   real state, not an error, and the campaign will have plenty of them.
+2. **If complete: what was the result?** A small number of dropdowns, required.
+3. **Notes.** Free text, optional, into the same log as everything else.
+
+**The dropdowns must be short and identical every time.** Four to six options is a decision; twenty
+is a form, and a form at a scene boundary will start getting dismissed by the third session. Two
+axes cover most of it — how it ended, and what it cost — with the campaign's own costs as the
+second list, since those are the ones that carry forward: casualties, Frame damage, Bleed,
+technician-days, time, an Anchor violated, or nothing.
+
+**Where the options come from.** For authored scenes, from the scene's own data, so a fight offers
+fight outcomes and a negotiation offers negotiation outcomes. The vocabulary itself is the user's
+to set and belongs in the schema alongside the other scheduling fields §3 lists as missing. For
+improvised scenes there has to be a generic fallback, because improvisation is a first-class mode
+here and a dialogue that only works for prepared material would be worse than none.
+
+**And it advances state, it does not merely record.** This is Law 15 at its clearest. A result of
+"heavy casualties" feeds the casualty track, which `ground-roles.json` already says becomes next
+episode's Resonance penalty. A result of "Anchor violated" adjusts a baseline. Closing the scene
+honestly *is* the mechanical act, so there is no separate bookkeeping step afterwards and no way for
+the record and the campaign state to drift apart.
+
+This also settles what a scene-break suggestion looks like, which was previously undecided: the
+suggestions §10.4 promises — an untouched Anchor, an unspent setup, pacing against the session bar,
+a scene about to expire — belong in this same dialogue. It is already the moment the GM's attention
+is at a boundary, and putting them anywhere else would mean interrupting twice.
+
 ### 10.4 What automates
 
 The policy is the user's, given 2026-09-06, and it is more decisive than the certainty-based model
@@ -851,7 +987,12 @@ Context-swapped, one at a time, in the right column:
   reading a stat block and doing subtraction.
 - **Scene** — prep for the current scene and the episode's scene list, each with a cue button.
   Cueing is `Scene#activate()` with one of the thirteen native `canvas.transition` effects, all of
-  which the module design already confirmed need no custom code.
+  which the module design already confirmed need no custom code. Closing one opens §10.3a.
+  This drawer is also the **scene board**: every pending scene the players have not taken, with its
+  kind, its eligible quarters, its expiry and who it belongs to (§3). The player's day ring shows
+  them their own choices; this shows the GM the whole board, including what is about to lapse and
+  what that will cost — which is the information a GM needs to decide whether to let it lapse or
+  push it back in front of them.
 - **Rules** — a search box over the 205 locally mirrored SRD articles in `reference/srd/`. This is
   buildable today and answers the rulebook's own first-listed GM priority, *answering questions
   quickly and decisively*. Results are short, with the page citation, because a GM mid-scene needs
@@ -961,7 +1102,7 @@ automates the homebrew hardest: it is the only part where we are the reference i
 
 ## 12. Open questions — the user's calls, not mine
 
-**All twelve questions this document has raised are now answered.** They are recorded in the
+**All fifteen questions this document has raised are now answered.** They are recorded in the
 sections they govern; this is the index, so that nothing gets silently re-litigated.
 
 | # | Question | Answer | Where |
@@ -978,6 +1119,9 @@ sections they govern; this is the index, so that nothing gets silently re-litiga
 | 10 | Does ground crew get a third shape? | No. Two shapes only, player and GM | §4, Law 10 |
 | 11 | Is Bleed player-visible? | Not initially — build visibility as a switch, not an assumption | below |
 | 12 | One console across scales, or two? | One, but scale is a visible costume change | §7b |
+| 13 | What does a scene break look like? | A forced scene-close dialogue: complete?, required outcome dropdowns, notes | §10.3a |
+| 14 | How far apart are the two costumes? | Far. Frame scale is GLASS, personnel scale is PAPER | §7b |
+| 15 | Do slices map to quarters or float? | Quarters carry eligibility, slices carry the budget | §7a |
 
 Three of those carry a consequence worth stating on its own:
 
@@ -998,17 +1142,21 @@ Three of those carry a consequence worth stating on its own:
 
 ### What is still genuinely undecided
 
-Not questions I am holding, but things nobody has had to answer yet:
+All three items previously listed here were answered on 2026-09-06 and have moved into the sections
+they govern: the scene-break moment is now the scene-close dialogue (§10.3a), the two scale costumes
+are GLASS and PAPER (§7b), and quarters carry eligibility while slices carry the budget (§7a).
 
-1. **What a scene-break suggestion actually looks like.** §10.4 says the console offers what it
-   noticed at scene boundaries. Whether that is a quiet list, a card, or something the GM steps
-   through has not been designed and probably should not be until one is running.
-2. **How much the two scale costumes differ.** §7b commits to a visible change and to keeping the
-   zones fixed. Everything between "a palette shift" and "a different chassis entirely" is open,
-   and this is a case where building one and looking at it beats specifying it.
-3. **Where the day ring's quarters come from.** §7a assumes four equal quarters. Whether the
-   Time Economy's two discretionary slices map onto specific quarters, or float, is a campaign
-   question that the ring will make visible either way.
+What genuinely remains:
+
+1. **The scene-outcome vocabulary itself.** §10.3a fixes the shape — two short required dropdowns,
+   four to six options each, identical every time. The actual words are the user's to choose and
+   belong in the schema, not here.
+2. **The scheduling fields.** §3 lists what the interface needs that `episode.schema.json` does not
+   carry: kind, eligible quarters, expiry, consequence-if-missed, assignee, outcome list. That is a
+   data task and it blocks building the day ring for real.
+3. **How a paper interface signals that it is interactive.** §7b names this as the one real risk in
+   the personnel costume and suggests printed-form vocabulary rather than glass buttons on paper.
+   It will not be settled by argument; it needs one screen built and looked at.
 
 ---
 
