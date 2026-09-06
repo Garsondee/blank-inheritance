@@ -7,7 +7,11 @@
       "question": "Does a pilot see their own running Bleed total, or is it GM-only?",
       "status": "open",
       "resolution": null,
-      "relatedRefs": ["campaign/config.json#bleed"]
+      "relatedRefs": [
+        "campaign/config.json#bleed",
+        "design/resonance-and-bleed.md"
+      ],
+      "notes": "2026-09-06 analysis (design/resonance-and-bleed.md \u00a73) argues this one is not neutral: Pushing trades Resonance now for Bleed later, and a trade with one side hidden is a gamble rather than a decision. Recommended middle path \u2014 show the pilot a BAND (Stable/Strained/Critical) rather than a number: enough to price a push honestly, not enough to count down precisely to berserk, and it matches the three-light-gauge idiom the console already uses. Still open; a recommendation is not a decision."
     },
     {
       "id": "day1-pilot-day6-choice",
@@ -29,7 +33,12 @@
       "question": "Are all six Resonance percentages read aloud and ranked at weekly harmonics testing (public, competitive, cruel), or kept private to each pilot?",
       "status": "open",
       "resolution": null,
-      "relatedRefs": []
+      "relatedRefs": [
+        "campaign/config.json#resonance",
+        "design/resonance-and-bleed.md",
+        "campaign/gm-notes.json#read-numbers-flatly"
+      ],
+      "notes": "2026-09-06 analysis (design/resonance-and-bleed.md \u00a72) leans hard toward public: published ranking turns Resonance from a character stat into a public score of how emotionally available a child is, assigned by an institution \u2014 the cruellest and strongest use of the mechanic. gm-notes.json read-numbers-flatly already points the same way. Still the user call."
     },
     {
       "id": "third-npc-pole",
@@ -88,6 +97,54 @@
       "resolution": null,
       "relatedRefs": ["campaign/config.json#timeEconomy.options", "design/ux-doctrine.md#downtime-is-the-segment-mechanic", "design/downtime-activities.md"],
       "notes": "Closely linked to fatigue-escalation-formula. A concrete proposal exists (2026-09-06, design/downtime-activities.md §2): Lights Out (Long-Term Rest's real doubled HP recovery), Sick Bay (real Treat Wounds numbers), Night Out (−1 Bleed + a circumstance bonus, since Bleed's own sources already include psychological distress), plus Workshop offered as a fourth illustrative option. Not confirmed — a researched suggestion, not a decision."
+    },
+    {
+      "id": "bleed-intermediate-thresholds",
+      "question": "Bleed is 0-10 with a single threshold at 10 (berserk), so points 1-9 currently have no mechanical expression at all \u2014 a tracked resource that stays invisible in play until it detonates. Should Bleed gain intermediate thresholds, and should they eat what Resonance grants (e.g. 4+ costs your reaction, 7+ drops your effective band one step for ability access) so the two tracks actually interact before the endpoint?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/config.json#bleed", "design/resonance-and-bleed.md"],
+      "notes": "Flagged 2026-09-06 as the highest-value, lowest-cost change available on either track. Also makes Pushing a genuinely tense trade: a band now for a band later."
+    },
+    {
+      "id": "bleed-recovery-sinks",
+      "question": "Bleed has four defined sources (pushing, Frame damage, plug distress, Suppression) and exactly one undefined reduction (Signals Liaison reduces Bleed, no magnitude or rate given). With no decay, no per-session reset and no downtime route, berserk arrives on a schedule regardless of player choices \u2014 a countdown rather than a managed risk. Is that the intent? If not, what are Bleed sinks and at what rates?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/config.json#bleed", "campaign/ground-roles.json#signals-liaison", "design/resonance-and-bleed.md", "design/downtime-activities.md"],
+      "notes": "A one-way doom clock is a legitimate structure (Blades in the Dark, Ten Candles) but it changes the interesting decision from avoiding berserk to choosing when it lands, which only works if Bleed is visible (see bleed-visibility). Episode 1 scripts berserk into the very first fight, which suggests the countdown reading may already be the de facto intent. design/downtime-activities.md proposes one sink (Night Out, -1)."
+    },
+    {
+      "id": "two-action-default",
+      "question": "config.json bandDesignNote states that most of the campaign is played at 2 actions. SF2E is architecturally a three-action system \u2014 two-action activities consume a whole turn, the signature turn shapes need three, and the multiple attack penalty is built around a third attack being possible-but-unwise. Should 3 actions instead be the norm from Nominal upward, with 2 reserved for Dead Weight as a genuine failure state, letting ability tiers and internal-power duration carry the band spread?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/config.json#resonance.bands", "design/resonance-and-bleed.md", "design/scale-and-chassis.md"],
+      "notes": "Raised 2026-09-06. The counter-argument is real and artistic: constraint IS the fiction, and Harmonised should feel like a breakthrough. The concern is that a reduced action economy delivers both feels-constrained and has-fewer-decisions, and only the first is wanted."
+    },
+    {
+      "id": "resonance-band-spread",
+      "question": "Measured total combat contribution across the Resonance bands (actions per round x internal-power rounds, plus Absolute free Strikes) is 7 / 12 / 24 / 40 actions \u2014 a 5.7x spread from Dead Weight to Absolute, before ability tiers are counted. That is a wider gap than four character levels in SF2E, on one track, inside one tier, between players at the same table. Is that intended, and if so should pilots fielded together be constrained to within a band or two of each other?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/config.json#resonance.bands", "design/resonance-and-bleed.md"],
+      "notes": "Arithmetic run 2026-09-06; it had not been computed before. Closely tied to two-action-default \u2014 making 3 actions standard from Nominal compresses the action-count spread to roughly 2.2x and shifts the difference onto ability tiers, which is arguably where it belongs anyway."
+    },
+    {
+      "id": "suppression-intent-vs-pattern",
+      "question": "Suppression currently triggers when a player declines an Anchor-relevant conflict specifically to protect their deployability \u2014 which requires the GM to judge a player motive and then penalise them for it. Should it instead trigger on pattern (a kid Anchors going untouched for N scenes raises Bleed regardless of why), keeping the same anti-exploit pressure without anyone at the table having to assess intent?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/config.json#suppression", "design/resonance-and-bleed.md"],
+      "notes": "Raised 2026-09-06. The current version also risks penalising a legitimate characterisation \u2014 some kids genuinely are conflict-avoidant."
+    },
+    {
+      "id": "hero-points-vs-berserk",
+      "question": "SF2E Hero Points can be spent to avert death. Berserk (Bleed 10) currently has no escape valve at all. Should spending all Hero Points be able to avert or interrupt berserk the way it averts death, giving loss-of-self the same mechanical dignity as death and handing players one expensive out?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/config.json#bleed.berserk", "design/resonance-and-bleed.md", "reference/srd/player-core/381-hero-points.json"],
+      "notes": "Raised 2026-09-06. Also worth being deliberate about the broader overlap: Hero Points and Anchors both reward selfless or daring play and will often fire on the same moments, at different timescales."
     }
   ]
 }
