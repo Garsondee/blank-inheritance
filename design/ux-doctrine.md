@@ -347,7 +347,10 @@ homebrew escalates past that flat threshold into a real per-segment curve with n
 exactly what Law 16 says to automate hardest once it has real numbers. **Tracked as an open
 question** (`fatigue-escalation-formula`, `data/campaign/open-questions.json`) rather than guessed
 at here — including which save it uses; Fortitude is the likely fit given how this SRD already
-handles endurance, but that's a proposal, not a decision made in this document.
+handles endurance, but that's a proposal, not a decision made in this document. A concrete proposal
+now exists — a four-stage Exhaustion track built entirely from real conditions (Fatigued → +Slowed
+1 → +Stupefied 1 → Unconscious), plus a DC-15-escalating-by-5 Fortitude check — in
+[`design/downtime-activities.md`](downtime-activities.md) §1. Still a proposal, not resolved here.
 
 **Rest is a real menu with real payoffs, not a fallback.** Confirmed the same day, stated with real
 enthusiasm: resting is "both legal and encouraged," and different rest *types* carry different
@@ -359,7 +362,10 @@ kids' names, applied here to rest types. What the interface needs regardless of 
 rest spends a slice like any other choice, presents as a **sub-menu** of named options rather than
 one generic button, and — reasonably, though not yet confirmed — is likely what resets a climbing
 fatigue check back down. **Tracked as an open question** (`rest-activity-roster`, same file),
-linked to the fatigue question above since the two are clearly related.
+linked to the fatigue question above since the two are clearly related. Three named starting
+options, each grounded in a real rule (Long-Term Rest's doubled HP recovery, Treat Wounds, and a
+Bleed-reduction hook for the social option), are proposed in `design/downtime-activities.md` §2 —
+still a proposal, not a lock.
 
 #### Commit, then resolve — a real two-phase gate, not a queue
 

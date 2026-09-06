@@ -78,16 +78,16 @@
       "question": "Working consecutive time-of-day segments without resting is confirmed (2026-09-06) to trigger a check that gets harder each additional segment worked, ending in involuntary unconsciousness and the loss of that segment's slot. The structure is settled; the numbers are not — what check (Fortitude is the likely fit, not confirmed), what's the starting DC and the per-segment escalation, and does it reset fully on any rest or only on specific rest types?",
       "status": "open",
       "resolution": null,
-      "relatedRefs": ["campaign/config.json#timeEconomy.fatigue", "design/ux-doctrine.md#downtime-is-the-segment-mechanic"],
-      "notes": "Closely linked to rest-activity-roster — the reset mechanism likely depends on which rest types end up designed."
+      "relatedRefs": ["campaign/config.json#timeEconomy.fatigue", "design/ux-doctrine.md#downtime-is-the-segment-mechanic", "design/downtime-activities.md"],
+      "notes": "Closely linked to rest-activity-roster — the reset mechanism likely depends on which rest types end up designed. A concrete proposal exists (2026-09-06, design/downtime-activities.md §1): a four-stage Exhaustion track built from real conditions (Fatigued → +Slowed 1 → +Stupefied 1 → Unconscious), and Fortitude DC 15 escalating by 5 per consecutive segment. Not confirmed — a researched suggestion, not a decision."
     },
     {
       "id": "rest-activity-roster",
       "question": "Confirmed (2026-09-06) that resting is a real, encouraged, multi-typed choice with different SF2E-relevant bonuses per type — a quiet option weighted toward HP recovery, hospital care targeting HP and debuffs, a social outing (clubbing/karaoke) for a different kind of bonus, and more. The structure is settled; the actual roster of named rest activities and their specific mechanical bonuses is explicitly future collaborative design, not something to invent to look complete.",
       "status": "open",
       "resolution": null,
-      "relatedRefs": ["campaign/config.json#timeEconomy.options", "design/ux-doctrine.md#downtime-is-the-segment-mechanic"],
-      "notes": "Closely linked to fatigue-escalation-formula."
+      "relatedRefs": ["campaign/config.json#timeEconomy.options", "design/ux-doctrine.md#downtime-is-the-segment-mechanic", "design/downtime-activities.md"],
+      "notes": "Closely linked to fatigue-escalation-formula. A concrete proposal exists (2026-09-06, design/downtime-activities.md §2): Lights Out (Long-Term Rest's real doubled HP recovery), Sick Bay (real Treat Wounds numbers), Night Out (−1 Bleed + a circumstance bonus, since Bleed's own sources already include psychological distress), plus Workshop offered as a fourth illustrative option. Not confirmed — a researched suggestion, not a decision."
     }
   ]
 }
