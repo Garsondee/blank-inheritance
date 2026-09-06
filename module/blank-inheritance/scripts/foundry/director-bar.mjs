@@ -6,9 +6,12 @@
  * hidden, which is the standard doctrine Law 11 holds every surface to.
  */
 
-import { CommandBar } from "./command-bar.mjs";
+import { CommandBar, refreshCommandBar } from "./command-bar.mjs";
 import { SEATS } from "../core/console-model.mjs";
 import { actorForSeat, checkGroupsFor, postInlineCheck, rollCheck } from "./rolls.mjs";
+import { castForScene, selectCastRow } from "./cast.mjs";
+import { currentEntries, loadSessionLog, recordLogEntry } from "./session-log.mjs";
+import { currentMode } from "./command-bar.mjs";
 
 export class DirectorBar extends CommandBar {
   static SEAT = SEATS.DIRECTOR;
@@ -16,17 +19,77 @@ export class DirectorBar extends CommandBar {
   static DEFAULT_OPTIONS = {
     classes: ["bi-bar--director"],
     actions: {
-      rollCheck: DirectorBar.#onRollCheck
+      rollCheck: DirectorBar.#onRollCheck,
+      selectCast: DirectorBar.#onSelectCast
     }
   };
 
   /** @override */
   _decorateZone(zone) {
-    if (zone.id !== "checks" || zone.hidden) return;
+    if (zone.hidden) return;
+
+    if (zone.id === "checks") {
+      const actor = actorForSeat(DirectorBar.SEAT);
+      zone.subject = actor?.name ?? null;
+      zone.groups = checkGroupsFor(actor);
+      zone.canPost = true;
+      return;
+    }
+
+    if (zone.id === "cast") {
+      Object.assign(zone, castForScene());
+      return;
+    }
+
+    if (zone.id === "log") {
+      zone.entries = currentEntries().slice(-3).reverse();
+    }
+  }
+
+  /** @override */
+  _onRender(context, options) {
+    super._onRender?.(context, options);
+
+    // Enter submits. Deliberately a keydown listener rather than a <form>:
+    // a form inside the chassis invites Foundry's own submit handling and a
+    // stray Enter anywhere else in the bar reloading the field.
+    // _onRender fires for ANY part re-render, including ones that leave this
+    // element untouched -- so without a guard the log field collects a second
+    // listener every time the cast board repaints, and one Enter submits twice.
+    const field = this.element?.querySelector("[data-bi-log-input]");
+    if (!field || field.dataset.biBound) return;
+    field.dataset.biBound = "1";
+
+    field.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" || event.shiftKey) return;
+      event.preventDefault();
+      const text = field.value;
+      field.value = "";
+      DirectorBar.#submitLog(text).catch((err) =>
+        console.error("Blank Inheritance | Could not record a log entry:", err)
+      );
+    });
+  }
+
+  /**
+   * The GM types the meaning; the console attaches the context. Running the
+   * session and recording it are one act (doctrine Law 15), so this never
+   * opens a dialog and never asks for a field.
+   */
+  static async #submitLog(text) {
     const actor = actorForSeat(DirectorBar.SEAT);
-    zone.subject = actor?.name ?? null;
-    zone.groups = checkGroupsFor(actor);
-    zone.canPost = true;
+    const entry = await recordLogEntry({
+      text,
+      nowIso: new Date().toISOString(),
+      scene: canvas?.scene?.name ?? null,
+      mode: currentMode(),
+      subject: actor?.name ?? null
+    });
+    if (entry) refreshCommandBar(["right"]);
+  }
+
+  static async #onSelectCast(event, target) {
+    selectCastRow(target.dataset.tokenId);
   }
 
   /**

@@ -30,6 +30,16 @@
         "Requested": "Requesting a {label} check.",
         "UnknownStatistic": "This character has nothing called \"{slug}\" to roll."
       },
+      "Cast": {
+        "Empty": "No tokens in this scene.",
+        "Summary": "{players} PC / {others} other",
+        "Hidden": "Hidden from players"
+      },
+      "Log": {
+        "Placeholder": "What just happened\u2026",
+        "SaveFailed": "The session log could not be saved. Your note is kept and will retry on the next entry.",
+        "Empty": "Nothing logged yet."
+      },
       "Zone": {
         "Ident": "Ident",
         "Dome": "Day",

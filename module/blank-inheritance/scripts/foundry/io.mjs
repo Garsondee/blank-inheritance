@@ -52,17 +52,34 @@ export async function ensureDirectory(fullPath) {
  * `false`. Found live, 2026-09-05: the clipboard copy of the report
  * succeeded, but the persisted JSON file did not, because of exactly this.
  */
+/**
+ * Write one JSON file into the module's persistent storage.
+ *
+ * `dirName` is a directory UNDER storage/ and `filename` is separate,
+ * because uploadPersistent takes the destination DIRECTORY and gets the
+ * filename from the File object itself — passing a path in both is the bug
+ * documented above, found live 2026-09-05.
+ *
+ * The caller is responsible for ensureDirectory: callers that write
+ * repeatedly (the session log) should not pay for it on every line.
+ */
+export async function writeStorageJson(dirName, filename, data) {
+  const file = new File([JSON.stringify(data, null, 2)], filename, { type: "application/json" });
+  const result = await foundry.applications.apps.FilePicker.implementation.uploadPersistent(MODULE_ID, dirName, file, {}, { notify: false });
+  if (!result || result === false) {
+    throw new Error(
+      `uploadPersistent did not return a success result for ${dirName}/${filename} — ` +
+      "see console for the FilePicker response."
+    );
+  }
+  return `${dirName}/${filename}`;
+}
+
 export async function writeReportFile(report) {
   const dirName = "test-reports";
   await ensureDirectory(`modules/${MODULE_ID}/storage/${dirName}`);
   const filename = `sync-report-${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
-  const relativePath = `${dirName}/${filename}`;
-  const file = new File([JSON.stringify(report, null, 2)], filename, { type: "application/json" });
-  const result = await foundry.applications.apps.FilePicker.implementation.uploadPersistent(MODULE_ID, dirName, file, {}, { notify: false });
-  if (!result || result === false) {
-    throw new Error("uploadPersistent did not return a success result — see console for the FilePicker response.");
-  }
-  return relativePath;
+  return writeStorageJson(dirName, filename, report);
 }
 
 /**

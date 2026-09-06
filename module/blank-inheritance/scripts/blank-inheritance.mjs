@@ -29,6 +29,7 @@ import { registerThemeSettings, applyTheme } from "./foundry/theme.mjs";
 import { mountCommandBar, refreshCommandBar } from "./foundry/command-bar.mjs";
 import { PlayerBar } from "./foundry/player-bar.mjs";
 import { DirectorBar } from "./foundry/director-bar.mjs";
+import { loadSessionLog } from "./foundry/session-log.mjs";
 
 const MODULE_ID = "blank-inheritance";
 
@@ -49,6 +50,16 @@ Hooks.once("ready", async () => {
     applyTheme();
   } catch (err) {
     console.error("Blank Inheritance | Could not apply the interface theme:", err);
+  }
+
+  // A GM who reloads mid-evening continues the same session file rather than
+  // starting a second one that would overwrite the first.
+  if (game.user.isGM) {
+    try {
+      await loadSessionLog(new Date().toISOString());
+    } catch (err) {
+      console.error("Blank Inheritance | Could not load today's session log:", err);
+    }
   }
 
   // The console. Every client, both seats -- the class is picked here once and

@@ -761,6 +761,157 @@
    overflow:hidden to stop a module growing past the chassis; that is still
    right, but here it would silently clip a lore off the bottom, so this
    scrolls inside the pod instead. */
+/* --- The cast board (Director seat) -------------------------------------
+   A BOARD: many creatures, one shallow row each. Deliberately not a list of
+   cards -- depth belongs on a player's sheet, breadth belongs here, and a row
+   that grows taller than one line stops being scannable at a glance. */
+.bi-cast {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 0;
+}
+
+.bi-cast__summary {
+  font-family: var(--bi-font-legend);
+  font-size: var(--bi-legend-size);
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  color: var(--bi-brass);
+}
+
+.bi-cast__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.bi-cast__row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 8px;
+  border: none;
+  border-radius: var(--bi-radius-key);
+  background: var(--bi-mat-pod);
+  color: var(--bi-bone);
+  font-family: var(--bi-font-readout);
+  font-size: 11px;
+  text-align: left;
+  cursor: pointer;
+}
+.bi-cast__row:hover { background: var(--bi-steel-700); }
+.bi-cast__row:disabled { opacity: 0.45; cursor: default; }
+
+/* The selected row is what the checks zone beside it is about, so this has to
+   read at a glance rather than being a subtle tint. */
+.bi-cast__row--selected {
+  background: var(--bi-steel-600);
+  box-shadow: inset 0 0 0 1px var(--bi-amber);
+}
+
+/* Disposition as a colour pip rather than a word: it is the one property a GM
+   reads dozens of times a scene and never needs spelled out. */
+.bi-cast__pip {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--bi-bone-dim);
+}
+.bi-cast__row[data-disposition="hostile"]  .bi-cast__pip { background: var(--bi-vermilion); }
+.bi-cast__row[data-disposition="friendly"] .bi-cast__pip { background: var(--bi-phosphor); }
+.bi-cast__row[data-disposition="neutral"]  .bi-cast__pip { background: var(--bi-amber); }
+.bi-cast__row[data-disposition="secret"]   .bi-cast__pip { background: var(--bi-steel-400); }
+
+.bi-cast__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bi-cast__flag {
+  flex: none;
+  font-family: var(--bi-font-legend);
+  font-size: 9px;
+  color: var(--bi-amber);
+}
+
+/* --- The Director's log ------------------------------------------------
+   One field, always on. Running the session and recording it are one act, so
+   there is no save button and no dialog -- the only affordance is a place to
+   type and a receipt showing it landed. */
+.bi-log {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-height: 0;
+  min-width: 220px;
+}
+
+.bi-log__input {
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid var(--bi-brass-dark);
+  border-radius: var(--bi-radius-key);
+  background: var(--bi-steel-900);
+  color: var(--bi-bone);
+  font-family: var(--bi-font-readout);
+  font-size: 12px;
+}
+.bi-log__input:focus {
+  outline: none;
+  border-color: var(--bi-amber);
+  box-shadow: 0 0 0 1px var(--bi-amber-dim);
+}
+
+/* The receipt. Without it a GM cannot tell a saved note from a swallowed one,
+   which is the failure mode that stops people trusting a log entirely. */
+.bi-log__recent {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.bi-log__entry {
+  display: flex;
+  gap: 5px;
+  font-family: var(--bi-font-readout);
+  font-size: 10px;
+  color: var(--bi-bone-dim);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.bi-log__entry--empty { font-style: italic; opacity: 0.6; }
+
+.bi-log__tag {
+  flex: none;
+  font-family: var(--bi-font-legend);
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  color: var(--bi-brass);
+}
+
+.bi-log__text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Whose checks these are. On the Director's bar this changes with the
    canvas selection, so without it the GM has no way to tell which
    creature a key is about to roll for. */

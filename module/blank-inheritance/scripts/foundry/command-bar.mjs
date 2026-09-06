@@ -28,7 +28,9 @@ const TEMPLATE_ROOT = `modules/${MODULE_ID}/templates/console`;
  * full path, so the lookup in the track templates uses the path verbatim).
  */
 const ZONE_PARTIALS = Object.freeze({
-  skills: `${TEMPLATE_ROOT}/zone-checks.hbs`
+  skills: `${TEMPLATE_ROOT}/zone-checks.hbs`,
+  board: `${TEMPLATE_ROOT}/zone-cast.hbs`,
+  bar: `${TEMPLATE_ROOT}/zone-log.hbs`
 });
 
 /**
@@ -85,9 +87,22 @@ export class CommandBar extends HandlebarsApplicationMixin(ApplicationV2) {
    * rendering glitch and is really an architecture mistake.
    */
   static PARTS = {
-    left: { template: `${TEMPLATE_ROOT}/track-left.hbs`, templates: Object.values(ZONE_PARTIALS) },
-    instrument: { template: `${TEMPLATE_ROOT}/instrument.hbs`, templates: Object.values(ZONE_PARTIALS) },
-    right: { template: `${TEMPLATE_ROOT}/track-right.hbs`, templates: Object.values(ZONE_PARTIALS) }
+    left: {
+      template: `${TEMPLATE_ROOT}/track-left.hbs`,
+      templates: Object.values(ZONE_PARTIALS),
+      scrollable: [".bi-cast__rows"]
+    },
+    instrument: {
+      template: `${TEMPLATE_ROOT}/instrument.hbs`,
+      templates: Object.values(ZONE_PARTIALS)
+    },
+    // Selectors a given seat does not render are simply skipped —
+    // _preSyncPartState null-guards every one (handlebars-application.mjs).
+    right: {
+      template: `${TEMPLATE_ROOT}/track-right.hbs`,
+      templates: Object.values(ZONE_PARTIALS),
+      scrollable: [".bi-checks", ".bi-log__recent"]
+    }
   };
 
   /**
