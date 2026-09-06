@@ -16,6 +16,13 @@ Related tracked ideas, all `accepted`, all of which this serves rather than repl
 `in-scene-ui-panel-mimetic-controls` (the bar itself), `phone-app-suite`,
 `terminal-login-landing-page`, `in-scene-character-portrait-frames`.
 
+**Scope boundary, added 2026-09-06.** This document decides how things *look*.
+[design/ux-doctrine.md](ux-doctrine.md) decides *what is there, how big it is, and where it
+lives* — and it wins when the two conflict, because a console that looks right and makes a turn
+slower has failed. In particular, that doctrine's Law 13 ("the chassis is for what happens inside
+a turn; everything else lives in the terminal") is the placement rule for every future module, and
+its §9 lists specific promote/fix/move/cut verdicts on the modules this document built.
+
 ---
 
 ## 1. The aesthetic, stated once
