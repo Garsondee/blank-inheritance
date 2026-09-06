@@ -17,8 +17,9 @@
  * reimplemented here and none of it should ever be.
  */
 
+import { SEATS } from "../core/console-model.mjs";
 import { buildCheckGroups, labelForSlug } from "../core/skills.mjs";
-import { rollParamsFromEvent } from "../core/roll-intent.mjs";
+import { enricherFor, rollParamsFromEvent } from "../core/roll-intent.mjs";
 
 /**
  * The character this client rolls as.
@@ -30,6 +31,27 @@ import { rollParamsFromEvent } from "../core/roll-intent.mjs";
  */
 export function consoleActor() {
   return game.user?.character ?? null;
+}
+
+/**
+ * Whose checks the bar is showing.
+ *
+ * A player's are their own character's. A GM's belong to whatever is
+ * selected on the canvas — which is the board's own logic (many creatures,
+ * act on the one you picked) rather than a second idea of "my character".
+ * With nothing selected a GM falls back to their own assigned character, so
+ * a GM who also plays is not left with an empty pod.
+ *
+ * Only the first of a multi-selection is used: rolling the same skill for
+ * six tokens at once is a different feature with different failure modes,
+ * and guessing which one was meant is worse than picking the first.
+ */
+export function actorForSeat(seat) {
+  if (seat === SEATS.DIRECTOR) {
+    const controlled = canvas?.tokens?.controlled ?? [];
+    if (controlled.length > 0) return controlled[0].actor ?? null;
+  }
+  return consoleActor();
 }
 
 /**
@@ -58,11 +80,40 @@ export function checkGroupsFor(actor) {
 }
 
 /**
+ * Put a rollable check in chat for the table to click.
+ *
+ * The GM's most common use of a skill button is not rolling it themselves,
+ * it is asking somebody else to. This gives core/roll-intent.mjs's
+ * enricherFor a real consumer rather than leaving it as a theoretical
+ * fallback, and it is why that function validates its slug: lore slugs come
+ * from player-created Items and this string is handed to a parser.
+ *
+ * No DC yet. A prompt on every use would fight the point of a one-click
+ * button, and an undc'd @Check is still rollable — the GM reads the result.
+ * Attaching a DC is the obvious next refinement.
+ */
+export async function postInlineCheck({ slug, label = null }) {
+  let content;
+  try {
+    content = enricherFor({ slug });
+  } catch (err) {
+    console.error("Blank Inheritance | Refusing to post an inline check:", err);
+    ui.notifications?.error(game.i18n.localize("BLANKINHERITANCE.Console.Checks.BadSlug"));
+    return null;
+  }
+
+  return ChatMessage.create({
+    author: game.user?.id,
+    content: `<p>${game.i18n.format("BLANKINHERITANCE.Console.Checks.Requested", { label: label ?? slug })}</p><p>${content}</p>`
+  });
+}
+
+/**
  * Roll one statistic, exactly as the sheet would.
  *
  * Returns null rather than throwing when the slug does not resolve: a stale
- * button after a character swap is a nuisance, not an error worth breaking the
- * render over.
+ * button after a selection change is a nuisance, not an error worth breaking
+ * the render over.
  */
 export async function rollCheck({ actor, slug, event = null }) {
   const target = actor ?? consoleActor();

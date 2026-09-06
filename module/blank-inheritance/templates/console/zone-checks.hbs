@@ -8,6 +8,7 @@
     nothing in this file knows how many skills SF2E has, on purpose.
 --}}
 <div class="bi-checks">
+    {{#if subject}}<div class="bi-checks__subject">{{subject}}</div>{{/if}}
     {{#if groups.length}}
     {{#each groups}}
     <div class="bi-bank">
@@ -21,6 +22,6 @@
     </div>
     {{/each}}
     {{else}}
-    <p class="bi-legend">{{localize "BLANKINHERITANCE.Console.Checks.NoCharacter"}}</p>
+    <p class="bi-legend">{{#if canPost}}{{localize "BLANKINHERITANCE.Console.Checks.NoSelection"}}{{else}}{{localize "BLANKINHERITANCE.Console.Checks.NoCharacter"}}{{/if}}</p>
     {{/if}}
 </div>

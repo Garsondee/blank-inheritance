@@ -25,6 +25,9 @@
         "Skills": "Skills",
         "Defences": "Defences",
         "NoCharacter": "No character is assigned to you yet.",
+        "NoSelection": "Select a token to roll for it.",
+        "BadSlug": "That check cannot be posted safely.",
+        "Requested": "Requesting a {label} check.",
         "UnknownStatistic": "This character has nothing called \"{slug}\" to roll."
       },
       "Zone": {

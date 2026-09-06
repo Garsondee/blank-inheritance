@@ -9,7 +9,7 @@
 
 import { CommandBar } from "./command-bar.mjs";
 import { SEATS } from "../core/console-model.mjs";
-import { checkGroupsFor, consoleActor, rollCheck } from "./rolls.mjs";
+import { actorForSeat, checkGroupsFor, rollCheck } from "./rolls.mjs";
 
 export class PlayerBar extends CommandBar {
   static SEAT = SEATS.PLAYER;
@@ -26,7 +26,9 @@ export class PlayerBar extends CommandBar {
   /** @override */
   _decorateZone(zone) {
     if (zone.id !== "checks" || zone.hidden) return;
-    zone.groups = checkGroupsFor(consoleActor());
+    const actor = actorForSeat(PlayerBar.SEAT);
+    zone.subject = actor?.name ?? null;
+    zone.groups = checkGroupsFor(actor);
   }
 
   /**
@@ -34,6 +36,6 @@ export class PlayerBar extends CommandBar {
    * dispatches a [data-action] click (application.mjs).
    */
   static async #onRollCheck(event, target) {
-    await rollCheck({ actor: consoleActor(), slug: target.dataset.slug, event });
+    await rollCheck({ actor: actorForSeat(PlayerBar.SEAT), slug: target.dataset.slug, event });
   }
 }

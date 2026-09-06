@@ -95,6 +95,14 @@ Hooks.on("canvasReady", () => {
   }
 });
 
+// The Director's checks belong to whatever is selected, so a selection change
+// changes what the bar is showing. Only the right track needs repainting,
+// which is what render({parts}) is for.
+Hooks.on("controlToken", () => {
+  if (!game.user?.isGM) return;
+  refreshCommandBar(["right"]);
+});
+
 // The mode is derived from combat state rather than stored, so these are
 // exactly the moments it can change underneath us.
 for (const hook of ["combatStart", "combatRound", "combatTurn", "combatTurnChange", "deleteCombat"]) {

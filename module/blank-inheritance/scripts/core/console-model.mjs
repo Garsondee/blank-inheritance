@@ -14,6 +14,13 @@
  *      (many creatures, one row each). They are different shapes, not the
  *      same shape with more buttons, so they have different zone lists.
  *
+ *      REFINED 2026-09-06, after the rule was read too strictly: that is
+ *      about layout and information density, NOT about capability. Both
+ *      seats carry `checks`, because a GM rolls constantly. What differs
+ *      is WHOSE checks they are -- a player's are their own character's,
+ *      a GM's belong to whatever is selected on the board. Same zone,
+ *      board logic. See scripts/foundry/rolls.mjs#actorForSeat.
+ *
  *   2. The zone list for a seat is FIXED. Mode never adds or removes zones,
  *      it only sheds them — because Foundry's ApplicationV2 never REMOVES a
  *      part that disappears from the descriptor set (see the comment on
@@ -66,6 +73,7 @@ const ZONE_TABLE = Object.freeze({
   [SEATS.DIRECTOR]: Object.freeze([
     Object.freeze({ id: "cast", track: "left", partial: "board", labelKey: "BLANKINHERITANCE.Console.Zone.Cast" }),
     Object.freeze({ id: "dome", track: "instrument", partial: "day-ring", theatreOnly: true, labelKey: "BLANKINHERITANCE.Console.Zone.Dome" }),
+    Object.freeze({ id: "checks", track: "right", partial: "skills", labelKey: "BLANKINHERITANCE.Console.Zone.Checks" }),
     Object.freeze({ id: "log", track: "right", partial: "bar", labelKey: "BLANKINHERITANCE.Console.Zone.Log" })
   ])
 });

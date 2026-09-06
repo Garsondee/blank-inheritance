@@ -1030,3 +1030,36 @@ test("marker stems keep a strong dark halo, since they cross real photo imagery,
   assert.ok(Number(halo[1]) >= 1.5, `stem halo spread is ${halo[1]}px; expected at least 1.5px`);
   assert.ok(Number(halo[2]) >= 70, `stem halo opacity is ${halo[2]}%; expected at least 70%`);
 });
+
+test("our sidebar-gutter token still matches Foundry's own", (t) => {
+  // bi-foundry-bridge.css keeps the command bar's controls clear of the
+  // sidebar by reserving --sidebar-width + --bi-sidebar-gutter. The width is a
+  // real Foundry variable we can read; the gutter is declared ON #sidebar
+  // (--sidebar-scroll-gutter) and so is not inherited anywhere our rule can
+  // reach it, which is why we mirror it. A mirror nobody checks is just a
+  // number that used to be right.
+  const foundryCssPath = foundryCss;
+  if (!existsSync(foundryCssPath)) {
+    t.skip("foundryvtt/ not present locally (gitignored) — skipping loudly rather than passing.");
+    return;
+  }
+
+  const theirs = readFileSync(foundryCssPath, "utf8").match(/--sidebar-scroll-gutter:\s*(\d+)px/);
+  assert.ok(theirs, "Foundry no longer declares --sidebar-scroll-gutter — re-derive the reserved width");
+
+  const tokens = readFileSync(path.join(repoRoot, "module", "blank-inheritance", "styles", "bi-tokens.css"), "utf8");
+  const ours = tokens.match(/--bi-sidebar-gutter:\s*(\d+)px/);
+  assert.ok(ours, "bi-tokens.css no longer declares --bi-sidebar-gutter");
+
+  assert.equal(
+    ours[1],
+    theirs[1],
+    `--bi-sidebar-gutter is ${ours[1]}px but Foundry's --sidebar-scroll-gutter is now ${theirs[1]}px. ` +
+      `The command bar's pods would sit ${Math.abs(ours[1] - theirs[1])}px wrong relative to the sidebar.`
+  );
+
+  // And the rule that consumes it must still exist.
+  const bridge = readFileSync(path.join(repoRoot, "module", "blank-inheritance", "styles", "bi-foundry-bridge.css"), "utf8");
+  assert.match(bridge, /#sidebar-content\.expanded/, "the bridge no longer reacts to the sidebar being open");
+  assert.match(bridge, /--bi-sidebar-gutter/, "the bridge no longer uses the mirrored gutter token");
+});

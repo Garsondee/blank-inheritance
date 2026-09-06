@@ -761,6 +761,20 @@
    overflow:hidden to stop a module growing past the chassis; that is still
    right, but here it would silently clip a lore off the bottom, so this
    scrolls inside the pod instead. */
+/* Whose checks these are. On the Director's bar this changes with the
+   canvas selection, so without it the GM has no way to tell which
+   creature a key is about to roll for. */
+.bi-checks__subject {
+  font-family: var(--bi-font-legend);
+  font-size: var(--bi-legend-size);
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  color: var(--bi-amber);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .bi-checks {
   display: flex;
   flex-direction: column;

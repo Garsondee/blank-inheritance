@@ -173,7 +173,12 @@ body.bi-theme #bi-command-bar {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 70;              /* above the board, below dialogs */
+  /* Below Foundry's own UI layer, not above it. FOUND LIVE 2026-09-06:
+     at 70 the chassis painted over the right-hand sidebar, because
+     #ui-right sits at --z-index-app (30). Expressed as a calc off that
+     variable rather than a bare number so it tracks any future rescale
+     of Foundry's own stack. Still above the canvas (--z-index-main: 0). */
+  z-index: calc(var(--z-index-app) - 1);
   pointer-events: none;     /* the chassis itself is inert... */
 }
 body.bi-theme #bi-command-bar > * {
@@ -185,6 +190,27 @@ body.bi-theme #bi-command-bar > * {
    two can never drift apart. */
 body.bi-theme #ui-bottom {
   padding-bottom: calc(var(--bi-bar-height) + 12px);
+}
+
+/* Keep the bar's CONTROLS clear of the sidebar, while the chassis itself
+   still runs the full width of the screen behind it -- the continuous
+   brass strake is the thing that reads as one machine, and cutting it
+   short at an arbitrary vertical line would not.
+
+   #sidebar-content carries .expanded when open and slides out on a 250ms
+   margin transition (foundry2.css), so this matches that duration and the
+   pods travel with it instead of snapping. #ui-right is scaled by
+   --ui-scale about its top-right corner, so the reserved width has to be
+   scaled too or the pods sit wrong at any zoom but 1.
+
+   :has() rather than a body class toggled off the collapseSidebar hook:
+   no state to hold, nothing to desync, and it cannot be missed on first
+   render. The hook is the fallback if a browser ever lacks :has(). */
+body.bi-theme .bi-bar {
+  transition: padding-right 250ms ease;
+}
+body.bi-theme:has(#sidebar-content.expanded) .bi-bar {
+  padding-right: calc(18px + (var(--sidebar-width) + var(--bi-sidebar-gutter)) * var(--ui-scale));
 }
 
 /* --- The player roster ---

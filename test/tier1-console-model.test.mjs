@@ -96,16 +96,19 @@ const GOLDEN = {
   "director/theatre": [
     ["cast", "left", "board", false],
     ["dome", "instrument", "day-ring", false],
+    ["checks", "right", "skills", false],
     ["log", "right", "bar", false]
   ],
   "director/personnel": [
     ["cast", "left", "board", false],
     ["dome", "instrument", null, true],
+    ["checks", "right", "skills", false],
     ["log", "right", "bar", false]
   ],
   "director/frame": [
     ["cast", "left", "board", false],
     ["dome", "instrument", null, true],
+    ["checks", "right", "skills", false],
     ["log", "right", "bar", false]
   ]
 };
@@ -184,13 +187,22 @@ test("the two seats are different shapes, not the same shape with more buttons",
   const playerZones = zonesFor(MODES.THEATRE, SEATS.PLAYER).map((z) => z.id);
   const directorZones = zonesFor(MODES.THEATRE, SEATS.DIRECTOR).map((z) => z.id);
 
-  // The GM board is not a superset of the player sheet: it drops checks and
-  // ident entirely and carries a cast list and a log instead. If this ever
-  // becomes a subset relation, the split described in design/ux-doctrine.md
-  // has quietly collapsed.
-  assert.ok(playerZones.includes("checks") && !directorZones.includes("checks"));
-  assert.ok(directorZones.includes("cast") && !playerZones.includes("cast"));
-  assert.ok(directorZones.includes("log") && !playerZones.includes("log"));
+  // NEITHER seat is a superset of the other, and that is the whole point.
+  // The doctrine's two-shapes rule is about layout and information density,
+  // not capability -- both seats roll checks, because a GM rolls constantly
+  // (refined 2026-09-06 after the rule was first read too strictly). What
+  // must never happen is one seat becoming the other plus extras, because
+  // that is the point at which the GM console has become a player console
+  // with more buttons.
+  const onlyPlayer = playerZones.filter((id) => !directorZones.includes(id));
+  const onlyDirector = directorZones.filter((id) => !playerZones.includes(id));
+
+  assert.deepEqual(onlyPlayer, ["ident", "segment"], "the player sheet lost what makes it a sheet");
+  assert.deepEqual(onlyDirector, ["cast", "log"], "the Director board lost what makes it a board");
+
+  // Shared zones are shared on purpose and are the same zone, not a copy.
+  const shared = playerZones.filter((id) => directorZones.includes(id));
+  assert.deepEqual(shared, ["dome", "checks"]);
 });
 
 test("an unknown seat or mode throws rather than rendering an empty bar", () => {
