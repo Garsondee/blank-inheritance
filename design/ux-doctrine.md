@@ -1174,7 +1174,9 @@ choosing a vocabulary for, not deciding:
    It will not be settled by argument; it needs one screen built and looked at.
 
 These three, plus everything else in this document, are now tracked as real work — see the
-`ux-prototype` epic on the issue tracker.
+[`ux-prototype` epic, GitHub issue #119](https://github.com/Garsondee/blank-inheritance/issues/119),
+which sequences all of it into ten build issues plus a lock-in review gate before any of it is
+ported into the real Foundry module (that porting work is epic #102, not this one).
 
 ---
 
