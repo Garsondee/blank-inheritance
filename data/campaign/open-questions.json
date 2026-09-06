@@ -197,10 +197,18 @@
     {
       "id": "day1-pilot-slice-penalty-scaling",
       "question": "The Day 1 pilot's stated disadvantage is a real injury that 'permanently lose[s] one discretionary slice per day to ongoing medical obligations' (design-bible.md). That was half their daily options under the original 2-slice economy. The slice count changed to 4 on 2026-09-06 (see timeEconomy.slicesRevisionNote), which quietly halves the real weight of that penalty to a quarter of their options, as a side effect of a UI-driven number that had nothing to do with this character beat when it was decided. Should the loss scale to two slices to preserve the original bite, or is the softer version actually fine or even an improvement?",
+      "status": "resolved",
+      "resolution": "Resolved 2026-09-06, and not by rescaling the number. Per the new standing design principle 'penalties cost risk, never choice' (design/campaign-arc.md), a permanent slice loss was always the wrong shape regardless of size. Superseded: the Day 1 pilot's injury is now reduced starting Hit Points at personnel scale, not a discretionary-slice tax. Costs nothing in a Frame (full Resonance, full actions, full slice choice); everything the moment they are not in one, since scale-and-chassis.md §11 already puts a dismounted pilot on foot at personnel scale where Ground Role danger deals real damage against a real HP pool. Their existing advantage (68% starting Resonance) is untouched.",
+      "relatedRefs": ["design/campaign-arc.md#design-principle-penalties-cost-risk-never-choice", "design/design-bible.md", "campaign/config.json#timeEconomy", "design/campaign-arc.md"],
+      "notes": "Found during a 2026-09-06 audit pass, not raised at the time the slice count changed \u2014 a real example of why cross-file consequences need checking after a number changes, not just the file the number lives in."
+    },
+    {
+      "id": "day1-pilot-hp-reduction-amount",
+      "question": "The Day 1 pilot's injury is now reduced starting Hit Points at personnel scale (resolved 2026-09-06, see day1-pilot-slice-penalty-scaling). The shape is decided; the number is not \u2014 how much HP, and is it a flat reduction, a percentage, or a specific ability-score/class-feature change?",
       "status": "open",
       "resolution": null,
-      "relatedRefs": ["design/design-bible.md", "campaign/config.json#timeEconomy", "design/campaign-arc.md"],
-      "notes": "Found during a 2026-09-06 audit pass, not raised at the time the slice count changed \u2014 a real example of why cross-file consequences need checking after a number changes, not just the file the number lives in."
+      "relatedRefs": ["design/campaign-arc.md#design-principle-penalties-cost-risk-never-choice", "data/episodes/episode-01-contact-unclassified.json"],
+      "notes": "Deliberately not invented here \u2014 this is a real balance number for a specific named character beat, not something to guess at."
     }
   ]
 }

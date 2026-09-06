@@ -62,7 +62,7 @@
     "startingResonance": 68,
     "startingBand": "harmonised",
     "advantage": "Starts at 68% Resonance (Harmonised, three actions from round one). In-fiction, this is dissociation reading as high sync, not talent — something is wrong, and that's why it works.",
-    "disadvantage": "A real injury from the opening impairs ground scenes, and they permanently lose one discretionary slice per day to ongoing medical obligations.",
+    "disadvantage": "A real injury from the opening impairs ground scenes. Revised 2026-09-06 (design/campaign-arc.md, 'penalties cost risk, never choice'): the mechanic is reduced starting Hit Points at personnel scale, not a discretionary-slice tax — costs nothing in the Frame, everything the moment they're not in one (scale-and-chassis.md §11). Exact HP reduction not yet set.",
     "decay": "Their 68% was bought with Bleed and decays toward baseline over time. They'll spend the opening arc chasing a number they got for free exactly once."
   },
   "endOfEpisodeEffects": [],
