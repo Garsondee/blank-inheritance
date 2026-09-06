@@ -260,6 +260,14 @@
 
   --bi-rail-width: 244px;      /* floating side panels        */
   --bi-toprail-height: 54px;   /* scene status strip          */
+  /* The session progress bar sits directly under the toprail, inside the
+     SAME top layer (see .bi-console__top) — so the layer's own height is
+     toprail + this, and everything positioned "below the top area"
+     (rails, banner lane) reads --bi-top-stack-height instead of the
+     toprail's own height alone. One token to change if that stack's
+     composition ever changes again. */
+  --bi-session-bar-height: 16px;
+  --bi-top-stack-height: calc(var(--bi-toprail-height) + var(--bi-session-bar-height));
 
   --bi-radius-pod: 14px;
   --bi-radius-key: 5px;

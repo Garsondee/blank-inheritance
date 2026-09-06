@@ -187,12 +187,27 @@ body.demo-fullscreen { overflow: hidden; }
           <span class="bi-lamp bi-lamp--amber bi-lamp--lit" title="Caution"></span>
           <span class="bi-lamp bi-lamp--cyan bi-lamp--lit" title="Comms"></span>
         </div>
-        <!-- THE BIG OBVIOUS PHONE BUTTON. See design/ui/phone.js and
+        <!-- THE BIG OBVIOUS PHONE BUTTON. Opens your personal terminal in
+             player mode, the Director's console in GM mode — see
+             design/ui/phone.js's PLAYER_APPS/DIRECTOR_APPS split and
              ideas/entries/phone-app-suite.json. -->
         <button class="bi-phone-btn" id="phone-btn" aria-label="Personal comm device" aria-pressed="false" title="Personal comm device">
           <span class="bi-phone-btn__glyph" aria-hidden="true">&#9742;</span>
           <span class="bi-phone-btn__badge" id="phone-badge">3</span>
         </button>
+      </div>
+
+      <!-- ---------- SESSION PROGRESS BAR ----------
+           Real wall-clock time, not the fictional Day/Time readout above
+           it. See scripts/core/session-clock.mjs; positions/widths below
+           are placeholders overwritten the instant console.js runs. -->
+      <div class="bi-session-bar" id="session-bar">
+        <div class="bi-session-bar__track">
+          <div class="bi-session-bar__window" id="session-window"></div>
+          <div class="bi-session-bar__fill" id="session-fill"></div>
+          <div class="bi-session-bar__now" id="session-now"></div>
+        </div>
+        <span class="bi-session-bar__label" id="session-label">&mdash;</span>
       </div>
     </div>
 
@@ -292,7 +307,7 @@ body.demo-fullscreen { overflow: hidden; }
               <div class="bi-bank__row">
                 <button class="bi-key bi-key--sm bi-key--info">Docs</button>
                 <button class="bi-key bi-key--sm bi-key--caution">Reveal</button>
-                <button class="bi-key bi-key--sm bi-key--armed">Contact</button>
+                <button class="bi-key bi-key--sm bi-key--armed" id="contact-real" data-contact-type="real">Contact</button>
               </div>
             </div>
           </div>

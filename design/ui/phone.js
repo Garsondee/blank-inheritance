@@ -1,4 +1,4 @@
-/* Blank Inheritance — the personal terminal.
+/* Blank Inheritance — the personal terminal, and the Director's console.
  *
  * Prototype-only, same rules as console.js. Second pass at
  * ideas/entries/phone-app-suite.json: the first pass built a small
@@ -13,10 +13,22 @@
  * messaging log, a media grid — that a phone-sized window cannot
  * honestly show.
  *
+ * A DIRECTOR MODE PASS added a second identity for the same big panel:
+ * in GM mode, the exact same button opens a different object entirely —
+ * not the same personal phone with a few extra pages unlocked (nobody
+ * would keep six pilots' private Bleed levels on a kid's own handset),
+ * a genuinely separate Director's console, per data/campaign/
+ * config.json's own previously-unvisualised procedural systems: the
+ * Contact Pool roll, the Frame damage-state economy, a GM-only Bleed
+ * board, and a Scene Cue list mocking the real director's-panel design
+ * (design/foundry-module-design.md §7) a live Foundry instance will
+ * eventually provide for real.
+ *
  * Pure logic (dice, staggered-alert delays, fortune, the pet's state
- * machine, Snake) lives in scripts/core/phone.mjs and is unit-tested
- * there; this file is the thin DOM adapter plus the six apps' own
- * layouts, which are deliberately light — first-pass content, not
+ * machine, Snake, the Contact Pool roll, Frame damage states, Bleed)
+ * lives in scripts/core/phone.mjs and scripts/core/director.mjs and is
+ * unit-tested there; this file is the thin DOM adapter plus every app's
+ * own layout, which is deliberately light — first-pass content, not
  * finished features.
  */
 
@@ -29,6 +41,20 @@ import {
   turnSnake,
   stepSnake
 } from "../../module/blank-inheritance/scripts/core/phone.mjs";
+import {
+  CONTACT_POOL,
+  CONTACT_TYPES,
+  contactTarget,
+  rollContactPool,
+  DAMAGE_STATES,
+  damageStepDown,
+  damageStepUp,
+  isDeployable,
+  BLEED_MAX,
+  adjustBleed,
+  isBerserk,
+  rollBerserkDuration
+} from "../../module/blank-inheritance/scripts/core/director.mjs";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -152,8 +178,57 @@ const ICONS = {
   media: `<svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="3.5" width="8" height="8" stroke="currentColor" stroke-width="1.6"/><rect x="12.5" y="3.5" width="8" height="8" stroke="currentColor" stroke-width="1.6"/><rect x="3.5" y="12.5" width="8" height="8" stroke="currentColor" stroke-width="1.6"/><rect x="12.5" y="12.5" width="8" height="8" stroke="currentColor" stroke-width="1.6"/></svg>`,
   snake: `<svg viewBox="0 0 24 24" fill="none"><path d="M4 8h6v6H10V8h6v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/></svg>`,
   pet: `<svg viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="14" rx="7" ry="5.5" stroke="currentColor" stroke-width="1.6"/><circle cx="9.5" cy="13" r="1" fill="currentColor"/><circle cx="14.5" cy="13" r="1" fill="currentColor"/><path d="M8 6.5 9.5 9M16 6.5 14.5 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>`,
-  medical: `<svg viewBox="0 0 24 24" fill="none"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7V4Z" fill="currentColor"/></svg>`
+  medical: `<svg viewBox="0 0 24 24" fill="none"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7V4Z" fill="currentColor"/></svg>`,
+  contactPool: `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" fill="currentColor"/><circle cx="12" cy="12" r="7" stroke="currentColor" stroke-width="1.4" opacity=".6"/><circle cx="12" cy="12" r="10.2" stroke="currentColor" stroke-width="1.4" opacity=".3"/></svg>`,
+  frames: `<svg viewBox="0 0 24 24" fill="none"><rect x="8" y="3" width="8" height="7" rx="1" stroke="currentColor" stroke-width="1.6"/><path d="M12 10v5M7 21l2.5-6h5L17 21M9 15h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  bleed: `<svg viewBox="0 0 24 24" fill="none"><path d="M12 3c3 4.5 6 8 6 11.5A6 6 0 0 1 6 14.5C6 11 9 7.5 12 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>`,
+  cues: `<svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M8 6 6 3M14 6l-2-3M20 6l-2-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><rect x="4" y="9" width="16" height="12" rx="1" stroke="currentColor" stroke-width="1.6"/><path d="M9 13h6M9 17h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`
 };
+
+/* ------------------------------------------------------------------ *
+ * Director-mode content — the previously-unvisualised procedural
+ * systems in data/campaign/config.json, made interactive. Frame/pilot
+ * numbering matches the roster above; nothing here invents an identity
+ * for the six real kids, only tracks numbers against them.
+ * ------------------------------------------------------------------ */
+const FRAME_NUMBERS = ["01", "02", "03", "04", "05", "06"];
+const frameState = Object.fromEntries(FRAME_NUMBERS.map((n) => [n, "operational"]));
+let technicianDays = 6;
+
+const bleedState = Object.fromEntries(FRAME_NUMBERS.map((n) => [n, 0]));
+// Rolled once when a pilot crosses into berserk, held steady until it
+// resolves — NOT re-rolled on every repaint, which would flicker the
+// duration every time any other pilot's Bleed changed.
+const bleedBerserkDuration = {};
+
+// data/episodes/episode-01-contact-unclassified.json's own scenes,
+// verbatim order and titles — the concrete case terminal-login-landing-
+// page's own director's-panel design (§7) describes: a scene list, each
+// with a Cue action. Real Scene#activate() needs a live Foundry world;
+// this mocks the interaction (a banner + a brief scene-image swap) so
+// the FEEL of cueing is something to react to today, not just a spec.
+const EPISODE_1_SCENES = [
+  { order: 1, title: "Ordinary Tuesday", description: "All six kids, one mundane scene. Lightly press one Anchor per player." },
+  { order: 2, title: "The alert", description: "Sirens, automated evacuation, a shape in the sky the public feeds have already stopped showing." },
+  { order: 3, title: "Ground layer", description: "Five level-1 kids navigate a collapsing arcology toward shelter." },
+  { order: 4, title: "The summons", description: "One kid is pulled to pilot — and was explicitly not the intended pilot." },
+  { order: 5, title: "The refusal", description: "Let them say no, and mean it if they do." },
+  { order: 6, title: "The plug", description: "Slow this down. The first harmonics number is read aloud, flatly." },
+  { order: 7, title: "The fight", description: "Three rounds, two actions, internal-power duration ticking down visibly.", encounterRef: "day-1-the-fight" },
+  { order: 8, title: "The cost", description: "Immediately — not next session. Something the ground five spent the episode protecting is gone." },
+  { order: 9, title: "Debrief", description: "A sterile room. The ratio read out loud as a bare number." }
+];
+
+/** The chassis's own Contact/False-Contact buttons feed this — see
+ *  console.js's triggerContactType(). Read by the Contact Pool app so
+ *  the GM's own "spring it" action and the procedural roll tracker share
+ *  one record instead of being two disconnected tools. */
+const contactIncidentLog = [];
+export function logContactIncident(type) {
+  const info = CONTACT_TYPES.find((t) => t.id === type);
+  contactIncidentLog.unshift({ type, label: info ? info.label : type, at: $("#clock-out")?.textContent || "" });
+  contactIncidentLog.length = Math.min(contactIncidentLog.length, 8);
+}
 
 function petSvg() {
   return `<svg class="bi-pet__svg" viewBox="0 0 100 100" fill="none">
@@ -170,7 +245,7 @@ function petSvg() {
  * cleanup function (intervals/listeners a page starts that must not
  * keep running once you navigate away from it).
  * ------------------------------------------------------------------ */
-const APPS = [
+const PLAYER_APPS = [
   { id: "messaging", label: "Messaging", glyph: ICONS.messaging, color: "var(--bi-cyan)", render: renderMessaging },
   { id: "email", label: "Email", glyph: ICONS.email, color: "var(--bi-amber)", render: renderEmail },
   { id: "media", label: "Media", glyph: ICONS.media, color: "var(--bi-phosphor)", render: renderMedia },
@@ -178,6 +253,19 @@ const APPS = [
   { id: "pet", label: "Pet", glyph: ICONS.pet, color: "var(--bi-resonance)", render: renderPet },
   { id: "medical", label: "Medical Report", glyph: ICONS.medical, color: "var(--bi-brass)", render: renderMedical, paper: true }
 ];
+
+/* The Director's own four apps — a full identity swap when GM mode is on,
+ * not extra pages unlocked on the player's list. See the file header. */
+const DIRECTOR_APPS = [
+  { id: "contact-pool", label: "Contact Pool", glyph: ICONS.contactPool, color: "var(--bi-vermilion)", render: renderContactPool },
+  { id: "frame-status", label: "Frame Status", glyph: ICONS.frames, color: "var(--bi-cyan)", render: renderFrameStatus },
+  { id: "bleed-board", label: "Bleed Board", glyph: ICONS.bleed, color: "var(--bi-resonance)", render: renderBleedBoard },
+  { id: "scene-cues", label: "Scene Cues", glyph: ICONS.cues, color: "var(--bi-amber)", render: renderSceneCues }
+];
+
+// What the shell actually builds nav/panes from — swapped wholesale by
+// setDirectorMode(), never filtered/merged from both lists at once.
+let currentApps = PLAYER_APPS;
 
 /* --- Messaging --------------------------------------------------------- */
 function renderMessaging(main) {
@@ -427,6 +515,202 @@ function renderMedical(main) {
     </div>`;
 }
 
+/* --- Contact Pool (Director) ------------------------------------------- */
+function renderContactPool(main) {
+  main.innerHTML = `
+    <div class="bi-cp">
+      <div class="bi-cp__head">
+        <div class="bi-cp__stat"><span class="bi-cp__stat-label">Quiet Morning</span><span class="bi-cp__stat-value" id="cp-morning"></span></div>
+        <div class="bi-cp__stat"><span class="bi-cp__stat-label">Target</span><span class="bi-cp__stat-value" id="cp-target"></span></div>
+      </div>
+      <p class="bi-phone__body" style="opacity:.6;font-family:var(--bi-font-readout);font-size:11px">Forced Contact regardless of the roll from quiet morning ${CONTACT_POOL.ceilingMorning} on.</p>
+      <div class="bi-cp__row">
+        <button type="button" class="bi-term-key" id="cp-roll">ROLL 1d20</button>
+        <div class="bi-cp__result" id="cp-result">Awaiting roll.</div>
+      </div>
+      <div>
+        <div class="bi-cues__ep">Roll Log</div>
+        <div class="bi-cp__log" id="cp-log"></div>
+      </div>
+      <div>
+        <div class="bi-cues__ep">Spring One (GM reference only — never shown to players)</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="bi-term-key" data-spring="real">CONTACT</button>
+          <button type="button" class="bi-term-key" data-spring="type-a" title="Genuine false positive. Full scramble, nothing there.">FALSE · A</button>
+          <button type="button" class="bi-term-key" data-spring="type-b" title="Role reversal. What needs help is people, not a fight.">FALSE · B</button>
+          <button type="button" class="bi-term-key" data-spring="type-c" title="First contact with the Watcher. Resolves as investigation, not combat.">FALSE · C</button>
+        </div>
+      </div>
+      <div>
+        <div class="bi-cues__ep">Recent Incidents</div>
+        <div class="bi-cp__log" id="cp-incidents"></div>
+      </div>
+    </div>`;
+
+  let quietMorning = 1;
+  const rollLog = [];
+
+  function paintStats() {
+    $("#cp-morning", main).textContent = String(quietMorning);
+    $("#cp-target", main).textContent = String(contactTarget(quietMorning));
+  }
+  function paintRollLog() {
+    $("#cp-log", main).innerHTML = rollLog.length
+      ? rollLog.map((r) => `<div class="${r.triggered ? "bi-cp__log-row--hit" : ""}">Morning ${r.quietMorning} · rolled ${r.roll} vs ${r.target}${r.forced ? " · FORCED" : r.triggered ? " · TRIGGERED" : " · clear"}</div>`).join("")
+      : `<div style="opacity:.5">No rolls yet.</div>`;
+  }
+  function paintIncidents() {
+    $("#cp-incidents", main).innerHTML = contactIncidentLog.length
+      ? contactIncidentLog.map((e) => `<div>${e.at ? e.at + " · " : ""}${e.label}</div>`).join("")
+      : `<div style="opacity:.5">Nothing sprung yet this session.</div>`;
+  }
+  for (const btn of $$("[data-spring]", main)) {
+    btn.addEventListener("click", () => { logContactIncident(btn.dataset.spring); paintIncidents(); });
+  }
+  $("#cp-roll", main).addEventListener("click", () => {
+    const result = rollContactPool(quietMorning);
+    rollLog.unshift(result);
+    const resultEl = $("#cp-result", main);
+    resultEl.className = "bi-cp__result " + (result.triggered ? "bi-cp__result--triggered" : "bi-cp__result--clear");
+    resultEl.textContent = result.forced
+      ? `Rolled ${result.roll} — CONTACT FORCED (ceiling reached).`
+      : result.triggered
+        ? `Rolled ${result.roll} vs ${result.target} — CONTACT TRIGGERED.`
+        : `Rolled ${result.roll} vs ${result.target} — clear. One more quiet morning.`;
+    quietMorning = result.triggered ? 1 : quietMorning + 1;
+    paintStats();
+    paintRollLog();
+  });
+  paintStats();
+  paintRollLog();
+  paintIncidents();
+}
+
+/* --- Frame Status (Director) -------------------------------------------- */
+function renderFrameStatus(main) {
+  main.innerHTML = `
+    <div class="bi-frames">
+      <div class="bi-frames__pool">
+        <span class="bi-frames__pool-label">Shared Technician-Days</span>
+        <span class="bi-frames__pool-value" id="frames-pool"></span>
+        <button type="button" class="bi-term-key" style="padding:4px 8px;font-size:9px" id="frames-add-day">+1 DAY</button>
+      </div>
+      <div id="frames-list"></div>
+    </div>`;
+  const list = $("#frames-list", main);
+
+  function rowHtml(no) {
+    const state = frameState[no];
+    const deployable = isDeployable(state);
+    const steps = DAMAGE_STATES.map((s) =>
+      `<span class="bi-frames__step bi-frames__step--${s}${s === state ? " bi-frames__step--current" : ""}">${s.slice(0, 3).toUpperCase()}</span>`
+    ).join("");
+    const canRepair = state !== DAMAGE_STATES[0] && technicianDays > 0;
+    const canDamage = state !== DAMAGE_STATES[DAMAGE_STATES.length - 1];
+    return `
+      <div class="bi-frames__row${deployable ? "" : " bi-frames__row--down"}">
+        <span class="bi-frames__name">Frame ${no}</span>
+        <button type="button" class="bi-term-key" style="padding:4px 8px;font-size:9px" data-frame="${no}" data-act="repair" ${canRepair ? "" : "disabled"}>&#8592; REPAIR</button>
+        <div class="bi-frames__track">${steps}</div>
+        <button type="button" class="bi-term-key" style="padding:4px 8px;font-size:9px" data-frame="${no}" data-act="damage" ${canDamage ? "" : "disabled"}>DAMAGE &#8594;</button>
+        <span class="bi-frames__deploy">${deployable ? "READY" : "GROUNDED"}</span>
+      </div>`;
+  }
+  function paint() {
+    $("#frames-pool", main).textContent = String(technicianDays);
+    list.innerHTML = FRAME_NUMBERS.map(rowHtml).join("");
+  }
+  list.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-frame]");
+    if (!btn || btn.disabled) return;
+    const no = btn.dataset.frame;
+    if (btn.dataset.act === "repair") {
+      if (technicianDays <= 0) return;
+      frameState[no] = damageStepUp(frameState[no]);
+      technicianDays -= 1;
+    } else {
+      frameState[no] = damageStepDown(frameState[no]);
+    }
+    paint();
+  });
+  $("#frames-add-day", main).addEventListener("click", () => { technicianDays += 1; paint(); });
+  paint();
+}
+
+/* --- Bleed Board (Director, GM-only) ------------------------------------ */
+function renderBleedBoard(main) {
+  main.innerHTML = `
+    <div class="bi-bleed-board">
+      <div class="bi-bleed-board__notice">GM-ONLY — Bleed pilotVisibility is an open question. Do not show this to players.</div>
+      <div id="bleed-list"></div>
+    </div>`;
+  const list = $("#bleed-list", main);
+
+  function paint() {
+    list.innerHTML = FRAME_NUMBERS.map((no) => {
+      const val = bleedState[no];
+      const berserk = isBerserk(val);
+      const ticks = Array.from({ length: BLEED_MAX }, (_, i) =>
+        `<span class="bi-bleed-board__tick${i < val ? " bi-bleed-board__tick--lit" : ""}${berserk ? " bi-bleed-board__tick--berserk" : ""}"></span>`
+      ).join("");
+      return `
+        <div class="bi-bleed-board__row${berserk ? " bi-bleed-board__row--berserk" : ""}">
+          <span class="bi-bleed-board__name">Pilot ${no}</span>
+          <div class="bi-bleed-board__track">${ticks}</div>
+          <span class="bi-bleed-board__value">${val}</span>
+          <div class="bi-bleed-board__stepper">
+            <button type="button" data-pilot="${no}" data-delta="-1" aria-label="Decrease Bleed">&minus;</button>
+            <button type="button" data-pilot="${no}" data-delta="1" aria-label="Increase Bleed">+</button>
+          </div>
+        </div>
+        ${berserk ? `<p style="margin:-4px 0 2px 118px;font-family:var(--bi-font-readout);font-size:10px;color:var(--bi-vermilion)">BERSERK — ${bleedBerserkDuration[no] || "?"} round(s), GM control.</p>` : ""}`;
+    }).join("");
+  }
+  list.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-pilot]");
+    if (!btn) return;
+    const no = btn.dataset.pilot;
+    const wasBerserk = isBerserk(bleedState[no]);
+    bleedState[no] = adjustBleed(bleedState[no], Number(btn.dataset.delta));
+    const nowBerserk = isBerserk(bleedState[no]);
+    if (nowBerserk && !wasBerserk) bleedBerserkDuration[no] = rollBerserkDuration();
+    if (!nowBerserk) delete bleedBerserkDuration[no];
+    paint();
+  });
+  paint();
+}
+
+/* --- Scene Cues (Director) ----------------------------------------------- */
+function renderSceneCues(main) {
+  main.innerHTML = `
+    <div class="bi-cues">
+      <div class="bi-cues__ep">Episode 1 — Contact: Unclassified</div>
+      <div id="cues-list"></div>
+    </div>`;
+  const list = $("#cues-list", main);
+  let cued = null;
+
+  function paint() {
+    list.innerHTML = EPISODE_1_SCENES.map((s) => `
+      <div class="bi-cues__item${cued === s.order ? " bi-cues__item--cued" : ""}">
+        <span class="bi-cues__order">${s.order}</span>
+        <div class="bi-cues__body">
+          <div class="bi-cues__title">${s.title}</div>
+          <div class="bi-cues__desc">${s.description}</div>
+        </div>
+        <button type="button" class="bi-term-key bi-cues__cue" data-order="${s.order}">${cued === s.order ? "CUED" : "CUE"}</button>
+      </div>`).join("");
+  }
+  list.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-order]");
+    if (!btn) return;
+    const order = Number(btn.dataset.order);
+    cued = cued === order ? null : order;
+    paint();
+  });
+  paint();
+}
+
 function escapeHtml(s) { return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
 /* ------------------------------------------------------------------ *
@@ -434,6 +718,14 @@ function escapeHtml(s) { return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<
  * ------------------------------------------------------------------ */
 let termEl = null;
 let cleanupCurrentApp = null;
+
+function paintNav(term) {
+  $("#term-nav", term).innerHTML = currentApps.map((a) => `
+    <button class="bi-terminal__navbtn" style="--app:${a.color}" data-app="${a.id}" aria-pressed="false">
+      <span class="bi-terminal__navbtn-glyph">${a.glyph}</span>
+      <span>${a.label}</span>
+    </button>`).join("");
+}
 
 function buildTerminal(mountInto) {
   const term = document.createElement("div");
@@ -455,11 +747,7 @@ function buildTerminal(mountInto) {
     </div>`;
   mountInto.appendChild(term);
 
-  $("#term-nav", term).innerHTML = APPS.map((a) => `
-    <button class="bi-terminal__navbtn" style="--app:${a.color}" data-app="${a.id}" aria-pressed="false">
-      <span class="bi-terminal__navbtn-glyph">${a.glyph}</span>
-      <span>${a.label}</span>
-    </button>`).join("");
+  paintNav(term);
   $("#term-nav", term).addEventListener("click", (ev) => {
     const btn = ev.target.closest("[data-app]");
     if (btn) openApp(term, btn.dataset.app);
@@ -468,7 +756,7 @@ function buildTerminal(mountInto) {
 }
 
 function openApp(term, id) {
-  const app = APPS.find((a) => a.id === id);
+  const app = currentApps.find((a) => a.id === id);
   if (!app) return;
   if (cleanupCurrentApp) { cleanupCurrentApp(); cleanupCurrentApp = null; }
   for (const b of $$(".bi-terminal__navbtn", term)) b.setAttribute("aria-pressed", String(b.dataset.app === id));
@@ -502,7 +790,7 @@ export function initPhone({ mountInto, badgeCount = 3 }) {
       };
       tick();
       setInterval(tick, 4000);
-      openApp(termEl, APPS[0].id);
+      openApp(termEl, currentApps[0].id);
     }
     setOpen(!termEl.classList.contains("bi-terminal--open"));
   });
@@ -511,5 +799,24 @@ export function initPhone({ mountInto, badgeCount = 3 }) {
     termEl.classList.toggle("bi-terminal--open", open);
     btn.setAttribute("aria-pressed", String(open));
     if (open && badge) badge.hidden = true;
+  }
+}
+
+/**
+ * Swap the terminal's identity wholesale — player's personal device vs
+ * the Director's console. Same button, same panel chrome, a different
+ * object entirely, per the file header.
+ */
+export function setDirectorMode(gm) {
+  currentApps = gm ? DIRECTOR_APPS : PLAYER_APPS;
+  const btn = $("#phone-btn");
+  if (btn) {
+    const label = gm ? "Director's console" : "Personal comm device";
+    btn.setAttribute("aria-label", label);
+    btn.setAttribute("title", label);
+  }
+  if (termEl) {
+    paintNav(termEl);
+    openApp(termEl, currentApps[0].id);
   }
 }

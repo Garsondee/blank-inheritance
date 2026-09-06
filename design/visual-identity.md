@@ -896,6 +896,102 @@ pass does not try to make one component serve both jobs.
 
 ---
 
+## 5d. Director Mode — a second identity for the same button, plus a real-time session bar (pass 18)
+
+**The user's brief, verbatim, since both halves of it shaped a real design decision:** *"Create
+another bar, a progress bar, at the top under the current top bar. This is a progress bar that is
+based on the current time and there is a highlighted area of time between 7:30 PM and 10 PM...
+The idea is that I should be able to see at a glance how far through the session I am. Apart from
+that, go wide with improvements that the director will use and appreciate."*
+
+**The session bar (`.bi-session-bar`, `bi-components.css`, `scripts/core/session-clock.mjs`).**
+Deliberately a second, independent clock from the toprail's own DAY/TIME readout: that one is the
+*fiction's* clock (Day 04, 16:46) and never moves except when the demo's random events advance it;
+this one is the *table's* clock — real `new Date()`, a GM's own meta-tool riding on top of the
+in-fiction console, not part of it. `sessionWindow()` fixes a 17:00–24:00 display window with a
+19:30–22:00 highlighted band (the Monday Group's actual start/end), and `sessionProgress(now,
+window)` returns a phase (`before`/`during`/`after`), a fill fraction, and a human label ("Session
+starts in 2h 14m" / "38% through tonight's session" / "Running 12m over") — all pure, all
+`now`-injectable, tested in `test/tier1-session-clock.test.mjs` (12 tests) without touching a
+clock. Layout used a combined token rather than a special case: `--bi-top-stack-height` (toprail +
+new bar) replaces every consumer of the old toprail-only height (`.bi-console__left/right`,
+`.bi-console__banner`), so the marker-exclusion zone in `console.js`'s `layoutScene()` — which
+measures `.bi-console__top`'s real rendered box rather than reading a token — picked up the taller
+top stack with no code change at all. Verified live by reading the actual computed geometry rather
+than trying to eyeball a 16px strip in a scaled screenshot: the bar's `getBoundingClientRect()`
+sits flush under the toprail's, `--start`/`--span` on the highlighted window compute to exactly
+35.71%/35.71% (150 minutes of session inside a 420-minute window), and the needle correctly clamps
+to the window's left edge rather than going negative when the real time is before 17:00.
+
+**Director Mode itself: the exact same `#phone-btn` opens a different object, not the same one with
+extra pages unlocked.** `PLAYER_APPS` and `DIRECTOR_APPS` (`design/ui/phone.js`) are two separate
+arrays behind one swappable `currentApps`; `setDirectorMode(gm)` swaps it, relabels the button
+("Personal comm device" vs "Director's console"), and — if the terminal is already open — repaints
+its nav and jumps to the new set's first app so nothing stale is left on screen. The reasoning is
+narrative, not technical: a GM-only Bleed board has no business conceptually living on a kid
+character's own handset, so this is a full identity swap, the same move already used for the
+chassis's own GM-only pods.
+
+**Four apps, each answering a real system in `data/campaign/config.json` that had no interactive
+form yet** (`scripts/core/director.mjs`, 15 tests — Contact Pool floor/ceiling math, damage-state
+stepping including the hulked/operational caps, Bleed clamping and berserk, all pure):
+- **Contact Pool** — the actual quiet-morning roll procedure (target 20 dropping to a floor of 13,
+  forced at morning 8) rather than a GM doing this arithmetic by hand, plus a "Spring One" control
+  (see below) and a shared incident log.
+- **Frame Status** — the six Frames' shared damage-state track (operational → degraded → critical
+  → hulked) against one shared technician-day pool; repairing costs days and is blocked at zero,
+  damage is free and immediate, and a Frame at critical/hulked is visibly `GROUNDED`.
+- **Bleed Board** — explicitly marked GM-only in its own UI (`config.json`'s `pilotVisibility` for
+  Bleed is still `null`, an open question this pass does not resolve), 0–10 per pilot, berserk at
+  10 with a real rolled 1d4-round duration held steady until the pilot steps back down.
+- **Scene Cues** — Episode 1's real nine scenes (`data/episodes/episode-01-contact-unclassified
+  .json`), mocking the cue action a live Foundry `Scene#activate()` will eventually perform for
+  real (`design/foundry-module-design.md` §7).
+
+**One real bug found live, not a screenshot artifact this time.** The first version of this pass
+added "False Contact" as a third chassis-panel bank (three lettered buttons, next to the existing
+single `Contact` key) — `#gm-pod`'s own `.bi-pod` cap is `calc(var(--bi-bar-height) - 8px)` = 160px,
+and measuring live (`scrollHeight` vs `clientHeight`, not another size estimate) showed the pod was
+already rendering 168px of content before this pass touched it — an 8px sliver nobody had
+apparently noticed — and the new bank pushed that to 228px: a real 68px overflow, silently clipped
+by that same rule's `overflow: hidden`, meaning the new buttons would have been partly or wholly
+unclickable. Closing a gap that size without either shrinking spacing tokens every other pod also
+depends on, or growing `--bi-bar-height` itself (a console-wide change well out of proportion to
+one small addition), wasn't possible by trimming — so type selection was relocated into the
+terminal's own Contact Pool app instead (a `Spring One` row: `CONTACT` / `FALSE · A` / `FALSE · B`
+/ `FALSE · C`, each just calling the same `logContactIncident()` the chassis button already used).
+This isn't only a size fix: `console.js`'s own standing comment on that button already states the
+type is "tracked only for the GM's own reference... never surfaced anywhere a player would see
+it," which describes the terminal's private console better than three lettered keys on a shared
+physical panel ever did. The chassis keeps exactly one physical `Contact` key, deliberately
+generic, per that same comment: the alarm must never itself give away which kind it is.
+
+**One real regression, found and fixed while wiring the chassis's Contact button into the same
+log:** `.bi-phone__screen` — deleted when §5c rebuilt the phone as the terminal — was still the
+selector Bleed's corruption effect used to reach "the terminal's own glass," matching nothing since
+that rebuild (`querySelectorAll` on an unknown class returns an empty list, not an error) and so
+silently no-op'ing. Replaced with `.bi-terminal__main`; verified live by dispatching a real `input`
+event at Bleed 70% and reading the resulting `.bi-corrupt` class and `--bi-bleed` value back off
+the element, not by re-reading the source a second time.
+
+**A testing-methodology note worth keeping, distinct from the stale-console-buffer gotcha already
+on record:** every app in this file re-renders its whole pane wholesale on a state change
+(`main.innerHTML = ...` / `list.innerHTML = ...`), consistent with every other app already in
+`phone.js`. A verification script that caches an element reference across a click that triggers one
+of these re-renders is holding a detached node afterward — it still exists in JS, but real `.click
+()` events on it no longer bubble anywhere live, so a loop of ten clicks silently only lands the
+first one. Re-querying the live DOM after every state-changing click (rather than caching across
+one) is what actually verified Frame Status's damage/repair stepping, Bleed Board's clamp at 10 and
+berserk-note persistence, and Scene Cues' cue/uncue exclusivity — all confirmed correct once
+measured this way.
+
+**Still open:** whether Bleed is ever player-visible (`pilotVisibility: null` is unchanged by this
+pass); the Fight scene's `encounterRef` is present in the mock data but not wired to anything;
+Scene Cues' "cue" action is a local highlight only, standing in for the real `Scene#activate()` a
+live Foundry world will eventually perform.
+
+---
+
 ## 6. Not done yet
 
 - **Never loaded into a live Foundry.** `module.json` does load the stylesheets, and

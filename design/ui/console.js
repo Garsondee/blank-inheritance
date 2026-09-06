@@ -23,6 +23,13 @@ import {
   NOTICE_CAP,
   weightedPick
 } from "../../module/blank-inheritance/scripts/core/notices.mjs";
+import { sessionWindow, sessionProgress } from "../../module/blank-inheritance/scripts/core/session-clock.mjs";
+// initPhone() is called once from style-prototype.html's own inline module
+// script (it owns the mount point); this file only needs the mode switch
+// and a way to feed the chassis's own Contact triggers into the Director
+// console's Contact Pool log, so the two surfaces share one record
+// instead of the chassis button being cosmetic.
+import { setDirectorMode, logContactIncident } from "./phone.js";
 
 /* ------------------------------------------------------------------ *
  * Data — real campaign content, prototype-only shape.
@@ -670,6 +677,7 @@ function setMode(gm) {
   $("#mode-gm").setAttribute("aria-pressed", String(gm));
   $("#mode-player").setAttribute("aria-pressed", String(!gm));
   paintMuster();
+  setDirectorMode(gm);
   requestAnimationFrame(layoutScene);
 }
 $("#mode-player").addEventListener("click", () => setMode(false));
@@ -680,20 +688,41 @@ $("#mode-gm").addEventListener("click", () => setMode(true));
  * room, so the frame changes: the strip pulses, the scene goes red, the
  * marquee leads with it.
  * ------------------------------------------------------------------ */
-$("#klaxon").addEventListener("click", () => {
-  const on = consoleEl.classList.toggle("bi-console--alert");
+function setAlert(on) {
+  consoleEl.classList.toggle("bi-console--alert", on);
   $("#lamp-alert").classList.toggle("bi-lamp--lit", on);
   $("#lamp-alert").classList.toggle("bi-lamp--pulse", on);
   $("#alert-plate").hidden = !on;
-  if (on) {
-    notify("alert", "Contact — all pilots to stations", { jp: "接触 発生 — 全機 発進", sticky: true });
-    state.prob = 1;
-  } else {
-    if (bannerEl && notices.current && notices.current.sticky) endDwell();
-    state.prob = 0.18;
-  }
+  state.prob = on ? 1 : 0.18;
   paintProb();
+}
+$("#klaxon").addEventListener("click", () => {
+  const goingOn = !consoleEl.classList.contains("bi-console--alert");
+  setAlert(goingOn);
+  if (goingOn) {
+    notify("alert", "Contact — all pilots to stations", { jp: "接触 発生 — 全機 発進", sticky: true });
+  } else if (bannerEl && notices.current && notices.current.sticky) {
+    endDwell();
+  }
 });
+
+/* False Contact — data/campaign/config.json's falseContact.types. Every
+   type reads identically to the table at the moment it triggers (the
+   SAME siren, the SAME banner) — that sameness is the entire point, so
+   the alarm can never itself give away which kind this is. Type selection
+   itself lives in the Director's console's own Contact Pool app (design/
+   ui/phone.js's renderContactPool), not as chassis buttons — it is GM-
+   reference-only and was never meant to be visible table furniture. This
+   chassis button is the one physical, table-facing trigger: always a
+   plain "Contact," regardless of what actually caused it. */
+function triggerContactType(type) {
+  if (!consoleEl.classList.contains("bi-console--alert")) setAlert(true);
+  notify("alert", "Contact — all pilots to stations", { jp: "接触 発生 — 全機 発進", sticky: true });
+  logContactIncident(type);
+}
+for (const btn of $$("[data-contact-type]")) {
+  btn.addEventListener("click", () => triggerContactType(btn.dataset.contactType));
+}
 
 function paintProb() {
   $("#prob-meter").style.setProperty("--v", String(state.prob));
@@ -715,11 +744,47 @@ bleed.addEventListener("input", () => {
   // never a second copy of the effect.
   identBleedOut.textContent = pct;
   identBleedMeter.style.setProperty("--v", String(v));
-  for (const el of $$(".bi-dome__glass, .bi-subdome__glass, .bi-screen, .bi-marquee__glass, .bi-ident__glass, .bi-phone__screen")) {
+  // FOUND LIVE: .bi-phone__screen stopped existing when the phone was
+  // rebuilt as the terminal (see design/visual-identity.md §5c) — this
+  // selector silently matched nothing afterward (querySelectorAll on an
+  // unknown class returns an empty list, not an error), so Bleed quietly
+  // stopped corrupting the terminal at all. .bi-terminal__main is the
+  // terminal's own equivalent surface now.
+  for (const el of $$(".bi-dome__glass, .bi-subdome__glass, .bi-screen, .bi-marquee__glass, .bi-ident__glass, .bi-terminal__main")) {
     el.classList.toggle("bi-corrupt", v > 0.02);
     el.style.setProperty("--bi-bleed", String(v));
   }
 });
+
+/* ------------------------------------------------------------------ *
+ * The session progress bar — REAL wall-clock time, not the fictional
+ * Day/Time readout above it. "I should be able to see at a glance how
+ * far through the session I am." All the actual math is in
+ * scripts/core/session-clock.mjs and is unit-tested there; this is just
+ * painting whatever it returns onto the track's custom properties.
+ * ------------------------------------------------------------------ */
+const SESSION_WINDOW = sessionWindow();
+function paintSessionBar() {
+  const p = sessionProgress(new Date(), SESSION_WINDOW);
+  const pct = (frac) => (frac * 100).toFixed(2) + "%";
+  const startPct = pct(p.sessionStartFrac);
+  const spanFrac = p.sessionEndFrac - p.sessionStartFrac;
+
+  $("#session-window").style.setProperty("--start", startPct);
+  $("#session-window").style.setProperty("--span", pct(spanFrac));
+  $("#session-fill").style.setProperty("--start", startPct);
+  $("#session-fill").style.setProperty("--fill", pct(p.sessionFillFrac * spanFrac));
+  $("#session-now").style.setProperty("--now", pct(p.windowFrac));
+  $("#session-label").textContent = p.label;
+
+  const bar = $("#session-bar");
+  bar.classList.toggle("bi-session-bar--during", p.phase === "during");
+  bar.classList.toggle("bi-session-bar--after", p.phase === "after");
+}
+paintSessionBar();
+// Real time moves slowly relative to everything else ticking on this
+// console — no need to repaint every second for a bar this coarse.
+setInterval(paintSessionBar, 15000);
 
 /* ------------------------------------------------------------------ *
  * Idle life. A console that never moves reads as a screenshot; one that

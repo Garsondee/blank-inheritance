@@ -1314,8 +1314,10 @@
   top: 0;
   left: 0;
   right: 0;
-  height: var(--bi-toprail-height);
+  height: var(--bi-top-stack-height);
   z-index: 3;
+  display: flex;
+  flex-direction: column;
 }
 .bi-console__bar {
   position: absolute;
@@ -1334,9 +1336,9 @@
 .bi-console__left,
 .bi-console__right {
   position: absolute;
-  top: calc(var(--bi-toprail-height) + 12px);
+  top: calc(var(--bi-top-stack-height) + 12px);
   width: var(--bi-rail-width);
-  max-height: calc(100% - var(--bi-toprail-height) - var(--bi-chassis-height) - 26px);
+  max-height: calc(100% - var(--bi-top-stack-height) - var(--bi-chassis-height) - 26px);
   z-index: 3;
   display: flex;
   flex-direction: column;
@@ -1481,6 +1483,8 @@
 
 /* Top status strip. */
 .bi-toprail {
+  flex: none;
+  height: var(--bi-toprail-height);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -1490,6 +1494,98 @@
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 13%), 0 2px 10px rgb(0 0 0 / 70%);
   border-bottom: 1px solid var(--bi-brass-shadow);
 }
+
+/* =====================================================================
+   THE SESSION PROGRESS BAR
+   ---------------------------------------------------------------------
+   "I should be able to see at a glance how far through the session I
+   am." Real wall-clock time, not the fictional Day/Time readout above
+   it — a GM's own meta-tool riding on the console, same category as
+   Director mode. Sits directly under the toprail, inside the SAME top
+   layer (see .bi-console__top and --bi-top-stack-height) so everything
+   that positions itself "below the top area" shifts down automatically.
+
+   The bar spans a window wider than the session itself (5 PM-midnight by
+   default; see scripts/core/session-clock.mjs) so there is real before/
+   after context, not a bar that is only ever empty or full. Three layers
+   inside the track: the highlighted session region, a fill showing how
+   much of THAT region has elapsed, and a bright "now" needle for the
+   actual current instant.
+   ===================================================================== */
+.bi-session-bar {
+  flex: none;
+  height: var(--bi-session-bar-height);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  background: var(--bi-steel-900);
+  border-bottom: 1px solid var(--bi-brass-shadow);
+}
+.bi-session-bar__track {
+  position: relative;
+  flex: 1;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--bi-steel-800);
+  box-shadow: var(--bi-bevel-down);
+  overflow: hidden;
+}
+/* The highlighted 7:30-10 PM region within the wider window. Position
+   and width are written by console.js as inline custom properties,
+   computed once (the window never moves) from sessionWindow(). */
+.bi-session-bar__window {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--start, 0%);
+  width: var(--span, 0%);
+  background: rgb(111 227 154 / 10%);
+  box-shadow: inset 0 0 0 1px rgb(111 227 154 / 30%);
+}
+/* How much of the SESSION ITSELF has elapsed — drawn only within the
+   highlighted region, never past it, so "the fill leaving the window" is
+   not a state that can visually happen. Phosphor while the session is
+   still inside its window; amber once running over, the same "spending
+   something, pay attention" colour the key language already uses. */
+.bi-session-bar__fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--start, 0%);
+  width: var(--fill, 0%);
+  background: linear-gradient(90deg, var(--bi-phosphor-dim), var(--bi-phosphor));
+  box-shadow: 0 0 6px var(--bi-phosphor);
+  transition: width var(--bi-dur-servo) linear;
+}
+.bi-session-bar--after .bi-session-bar__fill {
+  background: linear-gradient(90deg, var(--bi-amber-dim), var(--bi-amber));
+  box-shadow: 0 0 6px var(--bi-amber);
+}
+/* The real-time "now" needle — the one element in this bar that moves
+   every tick regardless of phase, since "where is now" is true even
+   before or long after the session itself. */
+.bi-session-bar__now {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  left: var(--now, 0%);
+  width: 2px;
+  transform: translateX(-1px);
+  background: var(--bi-bone);
+  box-shadow: 0 0 5px var(--bi-bone);
+}
+.bi-session-bar__label {
+  flex: none;
+  font-family: var(--bi-font-readout);
+  font-size: 9px;
+  letter-spacing: 0.02em;
+  color: var(--bi-bone-dim);
+  white-space: nowrap;
+}
+.bi-session-bar--during .bi-session-bar__label { color: var(--bi-phosphor); text-shadow: 0 0 5px currentColor; }
+.bi-session-bar--after .bi-session-bar__label { color: var(--bi-amber); text-shadow: 0 0 5px currentColor; }
+@media (prefers-reduced-motion: reduce) { .bi-session-bar__fill { transition: none; } }
 .bi-toprail__spacer { flex: 1; }
 .bi-toprail__group {
   display: flex;
@@ -2257,7 +2353,7 @@
 
 .bi-console__banner {
   position: absolute;
-  top: var(--bi-toprail-height);
+  top: var(--bi-top-stack-height);
   left: 50%;
   transform: translateX(-50%);
   /* Clear of both floating rails at every console width down to the
@@ -3335,6 +3431,110 @@
 }
 .bi-term-key:hover { color: #b9ffd4; }
 .bi-term-key:active { transform: translateY(1px); }
+.bi-term-key--caution { color: var(--bi-amber); box-shadow: var(--bi-bevel-up), 0 0 0 1px rgb(240 168 48 / 40%); }
+.bi-term-key--caution:hover { color: #ffe6ad; }
+.bi-term-key[disabled] { opacity: 0.4; cursor: default; }
+.bi-term-key[disabled]:active { transform: none; }
+
+/* =====================================================================
+   DIRECTOR MODE — the terminal, reused, becomes a different object
+   ---------------------------------------------------------------------
+   In player mode the big button opens your personal terminal. In GM
+   mode the SAME button opens the Director's console instead — not the
+   same device with a few extra pages unlocked, a different one: nobody
+   would keep six pilots' private Bleed levels on a kid's own phone. See
+   design/ui/phone.js's PLAYER_APPS/DIRECTOR_APPS split.
+
+   Four apps, each answering a real, previously-unvisualised piece of
+   data/campaign/config.json rather than inventing new GM busywork:
+   the Contact Pool roll procedure, the Frame damage-state economy, the
+   (explicitly GM-only) Bleed board, and a Scene Cue list mocking the
+   real director's-panel design (design/foundry-module-design.md §7)
+   that a live Foundry instance will eventually provide for real.
+   ===================================================================== */
+
+/* --- Contact Pool ------------------------------------------------------- */
+.bi-cp { padding: 18px; display: flex; flex-direction: column; gap: 16px; height: 100%; overflow-y: auto; }
+.bi-cp__head { display: flex; align-items: baseline; justify-content: space-between; }
+.bi-cp__morning { display: flex; align-items: center; gap: 10px; }
+.bi-cp__stat { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 14px 22px; background: var(--bi-steel-900); border-radius: 4px; box-shadow: var(--bi-bevel-down); }
+.bi-cp__stat-label { font-family: var(--bi-font-legend); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--bi-bone-dim); }
+.bi-cp__stat-value { font-family: var(--bi-font-readout); font-size: 32px; font-weight: 700; color: var(--bi-phosphor); text-shadow: 0 0 8px currentColor; }
+.bi-cp__row { display: flex; gap: 16px; align-items: center; }
+.bi-cp__result { flex: 1; padding: 14px 16px; border-radius: 4px; background: var(--bi-steel-900); box-shadow: var(--bi-bevel-down); font-family: var(--bi-font-display); font-size: 15px; letter-spacing: 0.04em; color: var(--bi-bone-dim); }
+.bi-cp__result--triggered { color: var(--bi-vermilion); text-shadow: 0 0 8px currentColor; }
+.bi-cp__result--clear { color: var(--bi-phosphor); }
+.bi-cp__log { display: flex; flex-direction: column; gap: 4px; font-family: var(--bi-font-readout); font-size: 11px; color: var(--bi-bone-dark); }
+.bi-cp__log-row--hit { color: var(--bi-vermilion); }
+
+/* --- Frame Status --------------------------------------------------------- */
+.bi-frames { padding: 16px; display: flex; flex-direction: column; gap: 12px; height: 100%; overflow-y: auto; }
+.bi-frames__pool { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--bi-steel-900); border-radius: 4px; box-shadow: var(--bi-bevel-down); }
+.bi-frames__pool-label { font-family: var(--bi-font-legend); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bi-brass); }
+.bi-frames__pool-value { font-family: var(--bi-font-readout); font-size: 20px; font-weight: 700; color: var(--bi-amber); text-shadow: 0 0 8px currentColor; margin-left: auto; }
+.bi-frames__row { display: flex; align-items: center; gap: 12px; padding: 9px 12px; background: var(--bi-steel-900); border-radius: 4px; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 5%); }
+.bi-frames__name { font-family: var(--bi-font-condensed); font-size: 13px; font-weight: 600; color: var(--bi-bone); width: 92px; flex: none; }
+.bi-frames__track { display: flex; gap: 3px; flex: 1; }
+.bi-frames__step {
+  flex: 1;
+  height: 20px;
+  border: none;
+  background: var(--bi-steel-800);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 40%);
+  font-family: var(--bi-font-legend);
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bi-bone-dark);
+}
+.bi-frames__step--current {
+  color: #0a0f0a;
+  text-shadow: none;
+}
+.bi-frames__step--op.bi-frames__step--current { background: var(--bi-phosphor); }
+.bi-frames__step--degraded.bi-frames__step--current { background: var(--bi-amber); }
+.bi-frames__step--critical.bi-frames__step--current { background: var(--bi-vermilion); }
+.bi-frames__step--hulked.bi-frames__step--current { background: var(--bi-bone-dark); color: #0a0f0a; }
+.bi-frames__deploy { flex: none; width: 74px; font-family: var(--bi-font-legend); font-size: 9px; letter-spacing: 0.06em; text-align: center; color: var(--bi-phosphor-dim); }
+.bi-frames__row--down .bi-frames__deploy { color: var(--bi-vermilion); }
+
+/* --- Bleed Board --------------------------------------------------------- */
+.bi-bleed-board { padding: 16px; display: flex; flex-direction: column; gap: 10px; height: 100%; overflow-y: auto; }
+.bi-bleed-board__notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgb(209 64 42 / 10%);
+  box-shadow: inset 0 0 0 1px rgb(209 64 42 / 30%);
+  border-radius: 4px;
+  font-family: var(--bi-font-legend);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  color: var(--bi-vermilion);
+}
+.bi-bleed-board__row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--bi-steel-900); border-radius: 4px; }
+.bi-bleed-board__name { font-family: var(--bi-font-condensed); font-size: 13px; font-weight: 600; color: var(--bi-bone); width: 108px; flex: none; }
+.bi-bleed-board__track { flex: 1; display: flex; gap: 2px; }
+.bi-bleed-board__tick { flex: 1; height: 14px; background: var(--bi-steel-800); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 40%); }
+.bi-bleed-board__tick--lit { background: var(--bi-resonance); box-shadow: 0 0 6px var(--bi-resonance); }
+.bi-bleed-board__tick--berserk.bi-bleed-board__tick--lit { background: var(--bi-vermilion); box-shadow: 0 0 8px var(--bi-vermilion); }
+.bi-bleed-board__value { flex: none; width: 26px; text-align: center; font-family: var(--bi-font-readout); font-size: 14px; font-weight: 700; color: var(--bi-resonance); }
+.bi-bleed-board__row--berserk .bi-bleed-board__value { color: var(--bi-vermilion); text-shadow: 0 0 6px currentColor; }
+.bi-bleed-board__stepper { display: flex; gap: 3px; flex: none; }
+.bi-bleed-board__stepper button { width: 22px; height: 22px; border: none; border-radius: 3px; background: var(--bi-mat-pod); color: var(--bi-bone-dim); cursor: pointer; box-shadow: var(--bi-bevel-up), 0 0 0 1px var(--bi-brass-shadow); font-family: var(--bi-font-readout); }
+.bi-bleed-board__stepper button:hover { color: var(--bi-bone); }
+
+/* --- Scene Cues ------------------------------------------------------------ */
+.bi-cues { padding: 16px; display: flex; flex-direction: column; gap: 8px; height: 100%; overflow-y: auto; }
+.bi-cues__ep { font-family: var(--bi-font-legend); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--bi-brass); margin-bottom: 2px; }
+.bi-cues__item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: var(--bi-steel-900); border-radius: 4px; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 5%); }
+.bi-cues__item--cued { box-shadow: inset 0 0 0 1px var(--bi-cyan), 0 0 10px rgb(79 200 216 / 20%); }
+.bi-cues__order { flex: none; width: 24px; text-align: center; font-family: var(--bi-font-readout); font-size: 13px; color: var(--bi-brass); }
+.bi-cues__body { flex: 1; min-width: 0; }
+.bi-cues__title { font-family: var(--bi-font-condensed); font-size: 14px; font-weight: 600; color: var(--bi-bone); }
+.bi-cues__desc { font-family: var(--bi-font-readout); font-size: 10px; color: var(--bi-bone-dark); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.bi-cues__cue { flex: none; }
 
 
 /* =====================================================================
