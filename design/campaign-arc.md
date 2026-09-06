@@ -28,10 +28,13 @@ Stated directly by the user as the throughline for the whole campaign:
 
 This should anchor institutional writing throughout — the Directorate (and school) shouldn't just be strict, it should be *specifically* the kind of institution that extracts everything from these kids while never once conceding that what they gave was enough.
 
-## Two corrections to the design bible, recorded here rather than edited into it
+## Corrections to the design bible, recorded here rather than edited into it
 
 - **The action economy changed 2026-09-06.** The bible's *"Most of the campaign is played at 2 actions"* (and the Nominal band's 2-action entry) is superseded. **Three actions is now the norm from Nominal upward**; 2 actions is a penalty state with exactly two causes — Dead Weight sync, and Frame damage (Degraded caps at 2, Critical at 1). The reasoning: SF2E is architecturally a three-action system, so a 2-action baseline plays a degraded version of it rather than a tense one. Full analysis in [resonance-and-bleed.md](resonance-and-bleed.md) §2; the change is recorded in `config.json`'s `resonance.actionEconomyRevisionNote`. One knock-on worth noticing: crossing into Harmonised no longer grants an action, so that band's "table moment" now rests entirely on ability tier and internal-power duration.
 - **Bleed visibility was resolved 2026-09-06.** The bible leaves it open. The answer is neither visible nor hidden but **tested** — a pilot spends a discretionary slice on a Harmonics Evaluation to learn the number, and that evaluation can also improve it. See `config.json`'s `bleed.visibilityMechanism`.
+- **Discretionary slices changed from 2 to 4 per day, also 2026-09-06.** The bible's Days 2–5 line — *"Mandatory school/training plus two discretionary slices per day"* — is superseded the same way the action economy line is: one slice per day-quarter, four quarters. See `config.json`'s `timeEconomy.slicesRevisionNote`.
+
+  **A real balance consequence of that change, not yet addressed:** the Day 1 pilot's stated disadvantage is that a real injury *"permanently lose[s] one discretionary slice per day to ongoing medical obligations."* Against the old 2-slice economy that was half their daily options, gone for good — a genuinely heavy, defining cost. Against the new 4-slice economy, the same fixed loss of one slice is only a quarter of their options. The penalty text hasn't changed; what it actually costs has, by half, as a side effect of a UI-driven number that had nothing to do with this specific character beat when it was decided. Worth a real answer — scale the loss to two slices to preserve the original bite, or accept the softer version as an improvement — rather than leaving the bible's original weight silently eroded. Tracked as `day1-pilot-slice-penalty-scaling` in `open-questions.json`.
 
 ## The 8-level arc
 

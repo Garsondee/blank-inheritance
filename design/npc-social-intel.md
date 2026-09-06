@@ -166,10 +166,11 @@ what's been revealed.
 | Quick actions | Request / Make an Impression / Coerce buttons, opening straight into the dialogue-management-panel's own DC-and-degree tracker, pre-filled with this NPC's Will DC | same buttons, player-initiated |
 | Reveal control | a one-click "mark this Fact learned," which fires the log entry above | — |
 
-**Automation, sorted the way this document's own predecessors already sort it (§10.4's bands):**
-computing the Will DC and pre-filling the check is Tier A, silent. Applying the reveal and logging
-it is Tier A once the GM confirms a check succeeded. Deciding whether a Fact fits the current ask,
-and adjudicating what a Critical Success actually gets someone, both stay Tier C — never automated.
+**Automation, sorted the way §10.4 already sorts everything else:** computing the Will DC and
+pre-filling the check, and applying a reveal and logging it once the GM confirms a check succeeded,
+are both bookkeeping the console can simply own. Deciding whether a Fact fits the current ask, and
+adjudicating what a Critical Success actually gets someone, are both artistic judgment and stay with
+the GM — never automated, the same line §10.4 already draws.
 
 ---
 
