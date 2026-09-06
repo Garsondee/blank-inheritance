@@ -106,8 +106,10 @@
       "type": "object",
       "properties": {
         "discretionarySlicesPerDay": { "type": "integer" },
+        "slicesRevisionNote": { "type": "string", "description": "Free-text history for when discretionarySlicesPerDay itself changes, so a stale number in a doc/comment doesn't outlive the data." },
         "mandatoryLoad": { "type": "string" },
         "designIntent": { "type": "string" },
+        "restIsAlwaysAvailable": { "type": "string", "description": "Confirms resting is always a legal, encouraged use of a discretionary slice, independent of the options list below." },
         "options": {
           "type": "array",
           "items": {
@@ -116,8 +118,21 @@
               "id": { "type": "string" },
               "name": { "type": "string" },
               "effect": { "type": "string" },
-              "cost": { "type": "string" }
+              "cost": { "type": "string" },
+              "openQuestionRef": { "type": "string", "description": "id of an entry in data/campaign/open-questions.json, when part of this option is still undecided." }
             }
+          }
+        },
+        "fatigue": {
+          "type": "object",
+          "description": "Working consecutive segments without resting; see design/ux-doctrine.md §3.",
+          "properties": {
+            "description": { "type": "string" },
+            "check": { "type": ["string", "null"] },
+            "dcEscalation": { "type": ["string", "null"] },
+            "failureConsequence": { "type": "string" },
+            "resetBy": { "type": "string" },
+            "openQuestionRef": { "type": "string" }
           }
         }
       }

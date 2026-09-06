@@ -275,32 +275,91 @@ not two related ones, on 2026-09-06 — the full procedure #109's open questions
 That single description, plus four follow-up answers the same day, replaces everything the earlier
 draft of this section guessed at.
 
-#### The activity taxonomy has four kinds, and two of the axes are independent
+#### Four independent properties, not four fixed kinds
 
-| Kind | On offer | Costs a slice? | Mandatory? |
-|---|---|---|---|
-| **Standing activity** — Frame repair, school lessons, "fun or useful activities" | every segment, always | yes | no |
-| **Scheduled scene** — a specific school event, a civil-defence operation, a personal mission | only in eligible quarters, expires if missed | yes | no |
-| **Story event** — the whole group required, to progress the plot | the story's own schedule, not chosen | yes, if it's a real event (below) | **yes** |
-| **Witnessed moment** — a conversation everyone sees, a news report | the story's own schedule | **no** | usually, but incidentally |
+The first draft of this section modelled activities as a closed enum of four kinds. Asking directly
+whether operations and personal missions are quarter-windowed like school events got the answer
+**"depends on the scene"** — and surfaced a shape this document hadn't separated out at all: combat
+encounters, and "almost all combats," default to **mandatory, whole-group**, sometimes at a
+required time and sometimes at a time the group chooses. A fixed enum can't hold that; four
+independent properties every activity carries can:
+
+| Property | Values | Decides |
+|---|---|---|
+| **Mandatory?** | yes / no | Law 21 — must be visually unmistakable if yes |
+| **Costs a slice?** | yes / no | Law 20 — the test is passive vs a real event, never "is it mandatory" |
+| **Scope** | one player / a chosen subset / whole group | who's pulled into the resulting scene |
+| **Timing** | fixed quarter(s) / open until it expires | how it renders on the ring |
 
 **Mandatory and slot-consuming are two different tests, not one — Law 20.** The test that actually
-decides whether something costs one of the two daily slices, settled 2026-09-06 in these exact
-words: *"If it's truly passive then no time is used, but if it's a real event/encounter/activity
-then it has to take a time slot."* A mandatory thing can be free (a broadcast nobody can skip, but
-nobody has to *do* anything about it) or slot-consuming (a forced Summons that eats a slice the
-story spends on the player's behalf, not one they chose to spend). Never conflate the two questions
-in the interface, since they answer to different rules.
+decides whether something costs a slice, settled 2026-09-06 in these exact words: *"If it's truly
+passive then no time is used, but if it's a real event/encounter/activity then it has to take a time
+slot."* A mandatory thing can be free (a broadcast nobody can skip, but nobody has to *do* anything
+about it) or slot-consuming (a forced Summons that spends a slice on the player's behalf, not one
+they chose to spend). Never conflate the two questions in the interface.
 
 **A mandatory event must be visually unmistakable before it's opened — Law 21.** The user's own
 lead-in to the whole taxonomy: *"we want to make sure that these mandatory events are easy to
-understand as such."* Not a footnote to the taxonomy — a standalone requirement.
+understand as such."* Not a footnote — a standalone requirement.
+
+The four names this document already uses stay, as vocabulary for the table rather than as an
+enum the data model enforces — the common combinations of the properties above:
+
+| Common shape | Mandatory | Costs a slice | Scope | Timing |
+|---|---|---|---|---|
+| **Standing activity** — Frame repair, school | no | **yes**, confirmed over free/background | one, or several who picked the same thing | fixed — **school is morning and afternoon only**, corrected from the brief's own looser first wording |
+| **Scheduled scene** — an operation, a personal mission | no | yes | one or a subset, the GM's call per scene | **either** — some operations have a required time, others are open until they expire |
+| **Story event / most combat encounters** | **yes** | yes, if it's a real event | **whole group**, the default for combat | either, set per scene |
+| **Witnessed moment** — a conversation, a news report | usually | **no** | whole group | the story's own schedule |
 
 **A surprise can override a commitment.** *"Some events will be surprises that prevent optional
 activities"* — a mandatory story event landing on a segment where a player already locked something
 in can bump that choice out. Per Law 19's own standard, the override must be shown, not silently
 substituted: a player should see that their Frame repair got bumped by the Summons, not just find a
 different scene waiting when the segment resolves.
+
+#### Four discretionary slots, not two
+
+Corrected 2026-09-06, superseding `config.json`'s existing `discretionarySlicesPerDay: 2`
+(`data/campaign/config.json` now updated to match, with a note on why): *"There are four
+discretionary slots during the day and players will always be able to pick which ones they want to
+take part in."* The old number predates the four-quarter day ring this session designed; now that
+the day has a real shape, the natural granularity is one real choice per quarter — every quarter is
+live, not two "real" ones and two dead ones.
+
+#### Working without rest gets visibly harder, then involuntary
+
+A genuinely new mechanic, confirmed 2026-09-06, that gives "always available" a real cost of its
+own:
+
+> "night activities could have negative effects because working all the way through the day with no
+> rest period should trigger a test to see how tired the character is and that test should simply
+> get harder each segment until they either sleep or fall unconscious and lose the time slot."
+
+**The structure is settled; the numbers are not, and this document does not invent them.** Each
+segment worked without resting makes the next fatigue check harder than the last; failing enough of
+them ends in involuntary unconsciousness and the loss of that segment's slot — the character
+doesn't choose to stop, the fiction stops them. Per Law 19, the rising difficulty must be visible
+*before* it forces a rest, never discovered at the moment someone drops. The nearest real rule, for
+grounding rather than for numbers: PC2E's own exploration rules already give an unrested character
+`fatigued` at 16 hours (`reference/srd/player-core/489-exploration-mode.json`, PC p. 432) — this
+homebrew escalates past that flat threshold into a real per-segment curve with no RAW precedent,
+exactly what Law 16 says to automate hardest once it has real numbers. **Tracked as an open
+question** (`fatigue-escalation-formula`, `data/campaign/open-questions.json`) rather than guessed
+at here — including which save it uses; Fortitude is the likely fit given how this SRD already
+handles endurance, but that's a proposal, not a decision made in this document.
+
+**Rest is a real menu with real payoffs, not a fallback.** Confirmed the same day, stated with real
+enthusiasm: resting is "both legal and encouraged," and different rest *types* carry different
+SF2E-relevant bonuses — a quiet option that recovers more HP, hospital care that targets HP and
+clears debuffs specifically, going out with friends for a social-side bonus, "a whole host" more.
+**This document does not invent that roster.** It's explicitly future collaborative design, not
+something to fill in to look complete — the same standing rule CLAUDE.md already states for the six
+kids' names, applied here to rest types. What the interface needs regardless of the final list:
+rest spends a slice like any other choice, presents as a **sub-menu** of named options rather than
+one generic button, and — reasonably, though not yet confirmed — is likely what resets a climbing
+fatigue check back down. **Tracked as an open question** (`rest-activity-roster`, same file),
+linked to the fatigue question above since the two are clearly related.
 
 #### Commit, then resolve — a real two-phase gate, not a queue
 
@@ -337,21 +396,25 @@ alike. The Contact Pool stays exactly what it already was: a separate, independe
 trigger deciding *whether* a Claimant shows up, layered on top of downtime rather than replacing
 how downtime itself is spent.
 
-*Obligation, and it is a substantial one:* the interface must make **five things visible at once** —
-what is on offer, which quarters it's eligible in, what expires soonest, what it costs to let
-something lapse (Law 19), and whether it's mandatory (Law 21, and visually, not just in a tooltip).
-Miss any one of those and the mode stops being a decision and becomes a guess.
+*Obligation, and it is a substantial one:* the interface must make **six things visible at once** —
+what is on offer, which quarters it's eligible in, whether it costs a slice, what expires soonest,
+what it costs to let something lapse (Law 19), and whether it's mandatory (Law 21, and visually, not
+just in a tooltip). Miss any one of those and the mode stops being a decision and becomes a guess.
+Rising fatigue (above) is the seventh, on the player's own permissions plate rather than the ring.
 
 *Data this needs and does not have.* `episode.schema.json`'s scene shape currently carries only
 `order`, `title`, `description` and refs to an encounter, challenge or subsystem. This mechanic
-implies at minimum: a `kind` (the four rows above), a `costsSlice` flag (independent of mandatory,
-per Law 20), a `mandatory` flag, an availability window in day quarters, an expiry, a
-consequence-if-missed, `participants` as a **set** rather than a single assignee (personal missions
-happen to always resolve to a set of one), a `visibility` flag (default visible with content;
-`private` shows to no one but the participants, per §7a), a resolution-order priority hint for the
-GM's queue, and the closed list of outcomes the scene-close dialogue offers (§10.3a). Also worth
-noting: `order` presumes a fixed sequence, which is right for the authored Episode 1 and wrong for
-scheduled play, where scenes are offered rather than sequenced. Designing those fields is a data
+implies at minimum: a `kind` (the common shapes above, as a label, not an enum the code branches
+on), independent `mandatory` and `costsSlice` flags (Law 20), a `scope` (one / subset / whole
+group), a `timing` mode (fixed quarter(s) or open-until-expiry) with the relevant window or expiry,
+a consequence-if-missed, `participants` as a **set** rather than a single assignee (personal
+missions happen to always resolve to a set of one), a `visibility` flag (default visible with
+content; `private` shows to no one but the participants, per §7a), a resolution-order priority hint
+for the GM's queue, and the closed list of outcomes the scene-close dialogue offers (§10.3a). A
+character also needs a `segmentsSinceRest` counter and, once the open questions above resolve, a
+`restType` the player last took. Also worth noting: `order` presumes a fixed sequence, which is
+right for the authored Episode 1 and wrong for scheduled play, where scenes are offered rather than
+sequenced. Designing those fields is a data
 task, not this document's, but the interface cannot be built before they exist.
 
 ---
@@ -522,8 +585,8 @@ completely different object.
 
 | Zone | Encounter | Exploration | Downtime |
 |---|---|---|---|
-| Who I am | Resonance band, damage state, Bleed, HP | same, quieter | current condition, standing debuffs |
-| Budget | action pips + reaction | *hidden* | **2 slices** |
+| Who I am | Resonance band, damage state, Bleed, HP | same, quieter | condition, fatigue since last rest |
+| Budget | action pips + reaction | *hidden* | **4 slices, one per quarter** |
 | What I face | current target | the scene / who's present | the day ring, and what is on it (§7a) |
 | What I may do | Tier 1 + 2 + repertoire | exploration activities + skills | available scenes + Time Economy options |
 | Who else | initiative order + on deck | party roster | who else has committed their slices |
@@ -547,11 +610,10 @@ The dome gets a **ring divided into four quarters — morning, noon, evening, ni
 current quarter lit.** It is a good fit for more than decoration, because two of the campaign's own
 systems are already keyed to the day rather than the hour:
 
-- The **Time Economy** gives two discretionary slices per day against a day mostly eaten by
-  mandatory school and sync training. Four quarters is exactly the frame that makes that visible:
-  the committed quarters and the two that are yours can be seen at a glance instead of tracked on
-  paper. This turns a resource that currently lives in a config file into something a player can
-  *look at* while deciding.
+- The **Time Economy** gives one discretionary slice per quarter, four a day (§3) — the ring isn't
+  adjacent to that resource, it *is* its shape: what's committed and what's still open can be seen
+  at a glance instead of tracked on paper. This turns a resource that used to live only in a config
+  file into something a player can *look at* while deciding.
 - The **Contact Pool** rolls on quiet *mornings*, with Contact forced from the eighth. A ring that
   knows what quarter it is knows when that roll is due.
 
@@ -560,14 +622,19 @@ stops being a readout and becomes the primary downtime interface. Available scen
 quarters they are eligible for, so the shape of the day and the shape of the choice are the same
 picture:
 
-- **Each pending scene is a marker on the ring**, placed against its eligible quarters. A school
-  event sits on morning, evening and night; an operation floats, because the players choose when.
-- **The three kinds read differently at a glance.** School, operation and personal are distinct
-  enough in the fiction that they should be distinct on the ring without reading a label.
+- **Each pending scene is a marker on the ring**, placed against its eligible quarters or spanning
+  all four if it's open until it expires (§3's `timing` property). A school event sits fixed on
+  morning and afternoon only; most operations and personal missions float across the whole ring
+  with an expiry badge, because the players choose when.
+- **The common shapes read differently at a glance** (§3's table) — mandatory story events most of
+  all, per Law 21, distinct enough in the fiction that they should read without a label.
+- **Whether it costs a slice is part of the at-a-glance read**, not something discovered by opening
+  it — a free witnessed moment and a slice-costing scheduled scene must never look the same marker.
 - **Urgency is the second visual channel.** How many days a thing has left before it lapses is the
   information that actually drives the decision, so it cannot be buried in a tooltip.
-- **Contention is the point, so show it.** Two things eligible in the same quarter, with two slices
-  and four candidates, *is* the game. The ring should make a conflict obvious rather than letting a
+- **Contention is the point, so show it.** Two things eligible in the same quarter, with four slices
+  and (usually) more candidates than that, *is* the game. The ring should make a conflict obvious
+  rather than letting a
   player discover it after committing.
 - **Personal missions are visible by default, with content, to the whole party.** Settled
   2026-09-06: *"Players should be able to see exactly where other players are going unless the
@@ -582,8 +649,11 @@ picture:
   board every mission is visible regardless of its flag, since the GM already runs everyone's.
 
 That also resolves how slices and quarters relate, which was previously open: quarters carry
-*eligibility* and slices are the *budget*, so a scene constrains when it can be taken and the two
-slices constrain how much can be taken at all. Neither purely fixed nor purely floating.
+*eligibility* and slices are the *budget*, so a scene constrains when it can be taken and the four
+slices constrain how much can be taken at all. Even at one slice per quarter this stays a real
+constraint, not a trivial one: a fixed-window activity can only ever spend the specific quarter's
+slice it's eligible in, never a different quarter's — wanting two morning-only things is a real
+conflict even with slices to spare elsewhere in the day.
 
 **Two clocks, and they must never be confused.** The ring is the *fiction's* time of day. The
 session bar along the top is the *table's* real elapsed evening (§10, and already built). They are
@@ -961,6 +1031,17 @@ This also settles what a scene-break suggestion looks like, which was previously
 suggestions §10.4 promises — an untouched Anchor, an unspent setup, pacing against the session bar,
 a scene about to expire — belong in this same dialogue. It is already the moment the GM's attention
 is at a boundary, and putting them anywhere else would mean interrupting twice.
+
+**One shape, not two flows — but not one uniform weight either.** Asked directly whether a routine
+pick like Frame repair skips the dialogue entirely, the answer, 2026-09-06: *"Everything goes
+through the same dialogue but we signpost things and automate things where possible."* So every
+committed activity — Frame repair included — opens the same dialogue, never a lighter alternate
+flow the GM has to learn a second shape for. What differs is how much of it is already filled in
+when it opens: Frame repair is squarely something the campaign invented (§10.4's "automate hard"
+band), so it can arrive with its outcome pre-selected and the technician-day cost already applied,
+needing one click to confirm rather than a real adjudication — while an operation or a story event,
+whose outcome is a judgment call, opens genuinely blank. One dialogue shape throughout; §10.4's
+existing bands decide how much of it a given activity walks in with already filled.
 
 ### 10.4 What automates
 

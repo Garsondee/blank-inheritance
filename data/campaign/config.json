@@ -101,9 +101,11 @@
     "permanentLoss": "A Frame that reaches Hulked can stay Hulked. Permanent loss of a personal Frame is on the table from the start (foreshadow it early, so when it happens it reads as the campaign keeping a promise, not GM cruelty)."
   },
   "timeEconomy": {
-    "discretionarySlicesPerDay": 2,
-    "mandatoryLoad": "Each day, mandatory school and mandatory harmonics/sync training eat most of it.",
+    "discretionarySlicesPerDay": 4,
+    "slicesRevisionNote": "Was 2, revised 2026-09-06 once the day gained a real four-quarter shape (morning/afternoon/evening/night) during UX design work — see design/ux-doctrine.md §3/§7a. One discretionary slice per quarter is now the intended granularity, not a smaller number spread across four.",
+    "mandatoryLoad": "School (morning + afternoon only) and sync training are standing options, on offer most days like anything else — choosing them still spends the quarter's slice, the same as any other pick. In practice they're the default most players take most days, which is what keeps a day feeling structured even though nothing forces the choice mechanically.",
     "designIntent": "More options exist than slices to spend them on — that gap is the entire engine of downtime play.",
+    "restIsAlwaysAvailable": "Even a player with nothing else planned, or one running high on fatigue (see fatigue below), can always spend a quarter's slice resting instead. Encouraged, not just permitted.",
     "options": [
       { "id": "sync-training", "name": "Sync Training", "effect": "Nudges baseline Resonance upward, slowly.", "cost": "1 slice" },
       { "id": "frame-modification", "name": "Frame Modification", "effect": "Customize loadout/tuning.", "cost": "1+ slices, from the shared technician-day pool" },
@@ -111,8 +113,16 @@
       { "id": "anchor-time", "name": "Anchor Time", "effect": "Scene with an Anchor — a chance to affirm it (or risk it).", "cost": "1 slice" },
       { "id": "investigation", "name": "Investigation", "effect": "Pull a thread.", "cost": "1+ slices, often spans several days" },
       { "id": "analysis-duty", "name": "Analysis Duty", "effect": "Read the sensor archive: reveals the current Contact Pool state, or pushes the floor back (delays the next possible Contact).", "cost": "1 slice" },
-      { "id": "rest", "name": "Rest", "effect": "Recover; protects against burnout at GM's discretion.", "cost": "1 slice" }
-    ]
+      { "id": "rest", "name": "Rest", "effect": "Recover — confirmed 2026-09-06 to be a category of several named rest activities, each with a different SF2E-relevant bonus (e.g. a quiet option weighted toward HP recovery, hospital care targeting HP and debuffs, a social outing for a different kind of bonus). The specific roster and numbers are not yet designed.", "cost": "1 slice", "openQuestionRef": "rest-activity-roster" }
+    ],
+    "fatigue": {
+      "description": "Working consecutive segments without resting triggers a check to see how tired the character is; the check gets harder each additional segment worked without a rest, and failing enough of them ends in involuntary unconsciousness and the loss of that segment's slot. Confirmed 2026-09-06 (design/ux-doctrine.md §3); grounded in but goes beyond PC2E's own flat \"fatigued at 16 hours\" rule (reference/srd/player-core/489-exploration-mode.json).",
+      "check": null,
+      "dcEscalation": null,
+      "failureConsequence": "unconscious; loses that segment's slot",
+      "resetBy": "likely resting, exact mechanism not yet decided alongside the rest-activity-roster question",
+      "openQuestionRef": "fatigue-escalation-formula"
+    }
   },
   "contactPool": {
     "activeFrom": "Day 7 (the opening arc, Days 1-6, is hand-placed and does not roll).",

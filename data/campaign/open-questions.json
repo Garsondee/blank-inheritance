@@ -72,6 +72,22 @@
       "status": "open",
       "resolution": null,
       "relatedRefs": ["campaign/ground-roles.json", "design/campaign-arc.md#non-pilot-students-avoiding-a-second-line-role"]
+    },
+    {
+      "id": "fatigue-escalation-formula",
+      "question": "Working consecutive time-of-day segments without resting is confirmed (2026-09-06) to trigger a check that gets harder each additional segment worked, ending in involuntary unconsciousness and the loss of that segment's slot. The structure is settled; the numbers are not — what check (Fortitude is the likely fit, not confirmed), what's the starting DC and the per-segment escalation, and does it reset fully on any rest or only on specific rest types?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/config.json#timeEconomy.fatigue", "design/ux-doctrine.md#downtime-is-the-segment-mechanic"],
+      "notes": "Closely linked to rest-activity-roster — the reset mechanism likely depends on which rest types end up designed."
+    },
+    {
+      "id": "rest-activity-roster",
+      "question": "Confirmed (2026-09-06) that resting is a real, encouraged, multi-typed choice with different SF2E-relevant bonuses per type — a quiet option weighted toward HP recovery, hospital care targeting HP and debuffs, a social outing (clubbing/karaoke) for a different kind of bonus, and more. The structure is settled; the actual roster of named rest activities and their specific mechanical bonuses is explicitly future collaborative design, not something to invent to look complete.",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/config.json#timeEconomy.options", "design/ux-doctrine.md#downtime-is-the-segment-mechanic"],
+      "notes": "Closely linked to fatigue-escalation-formula."
     }
   ]
 }
