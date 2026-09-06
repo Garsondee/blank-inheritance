@@ -1063,3 +1063,40 @@ test("our sidebar-gutter token still matches Foundry's own", (t) => {
   assert.match(bridge, /#sidebar-content\.expanded/, "the bridge no longer reacts to the sidebar being open");
   assert.match(bridge, /--bi-sidebar-gutter/, "the bridge no longer uses the mirrored gutter token");
 });
+
+test("our players-list gutter still matches Foundry's own #players-active width and #ui-left padding", (t) => {
+  // bi-foundry-bridge.css permanently reserves the bottom-left corner for
+  // Foundry's own roster + performance stats using two numbers mirrored from
+  // foundry2.css, since neither is exposed as a variable we could reference
+  // directly. A mirror nobody checks is just a number that used to be right.
+  if (!existsSync(foundryCss)) {
+    t.skip("foundryvtt/ not present locally (gitignored) — skipping loudly rather than passing.");
+    return;
+  }
+
+  const css = readFileSync(foundryCss, "utf8");
+
+  const playersWidth = css.match(/#players\s*#players-active[^}]*?\{[^}]*?width:\s*(\d+)px/s);
+  assert.ok(playersWidth, "#players #players-active no longer sets a plain width in px — re-derive the reserved gutter");
+
+  const uiLeftPadding = css.match(/#ui-left\s*\{[^}]*?padding:\s*(\d+)px/s);
+  assert.ok(uiLeftPadding, "#ui-left no longer sets a plain padding in px — re-derive the reserved gutter");
+
+  const tokens = readFileSync(path.join(stylesRoot, "bi-tokens.css"), "utf8");
+  const ourWidth = tokens.match(/--bi-players-width:\s*(\d+)px/);
+  const ourEdge = tokens.match(/--bi-players-edge:\s*(\d+)px/);
+  assert.ok(ourWidth, "bi-tokens.css no longer declares --bi-players-width");
+  assert.ok(ourEdge, "bi-tokens.css no longer declares --bi-players-edge");
+
+  assert.equal(
+    ourWidth[1], playersWidth[1],
+    `--bi-players-width is ${ourWidth[1]}px but #players-active is now ${playersWidth[1]}px wide.`
+  );
+  assert.equal(
+    ourEdge[1], uiLeftPadding[1],
+    `--bi-players-edge is ${ourEdge[1]}px but #ui-left's padding is now ${uiLeftPadding[1]}px.`
+  );
+
+  const bridge = readFileSync(BRIDGE, "utf8");
+  assert.match(bridge, /--bi-players-width/, "the bridge no longer reserves space using the mirrored player-list width");
+});

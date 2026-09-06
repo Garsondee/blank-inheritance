@@ -19,7 +19,7 @@
 
 import { SEATS } from "../core/console-model.mjs";
 import { buildCheckGroups, labelForSlug } from "../core/skills.mjs";
-import { enricherFor, rollParamsFromEvent } from "../core/roll-intent.mjs";
+import { CONSOLE_SHOWS_DIALOG_BY_DEFAULT, enricherFor, rollParamsFromEvent } from "../core/roll-intent.mjs";
 
 /**
  * The character this client rolls as.
@@ -109,7 +109,10 @@ export async function postInlineCheck({ slug, label = null }) {
 }
 
 /**
- * Roll one statistic, exactly as the sheet would.
+ * Roll one statistic through the sheet's own code path — with one
+ * deliberate difference from the sheet itself: see
+ * CONSOLE_SHOWS_DIALOG_BY_DEFAULT. A plain click never opens sf2e's roll
+ * dialog; shift does.
  *
  * Returns null rather than throwing when the slug does not resolve: a stale
  * button after a selection change is a nuisance, not an error worth breaking
@@ -131,9 +134,7 @@ export async function rollCheck({ actor, slug, event = null }) {
   }
 
   const params = rollParamsFromEvent(event, {
-    // Read the same way sf2e reads it, so the console and the sheet cannot
-    // disagree about whether a player wants roll dialogs.
-    showCheckDialogs: game.user?.settings?.showCheckDialogs ?? true,
+    showCheckDialogs: CONSOLE_SHOWS_DIALOG_BY_DEFAULT,
     isGM: game.user?.isGM ?? false
   });
 

@@ -213,6 +213,17 @@ body.bi-theme:has(#sidebar-content.expanded) .bi-bar {
   padding-right: calc(18px + (var(--sidebar-width) + var(--bi-sidebar-gutter)) * var(--ui-scale));
 }
 
+/* The bottom-left corner is never ours either -- and unlike the sidebar
+   there is no collapsed state to react to, so this is a PERMANENT
+   reservation rather than a :has()-driven one. FOUND LIVE 2026-09-07:
+   without it, our own left-track legend (CAST, for the Director) rendered
+   directly underneath Foundry's own roster panel -- #players-active's
+   background is semi-transparent (--color-cool-5-75), so the two didn't
+   simply stack, they blended into unreadable overlapping text. */
+body.bi-theme .bi-bar {
+  padding-left: calc(18px + (var(--bi-players-width) + var(--bi-players-edge)) * var(--ui-scale));
+}
+
 /* --- The player roster ---
    Default: restyle in place, so nothing disappears unexpectedly.
    Opt-in: body.bi-roster-in-bar hides it once the bar renders its own

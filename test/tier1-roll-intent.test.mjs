@@ -11,6 +11,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  CONSOLE_SHOWS_DIALOG_BY_DEFAULT,
   enricherFor,
   isRelevantEvent,
   rollParamsFromEvent
@@ -104,4 +105,24 @@ test("enricherFor refuses a slug that would break out of the enricher", () => {
 test("enricherFor refuses a non-integer DC rather than emitting nonsense", () => {
   assert.throws(() => enricherFor({ slug: "athletics", dc: "18" }), /whole number/);
   assert.throws(() => enricherFor({ slug: "athletics", dc: 18.5 }), /whole number/);
+});
+
+/* ---------------------------------------------------------------- */
+/*  The console's own dialog default                                 */
+/* ---------------------------------------------------------------- */
+
+test("the console defaults to NOT showing sf2e's roll dialog — the opposite of the sheet", () => {
+  // sf2e's own default is true (UserPF2e#prepareBaseData, tier3-roll-contract
+  // pins it). Found live 2026-09-07: that dialog is a real, un-owned popup
+  // that defaults to vertical-centering and can land on top of our fixed
+  // bottom bar, so a console whose entire point is one-click rolling should
+  // not force it open on every click. If this ever flips back to true,
+  // every plain click on the console reopens that dialog.
+  assert.equal(CONSOLE_SHOWS_DIALOG_BY_DEFAULT, false);
+});
+
+test("wired through rollParamsFromEvent: a plain console click skips the dialog, shift shows it", () => {
+  const opts = { showCheckDialogs: CONSOLE_SHOWS_DIALOG_BY_DEFAULT };
+  assert.deepEqual(rollParamsFromEvent(click(), opts), { skipDialog: true });
+  assert.deepEqual(rollParamsFromEvent(click({ shift: true }), opts), { skipDialog: false });
 });

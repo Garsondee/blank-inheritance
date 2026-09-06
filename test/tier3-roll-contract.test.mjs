@@ -22,6 +22,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { FALLBACK_SKILL_SLUGS, SAVE_SLUGS } from "../module/blank-inheritance/scripts/core/skills.mjs";
+import { CONSOLE_SHOWS_DIALOG_BY_DEFAULT } from "../module/blank-inheritance/scripts/core/roll-intent.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
@@ -124,4 +125,41 @@ test("the @Check enricher fallback path still exists", (t) => {
   // core/roll-intent.mjs's enricherFor is the documented escape hatch if the
   // direct call ever breaks; it is only an escape hatch while this is real.
   assert.match(bundle, /@Check\[|`Check`/, "the @Check enricher appears to be gone");
+});
+
+test("sf2e's own default for showCheckDialogs is still true, which is the entire justification for overriding it", (t) => {
+  const bundle = readBundle(t);
+  if (!bundle) return;
+
+  // CONSOLE_SHOWS_DIALOG_BY_DEFAULT is false SPECIFICALLY because sf2e's own
+  // default is true (verified live 2026-09-07: every plain click opened the
+  // roll-modifiers dialog, which defaults to vertical-centering and can
+  // overlap our fixed bottom bar). If sf2e ever flips its own default, our
+  // override stops being a deliberate divergence and starts being an
+  // undocumented one -- this is the tripwire for that.
+  assert.match(
+    bundle,
+    /showCheckDialogs:\s*!0/,
+    "UserPF2e#prepareBaseData no longer defaults showCheckDialogs to true — " +
+      "re-read whether CONSOLE_SHOWS_DIALOG_BY_DEFAULT should still be false"
+  );
+  assert.equal(
+    CONSOLE_SHOWS_DIALOG_BY_DEFAULT, false,
+    "the console's own default changed — update the doc comment that explains why it diverges from the sheet"
+  );
+});
+
+test("the roll-modifiers dialog is still an un-owned popOut Application, not something we could reposition ourselves", (t) => {
+  const bundle = readBundle(t);
+  if (!bundle) return;
+
+  // Confirms the actual mechanism the override protects against: this is a
+  // real Application window (z-index above our bar) with no fixed height, so
+  // Foundry's own centering math decides where it lands — we cannot move it,
+  // only avoid triggering it by default.
+  const start = bundle.indexOf("CheckModifiersDialog");
+  assert.notEqual(start, -1, "CheckModifiersDialog is gone — re-check what dialog a plain roll click opens now");
+  const block = bundle.slice(start, start + 900);
+  assert.match(block, /popOut:\s*!0/, "the dialog is no longer a popOut window");
+  assert.match(block, /height:\s*`auto`/, "the dialog no longer auto-sizes its height, which is what makes its landing spot unpredictable");
 });

@@ -22,6 +22,31 @@
 import { isSafeSlug } from "./skills.mjs";
 
 /**
+ * Whether a plain click on the CONSOLE shows sf2e's roll-modifiers dialog:
+ * no.
+ *
+ * The sheet's own default is the opposite — `UserPF2e#prepareBaseData` in
+ * `gamesystems/sf2e/sf2e.mjs` sets `showCheckDialogs: true` for every user,
+ * verified 2026-09-07 (test/tier3-roll-contract.test.mjs pins this). That
+ * dialog is a real, un-owned `Application` at `--z-index-window` (100) —
+ * comfortably above our bar — and it defaults to vertical-centering on the
+ * viewport (`application-v1.mjs`'s `setPosition`), which on anything but a
+ * tall window reaches down into our bar's fixed bottom band. Found live: a
+ * console whose entire purpose is one-click rolling should not force that
+ * dialog open on every single click regardless of where it lands, so the
+ * console feeds `rollParamsFromEvent` this constant instead of the user's
+ * real setting.
+ *
+ * Shift still reaches it. `rollParamsFromEvent` inverts around whatever
+ * "setting" it is given, so a plain click skips and shift shows — the exact
+ * mechanism the sheet uses, aimed at the opposite baseline. On the Director's
+ * bar shift already means "post this as an inline check for someone else to
+ * roll" (see foundry/director-bar.mjs), consumed before a roll ever reaches
+ * here, so the two meanings never collide.
+ */
+export const CONSOLE_SHOWS_DIALOG_BY_DEFAULT = false;
+
+/**
  * sf2e's own guard: a real user event carries all three modifier flags.
  * Anything else (a synthetic call, a keyboard shortcut, undefined) is treated
  * as "no modifiers held" rather than as an error.

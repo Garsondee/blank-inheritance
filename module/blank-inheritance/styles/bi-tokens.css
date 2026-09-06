@@ -264,6 +264,16 @@
      test/tier3-theme-contract.test.mjs checks the two still agree. */
   --bi-sidebar-gutter: 12px;
 
+  /* Foundry's own roster + performance stats (#players-active) sits
+     bottom-left, pinned there for as long as one user is connected --
+     which in practice means whenever this is worth looking at. Both
+     numbers are hardcoded in Foundry's OWN css (foundry2.css), not
+     exposed as variables we could reference the way --sidebar-width is,
+     so they are mirrored here instead. test/tier3-theme-contract checks
+     both against the real source. */
+  --bi-players-width: 200px;   /* #players-active { width: 200px } */
+  --bi-players-edge: 16px;     /* #ui-left { padding: 16px } */
+
   /* The checks pod is the one module that cannot be sized to a known number
      of keys: eighteen fixed skills, three saves, Perception, and however
      many Lores that particular character happens to have. Everything else
