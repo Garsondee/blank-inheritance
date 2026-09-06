@@ -12,6 +12,9 @@
     "resonance": {
       "type": "object",
       "properties": {
+        "bandDesignNote": { "type": "string" },
+        "actionEconomyRevisionNote": { "type": "string" },
+        "boundaryConvention": { "type": "string" },
         "range": {
           "type": "object",
           "properties": { "min": { "type": "number" }, "max": { "type": "number" } }
@@ -59,8 +62,15 @@
             "narrationRule": { "type": "string" }
           }
         },
-        "pilotVisibility": { "type": ["boolean", "null"] },
-        "openQuestionRef": { "type": "string" }
+        "pilotVisibility": {
+          "enum": ["hidden", "visible", "tested", null],
+          "description": "Resolved 2026-09-06 to \"tested\": a pilot buys the number with a discretionary slice rather than seeing it passively or never. \"hidden\" and \"visible\" are the two alternatives that were considered and rejected; null still means undecided."
+        },
+        "visibilityMechanism": { "type": "string" },
+        "openQuestionRef": {
+          "type": ["string", "null"],
+          "description": "Null once the question is resolved, per the project convention that a null ref means there is no open question rather than that one is missing."
+        }
       }
     },
     "anchors": {
@@ -164,6 +174,7 @@
     "contactPool": {
       "type": "object",
       "properties": {
+        "designIntent": { "type": "string" },
         "activeFrom": { "type": "string" },
         "floor": {
           "type": "object",
