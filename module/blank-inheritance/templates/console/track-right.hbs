@@ -7,6 +7,7 @@
     {{#each tracks.right.zones}}
     <section class="bi-pod" data-zone="{{this.id}}" data-partial="{{this.partial}}" {{#if this.hidden}}hidden{{/if}}>
         <h2 class="bi-legend">{{localize this.labelKey}}</h2>
+        {{#if this.template}}{{> (lookup this 'template')}}{{/if}}
     </section>
     {{/each}}
 </div>

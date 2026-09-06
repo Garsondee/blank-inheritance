@@ -755,6 +755,21 @@
    pointer-events:auto. Restore it explicitly. */
 .bi-bar__group[hidden] { display: none; }
 
+/* The checks zone carries every statistic the character actually has --
+   eighteen fixed skills plus however many lores -- so unlike a hand-picked
+   pod it cannot be sized to a known number of keys. .bi-bar .bi-pod sets
+   overflow:hidden to stop a module growing past the chassis; that is still
+   right, but here it would silently clip a lore off the bottom, so this
+   scrolls inside the pod instead. */
+.bi-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 /* Pods inside the chassis may not exceed its height, and may not be
    squashed below their content width either. FOUND LIVE: without flex:none
    the side clusters compressed a four-column key bank down to 77px and the

@@ -1,0 +1,26 @@
+{{!--
+    The checks zone: every roll this character can make, without opening a sheet.
+
+    Rendered as a partial INSIDE a .bi-pod, with the zone descriptor as its
+    context. One top-level element, same as every other template here.
+
+    Every key is a real statistic read off the live actor, including lores —
+    nothing in this file knows how many skills SF2E has, on purpose.
+--}}
+<div class="bi-checks">
+    {{#if groups.length}}
+    {{#each groups}}
+    <div class="bi-bank">
+        <div class="bi-bank__label">{{localize this.labelKey}}</div>
+        <div class="bi-keygrid bi-keygrid--{{this.columns}}">
+            {{#each this.entries}}
+            <button type="button" class="bi-key bi-key--sm" data-action="rollCheck" data-slug="{{this.slug}}"
+                title="{{this.label}}" aria-label="{{this.label}}">{{this.short}}</button>
+            {{/each}}
+        </div>
+    </div>
+    {{/each}}
+    {{else}}
+    <p class="bi-legend">{{localize "BLANKINHERITANCE.Console.Checks.NoCharacter"}}</p>
+    {{/if}}
+</div>

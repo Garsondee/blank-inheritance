@@ -6,9 +6,9 @@
   "description": "Blank Inheritance campaign data and Foundry VTT module — test suite. Not a published package.",
   "scripts": {
     "test": "node --test test/",
-    "test:fast": "node --test test/tier0-architecture.test.mjs test/tier1-generators.test.mjs test/tier1-redaction.test.mjs test/tier2-data-corpus.test.mjs test/tier3-contract.test.mjs test/tier3-theme-contract.test.mjs test/tier3-fonts.test.mjs test/tier4-mocked-adapter.test.mjs test/character-builder/ test/city-map-editor/ test/map-generator/ test/module-sync/",
-    "test:ui": "node --test test/tier0-architecture.test.mjs test/tier1-console-model.test.mjs test/tier1-redaction.test.mjs test/tier1-marker-layout.test.mjs test/tier1-notices.test.mjs test/tier1-phone.test.mjs test/tier1-session-clock.test.mjs test/tier1-director.test.mjs test/tier3-theme-contract.test.mjs test/tier3-fonts.test.mjs",
-    "test:module": "node --test test/tier1-generators.test.mjs test/tier2-data-corpus.test.mjs test/tier3-contract.test.mjs test/tier4-mocked-adapter.test.mjs",
+    "test:fast": "node --test test/tier0-architecture.test.mjs test/tier1-generators.test.mjs test/tier1-redaction.test.mjs test/tier2-data-corpus.test.mjs test/tier3-contract.test.mjs test/tier3-roll-contract.test.mjs test/tier3-theme-contract.test.mjs test/tier3-fonts.test.mjs test/tier4-mocked-adapter.test.mjs test/character-builder/ test/city-map-editor/ test/map-generator/ test/module-sync/",
+    "test:ui": "node --test test/tier0-architecture.test.mjs test/tier1-console-model.test.mjs test/tier1-skills.test.mjs test/tier1-roll-intent.test.mjs test/tier1-redaction.test.mjs test/tier1-marker-layout.test.mjs test/tier1-notices.test.mjs test/tier1-phone.test.mjs test/tier1-session-clock.test.mjs test/tier1-director.test.mjs test/tier3-theme-contract.test.mjs test/tier3-fonts.test.mjs",
+    "test:module": "node --test test/tier3-roll-contract.test.mjs test/tier1-generators.test.mjs test/tier2-data-corpus.test.mjs test/tier3-contract.test.mjs test/tier4-mocked-adapter.test.mjs",
     "test:battle-sim": "node --test test/battle-simulator/",
     "test:character-builder": "node --test test/character-builder/",
     "test:map-generator": "node --test test/map-generator/",

@@ -247,3 +247,82 @@ test("the bridge still positions the element the command bar mounts as", () => {
     "a shed .bi-bar__group would stay visible: display:flex overrides [hidden]."
   );
 });
+
+test("only foundry/rolls.mjs may reach into the sf2e system namespace", () => {
+  // `game.pf2e` (yes, pf2e, even in sf2e) is a third-party bundle's own
+  // namespace: undeclared, untyped, and free to move between versions. It is
+  // survivable as long as every use of it sits in one file that a single
+  // contract test can guard. Spread across the module it becomes unauditable.
+  const allowed = path.join(scriptsRoot, "foundry", "rolls.mjs");
+  const files = [...walk(scriptsRoot)];
+
+  for (const file of files) {
+    if (file === allowed) continue;
+    const code = stripCommentsAndStrings(readFileSync(file, "utf8"));
+    assert.equal(
+      /\bgame\s*\.\s*pf2e\b/.test(code),
+      false,
+      `${path.relative(repoRoot, file)} reaches into game.pf2e. Route it through ` +
+        `scripts/foundry/rolls.mjs instead, which is the one file allowed to know that namespace exists.`
+    );
+  }
+});
+
+test("core/ never imports from foundry/", () => {
+  // The purity lint above catches globals, but not an import that would drag
+  // them in transitively — core/console-model.mjs importing foundry/rolls.mjs
+  // would pass the global scan and still break plain-Node execution.
+  for (const file of walk(coreRoot)) {
+    const code = readFileSync(file, "utf8");
+    const imports = [...code.matchAll(/from\s+["']([^"']+)["']/g)].map((m) => m[1]);
+    for (const specifier of imports) {
+      assert.equal(
+        specifier.includes("/foundry/") || specifier.startsWith("../foundry/"),
+        false,
+        `${path.relative(repoRoot, file)} imports "${specifier}" from the adapter layer. ` +
+          `scripts/core/ must run in plain Node (design/testing-strategy.md §1).`
+      );
+    }
+  }
+});
+
+test("every localisation key the module references actually exists", () => {
+  // Found the hard way: a patch guard matched the pre-existing zone label
+  // "Checks" and silently skipped adding the Console.Checks GROUP, so four
+  // legends would have rendered as raw dotted keys on screen. Nothing failed —
+  // game.i18n.localize returns the key unchanged when it misses, which is the
+  // most polite possible way to ship a broken label.
+  const lang = JSON.parse(readFileSync(path.join(moduleRoot, "lang", "en.json"), "utf8"));
+
+  const resolve = (key) => key.split(".").reduce((node, part) => (node == null ? node : node[part]), lang);
+
+  const sources = [...walk(scriptsRoot)];
+  const templatesRoot = path.join(moduleRoot, "templates");
+  const collect = (dir) => {
+    for (const entry of readdirSync(dir)) {
+      const full = path.join(dir, entry);
+      if (statSync(full).isDirectory()) collect(full);
+      else if (entry.endsWith(".hbs")) sources.push(full);
+    }
+  };
+  collect(templatesRoot);
+
+  let checked = 0;
+  for (const file of sources) {
+    const text = readFileSync(file, "utf8");
+    for (const match of text.matchAll(/BLANKINHERITANCE(?:\.[A-Za-z0-9_]+)+/g)) {
+      const key = match[0];
+      const value = resolve(key);
+      assert.equal(
+        typeof value,
+        "string",
+        `${path.relative(repoRoot, file)} references "${key}", which is ` +
+          `${value === undefined ? "not in" : "not a string in"} lang/en.json. ` +
+          `game.i18n.localize would render the raw key on screen rather than failing.`
+      );
+      checked += 1;
+    }
+  }
+
+  assert.ok(checked > 0, "expected at least one localisation key reference across scripts/ and templates/");
+});

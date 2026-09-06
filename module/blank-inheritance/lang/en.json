@@ -21,6 +21,12 @@
       "NotGM": "Only a GM can run the Blank Inheritance content sync."
     },
     "Console": {
+      "Checks": {
+        "Skills": "Skills",
+        "Defences": "Defences",
+        "NoCharacter": "No character is assigned to you yet.",
+        "UnknownStatistic": "This character has nothing called \"{slug}\" to roll."
+      },
       "Zone": {
         "Ident": "Ident",
         "Dome": "Day",

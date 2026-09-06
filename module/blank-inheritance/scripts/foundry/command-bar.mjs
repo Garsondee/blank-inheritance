@@ -18,6 +18,20 @@ const MODULE_ID = "blank-inheritance";
 const TEMPLATE_ROOT = `modules/${MODULE_ID}/templates/console`;
 
 /**
+ * The content partial for each zone that HAS one yet.
+ *
+ * Keyed by the content-variant name core/console-model.mjs resolves, and
+ * deliberately sparse: a zone whose stage has not been built is absent here
+ * and renders as the labelled shell instead. Adding a key is how a stage
+ * lands. Every value is preloaded through PARTS[].templates below, which is
+ * what registers it as a Handlebars partial (loadTemplates keys partials by
+ * full path, so the lookup in the track templates uses the path verbatim).
+ */
+const ZONE_PARTIALS = Object.freeze({
+  skills: `${TEMPLATE_ROOT}/zone-checks.hbs`
+});
+
+/**
  * Which mode the live world is in.
  *
  * The scale flag is read off the viewed scene rather than the active one, so
@@ -71,9 +85,9 @@ export class CommandBar extends HandlebarsApplicationMixin(ApplicationV2) {
    * rendering glitch and is really an architecture mistake.
    */
   static PARTS = {
-    left: { template: `${TEMPLATE_ROOT}/track-left.hbs` },
-    instrument: { template: `${TEMPLATE_ROOT}/instrument.hbs` },
-    right: { template: `${TEMPLATE_ROOT}/track-right.hbs` }
+    left: { template: `${TEMPLATE_ROOT}/track-left.hbs`, templates: Object.values(ZONE_PARTIALS) },
+    instrument: { template: `${TEMPLATE_ROOT}/instrument.hbs`, templates: Object.values(ZONE_PARTIALS) },
+    right: { template: `${TEMPLATE_ROOT}/track-right.hbs`, templates: Object.values(ZONE_PARTIALS) }
   };
 
   /**
@@ -96,8 +110,21 @@ export class CommandBar extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /** @override */
   async _prepareContext() {
-    return consoleLayout(currentMode(), this.constructor.SEAT);
+    const layout = consoleLayout(currentMode(), this.constructor.SEAT);
+    for (const track of Object.values(layout.tracks)) {
+      for (const zone of track.zones) {
+        zone.template = ZONE_PARTIALS[zone.partial] ?? null;
+        this._decorateZone(zone, layout);
+      }
+    }
+    return layout;
   }
+
+  /**
+   * Hook for a seat to attach a zone's own data. Base does nothing: the
+   * chassis knows where zones go, never what is in them.
+   */
+  _decorateZone(_zone, _layout) {}
 }
 
 /* ---------------------------------------------------------------------- */
