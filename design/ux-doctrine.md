@@ -122,9 +122,10 @@ interface, not by their own attention.
 It is untyped, so it stacks with everything else, including range penalties
 (`reference/srd/player-core/326-checks.json`, p. 392).
 
-*Obligation:* this is the highest-value automation available anywhere in the system. It is
-mechanical, it is certain, it changes mid-turn, and it is the single most common arithmetic error
-at real tables. The interface must never show one Strike button and expect a human to subtract.
+*Obligation:* the interface must never show one Strike button and expect a human to subtract. This
+is mechanical, certain, changes mid-turn, and is the single most common arithmetic error at real
+tables. **The sf2e system already computes it** as real strike variants (§11), so the obligation on
+us is to give those variants a large, fixed home — presentation, not computation.
 
 ### Off-guard is −2 and is everywhere
 
@@ -274,6 +275,12 @@ This is the most important structural claim in this document.
 | Core question | *what may I do?* | *what happens next?* |
 | Most repeated act | spend an action | apply damage to a thing |
 | Failure mode | can't find my own button | lost track of who's hurt |
+
+**There are exactly two shapes, and there will not be a third.** Confirmed 2026-09-06: *"There are
+only two shapes, player and GM."* Ground crew are players in a different seat, not a third kind of
+user — the same person may be in a Frame one scene and on the ground the next, and that is a
+costume change (§7b), not a different console. This closes the door on a third shape being built
+from either of these two.
 
 **A GM console must never be built as a player console with more buttons.** The GM's problem is
 breadth: six PCs plus three to eight adversaries is up to fourteen things with HP and conditions.
@@ -433,6 +440,49 @@ dealing with**: your target in a fight, the scene in exploration, the active com
 That is a single rule producing a mode-appropriate answer every time, and it puts the highest-value
 information in the highest-value real estate.
 
+### 7a. The day ring
+
+Requested 2026-09-06: *"I like the big circular display, we should put a ring divided into four
+sections around this circle which tracks the current time of day, day's being split into four
+sections, morning, noon, evening, night."*
+
+The dome gets a **ring divided into four quarters — morning, noon, evening, night — with the
+current quarter lit.** It is a good fit for more than decoration, because two of the campaign's own
+systems are already keyed to the day rather than the hour:
+
+- The **Time Economy** gives two discretionary slices per day against a day mostly eaten by
+  mandatory school and sync training. Four quarters is exactly the frame that makes that visible:
+  the committed quarters and the two that are yours can be seen at a glance instead of tracked on
+  paper. This turns a resource that currently lives in a config file into something a player can
+  *look at* while deciding.
+- The **Contact Pool** rolls on quiet *mornings*, with Contact forced from the eighth. A ring that
+  knows what quarter it is knows when that roll is due.
+
+**Two clocks, and they must never be confused.** The ring is the *fiction's* time of day. The
+session bar along the top is the *table's* real elapsed evening (§10, and already built). They are
+deliberately different instruments in different places: one wraps the dome and moves in four steps,
+the other is a thin horizontal bar and moves continuously. Anything that would let them be read as
+the same clock is a bug.
+
+### 7b. Scale is a costume change, not a data filter
+
+Also settled 2026-09-06: *"We might change the UI quite a bit between personnel scale scenes and
+frame scale scenes, that would be a lot of fun."*
+
+Take that literally. Scale is the one swap allowed to change how the console *looks*, not just what
+it holds — because the fiction says you are sitting in a different machine, and the interface
+agreeing with that is free characterisation. A Frame's console should feel heavier, denser and more
+industrial; personnel scale lighter, sparser and more mobile.
+
+What changes: palette weight, chrome, density, the action vocabulary, what the dome frames, and how
+the board groups. What does **not** change: the zones themselves. Muscle memory is the whole reason
+zones are stable, and a costume change that moved the action tray would cost more than it earns.
+
+This also gives Law 8 its natural home. The two scales must never share a readout, and the cleanest
+way to guarantee that is for them to never be on screen together in the first place — the console is
+in one costume or the other. The transition between them is a moment worth spending something on;
+Foundry ships thirteen `canvas.transition` effects that cost nothing to use.
+
 ---
 
 ## 8. The laws
@@ -467,9 +517,14 @@ Numbered so they can be cited in review. These are meant to settle arguments.
     ambient. An interface that shouts constantly is one nobody reads.
 15. **Recording is a side effect of doing, never a separate task.** If capturing the session is its
     own job, it will not get done, because the GM is the busiest person at the table. See §10.
-16. **The console's confidence is visible in how loudly it acts.** Silent when the answer is
-    certain, a confirm when the consequence is real, a suggestion when it needs judgment. Automation
-    that is sometimes wrong is worse than none, because then everything has to be checked.
+16. **Automate hardest the rules we invented ourselves.** A published rule has a rulebook, a page
+    number, and a game system that already implements it. Ours has none of those, so for homebrew
+    the software is the reference implementation, not a convenience over one. See §10.4.
+17. **Confirm anything the players will see.** Not because the console is unsure, but because the
+    table cannot un-see it. Activating a scene, revealing a document, pushing a check.
+18. **Never recompute what sf2e already computes.** Multiple attack penalty, persistent damage,
+    conditions, flanking, off-guard, degree of success and initiative are all in the shipped system.
+    Our job for those is presentation. A proposal to recompute one is a bug in the proposal. See §11.
 
 ---
 
@@ -512,8 +567,14 @@ Applying Law 13 to what exists today. This is a proposal, not a change already m
 
 ### Add
 
-- Per-MAP Strike buttons — the highest-value single change available.
+- Per-MAP Strike buttons — **surfaced from sf2e's own strike variants, not computed here.** An
+  earlier draft of this document called computing them "the highest-value single change available."
+  That was wrong, and checking the shipped system rather than assuming is what caught it: sf2e
+  already builds MAP-adjusted strike variants natively (§11). The value was never in the
+  arithmetic; it is in giving those variants a large, fixed, unmissable home, which the current
+  three-key row does not.
 - On-deck indicator.
+- The **day ring** around the dome — four quarters, current one lit (§7a).
 - Start-of-turn and end-of-turn checklist prompts, especially persistent damage.
 - A clock component.
 - The GM's combatant board.
@@ -577,6 +638,30 @@ one system with one destination**, which is the thing none of them says on its o
 the GM believed it meant. When writing from this corpus, a disagreement between them is
 information, not an error to reconcile.
 
+**The mechanical track carries a confidence marker, because it will not always be certain.** Rolls
+go through Foundry and are read back out of its chat log, per the user's answer on 2026-09-06: *"If
+there is a roll, it goes via the Foundry VTT system... If the roll isn't associated with anything
+then we just have to guess, if it's surrounded by other people rolling a skill challenge we can
+guess. I'll try and fill in the blanks."* So an entry originating from an issued check is certain —
+we know who, what skill, against what DC, to what degree, and why. A bare roll typed into chat is
+not; we know only who and what number. Between those sits a real middle case worth building for:
+**rolls clustered in time during a single challenge can be attributed by proximity**, at reduced
+confidence. The end-of-session review surfaces whatever is still unattributed, in a short list, for
+the GM to fill in. Confidence is recorded rather than smoothed over, because a guess presented as a
+fact is exactly the kind of thing that later gets cited as though it were observed.
+
+**On the player journals, settled 2026-09-06: the players are not told.** The user's reasoning is
+that the campaign's premise is surveillance and the players do not yet know it, so disclosure would
+spoil the thing the campaign is about. The stated mitigation is that no real personal data goes in:
+*"None of them will be using this interface to store real personal data and I'll warn them not to do
+that."* Two things follow for the design rather than for the ethics, which are the user's call and
+have been made. First, **that warning is a precondition of the feature, not an afterthought** — the
+journal should not ship before it is given. Second, the interface should reinforce it by framing
+the journal unmistakably in-fiction, as a character's file rather than a personal notes app, since
+a field that looks like a diary invites diary content. There is also a pleasing alignment worth
+noticing: in a campaign about an organisation that reads your file, a tool that quietly reads your
+file is thematically correct.
+
 ### 10.3 The log bar
 
 This is the heart of it, and the brief was explicit:
@@ -621,45 +706,67 @@ untagged sentences is still a good record — I can infer the structure afterwar
 to make the GM faster, not to make the record parseable.** If they ever feel like a form, they have
 failed and should be removed.
 
-Two access paths, because "instantly accessible" is the requirement and the console will not always
-be the focused window:
+**One surface, deliberately not Foundry's chat**, settled 2026-09-06:
 
-1. The persistent bar in the Director's console.
-2. A Foundry chat command, so the same entry can be typed into the chat box the GM already has
-   open and already has muscle memory for.
+> "I'd rather have a separate interface to the chat log just so that I'm always 100% sure of what
+> I'm doing and we can customise this chatlog to do clever things which is easier if we make a
+> separate section."
 
-### 10.4 What automates, and how loudly
+Both halves of that are right, and the first is a safety argument worth stating plainly: a GM
+typing private notes into the same box that broadcasts to the table will eventually send a secret
+to the table. A separate, visually distinct, GM-only field makes that **impossible by construction**
+rather than a thing to be careful about — the same reasoning that makes the whole console GM-only
+in §10.5. The second half buys the freedom for entries to be typed, linked, and mechanically live,
+which a chat command could never do cleanly.
 
-The brief asked for automation of "things which might be tiresome or things that can be **easily
-and reliably** automated." That qualifier is the whole design. Automation that is sometimes wrong
-is worse than none, because the GM then has to check it, which costs more than doing it.
+An earlier draft of this section proposed a Foundry chat command as a second access path. It is
+withdrawn for the reason above.
 
-So automation is sorted by certainty, and **the console's confidence is visible in how loudly it
-acts**:
+### 10.4 What automates
 
-**Tier A — deterministic, no judgment. Acts silently.**
-Multiple attack penalty. Condition value decrements and duration countdowns at end of turn.
-Persistent damage and its flat check. Recovery checks while dying. Initiative order and the on-deck
-signal. Hit point arithmetic including hardness, resistance and weakness. Resonance band resolving
-to actions, reaction and ability tier. Damage state resolving to an action cap. Contact Pool target
-for a given quiet morning. DC by level and simple DC. Technician-day arithmetic. Encounter XP
-budget. Internal-power duration. Ground-role rotation eligibility, which `ground-roles.json`
-already states as a rule ("nobody should play the same one twice in a row") and which is therefore
-something the console can simply offer correctly rather than the GM tracking.
+The policy is the user's, given 2026-09-06, and it is more decisive than the certainty-based model
+an earlier draft of this section proposed:
 
-**Tier B — deterministic but consequential. Acts on a confirm, showing its arithmetic.**
-Applying damage to a creature. Death, dying and unconscious transitions. Advancing the Contact Pool
-by a day. Berserk triggering at Bleed 10. And critically, **anything that changes what the players
-see** — `Scene#activate()` pulls every connected client, so it is never silent.
+> "We automate everything that would make the GMs life easier, we automate **anything which we make
+> the rules up for**, and we generally automate things which aren't in any way linked to artistic
+> choice. I'm a big fan of automation in TTRPG games."
 
-**Tier C — needs judgment. Suggests, never acts.**
-Whether a check is warranted at all. Any ad-hoc DC, where the console offers the table value and
-the GM overrides freely. Whether an Anchor was affirmed or violated. Whether a player is
-Suppressing, which requires reading intent and is explicitly a judgment about a person. Casualty
-outcomes. Every pacing decision.
+The middle clause is the sharp one, and it is the right instinct for a reason worth spelling out.
+**A published rule has a rulebook, a page number, and a game system that already implements it. A
+rule we invented has none of those.** For homebrew, the software is not a convenience layer over an
+existing reference — it *is* the reference implementation. An un-automated homebrew rule is one the
+GM has to remember, explain, and adjudicate consistently across months of play, which is how
+homebrew quietly dies at real tables. So the campaign's own inventions get automated hardest, not
+last.
 
-The line between B and C is the line between arithmetic and meaning, and it should be visible in
-the interface, not just in this document.
+That produces three bands, and it happens to line up with what is and is not already built (§11):
+
+**Automate hard, because we invented it and nothing else will.**
+Resonance band resolving to action count, reaction availability, ability tier and internal-power
+duration. Damage state resolving to an action cap. Contact Pool target by quiet morning, and the
+forced-Contact ceiling. Bleed, including berserk firing at 10 with its rolled duration. Frame
+damage-state track and the shared technician-day pool. Time Economy slices. Scale disparity and
+Marked, both of which decide whether a creature is a legal target at all. Every clock. Ground-role
+rotation eligibility, which `ground-roles.json` already states as a rule ("nobody should play the
+same one twice in a row") and which is therefore bookkeeping the console can simply own.
+
+**Automate by delegation, because sf2e already does it.**
+Multiple attack penalty, persistent damage and its flat check, condition values and their
+decrements, off-guard, flanking, degree of success, initiative, hit point arithmetic. All verified
+present in the shipped system (§11). Our job here is *presentation*, never computation — and any
+proposal to recompute one of these is a bug in the proposal.
+
+**Never automate, because it is an artistic choice.**
+Whether a check is warranted at all. Whether an Anchor was affirmed or violated. Whether a player
+is Suppressing, which is a judgment about a person's intent rather than about a number. Casualty
+outcomes as narrative. Every pacing decision. The console may *offer* here — an ad-hoc DC gets the
+table value pre-filled and freely overridden — but it never decides.
+
+**One thing still gets a confirm rather than silence: anything the players will see.**
+`Scene#activate()` pulls every connected client's view. Revealing a document, issuing a check, and
+pushing a handout are all irreversible in the only way that matters, which is that the table has
+already seen it. Loudness here is not about the console's confidence in the arithmetic; it is about
+the action reaching people.
 
 **Proactivity is bounded by the user's answer: silent during a scene, offers at scene breaks.**
 What it offers at a break: an Anchor untouched for several scenes, a `setup` nobody has taken,
@@ -790,47 +897,122 @@ was waiting on. The status is left for the user to set rather than flipped here.
 
 ---
 
-## 11. Open questions — the user's calls, not mine
+## 11. What Foundry and sf2e already do
 
-**Settled 2026-09-06:** the Director's console is full-screen and GM-only, relying on Foundry's own
-per-user rendering; narration is one always-available chat box that stamps its own context; entries
-are typed one-liners with tags as an optional accelerator; and the console stays silent during a
-scene, offering what it noticed at scene breaks. Those four are recorded in §10 and are closed.
+Settled 2026-09-06, and it governs everything above:
 
-Still genuinely open:
+> "This module will just interface with Foundry VTT. The more things we do via Foundry VTT and SF2E
+> the less we have to worry about ourselves. What we are building here is just the prototype, a
+> quick way to see what the experience would feel like for players and GM, before we build the
+> working version in Foundry."
 
-1. **How much automation is wanted?** §10.4 sorts automation by certainty, but the underlying
-   question survives: does the console *roll*, or only display correct numbers while humans roll?
-   The mechanical log is far richer if rolls flow through the system, which argues one way; the
-   pleasure of rolling your own dice argues the other. A middle path exists, and it is probably the
-   answer — the GM issues checks as `@Check` buttons, players click them, and the chat log is
-   scraped, which captures everything without taking anyone's dice away.
-2. **Does a raw roll count?** If a player types a plain roll command instead of clicking an issued
-   check, the log gets a number with no context. Chase those, ignore them, or ask the GM to
-   attribute them at the next scene break?
-3. **Do the players know their journals are read?** The corpus in §10.2 includes private player
-   journals, ingested to help write future episodes. That is a social question rather than a
-   technical one and should be answered deliberately, not by default. It runs from telling them
-   plainly, through per-player opt-in, to only ingesting entries a player marks as shareable.
-4. **Does the log bar replace Foundry's chat or sit beside it?** §10.3 proposes both a dedicated bar
-   and a chat command. If the chat command alone is enough, the bar is redundant and the screen gets
-   simpler.
-5. **Does the ground crew get a console of their own?** The five Ground Roles have real agency but
-   no combat vocabulary. Their interface is closer to a Director's board than to a pilot's sheet,
-   which would make it a *third* shape.
-6. **Is Bleed player-visible?** Still `pilotVisibility: null` in config, still an open question,
-   and it decides whether Bleed appears on the pilot's own permissions plate or only on the
-   Director's board.
-7. **One console for kid and Frame, or two?** Law 8 says never mix the scales in one readout. §10.6
-   answers it for the Director's board, by grouping rows by scale under a single initiative order.
-   It does not settle the player side.
-8. **How much of this belongs in Foundry's own UI versus ours?** Some of these obligations —
-   initiative, damage application, chat — are things Foundry and the sf2e system already do.
-   Replacing working machinery has a cost, and this document deliberately does not assume we should.
+### The prototype is for feel, not for function
+
+`design/ui/` is a **feel prototype**. It exists to answer "is this the right experience" before
+anyone builds the real thing inside Foundry. That changes how it should be judged: the question is
+whether it conveys the experience, never whether it is production-ready. It is allowed to fake
+anything, and faking is cheaper than the real integration by a wide margin.
+
+It also means the prototype should not grow a second implementation of anything Foundry owns. When
+in doubt, mock it convincingly and move on.
+
+### What the shipped system already provides
+
+Checked directly against the local `gamesystems/sf2e/` tree rather than assumed. All of the
+following are present in the shipped bundle:
+
+| Already implemented | Evidence |
+|---|---|
+| **Multiple attack penalty**, as real strike variants | `attackNumber` → `mapIncreases`, and `map:increases:N` roll options |
+| **Persistent damage** | ~423 references, by far the densest of these |
+| **Off-guard** and **flanking** | ~151 and ~43 references; flanking is detected, not hand-flagged |
+| **Conditions**, including valued ones | a `ConditionManager`, plus named conditions such as frightened |
+| **Degree of success** | ~43 references |
+| **Initiative and combatants** | ~200 and ~88 references |
+| **Flat checks** | ~15 references |
+
+Those are grep counts against a bundled file, so they are evidence of presence rather than a map of
+the API. That is enough for the decision they inform, which is *do not rebuild this*.
+
+And from Foundry itself, all previously verified in `design/foundry-module-design.md`: the
+`@Check[skill|dc:N]` inline enricher (confirmed against 1,586 real uses in the shipped compendia),
+`Scene#activate()` and `pullUsers()`, thirteen native `canvas.transition` effects, native
+Scene-to-Playlist binding, per-user document permissions, and a `storage/` directory that survives
+module updates.
+
+**Almost everything this document asks for on the RAW side already exists.** The player console's
+job for those is to give them a better home, not a second implementation. That is Law 18, and §10.4
+sorts automation accordingly.
+
+### What only we can build
+
+Everything the campaign invented, because nothing else will ever implement it: Resonance bands and
+their action/reaction/ability consequences, Bleed and berserk, the Frame damage-state track and its
+action caps, the shared technician-day pool, the Contact Pool, False Contact types, Ground Roles
+and their rotation, scale disparity and Marked, clocks in place of unrollable saves, the Time
+Economy and the day ring, Anchors, and the whole Director's corpus in §10.
+
+Plus the look, which is `design/visual-identity.md`'s job and is not a thing any system ships.
+
+That is a short list against a long one, and it is the correct division. It is also why §10.4
+automates the homebrew hardest: it is the only part where we are the reference implementation.
 
 ---
 
-## 12. How to use this document
+## 12. Open questions — the user's calls, not mine
+
+**All twelve questions this document has raised are now answered.** They are recorded in the
+sections they govern; this is the index, so that nothing gets silently re-litigated.
+
+| # | Question | Answer | Where |
+|---|---|---|---|
+| 1 | Full-screen or docked? | Full screen, GM-only, using Foundry's per-user rendering | §10.5 |
+| 2 | When is narration captured? | One always-available box; type and press enter | §10.3 |
+| 3 | What shape is narration? | Typed one-liners, tags optional, never a form | §10.3 |
+| 4 | How proactive? | Silent during a scene, offers at scene breaks | §10.4 |
+| 5 | How much automation? | Everything not an artistic choice; homebrew hardest | §10.4 |
+| 6 | Does the console roll? | No. Rolls go through Foundry and are read back out | §10.2 |
+| 7 | Do raw rolls count? | Best-effort attribution by proximity; GM fills the blanks | §10.2 |
+| 8 | Are players told journals are read? | No — the premise is surveillance and they do not know it | §10.2 |
+| 9 | Log bar or Foundry chat? | A separate GM-only surface, so a secret cannot be broadcast | §10.3 |
+| 10 | Does ground crew get a third shape? | No. Two shapes only, player and GM | §4, Law 10 |
+| 11 | Is Bleed player-visible? | Not initially — build visibility as a switch, not an assumption | below |
+| 12 | One console across scales, or two? | One, but scale is a visible costume change | §7b |
+
+Three of those carry a consequence worth stating on its own:
+
+- **Bleed is "not visible to players *initially*."** That word is doing work. Build per-datum
+  visibility as a **switch**, so that changing the answer later is a configuration change rather
+  than a rewrite. The same applies to anything else currently GM-only; `pilotVisibility: null` in
+  `config.json` remains an open *campaign* question even though the UI question is answered.
+- **Kids and Frames are interchangeable seats, not different characters.** *"Sometimes people will
+  be in frames, sometimes not... the goal is to make both options attractive for different
+  reasons. Frames are stronger but slower and vehicles are extremely fast but fragile and
+  vulnerable."* That makes the choice itself a UI moment: at the point of choosing a seat, the
+  console must make the trade legible — durability and force against speed and fragility — or the
+  choice collapses into "take the Frame, it is better." Making both attractive is partly a balance
+  problem and partly a presentation one, and the presentation half is this document's.
+- **Two shapes, permanently.** Player and GM. Ground crew are players in a different seat, not a
+  third kind of user. Law 10 says neither console is built from the other; this closes the door on
+  a third being built from either.
+
+### What is still genuinely undecided
+
+Not questions I am holding, but things nobody has had to answer yet:
+
+1. **What a scene-break suggestion actually looks like.** §10.4 says the console offers what it
+   noticed at scene boundaries. Whether that is a quiet list, a card, or something the GM steps
+   through has not been designed and probably should not be until one is running.
+2. **How much the two scale costumes differ.** §7b commits to a visible change and to keeping the
+   zones fixed. Everything between "a palette shift" and "a different chassis entirely" is open,
+   and this is a case where building one and looking at it beats specifying it.
+3. **Where the day ring's quarters come from.** §7a assumes four equal quarters. Whether the
+   Time Economy's two discretionary slices map onto specific quarters, or float, is a campaign
+   question that the ring will make visible either way.
+
+---
+
+## 13. How to use this document
 
 - Before adding anything to the chassis, check it against **Law 13**. Most things belong in the
   terminal.
