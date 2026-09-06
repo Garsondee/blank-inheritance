@@ -22,7 +22,7 @@
         "rangeLabel": "40-65%",
         "min": 40,
         "max": 64,
-        "actionsPerTurn": 2,
+        "actionsPerTurn": 3,
         "reaction": true,
         "abilitiesAvailable": "+ Attuned",
         "internalPowerDuration": "6 rounds"
@@ -51,7 +51,8 @@
         "internalPowerDuration": "10 rounds"
       }
     ],
-    "bandDesignNote": "Sort each Frame's class abilities into these four bands at chargen. A Dead Weight Frame should still be competent — a big, dangerous, slow thing, not a joke. Most of the campaign is played at 2 actions; reaching Harmonised for the first time, mid-fight, should be a table moment. Duration is the pacing tool: once internal power runs out, the Frame is dead weight until reconnected. Ground crew's Umbilical Control role buys more of it.",
+    "bandDesignNote": "Sort each Frame's class abilities into these four bands at chargen. A Dead Weight Frame should still be competent — a big, dangerous, slow thing, not a joke. Duration is the pacing tool: once internal power runs out, the Frame is dead weight until reconnected. Ground crew's Umbilical Control role buys more of it.",
+    "actionEconomyRevisionNote": "Nominal was 2 actions until 2026-09-06, and the design bible's line that 'most of the campaign is played at 2 actions' described that. Changed to 3, deliberately: SF2E is architecturally a three-action system — two-action activities consume a whole turn, its signature turn shapes need three, and the multiple attack penalty is built around a third attack being possible-but-unwise — so a 2-action baseline plays a degraded version of the system rather than a tense one. 3 actions is now the norm from Nominal upward. 2 actions is a PENALTY state with exactly two causes: Dead Weight sync (below 40%), and Frame damage (see frameEconomy / scale-and-chassis.md §8, where Degraded caps at 2 and Critical at 1 regardless of band). Analysis: design/resonance-and-bleed.md §2; the band spread across normal operating range drops from 3.3x to 2.2x as a result, while Dead Weight stays a genuine outlier at 5.7x below Absolute, which is correct for a failure state.",
     "boundaryConvention": "The design bible prints adjacent bands sharing a boundary digit (e.g. \"40-65%\" then \"65-85%\"). This file resolves that the standard way — bands are contiguous and non-overlapping (65% = Harmonised, not Nominal). Revisit if that's not the intent.",
     "pushMechanic": {
       "description": "A pilot may raise Resonance mid-scene by accepting Bleed.",
@@ -73,8 +74,9 @@
       "effect": "Damage output roughly doubles; targeting stops discriminating between friend, foe, and terrain.",
       "narrationRule": "Do not narrate this from the cockpit — the player doesn't get to watch it happen to them."
     },
-    "pilotVisibility": null,
-    "openQuestionRef": "bleed-visibility"
+    "pilotVisibility": "tested",
+    "visibilityMechanism": "Resolved 2026-09-06. A pilot does not passively see their Bleed total, and it is not permanently hidden either — it is TESTED. Spending a discretionary slice on a harmonics/medical evaluation reveals the current value, and the same evaluation can also improve it (see timeEconomy.options#harmonics-evaluation). This makes tactical certainty a purchase in personal time, exactly the pattern contactPool.analysisDutyInteraction already establishes for the Contact Pool: 'tactical certainty is purchased with personal time — the same currency as everything else in this game.' It also fixes the real problem with hiding it outright, which is that Pushing is a trade and a trade with one side of the ledger concealed is a gamble rather than a decision (design/resonance-and-bleed.md §3).",
+    "openQuestionRef": null
   },
   "anchors": {
     "countPerKid": { "min": 2, "max": 3 },
@@ -113,7 +115,8 @@
       { "id": "anchor-time", "name": "Anchor Time", "effect": "Scene with an Anchor — a chance to affirm it (or risk it).", "cost": "1 slice" },
       { "id": "investigation", "name": "Investigation", "effect": "Pull a thread.", "cost": "1+ slices, often spans several days" },
       { "id": "analysis-duty", "name": "Analysis Duty", "effect": "Read the sensor archive: reveals the current Contact Pool state, or pushes the floor back (delays the next possible Contact).", "cost": "1 slice" },
-      { "id": "rest", "name": "Rest", "effect": "Recover — confirmed 2026-09-06 to be a category of several named rest activities, each with a different SF2E-relevant bonus (e.g. a quiet option weighted toward HP recovery, hospital care targeting HP and debuffs, a social outing for a different kind of bonus). The specific roster and numbers are not yet designed.", "cost": "1 slice", "openQuestionRef": "rest-activity-roster" }
+      { "id": "rest", "name": "Rest", "effect": "Recover — confirmed 2026-09-06 to be a category of several named rest activities, each with a different SF2E-relevant bonus (e.g. a quiet option weighted toward HP recovery, hospital care targeting HP and debuffs, a social outing for a different kind of bonus). The specific roster and numbers are not yet designed.", "cost": "1 slice", "openQuestionRef": "rest-activity-roster" },
+      { "id": "harmonics-evaluation", "name": "Harmonics Evaluation", "effect": "Get tested. Reveals the pilot's current Bleed value (otherwise not visible — see bleed.visibilityMechanism) and can also improve it. This is how a pilot buys the information needed to price a Push honestly: give up a morning, learn where you actually stand, and possibly come out of it better than you went in. Confirmed 2026-09-06; the amount of Bleed reduction it grants is not yet set.", "cost": "1 slice", "openQuestionRef": "bleed-recovery-sinks" }
     ],
     "fatigue": {
       "description": "Working consecutive segments without resting triggers a check to see how tired the character is; the check gets harder each additional segment worked without a rest, and failing enough of them ends in involuntary unconsciousness and the loss of that segment's slot. Confirmed 2026-09-06 (design/ux-doctrine.md §3); grounded in but goes beyond PC2E's own flat \"fatigued at 16 hours\" rule (reference/srd/player-core/489-exploration-mode.json).",

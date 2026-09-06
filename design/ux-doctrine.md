@@ -203,15 +203,24 @@ all**, **which tier of abilities is unlocked**, and **how many rounds of interna
 
 | Band | Actions | Reaction | Abilities | Internal power |
 |---|---|---|---|---|
-| Dead Weight (<40%) | 2 | **none** | Baseline only | 3–4 rounds |
-| Nominal (40–64%) | 2 | yes | + Attuned | 6 rounds |
+| Dead Weight (<40%) | **2** | **none** | Baseline only | 3–4 rounds |
+| Nominal (40–64%) | 3 | yes | + Attuned | 6 rounds |
 | Harmonised (65–84%) | 3 | yes | + Resonant | 8 rounds |
 | Absolute (85%+) | 3 + free Strike ignoring MAP | yes | + Absolute | 10 rounds |
 
+**Nominal was 2 actions until 2026-09-06.** Changed deliberately, and it reverses what an earlier
+draft of this section said: three actions is now the *norm* from Nominal upward, and 2 is a penalty
+state with exactly two causes — Dead Weight sync, or Frame damage (below). The reasoning is in
+`design/resonance-and-bleed.md` §2 and the sequencing principle it serves is
+`design/design-layers.md`: SF2E is architecturally a three-action system, so a 2-action baseline
+plays a degraded version of it rather than a tense one.
+
 *Obligation:* Resonance belongs in the permissions readout, not in a vitals panel. Four separate
 consequences hang off one number, and a pilot must be able to see all four without doing a lookup.
-"Most of the campaign is played at 2 actions" (`bandDesignNote`) means **three pips is the
-exception, not the default** — the tray must be honest about that.
+And since the action count no longer moves between Nominal, Harmonised and Absolute, **the tray can
+no longer carry the band on its own** — ability tier and internal-power duration are now what
+distinguish those three, so the permissions plate has to show them with equal weight rather than
+treating pips as the headline.
 
 ### Damage caps actions
 

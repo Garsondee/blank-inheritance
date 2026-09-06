@@ -1,9 +1,24 @@
 # Resonance and Bleed — a design investigation
 
-**Status: analysis and recommendations, nothing decided.** Requested 2026-09-06: work out whether
-these two are a good fit, how they fit, what needs reconsidering, what they do to the story, and
-whether they produce interesting decisions. Everything critical below is offered in that spirit —
-the invitation was explicitly to find things worth reconsidering, so this doesn't soften them.
+**Status: analysis, with three recommendations since adopted.** Requested 2026-09-06: work out
+whether these two are a good fit, how they fit, what needs reconsidering, what they do to the story,
+and whether they produce interesting decisions. Everything critical below is offered in that spirit
+— the invitation was explicitly to find things worth reconsidering, so this doesn't soften them.
+
+**Adopted the same day, in response to this analysis:**
+
+1. **Three actions is now the norm from Nominal upward** (§2's Problem 1). Two actions became a
+   penalty state with exactly two causes: Dead Weight sync, and Frame damage. `config.json` updated,
+   with the reasoning preserved in `resonance.actionEconomyRevisionNote`. This also compresses the
+   spread in §2's Problem 2 — see the revised table there.
+2. **Bleed becomes visible by testing** (§3's Problem 3), which is a better answer than either
+   option this document proposed. Not passively shown, not permanently hidden — a pilot spends a
+   discretionary slice on a Harmonics Evaluation to learn the number, and that evaluation can also
+   improve it. Information becomes a purchase in personal time, matching the pattern Analysis Duty
+   already set for the Contact Pool.
+3. **The sequencing principle in `design/design-layers.md`**, which supersedes this document's
+   implicit assumption that Resonance and Bleed are designed alongside the rest of the campaign.
+   They are Layer 3. The SF2E baseline gets built and validated first.
 
 Sources read: `design/design-bible.md` (the original two-tracks pitch), `data/campaign/config.json`,
 `data/campaign/ground-roles.json`, `data/campaign/gm-notes.json`,
@@ -90,13 +105,22 @@ config's own internal-power durations:
 | Band | Actions/round | Rounds of power | Free Strikes | Total actions | vs Dead Weight |
 |---|---|---|---|---|---|
 | Dead Weight | 2 | 3.5 | 0 | 7 | 1.0x |
-| Nominal | 2 | 6 | 0 | 12 | 1.7x |
+| Nominal | 2 *(now 3)* | 6 | 0 | 12 *(now 18)* | 1.7x *(now 2.6x)* |
 | Harmonised | 3 | 8 | 0 | 24 | 3.4x |
 | Absolute | 3 | 10 | 10 | 40 | **5.7x** |
 
 **A 5.7x spread in total contribution, before ability tiers are counted at all.** For comparison,
 that's a wider gap than four character levels in SF2E — expressed on one track, inside one tier, between
 two players at the same table.
+
+**After the 2026-09-06 change to three actions at Nominal**, the picture improves where it matters
+and stays sharp where it should:
+
+- **Normal operating range (Nominal → Absolute): 3.3x → 2.2x.** This is the range pilots actually
+  live in most of the campaign, and it is now a tolerable spread rather than a chasm.
+- **Dead Weight → Absolute stays 5.7x**, and that is now *correct* rather than alarming, because
+  Dead Weight is explicitly the failure state. A pilot below 40% sync being a fraction of a
+  functioning Frame is the intended fiction; a pilot at 55% being a fraction of one was not.
 
 That isn't automatically wrong; a story about wildly uneven sync might want it. But two things
 follow:

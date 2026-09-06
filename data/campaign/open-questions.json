@@ -5,8 +5,8 @@
     {
       "id": "bleed-visibility",
       "question": "Does a pilot see their own running Bleed total, or is it GM-only?",
-      "status": "open",
-      "resolution": null,
+      "status": "resolved",
+      "resolution": "Resolved 2026-09-06, with a better answer than either option originally posed: Bleed is neither passively visible nor permanently hidden - it is TESTED. A pilot spends a discretionary slice on a Harmonics Evaluation to learn the current value, and that same evaluation can also improve it. Information becomes a purchase in personal time, matching the pattern contactPool.analysisDutyInteraction already set. See config.json bleed.visibilityMechanism and timeEconomy.options#harmonics-evaluation.",
       "relatedRefs": [
         "campaign/config.json#bleed",
         "design/resonance-and-bleed.md"
@@ -117,16 +117,16 @@
     {
       "id": "two-action-default",
       "question": "config.json bandDesignNote states that most of the campaign is played at 2 actions. SF2E is architecturally a three-action system \u2014 two-action activities consume a whole turn, the signature turn shapes need three, and the multiple attack penalty is built around a third attack being possible-but-unwise. Should 3 actions instead be the norm from Nominal upward, with 2 reserved for Dead Weight as a genuine failure state, letting ability tiers and internal-power duration carry the band spread?",
-      "status": "open",
-      "resolution": null,
+      "status": "resolved",
+      "resolution": "Resolved 2026-09-06: 3 actions is the norm from Nominal upward; 2 actions is a penalty state with exactly two causes, Dead Weight sync and Frame damage (Degraded caps at 2, Critical at 1). User's framing: 'we need to build around the normal being 3 actions and 2 actions being the penalty for early campaign usage and for usage when the mech is seriously damaged.' config.json updated; reasoning preserved in resonance.actionEconomyRevisionNote.",
       "relatedRefs": ["campaign/config.json#resonance.bands", "design/resonance-and-bleed.md", "design/scale-and-chassis.md"],
       "notes": "Raised 2026-09-06. The counter-argument is real and artistic: constraint IS the fiction, and Harmonised should feel like a breakthrough. The concern is that a reduced action economy delivers both feels-constrained and has-fewer-decisions, and only the first is wanted."
     },
     {
       "id": "resonance-band-spread",
       "question": "Measured total combat contribution across the Resonance bands (actions per round x internal-power rounds, plus Absolute free Strikes) is 7 / 12 / 24 / 40 actions \u2014 a 5.7x spread from Dead Weight to Absolute, before ability tiers are counted. That is a wider gap than four character levels in SF2E, on one track, inside one tier, between players at the same table. Is that intended, and if so should pilots fielded together be constrained to within a band or two of each other?",
-      "status": "open",
-      "resolution": null,
+      "status": "resolved",
+      "resolution": "Addressed 2026-09-06 by the action-economy change rather than by capping who deploys together. With 3 actions from Nominal, the normal operating range (Nominal to Absolute) compresses from 3.3x to 2.2x. Dead Weight to Absolute remains 5.7x, which is now correct rather than alarming: Dead Weight is explicitly the failure state, and a pilot below 40% sync being a fraction of a working Frame is the intended fiction. The original concern was pilots at 55% being in that position, which no longer happens.",
       "relatedRefs": ["campaign/config.json#resonance.bands", "design/resonance-and-bleed.md"],
       "notes": "Arithmetic run 2026-09-06; it had not been computed before. Closely tied to two-action-default \u2014 making 3 actions standard from Nominal compresses the action-count spread to roughly 2.2x and shifts the difference onto ability tiers, which is arguably where it belongs anyway."
     },
@@ -145,6 +145,22 @@
       "resolution": null,
       "relatedRefs": ["campaign/config.json#bleed.berserk", "design/resonance-and-bleed.md", "reference/srd/player-core/381-hero-points.json"],
       "notes": "Raised 2026-09-06. Also worth being deliberate about the broader overlap: Hero Points and Anchors both reward selfless or daring play and will often fire on the same moments, at different timescales."
+    },
+    {
+      "id": "frame-upgrade-economy",
+      "question": "Frames DO level up (confirmed 2026-09-06; campaign-arc.md had already corrected the design bible on this). The new model: players earn upgrade points from downtime activities AND from winning both personnel- and Frame-scale combat, spend them on Frame upgrades, and enough points levels the Frame \u2014 a normal SF2E level-up with bespoke Frame feats and options. Combat awards guarantee a floor so no Frame is ever stranded at 12. Open parameters: what are the points called, what is the points-to-level conversion, are they per-pilot or drawn from a shared pool like technician-days, and what are the concrete DOWNSIDES of over-investing in Frame upgrades at the expense of personal activities?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/config.json#frameEconomy", "design/campaign-arc.md", "design/downtime-activities.md", "design/design-layers.md"],
+      "notes": "Tension to resolve rather than paper over: campaign-arc.md currently states kids and Frames level 'in lockstep, milestone-based'. A points economy where players choose how much effort to invest cannot also be lockstep \u2014 investment has to be able to move a Frame ahead of or behind its pilot, or the choice is cosmetic. The guaranteed combat floor is what stops 'behind' becoming 'stranded'. Needs an explicit call on how far apart pilot and Frame levels may drift."
+    },
+    {
+      "id": "activity-buff-legibility",
+      "question": "Confirmed 2026-09-06 that downtime activities should grant flavoured, predictable buffs \u2014 the user's example: 'they only have to go to the gun range once to get a buff which they know will make their next personnel level battle easier by making it easier to hit baddies.' Open parameters: how long does such a buff last (next combat? next segment? end of day?), do buffs from different activities stack, and is there a cap on how many a character can carry into a fight?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["design/downtime-activities.md", "campaign/config.json#timeEconomy", "design/design-layers.md"],
+      "notes": "The design principle is settled even though the parameters are not: buffs must be LEGIBLE and PLANNABLE \u2014 a player should be able to predict the payoff before spending the slice. That is the positive twin of ux-doctrine Law 19 (nothing expires without its cost being visible first). Circumstance bonuses are the safest vehicle since they are bounded and native to SF2E, and per design-layers.md this is a Layer 2 addition that must not distort the Layer 0 combat maths underneath."
     }
   ]
 }
