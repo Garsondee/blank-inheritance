@@ -93,6 +93,31 @@ from the brief isn't flavour text under this design — it's Coerce's real week-
 reused as-is. A character with that Fact simply keeps the penalty active longer, or GM's call,
 never truly clears it.
 
+### Real neutral sits above this table, not inside it
+
+Flagged after the first draft, and it's a genuine correction rather than a restatement of §2:
+*"it's always a good idea to think about neutral because that's what would happen if a player
+declined to roll or their results were not a full success or failure."* Two real cases, both
+missing from the table above, and both more common at a table than any single row in it:
+
+- **No check was ever attempted.** Most of a scene with a recurring NPC is just talking — nobody
+  invokes a Fact, nobody rolls Request or Coerce. Nothing reveals, nothing shifts, nothing logs.
+  This isn't a Failure (which requires an attempt that didn't land) and it isn't a row on the
+  degree-of-success table at all — the table only exists once a check happens. It's the same shape
+  `design/downtime-activities.md` already uses for Quiet Hobby Time: "no check, no payout,"
+  included there on purpose, because a menu that only ever rewards is a bug.
+- **A resolved check the GM reads as not really mattering either way.** SF2E's own four degrees are
+  the mechanical result; whether that result *narratively* moves anything is still the GM's call,
+  same as everywhere else in this design (§10.4's "never automate — artistic choice" band). A
+  technical Success at an awkward moment, or a Failure the GM decides genuinely doesn't cost
+  anything this time, can both be played as neutral without that being a rules violation.
+
+**Consequence for the Character Card:** the reveal control and the leverage buttons must never be
+the *only* way to interact with an NPC's card. Most of the time it should sit there quietly, present
+in the scene, doing nothing — logging nothing, changing nothing — while ordinary roleplay happens
+around it. The mechanics in this document are for the moments a check is actually worth making, not
+a requirement that one happen.
+
 ---
 
 ## 4. Revealing a Fact
