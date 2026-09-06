@@ -77,7 +77,7 @@ bespoke fourth kind — that keeps every reward legible against a system players
 |---|---|---|---|
 | **Lights Out** | a genuinely quiet block, alone | **Long-Term Rest**'s existing doubled recovery — Con mod (min 1) × level × 2 HP, instead of the normal daily × 1 (`player-core/493-downtime-mode.json`, PC p. 433) | clears fully |
 | **Sick Bay** | the clinic, an NPC medic on duty | **Treat Wounds**, run on the resting kid: critical success 4d8 HP + loses wounded, success 2d8 HP + loses wounded (`player-core/skill-10-medicine.json`) | clears fully |
-| **Night Out** | clubbing, karaoke, anyone who'll have you | **−1 Bleed** (Bleed's own sources already include "Plug/psychological distress" — this is its plain narrative opposite, not a new resource) + a +2 circumstance bonus to the next social check or Anchor-Time scene | −1 only — you didn't actually sleep |
+| **Night Out** | clubbing, karaoke, anyone who'll have you | **−1 Bleed** (Bleed's own sources already include "Plug/psychological distress" — this is its plain narrative opposite, not a new resource) + a +2 circumstance bonus to the next social check or Anchor-Time scene. **And, confirmed 2026-09-06: who you go out *with* matters.** Take your repair crew and it also buys crew standing — the user's own example is that they might then put in a night shift nobody asked for (`config.json`'s `frameEconomy.repairCrew`). | −1 only — you didn't actually sleep |
 
 A fourth, offered as the shape a "whole host" more should take rather than as a fixed proposal:
 **Workshop** — tinkering, building, taking something apart to see how it works. A small circumstance
@@ -111,6 +111,19 @@ downtime rewards should spend *within* that economy rather than import an unrela
   violation of it.
 
 ---
+
+### How long an activity buff lasts
+
+Settled 2026-09-06: **a buff persists until used, and is spent on the character's next combat.**
+Bankable, one-shot, not use-it-or-lose-it — which is exactly what makes it plannable, and matches
+the brief's own example of going to the gun range once and knowing the next fight will be easier.
+
+One consequence worth knowing before anyone worries about hoarding: **SF2E's own stacking rules cap
+this for free, provided buffs are expressed as circumstance bonuses.** Two circumstance bonuses to
+the same roll don't stack — you take the highest — so three gun-range visits are worth exactly one.
+Different bonus *types* (circumstance, status, item) would all still apply, which is a natural,
+system-native ceiling rather than an invented one. Whether a character may carry several
+different-typed buffs into one fight is still open (`activity-buff-legibility`).
 
 ## 3. Non-story activities — a real skill hook for each
 

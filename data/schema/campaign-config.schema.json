@@ -98,6 +98,30 @@
             "sharedPoolNote": { "type": "string" }
           }
         },
+        "upgradePoints": {
+          "type": "object",
+          "description": "How Frames level up. Individual per-pilot points earned from downtime and combat; see design/campaign-arc.md and open-questions.json#frame-upgrade-economy.",
+          "properties": {
+            "confirmed": { "type": "string" },
+            "pool": { "type": "string" },
+            "guaranteedFloor": { "type": "string" },
+            "levelDrift": { "type": "string" },
+            "overInvestmentCost": { "type": "string" },
+            "openQuestionRef": { "type": "string" }
+          }
+        },
+        "repairCrew": {
+          "type": "object",
+          "description": "Each pilot's own standing NPC repair crew, whose relationship scales repair effectiveness. Distinct from the PC-played Ground Roles in campaign/ground-roles.json.",
+          "properties": {
+            "confirmed": { "type": "string" },
+            "goodStanding": { "type": "string" },
+            "neglected": { "type": "string" },
+            "whyItIsNotRedundantWithTechnicianDays": { "type": "string" },
+            "terminologyWarning": { "type": "string" },
+            "openQuestionRef": { "type": "string" }
+          }
+        },
         "deployability": { "type": "string" },
         "permanentLoss": { "type": "string" }
       }

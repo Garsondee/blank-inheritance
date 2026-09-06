@@ -99,6 +99,22 @@
       "cost": "Repairing a step costs technician-days, drawn from a single shared weekly pool the Directorate allocates.",
       "sharedPoolNote": "Frame modification/customization draws from the exact same pool. Repairing a friend's Frame and upgrading your own compete directly for the same finite resource — this is the primary economic tension of downtime."
     },
+    "upgradePoints": {
+      "confirmed": "2026-09-06. Frames DO level up (campaign-arc.md had already corrected the design bible on this; this adds the earning mechanism). Players earn upgrade points from downtime activities AND from winning both personnel- and Frame-scale combat, spend them on Frame upgrades, and enough points levels the Frame — a normal SF2E level-up carrying bespoke Frame feats and options.",
+      "pool": "INDIVIDUAL per pilot, not shared. Deliberately unlike technician-days: each pilot has their own repair crew (see repairCrew below), so investing in your own Frame never means taking from a squadmate.",
+      "guaranteedFloor": "Combat wins award points at both scales, so a Frame can never be stranded at level 12 by a player who spends their downtime elsewhere.",
+      "levelDrift": "Hard cap of ONE level either way from the pilot's own level. Rewards investment up to a point without letting Frame-focus become an overpowering strategy, and keeps encounter maths predictable. This supersedes campaign-arc.md's strict-lockstep line, which is annotated there.",
+      "overInvestmentCost": "No new mechanic needed — the existing systems already punish it. Upgrade work spends discretionary slices, so slices spent in the hangar are slices not spent resting: Exhaustion climbs, Bleed goes unmanaged for want of a Harmonics Evaluation slot, and untouched Anchors invite Suppression. All work and no rest punishes itself.",
+      "openQuestionRef": "frame-upgrade-economy"
+    },
+    "repairCrew": {
+      "confirmed": "2026-09-06. Each pilot has their own repair crew — standing NPCs, not the PC-played Ground Roles — and the relationship carries real mechanical weight in both directions.",
+      "goodStanding": "Treat them well and they go beyond the allocation. The user's own example: go out drinking with your repair crew and they might put in a night shift nobody asked them for.",
+      "neglected": "A neglected crew provides less HP healing per repair.",
+      "whyItIsNotRedundantWithTechnicianDays": "Two different axes. The technician-day pool is the Directorate's SHARED allocation — how much repair time you are granted, competed for between pilots. Crew standing is PERSONAL and scales how much you get OUT of that time. Allocation versus effectiveness.",
+      "terminologyWarning": "Do not call these 'ground crew' in player-facing text. Ground Roles (campaign/ground-roles.json) are something else entirely — the PC-played roles the non-piloting kids take during a Contact.",
+      "openQuestionRef": "repair-crew-relationship"
+    },
     "deployability": "Not all six Frames are necessarily deployable at once. A Degraded or Critical Frame may be riskier or unable to launch. When a Contact only calls for two or three Frames, the players choose the subset — the GM never has to force this; the repair economy does it for them.",
     "permanentLoss": "A Frame that reaches Hulked can stay Hulked. Permanent loss of a personal Frame is on the table from the start (foreshadow it early, so when it happens it reads as the campaign keeping a promise, not GM cruelty)."
   },
