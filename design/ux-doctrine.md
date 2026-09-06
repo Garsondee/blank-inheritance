@@ -286,7 +286,8 @@ guess. §7a designs the surface; the fourth item is important enough that it is 
 *Data this needs and does not have.* `episode.schema.json`'s scene shape currently carries only
 `order`, `title`, `description` and refs to an encounter, challenge or subsystem. Scheduling
 implies at minimum a `kind`, an availability window in day quarters, an expiry, a
-consequence-if-missed, an assignee for personal missions, and the closed list of outcomes the
+consequence-if-missed, an assignee for personal missions, a `visibility` flag (default visible with
+content; `private` shows to no one but the assignee, per §7a), and the closed list of outcomes the
 scene-close dialogue offers (§10.3a). Also worth noting: `order` presumes a fixed sequence, which
 is right for the authored Episode 1 and wrong for scheduled play, where scenes are offered rather
 than sequenced. Designing those fields is a data task, not this document's, but the interface
@@ -507,12 +508,17 @@ picture:
 - **Contention is the point, so show it.** Two things eligible in the same quarter, with two slices
   and four candidates, *is* the game. The ring should make a conflict obvious rather than letting a
   player discover it after committing.
-- **Personal missions are one player's** on their own ring. Whether *other* players see that a
-  teammate has a personal mission at all — even without its content — is genuinely undecided and
-  is not the same question as journal privacy (§10.2): a diary entry is thought, a pending scene is
-  a fact about the world. It could go either way for good reasons — visible builds "something's
-  going on with them" table tension, hidden protects a twist. Not asserted either way here; see §12.
-  On the Director's board they are all visible regardless, since the GM already runs everyone's.
+- **Personal missions are visible by default, with content, to the whole party.** Settled
+  2026-09-06: *"Players should be able to see exactly where other players are going unless the
+  mission is private/hidden only visible to the player who went."* So the default on every
+  player's ring is full visibility of every teammate's pending personal mission, including what it
+  is, not merely that one exists — that "something's going on with them" table tension is the
+  default experience, not an exception. **Privacy is per-mission, not per-player**: an individual
+  mission can be flagged private, and when it is, it disappears entirely for everyone except the
+  player who took it — not shown-but-redacted, genuinely absent, the same "removal, not a CSS
+  trick" standard the redaction machinery already holds documents to (Law 11). This is a real field
+  the schema needs (§3's list gains `visibility` alongside kind/quarters/expiry). On the Director's
+  board every mission is visible regardless of its flag, since the GM already runs everyone's.
 
 That also resolves how slices and quarters relate, which was previously open: quarters carry
 *eligibility* and slices are the *budget*, so a scene constrains when it can be taken and the two
@@ -1112,10 +1118,8 @@ automates the homebrew hardest: it is the only part where we are the reference i
 
 ## 12. Open questions — the user's calls, not mine
 
-**Fifteen of the sixteen questions this document has raised are answered.** They are recorded in
-the sections they govern; this is the index, so that nothing gets silently re-litigated. One is
-left open on purpose, flagged rather than guessed at, because guessing at a privacy question is
-how the journal-disclosure issue would have been handled if it had not been asked directly.
+**All sixteen questions this document has raised are now answered.** They are recorded in the
+sections they govern; this is the index, so that nothing gets silently re-litigated.
 
 | # | Question | Answer | Where |
 |---|---|---|---|
@@ -1134,7 +1138,7 @@ how the journal-disclosure issue would have been handled if it had not been aske
 | 13 | What does a scene break look like? | A forced scene-close dialogue: complete?, required outcome dropdowns, notes | §10.3a |
 | 14 | How far apart are the two costumes? | Far. Frame scale is GLASS, personnel scale is PAPER | §7b |
 | 15 | Do slices map to quarters or float? | Quarters carry eligibility, slices carry the budget | §7a |
-| 16 | Do other players see a teammate has a personal mission? | **Open.** Not the same question as journal privacy — a pending scene is a fact, not a thought | §7a |
+| 16 | Do other players see a teammate has a personal mission? | Visible with content by default; a per-mission `private` flag hides it from everyone but the assignee | §7a |
 
 Three of those carry a consequence worth stating on its own:
 
@@ -1155,24 +1159,22 @@ Three of those carry a consequence worth stating on its own:
 
 ### What is still genuinely undecided
 
-All three items previously listed here were answered on 2026-09-06 and have moved into the sections
-they govern: the scene-break moment is now the scene-close dialogue (§10.3a), the two scale costumes
-are GLASS and PAPER (§7b), and quarters carry eligibility while slices carry the budget (§7a).
-
-What genuinely remains:
+Every design question this document has raised is now answered (§12's table, sixteen for sixteen).
+What is left is not a design question but implementation groundwork — things that need building or
+choosing a vocabulary for, not deciding:
 
 1. **The scene-outcome vocabulary itself.** §10.3a fixes the shape — two short required dropdowns,
    four to six options each, identical every time. The actual words are the user's to choose and
    belong in the schema, not here.
 2. **The scheduling fields.** §3 lists what the interface needs that `episode.schema.json` does not
-   carry: kind, eligible quarters, expiry, consequence-if-missed, assignee, outcome list. That is a
-   data task and it blocks building the day ring for real.
+   carry: kind, eligible quarters, expiry, consequence-if-missed, assignee, `visibility`, outcome
+   list. That is a data task and it blocks building the day ring for real.
 3. **How a paper interface signals that it is interactive.** §7b names this as the one real risk in
    the personnel costume and suggests printed-form vocabulary rather than glass buttons on paper.
    It will not be settled by argument; it needs one screen built and looked at.
-4. **Whether a personal mission's existence is visible to the other players (question 16, §7a).**
-   Deliberately not guessed at, and deliberately not the same shape as the journal question: a
-   private thought and a pending scene on the shared calendar are different kinds of secret.
+
+These three, plus everything else in this document, are now tracked as real work — see the
+`ux-prototype` epic on the issue tracker.
 
 ---
 
