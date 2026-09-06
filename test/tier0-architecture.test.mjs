@@ -235,9 +235,14 @@ test("the hotbar reserves enough room for the TALLEST thing that can rise above 
   // defined to be at least as tall as --bi-bar-height. If that ever inverts,
   // the reservation would silently start protecting the wrong number.
   const barHeight = tokens.match(/--bi-bar-height:\s*(\d+)px/);
-  const checksMax = tokens.match(/--bi-checks-max-height:\s*calc\(var\(--bi-bar-height\)\s*\*\s*(\d+(?:\.\d+)?)\)/);
+  // --bi-checks-max-height is min(calc(var(--bi-bar-height) * N), <vh cap>) —
+  // the vh term is a viewport-relative safety clamp (found live 2026-09-07: a
+  // flat px ceiling pushed keys off-screen on a short window with no way to
+  // scroll to them), so only the calc(...) term inside the min() is checked
+  // against --bi-bar-height here; the vh term has nothing to compare it to.
+  const checksMax = tokens.match(/--bi-checks-max-height:\s*min\(\s*calc\(var\(--bi-bar-height\)\s*\*\s*(\d+(?:\.\d+)?)\)/);
   assert.ok(barHeight, "bi-tokens.css no longer defines --bi-bar-height as a plain px value");
-  assert.ok(checksMax, "--bi-checks-max-height is no longer a simple multiple of --bi-bar-height");
+  assert.ok(checksMax, "--bi-checks-max-height's calc(...) term is no longer a simple multiple of --bi-bar-height");
   assert.ok(
     Number(checksMax[1]) >= 1,
     "--bi-checks-max-height's multiplier dropped below 1x --bi-bar-height — the max() in #ui-bottom would stop covering the checks pod"
@@ -391,4 +396,35 @@ test("every bi- class a template uses actually exists in the stylesheet", () => 
   }
 
   assert.ok(checked > 0, "expected at least one bi- class across module/blank-inheritance/templates/");
+});
+
+test("the checks pod's height ceiling is viewport-aware, not a flat pixel value", () => {
+  // Found live 2026-09-07: --bi-checks-max-height was a flat 336px with no
+  // idea how tall the real window is. Selecting a token jumps the checks pod
+  // from empty to a full skill grid in one frame, and on a short viewport
+  // that growth pushed the lower rows past the true top of the window --
+  // unreachable, since Foundry's body/html are overflow:hidden by design and
+  // there is no scrollbar to recover with. This asserts the vh clamp that
+  // fixed it stays in place, and that the pod's own internal scroll (the
+  // fallback for whenever the clamp actually engages) still exists too.
+  const tokens = readFileSync(path.join(moduleRoot, "styles", "bi-tokens.css"), "utf8");
+  const components = readFileSync(path.join(moduleRoot, "styles", "bi-components.css"), "utf8");
+
+  const checksMaxValue = tokens.match(/--bi-checks-max-height:\s*([^;]+);/);
+  assert.ok(checksMaxValue, "could not find a --bi-checks-max-height declaration to check");
+  assert.match(
+    checksMaxValue[1],
+    /min\(/,
+    "--bi-checks-max-height is no longer wrapped in min(...) — a flat pixel ceiling can push keys off a short window with no way to reach them"
+  );
+  assert.match(
+    checksMaxValue[1],
+    /\d+vh/,
+    "--bi-checks-max-height's min() no longer includes a vh term — the pixel ceiling alone knows nothing about the real window height"
+  );
+  assert.match(
+    components,
+    /\.bi-checks\s*\{[^}]*overflow-y:\s*auto/s,
+    "the checks pod lost its internal scroll fallback — needed for whenever the vh clamp actually reduces the ceiling below the full skill list"
+  );
 });

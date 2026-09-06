@@ -285,7 +285,23 @@
      shared baseline rather than being cut off. Height is a CEILING, not a
      fixed size: the pod is only ever as tall as its own contents need. */
   --bi-checks-width: 560px;
-  --bi-checks-max-height: calc(var(--bi-bar-height) * 2);
+  /* FOUND LIVE 2026-09-07: this was a flat 336px with no idea how tall the
+     actual browser window is. Selecting a token jumps the checks pod from
+     empty to a full skill grid in one frame, and on a short viewport 336px
+     of upward growth pushed the lower rows -- DEFENCES, sometimes SKILLS
+     itself -- past the true top of the window. There is no page scrollbar
+     to recover with (Foundry's own body/html are overflow:hidden by design),
+     so those keys were not just hidden, they were unreachable.
+
+     min() keeps the 336px ceiling on anything reasonably sized (a normal
+     desktop monitor never engages the vh term at all) and softens it
+     proportionally as the window shrinks, so the pod degrades to its own
+     overflow-y:auto scroll (bi-components.css's .bi-checks) BEFORE it runs
+     out of window rather than after. Scrolling sometimes is a real cost --
+     Ingram explicitly asked for every key visible with no scrolling -- but
+     it is a strictly smaller cost than a key existing somewhere no click can
+     ever reach. */
+  --bi-checks-max-height: min(calc(var(--bi-bar-height) * 2), 45vh);
   --bi-checks-key-min: 60px;
 
   --bi-toprail-height: 54px;   /* scene status strip          */
