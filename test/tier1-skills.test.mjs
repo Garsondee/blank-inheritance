@@ -142,7 +142,6 @@ test("every entry carries what the template renders: slug, label, short, lore", 
   const groups = buildCheckGroups({ skills: SKILLS, saves: SAVES, hasPerception: true });
   for (const group of groups) {
     assert.ok(group.labelKey.startsWith("BLANKINHERITANCE."), `${group.id} has no legend key`);
-    assert.ok(Number.isInteger(group.columns) && group.columns > 0, `${group.id} has no column count`);
     for (const entry of group.entries) {
       assert.ok(entry.slug, "missing slug");
       assert.ok(entry.label, `${entry.slug} missing label`);
@@ -156,4 +155,14 @@ test("a missing label falls back to the slug rather than rendering a blank key",
   const groups = buildCheckGroups({ skills: [{ slug: "occultism" }], saves: [] });
   assert.equal(groups[0].entries[0].label, "Occultism");
   assert.equal(groups[0].entries[0].short, "OCCU");
+});
+
+test("groups carry no column count — the grid auto-fills instead", () => {
+  // A fixed column count would be a guess about how many skills a character
+  // has, which is the exact assumption reading actor.skills live exists to
+  // avoid. If this comes back, check the CSS did not quietly go back to
+  // .bi-keygrid--N.
+  for (const group of buildCheckGroups({ skills: SKILLS, saves: SAVES, hasPerception: true })) {
+    assert.equal("columns" in group, false, `${group.id} still carries a column count`);
+  }
 });

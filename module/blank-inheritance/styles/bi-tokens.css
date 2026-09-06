@@ -264,6 +264,20 @@
      test/tier3-theme-contract.test.mjs checks the two still agree. */
   --bi-sidebar-gutter: 12px;
 
+  /* The checks pod is the one module that cannot be sized to a known number
+     of keys: eighteen fixed skills, three saves, Perception, and however
+     many Lores that particular character happens to have. Everything else
+     on the chassis has a fixed content budget; this does not.
+
+     So it gets its own two dimensions, and it is allowed to rise above the
+     chassis the way the dome does -- .bi-bar is `align-items: end` with no
+     overflow clipping, so a pod taller than the bar grows upward off the
+     shared baseline rather than being cut off. Height is a CEILING, not a
+     fixed size: the pod is only ever as tall as its own contents need. */
+  --bi-checks-width: 560px;
+  --bi-checks-max-height: calc(var(--bi-bar-height) * 2);
+  --bi-checks-key-min: 60px;
+
   --bi-toprail-height: 54px;   /* scene status strip          */
   /* The session progress bar sits directly under the toprail, inside the
      SAME top layer (see .bi-console__top) — so the layer's own height is

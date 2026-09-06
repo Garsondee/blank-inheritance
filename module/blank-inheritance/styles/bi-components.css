@@ -926,13 +926,50 @@
   text-overflow: ellipsis;
 }
 
+/* The documented exception to "pods fit the chassis, not vice versa".
+
+   That rule exists so a module either fits at full size or is shed, never
+   half-shown -- and it is still right for every pod with a known content
+   budget. This one has no such budget (see --bi-checks-width in tokens),
+   and the alternative to letting it grow is hiding skills, which is exactly
+   how the V1 pod ended up missing Computers.
+
+   max-width keeps it inside its track no matter how narrow the window gets,
+   so widening it can never push the log or the roster off the end of the
+   chassis -- the failure the minmax(0,1fr) comment on .bi-bar describes. */
+.bi-bar .bi-pod[data-zone="checks"] {
+  /* 0 1 basis, not the `flex: none` every other pod gets: on a narrow track
+     this must give way rather than shove the log off the end of the chassis.
+     min-width stops it collapsing into the "four-column bank squashed to 77px
+     and the keys wrapped into a smear" failure that put `flex: none` there in
+     the first place -- and because the grid auto-fills, shrinking costs a
+     column rather than clipping a skill. */
+  flex: 0 1 var(--bi-checks-width);
+  min-width: 320px;
+  max-height: var(--bi-checks-max-height);
+}
+
 .bi-checks {
   display: flex;
   flex-direction: column;
   gap: 6px;
   min-height: 0;
+  /* Last resort only. The sizing above is meant to make every key visible
+     at once; this exists so a character with an improbable number of Lores
+     degrades to a scroll rather than to silently clipped keys. */
   overflow-y: auto;
   overscroll-behavior: contain;
+}
+
+/* Fill the width with as many keys as fit rather than committing to a column
+   count. A fixed count is a guess about how many skills a character has, and
+   the whole point of reading actor.skills live is not to guess. */
+.bi-checks__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--bi-checks-key-min), 1fr));
+  gap: 4px;
+  position: relative;
+  z-index: 1;
 }
 
 /* Pods inside the chassis may not exceed its height, and may not be

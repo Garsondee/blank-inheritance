@@ -99,17 +99,18 @@ export function buildCheckGroups({ skills = [], saves = [], hasPerception = fals
     defences.push(normalise({ slug: PERCEPTION_SLUG, label: labelForSlug(PERCEPTION_SLUG) }));
   }
 
+  // No column count: the grid auto-fills the width it is given. A number
+  // here would be a guess about how many skills a character has, and
+  // reading actor.skills live exists precisely so nothing has to guess.
   return [
     {
       id: "skills",
       labelKey: "BLANKINHERITANCE.Console.Checks.Skills",
-      columns: 6,
       entries: [...fixed, ...lores]
     },
     {
       id: "defences",
       labelKey: "BLANKINHERITANCE.Console.Checks.Defences",
-      columns: 4,
       entries: defences
     }
   ].filter((group) => group.entries.length > 0);

@@ -326,3 +326,54 @@ test("every localisation key the module references actually exists", () => {
 
   assert.ok(checked > 0, "expected at least one localisation key reference across scripts/ and templates/");
 });
+
+test("every bi- class a template uses actually exists in the stylesheet", () => {
+  // Found the hard way, 2026-09-07: zone-checks.hbs asked for
+  // `.bi-keygrid--6`, which was never defined -- only --4, --5 and --7 are.
+  // So the grid got `display: grid` with no grid-template-columns and
+  // rendered EIGHTEEN SKILLS IN ONE COLUMN. Nothing failed and nothing
+  // logged; CSS simply ignores a class it has never heard of, which makes
+  // this a class of bug that only ever surfaces as "the UI looks wrong".
+  const stylesRoot = path.join(moduleRoot, "styles");
+  const css = readdirSync(stylesRoot)
+    .filter((name) => name.endsWith(".css"))
+    .map((name) => readFileSync(path.join(stylesRoot, name), "utf8"))
+    .join("\n");
+
+  const defined = new Set();
+  for (const match of css.matchAll(/\.(bi-[A-Za-z0-9_-]+)/g)) defined.add(match[1]);
+
+  const templatesRoot = path.join(moduleRoot, "templates");
+  const templates = [];
+  const collect = (dir) => {
+    for (const entry of readdirSync(dir)) {
+      const full = path.join(dir, entry);
+      if (statSync(full).isDirectory()) collect(full);
+      else if (entry.endsWith(".hbs")) templates.push(full);
+    }
+  };
+  collect(templatesRoot);
+
+  let checked = 0;
+  for (const file of templates) {
+    // Strip Handlebars first: a class list can legitimately contain an {{if}}
+    // and we only lint the literal parts.
+    const text = readFileSync(file, "utf8")
+      .replace(/\{\{!--[\s\S]*?--\}\}/g, "")
+      .replace(/\{\{[\s\S]*?\}\}/g, " ");
+
+    for (const attr of text.matchAll(/class="([^"]*)"/g)) {
+      for (const cls of attr[1].split(/\s+/).filter((c) => c.startsWith("bi-"))) {
+        assert.ok(
+          defined.has(cls),
+          `${path.relative(repoRoot, file)} uses class "${cls}", which no stylesheet defines. ` +
+            `CSS silently ignores an unknown class, so this renders as an unstyled element rather ` +
+            `than failing — exactly how eighteen skills ended up in a single column.`
+        );
+        checked += 1;
+      }
+    }
+  }
+
+  assert.ok(checked > 0, "expected at least one bi- class across module/blank-inheritance/templates/");
+});
