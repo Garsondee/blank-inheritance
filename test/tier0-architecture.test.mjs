@@ -202,30 +202,45 @@ test("every .hbs template renders exactly one top-level element", () => {
   }
 });
 
-test("the hotbar reserves exactly the height the command bar actually is", () => {
-  // bi-components.css pins .bi-bar to a token instead of letting it size to
-  // its contents, and bi-foundry-bridge.css lifts Foundry's hotbar clear by
-  // the same token. Both files say so in their own comments; this is the
-  // assertion that keeps them honest, because the failure is silent — the
-  // hotbar simply ends up underneath the chassis.
-  const components = readFileSync(path.join(moduleRoot, "styles", "bi-components.css"), "utf8");
+test("the hotbar reserves enough room for the TALLEST thing that can rise above the bar", () => {
+  // Most pods stay within .bi-bar's own height. The checks pod does not by
+  // design (core/skills.mjs's list is unbounded — eighteen fixed skills plus
+  // however many Lores a character has) and is deliberately allowed to grow
+  // up to --bi-checks-max-height. FOUND LIVE 2026-09-07: the hotbar clearance
+  // had been left at just the base bar height, so a tall checks pod could
+  // poke up to 156px into Foundry's own macro hotbar. The reservation must
+  // therefore cover the LARGER of the two, not just the bar itself, and this
+  // asserts the rule actually says so — the failure otherwise is silent, the
+  // hotbar or the checks pod simply render on top of each other.
   const bridge = readFileSync(path.join(moduleRoot, "styles", "bi-foundry-bridge.css"), "utf8");
+  const tokens = readFileSync(path.join(moduleRoot, "styles", "bi-tokens.css"), "utf8");
 
-  const barBlock = components.match(/\n\.bi-bar \{([\s\S]*?)\n\}/);
-  assert.ok(barBlock, "could not find the .bi-bar rule in bi-components.css");
-  const barHeight = barBlock[1].match(/height:\s*var\((--[\w-]+)\)/);
-  assert.ok(barHeight, ".bi-bar no longer sets its height from a single custom property");
-
-  const bottomBlock = bridge.match(/#ui-bottom \{([\s\S]*?)\n\}/);
+  const bottomBlock = bridge.match(/body\.bi-theme #ui-bottom \{([\s\S]*?)\n\}/);
   assert.ok(bottomBlock, "could not find the #ui-bottom rule in bi-foundry-bridge.css");
-  const reserved = bottomBlock[1].match(/padding-bottom:\s*calc\(var\((--[\w-]+)\)/);
-  assert.ok(reserved, "#ui-bottom no longer reserves space from a custom property");
+  const reserved = bottomBlock[1].match(/padding-bottom:\s*calc\(max\(var\((--[\w-]+)\),\s*var\((--[\w-]+)\)\)/);
+  assert.ok(
+    reserved,
+    "#ui-bottom no longer reserves space via max(--bi-bar-height, --bi-checks-max-height) — " +
+      "if the checks pod can still rise above the bar, something now has to reserve for that again"
+  );
 
-  assert.equal(
-    reserved[1],
-    barHeight[1],
-    `#ui-bottom reserves ${reserved[1]} but .bi-bar is ${barHeight[1]} tall. Foundry's macro hotbar ` +
-      `will sit behind the chassis. Change both or neither.`
+  const [, first, second] = reserved;
+  assert.ok(
+    [first, second].includes("--bi-bar-height") && [first, second].includes("--bi-checks-max-height"),
+    `#ui-bottom's reservation compares ${first} and ${second}, not the bar height against the checks ` +
+      `pod's ceiling — re-derive it from whatever now decides how tall a pod may rise.`
+  );
+
+  // The max() only protects the hotbar if --bi-checks-max-height is actually
+  // defined to be at least as tall as --bi-bar-height. If that ever inverts,
+  // the reservation would silently start protecting the wrong number.
+  const barHeight = tokens.match(/--bi-bar-height:\s*(\d+)px/);
+  const checksMax = tokens.match(/--bi-checks-max-height:\s*calc\(var\(--bi-bar-height\)\s*\*\s*(\d+(?:\.\d+)?)\)/);
+  assert.ok(barHeight, "bi-tokens.css no longer defines --bi-bar-height as a plain px value");
+  assert.ok(checksMax, "--bi-checks-max-height is no longer a simple multiple of --bi-bar-height");
+  assert.ok(
+    Number(checksMax[1]) >= 1,
+    "--bi-checks-max-height's multiplier dropped below 1x --bi-bar-height — the max() in #ui-bottom would stop covering the checks pod"
   );
 });
 

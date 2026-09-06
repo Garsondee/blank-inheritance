@@ -186,10 +186,17 @@ body.bi-theme #bi-command-bar > * {
 }
 
 /* Give the macro hotbar room to sit above the chassis instead of behind
-   it. Height is read from the same token the bar is built from, so the
-   two can never drift apart. */
+   it. Reserves the TALLER of the base bar and the checks pod's own ceiling,
+   not just the base bar -- because the checks pod (core/skills.mjs's list is
+   unbounded: eighteen fixed skills plus however many Lores a character has)
+   is deliberately allowed to rise above the bar the way the dome was always
+   meant to, up to --bi-checks-max-height. FOUND LIVE 2026-09-07: reserving
+   only --bi-bar-height left up to 156px of a tall checks pod poking into
+   Foundry's own hotbar -- every other pod stays within the base bar height,
+   only this one needed the taller reservation. max() rather than hardcoding
+   which token is bigger, so this stays correct if either formula changes. */
 body.bi-theme #ui-bottom {
-  padding-bottom: calc(var(--bi-bar-height) + 12px);
+  padding-bottom: calc(max(var(--bi-bar-height), var(--bi-checks-max-height)) + 12px);
 }
 
 /* Keep the bar's CONTROLS clear of the sidebar, while the chassis itself
