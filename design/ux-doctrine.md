@@ -55,6 +55,11 @@ So:
 > **The GM interface's job is to make the next thing obvious** — whose turn, what that creature
 > does, what number the party needs to beat, and what just changed as a result.
 
+There is a second half to that job, which only becomes visible once you ask what a campaign needs
+*between* sessions rather than during one: **the session has to record itself**, because what it
+meant is the input to writing the next one and it evaporates within a day. §10 is the full design
+for the Director's console and treats both halves as one problem.
+
 ### And what this campaign adds
 
 This campaign has, independently and repeatedly, expressed power as **permission rather than
@@ -460,6 +465,11 @@ Numbered so they can be cited in review. These are meant to settle arguments.
     This is the placement rule for every future feature, and it is the one that cures the riot.
 14. **Interrupt only for the reaction trigger and the start of your turn.** Everything else is
     ambient. An interface that shouts constantly is one nobody reads.
+15. **Recording is a side effect of doing, never a separate task.** If capturing the session is its
+    own job, it will not get done, because the GM is the busiest person at the table. See §10.
+16. **The console's confidence is visible in how loudly it acts.** Silent when the answer is
+    certain, a confirm when the consequence is real, a suggestion when it needs judgment. Automation
+    that is sometimes wrong is worse than none, because then everything has to be checked.
 
 ---
 
@@ -511,32 +521,325 @@ Applying Law 13 to what exists today. This is a proposal, not a change already m
 
 ---
 
-## 10. Open questions — the user's calls, not mine
+## 10. The Director's console
 
-1. **How much automation is wanted?** This doctrine argues the interface should own the arithmetic.
-   The far end of that is the console rolling and applying everything; the near end is it only
-   *displaying* correct numbers while humans still roll dice. Both are consistent with the thesis.
-   Where on that line?
-2. **Does the ground crew get a console of their own?** The five Ground Roles have real agency but
-   no combat vocabulary. Their interface is closer to a GM board than to a pilot's sheet, which
-   would make it a *third* shape.
-3. **Is Bleed player-visible?** Still `pilotVisibility: null` in config, still an open question,
-   and it decides whether Bleed appears on the pilot's own permissions plate or only on the
-   Director's board.
-4. **One console for kid and Frame, or two?** Law 8 says never mix the scales in one readout. It
-   does not settle whether that means two modes of one console or two separate objects.
-5. **How much of this belongs in Foundry's own UI versus ours?** Some of these obligations —
-   initiative, damage application — are things Foundry and the sf2e system already do. Replacing
-   working machinery has a cost, and this document deliberately does not assume we should.
+Everything above treats the GM briefly, as the other half of a contrast. This section is the real
+design. Four preferences were settled by the user on 2026-09-06 and are quoted where they decide
+something; the rest follows from them.
+
+### 10.1 The thesis: running the session and recording it are one act
+
+The player console's thesis was that the interface owns the arithmetic. The Director's console
+needs a different one, because the GM's problem is not arithmetic. It is that **a session happens
+once, and everything about it that matters for what comes next evaporates within about a day** —
+unless capturing it costs nothing at the moment it happens.
+
+> **Running the session and recording it must be the same act.** If recording is a second, separate
+> task, it will not happen, because the GM is the busiest person at the table.
+
+This has one strong consequence that shapes the entire design: **recording is a side effect of
+doing, never a job of its own.** When the GM applies damage, that is a log entry. When they raise a
+pilot's Bleed, that is a log entry. When they cue a scene, that is a log entry. The mechanical
+record writes itself in full, for free, because the console is the thing mediating the actions.
+
+That leaves exactly one thing a machine cannot supply: what any of it *meant*. Which is the one
+thing the GM must type, and therefore the one thing that has to be effortless.
+
+### 10.2 The corpus — what co-writing actually reads
+
+The user's own description of the loop, which is more specific than "keep a log":
+
+> "This becomes the log which you use and read to understand the session, how it went, you get to
+> read the diary, you get to read messages between characters. When I finish the session I have a
+> chat with you and you absorb that information too. We then use that info to build the next
+> session."
+
+So the thing being built is not a log. It is a **corpus with four independent sources**, and they
+have deliberately different properties:
+
+| Source | Written by | Tells you | Trust |
+|---|---|---|---|
+| **Mechanical log** | the machine | what *happened* | objective, complete, dull |
+| **Director's log** | the GM, live | what it *meant* | interpretation, and the only source for it |
+| **Player journals** | each player, privately | what they *thought* | private; pull-only, never pushed back |
+| **In-fiction messages** | players, in character | what they *said to each other* | performance, not testimony |
+
+Plus a fifth, later: the **post-session debrief**, a conversation with me that folds in whatever
+the GM did not write down.
+
+Three of these already exist as `accepted` ideas — `chat-log-knowledge-base` (structured check
+results out of Foundry's chat), `player-and-gm-journals-context-ingestion` (private journals,
+harvested by difference since last checked), and the correspondence thread that the terminal's
+Messaging app already prototypes. **This section does not propose them. It proposes that they are
+one system with one destination**, which is the thing none of them says on its own.
+
+**Never conflate the first two.** The mechanical log is what happened; the Director's log is what
+the GM believed it meant. When writing from this corpus, a disagreement between them is
+information, not an error to reconcile.
+
+### 10.3 The log bar
+
+This is the heart of it, and the brief was explicit:
+
+> "I always imagined it working where I type in a generic chat box and when I hit enter it gets
+> time logged and you get key information about the scene I'm in at the time... I need a simple way
+> to record notes, it can do more complex things or in more complex ways but **it needs to be
+> instantly accessible and easy to use**."
+
+**The design: one text field, permanently at the bottom of the screen, one keystroke from focus in
+any view.** Type. Press enter. Done. That is the entire required interaction, and no feature is
+ever allowed to stand in front of it.
+
+**The GM types the meaning; the console attaches the context.** On enter, the entry is stamped with
+everything the machine already knows and the GM should never have to write: wall-clock time,
+elapsed session time, current episode and scene, mode, round number and whose turn it is if in
+combat, which players are connected, and the last several lines of mechanical log. Eight typed
+words become a fully situated record.
+
+**Types are an accelerator, never a requirement.** The user chose typed one-line entries, so a
+leading token sets the type; typing nothing but a sentence is always legal and produces a plain
+note.
+
+| Type | For | Also does something |
+|---|---|---|
+| *(untagged)* | anything | — |
+| `decision` | what they chose, and over what | — |
+| `reaction` | what landed, what didn't | — |
+| `thread` | opened / closed / deliberately ignored | becomes next session's prep list |
+| `anchor` | an Anchor pressed, and how it went | **offers the Resonance adjustment** |
+| `setup` | something planted that nobody bit on | resurfaces at a later scene break |
+| `npc` | a name, voice or fact improvised on the spot | added to the cast so it stays consistent |
+| `rule` | an ad-hoc ruling made at the table | resurfaces when the same case recurs |
+
+The last two are the ones GMs most need and least expect. Improvised NPC details and one-off
+rulings are exactly what gets forgotten and then contradicted three sessions later, and both are
+one line to capture.
+
+An untagged entry gets a *guessed* type shown as a dismissible chip, correctable with one key and
+ignorable entirely. The guess never blocks the enter key, and a session recorded entirely in
+untagged sentences is still a good record — I can infer the structure afterwards. **The tags exist
+to make the GM faster, not to make the record parseable.** If they ever feel like a form, they have
+failed and should be removed.
+
+Two access paths, because "instantly accessible" is the requirement and the console will not always
+be the focused window:
+
+1. The persistent bar in the Director's console.
+2. A Foundry chat command, so the same entry can be typed into the chat box the GM already has
+   open and already has muscle memory for.
+
+### 10.4 What automates, and how loudly
+
+The brief asked for automation of "things which might be tiresome or things that can be **easily
+and reliably** automated." That qualifier is the whole design. Automation that is sometimes wrong
+is worse than none, because the GM then has to check it, which costs more than doing it.
+
+So automation is sorted by certainty, and **the console's confidence is visible in how loudly it
+acts**:
+
+**Tier A — deterministic, no judgment. Acts silently.**
+Multiple attack penalty. Condition value decrements and duration countdowns at end of turn.
+Persistent damage and its flat check. Recovery checks while dying. Initiative order and the on-deck
+signal. Hit point arithmetic including hardness, resistance and weakness. Resonance band resolving
+to actions, reaction and ability tier. Damage state resolving to an action cap. Contact Pool target
+for a given quiet morning. DC by level and simple DC. Technician-day arithmetic. Encounter XP
+budget. Internal-power duration. Ground-role rotation eligibility, which `ground-roles.json`
+already states as a rule ("nobody should play the same one twice in a row") and which is therefore
+something the console can simply offer correctly rather than the GM tracking.
+
+**Tier B — deterministic but consequential. Acts on a confirm, showing its arithmetic.**
+Applying damage to a creature. Death, dying and unconscious transitions. Advancing the Contact Pool
+by a day. Berserk triggering at Bleed 10. And critically, **anything that changes what the players
+see** — `Scene#activate()` pulls every connected client, so it is never silent.
+
+**Tier C — needs judgment. Suggests, never acts.**
+Whether a check is warranted at all. Any ad-hoc DC, where the console offers the table value and
+the GM overrides freely. Whether an Anchor was affirmed or violated. Whether a player is
+Suppressing, which requires reading intent and is explicitly a judgment about a person. Casualty
+outcomes. Every pacing decision.
+
+The line between B and C is the line between arithmetic and meaning, and it should be visible in
+the interface, not just in this document.
+
+**Proactivity is bounded by the user's answer: silent during a scene, offers at scene breaks.**
+What it offers at a break: an Anchor untouched for several scenes, a `setup` nobody has taken,
+pacing against the session bar, a Frame that will not be deployable next Contact. The one standing
+exception is a small always-visible pacing readout, because that is ambient rather than an
+interruption — and Law 14 already allows only two interruptions, neither of which is a suggestion.
+
+### 10.5 The layout
+
+The brief settles the shape:
+
+> "The interface is a Foundry VTT module, so I can be looking at the admin version and players
+> could be looking at a separate version. Given the amount of information it needs to impart it
+> probably needs to be full screen."
+
+Two consequences. First, **GM-only is structural, not careful** — Foundry already renders different
+views per user, so the Director's console is simply never constructed for a player, and nothing
+reaches a player except through a deliberate push (activating a scene, pulling users to a view,
+issuing a check, revealing a document). Secrets are safe by construction rather than by the GM
+remembering what is on screen.
+
+Second, full screen. But a GM still needs the map at full size during tactical combat, so this is
+**one console at two densities**, not two consoles:
+
+- **Director view** — full screen, three columns. For prep, social scenes, between-scene work,
+  campaign state, and anything information-heavy.
+- **Table view** — map dominant, board collapsed to a strip. For tactical combat where tokens are
+  being moved.
+
+One key toggles them, and **the log bar is present in both**, because "instantly accessible" has to
+survive the toggle.
+
+```
+┌── TOPRAIL ─── episode · scene · wall clock · session progress ─────────────┐
+├────────────────┬────────────────────────────────┬──────────────────────────┤
+│ BOARD          │            STAGE               │ DRAWER                   │
+│                │                                │                          │
+│ ── FRAME ────  │   the map — expands to full    │  one of:                 │
+│ ▸ Frame 04  ▓▓ │   width in Table view          │   · active creature      │
+│   Claimant  ▓▓ │                                │   · scene prep + cue     │
+│                │   or, out of combat, the       │   · rules search         │
+│ ── PERSONNEL ─ │   scene as the players see     │   · cast + dialogue      │
+│   Cand 01   ▓  │   it right now                 │   · campaign state       │
+│   Cand 03   ▓  │                                │   · log history          │
+│                │                                │                          │
+├────────────────┴────────────────────────────────┴──────────────────────────┤
+│  19:47 · scene 4 · round 3 · Frame 04 on turn                              │
+│  ▸ ______________________________________________________________   ⏎      │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+These are the same zones the player console uses, with different tenants — *who else* becomes the
+board, *what I face* becomes the stage, *what I may do* becomes the drawer. That is deliberate:
+§7's stable-zones rule is what lets a GM who has used the player console already know where to
+look.
+
+### 10.6 The board
+
+One row per combatant, in initiative order, always visible in both densities:
+
+`⟨init⟩ ⟨name⟩ ⟨HP⟩ ⟨conditions as chips⟩ ⟨damage entry⟩`
+
+with campaign extensions per row type — a Frame also shows damage state and its resulting action
+cap, a pilot shows Resonance band, and a kid on a Frame-scale map shows their clock rather than an
+AC, because by §11 of scale-and-chassis they cannot be Struck at all.
+
+**The board is grouped by scale, with a visible divider**, which is how Law 8 survives contact with
+a shared initiative order. Frame-scale and personnel-scale combatants share an *order*; their
+*numbers* never sit adjacent. This is the one place the two scales legitimately appear on one
+screen, and the grouping is what keeps it honest.
+
+Rows show what the *party* knows, not what the GM knows, so an unidentified creature reads as
+unidentified. That is not only a screen-sharing safeguard; it is also the answer to "have they
+learned this yet," which is otherwise a question the GM has to hold in their head all session.
+
+### 10.7 The drawers
+
+Context-swapped, one at a time, in the right column:
+
+- **Active creature** — its routine with the multiple attack penalty already applied per attack,
+  its abilities, its reaction, and a tactics line stating what it *wants*. A GM should never be
+  reading a stat block and doing subtraction.
+- **Scene** — prep for the current scene and the episode's scene list, each with a cue button.
+  Cueing is `Scene#activate()` with one of the thirteen native `canvas.transition` effects, all of
+  which the module design already confirmed need no custom code.
+- **Rules** — a search box over the 205 locally mirrored SRD articles in `reference/srd/`. This is
+  buildable today and answers the rulebook's own first-listed GM priority, *answering questions
+  quickly and decisively*. Results are short, with the page citation, because a GM mid-scene needs
+  an answer and a reference, not an article.
+- **Cast** — NPCs, and for important conversations the dialogue panel already specified in
+  `ideas/entries/dialogue-management-panel.json`: player goals, the NPC's goals, hard lines they
+  will not cross, what is coercible, and a list of subjects each with a DC and one-click
+  degree-of-success recording. Those recorded outcomes are log entries like any other.
+- **Campaign** — the slow clocks. Contact Pool, Frame damage states, technician-days, Bleed,
+  Anchors, casualty track, Time Economy. Director Mode already prototypes four of these.
+- **Log** — the full history, filterable by type and scene. The review surface, and where a
+  post-session pass happens if the GM wants one.
+
+### 10.8 End of session
+
+An explicit action, because the corpus needs a boundary to be useful:
+
+1. Close the log and stamp the session.
+2. Generate a digest — the mechanical summary, every Director's-log entry, and a diff of campaign
+   state from session start to session end.
+3. Harvest the player journals by *difference since last checked*, which is the mechanism
+   `player-and-gm-journals-context-ingestion` already specifies, and which per
+   `design/foundry-module-design.md` §4 must be **GM-triggered and Foundry-to-repo only** — private
+   journal content is never pushed back or overwritten.
+4. Land it in `storage/harvest/`, where the existing sync path already collects it.
+
+The digest is then the thing the post-session conversation starts from, rather than the GM trying
+to reconstruct four hours from memory while talking. **Proposed home in the repo:
+`data/sessions/<date>.json`** — distinct from `data/episodes/`, because an episode is what was
+planned and a session is what happened, and the whole point of this corpus is that those differ.
+
+### 10.9 What this resolves
+
+`ideas/entries/campaign-managing-system.json` is currently `new` and openly unsure whether it is a
+real build item, saying it is "worth revisiting once a couple of the more concrete pieces actually
+exist, to see if an umbrella is still needed or if it naturally falls out of the director's panel
+work already designed."
+
+**It falls out.** The Director's console *is* the umbrella: the dialogue panel is a drawer, journal
+ingestion is a step in end-of-session, the chat-log scrape is the mechanical log, and scene-by-scene
+planning is the Scene drawer. That idea does not need a separate build, and this section is what it
+was waiting on. The status is left for the user to set rather than flipped here.
 
 ---
 
-## 11. How to use this document
+## 11. Open questions — the user's calls, not mine
+
+**Settled 2026-09-06:** the Director's console is full-screen and GM-only, relying on Foundry's own
+per-user rendering; narration is one always-available chat box that stamps its own context; entries
+are typed one-liners with tags as an optional accelerator; and the console stays silent during a
+scene, offering what it noticed at scene breaks. Those four are recorded in §10 and are closed.
+
+Still genuinely open:
+
+1. **How much automation is wanted?** §10.4 sorts automation by certainty, but the underlying
+   question survives: does the console *roll*, or only display correct numbers while humans roll?
+   The mechanical log is far richer if rolls flow through the system, which argues one way; the
+   pleasure of rolling your own dice argues the other. A middle path exists, and it is probably the
+   answer — the GM issues checks as `@Check` buttons, players click them, and the chat log is
+   scraped, which captures everything without taking anyone's dice away.
+2. **Does a raw roll count?** If a player types a plain roll command instead of clicking an issued
+   check, the log gets a number with no context. Chase those, ignore them, or ask the GM to
+   attribute them at the next scene break?
+3. **Do the players know their journals are read?** The corpus in §10.2 includes private player
+   journals, ingested to help write future episodes. That is a social question rather than a
+   technical one and should be answered deliberately, not by default. It runs from telling them
+   plainly, through per-player opt-in, to only ingesting entries a player marks as shareable.
+4. **Does the log bar replace Foundry's chat or sit beside it?** §10.3 proposes both a dedicated bar
+   and a chat command. If the chat command alone is enough, the bar is redundant and the screen gets
+   simpler.
+5. **Does the ground crew get a console of their own?** The five Ground Roles have real agency but
+   no combat vocabulary. Their interface is closer to a Director's board than to a pilot's sheet,
+   which would make it a *third* shape.
+6. **Is Bleed player-visible?** Still `pilotVisibility: null` in config, still an open question,
+   and it decides whether Bleed appears on the pilot's own permissions plate or only on the
+   Director's board.
+7. **One console for kid and Frame, or two?** Law 8 says never mix the scales in one readout. §10.6
+   answers it for the Director's board, by grouping rows by scale under a single initiative order.
+   It does not settle the player side.
+8. **How much of this belongs in Foundry's own UI versus ours?** Some of these obligations —
+   initiative, damage application, chat — are things Foundry and the sf2e system already do.
+   Replacing working machinery has a cost, and this document deliberately does not assume we should.
+
+---
+
+## 12. How to use this document
 
 - Before adding anything to the chassis, check it against **Law 13**. Most things belong in the
   terminal.
 - Before defending a layout, check it against **Law 7**. If a Tier 1 action is not the biggest
   thing on screen, the layout is wrong regardless of how it looks.
+- Before adding a GM feature, check it against **Law 15**. If it asks the GM to do bookkeeping as a
+  task of its own rather than as a side effect of running the game, it will not get used.
+- Before automating anything, place it in one of **§10.4's three tiers** and let that decide how
+  loudly it acts. If you cannot place it confidently, it belongs in Tier C as a suggestion.
 - When this document and `design/visual-identity.md` disagree, this one wins, and the disagreement
   should be recorded in both.
 - When a claim here turns out to be wrong at a real table, change it here first, then change the
