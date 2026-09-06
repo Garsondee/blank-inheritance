@@ -252,46 +252,107 @@ rolled at **the kid's own level's DC**, and the *effect* lands at Frame scale
 *Obligation:* ground crew and pilots get different readouts, not the same readout with different
 numbers in it.
 
-### Downtime is a scheduling problem, not a menu
+### Downtime is the segment mechanic — the same system GitHub issue #109 was asking about
 
-An earlier draft of this section called downtime "a menu with a visible budget of 2" and said it
-should be the easiest mode to build. That was too small an idea. The user's description on
-2026-09-06 makes it the campaign's second real game:
+An earlier draft of this section called downtime "a menu with a visible budget of 2." That was too
+small an idea, and it turned out to already have a name: `design/session-flow-and-overworld.md`'s
+sign-up/multi-group/time-segment mechanic (tracked as GitHub issue #109), which that issue's own
+text says has "no existing mechanical precedent anywhere in this repo." Confirmed as one system,
+not two related ones, on 2026-09-06 — the full procedure #109's open questions were waiting on:
 
-> "Some events happen only at certain times of day. The players are students, so they have the
-> chance to take part in school events morning, night and even evening. However, they are also
-> civil defence so there are operations where the players will need to decide when to do them and
-> finally there are personal missions. Each of these are scenes, they might expire if not dealt
-> with quickly enough, they might debuff the group or a player if not dealt with."
+> "The players will always be given more options of what to do in a time slot than they have
+> actions available to do those things. Some activities should always be available during the day
+> like repairing your frame, attending school lessons, certain fun or useful activities and
+> alongside all of these will be important encounters that either are specific to a student or an
+> event that the whole group needs to attend to progress the story... The idea more than anything
+> is to allow the group to split up and do different things during the day and then once everyone
+> has locked in their answers I'll go through them in a logical order, doing the content and RP for
+> those events one by one, ticking them off as complete and logging what happened afterwards, once
+> we've gone through the entire group we'll have finished a time segment, the display will rotate
+> around, gong noise/ticking grandfather clock noise, then a banner header will declare in bold
+> impressive type 'Day 6: Tuesday - Morning'..."
 
-So downtime is: **a day divided into four quarters, a set of available scenes each eligible only in
-certain quarters, three kinds of scene competing for the same time, two discretionary slices to
-spend, and a decay timer on everything you do not pick.** That is a genuine resource game, and it
-is the engine `config.json` already predicted when it said "more options exist than slices to spend
-them on — that gap is the entire engine of downtime play."
+That single description, plus four follow-up answers the same day, replaces everything the earlier
+draft of this section guessed at.
 
-Three kinds, each with a different relationship to time:
+#### The activity taxonomy has four kinds, and two of the axes are independent
 
-| Kind | Timing | Whose |
-|---|---|---|
-| **School events** | fixed windows — morning, evening, night | the group, or whoever attends |
-| **Civil defence operations** | the players choose when | the group |
-| **Personal missions** | the players choose when | one player |
+| Kind | On offer | Costs a slice? | Mandatory? |
+|---|---|---|---|
+| **Standing activity** — Frame repair, school lessons, "fun or useful activities" | every segment, always | yes | no |
+| **Scheduled scene** — a specific school event, a civil-defence operation, a personal mission | only in eligible quarters, expires if missed | yes | no |
+| **Story event** — the whole group required, to progress the plot | the story's own schedule, not chosen | yes, if it's a real event (below) | **yes** |
+| **Witnessed moment** — a conversation everyone sees, a news report | the story's own schedule | **no** | usually, but incidentally |
 
-*Obligation, and it is a substantial one:* the interface must make **four things visible at once** —
-what is available, which quarters each thing can happen in, what expires soonest, and what it costs
-to let something lapse. Miss any one of those and the mode stops being a decision and becomes a
-guess. §7a designs the surface; the fourth item is important enough that it is now Law 19.
+**Mandatory and slot-consuming are two different tests, not one — Law 20.** The test that actually
+decides whether something costs one of the two daily slices, settled 2026-09-06 in these exact
+words: *"If it's truly passive then no time is used, but if it's a real event/encounter/activity
+then it has to take a time slot."* A mandatory thing can be free (a broadcast nobody can skip, but
+nobody has to *do* anything about it) or slot-consuming (a forced Summons that eats a slice the
+story spends on the player's behalf, not one they chose to spend). Never conflate the two questions
+in the interface, since they answer to different rules.
+
+**A mandatory event must be visually unmistakable before it's opened — Law 21.** The user's own
+lead-in to the whole taxonomy: *"we want to make sure that these mandatory events are easy to
+understand as such."* Not a footnote to the taxonomy — a standalone requirement.
+
+**A surprise can override a commitment.** *"Some events will be surprises that prevent optional
+activities"* — a mandatory story event landing on a segment where a player already locked something
+in can bump that choice out. Per Law 19's own standard, the override must be shown, not silently
+substituted: a player should see that their Frame repair got bumped by the Summons, not just find a
+different scene waiting when the segment resolves.
+
+#### Commit, then resolve — a real two-phase gate, not a queue
+
+**Phase 1 — commit.** Every player locks in their choice for the segment independently, before the
+GM opens any of them. Nobody is pulled into a scene while others are still deciding.
+
+**Phase 2 — resolve.** Once everyone has committed, the GM works through the locked-in list one at
+a time — a real scene, full RP, closed with the scene-close dialogue (§10.3a) — and each closure
+logs itself for free (§10.3), the same mechanics already designed for any other scene. "Ticking them
+off as complete" is a literal UI requirement, not a metaphor.
+
+**Identical picks resolve as one scene**, confirmed 2026-09-06 over resolving each player
+separately: if three players commit to the same lesson, the GM runs it once, live, with all three
+present — one scene-close dialogue, one outcome, one log entry, participants listed together. This
+is a real data-model consequence: a committed instance is keyed by *(activity, segment)* with a
+**set** of participants, not one row per player.
+
+**The GM's resolution queue is pre-sorted, not a flat list**, confirmed 2026-09-06 — story-mandatory
+first, then personal missions, then shared/group activities, as a default the GM can freely
+reorder. The system suggests; it never locks the order in.
+
+**Segment complete → the ceremony.** Once every committed item is resolved, the transition is worth
+designing as a real moment, not a state change: the display rotates, a sound cue plays — a gong, or
+a ticking grandfather clock — then a bold banner declares the new moment, *"Day 6: Tuesday —
+Morning,"* visible to the whole table, not the GM alone. This is the day ring's own rotation (§7a)
+made literal — advancing one quarter *is* this ceremony, not an animation bolted on beside it. See
+§7a for where it lives and what it reuses.
+
+#### Scope: the whole campaign, confirmed
+
+Settled 2026-09-06, closing #109's own first open question directly: this mechanic runs for the
+**entire campaign** — the hand-authored Day 1-6 arc and the procedural Day 7+ Contact Pool phase
+alike. The Contact Pool stays exactly what it already was: a separate, independently-firing daily
+trigger deciding *whether* a Claimant shows up, layered on top of downtime rather than replacing
+how downtime itself is spent.
+
+*Obligation, and it is a substantial one:* the interface must make **five things visible at once** —
+what is on offer, which quarters it's eligible in, what expires soonest, what it costs to let
+something lapse (Law 19), and whether it's mandatory (Law 21, and visually, not just in a tooltip).
+Miss any one of those and the mode stops being a decision and becomes a guess.
 
 *Data this needs and does not have.* `episode.schema.json`'s scene shape currently carries only
-`order`, `title`, `description` and refs to an encounter, challenge or subsystem. Scheduling
-implies at minimum a `kind`, an availability window in day quarters, an expiry, a
-consequence-if-missed, an assignee for personal missions, a `visibility` flag (default visible with
-content; `private` shows to no one but the assignee, per §7a), and the closed list of outcomes the
-scene-close dialogue offers (§10.3a). Also worth noting: `order` presumes a fixed sequence, which
-is right for the authored Episode 1 and wrong for scheduled play, where scenes are offered rather
-than sequenced. Designing those fields is a data task, not this document's, but the interface
-cannot be built before they exist.
+`order`, `title`, `description` and refs to an encounter, challenge or subsystem. This mechanic
+implies at minimum: a `kind` (the four rows above), a `costsSlice` flag (independent of mandatory,
+per Law 20), a `mandatory` flag, an availability window in day quarters, an expiry, a
+consequence-if-missed, `participants` as a **set** rather than a single assignee (personal missions
+happen to always resolve to a set of one), a `visibility` flag (default visible with content;
+`private` shows to no one but the participants, per §7a), a resolution-order priority hint for the
+GM's queue, and the closed list of outcomes the scene-close dialogue offers (§10.3a). Also worth
+noting: `order` presumes a fixed sequence, which is right for the authored Episode 1 and wrong for
+scheduled play, where scenes are offered rather than sequenced. Designing those fields is a data
+task, not this document's, but the interface cannot be built before they exist.
 
 ---
 
@@ -530,6 +591,24 @@ deliberately different instruments in different places: one wraps the dome and m
 the other is a thin horizontal bar and moves continuously. Anything that would let them be read as
 the same clock is a bug.
 
+#### The ring's own rotation is the segment-transition ceremony
+
+Not a separate feature — the same event, described from two directions. §3 gives the full mechanic
+(commit-then-resolve, the ceremony's three beats); this is where it physically happens.
+
+- **The ring turns.** Advancing a quarter is a real rotation of the ring itself, not a value simply
+  flipping to the next label — the visual the user asked for and the mechanical beat #109's own
+  description ends on are the same motion.
+- **A sound cue plays** — a gong, or a ticking grandfather clock — marking the moment distinctly
+  from any other transition in the console.
+- **A bold banner declares the new moment** — *"Day 6: Tuesday — Morning"* — to the whole table,
+  not the GM's screen alone. The chassis already has a chevron-ended banner/marquee system built
+  for scene notices (`.bi-banner`, `design/visual-identity.md`); that is the component this reuses
+  rather than a new one invented for this one purpose.
+- **This is the moment, not a side effect of it.** It fires only when every committed item in the
+  segment has been resolved (§3) — the ring does not advance quietly in the background while a
+  scene is still being played.
+
 ### 7b. Scale is a costume change, not a data filter
 
 Also settled 2026-09-06: *"We might change the UI quite a bit between personnel scale scenes and
@@ -624,6 +703,13 @@ Numbered so they can be cited in review. These are meant to settle arguments.
     a player, they must have been able to see that it would, and roughly when, before it happened.
     A timer whose consequence is only revealed on expiry is a gotcha, not a decision. This covers
     every clock in the campaign, not only scheduled scenes.
+20. **Mandatory and slot-consuming are two different tests, not one.** Whether something is
+    unmissable and whether it costs a daily slice answer to different rules — passive-vs-real-event
+    decides the slice, never "is it mandatory." Conflating the two questions in the interface is a
+    bug even when it happens to give the right answer on a given scene. See §3.
+21. **A mandatory event must be visually unmistakable before it's opened.** Not discovered by
+    reading it, not a subtle border colour — recognisable at a glance, the same standard Marked
+    already holds to (§3): it cannot be one icon among twelve, it needs to read instantly.
 
 ---
 
@@ -674,8 +760,10 @@ Applying Law 13 to what exists today. This is a proposal, not a change already m
   three-key row does not.
 - On-deck indicator.
 - The **day ring** around the dome — four quarters, current one lit, and the board that downtime
-  scheduling is played on (§7a).
-- The **scene-close dialogue** (§10.3a) and the **scene board** in the Director's Scene drawer.
+  scheduling is played on (§7a), including its own rotation as the segment-transition ceremony
+  (sound cue, then a bold table-wide banner — reuse `.bi-banner`, don't invent a second one).
+- The **scene-close dialogue** (§10.3a) and the **scene board / resolution queue** in the
+  Director's Scene drawer (§10.7) — pre-sorted mandatory-first, identical picks pre-clustered.
 - Start-of-turn and end-of-turn checklist prompts, especially persistent damage.
 - A clock component.
 - The GM's combatant board.
@@ -1008,7 +1096,11 @@ Context-swapped, one at a time, in the right column:
   kind, its eligible quarters, its expiry and who it belongs to (§3). The player's day ring shows
   them their own choices; this shows the GM the whole board, including what is about to lapse and
   what that will cost — which is the information a GM needs to decide whether to let it lapse or
-  push it back in front of them.
+  push it back in front of them. Once every player has committed for the segment, this same drawer
+  becomes the **resolution queue** (§3): the locked-in list, pre-sorted mandatory-first, identical
+  picks already clustered into one entry with their participants listed together, each row opening
+  straight into the scene-close dialogue and disappearing from the queue — not the board — once
+  ticked off. The queue emptying is what fires the segment-transition ceremony (§7a).
 - **Rules** — a search box over the 205 locally mirrored SRD articles in `reference/srd/`. This is
   buildable today and answers the rulebook's own first-listed GM priority, *answering questions
   quickly and decisively*. Results are short, with the page citation, because a GM mid-scene needs
