@@ -314,7 +314,38 @@ body.bi-theme .journal-entry-page h2 {
 body.bi-theme .journal-entry-page strong { color: #5c1a0e; }
 
 /* ==========================================================
-   6. ACCESSIBILITY GUARD
+   6. THE ARRIVAL STING'S BANNER LANE
+   ---------------------------------------------------------
+   design/theatre-of-the-mind-staging.md §5's Announced tier. The plate
+   itself (.bi-banner, in bi-components.css) is Foundry-agnostic and
+   unmodified from V1 -- only its MOUNT POINT is new, and a mount point
+   that has to stay clear of Foundry's own scene-navigation tabs (top
+   left) and dialog/notification stack is Foundry-aware by definition,
+   so it lives here rather than beside the plate's own styling.
+   ========================================================== */
+
+/* Class, not id, carries the styling -- same convention as .bi-bar vs
+   #bi-command-bar in command-bar.mjs: the id is only what JS's replace-by-id
+   mount idiom keys off, the class is what CSS selects. */
+body.bi-theme .bi-banner-lane {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  /* Proportional, same reasoning as the stage's own inset (bi-components.css):
+     a fixed pixel width reads right at 1440 and cramped or lost at 2560. */
+  width: min(720px, calc(100vw - 2 * (var(--bi-players-width) + 64px)));
+  min-width: 360px;
+  /* Above our own chassis (command bar, stage) but below Foundry's native
+     notification/tooltip stack (--z-index-notification: 99999,
+     --z-index-tooltip: 9999) -- important, not modal. */
+  z-index: calc(var(--z-index-ui) - 1);
+  pointer-events: none;
+}
+body.bi-theme .bi-banner-lane .bi-banner { pointer-events: auto; }
+
+/* ==========================================================
+   7. ACCESSIBILITY GUARD
    The panel is dark, glowing and heavily textured. Under forced-colors
    (Windows High Contrast), all of that actively harms legibility, so
    the decoration is dropped and the OS palette is allowed through.

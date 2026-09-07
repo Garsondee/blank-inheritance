@@ -31,9 +31,13 @@
         {{!-- Director only, and absent rather than disabled on a player's
               client — the seat is chosen at construction, so a player never
               reaches this branch at all. --}}
+        {{!-- Plain click reveals quietly; shift-click reveals AND announces
+              with a banner (foundry/stage.mjs#onToggleReveal). The hint only
+              needs saying on the reveal edge -- concealing ignores the
+              modifier entirely (design/theatre-of-the-mind-staging.md §5). --}}
         <button type="button" class="bi-frame__key" data-action="toggleReveal"
             data-portrait-id="{{portraitId}}" data-revealed="{{revealed}}"
-            title="{{#if revealed}}{{localize "BLANKINHERITANCE.Stage.Conceal"}}{{else}}{{localize "BLANKINHERITANCE.Stage.Reveal"}}{{/if}}"
+            title="{{#if revealed}}{{localize "BLANKINHERITANCE.Stage.Conceal"}}{{else}}{{localize "BLANKINHERITANCE.Stage.RevealHint"}}{{/if}}"
             aria-pressed="{{revealed}}">{{#if revealed}}&#9673;{{else}}&#9671;{{/if}}</button>
         <button type="button" class="bi-frame__key" data-action="askCheck"
             data-label="{{label}}"

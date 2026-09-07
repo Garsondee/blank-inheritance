@@ -34,6 +34,7 @@ import { ensureIntelVault, writeAuthoredProfile } from "./foundry/social-store.m
 import { ensureStageVault, refreshStage, syncStage, writeAuthoredCast } from "./foundry/stage.mjs";
 import { syncCameraToScene, unlockCamera } from "./foundry/stage-camera.mjs";
 import { buildStageDemoScenes, createStageDemoMacroIfMissing } from "./foundry/stage-demo.mjs";
+import { announceCastChange, primeStingCache } from "./foundry/sting.mjs";
 import {
   advanceSegment,
   ensureDowntimeVault,
@@ -178,6 +179,16 @@ Hooks.on("canvasReady", () => {
     // Never leave the camera pinned because our own code threw on the way in.
     unlockCamera();
   }
+
+  // Seed THIS client's memory of who is already on stage, before any diff is
+  // possible -- so opening a scene never reads as everyone in it arriving at
+  // once. See foundry/sting.mjs's file header for why priming and diffing
+  // are deliberately two different entry points rather than one.
+  try {
+    primeStingCache(canvas?.scene);
+  } catch (err) {
+    console.error("Blank Inheritance | Could not prime the arrival-sting cache:", err);
+  }
 });
 
 // The stage's cast lives on the Scene, so any change to it -- a reveal, a
@@ -190,6 +201,16 @@ Hooks.on("updateScene", (scene, changed) => {
     refreshStage();
   } catch (err) {
     console.error("Blank Inheritance | Could not refresh the stage:", err);
+  }
+
+  // Same event, a second consumer: whether to also sound the banner. Must
+  // run off this SAME hook rather than a separate signal, so every client
+  // decides from the identical document update landing at the identical
+  // moment (design/theatre-of-the-mind-staging.md §5's timing rule).
+  try {
+    announceCastChange(scene);
+  } catch (err) {
+    console.error("Blank Inheritance | Could not process the arrival sting:", err);
   }
 });
 

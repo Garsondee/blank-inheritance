@@ -21,6 +21,7 @@
  */
 
 import { STAGE_LAYOUTS, publishedCast, stageState } from "../core/stage-layout.mjs";
+import { STING_TIERS } from "../core/sting.mjs";
 import { deriveFoundryId } from "../core/ids.mjs";
 import { openCharacterCard } from "./character-card.mjs";
 import { postInlineCheck } from "./rolls.mjs";
@@ -81,11 +82,22 @@ export async function writeAuthoredCast(scene, cast, layout = STAGE_LAYOUTS.LINE
   return cast;
 }
 
-/** GM only. Reveal or conceal one member, then republish. */
-export async function setRevealed(scene, portraitId, revealed) {
+/**
+ * GM only. Reveal or conceal one member, then republish.
+ *
+ * `sting` only matters on the reveal edge (concealed -> revealed) — it is
+ * the Director's per-click choice of Quiet vs Announced (§5), carried on the
+ * cast member itself because the client that plays the banner is never the
+ * client that clicked; see foundry/sting.mjs's file header for why the tier
+ * has to travel as data rather than as a second message. Concealing writes
+ * it too, harmlessly: publishedCast drops a concealed member entirely, so a
+ * `sting` value on a concealed record is inert until the next reveal
+ * overwrites it fresh.
+ */
+export async function setRevealed(scene, portraitId, revealed, sting = STING_TIERS.QUIET) {
   if (!game.user.isGM || !scene) return null;
   const cast = await readAuthoredCast(scene.id);
-  const next = cast.map((member) => (member.portraitId === portraitId ? { ...member, revealed } : member));
+  const next = cast.map((member) => (member.portraitId === portraitId ? { ...member, revealed, sting } : member));
   const layout = scene.getFlag(MODULE_ID, FLAG_KEY)?.layout ?? STAGE_LAYOUTS.LINE;
   return writeAuthoredCast(scene, next, layout);
 }
@@ -176,10 +188,24 @@ export class StageOverlay extends HandlebarsApplicationMixin(ApplicationV2) {
     return null;
   }
 
-  /** Director only. The whole reveal ceremony, for now, is this one toggle. */
+  /**
+   * Director only, and the whole reveal ceremony is one control with a
+   * modifier — the same vocabulary DirectorBar already established for
+   * checks ("Click rolls it... Shift asks the table"), reused here rather
+   * than adding a fourth key to a frame that already has three (§3's "two or
+   * three keys, never six").
+   *
+   * Plain click: Quiet — the frame just engages, no banner (§5's default).
+   * Shift+click: Announced — the same reveal, plus the banner sting.
+   * Concealing (the reverse direction) ignores the modifier entirely: there
+   * is no such thing as an announced departure in this build (§5: "someone
+   * leaving is information, not an event" — see core/sting.mjs).
+   */
   static async #onToggleReveal(event, target) {
-    const revealed = target.dataset.revealed !== "true";
-    await setRevealed(canvas.scene, target.dataset.portraitId, revealed);
+    const wasRevealed = target.dataset.revealed === "true";
+    const revealed = !wasRevealed;
+    const sting = revealed && event?.shiftKey ? STING_TIERS.ANNOUNCED : STING_TIERS.QUIET;
+    await setRevealed(canvas.scene, target.dataset.portraitId, revealed, sting);
   }
 
   /**

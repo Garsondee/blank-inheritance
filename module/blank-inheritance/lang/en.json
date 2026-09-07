@@ -104,7 +104,8 @@
       "NoActor": "{name} has no character sheet in this world yet.",
       "Built": "Blank Inheritance: built {count} staged scenes.",
       "NotGM": "Only a GM can build the staged demo scenes.",
-      "MacroName": "Blank Inheritance: Build Staged Demo Scenes"
+      "MacroName": "Blank Inheritance: Build Staged Demo Scenes",
+      "RevealHint": "Reveal to the table (Shift-click: announce with a banner)"
     }
   }
 }

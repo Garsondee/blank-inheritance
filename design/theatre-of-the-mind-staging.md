@@ -365,7 +365,7 @@ degrades to a silhouette when unset.
 
 Sequenced so each step is usable alone, and so the riskiest unknown is not last.
 
-**Steps 1, 2, 5 and 6 are BUILT** (2026-09-07), verified live in a real Foundry world against four
+**Steps 1, 2, 3, 5 and 6 are BUILT** (2026-09-07), verified live in a real Foundry world against four
 worked scenes — one per arrangement. What that pass actually established, beyond the code:
 
 - **The camera lock is real and is undocumented API.** There is no Scene field, no setting and no
@@ -384,14 +384,33 @@ worked scenes — one per arrangement. What that pass actually established, beyo
 - **Six frames at once is comfortable**, answering half of open question 2: at a 1920 viewport six
   PCs sit in one centred row at 146px each with room to spare. The frame size steps down by
   headcount rather than needing a scroll.
+- **Open question 4 got a de facto answer worth flagging, not closing.** A player on a different
+  scene does not hear the banner — `announceCastChange` only ever runs for the scene the client is
+  currently viewing, the same guard `syncStage`'s repaint already used. This was not a deliberate
+  design call so much as a consequence of there being one stage overlay, for one active scene, per
+  client; reaching a player elsewhere would need an independent notification channel, which is a
+  real design decision and not one to make by accident while wiring a hook. Flagging it rather than
+  treating the question as settled.
+- **The tier has to travel as data, not as a live argument.** The click that reveals someone
+  happens on exactly one client; the banner has to appear on every client from the SAME document
+  update landing (§5's timing rule). So Quiet vs Announced is written onto the cast member itself
+  (a `sting` field, carried through `publishedCast`'s allow-list) rather than passed to a notify
+  call — every client reads the same field off the same data and reaches the same answer
+  independently. Verified live: a plain click published `sting: "quiet"` and no banner; a
+  shift-click published `sting: "announced"` and the plate dropped with the character's name,
+  merged its counter on a rapid repeat, and dismissed cleanly. Opening or switching to a scene
+  primes silently — nobody already on stage reads as a fresh arrival.
 
 1. **Frames on the stage, GM-revealed, no art.** ✅ Built. Actor images and the V1 card treatment.
    Proves the reveal path, the permission model, and the layout against a real scene.
 2. **Portrait opens the Character Card**, seat-appropriate. ✅ Built — the frame is a button, and
    both seats reach the same card, which redacts itself.
-3. **The quiet and announced tiers.** Wire `NoticeQueue` to reveals, GM-triggered. First real
-   consumer for a tested, idle module — and the point at which the feature is genuinely finished:
-   everything after this is amplitude, not capability.
+3. **The quiet and announced tiers.** ✅ Built. `NoticeQueue`'s first real consumer, and — per its
+   own framing below — the point the feature is genuinely finished; everything after this is
+   amplitude. Reveal is one control with a modifier (plain click Quiet, shift-click Announced),
+   the same vocabulary DirectorBar already uses for checks, rather than a fourth key on a frame
+   that already has three. Departures never sound the banner, at either tier — a deliberate
+   reading of "someone leaving is information, not an event," not an oversight.
 4. **The frame engage**, the middle tier's motion. `--bi-ease-servo` and the four treatments. Costs
    nothing but CSS and degrades to an instant appearance wherever it is not wired up.
 5. **Scene backgrounds via real Scenes.** ✅ Built, plus the camera lock that makes a staged scene a
