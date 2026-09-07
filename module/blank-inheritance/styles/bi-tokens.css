@@ -228,12 +228,25 @@
   /* ---------------------------------------------------------------
      7. METRICS
      --------------------------------------------------------------- */
-  --bi-bar-height: 168px;  /* the INSTRUMENT ROW of the chassis. DETERMINISTIC:
+  --bi-bar-height: 215px;  /* the INSTRUMENT ROW of the chassis. DETERMINISTIC:
                               bi-components pins .bi-bar to exactly this,
                               because bi-foundry-bridge pads #ui-bottom by the
                               full chassis height to lift Foundry's hotbar
                               clear. Content-sizing it would let the two drift
-                              and put the hotbar behind the panel. */
+                              and put the hotbar behind the panel.
+
+                              215, not the original 168: MEASURED 2026-09-07 in
+                              a real Foundry world as the height at which the
+                              checks pod shows every key with no scrolling for
+                              a 27-check character (eighteen skills, three
+                              saves, Perception, five Lores) at ten columns.
+                              168 forced a scrollbar on the control players
+                              touch most. Ingram's call, explicitly: "I know
+                              it's a lot but it's the best use of space for
+                              players." Re-measure this if the day ring ever
+                              takes real width in the instrument track, since
+                              that shrinks both side tracks and costs the
+                              checks pod columns, which costs it rows. */
   --bi-marquee-height: 46px;   /* the status lozenge below the instrument row */
   --bi-chassis-height: calc(var(--bi-bar-height) + var(--bi-marquee-height));
 
@@ -303,7 +316,7 @@
      (.bi-checks's own overflow-y:auto) rather than pushing anything off the
      visible window in a direction nothing was ever guarding. */
   --bi-checks-width: 560px;
-  --bi-checks-key-min: 60px;
+  --bi-checks-key-min: 46px;   /* measured: yields 10 columns in a 560px track */
 
   --bi-toprail-height: 54px;   /* scene status strip          */
   /* The session progress bar sits directly under the toprail, inside the

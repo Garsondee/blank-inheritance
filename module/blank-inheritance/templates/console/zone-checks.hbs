@@ -15,7 +15,7 @@
         <div class="bi-bank__label">{{localize this.labelKey}}</div>
         <div class="bi-checks__grid">
             {{#each this.entries}}
-            <button type="button" class="bi-key" data-action="rollCheck" data-slug="{{this.slug}}"
+            <button type="button" class="bi-key bi-key--sm" data-action="rollCheck" data-slug="{{this.slug}}"
                 title="{{this.label}}" aria-label="{{this.label}}">{{this.short}}</button>
             {{/each}}
         </div>

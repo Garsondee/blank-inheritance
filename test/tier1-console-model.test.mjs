@@ -77,39 +77,39 @@ test("the seat is decided by GM status and nothing else", () => {
 const GOLDEN = {
   "player/theatre": [
     ["ident", "left", "personal", false],
+    ["segment", "left", "board", false],
     ["dome", "instrument", "day-ring", false],
-    ["checks", "right", "skills", false],
-    ["segment", "right", "board", false]
+    ["checks", "right", "skills", false]
   ],
   "player/personnel": [
     ["ident", "left", "personal", false],
+    ["segment", "left", null, true],
     ["dome", "instrument", null, true],
-    ["checks", "right", "skills", false],
-    ["segment", "right", null, true]
+    ["checks", "right", "skills", false]
   ],
   "player/frame": [
     ["ident", "left", "personal", false],
+    ["segment", "left", null, true],
     ["dome", "instrument", null, true],
-    ["checks", "right", "skills", false],
-    ["segment", "right", null, true]
+    ["checks", "right", "skills", false]
   ],
   "director/theatre": [
     ["cast", "left", "board", false],
+    ["log", "left", "bar", false],
     ["dome", "instrument", "day-ring", false],
-    ["checks", "right", "skills", false],
-    ["log", "right", "bar", false]
+    ["checks", "right", "skills", false]
   ],
   "director/personnel": [
     ["cast", "left", "board", false],
+    ["log", "left", "bar", false],
     ["dome", "instrument", null, true],
-    ["checks", "right", "skills", false],
-    ["log", "right", "bar", false]
+    ["checks", "right", "skills", false]
   ],
   "director/frame": [
     ["cast", "left", "board", false],
+    ["log", "left", "bar", false],
     ["dome", "instrument", null, true],
-    ["checks", "right", "skills", false],
-    ["log", "right", "bar", false]
+    ["checks", "right", "skills", false]
   ]
 };
 

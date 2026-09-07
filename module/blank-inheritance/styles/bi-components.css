@@ -1018,7 +1018,10 @@
   flex-direction: column;
   gap: 5px;
   min-height: 0;
-  min-width: 220px;
+  /* 160, not 220: a one-line field does not need more, and every pixel here
+     was coming out of the checks pod's column count while they shared a
+     track. They no longer do, but the floor stays honest. */
+  min-width: 160px;
 }
 
 .bi-log__input {
@@ -1118,7 +1121,7 @@
      no matter how narrow the window gets, so widening it can never push the
      log or the roster off the end of the chassis. */
   flex: 0 1 var(--bi-checks-width);
-  min-width: 320px;
+  min-width: 260px;
 }
 
 .bi-checks {
@@ -1309,9 +1312,23 @@
    the layout; the instrument itself is taken out of flow and anchored to the
    chassis floor, because a grid item taller than its row does not position
    predictably from align-items alone. */
+/* The instrument's berth. Sized to its CONTENT, not to --bi-dome-size.
+
+   V1's dome was absolutely positioned and needed the berth to reserve its
+   width in the layout. V2's dome zone is an ordinary pod, and until the day
+   ring lands (stage 4) it holds nothing but a legend -- so reserving 252px
+   for it was handing a quarter of the chassis to an empty box. Measured
+   2026-09-07: reclaiming it moved the checks pod from four columns to ten,
+   because both side tracks are minmax(0,1fr) and split whatever the centre
+   does not take.
+
+   When the day ring is built it should declare its own width on the DOME POD
+   itself rather than here, so the berth keeps hugging whatever is really in
+   it and an empty zone never costs the side tracks anything again. */
 .bi-bar__instrument {
   position: relative;
-  width: var(--bi-dome-size);
+  width: auto;
+  min-width: 0;
   height: var(--bi-bar-height);
   flex: none;
 }

@@ -63,18 +63,36 @@ export const MODE_LIST = Object.freeze(Object.values(MODES));
  * every mode. The log in particular is always on: running the session and
  * recording it are one act.
  */
+/**
+ * THE RIGHT TRACK BELONGS TO `checks` ALONE, on both seats. Everything else
+ * lives left of the instrument.
+ *
+ * Measured, not chosen for tidiness (2026-09-07, in a real Foundry world).
+ * The checks zone is the only one whose content is unbounded — eighteen fixed
+ * skills, three saves, Perception, and however many Lores a character has —
+ * and its row count falls as its column count rises. Sharing a track with the
+ * log squeezed it to 320px (its own floor) and FOUR columns, which put a
+ * plain 22-key character at five rows and forced a scrollbar on the one
+ * control players use most. Alone in the track it gets 560px and TEN columns:
+ * a 27-key character with five Lores fits in three rows with nothing hidden.
+ *
+ * That is the whole reason for the split, and it is worth more than the
+ * symmetry of putting each seat's "other" zone opposite its first. It also
+ * happens to read well: left is the world (who is here, what happened, what
+ * is scheduled), right is what I can do about it, centre is when we are.
+ */
 const ZONE_TABLE = Object.freeze({
   [SEATS.PLAYER]: Object.freeze([
     Object.freeze({ id: "ident", track: "left", partial: "personal", labelKey: "BLANKINHERITANCE.Console.Zone.Ident" }),
+    Object.freeze({ id: "segment", track: "left", partial: "board", theatreOnly: true, labelKey: "BLANKINHERITANCE.Console.Zone.Segment" }),
     Object.freeze({ id: "dome", track: "instrument", partial: "day-ring", theatreOnly: true, labelKey: "BLANKINHERITANCE.Console.Zone.Dome" }),
-    Object.freeze({ id: "checks", track: "right", partial: "skills", labelKey: "BLANKINHERITANCE.Console.Zone.Checks" }),
-    Object.freeze({ id: "segment", track: "right", partial: "board", theatreOnly: true, labelKey: "BLANKINHERITANCE.Console.Zone.Segment" })
+    Object.freeze({ id: "checks", track: "right", partial: "skills", labelKey: "BLANKINHERITANCE.Console.Zone.Checks" })
   ]),
   [SEATS.DIRECTOR]: Object.freeze([
     Object.freeze({ id: "cast", track: "left", partial: "board", labelKey: "BLANKINHERITANCE.Console.Zone.Cast" }),
+    Object.freeze({ id: "log", track: "left", partial: "bar", labelKey: "BLANKINHERITANCE.Console.Zone.Log" }),
     Object.freeze({ id: "dome", track: "instrument", partial: "day-ring", theatreOnly: true, labelKey: "BLANKINHERITANCE.Console.Zone.Dome" }),
-    Object.freeze({ id: "checks", track: "right", partial: "skills", labelKey: "BLANKINHERITANCE.Console.Zone.Checks" }),
-    Object.freeze({ id: "log", track: "right", partial: "bar", labelKey: "BLANKINHERITANCE.Console.Zone.Log" })
+    Object.freeze({ id: "checks", track: "right", partial: "skills", labelKey: "BLANKINHERITANCE.Console.Zone.Checks" })
   ])
 });
 
