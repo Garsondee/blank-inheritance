@@ -130,6 +130,21 @@ Scene schema also carries its own default `transition.{type, duration, activeOnl
 
 There is **no dedicated transition-related hook** — nothing fires when a transition starts/ends.
 
+### ⚠️ Locking the camera — no supported way exists; there is exactly one seam
+Verified against v14.367 for the theatre-of-the-mind stage (`design/theatre-of-the-mind-staging.md` §6, implemented in `module/.../foundry/stage-camera.mjs`). **There is no Scene field, no setting, no keybind config and no cancellable hook** for constraining pan or zoom.
+
+- `canvasPan` (`client/canvas/board.mjs:1775`) is dispatched with `Hooks.callAll`, which explicitly "can not be handled by returning false" (`client/helpers/hooks.mjs:108-114`) — and it fires **after** `stage.pivot.set` (`:1763`) and `stage.scale.set` (`:1767`). A hook can only correct the camera one frame late, visibly. There is no `preCanvasPan`.
+- **`Canvas#_constrainView` (`board.mjs:1902`) is the single choke point.** `Canvas#pan` calls it at `:1759` before touching the stage; `animatePan` at `:1806`. A search of `client/` for `stage.pivot.set` / `stage.scale.set` returns exactly the two lines inside `pan`. Overriding it on the prototype catches every input path at once — wheel, right-drag, edge-drag, the eight pan/zoom keybinds, resize, recenter. It is marked `@internal`.
+- The **default clamp is loose**: ±40% of a viewport beyond the canvas rect (`:1912-1915`). Sizing a scene exactly to its image does NOT stop dragging.
+- Any HTML overlay with pointer-events covering the viewport suppresses wheel zoom for free — `MouseManager` bails unless the hovered element is literally `#board` (`client/helpers/interaction/mouse-manager.mjs:40-41`). Keyboard pan is **not** stopped that way (`client-keybindings.mjs:940`).
+- **Do NOT pin `CONFIG.Canvas.minZoom`/`maxZoom` as a second lever.** They are read by `Canvas##getDimensions` (`:632-645`) and baked into `dimensions.scale.min/max` at draw time (`:1157`) — which happens **before any hook a module can listen on**; `canvasInit` fires at `:1170`. A scene opened while they are pinned keeps the pinned range afterwards, so an ordinary battle map comes out frozen at the previous stage's cover scale. Found live, not reasoned about.
+- `SceneManager` (`CONFIG.Canvas.managedScenes`, `client/canvas/scene-manager.mjs`) is the right place to scope per-scene overrides but has **no camera API of its own**. Note its own doc comment names the wrong config key (`sceneManagers`); the real one is `managedScenes` (`client/config.mjs:1083`).
+
+### A Scene that is a picture rather than a map
+The background is always sized to `sceneRect`, never the padded `rect` (`client/canvas/groups/primary.mjs:294-301`), so: match `width`/`height` to the artwork, set **`padding: 0`** (the default is **0.25**, `common/documents/scene.mjs:78`) and `shiftX/shiftY: 0` — then `rect === sceneRect` (`common/grid/gridless.mjs:18-26`) and Foundry's 2.5% padding tint (`primary.mjs:332-337`) covers nothing. Set `grid.type: 0` (`CONST.GRID_TYPES.GRIDLESS`, `common/constants.mjs:584`; the mesh is not merely transparent, it is `renderable = false`, `grid-mesh.mjs:59`), `tokenVision: false`, and `environment.globalLight.enabled: true`. Set `Level#background.color` to black — it defaults to **`#999999`** (`common/documents/level.mjs:87`), which is why an unconfigured stage scene shows grey rather than black around the art.
+
+`initial.scale` **cannot** be authored to fit every client (the cover scale is viewport-dependent) and is only a first-visit default anyway — a cached `_viewPosition` wins on redraw (`board.mjs:1535`, `client/documents/scene.mjs:42`).
+
 ### Video playback and the "detect end" gap
 - `game.video` (`VideoHelper`, `client/helpers/media/video-helper.mjs`): `getVideoSource(obj)`, `play(video, {loop, offset, volume})`, `stop(video)`, `hasVideoExtension(src)`, `awaitFirstGesture()`.
 - Scene background/foreground video elements: `canvas.primary.backgroundSource` / `.foregroundSource`. All active video meshes: `canvas.primary.videoMeshes`.
