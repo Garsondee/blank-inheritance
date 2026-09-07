@@ -365,17 +365,44 @@ degrades to a silhouette when unset.
 
 Sequenced so each step is usable alone, and so the riskiest unknown is not last.
 
-1. **Frames on the stage, GM-revealed, no art.** Actor images and the V1 card treatment. Proves the
-   reveal path, the permission model, and the layout against a real scene. *Highest risk item is
-   the permission model — do it first.*
-2. **Portrait opens the Character Card**, seat-appropriate. Pure composition; both halves exist.
+**Steps 1, 2, 5 and 6 are BUILT** (2026-09-07), verified live in a real Foundry world against four
+worked scenes — one per arrangement. What that pass actually established, beyond the code:
+
+- **The camera lock is real and is undocumented API.** There is no Scene field, no setting and no
+  cancellable hook for it in v14.367. `canvasPan` is dispatched with `Hooks.callAll`, so it cannot
+  be cancelled, and it fires *after* `stage.pivot` and `stage.scale` are already assigned — a hook
+  can only correct the camera a frame late, visibly. `Canvas#_constrainView` is the one choke point
+  every pan and zoom routes through, so `foundry/stage-camera.mjs` replaces it. It is marked
+  `@internal`; a contract test in `tier3-contract.test.mjs` is the canary for it moving.
+- **`background` is no longer a Scene field.** It is on the embedded `Level` document;
+  `Scene#background` is a deprecation shim. Writing it at the top level of scene data produces no
+  picture and no error at all. Neither does leaving `padding` at its 0.25 default — the art draws
+  inside a border of Foundry's default mid-grey.
+- **Law 11 holds live, not just in a test.** Before the Director reveals a concealed member, the
+  Scene flag every client receives contains neither their name nor their id; after, it does. The
+  authored cast lives in a GM-only JournalEntry, and only the revealed subset is published.
+- **Six frames at once is comfortable**, answering half of open question 2: at a 1920 viewport six
+  PCs sit in one centred row at 146px each with room to spare. The frame size steps down by
+  headcount rather than needing a scroll.
+
+1. **Frames on the stage, GM-revealed, no art.** ✅ Built. Actor images and the V1 card treatment.
+   Proves the reveal path, the permission model, and the layout against a real scene.
+2. **Portrait opens the Character Card**, seat-appropriate. ✅ Built — the frame is a button, and
+   both seats reach the same card, which redacts itself.
 3. **The quiet and announced tiers.** Wire `NoticeQueue` to reveals, GM-triggered. First real
    consumer for a tested, idle module — and the point at which the feature is genuinely finished:
    everything after this is amplitude, not capability.
 4. **The frame engage**, the middle tier's motion. `--bi-ease-servo` and the four treatments. Costs
    nothing but CSS and degrades to an instant appearance wherever it is not wired up.
-5. **Scene backgrounds via real Scenes**, with per-scene default transitions.
-6. **Real art**, gated on the asset pipeline (§7).
+5. **Scene backgrounds via real Scenes.** ✅ Built, plus the camera lock that makes a staged scene a
+   picture rather than a map — gridless, zero padding, cover scale, pivot pinned. Per-scene default
+   transitions are still unused.
+6. **Real art.** ✅ Partly: `tools/stage-assets/stage_assets.py` reads a manifest that names each
+   image by a STABLE ID, resizes it, and writes it into the module as `<id>.webp` — 50MB of in-tray
+   PNGs down to 1.6MB, and nothing downstream has to move when the real pipeline renames the
+   sources. That is the minimum §7 asks for and explicitly **not** the pipeline itself: no
+   cataloguing, no dedup, no assigned-once bookkeeping. The casting in
+   `data/campaign/stage-demo.json` is a DEMO CAST, not a decision.
 7. **The splash**, last on purpose — and this is a real ordering constraint, not a preference. Every
    other step degrades gracefully without art: a banner over a silhouette still reads. A full-screen
    takeover of a silhouette is *worse than no splash at all*, so the loud tier must not be enabled

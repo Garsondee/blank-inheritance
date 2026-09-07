@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stage-demo.schema.json",
+  "title": "Staged scene set",
+  "description": "A set of theatre-of-the-mind scenes: which artwork carries each location, who is standing in it, and how they are arranged. Consumed twice — by tools/stage-assets/stage_assets.py, which resizes each named source out of artwork/in-tray/ into the module under its stable id, and by the module's own buildStageDemoScenes, which turns each entry into a real Foundry Scene with its cast staged. See design/theatre-of-the-mind-staging.md.",
+  "type": "object",
+  "required": ["id", "type", "portraits", "scenes"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string" },
+    "type": { "const": "stage-demo" },
+    "status": { "type": "string" },
+    "purpose": { "type": "string" },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "portraits": {
+      "type": "array",
+      "description": "The cast pool. `id` is the CONTRACT: everything downstream points at assets/stage/<id>.webp, so when the asset-review-pipeline reorganises artwork/in-tray/ only `source` has to move.",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "source"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "label": { "type": "string", "description": "What the nameplate reads." },
+          "kind": { "enum": ["pc", "npc"] },
+          "characterRef": {
+            "type": ["string", "null"],
+            "description": "id of a file under data/characters/ or data/npcs/, when this portrait is of somebody who exists there. null for a role that has no sheet."
+          },
+          "source": {
+            "type": "string",
+            "description": "Path relative to artwork/in-tray/. Expected to change; the id is not."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "scenes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "layout", "background", "cast"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "name": { "type": "string" },
+          "layout": {
+            "enum": ["line", "conversation", "pair", "group-left", "group-right"],
+            "description": "Blocking is meaning: two figures either side of a gap read as a conversation, a cluster opposite one figure reads as a summons. Must match core/stage-layout.mjs's STAGE_LAYOUTS."
+          },
+          "background": { "type": "string", "description": "Path relative to artwork/in-tray/. Authored 2:1." },
+          "note": { "type": "string" },
+          "cast": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["portraitId"],
+              "properties": {
+                "portraitId": { "type": "string" },
+                "side": {
+                  "enum": ["left", "centre", "right"],
+                  "description": "An explicit placement always wins over the layout — a Director who has placed somebody has made a directing decision."
+                },
+                "revealed": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "false keeps this member GM-side entirely: they are absent from the Scene flag every client receives, not merely undrawn (doctrine Law 11)."
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

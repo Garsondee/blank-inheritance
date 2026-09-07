@@ -96,6 +96,15 @@
         "Name": "Move the player list into the command bar",
         "Hint": "Hides Foundry's own player list (which sits under the scene controls on the left in v14) once the command bar carries its own roster. Off by default so nothing disappears unexpectedly."
       }
+    },
+    "Stage": {
+      "Reveal": "Reveal to the table",
+      "Conceal": "Conceal from the table",
+      "AskCheck": "Ask the table for a check",
+      "NoActor": "{name} has no character sheet in this world yet.",
+      "Built": "Blank Inheritance: built {count} staged scenes.",
+      "NotGM": "Only a GM can build the staged demo scenes.",
+      "MacroName": "Blank Inheritance: Build Staged Demo Scenes"
     }
   }
 }

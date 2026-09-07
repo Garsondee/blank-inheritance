@@ -31,6 +31,9 @@ import { PlayerBar } from "./foundry/player-bar.mjs";
 import { DirectorBar } from "./foundry/director-bar.mjs";
 import { loadSessionLog } from "./foundry/session-log.mjs";
 import { ensureIntelVault, writeAuthoredProfile } from "./foundry/social-store.mjs";
+import { ensureStageVault, refreshStage, syncStage, writeAuthoredCast } from "./foundry/stage.mjs";
+import { syncCameraToScene, unlockCamera } from "./foundry/stage-camera.mjs";
+import { buildStageDemoScenes, createStageDemoMacroIfMissing } from "./foundry/stage-demo.mjs";
 import {
   advanceSegment,
   ensureDowntimeVault,
@@ -60,7 +63,12 @@ Hooks.once("init", () => {
       // delivery are finished, the GM-side authoring UI is not. Exposed the
       // same way and for the same reason as writeAuthoredProfile above.
       writePrivateCommitment,
-      advanceSegment
+      advanceSegment,
+      // Staging is GM-authored content with no authoring UI yet, exactly like
+      // writeAuthoredProfile above. buildStageDemoScenes also has its own
+      // macro; this is the console-friendly way in.
+      buildStageDemoScenes,
+      writeAuthoredCast
     };
   }
 
@@ -97,6 +105,11 @@ Hooks.once("ready", async () => {
     } catch (err) {
       console.error("Blank Inheritance | Could not open the private downtime vault:", err);
     }
+    try {
+      await ensureStageVault();
+    } catch (err) {
+      console.error("Blank Inheritance | Could not open the staged-cast vault:", err);
+    }
   }
 
   // Both directions: a GM listening for players asking to spend a slice, and a
@@ -122,6 +135,7 @@ Hooks.once("ready", async () => {
   try {
     await createTestSyncMacroIfMissing();
     await createRealSyncMacroIfMissing();
+    await createStageDemoMacroIfMissing();
   } catch (err) {
     console.error("Blank Inheritance | Could not create a sync macro (you can still run it from the console):", err);
   }
@@ -149,6 +163,33 @@ Hooks.on("canvasReady", () => {
     mountCommandBar(game.user.isGM ? DirectorBar : PlayerBar);
   } catch (err) {
     console.error("Blank Inheritance | Could not re-assert the command bar:", err);
+  }
+
+  // The stage, and the camera lock that makes a staged scene a picture rather
+  // than a map. Both are no-ops on an ordinary scene, and syncCameraToScene
+  // actively UNDOES the lock when leaving one -- a prototype override left in
+  // place after the GM switches to a battle map would freeze the camera on a
+  // map people need to pan.
+  try {
+    syncStage();
+    syncCameraToScene();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not sync the stage to this scene:", err);
+    // Never leave the camera pinned because our own code threw on the way in.
+    unlockCamera();
+  }
+});
+
+// The stage's cast lives on the Scene, so any change to it -- a reveal, a
+// re-stage -- has to repaint every client. updateScene fires everywhere.
+Hooks.on("updateScene", (scene, changed) => {
+  if (scene?.id !== canvas?.scene?.id) return;
+  if (!foundry.utils.hasProperty(changed, `flags.${MODULE_ID}.stage`)) return;
+  try {
+    syncStage();
+    refreshStage();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not refresh the stage:", err);
   }
 });
 

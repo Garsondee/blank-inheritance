@@ -1,0 +1,46 @@
+{{!--
+    One character on the stage.
+
+    The vocabulary is V1's encounter box (.bi-marker__card), reused deliberately
+    rather than reinvented — see design/theatre-of-the-mind-staging.md §3. The
+    art is dimmed until you look at it, because a row of six full-saturation
+    portraits would fight the console for attention every second of the session.
+
+    The frame is the control. The scope is a real <button> covering the art and
+    the nameplate, and the small keys sit BELOW it rather than inside it — a
+    button inside a button is invalid, and the browser's own handling of it is
+    not something to find out about live at a table.
+
+    `revealed` is absent from a player's copy of the cast: a concealed member
+    is not in their data at all (core/stage-layout.mjs#publishedCast), so there
+    is no hidden frame here to reveal by inspecting the DOM.
+--}}
+<figure class="bi-frame{{#if concealed}} bi-frame--concealed{{/if}}" data-portrait-id="{{portraitId}}">
+    <button type="button" class="bi-frame__scope" data-action="openCard"
+        data-actor-id="{{actorId}}" data-label="{{label}}"
+        title="{{label}}">
+        <span class="bi-frame__art">
+            {{#if img}}<img src="{{img}}" alt="">{{/if}}
+        </span>
+        <span class="bi-frame__lamp"></span>
+        <span class="bi-frame__plate">{{label}}</span>
+    </button>
+
+    <div class="bi-frame__keys">
+        {{#if @root.canDirect}}
+        {{!-- Director only, and absent rather than disabled on a player's
+              client — the seat is chosen at construction, so a player never
+              reaches this branch at all. --}}
+        <button type="button" class="bi-frame__key" data-action="toggleReveal"
+            data-portrait-id="{{portraitId}}" data-revealed="{{revealed}}"
+            title="{{#if revealed}}{{localize "BLANKINHERITANCE.Stage.Conceal"}}{{else}}{{localize "BLANKINHERITANCE.Stage.Reveal"}}{{/if}}"
+            aria-pressed="{{revealed}}">{{#if revealed}}&#9673;{{else}}&#9671;{{/if}}</button>
+        <button type="button" class="bi-frame__key" data-action="askCheck"
+            data-label="{{label}}"
+            title="{{localize "BLANKINHERITANCE.Stage.AskCheck"}}">&#9636;</button>
+        {{/if}}
+        <button type="button" class="bi-frame__key" data-action="openCard"
+            data-actor-id="{{actorId}}" data-label="{{label}}"
+            title="{{localize "BLANKINHERITANCE.Console.Card.Open"}}">&#9635;</button>
+    </div>
+</figure>

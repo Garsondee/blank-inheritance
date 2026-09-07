@@ -4107,6 +4107,10 @@
   transform: translateX(-50%);
   width: 26px;
   height: 18px;
+  /* Foundry's button reset imposes a 28px min-height on every <button>;
+     without undoing it this control is 10px taller than declared and hangs
+     off the bottom of the ring. */
+  min-height: 0;
   padding: 0;
   border: 1px solid var(--bi-brass-dark);
   border-radius: 3px;
@@ -4197,3 +4201,210 @@
    payload — there is no hidden string in the DOM to reveal, which is the
    point (doctrine Law 11, core/commitments.mjs#projectForUser). */
 .bi-segment__row--opaque .bi-segment__activity { color: var(--bi-bone-dark); font-style: italic; }
+
+/* =====================================================================
+   THE THEATRE-OF-THE-MIND STAGE
+   ---------------------------------------------------------------------
+   Portraits in frames over the scene's own background art. The frame's
+   vocabulary is V1's encounter box (.bi-marker__card above), reused rather
+   than reinvented — see design/theatre-of-the-mind-staging.md §3.
+
+   The overlay is pointer-events:none and the frames turn it back on. An
+   invisible full-viewport sheet that eats clicks is the classic way an
+   overlay like this breaks a table without anyone being able to say why.
+   ===================================================================== */
+#bi-stage.bi-stage {
+  position: absolute;
+  inset: 0;
+  /* Below the command bar, above the canvas. The bar sits at
+     calc(var(--z-index-app) - 1) in bi-foundry-bridge.css. */
+  z-index: calc(var(--z-index-app) - 2);
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  /* Clear of the command bar below, and inset from the screen edges so a
+     two-sided arrangement reads as two people facing each other rather than
+     two people pinned to the walls. Proportional, because the inset that
+     looks composed at 1280 looks timid at 2560. */
+  padding: 0 clamp(24px, 4.5vw, 110px) calc(var(--bi-bar-height) + 18px);
+}
+
+.bi-stage__deck {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--bi-stage-gap);
+}
+
+/* Three sides, always present. The empty one IS the composition: a
+   conversation is two figures and the space between them, and a side that
+   collapsed when nobody stood in it would turn every layout back into a row. */
+.bi-stage__side {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: var(--bi-stage-gap);
+  flex: 1 1 0;
+  min-width: 0;
+}
+.bi-stage__side[data-side="left"] { justify-content: flex-start; }
+.bi-stage__side[data-side="right"] { justify-content: flex-end; }
+
+/* LINE and PAIR put everyone in the centre, so the flanking sides must not
+   claim a third of the width each and squash the middle. */
+.bi-stage__deck[data-layout="line"] .bi-stage__side:not([data-side="centre"]),
+.bi-stage__deck[data-layout="pair"] .bi-stage__side:not([data-side="centre"]) { flex: 0 0 0; }
+
+/* A cluster on one side reads as weight; the gap opposite is what makes
+   three-against-one legible before anybody says a word. */
+.bi-stage__deck[data-layout="group-left"] .bi-stage__side[data-side="left"],
+.bi-stage__deck[data-layout="group-right"] .bi-stage__side[data-side="right"] { flex: 2 1 0; }
+
+/* --- The frame -------------------------------------------------------- */
+.bi-frame {
+  --frame-w: var(--bi-frame-width);
+  pointer-events: auto;
+  margin: 0;
+  width: var(--frame-w);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  filter: drop-shadow(0 10px 18px rgb(0 0 0 / 65%));
+}
+
+/* Headcount decides the size. The staging doc's open question 2 asks where
+   the real threshold is; this is a defensible default, not an answer. */
+.bi-stage__deck[data-scale="lg"] { --bi-frame-width: 208px; }
+.bi-stage__deck[data-scale="md"] { --bi-frame-width: 176px; }
+.bi-stage__deck[data-scale="sm"] { --bi-frame-width: 146px; }
+.bi-stage__deck[data-scale="xs"] { --bi-frame-width: 118px; }
+
+.bi-frame__scope {
+  --chamfer: 10px;
+  position: relative;
+  display: block;
+  width: 100%;
+  /* Foundry's own reset gives every <button> a min-height (28px, measured
+     live) and a fixed height, which collapsed this one to a sliver with a
+     264px portrait overflowing out of it. Both have to be undone explicitly:
+     this button is a picture frame, not a control-sized widget. */
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  background: var(--bi-steel-800);
+  box-shadow: inset 0 0 0 1px var(--bi-brass-shadow);
+  clip-path: polygon(
+    var(--chamfer) 0, 100% 0, 100% calc(100% - var(--chamfer)),
+    calc(100% - var(--chamfer)) 100%, 0 100%, 0 var(--chamfer)
+  );
+  cursor: pointer;
+  transition: transform var(--bi-dur-snap) var(--bi-ease-servo);
+}
+.bi-frame__scope:hover { transform: translateY(-2px); }
+.bi-frame__scope:focus-visible { outline: 2px solid var(--bi-cyan); outline-offset: 2px; }
+
+.bi-frame__art {
+  position: relative;
+  display: block;
+  /* The portraits are authored 2:3, so the art box is 1.5x the frame width.
+     Computed from the width token rather than declared as `aspect-ratio: 2/3`
+     ON PURPOSE: tier3-theme-contract.test.mjs bans aspect-ratio anywhere in
+     the shared component CSS, because a ratio there is inheritable by any
+     page or by Foundry itself, and that rule was earned by a real bug. This
+     is exact (the frame's width IS --frame-w) and stays out of the way. */
+  height: calc(var(--frame-w) * 1.5);
+  overflow: hidden;
+  background: var(--bi-steel-900);
+}
+.bi-frame__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  /* V1's own comment, still true: dimmed so the plates and lamps outrank the
+     picture until you look. Six full-saturation portraits would fight the
+     console for attention every second of the session. */
+  filter: saturate(0.82) brightness(0.82);
+  transition: filter var(--bi-dur-snap) linear;
+}
+.bi-frame__scope:hover .bi-frame__art img { filter: none; }
+
+/* What makes the art read as DISPLAYED on the console rather than pasted
+   onto it. Non-negotiable for the campaign's voice. */
+.bi-frame__art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--bi-mat-scanline);
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.bi-frame__lamp {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bi-cyan);
+  box-shadow: 0 0 8px var(--bi-cyan), inset 0 0 0 1px rgb(0 0 0 / 40%);
+}
+
+.bi-frame__plate {
+  display: block;
+  padding: 5px 8px;
+  background: linear-gradient(180deg, var(--bi-bone), var(--bi-bone-dim));
+  color: var(--bi-ink);
+  font-family: var(--bi-font-legend);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Two or three keys, never six. A frame with six buttons is a character
+   sheet, and doctrine Law 13 already says the chassis is for what happens
+   inside a turn — everything else lives elsewhere. */
+.bi-frame__keys { display: flex; justify-content: center; gap: 4px; }
+
+.bi-frame__key {
+  pointer-events: auto;
+  width: 26px;
+  height: 20px;
+  /* Same Foundry button reset as above — without this the key row is 28px
+     tall and the declared 20px is decorative. */
+  min-height: 0;
+  padding: 0;
+  border: 1px solid var(--bi-brass-dark);
+  border-radius: 3px;
+  background: var(--bi-steel-700);
+  color: var(--bi-brass-lit);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+.bi-frame__key:hover { background: var(--bi-steel-600); color: #fff; }
+.bi-frame__key:focus-visible { outline: 2px solid var(--bi-cyan); outline-offset: 2px; }
+.bi-frame__key[aria-pressed="false"] { color: var(--bi-bone-dark); }
+
+/* The Director's view of somebody the table cannot see. A player has no such
+   frame at all — a concealed member is absent from the data their client was
+   sent (core/stage-layout.mjs#publishedCast), so this styling can only ever
+   apply to the one seat entitled to know. */
+.bi-frame--concealed { opacity: 0.42; }
+.bi-frame--concealed .bi-frame__art img { filter: saturate(0) brightness(0.6); }
+.bi-frame--concealed .bi-frame__lamp { background: var(--bi-bone-dark); box-shadow: none; }
+.bi-frame--concealed .bi-frame__plate { background: var(--bi-steel-600); color: var(--bi-bone-dim); }
+
+@media (prefers-reduced-motion: reduce) {
+  .bi-frame__scope { transition: none; }
+  .bi-frame__scope:hover { transform: none; }
+}
