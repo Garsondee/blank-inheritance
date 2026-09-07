@@ -59,7 +59,7 @@
         "Hidden": "Hidden from players"
       },
       "Log": {
-        "Placeholder": "What just happened\u2026",
+        "Placeholder": "What just happened…",
         "SaveFailed": "The session log could not be saved. Your note is kept and will retry on the next entry.",
         "Empty": "Nothing logged yet."
       },
@@ -70,6 +70,21 @@
         "Segment": "Schedule",
         "Cast": "Cast",
         "Log": "Log"
+      },
+      "Quarter": {
+        "Morning": "Morning",
+        "Afternoon": "Afternoon",
+        "Evening": "Evening",
+        "Night": "Night"
+      },
+      "Ring": {
+        "Day": "Day {day}",
+        "Advance": "Advance to the next quarter"
+      },
+      "Segment": {
+        "Budget": "{remaining} of {total} slices left",
+        "NoOffers": "Nothing on offer this quarter.",
+        "Occupied": "Spoken for"
       }
     },
     "Settings": {

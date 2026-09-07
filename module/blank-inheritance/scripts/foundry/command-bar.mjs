@@ -30,7 +30,9 @@ const TEMPLATE_ROOT = `modules/${MODULE_ID}/templates/console`;
 const ZONE_PARTIALS = Object.freeze({
   skills: `${TEMPLATE_ROOT}/zone-checks.hbs`,
   board: `${TEMPLATE_ROOT}/zone-cast.hbs`,
-  bar: `${TEMPLATE_ROOT}/zone-log.hbs`
+  bar: `${TEMPLATE_ROOT}/zone-log.hbs`,
+  "day-ring": `${TEMPLATE_ROOT}/zone-dome.hbs`,
+  schedule: `${TEMPLATE_ROOT}/zone-segment.hbs`
 });
 
 /**
@@ -129,7 +131,10 @@ export class CommandBar extends HandlebarsApplicationMixin(ApplicationV2) {
     for (const track of Object.values(layout.tracks)) {
       for (const zone of track.zones) {
         zone.template = ZONE_PARTIALS[zone.partial] ?? null;
-        this._decorateZone(zone, layout);
+        // Awaited in a plain loop rather than gathered with Promise.all: zones
+        // are single digits, and a rejected decorator should take down the one
+        // render rather than leaving the others half-applied.
+        await this._decorateZone(zone, layout);
       }
     }
     return layout;
@@ -138,8 +143,10 @@ export class CommandBar extends HandlebarsApplicationMixin(ApplicationV2) {
   /**
    * Hook for a seat to attach a zone's own data. Base does nothing: the
    * chassis knows where zones go, never what is in them.
+   *
+   * May be async — the segment zone reads campaign content off disk.
    */
-  _decorateZone(_zone, _layout) {}
+  async _decorateZone(_zone, _layout) {}
 }
 
 /* ---------------------------------------------------------------------- */

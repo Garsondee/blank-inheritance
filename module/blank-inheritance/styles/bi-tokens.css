@@ -318,6 +318,21 @@
   --bi-checks-width: 560px;
   --bi-checks-key-min: 46px;   /* measured: yields 10 columns in a 560px track */
 
+  /* The day ring (stage 4). The DOME POD declares this width, not the berth --
+     .bi-bar__instrument stays content-sized so an empty centre track never
+     taxes the side tracks again (the whole reason checks went from four
+     columns to ten). Sized to sit INSIDE the bar rather than looming above it
+     the way V1's dome did: looming is free vertical space over the canvas, but
+     it needs absolute positioning, and this project has already paid once for
+     assuming it knew which way an over-tall element escapes its row. */
+  --bi-ring-size: 176px;
+
+  /* The player's schedule board shares the left track with `ident`, so it asks
+     for a berth rather than claiming one: flex 0 1 means it gives width back
+     under pressure instead of pushing a sibling off the bar. */
+  --bi-segment-width: 260px;
+  --bi-segment-key-min: 76px;
+
   --bi-toprail-height: 54px;   /* scene status strip          */
   /* The session progress bar sits directly under the toprail, inside the
      SAME top layer (see .bi-console__top) — so the layer's own height is

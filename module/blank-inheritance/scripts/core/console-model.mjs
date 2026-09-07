@@ -84,7 +84,7 @@ export const MODE_LIST = Object.freeze(Object.values(MODES));
 const ZONE_TABLE = Object.freeze({
   [SEATS.PLAYER]: Object.freeze([
     Object.freeze({ id: "ident", track: "left", partial: "personal", labelKey: "BLANKINHERITANCE.Console.Zone.Ident" }),
-    Object.freeze({ id: "segment", track: "left", partial: "board", theatreOnly: true, labelKey: "BLANKINHERITANCE.Console.Zone.Segment" }),
+    Object.freeze({ id: "segment", track: "left", partial: "schedule", theatreOnly: true, labelKey: "BLANKINHERITANCE.Console.Zone.Segment" }),
     Object.freeze({ id: "dome", track: "instrument", partial: "day-ring", theatreOnly: true, labelKey: "BLANKINHERITANCE.Console.Zone.Dome" }),
     Object.freeze({ id: "checks", track: "right", partial: "skills", labelKey: "BLANKINHERITANCE.Console.Zone.Checks" })
   ]),

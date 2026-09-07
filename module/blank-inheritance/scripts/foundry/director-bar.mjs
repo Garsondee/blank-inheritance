@@ -13,6 +13,8 @@ import { castForScene, selectCastRow } from "./cast.mjs";
 import { openCharacterCard } from "./character-card.mjs";
 import { currentEntries, loadSessionLog, recordLogEntry } from "./session-log.mjs";
 import { currentMode } from "./command-bar.mjs";
+import { ringState, quarterAt, quarterIndex } from "../core/day-ring.mjs";
+import { advanceSegment, currentMoment } from "./campaign-state.mjs";
 
 export class DirectorBar extends CommandBar {
   static SEAT = SEATS.DIRECTOR;
@@ -22,13 +24,24 @@ export class DirectorBar extends CommandBar {
     actions: {
       rollCheck: DirectorBar.#onRollCheck,
       selectCast: DirectorBar.#onSelectCast,
-      openCard: DirectorBar.#onOpenCard
+      openCard: DirectorBar.#onOpenCard,
+      advanceSegment: DirectorBar.#onAdvanceSegment
     }
   };
 
   /** @override */
-  _decorateZone(zone) {
+  async _decorateZone(zone) {
     if (zone.hidden) return;
+
+    // The clock is the Director's to move, and only theirs. The zone is
+    // identical on both seats except for this one control — which is the
+    // right shape: a player watches the same instrument, they just cannot
+    // wind it.
+    if (zone.id === "dome") {
+      zone.ring = ringState(currentMoment());
+      zone.canAdvance = true;
+      return;
+    }
 
     if (zone.id === "checks") {
       const actor = actorForSeat(DirectorBar.SEAT);
@@ -88,6 +101,34 @@ export class DirectorBar extends CommandBar {
       subject: actor?.name ?? null
     });
     if (entry) refreshCommandBar(["right"]);
+  }
+
+  /**
+   * Wind the clock on one quarter.
+   *
+   * Auto-logs, because advancing the day IS a session event and doctrine Law 15
+   * says running the session and recording it are one act — a GM should never
+   * have to remember to write down that the evening started.
+   *
+   * The louder half of the ceremony (a `.bi-banner` drop, a sound cue) is
+   * deliberately NOT here: that machinery belongs to the sting work specified
+   * in design/theatre-of-the-mind-staging.md §5, and building a second,
+   * parallel notice path now would mean tearing one out later.
+   */
+  static async #onAdvanceSegment() {
+    const change = await advanceSegment(1);
+    if (!change) return;
+    const { before, after, newDay } = change;
+    await recordLogEntry({
+      text: newDay
+        ? `Day ${after.day} begins — ${quarterAt(quarterIndex(after.quarter)).id}.`
+        : `${quarterAt(quarterIndex(after.quarter)).id} of day ${after.day}.`,
+      nowIso: new Date().toISOString(),
+      scene: canvas?.scene?.name ?? null,
+      mode: currentMode(),
+      subject: `day ${before.day} ${before.quarter}`
+    });
+    refreshCommandBar();
   }
 
   static async #onSelectCast(event, target) {

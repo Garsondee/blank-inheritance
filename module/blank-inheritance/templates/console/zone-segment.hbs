@@ -1,0 +1,52 @@
+{{!--
+    The segment board: what this quarter's one slice can be spent on, what it
+    has already been spent on, and who else has spent theirs.
+
+    A player's zone. The Director sees the same facts through the cast board
+    and the ring's own controls — a GM does not schedule, they advance.
+
+    Redaction is NOT done here. By the time this renders, a commitment the
+    viewer may not read has already had its payload removed by
+    core/commitments.mjs#projectForUser, and their client was never sent the
+    authored note at all (foundry/campaign-state.mjs). A template that decides
+    what to print is a template that can be wrong once; a client that never
+    received the string cannot be.
+--}}
+<div class="bi-segment">
+    <p class="bi-segment__budget" data-remaining="{{segment.budget.remaining}}">
+        {{localize "BLANKINHERITANCE.Console.Segment.Budget" remaining=segment.budget.remaining total=segment.budget.total}}
+    </p>
+
+    {{#if segment.offers.length}}
+    <ul class="bi-segment__offers">
+        {{#each segment.offers}}
+        <li class="bi-segment__offer">
+            {{!-- aria-pressed, not a modifier class: .bi-key already styles
+                  [aria-pressed="true"] as a held-down key, and a toggle
+                  button owes a screen reader its state anyway. --}}
+            <button type="button" class="bi-key bi-segment__take" aria-pressed="{{this.takenByMe}}"
+                data-action="takeOffer" data-offer-id="{{this.id}}"
+                title="{{this.name}}{{#if this.effect}} — {{this.effect}}{{/if}}">
+                <span class="bi-segment__name">{{this.name}}</span>
+                {{#if this.takers}}<span class="bi-segment__takers">{{this.takers}}</span>{{/if}}
+            </button>
+        </li>
+        {{/each}}
+    </ul>
+    {{else}}
+    <p class="bi-legend">{{localize "BLANKINHERITANCE.Console.Segment.NoOffers"}}</p>
+    {{/if}}
+
+    {{#if segment.board.length}}
+    <ul class="bi-segment__board">
+        {{#each segment.board}}
+        <li class="bi-segment__row{{#if this.opaque}} bi-segment__row--opaque{{/if}}">
+            <span class="bi-segment__activity">
+                {{#if this.opaque}}{{localize "BLANKINHERITANCE.Console.Segment.Occupied"}}{{else}}{{this.name}}{{/if}}
+            </span>
+            <span class="bi-segment__who">{{this.participants.length}}</span>
+        </li>
+        {{/each}}
+    </ul>
+    {{/if}}
+</div>

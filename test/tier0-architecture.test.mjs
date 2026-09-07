@@ -416,3 +416,33 @@ test("the checks pod cannot grow taller than an ordinary pod, and still scrolls 
       "Lore-heavy character and clipped content, not a rare last resort"
   );
 });
+
+test("the centre track is sized by its content, and the day ring declares its own width", () => {
+  // The hard-won result of 2026-09-07's width work: the checks pod went from
+  // four columns to ten purely by stopping the instrument berth reserving
+  // 252px for a legend nobody had built yet. Both side tracks are
+  // minmax(0,1fr) and split whatever the centre does not take, so ANY fixed
+  // width on .bi-bar__instrument is a direct tax on the number of skills a
+  // player can see at once.
+  //
+  // The discipline that keeps that true as zones land: the berth hugs its
+  // content, and each zone states how wide IT is. This asserts both halves.
+  const components = readFileSync(path.join(moduleRoot, "styles", "bi-components.css"), "utf8");
+
+  const berth = components.match(/\.bi-bar__instrument \{([\s\S]*?)\n\}/);
+  assert.ok(berth, "could not find .bi-bar__instrument in bi-components.css");
+  assert.match(
+    berth[1],
+    /width:\s*auto/,
+    "the instrument berth has a fixed width again — that comes straight out of the side tracks, and the " +
+      "checks pod loses columns for it (measured live: four columns instead of ten)"
+  );
+
+  const domePod = components.match(/\.bi-bar \.bi-pod\[data-zone="dome"\]\s*\{([\s\S]*?)\}/);
+  assert.ok(
+    domePod,
+    "the dome pod no longer declares its own width — with a content-sized berth, a zone that does not " +
+      "state its width has none, and the day ring collapses"
+  );
+  assert.match(domePod[1], /width:\s*var\(--bi-ring-size\)/, "the dome pod's width is no longer the ring token");
+});

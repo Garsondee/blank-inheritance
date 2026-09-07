@@ -31,6 +31,13 @@ import { PlayerBar } from "./foundry/player-bar.mjs";
 import { DirectorBar } from "./foundry/director-bar.mjs";
 import { loadSessionLog } from "./foundry/session-log.mjs";
 import { ensureIntelVault, writeAuthoredProfile } from "./foundry/social-store.mjs";
+import {
+  advanceSegment,
+  ensureDowntimeVault,
+  registerCampaignSettings,
+  registerCampaignSocket,
+  writePrivateCommitment
+} from "./foundry/campaign-state.mjs";
 
 const MODULE_ID = "blank-inheritance";
 
@@ -48,7 +55,12 @@ Hooks.once("init", () => {
       contentHash,
       applyTheme,
       ensureIntelVault,
-      writeAuthoredProfile
+      writeAuthoredProfile,
+      // No control writes a private commitment yet -- the vault and the socket
+      // delivery are finished, the GM-side authoring UI is not. Exposed the
+      // same way and for the same reason as writeAuthoredProfile above.
+      writePrivateCommitment,
+      advanceSegment
     };
   }
 
@@ -56,6 +68,11 @@ Hooks.once("init", () => {
   // loaded declaratively from module.json's `styles`; this only controls the
   // body classes that gate them.
   registerThemeSettings();
+
+  // The campaign clock is a world setting, so its onChange fires on EVERY
+  // client -- which is what makes a segment transition arrive at the whole
+  // table at once instead of only where it was clicked.
+  registerCampaignSettings(() => refreshCommandBar());
 });
 
 Hooks.once("ready", async () => {
@@ -75,6 +92,20 @@ Hooks.once("ready", async () => {
     } catch (err) {
       console.error("Blank Inheritance | Could not load today's session log:", err);
     }
+    try {
+      await ensureDowntimeVault();
+    } catch (err) {
+      console.error("Blank Inheritance | Could not open the private downtime vault:", err);
+    }
+  }
+
+  // Both directions: a GM listening for players asking to spend a slice, and a
+  // player receiving their own private commitments. Registered on every client
+  // because each end of that conversation is one of the two.
+  try {
+    registerCampaignSocket(() => refreshCommandBar(["left"]));
+  } catch (err) {
+    console.error("Blank Inheritance | Could not open the campaign socket:", err);
   }
 
   // The console. Every client, both seats -- the class is picked here once and

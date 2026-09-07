@@ -77,7 +77,7 @@ test("the seat is decided by GM status and nothing else", () => {
 const GOLDEN = {
   "player/theatre": [
     ["ident", "left", "personal", false],
-    ["segment", "left", "board", false],
+    ["segment", "left", "schedule", false],
     ["dome", "instrument", "day-ring", false],
     ["checks", "right", "skills", false]
   ],
