@@ -114,6 +114,11 @@ export function buildStageCast(source, portraitsById, assetPath) {
       img: assetPath(member.portraitId),
       kind: portrait.kind ?? null,
       characterRef: portrait.characterRef ?? null,
+      // Both identity properties of the CHARACTER (who they are), not the
+      // scene (why they're here today) -- so both are read off the portrait,
+      // same as label/kind/characterRef, never off the per-scene cast entry.
+      faction: portrait.faction ?? null,
+      standing: portrait.standing ?? null,
       side: member.side ?? null,
       revealed: member.revealed !== false
     };

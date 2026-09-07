@@ -42,6 +42,23 @@
         <button type="button" class="bi-frame__key" data-action="askCheck"
             data-label="{{label}}"
             title="{{localize "BLANKINHERITANCE.Stage.AskCheck"}}">&#9636;</button>
+        {{#if isNpc}}
+        {{!-- The one place this module deliberately exceeds "two or three
+              keys, never six" by a single key — see foundry/stage.mjs's
+              #onSplash doc comment for why Splash does not fit the
+              Quiet/Announced modifier pattern the reveal key already uses.
+              NPC-only (isNpc is precomputed false for every PC and for
+              every player's client in _prepareContext) and GM-only (nested
+              inside the same canDirect block as the two keys above). The
+              nudge class is the visible half of the "first appearance"
+              hint (design/theatre-of-the-mind-staging.md §5's "when a
+              character is introduced for the first time we do the big
+              bold version") — a suggestion, never a gate; the key works
+              identically with or without it. --}}
+        <button type="button" class="bi-frame__key bi-frame__key--splash{{#if firstAppearance}} bi-frame__key--nudge{{/if}}"
+            data-action="splash" data-portrait-id="{{portraitId}}"
+            title="{{#if firstAppearance}}{{localize "BLANKINHERITANCE.Splash.TriggerFirst"}}{{else}}{{localize "BLANKINHERITANCE.Splash.Trigger"}}{{/if}}">&#10022;</button>
+        {{/if}}
         {{/if}}
         <button type="button" class="bi-frame__key" data-action="openCard"
             data-actor-id="{{actorId}}" data-label="{{label}}"

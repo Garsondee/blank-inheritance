@@ -35,6 +35,7 @@ import { ensureStageVault, refreshStage, syncStage, writeAuthoredCast } from "./
 import { syncCameraToScene, unlockCamera } from "./foundry/stage-camera.mjs";
 import { buildStageDemoScenes, createStageDemoMacroIfMissing } from "./foundry/stage-demo.mjs";
 import { announceCastChange, primeStingCache } from "./foundry/sting.mjs";
+import { checkForSplash, forceDismissSplash, primeSplashCache, registerSplashSettings } from "./foundry/splash.mjs";
 import {
   advanceSegment,
   ensureDowntimeVault,
@@ -82,6 +83,10 @@ Hooks.once("init", () => {
   // client -- which is what makes a segment transition arrive at the whole
   // table at once instead of only where it was clicked.
   registerCampaignSettings(() => refreshCommandBar());
+
+  // No onChange here on purpose -- see foundry/splash.mjs#registerSplashSettings's
+  // own comment for why this one world setting doesn't need one.
+  registerSplashSettings();
 });
 
 Hooks.once("ready", async () => {
@@ -189,6 +194,16 @@ Hooks.on("canvasReady", () => {
   } catch (err) {
     console.error("Blank Inheritance | Could not prime the arrival-sting cache:", err);
   }
+
+  // Splash's own cache, same priming discipline -- and dismissed BEFORE it
+  // is primed: a GM switching scenes mid-splash must never leave one
+  // orphaned on any client's screen with nothing left to end it.
+  try {
+    forceDismissSplash();
+    primeSplashCache(canvas?.scene);
+  } catch (err) {
+    console.error("Blank Inheritance | Could not prime the splash cache:", err);
+  }
 });
 
 // The stage's cast lives on the Scene, so any change to it -- a reveal, a
@@ -211,6 +226,15 @@ Hooks.on("updateScene", (scene, changed) => {
     announceCastChange(scene);
   } catch (err) {
     console.error("Blank Inheritance | Could not process the arrival sting:", err);
+  }
+
+  // A third consumer of the same event: whether to play a Splash. Its own
+  // try, deliberately separate from the banner's above -- a throw in one
+  // must never silently swallow the other.
+  try {
+    checkForSplash(scene);
+  } catch (err) {
+    console.error("Blank Inheritance | Could not process a splash trigger:", err);
   }
 });
 

@@ -49,8 +49,26 @@ export const SIDES = Object.freeze(["left", "centre", "right"]);
  * An allow-list, not a deny-list. The authored cast is GM-side material that
  * will grow fields (director's notes, a planned entrance, why they are here),
  * and a deny-list would leak each new one until somebody remembered to add it.
+ *
+ * `stingSeq`, `faction`, `standing` and `kind` all joined for the Splash tier
+ * (design/theatre-of-the-mind-staging.md §5, the "loud" rung):
+ *   - `stingSeq` is a fresh timestamp stamped on every reveal/sting write —
+ *     without it, a REPEAT splash on an already-`sting:"splash"` member is a
+ *     byte-identical flag write, and core/splash.mjs#splashArrivals has no
+ *     way to tell "nothing changed" from "the Director asked for this again".
+ *   - `faction`/`standing` are public performance information once a member
+ *     is revealed at all — the same class of information as their name, not
+ *     a new redaction concern.
+ *   - `kind` ("pc"/"npc") lets core/splash.mjs#splashArrivals independently
+ *     refuse to splash a PC even if something upstream ever mis-authors a
+ *     cast entry — defense in depth, not the primary gate (the frame
+ *     template never renders the splash control for a PC in the first
+ *     place).
  */
-const PUBLISHABLE = Object.freeze(["portraitId", "label", "img", "side", "actorId", "sting"]);
+const PUBLISHABLE = Object.freeze([
+  "portraitId", "label", "img", "side", "actorId",
+  "sting", "stingSeq", "faction", "standing", "kind"
+]);
 
 /**
  * THE Law 11 boundary for the stage.

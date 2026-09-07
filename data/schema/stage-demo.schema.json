@@ -26,6 +26,14 @@
             "type": ["string", "null"],
             "description": "id of a file under data/characters/ or data/npcs/, when this portrait is of somebody who exists there. null for a role that has no sheet."
           },
+          "faction": {
+            "type": ["string", "null"],
+            "description": "Faction id ref (matches data/factions/*.json's `id`), or null for unaffiliated. Drives the Splash tier's accent colour via core/splash.mjs's FACTION_ACCENTS — an id with no entry there stays monochrome, same as null."
+          },
+          "standing": {
+            "type": ["string", "null"],
+            "description": "Optional one-line subtitle for the Splash tier (design/theatre-of-the-mind-staging.md §5: 'name, designation, affiliation, maybe a single line of standing... not stats'). null renders nothing extra."
+          },
           "source": {
             "type": "string",
             "description": "Path relative to artwork/in-tray/. Expected to change; the id is not."

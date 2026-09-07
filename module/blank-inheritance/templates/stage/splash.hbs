@@ -1,0 +1,38 @@
+{{!--
+    Splash — the loudest rung of the arrival sting (design/theatre-of-the-mind-
+    staging.md §5). A full-screen character introduction: portrait duotoned to
+    monochrome (always — no faction wash on the art itself, see
+    bi-components.css's .bi-splash__art img comment), name in the display
+    register carrying the faction accent, an affiliation line, a plain
+    decorative seal, and a dismiss hint.
+
+    Must render exactly ONE top-level element — this isn't rendered through
+    ApplicationV2's PARTS system, but tier0-architecture.test.mjs's lint scans
+    every .hbs regardless, and one root is the right shape either way.
+
+    NO invented content: no Japanese seal text, no standing/rank line beyond
+    what a portrait hand-authors. `.bi-splash__seal` is a plain ring — the
+    campaign's stamped-ink visual vocabulary (`.bi-stamp`'s rotation and
+    multiply-blend) without inventing words to put inside it.
+
+    --splash-accent is set here, conditionally, from accentToken (a CSS
+    custom-property NAME like "--bi-vermilion", not a colour value) — when
+    accentToken is null this property is never set at all, and every rule in
+    bi-components.css that reads var(--splash-accent, ...) falls back to its
+    own monochrome default, which is what makes one CSS path serve both cases.
+--}}
+<div class="bi-splash"{{#if accentToken}} style="--splash-accent: var({{accentToken}});"{{/if}}>
+    <div class="bi-splash__scrim"></div>
+    <div class="bi-splash__art">
+        {{#if img}}<img src="{{img}}" alt="">{{/if}}
+    </div>
+    <div class="bi-splash__type">
+        {{!-- data-text duplicates {{label}} for the oversized ghost echo behind
+              it (bi-components.css's attr(data-text) rule) -- the SAME real
+              string rendered twice at different scales, not new content. --}}
+        <p class="bi-splash__name" data-text="{{label}}">{{label}}</p>
+        {{#if affiliationLabel}}<p class="bi-splash__subtitle">{{affiliationLabel}}</p>{{/if}}
+    </div>
+    <div class="bi-splash__seal" aria-hidden="true"></div>
+    <p class="bi-splash__hint">{{localize "BLANKINHERITANCE.Splash.DismissHint"}}</p>
+</div>

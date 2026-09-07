@@ -99,6 +99,55 @@ test("leaksConcealed reports the exact strings that escaped", () => {
 });
 
 /* ------------------------------------------------------------------ */
+/*  The Splash-tier fields joined PUBLISHABLE for §5's loud rung        */
+/* ------------------------------------------------------------------ */
+
+const SPLASH_FIELDS_CAST = [
+  {
+    portraitId: "advocate",
+    label: "The Transparency Advocate",
+    img: "advocate.webp",
+    kind: "npc",
+    faction: "directorate",
+    standing: "A pole of the Directorate",
+    sting: "splash",
+    stingSeq: 12345,
+    revealed: true
+  },
+  {
+    portraitId: "hidden-splash-target",
+    label: "A Concealed Splash Target",
+    img: "hidden.webp",
+    kind: "npc",
+    faction: "directorate",
+    standing: "Should never reach a player",
+    sting: "splash",
+    stingSeq: 67890,
+    revealed: false
+  }
+];
+
+test("stingSeq, faction, standing and kind survive publishedCast for a revealed member", () => {
+  const published = publishedCast(SPLASH_FIELDS_CAST);
+  const advocate = published.find((m) => m.portraitId === "advocate");
+  assert.equal(advocate.stingSeq, 12345);
+  assert.equal(advocate.faction, "directorate");
+  assert.equal(advocate.standing, "A pole of the Directorate");
+  assert.equal(advocate.kind, "npc");
+  assert.equal(advocate.sting, "splash");
+});
+
+test("LAW 11 extended: the Splash-tier fields cannot leak for a concealed member either", () => {
+  const published = publishedCast(SPLASH_FIELDS_CAST);
+  const serialized = JSON.stringify(published);
+  assert.ok(!serialized.includes("hidden-splash-target"), "a concealed splash target's id leaked");
+  assert.ok(!serialized.includes("Concealed Splash Target"), "a concealed splash target's name leaked");
+  assert.ok(!serialized.includes("Should never reach a player"), "a concealed splash target's standing leaked");
+  assert.ok(!serialized.includes("67890"), "a concealed splash target's stingSeq leaked");
+  assert.equal(published.length, 1, "only the revealed member should be present at all");
+});
+
+/* ------------------------------------------------------------------ */
 /*  Blocking                                                           */
 /* ------------------------------------------------------------------ */
 

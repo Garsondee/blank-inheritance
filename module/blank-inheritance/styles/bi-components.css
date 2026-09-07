@@ -4408,3 +4408,331 @@
   .bi-frame__scope { transition: none; }
   .bi-frame__scope:hover { transform: none; }
 }
+
+/* =====================================================================
+   SPLASH  —  the loudest rung of the arrival sting
+   ---------------------------------------------------------------------
+   design/theatre-of-the-mind-staging.md §5. Full-screen, three beats: Take
+   (a diagonal slash wipe reveals the portrait, undimmed), Hold (name and
+   affiliation land), Resolve (the art shrinks down onto the frame it now
+   occupies). NPC-only, GM-triggered, never a PC — enforced upstream in
+   core/splash.mjs#splashArrivals, not here; this file only knows how to
+   draw whatever it is handed.
+
+   A spot-colour propaganda poster, not a photo under captions: the portrait
+   itself duotones to monochrome, and --splash-accent (set inline, per
+   splash, from a faction's own custom-property NAME — see splash.hbs) adds
+   an ink wash on top when one exists. Every rule below that reads
+   var(--splash-accent, <fallback>) already degrades correctly to plain
+   monochrome when a member has no faction; nothing here branches on
+   "does an accent exist" in JS, the fallback chain does it.
+
+   PHASE CLASSES ACCUMULATE rather than replace each other (foundry/splash.mjs
+   adds bi-splash--take, then bi-splash--hold, then bi-splash--resolving,
+   never removing an earlier one) — so the wipe (scoped to --take) stays
+   retracted through Hold and Resolve instead of snapping back the moment
+   --take would otherwise be swapped out.
+   ===================================================================== */
+
+#bi-splash {
+  position: fixed;
+  inset: 0;
+  /* Above every ordinary Foundry window (--z-index-window: 100) -- this is
+     meant to dominate the screen -- but below Foundry's own tooltip/
+     notification stack (9999 / 99999), which should still surface through
+     it if something needs to. Derived off Foundry's own ramp, matching the
+     rest of this module's convention (no --bi-z-* token exists anywhere;
+     see bi-foundry-bridge.css's banner lane for the same idiom). */
+  z-index: calc(var(--z-index-window) + 1);
+}
+
+.bi-splash {
+  /* Splash-specific narrative BEATS, not general UI motion -- scoped here
+     rather than added to bi-tokens.css's shared ramp, the same discipline
+     --frame-w already uses for a component-local default. Lengthened from
+     the first pass (900ms sweep / 260ms servo) at Ingram's direct
+     live-review feedback: "fade in longer, fade out longer". */
+  --splash-take: 1150ms;
+  --splash-resolve: 950ms;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bi-void, #000);
+  cursor: pointer;
+  opacity: 0;
+  /* The whole surface is the click-to-skip target -- unlike the banner
+     lane's pointer-events split, there is no inert chrome around this to
+     preserve; it is either showing, fully, or it is gone. */
+  transition: opacity var(--splash-take) linear, background-color var(--splash-resolve) linear;
+}
+#bi-splash.bi-splash--take .bi-splash { opacity: 1; }
+#bi-splash.bi-splash--resolving .bi-splash { background-color: transparent; }
+
+.bi-splash__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  /* Feathered around the seam where the art panel meets the background
+     (56% — see .bi-splash__art's own comment on the 44% panel width),
+     rather than a gradient sized for full-viewport art. Dark and legible
+     under the type on the left; nearly clear over the portrait, which
+     stays "large, undimmed" per the design doc rather than washed out. */
+  background: linear-gradient(
+    90deg,
+    rgb(0 0 0 / 82%) 0%, rgb(0 0 0 / 55%) 38%, rgb(0 0 0 / 12%) 52%, transparent 58%
+  );
+  opacity: 0;
+  transition: opacity var(--bi-dur-servo) linear;
+  pointer-events: none;
+}
+#bi-splash.bi-splash--hold .bi-splash__scrim { opacity: 1; }
+/* Dip OR resolving -- both want this hidden, so one combined selector
+   rather than two identical rules (unlike .bi-splash__art, this element
+   never needs to reappear afterward, so there's no round trip to guard). */
+#bi-splash.bi-splash--dip .bi-splash__scrim,
+#bi-splash.bi-splash--resolving .bi-splash__scrim { opacity: 0; }
+
+/* --- The art: duotone portrait, diagonal wipe, FLIP-lite landing ------
+   A PANEL, not a full-viewport fill. The staged portraits are all a
+   consistent 2:3 (tall, narrow) — object-fit:cover across the WHOLE
+   viewport would need to scale one of them up hugely and crop nearly all
+   of the vertical frame away to fill a wide screen, cutting faces off
+   rather than "large, undimmed". Confining the art to its own portrait-
+   shaped panel on the right means cover only ever has to trim a little off
+   the SIDES, which is the crop a headshot actually survives. */
+
+.bi-splash__art {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 44%;
+  z-index: 1;
+  overflow: hidden;
+  background: var(--bi-steel-900);
+  --resolve-dx: 0px;
+  --resolve-dy: 0px;
+  --resolve-sx: 1;
+  --resolve-sy: 1;
+  /* Fades out for the Dip beat, back in for Resolve -- see the DIP block
+     below. No transition declared on the base rule: JS never removes a
+     phase class (see foundry/splash.mjs's own note), so this element only
+     ever needs to go opaque -> hidden -> opaque again once, forward. */
+  opacity: 1;
+}
+.bi-splash__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Favour the upper frame -- where a headshot's face actually is -- now
+     that the panel is close enough to the source's own 2:3 ratio that the
+     crop is mild either way. */
+  object-position: center 22%;
+  display: block;
+  /* Monochrome, always -- no faction wash on the PORTRAIT. Corrected at
+     Ingram's direct live-review feedback: "the colouration of portraits
+     isn't the best idea, change the text colour not the portraits" -- the
+     accent now lives entirely in the type/seal below. Contrast lifted and
+     brightness pulled down slightly so a monochrome portrait still reads
+     as bold print, not a washed-out photocopy. */
+  filter: grayscale(1) contrast(1.15) brightness(0.92);
+}
+
+/* The wipe: an oversized, skewed panel covering the art at rest, sliding
+   fully clear once Take begins. Overscanned inset so the skew's corners are
+   always safely outside the visible frame at every viewport ratio. A
+   transform-only slide (no clip-path coordinate math) so it needs no
+   @property registration to animate smoothly. */
+.bi-splash__art::before {
+  content: "";
+  position: absolute;
+  inset: -25% -60%;
+  z-index: 3;
+  background: var(--bi-void, #000);
+  transform: skewX(-16deg) translateX(0%);
+}
+#bi-splash.bi-splash--take .bi-splash__art::before {
+  transform: skewX(-16deg) translateX(-165%);
+  transition: transform var(--splash-take) var(--bi-ease-servo);
+}
+
+/* Dip: a beat of full black between Hold and Resolve (Ingram: "dip to
+   black between"), not a direct cut from the portrait straight to the
+   landing shot. The art (and everything else -- see the type/seal/hint
+   rules further down) fades out QUICKLY here; .bi-splash's own background
+   stays fully opaque black throughout (its transition targets --resolving,
+   not --dip), so the screen reads as genuinely empty, not merely dim. */
+/* :not(--resolving) rather than relying on source order to decide which of
+   two equal-specificity rules wins once both classes are present (phase
+   classes accumulate -- both are true throughout Resolve). Explicit here
+   rather than fragile. */
+#bi-splash.bi-splash--dip:not(.bi-splash--resolving) .bi-splash__art {
+  opacity: 0;
+  transition: opacity var(--bi-dur-servo) linear;
+}
+
+/* Resolve: the art fades back in WHILE landing on the frame it now
+   occupies -- both over --splash-resolve, so the reappearance and the
+   shrink read as one continuous move out of the dip rather than two. */
+#bi-splash.bi-splash--resolving .bi-splash__art {
+  opacity: 1;
+  transition: opacity var(--splash-resolve) linear;
+}
+
+/* Resolve's landing shot: a single captured-once translate+scale toward the
+   target frame's own rect (foundry/splash.mjs#resolveOnto), not a live-
+   tracking morph -- see that function's own comment for why, and for the
+   fallback this class is deliberately never applied under. */
+.bi-splash__art--land {
+  transform: translate(var(--resolve-dx), var(--resolve-dy)) scale(var(--resolve-sx), var(--resolve-sy));
+  transform-origin: center center;
+  transition: transform var(--splash-resolve) var(--bi-ease-servo);
+}
+/* The fallback path: the target frame could not be found on screen. Fade
+   from centre instead of morphing toward nothing. */
+#bi-splash.bi-splash--fallback .bi-splash__art {
+  transition: opacity var(--splash-resolve) linear, transform var(--splash-resolve) var(--bi-ease-servo);
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+/* --- Type: bold name, elegant register; stencilled affiliation -------- */
+
+.bi-splash__type {
+  position: absolute;
+  z-index: 4;
+  left: 7%;
+  top: 50%;
+  /* Clear of the art panel's own left edge (56%) with room to spare, now
+     that the art is a 44%-wide panel rather than full-viewport. */
+  max-width: 46%;
+  opacity: 0;
+  transform: translateY(calc(-50% + 14px));
+  transition: opacity var(--bi-dur-servo) linear, transform var(--bi-dur-servo) var(--bi-ease-servo);
+  pointer-events: none;
+}
+#bi-splash.bi-splash--hold .bi-splash__type { opacity: 1; transform: translateY(-50%); }
+#bi-splash.bi-splash--dip .bi-splash__type,
+#bi-splash.bi-splash--resolving .bi-splash__type { opacity: 0; }
+
+/* The oversized ghost echo, BEHIND the real name -- Persona's own trick of
+   scale contrast rather than a second invented line: attr(data-text) reads
+   the exact same string the real heading prints (splash.hbs sets
+   data-text="{{label}}" on .bi-splash__name once), so this is a layered
+   repetition of real content, not new text. Kept out of the accessibility
+   tree (aria-hidden via the pseudo-element rule below being purely visual;
+   screen readers do not read ::before content at all). */
+.bi-splash__name {
+  position: relative;
+  margin: 0 0 10px;
+  font-family: var(--bi-font-display-jp);
+  font-weight: 700;
+  /* Bigger and bolder at Ingram's direct feedback ("even more striking
+     typography") -- up from clamp(2.1rem, 5.2vw, 4.5rem). */
+  font-size: clamp(2.6rem, 6.4vw, 5.75rem);
+  line-height: 1.02;
+  letter-spacing: 0.01em;
+  /* The colour now lives HERE, not on the portrait (Ingram: "change the
+     text colour not the portraits"). Falls back to bone when a member has
+     no faction, same fallback chain as the subtitle/seal already use. */
+  color: var(--splash-accent, var(--bi-bone));
+  text-shadow: 0 6px 28px rgb(0 0 0 / 75%);
+}
+.bi-splash__name::before {
+  content: attr(data-text);
+  position: absolute;
+  left: -0.03em;
+  top: -0.38em;
+  z-index: -1;
+  font-size: 3.2em;
+  font-weight: 700;
+  color: var(--bi-bone);
+  opacity: 0.06;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.bi-splash__subtitle {
+  margin: 0;
+  padding-left: 11px;
+  border-left: 3px solid var(--splash-accent, var(--bi-bone-dark));
+  font-family: var(--bi-font-stencil);
+  font-size: clamp(0.8rem, 1.4vw, 1rem);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--splash-accent, var(--bi-bone-dim));
+}
+
+/* --- The seal: a plain ring, no invented text -------------------------
+   CLAUDE.md is explicit about not inventing content, and there is no
+   authored Japanese seal text anywhere to draw from -- so this borrows the
+   campaign's stamped-ink visual language (rotated, ringed) without needing
+   words. Not .bi-stamp reused: that component is sized by its JP/EN text
+   children and blends with `multiply`, which reads correctly over PAPER,
+   not over this element's dark backdrop -- forcing it empty and re-blended
+   would fight its own design rather than reuse it honestly. */
+.bi-splash__seal {
+  position: absolute;
+  z-index: 4;
+  left: 7%;
+  bottom: 13%;
+  width: 58px;
+  height: 58px;
+  border: 3px solid var(--splash-accent, var(--bi-bone-dark));
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px var(--splash-accent, var(--bi-bone-dark));
+  transform: rotate(-9deg);
+  opacity: 0;
+  transition: opacity var(--bi-dur-servo) linear;
+  pointer-events: none;
+}
+#bi-splash.bi-splash--hold .bi-splash__seal { opacity: 0.72; }
+#bi-splash.bi-splash--dip .bi-splash__seal,
+#bi-splash.bi-splash--resolving .bi-splash__seal { opacity: 0; }
+
+.bi-splash__hint {
+  position: absolute;
+  z-index: 4;
+  right: 24px;
+  bottom: 20px;
+  margin: 0;
+  font-family: var(--bi-font-legend);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bi-bone-dim);
+  opacity: 0;
+  transition: opacity var(--bi-dur-servo) linear;
+  pointer-events: none;
+}
+#bi-splash.bi-splash--hold .bi-splash__hint { opacity: 0.55; }
+#bi-splash.bi-splash--dip .bi-splash__hint,
+#bi-splash.bi-splash--resolving .bi-splash__hint { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  #bi-splash.bi-splash--take .bi-splash__art::before { transition: none; }
+  .bi-splash__art--land { transition: none; }
+  .bi-splash__type,
+  .bi-splash__scrim,
+  .bi-splash__seal,
+  .bi-splash__hint,
+  .bi-splash { transition: none; }
+  #bi-splash.bi-splash--fallback .bi-splash__art { transition: none; }
+}
+
+/* --- The frame's fourth key: GM+NPC only, one deliberate stretch of
+   "two or three, never six" (see frame.hbs's own comment for why Splash
+   does not fit the modifier pattern Quiet/Announced already use). -------- */
+
+.bi-frame__key--splash { color: var(--bi-brass-lit); }
+.bi-frame__key--splash:hover { background: var(--bi-steel-500); color: #fff; }
+
+/* The first-appearance nudge: a plain brightness pulse, reusing the exact
+   keyframe the comms-badge already uses elsewhere rather than inventing a
+   second "notice me" animation for the same purpose. */
+.bi-frame__key--nudge {
+  border-color: var(--bi-brass-lit);
+  animation: bi-lamp-pulse 1.8s var(--bi-ease-servo) infinite;
+}
+@media (prefers-reduced-motion: reduce) { .bi-frame__key--nudge { animation: none; } }

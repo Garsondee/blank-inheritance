@@ -22,9 +22,15 @@
 
 import { STAGE_LAYOUTS, publishedCast, stageState } from "../core/stage-layout.mjs";
 import { STING_TIERS } from "../core/sting.mjs";
+import { isFirstSplash } from "../core/splash.mjs";
 import { deriveFoundryId } from "../core/ids.mjs";
 import { openCharacterCard } from "./character-card.mjs";
 import { postInlineCheck } from "./rolls.mjs";
+// Deliberately one-directional: this file imports FROM foundry/splash.mjs,
+// which never imports back — splash.mjs cannot call setRevealed itself
+// (that would be a circular import), so #onSplash below performs both
+// writes itself, as two sibling steps, in one place.
+import { everSplashedPortraits, markSplashed } from "./splash.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -86,18 +92,29 @@ export async function writeAuthoredCast(scene, cast, layout = STAGE_LAYOUTS.LINE
  * GM only. Reveal or conceal one member, then republish.
  *
  * `sting` only matters on the reveal edge (concealed -> revealed) — it is
- * the Director's per-click choice of Quiet vs Announced (§5), carried on the
- * cast member itself because the client that plays the banner is never the
- * client that clicked; see foundry/sting.mjs's file header for why the tier
- * has to travel as data rather than as a second message. Concealing writes
- * it too, harmlessly: publishedCast drops a concealed member entirely, so a
- * `sting` value on a concealed record is inert until the next reveal
- * overwrites it fresh.
+ * the Director's per-click choice of Quiet/Announced/Splash (§5), carried on
+ * the cast member itself because the client that plays the effect is never
+ * the client that clicked; see foundry/sting.mjs's file header for why the
+ * tier has to travel as data rather than as a second message. Concealing
+ * writes it too, harmlessly: publishedCast drops a concealed member
+ * entirely, so a `sting` value on a concealed record is inert until the
+ * next reveal overwrites it fresh.
+ *
+ * `stingSeq` is a fresh timestamp stamped on EVERY call, revealed or not.
+ * Without it, a repeat Splash on someone already `sting: "splash"` (the
+ * deliberate re-spotlight case §5 asks for — "we also use the same version
+ * where it would add drama to a scene... they don't need to use it every
+ * time") writes data byte-identical to the write before it, and there is no
+ * guarantee Foundry re-broadcasts an update whose diff is empty. See
+ * core/splash.mjs#splashArrivals, which keys off (sting, stingSeq)
+ * transitions rather than sting alone for exactly this reason.
  */
 export async function setRevealed(scene, portraitId, revealed, sting = STING_TIERS.QUIET) {
   if (!game.user.isGM || !scene) return null;
   const cast = await readAuthoredCast(scene.id);
-  const next = cast.map((member) => (member.portraitId === portraitId ? { ...member, revealed, sting } : member));
+  const next = cast.map((member) =>
+    member.portraitId === portraitId ? { ...member, revealed, sting, stingSeq: Date.now() } : member
+  );
   const layout = scene.getFlag(MODULE_ID, FLAG_KEY)?.layout ?? STAGE_LAYOUTS.LINE;
   return writeAuthoredCast(scene, next, layout);
 }
@@ -124,7 +141,8 @@ export class StageOverlay extends HandlebarsApplicationMixin(ApplicationV2) {
     actions: {
       openCard: StageOverlay.#onOpenCard,
       toggleReveal: StageOverlay.#onToggleReveal,
-      askCheck: StageOverlay.#onAskCheck
+      askCheck: StageOverlay.#onAskCheck,
+      splash: StageOverlay.#onSplash
     }
   };
 
@@ -157,10 +175,16 @@ export class StageOverlay extends HandlebarsApplicationMixin(ApplicationV2) {
     // from it and is normalised to true here. The Director's contains both,
     // and `concealed` is what the frame styles itself by — a ghost in their
     // view and nothing at all in anyone else's.
+    const everSplashed = canDirect ? everSplashedPortraits() : [];
     const cast = staged.cast.map((member) => ({
       ...member,
       revealed: member.revealed ?? true,
-      concealed: canDirect && member.revealed === false
+      concealed: canDirect && member.revealed === false,
+      // Both GM-only computed fields: a player's client never renders the
+      // splash key at all (frame.hbs gates it on canDirect), so neither is
+      // worth computing — or worth being ABLE to leak — for a player.
+      isNpc: canDirect && member.kind === "npc",
+      firstAppearance: canDirect && isFirstSplash(member.portraitId, everSplashed)
     }));
     const state = stageState({ cast, layout: staged.layout, canDirect });
     return { ...state, present: true, sceneName: scene?.name ?? null };
@@ -215,6 +239,29 @@ export class StageOverlay extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   static async #onAskCheck(event, target) {
     await postInlineCheck({ slug: "perception", label: target.dataset.label ?? null });
+  }
+
+  /**
+   * Director + NPC only — frame.hbs never renders this key for a player or
+   * for a PC frame, and core/splash.mjs#splashArrivals refuses a PC's data
+   * independently even so (defense in depth, not the primary gate).
+   *
+   * Two writes, deliberately kept as two separate calls rather than one
+   * combined helper in foundry/splash.mjs (which would need to import
+   * setRevealed from THIS file, creating the circular import splash.mjs's
+   * own header explains it was built to avoid):
+   *   1. setRevealed — the actual sting: "splash" write, reusing the exact
+   *      same path Quiet/Announced already use. Always `revealed: true`;
+   *      on an already-revealed member that half is a no-op and stingSeq is
+   *      what makes the re-spotlight case a real, detectable event anyway.
+   *   2. markSplashed — records this as no longer a first appearance, so
+   *      the frame key's nudge glow does not relight next time. GM-only,
+   *      and a no-op if this portraitId is already recorded.
+   */
+  static async #onSplash(event, target) {
+    const portraitId = target.dataset.portraitId;
+    await setRevealed(canvas.scene, portraitId, true, STING_TIERS.SPLASH);
+    await markSplashed(portraitId);
   }
 }
 

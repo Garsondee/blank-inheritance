@@ -32,7 +32,14 @@ const SOURCE = {
 
 const PORTRAITS = {
   "sato-hiroshi": { id: "sato-hiroshi", label: "Sato Hiroshi", kind: "pc", characterRef: "sato-hiroshi" },
-  "directorate-security": { id: "directorate-security", label: "Directorate Security", kind: "npc", characterRef: null }
+  "directorate-security": {
+    id: "directorate-security",
+    label: "Directorate Security",
+    kind: "npc",
+    characterRef: null,
+    faction: "directorate",
+    standing: "Rank and file, replaceable"
+  }
 };
 
 const BG = "modules/blank-inheritance/assets/stage/bg-stage-demo-bar.webp";
@@ -115,4 +122,33 @@ test("revealed defaults to true, so a cast entry has to opt IN to being conceale
   // visible and fixable. The other default would hide people silently.
   const cast = buildStageCast({ id: "s", cast: [{ portraitId: "sato-hiroshi" }] }, PORTRAITS, assetPath);
   assert.equal(cast[0].revealed, true);
+});
+
+test("faction and standing pass through from the portrait, for the Splash tier", () => {
+  const cast = buildStageCast(SOURCE, PORTRAITS, assetPath);
+  const security = cast.find((m) => m.portraitId === "directorate-security");
+  assert.equal(security.faction, "directorate");
+  assert.equal(security.standing, "Rank and file, replaceable");
+});
+
+test("faction and standing default to null, matching kind's own ?? null pattern", () => {
+  // sato-hiroshi's portrait entry sets neither field.
+  const cast = buildStageCast(SOURCE, PORTRAITS, assetPath);
+  const sato = cast.find((m) => m.portraitId === "sato-hiroshi");
+  assert.equal(sato.faction, null);
+  assert.equal(sato.standing, null);
+});
+
+test("faction and standing are read from the PORTRAIT, not the per-scene cast entry", () => {
+  // Both are properties of who the character IS, not why they're in this
+  // particular scene — so a per-scene override on the cast entry must be
+  // ignored even if someone mistakenly authors one there.
+  const sourceWithOverride = {
+    ...SOURCE,
+    cast: SOURCE.cast.map((m) =>
+      m.portraitId === "directorate-security" ? { ...m, faction: "should-be-ignored" } : m
+    )
+  };
+  const cast = buildStageCast(sourceWithOverride, PORTRAITS, assetPath);
+  assert.equal(cast.find((m) => m.portraitId === "directorate-security").faction, "directorate");
 });

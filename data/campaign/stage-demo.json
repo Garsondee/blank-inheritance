@@ -7,7 +7,7 @@
   "notes": [
     "The portrait assignments below are a DEMO CAST, not a decision. Deciding which face belongs to which character is the job of the already-accepted asset-review-pipeline idea (AI-catalogued, human-confirmed, organised out of artwork/in-tray/), and it is explicitly the user's creative call — see CLAUDE.md's rule about not finalising the six kids. Nothing here writes back to data/characters/ or data/npcs/.",
     "Sources are filenames inside artwork/in-tray/, which is gitignored and large. tools/stage-assets/stage_assets.py reads this file, resizes each source, and writes the result into the module's own assets/stage/ directory under the stable id given here. The id is the contract; the source filename is expected to change when the real pipeline organises the in-tray.",
-    "The three Directorate NPCs genuinely have no names yet (data/npcs/*.json carry null names and role titles only), so their role titles are used verbatim rather than invented around."
+    "The three Directorate NPCs genuinely have no names yet (data/npcs/*.json carry null names and role titles only), so their role titles are used verbatim rather than invented around. `bar-regular` is a deliberately unaffiliated civilian (faction: null) added alongside them so the Splash tier's monochrome default and its Directorate-red accent both have a real demo case in one scene (stage-demo-bar)."
   ],
   "portraits": [
     {
@@ -57,28 +57,40 @@
       "label": "The Commander",
       "kind": "npc",
       "characterRef": "commander",
-      "source": "character-portraits/garsondee_a_japanese_1050s_military_officer_portrait_1950s_ha_9c634f69-3315-437a-85d9-2079a39c6578_0.png"
+      "source": "character-portraits/garsondee_a_japanese_1050s_military_officer_portrait_1950s_ha_9c634f69-3315-437a-85d9-2079a39c6578_0.png",
+      "faction": "directorate"
     },
     {
       "id": "caretaker",
       "label": "The Caretaker",
       "kind": "npc",
       "characterRef": "caretaker",
-      "source": "character-portraits/garsondee_a_japanese_1050s_military_doctor_portrait_1950s_han_715f298b-c959-4e1a-9ba5-6d419ec26be8_1.png"
+      "source": "character-portraits/garsondee_a_japanese_1050s_military_doctor_portrait_1950s_han_715f298b-c959-4e1a-9ba5-6d419ec26be8_1.png",
+      "faction": "directorate"
     },
     {
       "id": "transparency-advocate",
       "label": "The Transparency Advocate",
       "kind": "npc",
       "characterRef": "transparency-advocate",
-      "source": "character-portraits/garsondee_school_portrait_picture_military_school_teacher_gym_6107c190-e135-4d7a-ba9d-cfbf9a8ef113_0.png"
+      "source": "character-portraits/garsondee_school_portrait_picture_military_school_teacher_gym_6107c190-e135-4d7a-ba9d-cfbf9a8ef113_0.png",
+      "faction": "directorate"
     },
     {
       "id": "directorate-security",
       "label": "Directorate Security",
       "kind": "npc",
       "characterRef": null,
-      "source": "character-portraits/garsondee_a_japanese_1050s_police_officer_with_a_full_face_ma_409e537d-b144-449b-aa67-fb9572a2e6eb_2.png"
+      "source": "character-portraits/garsondee_a_japanese_1050s_police_officer_with_a_full_face_ma_409e537d-b144-449b-aa67-fb9572a2e6eb_2.png",
+      "faction": "directorate"
+    },
+    {
+      "id": "bar-regular",
+      "label": "A Bar Regular",
+      "kind": "npc",
+      "characterRef": null,
+      "faction": null,
+      "source": "character-portraits/garsondee_a_japanese_1050s_street_thug_portrait_1950s_hand-pa_3720abf8-d03d-46f9-91c0-9fcd6922b4d8_0.png"
     }
   ],
   "scenes": [
@@ -101,6 +113,11 @@
         {
           "portraitId": "directorate-security",
           "side": "right",
+          "revealed": false
+        },
+        {
+          "portraitId": "bar-regular",
+          "side": "left",
           "revealed": false
         }
       ],

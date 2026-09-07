@@ -3,9 +3,13 @@
  *
  * design/theatre-of-the-mind-staging.md §5: an arrival or departure on the
  * stage is a per-character EVENT, not a page transition, and it comes in a
- * ladder of weights the Director chooses between. This file builds the
- * bottom two rungs only — Quiet and Announced. Splash is deliberately absent:
- * it is gated on the asset pipeline (§7) and does not belong here yet.
+ * ladder of weights the Director chooses between — Quiet, Announced, Splash.
+ * This file owns the shared vocabulary (`STING_TIERS`) and the bottom rung's
+ * own logic (`noticeForArrival`, the brass banner). Splash's diff and content
+ * logic live in the sibling core/splash.mjs: a presence diff (`diffCast`)
+ * cannot express "this already-present member's tier just changed to
+ * splash", which is exactly the re-spotlight case Splash has to support, so
+ * it gets its own diff rather than this one being bent to do two jobs.
  *
  * WHY THE TIER IS DATA, NOT AN ARGUMENT PASSED AT NOTIFY TIME: the click that
  * reveals someone happens on exactly one client (the Director's), but the
@@ -21,8 +25,8 @@
  * arrival should say anything.
  */
 
-/** Quiet is the default (§5's "Rules" list, item 1) — Announced is opt-in per click. */
-export const STING_TIERS = Object.freeze({ QUIET: "quiet", ANNOUNCED: "announced" });
+/** Quiet is the default (§5's "Rules" list, item 1). Announced and Splash are opt-in per click. */
+export const STING_TIERS = Object.freeze({ QUIET: "quiet", ANNOUNCED: "announced", SPLASH: "splash" });
 
 /**
  * Which cast members newly appeared or disappeared between two PUBLISHED
