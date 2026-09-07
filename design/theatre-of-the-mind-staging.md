@@ -178,49 +178,86 @@ two seconds** and then get out of the way.
 
 ### The splash — the loud tier
 
-The biggest version of a sting **takes the whole screen**:
+✅ **Built (2026-09-07)**, `module/blank-inheritance/scripts/foundry/splash.mjs` +
+`core/splash.mjs` + `templates/stage/splash.hbs`. The biggest version of a sting **takes the whole
+screen**:
 
 > *"We could use these stings to show off their character art at a very large size and put text
 > information in stylish typeface on top of it, then fade back into the theatre of the mind scene."*
 
 This is the anime character-introduction card, and it is exactly right for a campaign whose whole
-visual thesis is 1950s Japanese industrial-military. Three beats:
+visual thesis is 1950s Japanese industrial-military — a **spot-colour propaganda poster**, one
+black plate plus one ink colour, turned out to be the concrete bridge between "Persona-esque" and
+that voice, once a first pass was reviewed live and corrected twice. **Four beats**, not three —
+Dip was added on review:
 
-1. **Take.** The character's art fills the screen — large, undimmed, at the resolution the in-tray
-   art actually has. The stage behind it goes to a scrim.
-2. **Hold.** Their name lands in the display register, with a subtitle line: designation, role,
-   affiliation. Roughly 1.2–2 seconds — long enough to read, short enough that a GM mid-scene does
-   not resent it.
-3. **Resolve.** The splash collapses back down into the frame the character now occupies on the
-   stage. The art does not cut away; it *becomes* the small portrait, so the table sees where that
-   person now lives on screen.
+1. **Take.** Fades in while a diagonal slash wipe reveals the art. The stage behind it goes to a
+   scrim.
+2. **Hold.** Their name lands in the display register, with a subtitle line: affiliation. Roughly
+   1.6 seconds — long enough to read, short enough that a GM mid-scene does not resent it.
+3. **Dip.** A beat of full black — everything, art included, fades out before anything fades back
+   in. Not in the first build; added after live review asked for a cut to black between the
+   portrait and the landing shot rather than a direct dissolve.
+4. **Resolve.** Fades back in while collapsing down into the frame the character now occupies on
+   the stage — the art does not cut away; it *becomes* the small portrait, so the table sees where
+   that person now lives on screen. Both Take and Resolve run longer than the first pass shipped
+   with, again from live review ("fade in longer, fade out longer").
 
-That third beat is what makes it a sting rather than a slideshow. The splash should **land
-somewhere** — it teaches the player which frame is now theirs to click.
+That fourth beat is what makes it a sting rather than a slideshow. The splash should **land
+somewhere** — it teaches the player which frame is now theirs to click. Built as a FLIP-lite: the
+target frame's on-screen position is measured once when Resolve begins, not tracked continuously: if
+the frame cannot be found at all, it fades from centre instead, rather than throwing.
 
-**Composition.** The art is portrait-shaped, the screen is not, so full-bleed with the subject
-off-centre and the typography in the negative space is the natural layout — not a centred image
-with letterboxing. The type wants both registers the campaign already owns: the name in
-`--bi-font-display-jp` or `--bi-font-stencil`, and a Japanese line set in `--bi-font-brush` as a
-seal or vertical margin mark. `.bi-stamp` already exists for rotated, multiply-blended stamp
-treatments and is the obvious thing to reach for.
+**Composition, corrected from the original plan.** The staged portraits are all a consistent 2:3
+(tall, narrow); a first draft ran the art full-bleed across the whole screen, and live review caught
+that this crops nearly the entire vertical frame away to fill a wide viewport — cutting faces off,
+not "large, undimmed". Built instead as a **portrait-shaped panel** on the right ~44% of the screen,
+sized close enough to the source art's own ratio that `cover` only ever trims a little off the
+sides, with the typography in the negative space to its left.
 
-**What goes on it:** name, designation, affiliation, maybe a single line of standing. **Not stats.**
-This is drama, and the moment a splash carries a stat block it becomes a character sheet that
-happens to be animated.
+**The colour is text-only, not on the portrait.** The original plan called for a duotone wash on the
+art itself when a faction accent exists; live review reversed this directly ("the colouration of
+portraits isn't the best idea, change the text colour not the portraits"). Built as shipped: the
+portrait is grayscale, always, full stop — the accent (`--bi-vermilion` for the Directorate today,
+see `core/splash.mjs#FACTION_ACCENTS`, one line per faction, nothing else pre-added since no other
+faction file exists yet) lives entirely in the name's colour, the subtitle's rule and colour, and the
+seal's ring.
+
+**Type**, decisively assigned rather than either/or: the name in `--bi-font-display-jp` (elegant,
+literary Mincho), the subtitle in `--bi-font-stencil` (a classification line, not a person's name).
+**"More striking typography"** (live review) is answered by a genuine size increase plus a Persona-
+style oversized, near-invisible ghost echo of the SAME name string behind itself
+(`attr(data-text)`, not a second invented line) — scale contrast, not more words.
+
+**No invented seal text.** The original plan reached for `.bi-stamp` (its rotated, multiply-blended
+JP/EN text treatment) for the seal; built instead as a plain accent-coloured ring with nothing
+inside — CLAUDE.md is explicit about not inventing content, and there is no authored Japanese line
+anywhere to draw from. `.bi-stamp` itself was left untouched; forcing it empty and re-blended for a
+dark backdrop (it's tuned for paper) would have fought its own design rather than reused it.
+
+**What goes on it:** name, affiliation. **Not stats, and not yet a "standing" line** — the schema
+carries an optional `standing` field for later, unused by the demo cast. This is drama, and the
+moment a splash carries a stat block it becomes a character sheet that happens to be animated.
 
 **Non-negotiable constraints**, because a full-screen takeover is the most irritating pattern in UI
-when it is wrong:
+when it is wrong — all built and live-verified:
 
-- **Skippable.** Click or any key dismisses immediately.
+- **Skippable.** Click or any key dismisses immediately, cutting straight to Resolve.
 - **Never blocking.** It must not eat a roll in progress or swallow input aimed at the console. It
   is a scrim and a picture, not a modal.
-- **GM-triggered only.** Never automatic on reveal — see the tier rules below.
-- **Never twice for the same character in a session** without the Director explicitly asking. The
-  second time is no longer an introduction.
+- **GM-triggered only, NPC-only.** Never automatic on reveal, and never a PC — a fourth key on the
+  frame (§3's "two or three keys, never six" deliberately exceeded by one), not a modifier on the
+  reveal toggle, because Splash also has to work on an already-revealed character, where the
+  toggle's own plain click means *conceal*.
+- **Never barrages.** No queue — a single-slot guard drops a second simultaneous candidate rather
+  than queuing it, so introducing several characters in one scene is paced entirely by the GM
+  clicking again once each one ends, never by software auto-advancing through a list.
+- **A repeat is a deliberate choice, not a reset.** The Director can re-splash an already-introduced
+  character for drama; a `stingSeq` nonce on every write is what makes that second, otherwise
+  byte-identical event actually re-fire on every client.
 
-This machinery is very close to what a **cold open title card** needs (`#99`, stage 6 of
-`foundry-module-design.md`). Build it so both can use it rather than building two.
+Not built: shared machinery with a cold-open title card (`#99`, stage 6 of
+`foundry-module-design.md`) — a real future opportunity, not attempted here.
 
 ### The frame engage — the middle tier
 
@@ -422,11 +459,17 @@ worked scenes — one per arrangement. What that pass actually established, beyo
    sources. That is the minimum §7 asks for and explicitly **not** the pipeline itself: no
    cataloguing, no dedup, no assigned-once bookkeeping. The casting in
    `data/campaign/stage-demo.json` is a DEMO CAST, not a decision.
-7. **The splash**, last on purpose — and this is a real ordering constraint, not a preference. Every
-   other step degrades gracefully without art: a banner over a silhouette still reads. A full-screen
-   takeover of a silhouette is *worse than no splash at all*, so the loud tier must not be enabled
-   before step 6 even though its machinery could be written earlier. Building it alongside the cold
-   open title card (`#99`) rather than separately is the cheaper path.
+7. **The splash.** ✅ Built (2026-09-07), once real staged art existed to justify it — exactly the
+   ordering this step originally called for. NPC-only (never PCs, a permanent rule, not a demo
+   restriction), a fourth key on the frame rather than a modifier (Splash has to work on an
+   already-revealed character too, where the reveal toggle's own plain click means *conceal* — the
+   opposite of what's wanted), and its own single-slot guard rather than the banner's queue, because
+   queuing multiple candidates would be the exact barrage multi-character scenes ruled out having.
+   Four beats now, not three: fade in + wipe (Take) → name, affiliation, seal (Hold) → a beat of full
+   black (Dip) → fade back in while landing on the frame (Resolve) — Dip and the longer fades were
+   added after live review of the first pass. The portrait stays monochrome always; the faction
+   accent lives entirely in the type and the seal, not on the art (also corrected after the first
+   pass tried tinting the photo). See §5's own text above, revised to match.
 8. **Custom scene transitions** (§6), once there is something to bind them to. Pure polish; the
    furthest thing here from load-bearing.
 
@@ -449,9 +492,12 @@ Genuine ones — not rhetorical, and not for me to settle alone.
 5. **Is `concealed` per-character or per-player?** One character hidden from the whole table is the
    common case; hidden from *one* player is a real Blank Inheritance situation (a private meeting)
    and a much larger permissions problem.
-6. **Does a PC ever get a splash?** §5's constraints were written with NPCs in mind, and a player
-   already knows their own character arrived — but a Frame launching is the single most splash-worthy
-   image this campaign has, and the audience for it is the rest of the table, not the pilot.
+6. **~~Does a PC ever get a splash?~~ SETTLED, 2026-09-07: no, never** — Ingram's own words when
+   asked directly: *"We only do this for NPCs, not for PCs ever."* Enforced in two independent
+   places (the frame template never renders the key for a PC frame; `core/splash.mjs#splashArrivals`
+   refuses `kind !== "npc"` regardless of what the data says), not just a convention. A Frame
+   launching being the single most splash-worthy image this campaign has is still true — it is simply
+   not what this mechanism is for.
 7. **Does a departure ever deserve the loud tier?** §5 says departures are quieter than arrivals,
    which is right for someone walking out of a room and wrong for a death or a betrayal. Either
    there is a fourth kind of sting for an exit that matters, or those moments are simply not stings.
