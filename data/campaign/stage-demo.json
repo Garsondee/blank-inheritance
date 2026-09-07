@@ -161,6 +161,7 @@
       "name": "Demo — Command and Control",
       "layout": "pair",
       "background": "scenes/garsondee_command_and_control_room_with_retro_futuristic_contro_374d52e3-6f69-4aed-9c20-4783eb31fb8f.png",
+      "transition": { "type": "holeSwirl", "duration": 1600 },
       "cast": [
         {
           "portraitId": "commander",
@@ -171,7 +172,7 @@
           "revealed": true
         }
       ],
-      "note": "Two together in the middle. The arrangement for a scene the players are watching rather than standing in."
+      "note": "Two together in the middle. The arrangement for a scene the players are watching rather than standing in. Also the worked example for staging doc §6's transition discipline: Directorate business gets holeSwirl (shipped) rather than a plain fade -- a box-zoom-and-twist, not a literal iris; a true circular aperture is a separate, not-yet-built custom type, see §6."
     },
     {
       "id": "stage-demo-summons",

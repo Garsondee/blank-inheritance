@@ -335,13 +335,50 @@ all and several stings; crossing the city has one transition and no stings. They
 together — a location change and an arrival landing at the same instant are one moment, and the
 transition carries it.
 
-The Foundry side is real and cheap: **a module can register its own transition by adding a key to
-`CONFIG.Canvas.sceneTransitions`**, and an unknown type silently falls back to `fade` — so a custom
-transition is a safe enhancement, never a breakage. Two would eventually carry the campaign's voice:
-an **iris / shutter**, a mechanical aperture matching the console's whole "machined object" thesis,
-and the shipped **`glitch`**, reserved *specifically* for Resonance and Claimant events so that
-distortion always means the same thing. Both are late work (§9 step 5) — polish on a mechanism that
-is already complete without them.
+**The Scene document already carries its own default — `transition.{type, duration, activeOnly}` —
+and setting it is the whole mechanism.** Traced end to end (`Scene#activate()` →
+`_onActivate` → `view()` → `Canvas#draw()` → the private `#animateTransition()`,
+`client/canvas/board.mjs:1271-1302`): unless a caller passes an explicit `viewOptions.transition`,
+that method reads `this.scene.transition` — the field sitting on the document — directly. So
+`Scene.create({..., transition: {type: "glitch", duration: 1200}})` is sufficient **on its own**:
+no adapter code, no hook, no wrapper around Foundry's own "activate this scene" button. This is why
+`core/generators/stage-scene.mjs#buildStageSceneData` now passes a scene's own `transition` field
+straight through from `data/campaign/stage-demo.json` — the whole binding is data, not code.
+
+**Correction to what was believed here before checking the real shader source
+(`client/canvas/rendering/filters/transition.mjs`):** the 13 shipped types are not 13 filter
+classes — every one of them shares a single class, `TextureTransitionFilter`, distinguished only by
+an integer passed as `.type`. All 13 effects are hand-written GLSL in one shared fragment shader with
+a closed, hardcoded `if/else` chain; there is no generic wipe-shape or mask-texture system a new type
+could plug into, and a module cannot add a branch to that shared class — a genuinely new visual needs
+its own filter class (which the shared vertex shader, uniform/texture-sampling scaffolding, and
+`BaseShaderMixin`'s constants/noise helpers are all reusable for, so this is smaller than it sounds —
+see the estimate below). Also corrected: **`hole`/`holeSwirl` are not a circular iris.** Both zoom the
+UV coordinates outward from centre and clip to an axis-aligned box — on screen it reads as a
+shrinking/growing *square* window (`holeSwirl` adds a spiral twist and a darkening pass). No shipped
+type is a true circular aperture. `holeSwirl` is what stands in for "Directorate business" in the
+worked example (`stage-demo-command`) today — a real, working, distinctly mechanical-reading wipe,
+just not literally the iris this section originally pictured.
+
+**Also corrected: "an unknown type silently falls back to fade" is not what actually happens on the
+path that matters.** That fallback is real, but only for the *imperative* route
+(`canvas.transition.run()`, e.g. Scene Config's own preview button) — and even there it
+`console.warn`s rather than staying silent. Ordinary play uses the *declarative* route above
+(`#animateTransition`), and a **missing** key there falls back to a hard cut with **zero console
+output** — no fade, no warning. Worse, a key that **exists but is misconfigured** (no `filterClass`,
+or a `filterType` the class doesn't recognise) doesn't fail safely at all: `TextureTransitionFilter`'s
+own `.type` setter throws, and it does so from inside a PIXI `postrender` listener that nothing in
+Foundry's calling code awaits or wraps in `try`/`catch` — an uncaught exception, not a clean fallback.
+So "safe enhancement, never a breakage" was too optimistic: a **missing** key is safe (hard cut,
+silent); a **broken** one is not. Anything registered here needs to actually work, not just exist.
+
+Two would eventually carry the campaign's voice: an **iris / shutter**, a genuine circular aperture
+matching the console's whole "machined object" thesis (not shipped — would need its own ~20-40 lines
+of new fragment-shader GLSL plus a small filter-class wrapper, reusing everything else for free; real
+but shallow work for a codebase that has never written a shader, and worth doing live in the engine
+rather than blind, since a broken shader fails the ugly way described above), and the shipped
+**`glitch`**, reserved *specifically* for Resonance and Claimant events so that distortion always
+means the same thing — free the moment there is a Resonance-flavoured scene to set it on (§9 step 8).
 
 The same discipline as §5 applies, for the same reason: **a transition should mean something.** Bind
 types to kinds of event — ordinary travel fades, Directorate business shutters, anything touching
@@ -483,8 +520,17 @@ worked scenes — one per arrangement. What that pass actually established, beyo
    added after live review of the first pass. The portrait stays monochrome always; the faction
    accent lives entirely in the type and the seal, not on the art (also corrected after the first
    pass tried tinting the photo). See §5's own text above, revised to match.
-8. **Custom scene transitions** (§6), once there is something to bind them to. Pure polish; the
-   furthest thing here from load-bearing.
+8. **Custom scene transitions** (§6). 🟡 Partly built (2026-09-07): `stage-demo.schema.json`'s scene
+   entries now accept an optional `transition` object in Foundry's own native shape (not a shape we
+   invented), and `buildStageSceneData` passes it straight through into Scene creation data — proven
+   sufficient on its own, no adapter code, per the traced call chain in §6. `stage-demo-command`
+   (Commander + Caretaker) is the worked example: `transition: {type: "holeSwirl", duration: 1600}`,
+   the closest shipped stand-in for "Directorate business," corrected in §6 to not literally be an
+   iris. **Not yet live-verified** — the local Foundry instance was unreachable when this was built
+   (a recurring environment flake, not a code issue). Still open: whether to build the genuine
+   circular-iris custom type §6 now prices at roughly 20-40 lines of GLSL, which needs doing live in
+   the engine rather than blind given how a broken shader actually fails (§6). Pure polish either
+   way; the furthest thing here from load-bearing.
 
 ---
 

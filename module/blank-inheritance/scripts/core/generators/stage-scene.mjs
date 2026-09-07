@@ -80,6 +80,12 @@ export function buildStageSceneData(source, id, backgroundPath, { width = 1920, 
       globalLight: { enabled: true, bright: true }
     },
 
+    // Passed through verbatim -- this is Foundry's own field, not a shape we
+    // invented (design/theatre-of-the-mind-staging.md §6). Omitted entirely
+    // rather than defaulted, so a scene the manifest says nothing about gets
+    // Foundry's own default rather than us silently picking one for it.
+    ...(source.transition ? { transition: source.transition } : {}),
+
     levels: [
       {
         _id: DEFAULT_LEVEL_ID,

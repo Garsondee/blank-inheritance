@@ -91,6 +91,23 @@ test("the initial view is the centre of the scene", () => {
   assert.deepEqual(data.initial, { x: 800, y: 400 });
 });
 
+test("a scene's own transition passes through verbatim when the manifest sets one", () => {
+  // Foundry's own field shape (transition.{type,duration,activeOnly}), not
+  // ours -- design/theatre-of-the-mind-staging.md §6. Passed through rather
+  // than validated here; the schema is the contract for what's legal.
+  const withTransition = { ...SOURCE, transition: { type: "holeSwirl", duration: 1600 } };
+  const data = buildStageSceneData(withTransition, "abc123", BG);
+  assert.deepEqual(data.transition, { type: "holeSwirl", duration: 1600 });
+});
+
+test("a scene with no transition in the manifest gets none in the data -- Foundry's own default applies", () => {
+  // Not defaulted to {type: "fade", ...} here: that would be us picking a
+  // value Foundry already picks for free, and it would stop a future
+  // Foundry-side default change from ever being visible.
+  const data = buildStageSceneData(SOURCE, "abc123", BG);
+  assert.equal("transition" in data, false);
+});
+
 test("a scene with no background is refused rather than built blank", () => {
   assert.throws(() => buildStageSceneData(SOURCE, "abc123", null), /no background/);
   assert.throws(() => buildStageSceneData(SOURCE, null, BG), /deterministic id/);

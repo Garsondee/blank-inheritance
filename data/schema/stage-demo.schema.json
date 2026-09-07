@@ -55,6 +55,16 @@
             "description": "Blocking is meaning: two figures either side of a gap read as a conversation, a cluster opposite one figure reads as a summons. Must match core/stage-layout.mjs's STAGE_LAYOUTS."
           },
           "background": { "type": "string", "description": "Path relative to artwork/in-tray/. Authored 2:1." },
+          "transition": {
+            "type": "object",
+            "description": "Optional. Passed straight through to the Foundry Scene's own transition.{type,duration,activeOnly} field (design/theatre-of-the-mind-staging.md §6) — not our own vocabulary, Foundry's. Absent means Foundry's own default (fade). A type this build doesn't recognise falls back to fade silently, so this is always a safe field to set.",
+            "properties": {
+              "type": { "type": "string", "description": "A CONFIG.Canvas.sceneTransitions key — one of the 13 shipped types (fade, swirl, waterDrop, morph, crosshatch, wind, waves, whiteNoise, hologram, hole, holeSwirl, glitch, dots) or a custom one this module registers." },
+              "duration": { "type": "integer", "minimum": 0 },
+              "activeOnly": { "type": "boolean" }
+            },
+            "additionalProperties": false
+          },
           "note": { "type": "string" },
           "cast": {
             "type": "array",
