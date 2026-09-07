@@ -3,17 +3,23 @@
   "id": "in-scene-character-portrait-frames",
   "type": "idea",
   "title": "In-scene character portrait frames — faction theming, comms-light notifications, NPC flavor dialogue",
-  "status": "new",
-  "domains": ["ui", "narrative", "mechanics", "visual"],
+  "status": "accepted",
+  "domains": [
+    "ui",
+    "narrative",
+    "mechanics",
+    "visual"
+  ],
   "summary": "Each present character (PC or NPC) shows a portrait in a decorative, faction-themed frame in the scene, with buttons/lights beneath it — including a small comms-alert light mirroring the Frame dashboard's larger one, which opens a list of received messages needing action when clicked. Other players can see communication happening, even with NPCs. NPC portraits get speech-bubble flavor dialogue: in-character, tone-setting lines meant to help players read and improvise that NPC, not scripted dialogue that constrains the GM's own improv.",
   "description": "Second of three named in-scene UI elements from a follow-up planning message (the other two are the control bar — in-scene-ui-panel-mimetic-controls — and the personal comm device — terminal-login-landing-page): portraits, 'so that players can see who is in a theatre of the mind scene immediately.'\n\n**The frames themselves**: each character present in a scene gets their portrait shown in a special decorative frame, with room below it for a few buttons/lights/details. Frames are themed per-faction and built to be 'characterful, informative and interactive or responsive' — explicit goal stated as trying to create 'what feels like a living breathing responding world,' not a static portrait row.\n\n**The comms-alert light**: one of the below-frame details is a glowing red light — a small echo of a larger version that lives on the character's Frame dashboard. It lights up when the character receives a message (through the in-universe correspondence system, see in-universe-correspondence-negotiation-system), and clicking it opens a list of received messages that require the player to do something. This is the concrete UI entry point into that correspondence system's inbox.\n\n**Visible cross-player communication**: explicit design goal that players can see each other communicating back and forth — including when a message comes from an NPC — rather than correspondence being fully private/invisible to the rest of the table. Exactly how much is visible (that a message exists vs. its content) isn't specified.\n\n**NPC speech bubbles**: NPC portrait icons get text bubbles with flavorful, interesting, helpful, or tone-setting in-character dialogue, meant to help players get a feel for that NPC. Explicit, important constraint: these lines must be something the character could plausibly say, and must not contradict or box in the GM's own improvisation of that character — they're reference/steering material to help players read and improvise around an NPC's personality, not mandatory scripted lines. If a line lands as a genuinely good recurring joke, that's fine as an occasional thing, but the priority is content that's actually worth knowing (characterization, tone, information) over comedy for its own sake.",
   "capturedDate": "2026-08-22",
-  "lastTouchedDate": "2026-08-22",
+  "lastTouchedDate": "2026-09-07",
   "sourceContext": "User planning message, 2026-08-22 — third installment of a multi-part rant about in-scene UI, following the Foundry diagnostic test sync passing 15/15 and the user choosing character-facing creative work as the next focus.",
   "openSubQuestions": [
-    "Full button/light set beyond the message-received light — not enumerated yet.",
+    "Full button/light set beyond the message-received light. PARTIALLY ANSWERED 2026-09-07 by design/theatre-of-the-mind-staging.md section 3: the lamp carries the comms alert and/or attitude, and the secondary row is capped at two or three actions (comms, ask for a check, start a conversation) on the grounds that a frame with six buttons is a character sheet. The exact final set is still open.",
     "How faction theming maps to actual data — a per-faction style sheet keyed off something already in the schema (npc.schema.json/creature.schema.json don't currently carry a faction field), or hand-authored per frame.",
-    "What triggers a flavor bubble to appear (scene entry, an idle timer, a random chance each scene, a GM-triggered button) — not specified."
+    "What triggers a flavor bubble to appear (scene entry, an idle timer, a random chance each scene, a GM-triggered button) — not specified.",
+    "The staging design's own five open questions (where the stage lives on screen, how many frames fit, whether PC frames are controls too, whether a sting reaches players in another scene, whether concealment is per-character or per-player) plus three about the splash tier live in design/theatre-of-the-mind-staging.md section 10 rather than being duplicated here."
   ],
   "resolvedSubQuestions": [
     "How NPC flavor lines get authored and stored — a hand-written pool per NPC, something semi-generated, and where that would live in data/schema? PARTIALLY RESOLVED 2026-09-06, under the name 'the Character Card' (design/npc-social-intel.md), developed independently from a separate request: hand-authored per NPC, as npc.schema.json's new socialProfile.facts field — each Fact hidden until a specific reveal trigger (usually a check) fires, then permanently known and reusable in any future scene. Stronger than free-floating flavor bubbles: gathered intel with real mechanical teeth (a well-matched known Fact grants a bonus when leveraged) rather than always-visible steering text. Marked partial because it answers storage/authoring for FACTS specifically, not the lighter always-on speech-bubble concept this idea also describes — those may end up being the same content shown two ways, or may stay genuinely separate; not decided.",
@@ -25,7 +31,8 @@
     "terminal-login-landing-page",
     "dialogue-management-panel",
     "design/foundry-module-design.md#3-scenes-theatre-of-mind-and-the-asset-pipeline",
-    "design/npc-social-intel.md"
+    "design/npc-social-intel.md",
+    "design/theatre-of-the-mind-staging.md"
   ],
-  "resolution": null
+  "resolution": "ACCEPTED and specified 2026-09-07 as design/theatre-of-the-mind-staging.md, written at Ingram's direct request (\"That's a great idea worth expanding upon in a document\") after he corrected the V2 console's theatre-of-the-mind mode: a scene is a composed stage, not a list of names. The doc settles the structural half of this idea -- the frame reuses V1's .bi-marker__card vocabulary, the whole frame is a button opening the seat-appropriate Character Card, the Foundry Scene supplies the background art (we do NOT build a second rendering surface), and reveal/conceal is Law 11 removal rather than CSS hiding. It also adds a piece this entry never had: the ARRIVAL STING, a three-tier ladder (Quiet / Announced / Splash) for characters joining or leaving a scene, where the loud tier is full-screen character art with display typography resolving down into the frame. Build order is that doc's section 9. NOT built yet -- accepted, not in-progress."
 }

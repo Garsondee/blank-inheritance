@@ -1,0 +1,423 @@
+# Staging theatre of the mind
+
+*Written 2026-09-07, from Ingram's correction to how the theatre-of-the-mind console should
+work. Companion to [`ux-doctrine.md`](ux-doctrine.md) (which decides what is on screen) and
+[`npc-social-intel.md`](npc-social-intel.md) (which decides what is known about a person).
+This decides what a **scene** looks like.*
+
+---
+
+## 1. The correction
+
+The V2 console so far treats theatre of the mind as a **list**: the cast board is names in rows,
+one line each, and the Character Card is a panel you open about one of them. That is a GM's tool.
+It is not a scene, and it gives the players nothing to look at.
+
+The correction: **a theatre-of-the-mind scene is a composed stage.** Location is carried by
+background art. The people in it are portraits in frames. The Director controls who is on that
+stage and when they arrive, and an arrival is an *event* — the screen announces it.
+
+> *"I imagine it using the art from the artwork inbox that corresponds to the actual character art
+> and displaying them in a frame like the encounter boxes in V1... So we show location with the
+> background art and then I can reveal or hide character portraits in frames to give the players
+> buttons they can press to bring up information or do things. The Director goes from hidden to
+> revealed, it appears on people's screens, we sting the screen with a bold typeface header that
+> informs the players of their arrival in the scene even to create drama."*
+
+Three things follow, and they are the whole design:
+
+1. **The scene has a picture.** Not a token grid — a place.
+2. **People appear in it, on the Director's cue**, and the appearance is dramatised.
+3. **A portrait is a control**, not decoration. It is the players' way into everything the console
+   already knows about that person.
+
+That third point is what makes this worth building rather than merely pretty. Stages 1–3 already
+built the machinery — rolling checks, the Character Card, social intel — and gave it only a GM-side
+door. This is the players' door to the same rooms.
+
+---
+
+## 2. What already exists that this should use
+
+This is not a new subsystem. Almost every piece is built or designed; the work is composition.
+
+| Piece | State | Role here |
+|---|---|---|
+| `.bi-marker__card` (V1) | Built, in `bi-components.css` | The frame's visual vocabulary — see §3 |
+| `.bi-banner` + `core/notices.mjs` | Built, unused in V2 | The arrival sting — see §5 |
+| Character Card (`social-intel.mjs`) | Built, stage 3 | What a portrait opens — see §4 |
+| `rolls.mjs` / inline checks | Built, stage 1 | What a portrait can ask for |
+| Foundry Scenes + transitions | Native, verified | Background art and scene changes — see §6 |
+| `artwork/in-tray/` | 129 scenes, 66 portraits, 12 mechs | The actual art — see §7 |
+| `in-scene-character-portrait-frames` | idea, `new` | This document is that idea, specified |
+| `asset-review-pipeline` | idea, `accepted` | The dependency that makes art usable — see §7 |
+
+**Nothing here proposes a second rendering engine.** The Foundry Scene stays the background; our
+frames are UI drawn over it. That decision is §6 and it is the most important structural call in
+this document.
+
+---
+
+## 3. The frame
+
+Ingram's reference is right and worth taking literally: V1's encounter boxes already solved this.
+Their structure, from `design/ui/console.js`:
+
+```
+.bi-marker__card
+  header .bi-marker__head
+    .bi-plate--brass .bi-marker__code     brass code plate  — "CX-04"
+    .bi-plate        .bi-marker__name     bone name plate   — "Contact, Unclassified"
+    .bi-lamp--lit    .bi-marker__lamp     status lamp       — amber / red / resonance / cyan
+  figure .bi-marker__scope
+    img                                   THE ART, object-fit: cover
+    .bi-marker__fix / __status            imprinted data, bottom corners
+  .bi-marker__risk .bi-screen             a gauge with a band label
+  .bi-marker__muster                      who has signed on
+  footer .bi-marker__foot
+    .bi-key--go                           the commit action
+```
+
+The parts worth keeping verbatim for a character:
+
+- **The scope figure.** Art at `object-fit: cover`, `filter: saturate(0.82) brightness(0.86)`
+  until hover or selection, then `filter: none`. That dimming is doing real work — the comment in
+  the CSS says it outright: *"Dimmed so the plates and lamps outrank the picture until you look."*
+  A row of six full-saturation portraits would fight the console for attention every second of the
+  session. Dim by default; **the person you are dealing with lights up.**
+- **The scanline overlay** (`--bi-mat-scanline`, `mix-blend-mode: multiply`). It is what makes the
+  art read as *displayed on the console* rather than pasted onto it. Non-negotiable for the
+  campaign's voice.
+- **The two plates.** Brass for a code, bone for a name. A character frame wants the same:
+  designation plate + name plate.
+- **The lamp.** V1 used it for risk kind. A character frame should use it for the thing that
+  actually changes: the comms-alert light the portrait-frames idea already specifies, and/or
+  attitude.
+
+What should **not** carry over: the risk gauge and the muster berths. Those are sign-up mechanics
+belonging to the day ring (stage 4), not to a person standing in a room.
+
+### The frame is a button
+
+The whole card is the control. Clicking it should do the obvious thing, and what is obvious differs
+by seat:
+
+- **Player** → opens that character's Character Card, player-redacted: attitude as narration, only
+  the Facts the party has actually learned, and the count of what they have not. All of that logic
+  is written and tested already (`core/social-intel.mjs`'s `buildCard({ isGM: false })`).
+- **Director** → opens the GM view: every Fact, its reveal trigger, the attitude scale as an
+  editable line.
+
+A secondary action row under the frame is where the portrait-frames idea's buttons go — the comms
+light, "ask them for a check", "start a conversation" (the accepted `dialogue-management-panel`).
+**Keep it to two or three.** A frame with six buttons is a character sheet, and the doctrine's Law
+13 already says the chassis is for what happens inside a turn and everything else lives elsewhere.
+
+---
+
+## 4. Hidden and revealed
+
+The Director controls a per-character state with three values, not two:
+
+| State | On the Director's board | On a player's screen |
+|---|---|---|
+| **Absent** | not in this scene | nothing |
+| **Concealed** | listed, dimmed, marked | **nothing at all** |
+| **Revealed** | listed, lit | the frame, on the stage |
+
+The middle state is the interesting one, and it has a hard rule attached.
+
+> **Concealed means the player's client never receives the character, not that it does not render
+> them.** Same standard as Law 11 and the Character Card's authored-Facts vault: a portrait hidden
+> with CSS is a portrait a curious player can find in devtools, and knowing that an unrevealed
+> someone is standing in the room is exactly the information concealment exists to protect.
+
+Foundry gives this natively and we should use it rather than invent: a Token's `hidden` flag plus
+document ownership already governs what is sent to a client. Whatever backs the stage should ride
+on the same mechanism, so the reveal is enforced by the server, not by our template.
+
+**Reveal is one-way in the fiction, two-way in the tooling.** A GM can re-conceal someone who has
+left the room; that is a normal scene event, not an undo. But a character who has been revealed is
+*known* — the Character Card's Facts persist exactly as they already do, and re-concealing the
+portrait does not un-learn anything.
+
+---
+
+## 5. The sting — arrivals and departures
+
+**This is the heart of the idea, and it is a per-character event, not a page transition.** When
+someone joins the scene or leaves it, the screen performs that fact. Clarified by Ingram directly:
+
+> *"The transitions I'm talking about are actually basically visual stings for characters leaving
+> and joining the theatre of the mind scene."*
+
+A sting is **one event with coordinated expressions**, and it comes in three weights the Director
+chooses between. That ladder is the design:
+
+| Tier | What happens | For |
+|---|---|---|
+| **Quiet** | The frame simply engages on the stage. No banner, no splash. | Background presence — technicians, a crowd, people who are simply *there* |
+| **Announced** | Banner drops + frame engages. | A notable arrival. The default for anyone who matters this scene. |
+| **Splash** | Full-screen character art + typography, resolving down into the frame. | A first appearance, or an arrival that changes the stakes |
+
+The tiers exist because **the loud one only works if it is rare**. A splash on every entrance is a
+loading screen. The Director picks the weight, because "does this arrival matter" is exactly the
+kind of artistic judgement doctrine §10.4 says never to automate.
+
+### The banner half
+
+`.bi-banner` is a brass chevron that drops from under the top rail, and `core/notices.mjs`'s
+`NoticeQueue` already handles ranking, pre-emption, a merge window and a cap — built, tested at
+tier 1, and currently **without a single consumer in V2**. This is its consumer.
+
+Its vocabulary maps cleanly: `--kind` colours it (`info` cyan, `caution` amber, `alert` vermilion,
+`resonance` violet), `__cap` takes a short kind word, `__glass` the text, `__time` a stamp. The
+typeface should be the display register — `--bi-font-display-jp` or `--bi-font-stencil` — at a size
+the console never otherwise uses. Its whole job is to be **louder than the rest of the interface for
+two seconds** and then get out of the way.
+
+### The splash — the loud tier
+
+The biggest version of a sting **takes the whole screen**:
+
+> *"We could use these stings to show off their character art at a very large size and put text
+> information in stylish typeface on top of it, then fade back into the theatre of the mind scene."*
+
+This is the anime character-introduction card, and it is exactly right for a campaign whose whole
+visual thesis is 1950s Japanese industrial-military. Three beats:
+
+1. **Take.** The character's art fills the screen — large, undimmed, at the resolution the in-tray
+   art actually has. The stage behind it goes to a scrim.
+2. **Hold.** Their name lands in the display register, with a subtitle line: designation, role,
+   affiliation. Roughly 1.2–2 seconds — long enough to read, short enough that a GM mid-scene does
+   not resent it.
+3. **Resolve.** The splash collapses back down into the frame the character now occupies on the
+   stage. The art does not cut away; it *becomes* the small portrait, so the table sees where that
+   person now lives on screen.
+
+That third beat is what makes it a sting rather than a slideshow. The splash should **land
+somewhere** — it teaches the player which frame is now theirs to click.
+
+**Composition.** The art is portrait-shaped, the screen is not, so full-bleed with the subject
+off-centre and the typography in the negative space is the natural layout — not a centred image
+with letterboxing. The type wants both registers the campaign already owns: the name in
+`--bi-font-display-jp` or `--bi-font-stencil`, and a Japanese line set in `--bi-font-brush` as a
+seal or vertical margin mark. `.bi-stamp` already exists for rotated, multiply-blended stamp
+treatments and is the obvious thing to reach for.
+
+**What goes on it:** name, designation, affiliation, maybe a single line of standing. **Not stats.**
+This is drama, and the moment a splash carries a stat block it becomes a character sheet that
+happens to be animated.
+
+**Non-negotiable constraints**, because a full-screen takeover is the most irritating pattern in UI
+when it is wrong:
+
+- **Skippable.** Click or any key dismisses immediately.
+- **Never blocking.** It must not eat a roll in progress or swallow input aimed at the console. It
+  is a scrim and a picture, not a modal.
+- **GM-triggered only.** Never automatic on reveal — see the tier rules below.
+- **Never twice for the same character in a session** without the Director explicitly asking. The
+  second time is no longer an introduction.
+
+This machinery is very close to what a **cold open title card** needs (`#99`, stage 6 of
+`foundry-module-design.md`). Build it so both can use it rather than building two.
+
+### The frame engage — the middle tier
+
+The frame's own entrance, without taking the screen. The motion vocabulary is already in the
+tokens: `--bi-ease-servo` with `--bi-dur-snap` / `--bi-dur-servo` / `--bi-dur-sweep`. Those are
+named for machinery on purpose. **A character should arrive the way a piece of equipment engages** —
+with a servo's authority, not a web page's fade.
+
+Entrance treatments worth building, bound to what the arrival *means* rather than picked at random:
+
+| Sting | Motion | Reserved for |
+|---|---|---|
+| **Engage** | Frame snaps up from the stage floor on `--bi-ease-servo`, plates stamping in a beat behind the art | The ordinary arrival. Most people, most scenes. |
+| **Shutter** | The scope irises open over the art, plates already in place | Directorate business — someone arriving in an official capacity |
+| **Alert** | Hard cut in, lamp flares vermilion first, frame settles after | A hostile or unwelcome arrival |
+| **Signal** | Art resolves out of `glitch`/scanline noise, tinted `--bi-resonance` | Anything touching Resonance, Bleed or a Claimant |
+
+Departures get the same treatment in reverse and **must not be the entrance played backwards** —
+that reads as a mistake. A departure should be quieter and shorter: the lamp goes dark first, then
+the frame retracts. Someone leaving is information, not an event.
+
+### Rules, so stings do not become wallpaper
+
+1. **Quiet is the default action.** The Director's ordinary reveal button does the quiet tier.
+   Announced and Splash are deliberate, separate choices. If the loud one is the default, every
+   arrival is loud and none of them land.
+2. **One at a time, and they queue.** Already true of the banner — `NoticeQueue` does ranking and
+   pre-emption. The frame animation and the splash must respect the same queue rather than running
+   on their own timers, or two simultaneous arrivals will talk over each other. A splash
+   mid-splash should never be possible.
+3. **A sting means something.** Four entrance treatments bound to four kinds of arrival is a
+   language the table learns; a different flourish each time is noise wearing a costume.
+
+### The timing problem, named
+
+A reveal is a document change that reaches every client over the socket. Clients will not run their
+stings at exactly the same instant, and a player on a slow connection may see the frame before the
+banner or vice versa. **Both halves should be triggered by the same client-side event** (the
+document update landing), not scheduled independently, so each client stays internally coherent
+even if the table is a few hundred milliseconds apart.
+
+---
+
+## 6. Background art, and the structural call
+
+**The Foundry Scene is the background. Our frames are UI over it.**
+
+The alternative — a full-screen "stage" surface we draw ourselves, with our own background image
+and our own portrait layout — is tempting and wrong. Taking the Scene means inheriting, free and
+already working:
+
+- scene switching, with **13 built-in transitions** (`fade, swirl, waterDrop, morph, crosshatch,
+  wind, waves, whiteNoise, hologram, hole, holeSwirl, glitch, dots`) verified in
+  `foundry-technical-reference.md` §3;
+- a per-scene *default* transition in the Scene schema (`transition.{type, duration, activeOnly}`),
+  so a location can declare "always hologram in over 1500ms" without any caller knowing;
+- `activate()` / `pullUsers()`, which push a scene change to every client;
+- playlists bound to scenes, lighting, weather, and the whole asset pipeline the module already
+  syncs into.
+
+Rebuilding any of that to own a background image would be the single worst trade in this document.
+
+### Scene transitions are for LOCATION changes only
+
+Worth stating plainly, because the two are easy to conflate: **Foundry's scene transitions and §5's
+stings are different mechanisms doing different jobs.**
+
+| | What changes | Who owns it | What it says |
+|---|---|---|---|
+| **Scene transition** | the location | Foundry (`CONFIG.Canvas.sceneTransitions`) | *we are somewhere else now* |
+| **Sting** (§5) | the cast | us (`NoticeQueue`, our own overlay) | *someone arrived, or left* |
+
+Most scenes use exactly one of them. A conversation that runs for an hour has no scene transition at
+all and several stings; crossing the city has one transition and no stings. They should not fire
+together — a location change and an arrival landing at the same instant are one moment, and the
+transition carries it.
+
+The Foundry side is real and cheap: **a module can register its own transition by adding a key to
+`CONFIG.Canvas.sceneTransitions`**, and an unknown type silently falls back to `fade` — so a custom
+transition is a safe enhancement, never a breakage. Two would eventually carry the campaign's voice:
+an **iris / shutter**, a mechanical aperture matching the console's whole "machined object" thesis,
+and the shipped **`glitch`**, reserved *specifically* for Resonance and Claimant events so that
+distortion always means the same thing. Both are late work (§9 step 5) — polish on a mechanism that
+is already complete without them.
+
+The same discipline as §5 applies, for the same reason: **a transition should mean something.** Bind
+types to kinds of event — ordinary travel fades, Directorate business shutters, anything touching
+Resonance glitches — rather than varying them for novelty, or none of them carries information.
+
+One implementation fact, so it is not rediscovered the hard way: there is **no hook that fires when
+a transition starts or ends** (verified). Anything that must happen *after* one — including a sting
+for whoever is waiting in the new location — has to be sequenced by the code that triggered it.
+
+---
+
+## 7. Where the art comes from — and the honest dependency
+
+`artwork/in-tray/` already holds real, on-voice material:
+
+| Directory | Count | Contents |
+|---|---|---|
+| `scenes/` | 129 | Named sets (`bar_01`–`05`, `control-panel-01`–`08`) plus generated bunkers, interiors |
+| `character-portraits/` | 66 | 1950s Japanese cadets, doctors, officers, police, liquidators in haz suits, thugs, wrestlers — plus `aliens/` and `environment/` subfolders |
+| `mechs/` | 12 | Frames, including a wreck and two construction units |
+| `landscapes/` | 4 | Matte paintings |
+
+It is genuinely good and genuinely unusable as-is. Most filenames look like
+`garsondee_a_japanese_1050s_military_doctor_portrait_1950s_han_172ffcd7-….png` — a prompt fragment
+and a UUID. **Nothing maps a portrait to a character.**
+
+That mapping is precisely what the already-`accepted` `asset-review-pipeline` idea exists to
+produce (AI-catalogued, human-confirmed, then organised out of the in-tray). **This design depends
+on it**, and I would rather say so than pretend a naming convention will appear on its own.
+
+The minimum this needs from that pipeline:
+
+- a stable id per image, surviving the rename out of `in-tray/`;
+- a `portrait` field on `npc.schema.json` / `kid.schema.json` pointing at one;
+- a `background` on the episode's scene entries pointing at a `scenes/` image;
+- the "assigned once, never double-used" rule the in-tray was built around, so two NPCs never
+  share a face by accident.
+
+Until then the frames can render Foundry's own `actor.img`, which is already correct plumbing and
+degrades to a silhouette when unset.
+
+---
+
+## 8. What this is not
+
+- **Not a replacement for the cast board.** The board is the Director's index — many creatures, one
+  row each, scannable. The stage is the players' view. Same data, two shapes, exactly the split
+  doctrine §10 already draws between a sheet and a board.
+- **Not a token-less combat mode.** This is mode 1. When initiative starts, the console changes
+  mode and the stage is not what a fight is run on.
+- **Not a dialogue system.** Speech bubbles and conversation trees belong to
+  `dialogue-management-panel` and `in-universe-correspondence-negotiation-system`. A portrait may
+  *open* those. It should not reimplement them.
+
+---
+
+## 9. Build order
+
+Sequenced so each step is usable alone, and so the riskiest unknown is not last.
+
+1. **Frames on the stage, GM-revealed, no art.** Actor images and the V1 card treatment. Proves the
+   reveal path, the permission model, and the layout against a real scene. *Highest risk item is
+   the permission model — do it first.*
+2. **Portrait opens the Character Card**, seat-appropriate. Pure composition; both halves exist.
+3. **The quiet and announced tiers.** Wire `NoticeQueue` to reveals, GM-triggered. First real
+   consumer for a tested, idle module — and the point at which the feature is genuinely finished:
+   everything after this is amplitude, not capability.
+4. **The frame engage**, the middle tier's motion. `--bi-ease-servo` and the four treatments. Costs
+   nothing but CSS and degrades to an instant appearance wherever it is not wired up.
+5. **Scene backgrounds via real Scenes**, with per-scene default transitions.
+6. **Real art**, gated on the asset pipeline (§7).
+7. **The splash**, last on purpose — and this is a real ordering constraint, not a preference. Every
+   other step degrades gracefully without art: a banner over a silhouette still reads. A full-screen
+   takeover of a silhouette is *worse than no splash at all*, so the loud tier must not be enabled
+   before step 6 even though its machinery could be written earlier. Building it alongside the cold
+   open title card (`#99`) rather than separately is the cheaper path.
+8. **Custom scene transitions** (§6), once there is something to bind them to. Pure polish; the
+   furthest thing here from load-bearing.
+
+---
+
+## 10. Open questions
+
+Genuine ones — not rhetorical, and not for me to settle alone.
+
+1. **Where does the stage live on screen?** Portraits over the canvas, positioned by the GM like
+   V1's markers? Or a fixed row along one edge? V1's free positioning was for map pins with real
+   coordinates; a conversation has no coordinates. A fixed, ordered row may serve better and is far
+   less to build — but it loses the "who is standing near whom" staging that free placement gives.
+2. **How many frames before the stage is full?** Six PCs plus NPCs will not fit at V1's card size.
+   Does the frame shrink to a portrait-and-nameplate at four or more, expanding only on selection?
+3. **Do players see each other's frames as controls, or only NPCs?** The portrait-frames idea wants
+   visible cross-player communication; that implies PC frames are on the stage too.
+4. **Does the sting reach players who are not looking at that scene?** A player on a different scene
+   arguably should not be told who just walked into a room they are not in.
+5. **Is `concealed` per-character or per-player?** One character hidden from the whole table is the
+   common case; hidden from *one* player is a real Blank Inheritance situation (a private meeting)
+   and a much larger permissions problem.
+6. **Does a PC ever get a splash?** §5's constraints were written with NPCs in mind, and a player
+   already knows their own character arrived — but a Frame launching is the single most splash-worthy
+   image this campaign has, and the audience for it is the rest of the table, not the pilot.
+7. **Does a departure ever deserve the loud tier?** §5 says departures are quieter than arrivals,
+   which is right for someone walking out of a room and wrong for a death or a betrayal. Either
+   there is a fourth kind of sting for an exit that matters, or those moments are simply not stings.
+8. **What does a splash do to audio?** A full-screen takeover with the scene's playlist continuing
+   underneath at full level is the version that feels cheap. Ducking, a one-shot cue, or nothing at
+   all are all defensible; the audio system does not exist yet, so this is a placeholder for when it
+   does.
+
+---
+
+*Related: [`ux-doctrine.md`](ux-doctrine.md) §5 (theatre of the mind), §10 (the Director's console);
+[`npc-social-intel.md`](npc-social-intel.md) (the Character Card this opens);
+`ideas/entries/in-scene-character-portrait-frames.json` (the original idea, now specified);
+`ideas/entries/asset-review-pipeline.json` (the art dependency);
+`design/foundry-technical-reference.md` §3 (scenes, transitions, the missing transition hook).*
