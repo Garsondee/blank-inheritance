@@ -277,31 +277,32 @@
   /* The checks pod is the one module that cannot be sized to a known number
      of keys: eighteen fixed skills, three saves, Perception, and however
      many Lores that particular character happens to have. Everything else
-     on the chassis has a fixed content budget; this does not.
+     on the chassis has a fixed content budget; this does not. It still gets
+     its own WIDTH (more columns, so fewer rows are ever needed) but is
+     deliberately given NO special height allowance beyond the same ceiling
+     every other pod already has -- see .bi-bar .bi-pod's own max-height in
+     bi-components.css.
 
-     So it gets its own two dimensions, and it is allowed to rise above the
-     chassis the way the dome does -- .bi-bar is `align-items: end` with no
-     overflow clipping, so a pod taller than the bar grows upward off the
-     shared baseline rather than being cut off. Height is a CEILING, not a
-     fixed size: the pod is only ever as tall as its own contents need. */
+     REVERSED 2026-09-07, after two rounds of chasing this the other way
+     (letting it grow taller, then trying to reserve room above the bar for
+     that growth, then trying to clamp the growth to the viewport) all
+     failed the same live test. Measured directly in a running Foundry
+     instance: a grid/flex row that overflows its explicit-height container
+     does NOT escape upward the way .bi-dome's own looming trick does --
+     align-items:end only aligns an item WITHIN an already-sized row, and an
+     auto-sized row with no explicit grid-template-rows lays out from the
+     container's own top edge regardless of that property, so the EXCESS
+     height escapes DOWNWARD, off the bottom of the real window, not upward
+     toward the hotbar. Confirmed live: a stress-test creature with five
+     Lores measured its checks pod's bottom edge 117px past window.innerHeight
+     in a perfectly ordinary 900px-tall window -- fifteen of its twenty-seven
+     keys had no on-screen position at all. Every fix aimed at the space
+     ABOVE the bar could only ever have been treating the wrong direction.
+
+     So: no growth, ever. A pod taller than its ceiling scrolls internally
+     (.bi-checks's own overflow-y:auto) rather than pushing anything off the
+     visible window in a direction nothing was ever guarding. */
   --bi-checks-width: 560px;
-  /* FOUND LIVE 2026-09-07: this was a flat 336px with no idea how tall the
-     actual browser window is. Selecting a token jumps the checks pod from
-     empty to a full skill grid in one frame, and on a short viewport 336px
-     of upward growth pushed the lower rows -- DEFENCES, sometimes SKILLS
-     itself -- past the true top of the window. There is no page scrollbar
-     to recover with (Foundry's own body/html are overflow:hidden by design),
-     so those keys were not just hidden, they were unreachable.
-
-     min() keeps the 336px ceiling on anything reasonably sized (a normal
-     desktop monitor never engages the vh term at all) and softens it
-     proportionally as the window shrinks, so the pod degrades to its own
-     overflow-y:auto scroll (bi-components.css's .bi-checks) BEFORE it runs
-     out of window rather than after. Scrolling sometimes is a real cost --
-     Ingram explicitly asked for every key visible with no scrolling -- but
-     it is a strictly smaller cost than a key existing somewhere no click can
-     ever reach. */
-  --bi-checks-max-height: min(calc(var(--bi-bar-height) * 2), 45vh);
   --bi-checks-key-min: 60px;
 
   --bi-toprail-height: 54px;   /* scene status strip          */

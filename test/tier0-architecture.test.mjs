@@ -202,50 +202,42 @@ test("every .hbs template renders exactly one top-level element", () => {
   }
 });
 
-test("the hotbar reserves enough room for the TALLEST thing that can rise above the bar", () => {
-  // Most pods stay within .bi-bar's own height. The checks pod does not by
-  // design (core/skills.mjs's list is unbounded — eighteen fixed skills plus
-  // however many Lores a character has) and is deliberately allowed to grow
-  // up to --bi-checks-max-height. FOUND LIVE 2026-09-07: the hotbar clearance
-  // had been left at just the base bar height, so a tall checks pod could
-  // poke up to 156px into Foundry's own macro hotbar. The reservation must
-  // therefore cover the LARGER of the two, not just the bar itself, and this
-  // asserts the rule actually says so — the failure otherwise is silent, the
-  // hotbar or the checks pod simply render on top of each other.
+test("the hotbar reservation is exactly the base bar height — nothing is allowed to grow past it", () => {
+  // Verified LIVE 2026-09-07 in a running Foundry instance, not just read
+  // from source: a pod taller than .bi-bar's own explicit height does not
+  // escape upward into this reserved space the way the dome's own looming
+  // does. An auto-sized grid row with no grid-template-rows lays out from
+  // the container's top edge regardless of align-items, so excess height
+  // pushes the pod's BOTTOM past the real window's bottom, not its top past
+  // the hotbar. Two earlier fixes each reserved MORE space here on the
+  // theory that growth went upward — neither could ever have worked, and a
+  // stress-test actor with five Lores proved it: 117px of its checks pod
+  // hung off the bottom of an ordinary 900px window, unreachable, while the
+  // hotbar was never actually threatened at all.
+  //
+  // The real fix is that NOTHING gets a taller ceiling than the bar itself
+  // any more (see the checks-pod rule in bi-components.css), which is what
+  // this test actually protects: if that ever regresses and something is
+  // allowed to grow again, this reservation needs to grow with it.
   const bridge = readFileSync(path.join(moduleRoot, "styles", "bi-foundry-bridge.css"), "utf8");
-  const tokens = readFileSync(path.join(moduleRoot, "styles", "bi-tokens.css"), "utf8");
+  const components = readFileSync(path.join(moduleRoot, "styles", "bi-components.css"), "utf8");
 
   const bottomBlock = bridge.match(/body\.bi-theme #ui-bottom \{([\s\S]*?)\n\}/);
   assert.ok(bottomBlock, "could not find the #ui-bottom rule in bi-foundry-bridge.css");
-  const reserved = bottomBlock[1].match(/padding-bottom:\s*calc\(max\(var\((--[\w-]+)\),\s*var\((--[\w-]+)\)\)/);
-  assert.ok(
-    reserved,
-    "#ui-bottom no longer reserves space via max(--bi-bar-height, --bi-checks-max-height) — " +
-      "if the checks pod can still rise above the bar, something now has to reserve for that again"
+  assert.match(
+    bottomBlock[1],
+    /padding-bottom:\s*calc\(var\(--bi-bar-height\)\s*\+/,
+    "#ui-bottom's reservation is no longer a plain function of --bi-bar-height alone"
   );
 
-  const [, first, second] = reserved;
-  assert.ok(
-    [first, second].includes("--bi-bar-height") && [first, second].includes("--bi-checks-max-height"),
-    `#ui-bottom's reservation compares ${first} and ${second}, not the bar height against the checks ` +
-      `pod's ceiling — re-derive it from whatever now decides how tall a pod may rise.`
-  );
-
-  // The max() only protects the hotbar if --bi-checks-max-height is actually
-  // defined to be at least as tall as --bi-bar-height. If that ever inverts,
-  // the reservation would silently start protecting the wrong number.
-  const barHeight = tokens.match(/--bi-bar-height:\s*(\d+)px/);
-  // --bi-checks-max-height is min(calc(var(--bi-bar-height) * N), <vh cap>) —
-  // the vh term is a viewport-relative safety clamp (found live 2026-09-07: a
-  // flat px ceiling pushed keys off-screen on a short window with no way to
-  // scroll to them), so only the calc(...) term inside the min() is checked
-  // against --bi-bar-height here; the vh term has nothing to compare it to.
-  const checksMax = tokens.match(/--bi-checks-max-height:\s*min\(\s*calc\(var\(--bi-bar-height\)\s*\*\s*(\d+(?:\.\d+)?)\)/);
-  assert.ok(barHeight, "bi-tokens.css no longer defines --bi-bar-height as a plain px value");
-  assert.ok(checksMax, "--bi-checks-max-height's calc(...) term is no longer a simple multiple of --bi-bar-height");
-  assert.ok(
-    Number(checksMax[1]) >= 1,
-    "--bi-checks-max-height's multiplier dropped below 1x --bi-bar-height — the max() in #ui-bottom would stop covering the checks pod"
+  const checksRule = components.match(/\.bi-bar \.bi-pod\[data-zone="checks"\]\s*\{([\s\S]*?)\n\}/);
+  assert.ok(checksRule, "could not find the checks pod's own rule in bi-components.css");
+  assert.equal(
+    /max-height/.test(checksRule[1]),
+    false,
+    "the checks pod has its own max-height again — if it can exceed the base .bi-bar .bi-pod ceiling, " +
+      "it can push its own content off the bottom of a real window (measured live, not theoretical), " +
+      "and #ui-bottom's plain bar-height reservation above is no longer the whole story"
   );
 });
 
@@ -398,33 +390,29 @@ test("every bi- class a template uses actually exists in the stylesheet", () => 
   assert.ok(checked > 0, "expected at least one bi- class across module/blank-inheritance/templates/");
 });
 
-test("the checks pod's height ceiling is viewport-aware, not a flat pixel value", () => {
-  // Found live 2026-09-07: --bi-checks-max-height was a flat 336px with no
-  // idea how tall the real window is. Selecting a token jumps the checks pod
-  // from empty to a full skill grid in one frame, and on a short viewport
-  // that growth pushed the lower rows past the true top of the window --
-  // unreachable, since Foundry's body/html are overflow:hidden by design and
-  // there is no scrollbar to recover with. This asserts the vh clamp that
-  // fixed it stays in place, and that the pod's own internal scroll (the
-  // fallback for whenever the clamp actually engages) still exists too.
+test("the checks pod cannot grow taller than an ordinary pod, and still scrolls if its content needs more", () => {
+  // The direct replacement for two earlier, disproven fixes (a taller
+  // absolute ceiling, then a viewport-relative one) that both assumed a
+  // pod could safely rise above the bar. It cannot — see the hotbar-
+  // reservation test above for the live measurement that disproved it.
+  //
+  // This asserts the actual, verified-correct invariant instead: the
+  // checks pod's height comes from the SAME base rule every other pod
+  // uses (no override, no separate token), and its own overflow-y:auto
+  // is still there to catch a character with an unusual number of Lores
+  // WITHOUT pushing anything off the visible window to do it.
   const tokens = readFileSync(path.join(moduleRoot, "styles", "bi-tokens.css"), "utf8");
   const components = readFileSync(path.join(moduleRoot, "styles", "bi-components.css"), "utf8");
 
-  const checksMaxValue = tokens.match(/--bi-checks-max-height:\s*([^;]+);/);
-  assert.ok(checksMaxValue, "could not find a --bi-checks-max-height declaration to check");
-  assert.match(
-    checksMaxValue[1],
-    /min\(/,
-    "--bi-checks-max-height is no longer wrapped in min(...) — a flat pixel ceiling can push keys off a short window with no way to reach them"
-  );
-  assert.match(
-    checksMaxValue[1],
-    /\d+vh/,
-    "--bi-checks-max-height's min() no longer includes a vh term — the pixel ceiling alone knows nothing about the real window height"
+  assert.equal(
+    /--bi-checks-max-height/.test(tokens),
+    false,
+    "--bi-checks-max-height is back — this pod must share the base pod height ceiling, not get its own"
   );
   assert.match(
     components,
     /\.bi-checks\s*\{[^}]*overflow-y:\s*auto/s,
-    "the checks pod lost its internal scroll fallback — needed for whenever the vh clamp actually reduces the ceiling below the full skill list"
+    "the checks pod lost its internal scroll fallback — this is now the ONLY thing standing between a " +
+      "Lore-heavy character and clipped content, not a rare last resort"
   );
 });
