@@ -4270,6 +4270,20 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
+  /* The brass outer panel — a picture-frame moulding around the whole card,
+     thin on purpose (Ingram: "doesn't need to be very big, just big enough
+     to wrap all the elements"). Doing double duty: the key row below had NO
+     backing of its own before this (it just floated over the scene's own
+     background art with a gap under the portrait), and this panel is what
+     it now sits on. Same brass sheen .bi-banner already uses, not the
+     --bi-mat-brass conic bezel — that gradient is built for a round dial
+     ("a conic sweep so the highlight travels round the RING") and reads as
+     a starburst on a flat rectangular panel; the banner's linear one is the
+     proven "brass plate" surface for exactly this shape. */
+  padding: 6px 6px 7px;
+  background: linear-gradient(180deg, var(--bi-brass), var(--bi-brass-dark) 60%, var(--bi-brass-shadow));
+  border-radius: 4px;
+  box-shadow: var(--bi-bevel-up), 0 2px 5px rgb(0 0 0 / 45%);
   filter: drop-shadow(0 10px 18px rgb(0 0 0 / 65%));
 }
 
@@ -4308,13 +4322,17 @@
 .bi-frame__art {
   position: relative;
   display: block;
-  /* The portraits are authored 2:3, so the art box is 1.5x the frame width.
+  /* The portraits are authored 2:3, so the art box is 1.5x its OWN rendered
+     width, not the outer --frame-w token directly — .bi-frame's brass panel
+     (above) takes 12px of horizontal padding off the top, so the art's
+     actual width is --frame-w minus that, and the height calc has to match
+     or the box comes out very slightly too tall for a true 2:3.
      Computed from the width token rather than declared as `aspect-ratio: 2/3`
      ON PURPOSE: tier3-theme-contract.test.mjs bans aspect-ratio anywhere in
      the shared component CSS, because a ratio there is inheritable by any
      page or by Foundry itself, and that rule was earned by a real bug. This
-     is exact (the frame's width IS --frame-w) and stays out of the way. */
-  height: calc(var(--frame-w) * 1.5);
+     is exact and stays out of the way. */
+  height: calc((var(--frame-w) - 12px) * 1.5);
   overflow: hidden;
   background: var(--bi-steel-900);
 }
