@@ -14,8 +14,16 @@
     `revealed` is absent from a player's copy of the cast: a concealed member
     is not in their data at all (core/stage-layout.mjs#publishedCast), so there
     is no hidden frame here to reveal by inspecting the DOM.
+
+    data-entrance drives the frame-engage motion (design/theatre-of-the-mind-
+    staging.md §5's middle rung, core/engage.mjs) and is OMITTED, not merely
+    empty, for every member except one arriving on THIS render — a plain
+    re-render (someone else's reveal, a sting change) must never replay an
+    already-visible member's own entrance. foundry/stage.mjs#_prepareContext
+    is what decides who that is.
 --}}
-<figure class="bi-frame{{#if concealed}} bi-frame--concealed{{/if}}" data-portrait-id="{{portraitId}}">
+<figure class="bi-frame{{#if concealed}} bi-frame--concealed{{/if}}" data-portrait-id="{{portraitId}}"
+    {{#if entrance}}data-entrance="{{entrance}}"{{/if}}>
     <button type="button" class="bi-frame__scope" data-action="openCard"
         data-actor-id="{{actorId}}" data-label="{{label}}"
         title="{{label}}">

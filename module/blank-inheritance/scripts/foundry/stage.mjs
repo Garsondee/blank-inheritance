@@ -23,6 +23,7 @@
 import { STAGE_LAYOUTS, publishedCast, stageState } from "../core/stage-layout.mjs";
 import { STING_TIERS } from "../core/sting.mjs";
 import { isFirstSplash } from "../core/splash.mjs";
+import { engageArrivals } from "../core/engage.mjs";
 import { deriveFoundryId } from "../core/ids.mjs";
 import { openCharacterCard } from "./character-card.mjs";
 import { postInlineCheck } from "./rolls.mjs";
@@ -164,11 +165,32 @@ export class StageOverlay extends HandlebarsApplicationMixin(ApplicationV2) {
     return element;
   }
 
+  /**
+   * This client's memory of who was VISIBLE the last time this instance
+   * rendered — the diff basis for the frame-engage entrance (§5's middle
+   * rung, core/engage.mjs). An instance field, not a module-level cache
+   * keyed by scene: StageOverlay is a singleton that is fully torn down and
+   * recreated on scene change (see syncStage below), so a fresh instance
+   * naturally starts with no memory at all, which is exactly the priming
+   * behaviour foundry/sting.mjs and foundry/splash.mjs each need an
+   * explicit prime function for — here it falls out of the object lifecycle
+   * for free. The one consequence worth naming: the very FIRST render of a
+   * freshly staged scene has nothing to diff against, so every already-
+   * revealed member reads as "arriving" together. Left as the intended
+   * behaviour, not a bug — a stage snapping its cast into place as it loads
+   * matches the servo-engage aesthetic rather than fighting it.
+   * @type {Array<object>}
+   */
+  _lastVisibleCast = [];
+
   /** @override */
   async _prepareContext() {
     const scene = canvas?.scene ?? null;
     const staged = await castForThisClient(scene);
-    if (!staged) return { present: false, groups: [], empty: true };
+    if (!staged) {
+      this._lastVisibleCast = [];
+      return { present: false, groups: [], empty: true };
+    }
 
     const canDirect = game.user.isGM;
     // A player's cast contains only revealed members, so `revealed` is absent
@@ -176,6 +198,20 @@ export class StageOverlay extends HandlebarsApplicationMixin(ApplicationV2) {
     // and `concealed` is what the frame styles itself by — a ghost in their
     // view and nothing at all in anyone else's.
     const everSplashed = canDirect ? everSplashedPortraits() : [];
+
+    // The engage diff has to run against who is VISIBLE, not who is merely
+    // PRESENT in staged.cast — a Director's raw cast already contains every
+    // concealed member from the very first render (they are simply marked
+    // revealed:false), so a plain presence diff would never catch one
+    // transitioning to revealed. Filtering to the revealed subset first
+    // matches what a player's cast already is by construction (Law 11 drops
+    // a concealed member from it entirely).
+    const visible = staged.cast.filter((member) => member.revealed !== false);
+    const arrivals = new Map(
+      engageArrivals(this._lastVisibleCast, visible).map((a) => [a.portraitId, a.entrance])
+    );
+    this._lastVisibleCast = visible;
+
     const cast = staged.cast.map((member) => ({
       ...member,
       revealed: member.revealed ?? true,
@@ -184,7 +220,12 @@ export class StageOverlay extends HandlebarsApplicationMixin(ApplicationV2) {
       // splash key at all (frame.hbs gates it on canDirect), so neither is
       // worth computing — or worth being ABLE to leak — for a player.
       isNpc: canDirect && member.kind === "npc",
-      firstAppearance: canDirect && isFirstSplash(member.portraitId, everSplashed)
+      firstAppearance: canDirect && isFirstSplash(member.portraitId, everSplashed),
+      // null for everyone except a member arriving THIS render — frame.hbs
+      // only emits data-entrance when this is set, so an ordinary re-render
+      // (someone else's reveal, a sting change) never replays an already-
+      // visible member's own entrance animation.
+      entrance: arrivals.get(member.portraitId) ?? null
     }));
     const state = stageState({ cast, layout: staged.layout, canDirect });
     return { ...state, present: true, sceneName: scene?.name ?? null };

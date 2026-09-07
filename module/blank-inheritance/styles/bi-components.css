@@ -4422,9 +4422,117 @@
 .bi-frame--concealed .bi-frame__lamp { background: var(--bi-bone-dark); box-shadow: none; }
 .bi-frame--concealed .bi-frame__plate { background: var(--bi-steel-600); color: var(--bi-bone-dim); }
 
+/* =====================================================================
+   THE FRAME ENGAGE  —  the middle rung of the arrival sting
+   ---------------------------------------------------------------------
+   design/theatre-of-the-mind-staging.md §5: the frame's own entrance,
+   without taking the screen. "A character should arrive the way a piece of
+   equipment engages — with a servo's authority, not a web page's fade."
+   Four treatments, selected by core/engage.mjs#entranceFor and applied via
+   a `data-entrance` attribute foundry/stage.mjs sets ONLY for a member
+   arriving on this specific render (never for an already-visible member
+   caught up in an unrelated re-render — see that file's own comment).
+   ===================================================================== */
+
+/* --- Engage: the ordinary arrival. Most people, most scenes. ---------
+   A servo snap up from the stage floor. The plate/keys land a beat behind
+   the art itself ("plates stamping in a beat behind the art"), not
+   together with it — a small stagger, not a second animation vocabulary. */
+@keyframes bi-engage-rise {
+  0%   { opacity: 0; transform: translateY(22px) scale(0.95); }
+  65%  { opacity: 1; transform: translateY(-2px) scale(1.008); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes bi-engage-stamp {
+  0%, 38% { opacity: 0; transform: translateY(6px); }
+  100%    { opacity: 1; transform: translateY(0); }
+}
+.bi-frame[data-entrance="engage"] { animation: bi-engage-rise var(--bi-dur-sweep) var(--bi-ease-servo) both; }
+.bi-frame[data-entrance="engage"] .bi-frame__plate,
+.bi-frame[data-entrance="engage"] .bi-frame__keys {
+  animation: bi-engage-stamp var(--bi-dur-sweep) var(--bi-ease-servo) both;
+}
+
+/* --- Shutter: Directorate business, an official arrival. --------------
+   A mechanical aperture over the ART SPECIFICALLY — not the whole scope,
+   so the nameplate stays "already in place" rather than also being
+   uncovered. A masking layer that shrinks to nothing, not an animated
+   clip-path on .bi-frame__art itself: that element's own clip-path comes
+   from its chamfered parent (.bi-frame__scope) and animating between a
+   circle() and that shape's polygon() cannot interpolate — a mask that
+   simply disappears sidesteps the whole problem. */
+.bi-frame__art::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+}
+@keyframes bi-shutter-iris {
+  0%   { clip-path: circle(78% at 50% 38%); }
+  100% { clip-path: circle(0% at 50% 38%); }
+}
+.bi-frame[data-entrance="shutter"] .bi-frame__art::before {
+  opacity: 1;
+  background: var(--bi-steel-900);
+  animation: bi-shutter-iris var(--bi-dur-sweep) var(--bi-ease-servo) forwards;
+}
+
+/* --- Alert: a hostile or unwelcome arrival. ----------------------------
+   No entrance transition on the frame at all — "hard cut in" means
+   instant, not a slide-in with different timing. What moves is the lamp
+   (a vermilion flare settling to its ordinary cyan) and a brief settle
+   shudder on the frame, "frame settles after" the cut rather than easing
+   into place beforehand. Deliberately much shorter than the other three:
+   the contrast in SPEED is what reads as "hard", not just the colour. */
+@keyframes bi-alert-lamp {
+  0%   { background: var(--bi-vermilion); box-shadow: 0 0 14px var(--bi-vermilion); }
+  100% { background: var(--bi-cyan); box-shadow: 0 0 8px var(--bi-cyan), inset 0 0 0 1px rgb(0 0 0 / 40%); }
+}
+@keyframes bi-alert-settle {
+  0%   { transform: scale(1.035); }
+  100% { transform: scale(1); }
+}
+.bi-frame[data-entrance="alert"] { animation: bi-alert-settle var(--bi-dur-servo) var(--bi-ease-servo) both; }
+.bi-frame[data-entrance="alert"] .bi-frame__lamp { animation: bi-alert-lamp 650ms ease-out both; }
+
+/* --- Signal: anything touching Resonance, Bleed or a Claimant. --------
+   The art resolves out of glitch/scanline noise, tinted --bi-resonance via
+   hue-rotate rather than a second masking layer — filter + a few clipped
+   slices is a cheap, convincing digital-noise read entirely on the
+   existing <img>, and the final keyframe lands EXACTLY on that image's own
+   resting filter (saturate(0.82) brightness(0.82)) so there is no visible
+   jump when the animation hands off to the ordinary hover state. steps(),
+   not an eased curve — a glitch reads as digital precisely because it does
+   NOT ease. */
+@keyframes bi-signal-glitch {
+  0%   { filter: brightness(1.8) saturate(0.2) hue-rotate(220deg); clip-path: inset(0 0 55% 0);  transform: translateX(-3px); }
+  20%  { filter: brightness(0.6) saturate(0.4) hue-rotate(220deg); clip-path: inset(35% 0 15% 0); transform: translateX(3px); }
+  40%  { filter: brightness(1.5) saturate(0.6) hue-rotate(180deg); clip-path: inset(5% 0 50% 0);  transform: translateX(-2px); }
+  60%  { filter: brightness(0.8) saturate(0.8) hue-rotate(120deg); clip-path: inset(55% 0 5% 0);  transform: translateX(2px); }
+  80%  { filter: brightness(1.15) saturate(0.9) hue-rotate(40deg); clip-path: inset(0 0 0 0);     transform: translateX(0); }
+  100% { filter: saturate(0.82) brightness(0.82);                  clip-path: inset(0 0 0 0);     transform: translateX(0); }
+}
+.bi-frame[data-entrance="signal"] .bi-frame__art img {
+  animation: bi-signal-glitch var(--bi-dur-sweep) steps(6, end) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bi-frame__scope { transition: none; }
   .bi-frame__scope:hover { transform: none; }
+  .bi-frame[data-entrance] { animation: none; }
+  .bi-frame[data-entrance] .bi-frame__plate,
+  .bi-frame[data-entrance] .bi-frame__keys,
+  .bi-frame[data-entrance] .bi-frame__lamp,
+  .bi-frame[data-entrance] .bi-frame__art img,
+  .bi-frame[data-entrance] .bi-frame__art::before {
+    animation: none;
+  }
+  /* Shutter's mask has no OTHER mechanism holding it hidden once its
+     animation is removed — pin it closed rather than let it default open
+     and sit there covering the art forever. */
+  .bi-frame[data-entrance="shutter"] .bi-frame__art::before { opacity: 0; }
 }
 
 /* =====================================================================

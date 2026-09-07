@@ -31,7 +31,7 @@ import { PlayerBar } from "./foundry/player-bar.mjs";
 import { DirectorBar } from "./foundry/director-bar.mjs";
 import { loadSessionLog } from "./foundry/session-log.mjs";
 import { ensureIntelVault, writeAuthoredProfile } from "./foundry/social-store.mjs";
-import { ensureStageVault, refreshStage, syncStage, writeAuthoredCast } from "./foundry/stage.mjs";
+import { ensureStageVault, syncStage, writeAuthoredCast } from "./foundry/stage.mjs";
 import { syncCameraToScene, unlockCamera } from "./foundry/stage-camera.mjs";
 import { buildStageDemoScenes, createStageDemoMacroIfMissing } from "./foundry/stage-demo.mjs";
 import { announceCastChange, primeStingCache } from "./foundry/sting.mjs";
@@ -212,8 +212,17 @@ Hooks.on("updateScene", (scene, changed) => {
   if (scene?.id !== canvas?.scene?.id) return;
   if (!foundry.utils.hasProperty(changed, `flags.${MODULE_ID}.stage`)) return;
   try {
+    // syncStage() ALONE, not also refreshStage(). Both used to be called
+    // here, back to back -- harmless when every render was stateless, but
+    // syncStage() already does a forced render()  whenever the overlay
+    // exists, so refreshStage()'s own render() right after was a pure
+    // duplicate the whole time, just an invisible one. FOUND LIVE once it
+    // stopped being invisible: core/engage.mjs's arrival diff is stateful
+    // (StageOverlay#_lastVisibleCast), so the second, redundant render
+    // correctly saw the arrival its own predecessor had just recorded and
+    // just as correctly decided it was no longer new -- silently eating
+    // every entrance animation, one render later than anyone was checking.
     syncStage();
-    refreshStage();
   } catch (err) {
     console.error("Blank Inheritance | Could not refresh the stage:", err);
   }

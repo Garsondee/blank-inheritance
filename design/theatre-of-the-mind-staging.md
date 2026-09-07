@@ -448,8 +448,21 @@ worked scenes — one per arrangement. What that pass actually established, beyo
    the same vocabulary DirectorBar already uses for checks, rather than a fourth key on a frame
    that already has three. Departures never sound the banner, at either tier — a deliberate
    reading of "someone leaving is information, not an event," not an oversight.
-4. **The frame engage**, the middle tier's motion. `--bi-ease-servo` and the four treatments. Costs
-   nothing but CSS and degrades to an instant appearance wherever it is not wired up.
+4. **The frame engage.** ✅ Built (2026-09-07). All four treatments — Engage (a servo snap up, the
+   plate landing a beat behind the art), Shutter (a mechanical iris over the art, Directorate
+   arrivals), Alert (a hard cut plus a vermilion lamp flare, hostile arrivals, reachable only by
+   explicit override — nothing in the data says "hostile" yet), Signal (a `steps()` glitch tinted
+   through `hue-rotate`, same override-only reachability for Resonance/Claimant). `core/engage.mjs`
+   selects the treatment the same way `core/splash.mjs` selects a faction accent — a small hardcoded
+   table, an explicit `member.entrance` override always winning. A real bug found live, not in a
+   test: the `updateScene` hook had always called both `syncStage()` and `refreshStage()` back to
+   back, redundant but harmless while every render was stateless — the moment the arrival diff
+   became stateful (`StageOverlay#_lastVisibleCast`), the second, silently-redundant render saw the
+   first render's own arrival and correctly decided it was no longer new, eating every entrance
+   animation one render later than anyone was watching. Fixed by dropping the duplicate call.
+   Verified live, precisely (DOM state, not a screenshot): a genuine arrival gets flagged with the
+   right treatment; an unrelated re-render — someone else revealing — never re-flags an
+   already-visible member.
 5. **Scene backgrounds via real Scenes.** ✅ Built, plus the camera lock that makes a staged scene a
    picture rather than a map — gridless, zero padding, cover scale, pivot pinned. Per-scene default
    transitions are still unused.
