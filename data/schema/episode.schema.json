@@ -11,7 +11,8 @@
     "type": { "enum": ["episode", "interlude"] },
     "title": { "type": "string" },
     "dayRange": {
-      "type": "object",
+      "type": ["object", "null"],
+      "description": "Which campaign days this covers. null means NOT YET PLACED, per this repo's own convention that null is 'not yet decided' — real for anything written after Day 6, since the Contact Pool makes those days procedural rather than numbered in advance. An episode can be fully authored before anyone knows which day it lands on.",
       "required": ["start", "end"],
       "properties": {
         "start": { "type": "integer" },
@@ -42,8 +43,14 @@
         "required": ["order", "title", "description"],
         "properties": {
           "order": { "type": "integer" },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$",
+            "description": "Stable scene id, independent of `order`. Optional only for backwards compatibility with the nine scenes authored before this field existed — author it on everything new. Without it a scene's identity IS its position, so inserting a scene renumbers every Foundry journal page id after it (core/generators/journal.mjs) and silently orphans any tick state keyed to it."
+          },
           "title": { "type": "string" },
           "description": { "type": "string" },
+          "briefRef": { "type": ["string", "null"], "description": "id of a scene-brief.schema.json instance in data/scene-briefs/ — the GM-facing running material for this scene (cast briefs, beats, handouts). Absent means the scene has an outline but no authored script yet, which is the honest state for most scenes." },
           "encounterRef": { "type": ["string", "null"], "description": "id of an encounter.schema.json instance backing this scene, if it's a fight." },
           "challengeRefs": { "type": "array", "items": { "type": "string" }, "description": "id refs of challenge.schema.json instances running in this scene (e.g. ground-layer decision points)." },
           "subsystemRef": { "type": ["string", "null"], "description": "id of a subsystem.schema.json instance, if this scene runs as a victory-point-style sequence." }

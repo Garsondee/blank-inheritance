@@ -24,12 +24,14 @@ import path from "node:path";
 export const SYNCED_CAMPAIGN_DIRS = [
   "antagonists",
   "campaign",
+  "challenges",
   "characters",
   "encounters",
   "episodes",
   "factions",
   "hangar",
   "npcs",
+  "scene-briefs",
   "subsystems"
 ];
 

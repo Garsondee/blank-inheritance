@@ -1,0 +1,413 @@
+// Tier 1 — the scene runner's arithmetic.
+//
+// The panel is a GM's script, read while improvising, and every failure here
+// is silent at the table rather than loud:
+//
+//   a branch hidden before its roll lands   -> the GM cannot prep the fork
+//   a branch still shown after it lands     -> the GM runs the road not taken
+//   a tick lost when a gate is re-authored  -> the scene un-happens
+//   a clock that infers its own sign        -> spending time ADDS time
+//   a hidden modifier applied to the roll   -> the player sees the secret
+//
+// None of those throw. All of them are wrong in front of six people.
+
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync, readdirSync } from "node:fs";
+
+import {
+  BEAT_STATES,
+  BEAT_KINDS,
+  DELIVERY,
+  DEGREES,
+  beatProgress,
+  beatState,
+  beatsWithState,
+  castFor,
+  clockState,
+  displayName,
+  emptyRunState,
+  hiddenAdjustment,
+  normalizeBeat,
+  postedDc,
+  sceneRunnerState,
+  spendsFor
+} from "../module/blank-inheritance/scripts/core/scene-brief.mjs";
+
+const BRIEF = {
+  id: "head-height--noon-the-hall",
+  title: "Noon — The Hall",
+  cast: [
+    { id: "kudo", label: "Kudo", role: "the Lawyer", arrival: "splash", brief: { wants: "An answer, on record" } },
+    { id: "rika", label: "Doctor Rika", role: "the Sceptic", arrival: "quiet", walkOn: false, brief: {} }
+  ],
+  beats: [
+    { id: "satoru-brief", text: "Satoru gives the Directorate line", mandatory: true },
+    { id: "kudo-question", text: "Kudo asks what is wrong with his daughter", mandatory: true, npcRef: "kudo" },
+    {
+      id: "kudo-gives-name",
+      text: "He gives them ten minutes, and her name",
+      challengeRef: "engage-kudo",
+      when: { beatRef: "engage-kudo-attempt", degrees: ["success", "criticalSuccess"] }
+    },
+    {
+      id: "kudo-brushoff",
+      text: "\"You're children in a uniform.\"",
+      when: { beatRef: "engage-kudo-attempt", degrees: ["failure", "criticalFailure"] }
+    },
+    { id: "engage-kudo-attempt", kind: "check", text: "A PC tries to reach him", challengeRef: "engage-kudo" },
+    {
+      id: "rika-side-door",
+      text: "She leaves by the side door",
+      mandatory: false,
+      delivery: "passive",
+      when: { condition: "only if somebody is watching her rather than Kudo" }
+    }
+  ]
+};
+
+const WALLS = {
+  id: "head-height-docket",
+  pools: [{ id: "walls", name: "Walls owed", mode: "diminishing", start: 12, floor: 0, thresholds: [{ atValue: 4, effect: "Ihara would notice, if Ihara cared" }] }],
+  spends: [
+    { id: "map-the-tags", label: "Map the tag distribution", poolRef: "walls", delta: -2 },
+    { id: "interview", label: "Interview a shopkeeper properly", poolRef: "walls", delta: -1 },
+    { id: "chase-supplier", label: "Chase the paint supplier", poolRef: "walls", delta: -3 },
+    { id: "help-arrives", label: "Somebody lends a hand", poolRef: "walls", delta: 2 }
+  ]
+};
+
+const tickedWith = (id, degree = null) => ({ ...emptyRunState(), ticked: { [id]: degree ? { degree } : {} } });
+
+test("an authored beat is sparse; the defaults are applied here, not in the template", () => {
+  const beat = normalizeBeat({ id: "x", text: "something happens" });
+  assert.equal(beat.kind, BEAT_KINDS.ACTION);
+  assert.equal(beat.delivery, DELIVERY.TABLE);
+  assert.equal(beat.mandatory, false, "a beat has to opt IN to being required");
+});
+
+test("mandatory is opt-in, so a missing flag can never silently block a scene from closing", () => {
+  assert.equal(normalizeBeat({ id: "x", mandatory: "yes" }).mandatory, false, "only a real boolean true counts");
+  assert.equal(normalizeBeat({ id: "x", mandatory: true }).mandatory, true);
+});
+
+test("an ungated beat is active from the start", () => {
+  assert.equal(beatState({ id: "satoru-brief" }, emptyRunState()), BEAT_STATES.ACTIVE);
+});
+
+test("BOTH sides of a fork are pending before the roll lands — this is the whole point", () => {
+  // A boolean "visible" implementation cannot express this: it would have to
+  // hide both branches until the check resolves, which removes the fork from
+  // the GM's view at exactly the moment they need to have read it.
+  const beats = beatsWithState(BRIEF, emptyRunState());
+  const byId = Object.fromEntries(beats.map((b) => [b.id, b]));
+  assert.equal(byId["kudo-gives-name"].state, BEAT_STATES.PENDING);
+  assert.equal(byId["kudo-brushoff"].state, BEAT_STATES.PENDING);
+  assert.notEqual(BEAT_STATES.PENDING, BEAT_STATES.NOT_TAKEN, "pending and not-taken must be distinguishable");
+});
+
+test("once the roll lands, one path opens and the other is marked not taken rather than deleted", () => {
+  const beats = beatsWithState(BRIEF, tickedWith("engage-kudo-attempt", "success"));
+  const byId = Object.fromEntries(beats.map((b) => [b.id, b]));
+  assert.equal(byId["kudo-gives-name"].state, BEAT_STATES.ACTIVE);
+  assert.equal(byId["kudo-brushoff"].state, BEAT_STATES.NOT_TAKEN, "what didn't happen is part of what happened");
+});
+
+test("a critical success satisfies a gate that lists it, and a failure does not", () => {
+  const crit = beatsWithState(BRIEF, tickedWith("engage-kudo-attempt", "criticalSuccess"));
+  assert.equal(crit.find((b) => b.id === "kudo-gives-name").state, BEAT_STATES.ACTIVE);
+
+  const fail = beatsWithState(BRIEF, tickedWith("engage-kudo-attempt", "criticalFailure"));
+  assert.equal(fail.find((b) => b.id === "kudo-gives-name").state, BEAT_STATES.NOT_TAKEN);
+  assert.equal(fail.find((b) => b.id === "kudo-brushoff").state, BEAT_STATES.ACTIVE);
+});
+
+test("there are four degrees, not five", () => {
+  // ideas/entries/dialogue-management-panel.json originally listed a fifth
+  // "neutral" rung; SF2E has no such outcome. A plain Failure with no listed
+  // effect is what reads as neutral in play.
+  assert.equal(DEGREES.length, 4);
+  assert.deepEqual([...DEGREES].sort(), ["criticalFailure", "criticalSuccess", "failure", "success"]);
+});
+
+test("a gate with no degrees just means 'once that has happened'", () => {
+  const beat = { id: "after-it", when: { beatRef: "satoru-brief" } };
+  assert.equal(beatState(beat, emptyRunState()), BEAT_STATES.PENDING);
+  assert.equal(beatState(beat, tickedWith("satoru-brief")), BEAT_STATES.ACTIVE);
+});
+
+test("a GM-judged condition is SHOWN, not hidden — you cannot spot a trigger you were never told about", () => {
+  const beats = beatsWithState(BRIEF, emptyRunState());
+  const rika = beats.find((b) => b.id === "rika-side-door");
+  assert.equal(rika.state, BEAT_STATES.CONDITIONAL);
+  assert.notEqual(rika.state, BEAT_STATES.PENDING, "a condition is not a pending gate; the GM opens it by hand");
+});
+
+test("opening a conditional beat by hand makes it active", () => {
+  const opened = { ...emptyRunState(), opened: ["rika-side-door"] };
+  const rika = beatsWithState(BRIEF, opened).find((b) => b.id === "rika-side-door");
+  assert.equal(rika.state, BEAT_STATES.ACTIVE);
+});
+
+test("a beat that actually happened stays done even if its gate would now say otherwise", () => {
+  // The scene un-happening because somebody edited a `when` clause between
+  // sessions is the worst available failure: it silently rewrites the record
+  // of what the table did.
+  const state = {
+    ...emptyRunState(),
+    ticked: { "engage-kudo-attempt": { degree: "failure" }, "kudo-gives-name": {} }
+  };
+  const beat = beatsWithState(BRIEF, state).find((b) => b.id === "kudo-gives-name");
+  assert.equal(beat.state, BEAT_STATES.DONE, "done outranks every gate");
+});
+
+test("progress counts mandatory beats separately from everything else", () => {
+  const progress = beatProgress(BRIEF, tickedWith("satoru-brief"));
+  assert.equal(progress.mandatory, 2, "two beats are marked mandatory");
+  assert.equal(progress.mandatoryDone, 1);
+  assert.equal(progress.complete, false);
+  assert.deepEqual(progress.outstanding, ["kudo-question"]);
+});
+
+test("optional colour left unticked never blocks a scene from being complete", () => {
+  const state = { ...emptyRunState(), ticked: { "satoru-brief": {}, "kudo-question": {} } };
+  const progress = beatProgress(BRIEF, state);
+  assert.equal(progress.complete, true, "both mandatory beats are done");
+  assert.ok(progress.done < progress.total, "and plenty of optional beats are not");
+});
+
+test("a mandatory beat on a path that was not taken does not hold the scene open forever", () => {
+  const brief = {
+    beats: [
+      { id: "roll", kind: "check" },
+      { id: "good-path", mandatory: true, when: { beatRef: "roll", degrees: ["success"] } },
+      { id: "bad-path", mandatory: true, when: { beatRef: "roll", degrees: ["failure"] } }
+    ]
+  };
+  const progress = beatProgress(brief, { ...tickedWith("roll", "failure"), ticked: { roll: { degree: "failure" }, "bad-path": {} } });
+  assert.equal(progress.complete, true, "the success branch is unreachable and must not count as outstanding");
+});
+
+test("the clock starts where the pool says and falls as it is spent", () => {
+  assert.equal(clockState(WALLS, emptyRunState()).current, 12);
+  const state = { ...emptyRunState(), spent: ["map-the-tags", "chase-supplier"] };
+  assert.equal(clockState(WALLS, state).current, 7, "12 - 2 - 3");
+  assert.equal(clockState(WALLS, state).spent, 5, "reported as an amount spent, for the GM's readout");
+});
+
+test("the same spend can be taken more than once", () => {
+  // Interviewing a second shopkeeper costs another wall. A Set would silently
+  // make every repeat free.
+  const state = { ...emptyRunState(), spent: ["interview", "interview", "interview"] };
+  assert.equal(clockState(WALLS, state).current, 9);
+});
+
+test("a spend's sign is authored, never inferred from the pool's mode", () => {
+  // A diminishing pool can still be given time back. Inferring "diminishing
+  // means subtract" would make `help-arrives` unauthorable.
+  const state = { ...emptyRunState(), spent: ["chase-supplier", "help-arrives"] };
+  assert.equal(clockState(WALLS, state).current, 11, "12 - 3 + 2");
+});
+
+test("the clock clamps to its floor and reports being exhausted", () => {
+  const state = { ...emptyRunState(), spent: ["chase-supplier", "chase-supplier", "chase-supplier", "chase-supplier", "chase-supplier"] };
+  const clock = clockState(WALLS, state);
+  assert.equal(clock.current, 0, "-15 against a start of 12, floored at 0");
+  assert.equal(clock.exhausted, true);
+});
+
+test("a diminishing pool crosses a threshold on the way DOWN", () => {
+  assert.deepEqual(clockState(WALLS, emptyRunState()).crossed, [], "nothing crossed at 12");
+  const state = { ...emptyRunState(), spent: ["chase-supplier", "chase-supplier", "chase-supplier"] };
+  const clock = clockState(WALLS, state);
+  assert.equal(clock.current, 3);
+  assert.equal(clock.crossed.length, 1, "3 is at or past the threshold at 4");
+});
+
+test("an accumulating pool crosses on the way up instead", () => {
+  const rising = {
+    pools: [{ id: "vp", name: "Victory Points", mode: "accumulating", start: 0, thresholds: [{ atValue: 3, effect: "they notice" }] }],
+    spends: [{ id: "push", poolRef: "vp", delta: 1 }]
+  };
+  assert.equal(clockState(rising, { ...emptyRunState(), spent: ["push", "push"] }).crossed.length, 0);
+  assert.equal(clockState(rising, { ...emptyRunState(), spent: ["push", "push", "push"] }).crossed.length, 1);
+});
+
+test("a scene with no clock says so rather than inventing one", () => {
+  assert.equal(clockState({ pools: [] }, emptyRunState()), null);
+  assert.equal(sceneRunnerState({ brief: BRIEF }).clock, null);
+});
+
+test("only spends belonging to the pool are offered", () => {
+  const two = { pools: [{ id: "a" }, { id: "b" }], spends: [{ id: "x", poolRef: "a" }, { id: "y", poolRef: "b" }] };
+  assert.deepEqual(spendsFor(two, "a").map((s) => s.id), ["x"]);
+  assert.deepEqual(spendsFor(two).map((s) => s.id), ["x"], "no pool named falls back to the first");
+});
+
+test("a hidden modifier only touches the check it names", () => {
+  const mods = [{ id: "lens", label: "The lens", appliesTo: ["lens-look"], value: 2 }];
+  assert.equal(hiddenAdjustment(mods, { challengeRef: "lens-look" }), 2);
+  assert.equal(hiddenAdjustment(mods, { challengeRef: "spot-the-tags" }), 0);
+});
+
+test("a location's own value wins over the flat one, including when it is zero", () => {
+  // Almost everywhere is +0 to +2 and one square is +8. A `||` fallback would
+  // silently promote every 0 to the flat default and destroy the pattern the
+  // players are supposed to fail to spot.
+  const mods = [{ id: "lens", appliesTo: ["lens-look"], value: 5, byLocation: { "cannery-row": 3, "the-hall": 0 } }];
+  assert.equal(hiddenAdjustment(mods, { challengeRef: "lens-look", locationKey: "cannery-row" }), 3);
+  assert.equal(hiddenAdjustment(mods, { challengeRef: "lens-look", locationKey: "the-hall" }), 0, "an authored zero is not a missing value");
+  assert.equal(hiddenAdjustment(mods, { challengeRef: "lens-look", locationKey: "nowhere" }), 5, "unlisted falls back to the flat value");
+});
+
+test("a bonus to the character is spent on the DC, because we never touch their sheet", () => {
+  // +3 to the roller and a DC 3 lower are the same arithmetic; only one of
+  // them is ours to do (Law 18 — never recompute what sf2e computes).
+  assert.equal(postedDc(20, 3), 17);
+  assert.equal(postedDc(20, 0), 20);
+  assert.equal(postedDc(18, -2), 20, "a penalty raises the posted DC");
+  assert.equal(postedDc(null, 3), null, "a challenge with no integer DC posts nothing");
+});
+
+test("a beat resolves to its cast member, and a nameless NPC falls back honestly", () => {
+  assert.equal(castFor(BRIEF, "kudo").role, "the Lawyer");
+  assert.equal(castFor(BRIEF, "nobody"), null);
+  assert.equal(castFor(BRIEF, null), null);
+  // Three real NPCs carry `"name": null` behind a naming placeholder. The
+  // brief must never restate a name the naming system owns.
+  assert.equal(displayName({ id: "commander", role: "The Commander" }), "The Commander");
+  assert.equal(displayName({ id: "commander" }), "commander");
+});
+
+// ---------------------------------------------------------------------------
+// The real authored session, run through the real code.
+//
+// Everything above this line is fixtures agreeing with themselves. This is the
+// only part that catches the schema and the renderer drifting apart — a field
+// renamed in one and not the other passes every unit test and produces a blank
+// panel at the table.
+// ---------------------------------------------------------------------------
+
+const BRIEF_DIR = new URL("../data/scene-briefs/", import.meta.url);
+const readJson = (url) => JSON.parse(readFileSync(url, "utf8"));
+const realBrief = (name) => readJson(new URL(`${name}.json`, BRIEF_DIR));
+
+test("every authored Head Height brief assembles without throwing", () => {
+  const names = readdirSync(BRIEF_DIR).filter((f) => f.endsWith(".json"));
+  assert.ok(names.length >= 4, "the drill session authored four scenes");
+  for (const name of names) {
+    const brief = readJson(new URL(name, BRIEF_DIR));
+    const state = sceneRunnerState({ brief, runState: emptyRunState() });
+    assert.ok(state, `${name} produced no state`);
+    assert.ok(state.title, `${name} has no title to render`);
+    for (const beat of state.beats) {
+      assert.ok(beat.id, `${name} has a beat with no id — tick state would have nothing to key on`);
+      assert.ok(Object.values(BEAT_STATES).includes(beat.state), `${name}/${beat.id} resolved to a state the panel cannot render`);
+    }
+  }
+});
+
+test("every beat's npcRef resolves to a real cast member in its own brief", () => {
+  // A dangling npcRef renders a beat with no brief beside it — silently, and
+  // exactly when the GM reaches for the thing they needed.
+  for (const name of readdirSync(BRIEF_DIR).filter((f) => f.endsWith(".json"))) {
+    const brief = readJson(new URL(name, BRIEF_DIR));
+    for (const beat of brief.beats ?? []) {
+      if (!beat.npcRef) continue;
+      assert.ok(castFor(brief, beat.npcRef), `${name}/${beat.id} points at cast member "${beat.npcRef}", which that brief does not define`);
+    }
+  }
+});
+
+test("every beat's `when.beatRef` and `after` point at a beat that exists", () => {
+  // A gate on a beat id that does not exist is permanently pending: the beat
+  // never appears, and nothing anywhere says why.
+  for (const name of readdirSync(BRIEF_DIR).filter((f) => f.endsWith(".json"))) {
+    const brief = readJson(new URL(name, BRIEF_DIR));
+    const ids = new Set((brief.beats ?? []).map((b) => b.id));
+    for (const beat of brief.beats ?? []) {
+      if (beat.after) assert.ok(ids.has(beat.after), `${name}/${beat.id} is ordered after "${beat.after}", which does not exist`);
+      const gate = beat.when?.beatRef;
+      if (gate) assert.ok(ids.has(gate), `${name}/${beat.id} is gated on "${gate}", which does not exist`);
+    }
+  }
+});
+
+test("every handoutRef resolves, so a reveal control is never wired to nothing", () => {
+  for (const name of readdirSync(BRIEF_DIR).filter((f) => f.endsWith(".json"))) {
+    const brief = readJson(new URL(name, BRIEF_DIR));
+    const ids = new Set((brief.handouts ?? []).map((h) => h.id));
+    for (const beat of brief.beats ?? []) {
+      if (beat.handoutRef) assert.ok(ids.has(beat.handoutRef), `${name}/${beat.id} reveals "${beat.handoutRef}", which that brief does not define`);
+    }
+  }
+});
+
+test("the morning's docket really does read twelve, and really does fall when spent", () => {
+  const brief = realBrief("episode-05-head-height--morning-the-sweep");
+  const docket = readJson(new URL("../data/subsystems/head-height-docket.json", import.meta.url));
+  assert.equal(brief.clockRef, docket.id, "the brief points at the subsystem that carries its clock");
+
+  const fresh = sceneRunnerState({ brief, subsystem: docket, runState: emptyRunState() });
+  assert.equal(fresh.clock.current, 12);
+  assert.ok(fresh.spends.length >= 4, "the authored ways to spend a wall are offered as controls");
+
+  const after = sceneRunnerState({
+    brief,
+    subsystem: docket,
+    runState: { ...emptyRunState(), spent: ["map-the-sightings", "chase-the-supplier", "interview-a-shopkeeper"] }
+  });
+  assert.equal(after.clock.current, 6, "12 - 2 - 3 - 1");
+  assert.equal(after.clock.crossed.length, 1, "half the shift gone is an authored threshold at 6");
+});
+
+test("the bike shed is solo, and nothing else in the morning is", () => {
+  // The one beat in the session that must not reach the table. If this ever
+  // becomes `table`, six people read a secret meant for one.
+  const brief = realBrief("episode-05-head-height--morning-the-sweep");
+  const solo = brief.beats.filter((b) => b.delivery === DELIVERY.SOLO);
+  assert.deepEqual(solo.map((b) => b.id), ["the-bike-shed"]);
+});
+
+test("the hall's fork opens exactly one way per outcome, against the real authored data", () => {
+  const brief = realBrief("episode-05-head-height--noon-the-hall");
+  const onSuccess = beatsWithState(brief, { ...emptyRunState(), ticked: { "engage-kudo": { degree: "success" } } });
+  const byId = Object.fromEntries(onSuccess.map((b) => [b.id, b.state]));
+  assert.equal(byId["kudo-gives-the-name"], BEAT_STATES.ACTIVE);
+  assert.equal(byId["kudo-brushes-them-off"], BEAT_STATES.NOT_TAKEN);
+});
+
+test("the lens's hidden modifier is authored per location and never flat", () => {
+  const evening = realBrief("episode-05-head-height--evening-what-to-do-with-it");
+  const [lens] = evening.gmModifiers;
+  const base = 18; // head-height-the-lens's authored DC
+
+  const here = hiddenAdjustment(evening.gmModifiers, { challengeRef: "head-height-the-lens", locationKey: "evening-what-to-do-with-it" });
+  const row = hiddenAdjustment(evening.gmModifiers, { challengeRef: "head-height-the-lens", locationKey: "night-cannery-row" });
+  const square = hiddenAdjustment(evening.gmModifiers, { challengeRef: "head-height-the-lens", locationKey: "founding-day-square" });
+
+  assert.equal(postedDc(base, here), 17);
+  assert.equal(postedDc(base, row), 15, "Cannery Row is the +3 the script calls for");
+  assert.equal(postedDc(base, square), 10, "Founding Day is +8 and they will not have brought it");
+  assert.ok(lens.note.includes("NEVER"), "the modifier carries its own do-not-show warning");
+});
+
+test("the night scene carries the same lens table as the evening, id for id", () => {
+  // Duplicated on purpose today — a modifier spanning scenes has no
+  // campaign-level home yet. This test is what makes the duplication safe:
+  // the two copies cannot drift without going red.
+  const evening = realBrief("episode-05-head-height--evening-what-to-do-with-it").gmModifiers.find((m) => m.id === "lens-density");
+  const night = realBrief("episode-05-head-height--night-cannery-row").gmModifiers.find((m) => m.id === "lens-density");
+  assert.ok(evening && night);
+  assert.deepEqual(night.byLocation, evening.byLocation, "the two copies of the lens table have drifted apart");
+});
+
+test("the assembled state carries everything the panel renders, and nothing it does not", () => {
+  const state = sceneRunnerState({ brief: BRIEF, subsystem: WALLS, runState: tickedWith("satoru-brief") });
+  assert.equal(state.title, "Noon — The Hall");
+  assert.equal(state.beats.length, BRIEF.beats.length);
+  assert.equal(state.cast[0].displayName, "Kudo");
+  assert.equal(state.clock.current, 12);
+  assert.equal(state.progress.mandatoryDone, 1);
+  assert.equal(sceneRunnerState({ brief: null }), null, "no brief is a real state, not a crash");
+});

@@ -1,0 +1,99 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-05-head-height--night-cannery-row",
+  "type": "scene-brief",
+  "episodeRef": "episode-05-head-height",
+  "sceneRef": "night-cannery-row",
+  "title": "Night — Cannery Row Again",
+  "summary": "The last beat of the session, delivered on the way to somewhere else. Forty feet of ordinary pavement between a chandler's and a shuttered bakery, and a dog that will not walk on it.",
+  "clockRef": null,
+  "cast": [
+    {
+      "id": "man-with-a-dog",
+      "label": "A man with a dog",
+      "role": "genuinely incidental",
+      "walkOn": true,
+      "arrival": "quiet",
+      "brief": {
+        "wants": "To get his spaniel to walk down the road, and to tell somebody about it because it has been happening every night.",
+        "opensWith": "Exasperation. He has already tried everything and he has an audience for the first time.",
+        "willDiscuss": [
+          { "topic": "The dog's route", "note": "It goes the long way round, up Fisher and back down, and it is a lazy animal, so that is saying something." },
+          { "topic": "Whether he has checked", "note": "He has stood in it. There is nothing there." }
+        ],
+        "willNotDiscuss": [],
+        "coercible": [],
+        "voice": {
+          "register": "Ordinary, mildly aggrieved, entirely uninterested in anything larger than his own evening.",
+          "tics": ["Repeats 'every night' as though the repetition is the outrage"],
+          "samples": [
+            "\"Every night. Every single night, this bit of pavement.\"",
+            "\"He'll go round — he'll go the long way round, up Fisher and back down, and he's a lazy animal, so that's saying something.\"",
+            "\"There's nothing there. I've looked. I've stood in it. There's nothing there.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-argument-with-the-dog",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "man-with-a-dog",
+      "text": "A man on Cannery Row having an argument with a spaniel that has stopped dead about forty feet up from the corner.",
+      "readAloud": "There's a man on Cannery Row having an argument with a spaniel.\n\nThe dog has stopped dead about forty feet up from the corner and is doing the thing dogs do when they have made a decision — front legs braced, whole body committed to not being anywhere else."
+    },
+    {
+      "id": "read-the-dog",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "Only if anyone asks.",
+      "challengeRef": "head-height-the-dog",
+      "checkRef": "read-the-dog",
+      "when": { "condition": "if a PC asks what the dog is doing" }
+    },
+    {
+      "id": "the-lens-here",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "solo",
+      "text": "If anyone uses the lens on this stretch of pavement, let them roll.",
+      "challengeRef": "head-height-the-lens",
+      "checkRef": "look-through-it",
+      "when": { "condition": "if anyone thinks to use the lens here" },
+      "note": "This is the highest reading they will get in Chapter One outside Founding Day, and it is on forty feet of nothing between a chandler's and a bakery."
+    },
+    {
+      "id": "end-there",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "End the session on a man complaining about his dog, and roll credits.",
+      "direction": "Do not add a sting. Do not cut to anything. The last thing they hear is somebody's ordinary evening.",
+      "after": "the-argument-with-the-dog"
+    }
+  ],
+  "handouts": [],
+  "gmModifiers": [
+    {
+      "id": "lens-density",
+      "label": "The lens — local density",
+      "appliesTo": ["head-height-the-lens"],
+      "value": 0,
+      "byLocation": {
+        "evening-what-to-do-with-it": 1,
+        "night-cannery-row": 3,
+        "founding-day-square": 8
+      },
+      "note": "Deliberately duplicated from the evening brief, same id and same table. A modifier that spans scenes has no campaign-level home yet — one brief per file means each scene that can roll it has to carry it. Worth fixing if a third scene needs the same table."
+    }
+  ],
+  "offers": [],
+  "carryForward": [
+    "Whether anyone used the lens on Cannery Row, and what they got."
+  ],
+  "notes": "Nothing in this session resolves. That is correct. The party should end it with a map, a document that contradicts itself, a lead they didn't have time for, and one person at the table who saw something the others didn't."
+}

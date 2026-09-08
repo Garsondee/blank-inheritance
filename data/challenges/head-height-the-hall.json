@@ -1,0 +1,49 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "head-height-the-hall",
+  "type": "challenge",
+  "name": "The Hall — Wharfside Institute",
+  "description": "Three chances to read a room the party are only in as scenery. One teaches them Satoru is the adult who will tell them things. One decides whether Kudo ever speaks to them as people. One is never announced at all.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "read-satoru",
+      "name": "Reading a professional under strain",
+      "skillOptions": ["perception"],
+      "dc": { "value": 14, "basis": "level 1 standard DC, one step easy — he is not hiding it well and does not especially want to" },
+      "outcomes": {
+        "criticalSuccess": "He is not reading from anything, which every other officer they have heard this month was. And the two glances at the door are not nerves — he is checking whether someone from his own department has come in.",
+        "success": "He is not reading from anything. He glances toward the door twice.",
+        "failure": "A man delivering a briefing. He seems uncomfortable, but so would anyone."
+      }
+    },
+    {
+      "id": "engage-kudo",
+      "name": "Getting a hostile professional to treat you as a person",
+      "skillOptions": ["diplomacy", "society"],
+      "dc": { "value": 18, "basis": "hard for level 1 — he is a practised courtroom operator and they are children in the uniform of the institution holding his daughter" },
+      "outcomes": {
+        "criticalSuccess": "Ten minutes, her name said properly as a person rather than a case — Shinobu — and a card with a number on it.",
+        "success": "Ten minutes, and a name. Shinobu.",
+        "failure": "\"You're children in a uniform. I've nothing for you.\" Not cruel. Just done.",
+        "criticalFailure": "The same, in front of people, and he remembers which of them asked."
+      }
+    },
+    {
+      "id": "notice-rika",
+      "name": "The woman who asked the only real question",
+      "skillOptions": ["perception"],
+      "dc": { "value": 20, "basis": "hard for level 1, and deliberately so — she is meant to be forgotten within the hour" },
+      "secret": true,
+      "outcomes": {
+        "criticalSuccess": "She wrote in a notebook already three-quarters full of the same handwriting, she left by the side door rather than the front, and she left before the meeting ended.",
+        "success": "She wrote something down in a notebook that was already three-quarters full of the same handwriting, and went out the side door.",
+        "failure": "An older woman asked a question about measurements. Nobody answered it."
+      }
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": ["Any PC present as escort"],
+  "relatedRefs": ["episode-05-head-height"],
+  "notes": "notice-rika is `secret: true` AND passive — the GM rolls it and never announces that a roll happened. Failing it must not feel like failing anything, because the party do not know there was anything to fail. She does not come back until Chapter Five."
+}

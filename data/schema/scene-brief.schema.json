@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "scene-brief.schema.json",
+  "title": "Scene brief",
+  "description": "How to RUN one scene, for the GM, live — as distinct from what the scene IS, which is the episode's own scene entry. One file per scene in data/scene-briefs/, named <episodeId>--<sceneId>.json, read by the scene-runner panel (module/blank-inheritance/scripts/foundry/scene-runner.mjs) and rendered as a printed script.\n\nThe brief exists because the GM improvises the dialogue. It does not script a conversation; it gives the GM what they need to invent one in character — what each person wants, what they will and will not talk about, and how they sound — plus a checklist of what must actually happen, so nothing load-bearing gets lost in an hour of good talk.\n\nNOT A SECURITY BOUNDARY. This file is fetched over plain HTTP by the module and the panel is GM-only by construction, but any logged-in client could request the URL. That is a deliberate, accepted trade (2026-09-09: \"We don't need to firewall information from players\"). Anything that genuinely must not reach a client belongs in a GM-only JournalEntry with ownership.default NONE, the way foundry/social-store.mjs and foundry/campaign-state.mjs both do it.",
+  "type": "object",
+  "required": ["id", "type", "episodeRef", "sceneRef", "title"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$", "description": "Conventionally <episodeId>--<sceneId>, matching the filename." },
+    "type": { "const": "scene-brief" },
+    "episodeRef": { "type": "string", "description": "id of the episode.schema.json instance this scene belongs to." },
+    "sceneRef": { "type": "string", "description": "The `id` of the scene inside that episode's `scenes` array — not its `order`, which moves when a scene is inserted." },
+    "title": { "type": "string", "description": "What the GM sees at the top of the panel. Usually the scene's own title." },
+    "summary": { "type": "string", "description": "One or two lines: what this scene is for. The thing to re-read thirty seconds before running it." },
+    "clockRef": {
+      "type": ["string", "null"],
+      "description": "id of a subsystem.schema.json instance whose pools this scene runs on a visible clock — e.g. a shift's twelve walls as a diminishing pool, spent down by that subsystem's `spends`. null for the many scenes with no clock."
+    },
+    "cast": {
+      "type": "array",
+      "description": "Everyone the GM might have to be, in this scene. Includes walk-ons who will never have a file in data/npcs/ — a brief for three lines of foreman is still worth thirty seconds of authoring.",
+      "items": {
+        "type": "object",
+        "required": ["id", "brief"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$", "description": "Scene-local id, referenced by beats' `npcRef`." },
+          "npcRef": { "type": ["string", "null"], "description": "id of a data/npcs/*.json file, when this is a real recurring NPC. The NPC file wins on identity — do NOT restate a name here for someone whose real name is still an open naming placeholder." },
+          "label": { "type": ["string", "null"], "description": "Display name for a walk-on with no NPC file (\"Sergeant Ihara\", \"A man with a dog\"). Ignored when npcRef resolves to a named NPC." },
+          "role": { "type": ["string", "null"], "description": "One line of who they are to this scene — \"works foreman\", \"the Directorate's information officer\"." },
+          "arrival": {
+            "enum": ["quiet", "announced", "splash", null],
+            "description": "How they come into the scene, reusing the built sting tiers (core/sting.mjs). splash is the full-screen introduction and is NPC-only — see core/splash.mjs. null means they are simply already there."
+          },
+          "walkOn": { "type": "boolean", "description": "True for someone deliberately disposable — the panel renders them small and does not offer to stage a portrait. \"Give him three lines and never bring him back.\"" },
+          "brief": {
+            "type": "object",
+            "description": "The improvisation aid. Everything here is GM-only and permanently so — unlike npc.schema.json's socialProfile.facts, which are player-facing knowledge revealed through play. The two are complements: facts are what the table can learn, this is how you play the person.",
+            "properties": {
+              "wants": { "type": "string", "description": "What they are trying to ACHIEVE in this conversation. The single most useful field — it decides what they do when the players surprise you." },
+              "opensWith": { "type": "string", "description": "What they raise first if left to themselves. Their agenda, not yours." },
+              "willDiscuss": {
+                "type": "array",
+                "description": "Topics they will engage with, and what they give up on each.",
+                "items": {
+                  "type": "object",
+                  "required": ["topic"],
+                  "properties": {
+                    "topic": { "type": "string" },
+                    "note": { "type": ["string", "null"], "description": "What they actually say or concede here." }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "willNotDiscuss": {
+                "type": "array",
+                "description": "Hard lines. What they deflect, refuse, or lie about — and why, because the why is what lets you improvise the refusal in their voice instead of just saying no.",
+                "items": {
+                  "type": "object",
+                  "required": ["topic"],
+                  "properties": {
+                    "topic": { "type": "string" },
+                    "why": { "type": ["string", "null"] }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "coercible": {
+                "type": "array",
+                "description": "What could be got out of them under pressure, and what it takes. Distinct from willDiscuss: this is what they give up only when leaned on.",
+                "items": {
+                  "type": "object",
+                  "required": ["topic"],
+                  "properties": {
+                    "topic": { "type": "string" },
+                    "how": { "type": ["string", "null"], "description": "What kind of pressure works — leverage, sympathy, authority, a named Fact." },
+                    "challengeRef": { "type": ["string", "null"], "description": "id of a challenge.schema.json instance if getting it is an actual roll." }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "voice": {
+                "type": "object",
+                "description": "How they sound. The panel sets `samples` in a different face from everything around it, because a line you might actually say out loud is not the same kind of text as a note about them.",
+                "properties": {
+                  "register": { "type": "string", "description": "The one-line characterisation — \"clipped, dry, never raises his voice\"." },
+                  "tics": { "type": "array", "items": { "type": "string" }, "description": "Verbal habits worth reaching for — a repeated phrase, a way of pausing, what they call people." },
+                  "samples": { "type": "array", "items": { "type": "string" }, "description": "Real lines, in their voice. Not a script to read — a tuning fork. Three good ones beat twenty." }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "beats": {
+      "type": "array",
+      "description": "What has to happen, in the order it probably happens. The GM ticks these off live. Order here is authoring order, not enforcement — `after` and `when` carry real sequencing where it matters.",
+      "items": {
+        "type": "object",
+        "required": ["id", "text"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$", "description": "Stable — tick state is keyed on it, so renaming a beat mid-campaign forgets whether it happened." },
+          "kind": {
+            "enum": ["action", "check", "reveal"],
+            "description": "action = something happens in the fiction. check = resolved by a roll (needs challengeRef). reveal = puts something in front of the players (needs handoutRef). Defaults to action."
+          },
+          "text": { "type": "string", "description": "Stage direction — what this beat IS, in the GM's own shorthand. Rendered as prose." },
+          "readAloud": { "type": ["string", "null"], "description": "Verbatim boxed text, if there is any. Set apart typographically from `text`, because one is a note to yourself and the other is a thing you say to six people." },
+          "direction": { "type": ["string", "null"], "description": "How to PLAY it, as distinct from what happens — \"this must land as nothing\", \"play it as an entrance\". The note a director gives an actor." },
+          "mandatory": { "type": "boolean", "description": "Whether the scene has failed at its job if this never happens. Deliberately independent of every other axis: a mandatory beat can be a passive check nobody is told about, and an optional beat can be the loudest thing in the scene (doctrine Law 20 — mandatory and slot-consuming are two different tests)." },
+          "delivery": {
+            "enum": ["table", "solo", "passive"],
+            "description": "Who receives it. table = everyone (the default). solo = one player, privately — the panel offers a targeted push rather than making the GM take somebody out of the room. passive = nobody is told anything happened, including that a check was made."
+          },
+          "npcRef": { "type": ["string", "null"], "description": "The `id` of a cast entry above, when this beat belongs to one person — the panel surfaces their brief alongside it." },
+          "handoutRef": { "type": ["string", "null"], "description": "id of an entry in `handouts` below." },
+          "challengeRef": { "type": ["string", "null"], "description": "id of a challenge.schema.json instance in data/challenges/. Checks are NOT inlined here — challenge.schema.json already models a handful of DC'd checks with full four-degree outcomes, and episode.scenes[].challengeRefs was already wired for exactly this." },
+          "checkRef": { "type": ["string", "null"], "description": "The `id` of one check inside that challenge. A challenge is \"one or a handful\" of checks, so a scene's rolls group into one file per scene rather than one file per roll; this names which of them this beat is." },
+          "after": { "type": ["string", "null"], "description": "id of a beat this cannot happen before. Ordering only — it does not hide this beat." },
+          "when": {
+            "type": "object",
+            "description": "Makes this beat conditional. This is how a scene branches: divergent paths are sibling beats with different `when` clauses off the same predecessor, rather than a nested tree — one shape, no renderer recursion, and it matches subsystem.complications' own triggerCondition idiom.",
+            "properties": {
+              "beatRef": { "type": ["string", "null"], "description": "The beat whose outcome gates this one." },
+              "degrees": {
+                "type": "array",
+                "items": { "enum": ["criticalSuccess", "success", "failure", "criticalFailure"] },
+                "description": "Which degrees of success on beatRef's challenge open this path. Four degrees, never five — a plain Failure with no listed effect is what reads as 'neutral' in play. Omit to mean 'whenever beatRef happens at all'."
+              },
+              "condition": { "type": ["string", "null"], "description": "Free prose for a GM-judged trigger with no mechanical test — \"if a PC engages him afterward\". The panel shows it as something the GM can open by hand." }
+            },
+            "additionalProperties": false
+          },
+          "note": { "type": ["string", "null"], "description": "Anything else worth having to hand — a payoff this plants, a callback it pays off." }
+        },
+        "additionalProperties": false
+      }
+    },
+    "handouts": {
+      "type": "array",
+      "description": "Documents and images this scene can put in front of players. Staged here so revealing one is a single deliberate click at the right moment; never automatic (doctrine Law 17 — confirm anything the players will see).",
+      "items": {
+        "type": "object",
+        "required": ["id", "title"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "title": { "type": "string", "description": "What the GM sees in the panel." },
+          "journalRef": { "type": ["string", "null"], "description": "Repo id of an EXISTING journal this lives in, resolved to a Foundry document by the module's own deterministic-id derivation. Use this for a document that belongs to the world rather than to one scene." },
+          "pageName": { "type": ["string", "null"], "description": "Which page inside it. Page-level ownership is real in Foundry, so one page per clearance level is the supported way to hold several redactions of the same document (design/visual-identity.md §3b)." },
+          "body": { "type": ["string", "null"], "description": "The document itself, authored inline, as HTML. The adapter creates or updates a journal page from it on demand, so a handout that exists only for this scene needs no separate file and no sync run to change. Supports the redaction pipeline's own `<redact c=\"n\">` tags and sf2e's inline `@Check[...]` syntax — both survive into the pushed page." },
+          "imagePath": { "type": ["string", "null"], "description": "For a handout that is just a picture — pushed with Foundry's own image share rather than as a journal." },
+          "gmNotes": { "type": ["string", "null"], "description": "What the GM should know about this document that the players should not." },
+          "catchables": { "type": "array", "items": { "type": "string" }, "description": "The things a careful reader can notice in it. Not hints to give out — the list to check against when a player says \"wait, hang on\", so you know immediately whether they have found something real." },
+          "challengeRef": { "type": ["string", "null"], "description": "The roll for engaging with the text properly, if there is one." }
+        },
+        "additionalProperties": false
+      }
+    },
+    "gmModifiers": {
+      "type": "array",
+      "description": "Secret, GM-only adjustments to a roll that the player must never see — an instrument that works better in some places than others, a circumstance nobody has named yet. The panel shows the GM the adjusted DC and posts a blind check, so the player rolls against a number they are never told (core/roll-intent.mjs already carries the blind-roll path; we do not recompute anything sf2e computes).",
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "label": { "type": "string", "description": "GM-facing name for the thing being modified." },
+          "appliesTo": { "type": "array", "items": { "type": "string" }, "description": "challengeRef ids this adjusts." },
+          "value": { "type": ["integer", "null"], "description": "A flat modifier for this scene, when it does not vary." },
+          "byLocation": {
+            "type": "object",
+            "description": "Keyed by a location/scene id where the modifier differs. The whole point of a varying hidden modifier is that the players build a false theory about when the thing works, so the variance must be authored across the campaign rather than improvised twice.",
+            "additionalProperties": { "type": "integer" }
+          },
+          "note": { "type": ["string", "null"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "offers": {
+      "type": "array",
+      "description": "Time-limited scheduling leads this scene puts on the board — the same shape as data/campaign/config.json's timeEconomy.options, plus the expiresOn that core/commitments.mjs already reads and no data file has ever set. \"Leads decay differently\" is exactly per-offer expiry.",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "effect": { "type": "string" },
+          "cost": { "type": "string" },
+          "expiresOn": { "type": ["string", "null"], "pattern": "^d[0-9]+:(morning|afternoon|evening|night)$", "description": "A moment key (\"d9:evening\"). The offer survives THROUGH the quarter it names — \"expires tonight\" has to mean you can still do it tonight." }
+        },
+        "additionalProperties": false
+      }
+    },
+    "carryForward": { "type": "array", "items": { "type": "string" }, "description": "What the GM should make sure is recorded when this scene closes — the questions next session's writing will want answered. Rendered as the scene-close prompt." },
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": false
+}

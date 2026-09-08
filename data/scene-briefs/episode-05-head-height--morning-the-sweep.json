@@ -1,0 +1,99 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-05-head-height--morning-the-sweep",
+  "type": "scene-brief",
+  "episodeRef": "episode-05-head-height",
+  "sceneRef": "morning-the-sweep",
+  "title": "Morning — The Sweep",
+  "summary": "Twelve walls, one shift, no supervision. They will paint over four or five before anyone thinks about it. Let them. The clock is the scene.",
+  "clockRef": "head-height-docket",
+  "cast": [
+    {
+      "id": "ihara",
+      "label": "Sergeant Ihara",
+      "role": "works foreman",
+      "walkOn": true,
+      "arrival": "quiet",
+      "brief": {
+        "wants": "To hand over a docket and two buckets and drive away. He is not a character. Give him three lines and never bring him back.",
+        "opensWith": "The quota, and the word 'beautifying'.",
+        "willDiscuss": [
+          { "topic": "The job", "note": "Grey over the whole thing, don't just do the middle, it shows. If you run out, that's the day." }
+        ],
+        "willNotDiscuss": [
+          { "topic": "What the cicadas mean", "why": "Not secrecy — indifference. It is somebody else's problem and he is on his break." }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Flat, unbothered, does not get out of the truck. Winds the window down instead.",
+          "tics": ["Repeats the official word as though it were tongs he is holding something with"],
+          "samples": [
+            "\"Twelve. Grey over the whole thing, don't just do the middle, it shows.\"",
+            "\"If anyone asks what you're doing, you're beautifying. That's the word. Beautifying.\"",
+            "\"And don't talk to them about it. They love that.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "arrive-cannery-row",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The works truck drops them at the bottom of Cannery Row at ten past seven. Two buckets of municipal grey, four rollers, a scraper nobody will use, and a docket for twelve walls.",
+      "readAloud": "The works truck drops you at the bottom of Cannery Row at ten past seven, and it is already too warm. Two buckets of municipal grey, four rollers, a scraper nobody will use, and a docket.\n\nThe docket says twelve walls.\n\nSergeant Ihara does not get out of the truck. He winds the window down instead.",
+      "npcRef": "ihara",
+      "note": "Start the clock on screen here, before anyone has spent anything off it."
+    },
+    {
+      "id": "the-pattern",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Call for it once, unprompted, after the fourth wall — nobody asks for this, and it is the deduction the whole chapter turns on.",
+      "direction": "Do not offer it as a question. Interrupt the painting with it.",
+      "challengeRef": "head-height-the-sweep",
+      "checkRef": "spot-the-placement",
+      "note": "A dozen cicadas, all neat. Whoever is doing this owns a stencil and a steady hand, and is not in a hurry."
+    },
+    {
+      "id": "the-paint",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "Only if somebody examines the medium rather than just rolling over it.",
+      "challengeRef": "head-height-the-sweep",
+      "checkRef": "identify-the-paint",
+      "when": { "condition": "if a PC examines the paint itself rather than simply covering it" },
+      "note": "Converts a mood into a lead, and gives the ground-role kids something a Frame could never do."
+    },
+    {
+      "id": "harbour-side-lead",
+      "kind": "action",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "The three chandlers who carry marine primer in quantity are all on the harbour side — this is where the evening's chandler lead comes from.",
+      "when": { "beatRef": "the-paint", "degrees": ["criticalSuccess"] }
+    },
+    {
+      "id": "the-bike-shed",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "solo",
+      "text": "The eleventh wall is the alley side of their own school's bike shed. The brickwork under the cicada is layered — someone has painted this wall grey before, more than once, for years. Scratched into the mortar beside it, small enough to see only from this close: a date, eleven years old.",
+      "readAloud": "The eleventh wall is the alley side of your own school's bike shed.\n\nThis one's different. The brickwork under the cicada is uneven — layered. Someone has painted this wall grey before. More than once. You can feel the ridges through the roller.\n\nSomeone has been stencilling this exact wall, and someone has been covering it, for a long time. Years, from the build-up.\n\nScratched into the mortar beside it, small enough that you'd only see it from this close: a date. It's eleven years old.",
+      "direction": "Pick the player who has been most patient this session, or whose character has the strongest tie to the school. Push it to them alone. Do NOT resolve it. If they tell the table, that is their choice and it should feel like one — and remember that they did.",
+      "note": "Plant #6, with a barb in it. The date is a demonstration anniversary. It pays off in Chapter Five."
+    }
+  ],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "carryForward": [
+    "Walls painted, and walls owed.",
+    "Whether the solo player shared the bike-shed date with the table, or kept it."
+  ],
+  "notes": "Every investigative action costs a wall — the spends live on head-height-docket, not here, so the price of an action is the same for whoever asks. Nobody will tell them off for missing quota; Ihara does not care. The number does all the work by itself."
+}

@@ -1,0 +1,41 @@
+{
+  "$schema": "../schema/subsystem.schema.json",
+  "id": "head-height-docket",
+  "type": "subsystem",
+  "name": "The Docket",
+  "subsystemType": "custom",
+  "description": "Twelve walls, one shift, no supervision. The clock is not a threat — Sergeant Ihara does not care whether the quota is met and will never mention it again. The number creates the pressure entirely on its own, and what the party choose to spend it on is the first real statement they make about what kind of unit they are.",
+  "scale": "long-encounter",
+  "pools": [
+    {
+      "id": "walls",
+      "name": "Walls owed",
+      "mode": "diminishing",
+      "start": 12,
+      "current": 12,
+      "floor": 0,
+      "owner": "party",
+      "thresholds": [
+        { "atValue": 6, "effect": "Half the shift gone. Say the number out loud when it changes, so nobody can claim later that they did not know what an hour cost." },
+        { "atValue": 2, "effect": "There is not enough of the day left to both finish and follow anything up. If they have not chosen by now, the clock has chosen for them." },
+        { "atValue": 0, "effect": "The paint runs out and that is the day. Nothing punishes them for it — but the walls they did not get to are still stencilled tomorrow, and somebody else will be sent." }
+      ]
+    }
+  ],
+  "obstacles": [],
+  "spends": [
+    { "id": "map-the-sightings", "label": "Map where the stencils actually are", "poolRef": "walls", "delta": -2, "note": "The one spend that pays for itself — the placement pattern is the chapter's central deduction." },
+    { "id": "chase-the-supplier", "label": "Chase down the paint supplier", "poolRef": "walls", "delta": -3, "note": "Three chandlers carry marine primer in quantity. All three are on the harbour side." },
+    { "id": "interview-a-shopkeeper", "label": "Interview a shopkeeper properly", "poolRef": "walls", "delta": -1, "note": "Repeatable. Each one is another wall." },
+    { "id": "follow-someone", "label": "Follow someone", "poolRef": "walls", "delta": -2 },
+    { "id": "a-hand-from-somewhere", "label": "Somebody lends a hand", "poolRef": "walls", "delta": 2, "note": "GM discretion, and rare. Authored so that giving time back is possible at all — a good turn from a shopkeeper, a kid with nothing better to do." }
+  ],
+  "bounding": {
+    "boundType": "narrative-endstate",
+    "description": "The shift ends when the walls run out or the day does. There is no failure state; there is only what they did not have time for."
+  },
+  "winCondition": "There is no win. The pool exists to make an hour cost something visible.",
+  "loseCondition": null,
+  "relatedRefs": ["episode-05-head-height"],
+  "notes": "Track it openly on the console and let them watch the number go down. Suggested costs are authored as `spends` rather than improvised so that the price of a given action is the same for every player who asks — the pressure only works if the exchange rate is trusted."
+}

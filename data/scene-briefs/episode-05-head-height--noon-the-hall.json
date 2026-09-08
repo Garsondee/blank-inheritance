@@ -1,0 +1,246 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-05-head-height--noon-the-hall",
+  "type": "scene-brief",
+  "episodeRef": "episode-05-head-height",
+  "sceneRef": "noon-the-hall",
+  "title": "Noon — The Hall",
+  "summary": "The party are here as escort, which means standing at the back in uniform being looked at. Three adults, one of whom is the most important person in the room and should be forgotten within the hour.",
+  "clockRef": null,
+  "cast": [
+    {
+      "id": "satoru",
+      "npcRef": "transparency-advocate",
+      "label": "Satoru",
+      "role": "Directorate information officer",
+      "arrival": "quiet",
+      "brief": {
+        "wants": "To give the Directorate's position accurately rather than comfortably, and to survive a room that has every right to be angry with him. He is not defending the position. He is reporting it.",
+        "opensWith": "The aerosol account: four incidents, an unidentified compound, hallucinogenic properties, consistent effects across large groups.",
+        "willDiscuss": [
+          { "topic": "What the Directorate's position is", "note": "Verbatim and precisely, including the parts that make him wince." },
+          { "topic": "What he has and has not been told", "note": "This is the important one. He has asked twice and has not been given an answer, and he will say so out loud." },
+          { "topic": "Shinobu's detention", "note": "\"I don't know. And I've asked.\" That is the whole beat and it is enough." }
+        ],
+        "willNotDiscuss": [
+          { "topic": "Speculation about what the agent actually is", "why": "Not evasion — he genuinely does not know, and he will not fill the gap with something comforting." },
+          { "topic": "Criticising his own department in the room", "why": "He is checking the door for exactly that reason." }
+        ],
+        "coercible": [
+          { "topic": "That he has escalated internally and been stonewalled", "how": "Sympathy rather than pressure. Treat him as a person doing a bad job honestly and he will tell you more than the brief allows." }
+        ],
+        "voice": {
+          "register": "Earnest, precise, visibly uncomfortable with the brief he has been handed. Speaks in complete sentences and does not read from anything.",
+          "tics": ["Qualifies his own statements before anyone else can", "Says 'accurately rather than comfortably' as though it were a rule he has set himself"],
+          "samples": [
+            "\"The Directorate's position — and I want to give you this accurately rather than comfortably —\"",
+            "\"What I can't tell you is what the agent is. Not because I'm withholding it. Because I've asked twice and I haven't been given an answer.\"",
+            "\"I don't know. And I've asked.\""
+          ]
+        }
+      }
+    },
+    {
+      "id": "kudo",
+      "label": "Kudo",
+      "role": "the Lawyer — a father, and extremely good at his job",
+      "arrival": "splash",
+      "brief": {
+        "wants": "An answer, on the record, about what they think is wrong with his daughter. Everything else in his performance is instrumental to that one question.",
+        "opensWith": "The arithmetic nobody said out loud: four incidents, sixty-one hospitalisations, no fatalities.",
+        "willDiscuss": [
+          { "topic": "The Directorate's own numbers", "note": "He has them, and he is better at them than the officer is." },
+          { "topic": "Shinobu — four months detained, not charged, not ill by the Directorate's own physicians", "note": "He will say her age. He will say she is frightened. He is not performing that part." },
+          { "topic": "What 'attack' is doing in an official statement", "note": "Either they are the most incompetent terrorists in the history of the Inner Sea, or the word is doing a great deal of work." }
+        ],
+        "willNotDiscuss": [
+          { "topic": "His own caseload or his other clients", "why": "He is not here as a lawyer tonight and he will say so if pushed." },
+          { "topic": "Anything that treats his daughter as a case rather than a person", "why": "It is the one thing that will make him leave a conversation." }
+        ],
+        "coercible": [
+          { "topic": "Ten minutes, and Shinobu's name said properly", "how": "Not leverage — recognition. A teenager in a Directorate uniform treating him as a person rather than a problem to be managed.", "challengeRef": "head-height-the-hall" }
+        ],
+        "voice": {
+          "register": "Does not stand up. Does not raise his voice. Lets the pause do the work. Angry, not bleak — being angry on behalf of someone you love is a warm thing to watch.",
+          "tics": ["Asks the room to hear something again rather than saying it twice himself", "Ends on a plain instruction: 'and you can write it down'"],
+          "samples": [
+            "\"Would you like to say that second part again? Because you skipped it, and I'd like the room to have it. No fatalities.\"",
+            "\"I've prosecuted arsonists with better body counts than that.\"",
+            "\"So I'll put it plainly, and you can write it down. What do you think is wrong with her?\"",
+            "\"She is seventeen years old and she is very frightened.\""
+          ]
+        }
+      }
+    },
+    {
+      "id": "rika",
+      "label": "Doctor Rika",
+      "role": "the Sceptic — the single most important person in the room",
+      "arrival": "quiet",
+      "brief": {
+        "wants": "A number. She is not here to argue with anyone; she is here to find out whether anybody has actually measured the thing, and she has already guessed the answer.",
+        "opensWith": "\"Has anyone measured the agent?\"",
+        "willDiscuss": [
+          { "topic": "Mass, persistence, dispersal rate", "note": "Ordinary numbers that ordinary people take every day, and none of them have been published." }
+        ],
+        "willNotDiscuss": [
+          { "topic": "Anything at all, at length", "why": "She asks one question, receives a non-answer, writes something down, and leaves before the meeting ends. That is the entire performance." }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Older woman, second row, coat still on. Waits for a gap. Does not introduce herself. Unimpressed rather than hostile.",
+          "tics": ["\"Mm.\" — as a complete response", "Builds a question out of the officer's own words"],
+          "samples": [
+            "\"The agent. You've said four times that it's an aerosol. Has anyone taken a sample and measured it?\"",
+            "\"Because if it's an aerosol it has a mass and a persistence and a dispersal rate, and those are ordinary numbers that ordinary people take every day, and I've not seen them published.\"",
+            "\"Mm. You would.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "arrive-the-hall",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The Wharfside Institute. Forty folding chairs, thirty-one occupied, a jug of water nobody has touched, and an information officer working out how to leave a room he has only just entered.",
+      "readAloud": "The Wharfside Institute smells of floor polish and wet coats. Forty folding chairs, thirty-one of them occupied, a trestle table at the front with a jug of water nobody has touched, and a Directorate information officer trying to work out how to get out of a room he has only just entered.\n\nYou're here as escort. Which means standing at the back, in uniform, being looked at."
+    },
+    {
+      "id": "satoru-gives-the-line",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "satoru",
+      "text": "The aerosol account, delivered accurately rather than comfortably — including the admission that he has asked twice what the agent is and has not been told.",
+      "readAloud": "\"The Directorate's position — and I want to give you this accurately rather than comfortably — is that the four incidents this year involved an aerosolised agent with hallucinogenic properties. The visual effects were consistent across large groups, which is documented, and which is what you'd expect from a shared airborne dose.\"\n\n\"What I can't tell you is what the agent is. Not because I'm withholding it. Because I've asked twice and I haven't been given an answer.\""
+    },
+    {
+      "id": "read-satoru",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "npcRef": "satoru",
+      "text": "Reading a professional under strain.",
+      "challengeRef": "head-height-the-hall",
+      "checkRef": "read-satoru",
+      "note": "Teaches the table early that Satoru is the one adult who will tell them things — which they need to know before Chapter Five."
+    },
+    {
+      "id": "kudo-stands-up",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "kudo",
+      "direction": "Play this as an entrance. He has been a voice on the radio all chapter — a father, an irritant, background texture. He is now a person, in the room, and he is extremely good at his job. Third row. Doesn't stand up. Doesn't raise his voice.",
+      "text": "Kudo takes the statement apart on its own numbers, then asks the only question he came to ask.",
+      "readAloud": "\"Four incidents. Sixty-one hospitalisations. No fatalities.\"\n\n\"Would you like to say that second part again? Because you skipped it, and I'd like the room to have it. No fatalities. Not one, in four attacks, by an organisation your own department calls a public safety emergency.\"\n\n\"I've prosecuted arsonists with better body counts than that. So either these people are the most incompetent terrorists in the history of the Inner Sea, or the word 'attack' is doing a great deal of work in your statement, and I'd like to know which.\"\n\n\"My daughter was standing eleven feet from a canister. She has been in a cell for four months. She is not charged. She is not ill. Your own physicians say she is not ill.\"\n\n\"So I'll put it plainly, and you can write it down. What do you think is wrong with her? Because you're all behaving as though you know, and none of you will say it, and she is seventeen years old and she is very frightened.\"",
+      "note": "Then he sits down, and the room does not know what to do with itself."
+    },
+    {
+      "id": "satoru-does-not-know",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "satoru",
+      "after": "kudo-stands-up",
+      "text": "The important beat. He does not deflect and he does not reassure.",
+      "readAloud": "\"I don't know. And I've asked.\""
+    },
+    {
+      "id": "engage-kudo",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "npcRef": "kudo",
+      "text": "Whether a teenager in a Directorate uniform can get a hostile professional to treat them as a person.",
+      "challengeRef": "head-height-the-hall",
+      "checkRef": "engage-kudo",
+      "when": { "condition": "if a PC approaches Kudo after the meeting" },
+      "note": "Kudo is a Chapter Five asset. This is where he decides whether these six are part of the machine or not."
+    },
+    {
+      "id": "kudo-gives-the-name",
+      "kind": "action",
+      "mandatory": false,
+      "delivery": "table",
+      "npcRef": "kudo",
+      "text": "Ten minutes, and her name — said properly, as a person rather than a case. Shinobu.",
+      "when": { "beatRef": "engage-kudo", "degrees": ["success", "criticalSuccess"] }
+    },
+    {
+      "id": "kudo-brushes-them-off",
+      "kind": "action",
+      "mandatory": false,
+      "delivery": "table",
+      "npcRef": "kudo",
+      "text": "\"You're children in a uniform. I've nothing for you.\" Not cruel. Just done.",
+      "when": { "beatRef": "engage-kudo", "degrees": ["failure", "criticalFailure"] }
+    },
+    {
+      "id": "rika-asks-her-question",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "npcRef": "rika",
+      "direction": "This must land as nothing. She is the single most important person in the room and the party should forget her within the hour. Do not give her a beat of silence afterward; move straight on.",
+      "text": "She waits for a gap, does not introduce herself, and asks whether anybody has measured the agent.",
+      "readAloud": "\"Has anyone measured the agent?\"\n\n(Satoru: \"I'm sorry?\")\n\n\"The agent. You've said four times that it's an aerosol. Has anyone taken a sample and measured it? Because if it's an aerosol it has a mass and a persistence and a dispersal rate, and those are ordinary numbers that ordinary people take every day, and I've not seen them published.\"\n\n(Satoru, honestly: \"I'd have to check.\")\n\n\"Mm. You would.\""
+    },
+    {
+      "id": "notice-rika-leaving",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "passive",
+      "npcRef": "rika",
+      "text": "Whether anyone clocks the notebook already three-quarters full of the same handwriting, and the side door.",
+      "direction": "Do not announce this. Roll it, or do not, and say nothing either way.",
+      "challengeRef": "head-height-the-hall",
+      "checkRef": "notice-rika",
+      "after": "rika-asks-her-question",
+      "note": "If nobody engages her she does not come back until Chapter Five. That is correct and intended."
+    },
+    {
+      "id": "hand-out-the-notice",
+      "kind": "reveal",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Public Information Notice 44-C is stacked by the door on the way out. Put it in front of them.",
+      "handoutRef": "notice-44c"
+    },
+    {
+      "id": "read-the-notice",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If they engage with the text rather than pocketing it.",
+      "challengeRef": "head-height-the-hall",
+      "checkRef": "read-satoru",
+      "when": { "beatRef": "hand-out-the-notice", "condition": "if a player actually reads it back at the table" },
+      "note": "Success: point 4 is not public health advice, it is evidence management."
+    }
+  ],
+  "handouts": [
+    {
+      "id": "notice-44c",
+      "title": "Public Information Notice 44-C — Revised",
+      "gmNotes": "The document argues with itself if read carefully. Do not point any of it out. The catchables list is what to check against when a player says 'wait, hang on' — so you know instantly whether they have found something real.",
+      "catchables": [
+        "Point 3 asserts the conclusion it is supposed to be proving.",
+        "Point 4 is, read plainly, an instruction not to compare notes with witnesses.",
+        "Point 2 admits nobody has been hurt by the compound in four incidents.",
+        "The compound is called 'unidentified' — and Rika has just pointed out that nobody has measured it.",
+        "Nothing in the document says what the visual disturbance actually was."
+      ],
+      "body": "<h2>CITY CIVIL DEFENCE DIRECTORATE</h2>\n<p><em>Public Information Notice 44-C — Revised</em></p>\n<h3>CHEMICAL INCIDENTS: WHAT YOU SHOULD KNOW</h3>\n<p><strong>1. WHAT HAS HAPPENED.</strong> On four occasions this year, an unidentified aerosolised compound has been released in crowded public places by members of a fringe political movement. The Directorate is treating these as criminal acts.</p>\n<p><strong>2. IS IT DANGEROUS?</strong> Medical assessment indicates <strong>no lasting physical harm</strong> in any case examined. Injuries recorded at these events have resulted from crowd movement, not from the compound.</p>\n<p><strong>3. WHY DID I SEE SOMETHING?</strong> The compound produces <strong>strong and consistent visual disturbances</strong>. Because the effect is shared, groups frequently report seeing the same thing. <strong>This is expected</strong> and does not indicate that what was seen was present.</p>\n<p><strong>4. WHAT SHOULD I DO?</strong> Move calmly to open ground. Do not run. Do not remain to observe. Report what you saw to a Directorate officer <strong>once</strong>, and do not discuss it further with others present, as this is known to strengthen and prolong the recollection.</p>\n<p><strong>5. IS THERE ANY DANGER TO THE CITY?</strong> No. There is no indication of any threat to the city, its people, or its defences.</p>\n<p><em>Issued under the authority of the Directorate. Queries to the Public Information Office, Sea Fort, via the causeway office.</em></p>"
+    }
+  ],
+  "gmModifiers": [],
+  "offers": [],
+  "carryForward": [
+    "Whether anyone spoke to Kudo — and whether they got Shinobu's name.",
+    "Whether anyone noticed Rika at all, and whether anyone wrote her down."
+  ]
+}

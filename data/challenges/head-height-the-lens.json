@@ -1,0 +1,28 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "head-height-the-lens",
+  "type": "challenge",
+  "name": "The Lens",
+  "description": "Nominally a check of the character's eyesight and attention. Actually a measurement of the local density of something nobody has named. The lens works perfectly and always has — its apparent unreliability is entirely about what is or is not in the room.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "look-through-it",
+      "name": "Looking",
+      "skillOptions": ["perception"],
+      "dc": { "value": 18, "basis": "hard for level 1 before the hidden circumstance modifier, which is the whole mechanism — see the gmModifiers block on the evening scene brief" },
+      "secret": true,
+      "outcomes": {
+        "criticalSuccess": "Not a glimpse. It is there, occupying the air above the rooftops, stalked and turning, and one of the stalks is oriented toward this window. It does not end at the edge of the lens. Give them a full paragraph and let the table wonder why one person has gone quiet.",
+        "success": "Something at the edge of the circle. Movement without an object. Gone when the lens moves — and back, in the same place, when it returns.",
+        "failure": "Ordinary air. Ordinary rooftops. A gull.",
+        "criticalFailure": "Ordinary air — and then, for less than a second, something turns. Not toward the lens. Toward the person holding it."
+      },
+      "repeatable": true
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": ["Whoever holds the lens from Session Four"],
+  "relatedRefs": ["episode-05-head-height"],
+  "notes": "The player must never see the modifier and should never be told the DC. Building a false theory about when the lens works is the point — Manako spent six years doing exactly this. Do not confirm or deny anything afterward; if the table asks whether it is broken, the honest GM answer is a shrug."
+}

@@ -96,7 +96,12 @@ export function episodeToJournalSource(episode) {
     if (scene.encounterRef) bodyParts.push(paragraph("Encounter", scene.encounterRef));
     if (scene.subsystemRef) bodyParts.push(paragraph("Subsystem", scene.subsystemRef));
     if (scene.challengeRefs?.length) bodyParts.push(paragraph("Challenges", scene.challengeRefs.join(", ")));
-    pages.push({ id: `scene-${scene.order}`, name: `${scene.order}. ${scene.title}`, content: bodyParts.join("\n") });
+    // A scene's own `id` when it has one, position only as the fallback for
+    // the nine scenes authored before that field existed. Keyed on `order`
+    // alone, inserting a scene silently reassigns every page id after it --
+    // and a Foundry page id is what a link, a bookmark, or a run record
+    // points at.
+    pages.push({ id: scene.id ?? `scene-${scene.order}`, name: `${scene.order}. ${scene.title}`, content: bodyParts.join("\n") });
   }
 
   return { id: episode.id, name: episode.title ?? episode.id, pages };
