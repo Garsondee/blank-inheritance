@@ -1,0 +1,66 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1s1-canteen",
+  "type": "challenge",
+  "name": "The Canteen — finding out it's not just drains",
+  "description": "Three ways at the same fact, at three different costs, plus one pure-flavor social check. The assignment itself never changes on any result -- these only change what the party knows walking in. Nobody has to succeed at any of this, or even try; the scene works exactly as intended if they walk into the tunnels cold.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "sit-with-someone",
+      "name": "Find a seat",
+      "skillOptions": ["diplomacy", "society"],
+      "dc": { "value": 13, "basis": "level 1 DC 15, one step easy — this is a treat, not a test", "adjustment": "easy" },
+      "outcomes": {
+        "criticalSuccess": "A good table, a good conversation, somebody worth remembering.",
+        "success": "It goes fine.",
+        "failure": "Politely, gently brushed off -- everyone's tired, nothing personal.",
+        "criticalFailure": "Comically awkward, entirely harmless -- wrong table, wrong conversation, no lasting damage."
+      },
+      "repeatable": true
+    },
+    {
+      "id": "know-the-drains",
+      "name": "Know what storm drains near the harbour are actually like",
+      "skillOptions": ["nature", "survival"],
+      "dc": { "value": 17, "basis": "level 1 DC 15, one step hard — free, fast, and skips the conversation entirely", "adjustment": "hard" },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "This time of year, with the tide the way it's been, drains like that don't just need clearing -- something's usually nesting in them. This isn't maintenance. This is pest control that got called maintenance.",
+        "success": "Storm drains near the water get infestations this time of year. Nobody puts that on the assignment sheet.",
+        "failure": "Nothing they can pin down. Drains are drains.",
+        "criticalFailure": "They confidently explain it's just silt buildup, seasonal, nothing living gets in there. This is wrong, and they'll say so with total confidence if asked."
+      }
+    },
+    {
+      "id": "ask-taka",
+      "name": "Ask Taka, specifically",
+      "skillOptions": ["diplomacy"],
+      "dc": { "value": 15, "basis": "level 1 standard DC — he'll tell you if you actually ask, not just make conversation", "adjustment": "none" },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "The nicknames stop for one second. \"Storm drains. Right.\" A beat. \"Bring a light. They don't like light.\" Then he's back to normal, already talking about something else.",
+        "success": "\"Storm drains, huh.\" A short pause, longer than anything else he's said all night. \"Wear the boots. Trust me.\" He doesn't explain further and visibly doesn't want to be asked again.",
+        "failure": "He deflects into a joke and the moment passes -- not because he's hiding anything, he just genuinely didn't hear the question over his own noise.",
+        "criticalFailure": "He gives a completely straight-faced, completely wrong answer for a laugh, and it lands as a joke, not information. No one at the table is actually misled by it -- it's too obviously a bit."
+      }
+    },
+    {
+      "id": "read-the-announcement",
+      "name": "Read the tannoy voice, not just the words",
+      "skillOptions": ["perception"],
+      "dc": { "value": 15, "basis": "level 1 standard DC — it's one flat sentence, but it is there to catch", "adjustment": "none" },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "The pause before \"Section Nine\" is a beat longer than the pause before any other section. Whoever wrote this list knew exactly what they were sending them into, and wrote it exactly as flat as everything else on purpose.",
+        "success": "Something about the way it's read feels slightly too careful, too even -- like whoever wrote it chose the words on purpose.",
+        "failure": "It's a tannoy. It sounds like a tannoy.",
+        "criticalFailure": "They decide with total confidence it's the easiest assignment on the list, precisely because it was read so casually. This is wrong, and it will cost them nothing except a bad night's sleep skipped."
+      }
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": ["Any of the six"],
+  "relatedRefs": ["episode-c1s1-mothers-maiden-name", "episode-c1s1--canteen"],
+  "notes": "sit-with-someone is pure texture, same design rule as a-flourish/test-the-fit. The three investigation checks (know-the-drains, ask-taka, read-the-announcement) are the 'hard recall knowledge or verbal investigation' paths -- offer all three as genuinely separate options, not a single gated check. None of them change the assignment. All they change is whether the party walks into the flood tunnel fight (ch1-v2.md §6, Session One Night -- not yet its own challenge file, tracked in GitHub issue #140) informed or blind."
+}

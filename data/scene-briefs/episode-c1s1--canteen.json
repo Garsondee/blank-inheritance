@@ -1,0 +1,176 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1s1--canteen",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1s1-mothers-maiden-name",
+  "sceneRef": "canteen",
+  "title": "Canteen",
+  "goal": "Every player has met Taka and at least a taste of the wider trainee body, and Section Nine has been assigned -- no choice offered -- to storm drain clearance. Whether they know it's more than that by the time they leave depends entirely on what they asked.",
+  "howToPlay": "Loud and warm for most of the scene, then one flat, deflating turn at the very end. This is the biggest room the six of them have been in together all day -- dozens of other trainees, established groups, a real sense of scale after a day of small, private moments. Let the social half breathe; then let the announcement land hard and end the scene on it. Don't soften the assignment once it's read, and don't let anyone talk their way out of it -- that refusal is the whole point.",
+  "runsAbout": "20-25 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "The combined-campus canteen, first evening meal as a group. Dozens of other trainees already eating -- established tables, established jokes, a scale the six of them haven't been part of yet today.",
+    "firstThing": "Noise. A room built for four hundred people, most of the seats full, and Section Nine visibly the newest table in it.",
+    "readAloud": "The canteen is loud in the specific way a room gets when nobody in it has anywhere else to be. Long tables, most of them full, easy noise. You're new enough that it shows -- new kit, new faces, a table nobody's claimed yet.",
+    "carriesIn": [
+      { "when": "Kit Issue was played first (it should be)", "then": "Whatever they picked is visibly unworn -- a small, funny tell next to trainees who've had theirs for months. Worth one line, not a whole beat." }
+    ]
+  },
+  "cast": [
+    {
+      "id": "taka",
+      "npcRef": null,
+      "label": "Taka",
+      "role": "Older student, real Frame time, instant nicknames",
+      "arrival": "splash",
+      "brief": {
+        "wants": "To make six strangers feel like they already belong here, immediately, whether they're ready for it or not.",
+        "opensWith": "A nickname, delivered as already-decided fact, before anyone's introduced themselves.",
+        "willDiscuss": [
+          { "topic": "Anything, loudly, at length", "note": "He has an opinion on everything and shares all of them. Genuinely warm, not performing it." },
+          { "topic": "Storm drains, if asked directly", "note": "coercible below -- this is the only topic where the register actually changes." }
+        ],
+        "willNotDiscuss": [],
+        "coercible": [
+          { "topic": "What's actually down in the storm drains", "how": "Ask him directly and specifically -- he won't volunteer it, but he won't lie if pushed.", "challengeRef": "c1s1-canteen" }
+        ],
+        "voice": {
+          "register": "Exuberant, instantly familiar, total conviction. The nicknames arrive as settled fact, not an offer.",
+          "tics": [
+            "Never asks permission for a nickname, just uses it and moves on",
+            "Talks at full volume regardless of what's being discussed",
+            "Goes quiet for exactly one beat when something real comes up, then deflects straight back to noise"
+          ],
+          "samples": [
+            "\"Oh, you're -- \" (already decided) \" -- yeah, that's you now, don't fight it.\"",
+            "\"First rule of the drill tomorrow: it will go wrong, it always goes wrong, that's why it's a drill.\"",
+            "\"Storm drains, huh.\" (a beat, longer than anything else he says all night) \"Wear the boots. Trust me.\""
+          ]
+        }
+      }
+    },
+    {
+      "id": "pilot-track-student",
+      "label": "A pilot-track student, a table over",
+      "role": "Texture, contrast",
+      "walkOn": true,
+      "arrival": "quiet",
+      "brief": {
+        "wants": "To mention, unprompted, that their own assignment is more interesting than whatever Section Nine gets.",
+        "opensWith": "Asking which track they're on before asking their names.",
+        "willDiscuss": [{ "topic": "Their own upcoming Frame time", "note": "Not unkind, just clearly convinced this matters more than anything Section Nine is about to be handed." }],
+        "willNotDiscuss": [],
+        "coercible": [],
+        "voice": {
+          "register": "Confident, a little competitive, not actually malicious.",
+          "tics": ["Turns most questions back to their own track"],
+          "samples": ["\"You're Section Nine? Rough. We got harbour patrol.\""]
+        }
+      }
+    },
+    {
+      "id": "technical-track-student",
+      "label": "A technical-track student, easier to talk to",
+      "role": "Texture, a friendlier contrast",
+      "walkOn": true,
+      "arrival": "quiet",
+      "brief": {
+        "wants": "An actual conversation, a rarer thing tonight than it should be.",
+        "opensWith": "Just asking how their first day went, genuinely.",
+        "willDiscuss": [{ "topic": "What repair crew work is actually like", "note": "Honest, a little tired, not glamorous and doesn't pretend otherwise." }],
+        "willNotDiscuss": [],
+        "coercible": [],
+        "voice": {
+          "register": "Quiet, warm, unhurried -- the easiest person in the room to end up next to.",
+          "tics": ["Asks a real follow-up question instead of talking about themselves"],
+          "samples": ["\"Nobody tells you how much of it is just... waiting for the part to actually break.\""]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-room",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Establish scale before anything else happens -- this is the biggest room the six of them have shared all day, and most of the people in it are strangers.",
+      "direction": "Let it feel different from every scene so far. Intake Medicals and Kit Issue were both small and administrative; this is loud, social, and for the first time today they're visibly outnumbered by people who aren't the six of them."
+    },
+    {
+      "id": "meet-someone",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If a player wants a real conversation with someone outside the six, offer one roll, their choice of skill.",
+      "challengeRef": "c1s1-canteen",
+      "checkRef": "sit-with-someone",
+      "npcRef": null,
+      "when": { "condition": "if a player wants to talk to someone who isn't the group or Taka" },
+      "note": "This is the scene's best chance for the table to meet the wider trainee population. Use the pilot-track and technical-track students as defaults, or invent on the spot -- either works. Never required; if nobody bites, the scene loses nothing."
+    },
+    {
+      "id": "takas-entrance",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Taka arrives uninvited and renames all six of them before the plates are cleared.",
+      "npcRef": "taka",
+      "direction": "Don't ask the players if they want nicknames -- Taka doesn't ask either. Give each player one, fast, with total confidence, and move on before anyone can object. If a player pushes back in character, Taka is delighted, not deterred.",
+      "note": "Ask-taka (c1s1-canteen.json) becomes available once he's actually in the scene -- see the check beat below."
+    },
+    {
+      "id": "ask-taka-directly",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If a player asks Taka directly and specifically what the storm drain job is actually like, offer the check.",
+      "challengeRef": "c1s1-canteen",
+      "checkRef": "ask-taka",
+      "npcRef": "taka",
+      "when": { "condition": "if a player asks Taka directly, not just generally, about the assignment" },
+      "note": "One of the two 'verbal investigation' paths. He won't volunteer this -- it has to be a real, specific question."
+    },
+    {
+      "id": "recall-the-drains",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If a player wants to think about what they actually know about storm drains near the harbour, offer the check.",
+      "challengeRef": "c1s1-canteen",
+      "checkRef": "know-the-drains",
+      "when": { "condition": "if a player wants to try recalling something relevant, at any point in the scene" },
+      "note": "The hard Recall Knowledge path. Never required, costs nothing on any result -- an Encyclopaedia check, same design rule as Intake Medicals' what-a-screen-tests."
+    },
+    {
+      "id": "the-announcement",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "A tannoy reads section assignments in order. Several other sections get theirs first, then Section Nine's, last, flat, identical in tone to everything before it.",
+      "readAloud": "\"Section Four, harbour patrol, report to the east gate.\" \"Section Six, assist Structural with a survey, report to Hangar Two.\" A pause, no different from the others. \"Section Nine: storm drain clearance, access via Dock C. Report by nineteen-hundred. Bring waders.\"",
+      "challengeRef": "c1s1-canteen",
+      "checkRef": "read-the-announcement",
+      "direction": "No choice is offered, and none should seem available -- this isn't a negotiation, it's an announcement. If a player tries to object or ask for a different assignment, the answer is procedural and final: reassignments aren't handled here, take it up with your section afterward, next. The other sections' more interesting-sounding jobs are the point -- Section Nine's is deliberately the least glamorous thing read out.",
+      "note": "read-the-announcement (c1s1-canteen.json) is available the instant this beat happens, no separate trigger needed -- it's about noticing something in the reading itself."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The moment the assignment lands. Don't let the scene wander after it -- end on the deflation, the same way Intake Medicals ended on the all-six realisation.",
+    "artefactRefs": [],
+    "tracks": [],
+    "onwards": "Straight into the night -- the storm drains, and whatever's actually waiting in them.",
+    "writeDown": [
+      "What nickname Taka gave each player -- worth using for the rest of the campaign, not just tonight.",
+      "Who they met outside the six, if anyone -- a real seed for Bonds later.",
+      "Who investigated the assignment and what they actually learned, since it changes how informed the party is walking into the fight -- but never changes the fight itself."
+    ]
+  },
+  "carryForward": [],
+  "notes": "Two-aspect scene by design: Taka's warmth is the joke half, the cold no-choice assignment is the plant half -- same structural rhythm as Kit Issue's Nobu/extra-thing pairing. Taka's full voice is locked in ideas/story/bible/characters/taka.md; read it before editing this scene. The pilot-track and technical-track students are deliberately lightweight walk-ons, not full characters -- treat them as flexible texture, not canon fixtures, unless they get reused enough to warrant their own bible file. The tannoy is not a character and never needs a name or a voice beyond flat institutional delivery."
+}

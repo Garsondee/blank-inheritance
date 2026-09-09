@@ -99,7 +99,7 @@ The institution is **calcified rather than sinister**. The adults are not compet
 
 **Morning** — Intake medicals; Shucks Mordant, forms that ask twice, and a flagged screen each of them is told privately not to worry about.
 **Noon** — Kit issue and ground role selection; Nobu signs the slips personally and is oddly generous with the allowance.
-**Evening** — Canteen. Taka arrives uninvited and has renamed all six of them before the plates are cleared.
+**Evening** — Canteen. Taka arrives uninvited and has renamed all six of them before the plates are cleared. *(Built out 2026-09-09 — see `data/scene-briefs/episode-c1s1--canteen.json`: this is also where Section Nine gets its assignment, no choice offered, read last and worst over a tannoy after several other sections' more interesting-sounding ones. The party can learn it's not just drains through hard Recall Knowledge or by asking Taka directly, but nothing changes the assignment itself.)*
 **Night** — **ENCOUNTER 1: Flood tunnel clearance.**
 
 **The fight.** New recruits get the worst job. The storm drains under the old town have a centipede infestation and the tide is due. Standard vermin clearance — the exact job a level 1 party is given in every adventure ever written.

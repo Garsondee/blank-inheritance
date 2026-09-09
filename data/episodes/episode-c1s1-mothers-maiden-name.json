@@ -33,6 +33,14 @@
       "description": "A busy quartermaster's counter. Every player picks equipment from a curated Directorate menu and a first ground role, and every player gets one small, unexplained extra from Nobu -- a plant, not a payoff, for much later.",
       "briefRef": "episode-c1s1--kit-issue",
       "challengeRefs": ["c1s1-kit-issue"]
+    },
+    {
+      "order": 4,
+      "id": "canteen",
+      "title": "Canteen",
+      "description": "Taka renames all six of them before the plates are cleared, and the wider trainee body gets its first real screen time. Ends cold: a tannoy reads Section Nine's assignment last, worst, and non-negotiable -- storm drain clearance. Whether the party knows it's more than that depends on what they asked.",
+      "briefRef": "episode-c1s1--canteen",
+      "challengeRefs": ["c1s1-canteen"]
     }
   ],
   "requiredBeats": [
@@ -44,5 +52,5 @@
   "danglingThreads": [
     "What a blood screen with a pre-printed IRREGULAR tick-box is actually looking for."
   ],
-  "notes": "The Road In, Intake Medicals and Kit Issue are authored. The remaining quarters — the canteen with Taka and the flood tunnel clearance (now six Giant Centipedes, not mitflits — see ideas/story/bible/species/mitflits.md) — are outlined in ideas/story/blank-inheritance-ch1-v2.md and not yet written as briefs."
+  "notes": "The Road In, Intake Medicals, Kit Issue and Canteen are authored. The remaining quarter — the flood tunnel clearance (now six Giant Centipedes, not mitflits — see ideas/story/bible/species/mitflits.md) — is outlined in ideas/story/blank-inheritance-ch1-v2.md and not yet written as a brief. Tracked in GitHub issue #140."
 }
