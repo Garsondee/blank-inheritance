@@ -232,12 +232,20 @@ exists and is already correct, per `ux-doctrine.md` §11.
 
 ---
 
-## 8. What this document deliberately does not do
+## 8. Build status
 
-No code, no `.hbs` templates, no `PARTS` object literally written out — per the explicit instruction
-this design was requested under ("research, design first"). The next step, once this is reviewed, is
-building Page 1 and the shell application against this shape, the same incremental way the scene
-runner itself was built.
+This design was requested "research, design first" — no code — and stayed that way through the first
+draft. **That has changed: the shell application and Page 1 (Orientation) are now built**, against
+exactly this shape, the same incremental way the scene runner itself was built:
+`module/blank-inheritance/scripts/foundry/induction-terminal.mjs` (the `InductionTerminal`
+ApplicationV2 class plus the singleton mount/refresh/unmount/open functions), one template
+(`templates/induction/page1-orientation.hbs`, reusing `.bi-doc`), and the `Induction.Page1.*` lang
+keys. Registered on `game.modules.get("blank-inheritance").api.openInductionTerminal` — deliberately
+not auto-mounted on `ready` yet, since the "opens automatically for a characterless user" trigger
+(§6) isn't built. Verified live in the local Foundry instance: mounts cleanly, no console errors, the
+`.bi-doc` styling and layout render correctly, and the Begin button's placeholder handler fires.
+Covered by the generic tier0 architecture tests rather than a bespoke suite, per that test's own
+design. Page 2 (Ancestry) onward are not built — §4's table is still the plan for each.
 
 ---
 
