@@ -33,6 +33,15 @@ in narration.
 - The plaque is worn past reading under normal circumstances. Someone who makes a real effort to
   read it anyway finds the name **Hyuck**. *(`ch1-v2.md` §4, restated and confirmed 2026-09-09)*
 - Location: the harbour square. *(`ch1-v2.md` §4)*
+- **It already has a real payoff, found 2026-09-09 while building a session-structure map — not
+  something either of us had connected when this file was first written.** Session Eight's climax
+  (`ch1-v2.md` §6, "The Wrong Alarm") has the Claimant fighting the statue itself: "the thing is
+  fighting the statue. Huge, wholly wrong, grappling a bronze gnoll with total sincerity — and when
+  the statue proves unresponsive, it turns and fights the statue's reflection in the water instead."
+  So the statue is bronze, not plain stone as I'd assumed from "weathered" — worth reconciling next
+  time either description is used. And "does this ever pay off" (below) is answered: yes, at the end
+  of Chapter One, played for exactly the "let them laugh, let somebody ask whether it's losing" tone
+  this campaign wants.
 
 ## Tone and register — what NOT to do
 
@@ -52,17 +61,24 @@ its role than an NPC who happens to know the answer.
 - Who or what was Hyuck?
 - Why a gnoll specifically? No gnoll species or culture is established anywhere else in this
   campaign's sources so far — worth checking before assuming this is a one-off rather than a thread.
-- Does this ever pay off narratively, or stay pure ambient texture for the whole campaign? Not
-  stated either way.
-- Not yet used in any actual scene — floated 2026-09-09 as a possible pure-texture beat for "The
-  Road In" (no check attached, unlike the cicada-stencil/Frame beats) but explicitly deferred
-  pending refinement, not adopted yet.
+- **Stone or bronze?** §4 calls it "weathered" (read as stone when this file was first written);
+  §6's Session Eight text calls it "a bronze gnoll" outright. Not yet reconciled — pick one before
+  either scene is actually run, since a Claimant grappling a bronze statue and a weathered stone one
+  are different images.
+- Still not used as a beat anywhere in Session One — floated 2026-09-09 as a possible pure-texture
+  addition to "The Road In" (no check attached, unlike the cicada-stencil/Frame beats) but explicitly
+  deferred pending refinement, not adopted yet. Its real, confirmed appearance is Session Eight (see
+  above), so anything added earlier is texture/foreshadowing on top of that, not this statue's only
+  scene.
 
 ## Appearances so far
 
 1. `ideas/story/blank-inheritance-ch1-v2.md` §4 — original one-line plant, in the History sub-list.
 2. Direct conversation, 2026-09-09 — full physical and tonal description given; considered and
    deferred as a possible addition to "The Road In."
+3. `ideas/story/blank-inheritance-ch1-v2.md` §6, Session Eight — the statue's real, already-written
+   payoff: the Chapter One Claimant fights it, then its reflection. Connection surfaced 2026-09-09
+   while building a session-structure map artifact, not previously noticed by either of us.
 
 ## Related
 
