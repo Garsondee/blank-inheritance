@@ -27,7 +27,7 @@
   },
   "cast": [
     {
-      "id": "shucks",
+      "id": "shucks-mordant",
       "npcRef": null,
       "label": "Shucks Mordant",
       "role": "Chief Medical Officer",
@@ -142,7 +142,7 @@
       "delivery": "table",
       "text": "Shucks sees them one at a time. Give every player a private scene - two or three questions each, no more.",
       "direction": "This is the players’ first real experience of the setting treating them as individuals, so do not rush it. He already knows what each of them physically is, because he has the blood sample and two centuries of practice, and he says so plainly and kindly rather than making anyone perform a reveal. For a character who is exactly what they appear to be, ask about what they left behind to come here, or an old badly-set fracture, or a relative he remembers processing forty years ago. Nobody sits out this scene.",
-      "npcRef": "shucks",
+      "npcRef": "shucks-mordant",
       "note": "PAIRS WITH THE TERMINAL. The induction system locks down and demands to know how they evaded detection; the doctor says yes, I know, sit down, are you comfortable. Same fact, two parts of one institution - the system files you, the man asks how you are. Run them close together."
     },
     {
@@ -153,7 +153,7 @@
       "text": "Tell each of them privately that their screen came back irregular, that it is very common, and that they should not worry about it.",
       "readAloud": "“Screen came back irregular. It does that. Don’t go home and worry your mother about it.”",
       "direction": "Say it the same way six times. Bored, kind, already reaching for the next form. The flatness is what sells it.",
-      "npcRef": "shucks",
+      "npcRef": "shucks-mordant",
       "after": "one-at-a-time",
       "note": "PLANT - mystery ledger #1, pays off Chapter 6. Several hundred candidates are screened on application; the ones carrying an unusual marker are quietly streamed onto this course together, because only people with that marker can operate a Frame. Nobody on the track is told so."
     },
@@ -174,7 +174,7 @@
       "delivery": "table",
       "text": "Somebody asks what \"irregular\" actually means.",
       "direction": "He will not tell them and he is not being unkind about it. Deflect warmly, move them along, and let the deflection itself be the information.",
-      "npcRef": "shucks",
+      "npcRef": "shucks-mordant",
       "challengeRef": "c1s1-the-medical",
       "checkRef": "read-shucks",
       "when": {
@@ -238,5 +238,5 @@
     ]
   },
   "carryForward": [],
-  "notes": "First scene of the campaign. Its job is to turn six strangers into a table, give every player one private moment with an adult who is kind to them, and plant one fact none of them can use yet. No danger, no antagonist, no clock, and it should still be one of the scenes people remember - because it is the last time any of them are ordinary, and because somebody finally asked them a question nobody had thought to ask before."
+  "notes": "The first time this group is a group -- The Road In (played first) is six deliberately separate spotlights with no shared beat, so this is where six strangers actually become a table. Its job is to do that, give every player one private moment with an adult who is kind to them, and plant one fact none of them can use yet. No danger, no antagonist, no clock, and it should still be one of the scenes people remember - because it is the last time any of them are ordinary, and because somebody finally asked them a question nobody had thought to ask before."
 }

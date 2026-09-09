@@ -13,6 +13,7 @@
       "mode": "accumulating",
       "start": 0,
       "current": 0,
+      "floor": 0,
       "ceiling": 5,
       "owner": "shared",
       "thresholds": [

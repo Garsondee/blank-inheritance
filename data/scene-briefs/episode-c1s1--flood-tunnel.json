@@ -28,15 +28,25 @@
       "direction": "This is the one new environment tonight that isn't an office or a counter. Give it real sensory texture -- sound, smell, the specific quality of the light -- since everything before this scene has been administrative interiors."
     },
     {
-      "id": "the-basic-checks",
+      "id": "power-the-line",
       "kind": "check",
       "mandatory": true,
       "delivery": "table",
-      "text": "Get the drainage system running -- the actual job. Two checks, assign them however the table wants to split up.",
+      "text": "Get power back to the drainage line -- the actual job. Assign however the table wants to split up.",
       "challengeRef": "c1s1-flood-tunnel",
       "checkRef": "power-the-line",
-      "direction": "Both power-the-line and clear-the-jam (same challenge file) should resolve before moving on. Unlike almost every other check tonight, these have a small real cost on failure -- flag that shift in stakes if it helps the table read the moment.",
-      "note": "The instant both checks resolve, regardless of outcome, move straight to the-fight. Starting the system IS what provokes it."
+      "direction": "Runs alongside clear-the-jam (same challenge file), not before or after it. Unlike almost every other check tonight, this has a small real cost on failure -- flag that shift in stakes if it helps the table read the moment."
+    },
+    {
+      "id": "clear-the-jam",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Clear the physical jam in the compactor feed.",
+      "challengeRef": "c1s1-flood-tunnel",
+      "checkRef": "clear-the-jam",
+      "direction": "Runs alongside power-the-line, not before or after it. Same real-cost-on-failure note applies -- a bad outcome here is what seeds the compactor-cycle hazard's starting Encroachment if it's running.",
+      "note": "The instant both power-the-line and clear-the-jam resolve, regardless of outcome, move straight to the-fight. Starting the system IS what provokes it."
     },
     {
       "id": "the-fight",
@@ -67,5 +77,5 @@
     ]
   },
   "carryForward": [],
-  "notes": "*Ends on:* six teenagers comparing notes over the water and working out they were all flagged (ch1-v2.md's own original ending line -- still exactly right here, since 'over the water' now literally describes this room). Let that conversation happen back at the drain's edge or on the walk back, whichever flows better at the table.\n\nREST: back at accommodation, a normal SF2E Long-Term Rest applies -- doubled HP recovery per design/downtime-activities.md's own research into the real rule. This is the session's actual close; don't rush it. Session One ends on six kids who don't fully know each other yet, soaked and tired, starting to realise they have more in common than they thought.\n\nMap: Cze & Peku 'Trash Compactor', supplied by Ingram 2026-09-09. The optional compactor-cycle hazard (c1s1-compactor-cycle.json) is his own addition to the base fight -- 'if you want a really fun version' -- and is purely additive; the scene and encounter both work cleanly without it."
+  "notes": "Corrected 2026-09-09: this scene's notes used to end on 'six teenagers comparing notes over the water and working out they were all flagged' (ch1-v2.md's original line). That discovery has since moved earlier -- it's Intake Medicals' own mandatory climax (beat all-six), which fires that same morning, hours before this scene. By the time the party is here, they've known for most of a day. Don't re-run the discovery; if the table wants a beat for it here, play it as the conversation moving on from 'we're flagged' to what that might actually mean, now that they've had a full day to sit with it -- a different, later conversation, not the same one twice.\n\nREST: back at accommodation, a normal SF2E Long-Term Rest applies -- doubled HP recovery per design/downtime-activities.md's own research into the real rule. This is the session's actual close; don't rush it. Session One ends on six kids who don't fully know each other yet, soaked and tired, starting to realise they have more in common than they thought.\n\nMap: Cze & Peku 'Trash Compactor', supplied by Ingram 2026-09-09. The optional compactor-cycle hazard (c1s1-compactor-cycle.json) is his own addition to the base fight -- 'if you want a really fun version' -- and is purely additive; the scene and encounter both work cleanly without it."
 }

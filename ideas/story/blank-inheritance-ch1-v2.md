@@ -67,7 +67,7 @@ The institution is **calcified rather than sinister**. The adults are not compet
 
 **History —** A weathered gnoll statue in the harbour square, plaque worn past reading, pigeons, kids climbing it *(Hyuck)*. The berserk protocol recited sing-song at assembly, opening with a line about brothers everyone takes as metaphor *(it isn't)*. An anthem with no composer credited *(Rupiah)*. The founding charter framed in the lobby with **one paragraph blacked out** since before anyone alive was born *(children with guns)*. A skeletal physician who has done ten thousand intake medicals and is very good at it *(a founder, two centuries old)*.
 
-**Society —** Someone mends a window with a cantrip and apologises for it. A shopkeeper blames a caster because a preservation charm doesn't hold like it used to, and is wrong. Sail-rigged traders tied up alongside coal cranes. Cliff-top red tile against the smokestack tenement line. Mitflit traps on the harbour wall with a few coins' bounty, same as rat traps. Draft paperwork with a queue for every form.
+**Society —** Someone mends a window with a cantrip and apologises for it. A shopkeeper blames a caster because a preservation charm doesn't hold like it used to, and is wrong. Sail-rigged traders tied up alongside coal cranes. Cliff-top red tile against the smokestack tenement line. A hand-lettered notice asking anyone who spots a mitflit to report it to the Harbour Office, not handle it themselves. Draft paperwork with a queue for every form.
 
 **The problem —** A street dogs won't walk down. A good rooftop with no birds. Cicada stencils, always head height, always where crowds stand. Bulk theft of dull reagents. A girl held without charge and a father on the radio. A tarp in Hangar Four with a blank maintenance schedule.
 
@@ -112,7 +112,7 @@ The institution is **calcified rather than sinister**. The adults are not compet
 
 **What matters:** whether they kill them, drive them off, or find another way. **Record it.** This is the first entry in the tone ledger, and the campaign is watching. *(Written when this fight was mitflits, whose treatment fed directly into the Observer's own Mirror mechanic — dossier-observer.md §13. Now that it's centipedes, non-sentient animals with no connection to that thread, this line is worth keeping as color for this specific party's own established character, but it is NOT the Mirror. Don't conflate the two.)*
 
-*Ends on:* six teenagers comparing notes over the water and working out they were all flagged.
+*Ends on:* six exhausted, soaked teenagers climbing out of the drain, already knowing they were all flagged -- that discovery happened this morning at Intake Medicals, not here. *(Corrected 2026-09-09: an earlier draft of this line had the discovery itself happening here, over the water. It moved to Intake Medicals' own mandatory climax and was never reconciled back to this line until now -- see episode-c1s1--flood-tunnel.json's notes.)*
 
 ---
 
