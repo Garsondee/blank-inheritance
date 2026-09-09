@@ -208,10 +208,15 @@ exists and is already correct, per `ux-doctrine.md` §11.
 
 1. **Which scene a freshly-created token lands on.** No "lobby" or landing scene currently exists as
    a concept to place it in.
-2. **How the passing-portrait gallery gets populated** — real curated art assets are needed for the
-   "pick from a list" path, and none exist yet. Not solvable in a design pass; needs an actual asset
-   pass (`artwork/in-tray/` is the intake pipeline, per `CLAUDE.md`, but nothing there is organized
-   for this purpose yet).
+2. **How the passing-portrait gallery gets populated — corrected 2026-09-09, checked rather than
+   assumed.** `artwork/in-tray/character-portraits/` already holds 183 files, not "none": a large
+   library of generic 1950s-archetype portraits (military cadet, doctor, officer, street thug,
+   school teacher, and more, hand-painted gouache style) that's a strong real fit for the "passing"
+   gallery specifically, a dedicated `aliens/` subfolder (10 files) for true-form portraits, and even
+   a few already-named campaign portraits (`Hyuck.png`, `Rupiah.png`, `ShucksMordant.png`). What's
+   still open is curation and organization, not existence — nothing there is sorted for this purpose
+   yet, and picking/tagging a real gallery subset is real work, just not a from-scratch asset
+   commission.
 3. **When the passing portrait is shown instead of the real one**, mechanically — a per-scene toggle
    the player controls, a GM-set default, something else. Page 6a only collects the asset; this is a
    separate, later design question about how the portrait system (`in-scene-character-portrait-frames`,
