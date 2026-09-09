@@ -92,3 +92,9 @@ module/blank-inheritance/storage/
 # rather than from git, so the server still gets them. Regenerate with
 # python tools/stage-assets/stage_assets.py
 module/blank-inheritance/assets/stage/
+
+# Harvested from the live server by tools/module-sync/sync-harvest.mjs.
+# The session logs ARE kept -- they are the record of what actually happened
+# at the table, and the whole reason the harvest direction exists. The sync
+# test reports are pure diagnostics, regenerated on every run, and are not.
+harvest/test-reports/
