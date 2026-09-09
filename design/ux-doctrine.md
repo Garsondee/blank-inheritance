@@ -1198,6 +1198,20 @@ Context-swapped, one at a time, in the right column:
 - **Scene** — prep for the current scene and the episode's scene list, each with a cue button.
   Cueing is `Scene#activate()` with one of the thirteen native `canvas.transition` effects, all of
   which the module design already confirmed need no custom code. Closing one opens §10.3a.
+
+  🟡 **PARTLY BUILT, 2026-09-09** — `foundry/scene-runner.mjs`, driven by a new
+  `scene-brief.schema.json`. What exists: the current scene's prep, the episode's scene list as a
+  picker, a tickable beat checklist with real branching, per-NPC conversational briefs (the Cast
+  drawer's dialogue panel, below, arrived here first because a GM improvising needs it in the same
+  place as the beats), a visible clock, and staged handout reveals. What does not: the cue button,
+  the scene board's pending/expiry half, and the resolution queue.
+
+  ⚠ **Two departures from this section, both deliberate, both Ingram's call.** It is a **left**
+  drawer, not this column layout's right one — the right belongs to Foundry's own sidebar, which
+  this module has a standing policy of not fighting — and it sits beside the existing command bar
+  rather than inside a full-screen three-column console, so §12's settled "full screen" answer is
+  now "full screen eventually, a drawer today". It is also **all PAPER**, where the rest of the
+  console is glass; see §12's answered question 3 for what that turned out to teach.
   This drawer is also the **scene board**: every pending scene the players have not taken, with its
   kind, its eligible quarters, its expiry and who it belongs to (§3). The player's day ring shows
   them their own choices; this shows the GM the whole board, including what is about to lapse and
@@ -1370,9 +1384,20 @@ choosing a vocabulary for, not deciding:
 2. **The scheduling fields.** §3 lists what the interface needs that `episode.schema.json` does not
    carry: kind, eligible quarters, expiry, consequence-if-missed, assignee, `visibility`, outcome
    list. That is a data task and it blocks building the day ring for real.
-3. **How a paper interface signals that it is interactive.** §7b names this as the one real risk in
-   the personnel costume and suggests printed-form vocabulary rather than glass buttons on paper.
-   It will not be settled by argument; it needs one screen built and looked at.
+3. **~~How a paper interface signals that it is interactive.~~ ANSWERED, 2026-09-09, by building
+   the screen** — which is what this entry said it would take. The scene runner (§10.7's Scene
+   drawer, `foundry/scene-runner.mjs`) is a full paper surface with real controls on it, and the
+   vocabulary that came out of it is: **paper signals interactivity the way paper does.** A printed
+   box takes a tick, and the line it belongs to is struck through once worked. A decision that has
+   been made carries ink; one still available is an outline. An action is a rubber stamp and it
+   presses when clicked. Hovering shows the mark it would make, faintly, in pencil — the paper
+   equivalent of a hover state. The sheet lifts a single pixel under a hand. Nothing glows, and
+   nothing is a button pretending to be metal. Confirmed live in a real world at 1600x1000.
+
+   The two things worth carrying forward: **hover previews the action rather than merely
+   highlighting the target**, which is more informative than a glass hover and costs nothing; and
+   **a struck-through line is better than a removed one** — what did not happen is part of what
+   happened, and a GM re-reading the page wants to see the road not taken.
 
 These three, plus everything else in this document, are now tracked as real work — see the
 [`ux-prototype` epic, GitHub issue #119](https://github.com/Garsondee/blank-inheritance/issues/119),

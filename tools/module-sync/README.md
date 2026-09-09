@@ -18,6 +18,18 @@ node tools/module-sync/sync-campaign-data.mjs
 
 Stages an explicit allow-list of repo-root `data/` subdirectories (see `stage-campaign-data.mjs`'s `SYNCED_CAMPAIGN_DIRS`) into a fresh temp folder — a single, clean "sync content" directory — then verified-pushes *that*, the same way as above, to `Data/modules/blank-inheritance/data/campaign/`. Kept separate from the module-code push above since code and data change on different cadences. Deliberately does **not** push `data/` wholesale: `data/map/` alone is 115MB+ of `tools/city-map`'s own unrelated GIS source data, and an allow-list (not an exclude-list) means a new, unrelated top-level `data/` directory added later silently stays out by default, rather than silently landing on a live game server by default.
 
+A third script pulls the other way:
+
+```
+node tools/module-sync/sync-harvest.mjs
+```
+
+Downloads the module's `storage/` directory OFF the server into `harvest/`, then verifies it the same way — re-hashing both sides independently and refusing to call a run successful on an exit code alone. `storage/` is the one directory a module update does not delete (manifest `persistentStorage: true`), which is why `design/foundry-module-design.md` §4 put harvested content there: everything the table produces lands in it, starting with the GM's own session log.
+
+**Read-only against the server.** It never deletes, moves or rewrites anything remote. Promotable content travels Foundry-to-repo only, and merging any of it into the canonical `data/` files is a deliberate human step — see §4's reasoning on why that is not a merge algorithm's job.
+
+One subtlety, tested rather than commented: harvest calls `diffChecksums` with the **server** in the first position, because on a pull the server is the source of truth rather than the destination. That inverts what two of its four result fields mean — `onlyLocal` becomes "on the server, did not arrive" and `onlyRemote` becomes "in the repo, no longer on the server". `summarizeDiff` is deliberately not reused for the same reason: its wording is written for a push and would state the exact opposite here.
+
 ## Why this is safe
 
 This only pushes files onto disk in the module's `data`/`scripts` folders — it never touches a live Foundry document. Per `design/foundry-module-design.md`'s Safety section, that's a meaningfully lower risk level than the actual in-Foundry Sync step, which has to go through Foundry's Document API. Getting files onto the server and turning them into live documents are two different levels of trust; this tool is only the first one.
