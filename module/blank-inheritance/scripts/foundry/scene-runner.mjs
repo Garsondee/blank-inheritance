@@ -257,6 +257,11 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       isNotTaken: beat.state === "notTaken",
       isSolo: beat.delivery === "solo",
       isPassive: beat.delivery === "passive",
+      // Encyclopaedia checks (design/encyclopaedia-checks.md) get their own
+      // stamp treatment so a GM scanning the beat list can see at a glance
+      // which checks are free to offer -- failure never costs anything on
+      // one of these, unlike an ordinary check.
+      isInsight: check?.insight === true,
       whenLabel: beat.when?.condition ?? null,
       handout,
       // Four, never five. A plain Failure with no listed effect is what

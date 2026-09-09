@@ -1,0 +1,41 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1s1-the-road-in",
+  "type": "challenge",
+  "name": "The Road In",
+  "description": "Two very different kinds of check for one scene. The flourish is pure texture and never costs anything on any result. The trap is this chapter's first Encyclopaedia check (design/encyclopaedia-checks.md) -- background information, offered freely, wrong-but-plausible on a bad roll rather than actually punishing.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "a-flourish",
+      "name": "Make an entrance",
+      "skillOptions": ["athletics", "acrobatics", "crafting", "society"],
+      "dc": { "value": 13, "basis": "level 1 DC 15, one step easy — this is a treat, not a test", "adjustment": "easy" },
+      "outcomes": {
+        "criticalSuccess": "It's genuinely cool, and somebody in the queue notices.",
+        "success": "It goes fine.",
+        "failure": "A small, funny stumble — a dropped kickstand, the wrong door, nothing that matters.",
+        "criticalFailure": "Comically embarrassing, entirely harmless — it stalls right in front of everyone."
+      },
+      "repeatable": true
+    },
+    {
+      "id": "the-trap-on-the-fence",
+      "name": "What that wire trap on the fence is for",
+      "skillOptions": ["nature", "survival"],
+      "dc": { "value": 15, "basis": "level 1 standard DC" },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "A snare, sized for something small and quick — and set with real care. Whoever placed it knew exactly what they were catching, and wanted it caught alive.",
+        "success": "A snare, sized for something small. Vermin control, probably, same as the rat traps twenty feet along.",
+        "failure": "Looks like a rat trap. Is a rat trap, as far as anyone can tell without a closer look.",
+        "criticalFailure": "They call it a rat trap with total confidence. It is not a rat trap. Nobody corrects them, because nobody else looked closely enough to know better."
+      },
+      "repeatable": false
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": ["Any of the six"],
+  "relatedRefs": ["episode-c1s1-mothers-maiden-name", "episode-c1s1--the-road-in"],
+  "notes": "the-trap-on-the-fence is mystery-ledger plant #1 for the mitflit trail (design/induction.md) -- the first thing any of them ever sees of a mitflit, and it should read as absolutely nothing whether or not anyone rolls. a-flourish is never mandatory and never worth offering more than once per player; if nobody wants it, the scene loses nothing."
+}

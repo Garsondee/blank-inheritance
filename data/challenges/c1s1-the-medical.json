@@ -36,6 +36,7 @@
       "name": "Know what a blood screen actually tests for",
       "skillOptions": ["medicine", "nature"],
       "dc": { "value": 17, "basis": "level 1 DC 15, one step hard — free, fast, and skips the conversation entirely", "adjustment": "hard" },
+      "insight": true,
       "outcomes": {
         "criticalSuccess": "Standard panels have no result called \"irregular\". This is a custom test, looking for one specific thing, and whatever it is, it is heritable — that is what a maiden-name field on a medical form is for.",
         "success": "Standard panels have no result called \"irregular\". This is a custom test looking for one specific thing.",

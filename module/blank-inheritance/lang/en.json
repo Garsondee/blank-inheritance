@@ -153,7 +153,8 @@
       "GrantConfirm": "Give the players \"{title}\" permanently?",
       "GrantConfirmHint": "It goes into their own journals and stays there for the rest of the campaign. This cannot be undone.",
       "Granted": "The party now hold \"{title}\".",
-      "Held": "Held by the party"
+      "Held": "Held by the party",
+      "Insight": "Free to ask"
     }
   }
 }

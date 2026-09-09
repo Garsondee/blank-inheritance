@@ -5370,3 +5370,12 @@
   border-bottom: 1px solid var(--bi-vermilion-dim);
   padding-bottom: 1px;
 }
+
+/* Encyclopaedia checks (design/encyclopaedia-checks.md) -- proactively offered, failure never
+   costs anything mechanical. Marked distinctly so a GM scanning the beat list can see at a
+   glance which checks are free to hand out. A different colour family from the vermilion used
+   everywhere else on the page, deliberately: vermilion already means "costs something" (the
+   stamp, the threshold text); this is the one place on the sheet that explicitly doesn't. */
+.bi-runner__tag--insight { border-color: #4a6b52; color: #3d5842; }
+.bi-runner__stamp--insight { border-color: #4a6b52; color: #3d5842; }
+.bi-runner__stamp--insight:hover { opacity: 1; }

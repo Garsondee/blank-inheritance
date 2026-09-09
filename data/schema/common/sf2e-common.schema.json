@@ -327,7 +327,8 @@
         "outcomes": { "$ref": "#/$defs/degreeOfSuccessOutcome" },
         "repeatable": { "type": "boolean" },
         "maxAttempts": { "type": "integer" },
-        "secret": { "type": "boolean", "description": "GM rolls, doesn't reveal the degree of success to the player." }
+        "secret": { "type": "boolean", "description": "GM rolls, doesn't reveal the degree of success to the player." },
+        "insight": { "type": "boolean", "description": "An Encyclopaedia check (design/encyclopaedia-checks.md) -- proactively offered, purely informational or set-up for a future advantage, and failure costs nothing mechanical (never a lost slice, resource, or opportunity -- a plausible wrong belief on a crit failure is fine, a real cost is not). Distinct from `secret`, which is about who sees the roll; this is about what a miss is allowed to cost. The two can combine." }
       }
     },
     "hitPoints": {

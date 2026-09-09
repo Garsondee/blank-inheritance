@@ -455,6 +455,40 @@ test("the real Act 1 Scene 1 carries an intro, an outro and an earnable artefact
   assert.equal(state.artefacts[0].granted, false, "nothing is held before it is earned");
 });
 
+test("The Road In precedes Intake Medicals, and Medicals no longer claims to be the campaign's first scene", () => {
+  // Regression guard for a real bug: adding a scene before an existing one
+  // left the existing one's own carriesIn note asserting something now false.
+  const episode = readJson(new URL("../data/episodes/episode-c1s1-mothers-maiden-name.json", import.meta.url));
+  const byId = Object.fromEntries(episode.scenes.map((s) => [s.id, s]));
+  assert.ok(byId["the-road-in"].order < byId["intake-medicals"].order, "The Road In must come first");
+
+  const medicals = realBrief("episode-c1s1--intake-medicals");
+  const carriesInText = JSON.stringify(medicals.intro.carriesIn);
+  assert.doesNotMatch(carriesInText, /campaign's first scene/i, "this claim is false now that The Road In exists");
+});
+
+test("The Road In does not stage a shared arrival -- the group forms at the medical, not here", () => {
+  // Ingram, 2026-09-09: "The medical waiting room IS the first time that
+  // this group of people is a group." Confirmed by absence: no beat here
+  // should describe the six of them noticing or meeting each other.
+  const brief = realBrief("episode-c1s1--the-road-in");
+  const text = JSON.stringify(brief.beats).toLowerCase();
+  assert.doesNotMatch(text, /notice each other|see (the |)five other|same queue as (the|each)/, "a shared-arrival beat would spend the group-forming moment early");
+});
+
+test("an insight check costs nothing mechanical on any outcome, in the real authored data", () => {
+  // The rule from design/encyclopaedia-checks.md, checked against both real
+  // instances rather than trusted from the doc alone.
+  const files = ["c1s1-the-medical", "c1s1-the-road-in"];
+  for (const file of files) {
+    const challenge = readJson(new URL(`../data/challenges/${file}.json`, import.meta.url));
+    for (const check of challenge.checks.filter((c) => c.insight)) {
+      const outcomes = Object.values(check.outcomes ?? {}).join(" ").toLowerCase();
+      assert.doesNotMatch(outcomes, /\blose\b|\blost\b|\bspend\b|\bspent\b|cost them|\bslice\b|\bstanding\b/, `${file}/${check.id} is tagged insight but its outcome text reads like a real cost`);
+    }
+  }
+});
+
 test("the assembled state carries everything the panel renders, and nothing it does not", () => {
   const state = sceneRunnerState({ brief: BRIEF, subsystem: WALLS, runState: tickedWith("satoru-brief") });
   assert.equal(state.title, "Noon — The Hall");

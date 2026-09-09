@@ -25,6 +25,7 @@
         <p class="bi-runner__beat-text">
             {{#if isSolo}}<span class="bi-runner__tag bi-runner__tag--solo">{{localize "BLANKINHERITANCE.Runner.Solo"}}</span>{{/if}}
             {{#if isPassive}}<span class="bi-runner__tag bi-runner__tag--passive">{{localize "BLANKINHERITANCE.Runner.Passive"}}</span>{{/if}}
+            {{#if isInsight}}<span class="bi-runner__tag bi-runner__tag--insight">{{localize "BLANKINHERITANCE.Runner.Insight"}}</span>{{/if}}
             {{text}}
         </p>
 
@@ -41,7 +42,7 @@
             <button type="button" class="bi-runner__stamp" data-action="openBeat" data-beat-id="{{id}}">{{localize "BLANKINHERITANCE.Runner.Open"}}</button>
             {{/if}}
             {{#if check}}
-            <button type="button" class="bi-runner__stamp" data-action="postCheck"
+            <button type="button" class="bi-runner__stamp{{#if isInsight}} bi-runner__stamp--insight{{/if}}" data-action="postCheck"
                 data-beat-id="{{id}}" title="{{check.title}}">{{check.label}}</button>
             {{!-- Recording WHICH degree it came out at, not just that it
                   happened. A plain tick cannot open a degree-gated branch,

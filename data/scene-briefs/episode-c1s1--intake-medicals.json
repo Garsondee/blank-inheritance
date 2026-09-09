@@ -20,8 +20,8 @@
     "readAloud": "Section Nine is thirty-odd people and one queue, and it has not moved in eleven minutes.\n\nYou came from different places for different reasons and you all wrote the same letter. The person in front of you is twice your age. The person behind you is not, and has opinions about the queue.\n\nSomewhere ahead a man is saying “other arm” over and over in exactly the same tone.\n\nA hand-lettered sign says FORMS FIRST - NO EXCEPTIONS. It is taped over an older sign, in better handwriting, that says MEDICALS FIRST.",
     "carriesIn": [
       {
-        "when": "This is the campaign's first scene",
-        "then": "Nothing carries in. Everything is a first impression, so give each player one unhurried moment to make one - including saying what they left behind to be standing in this queue."
+        "when": "The Road In was played first (it should be)",
+        "then": "Each of them has already had their own private spotlight and said how they got here. This scene is a different first: the first time any of them speak to each other. Do not repeat the arrival prompts here -- if a detail from someone's journey fits naturally, that is a callback, not new material."
       }
     ]
   },
