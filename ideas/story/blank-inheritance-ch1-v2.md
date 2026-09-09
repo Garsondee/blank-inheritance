@@ -102,11 +102,13 @@ The institution is **calcified rather than sinister**. The adults are not compet
 **Evening** — Canteen. Taka arrives uninvited and has renamed all six of them before the plates are cleared.
 **Night** — **ENCOUNTER 1: Flood tunnel clearance.**
 
-**The fight.** New recruits get the worst job. The storm drains under the old town have a mitflit nest and the tide is due. Standard vermin clearance — the exact job a level 1 party is given in every adventure ever written.
+**The fight.** New recruits get the worst job. The storm drains under the old town have a centipede infestation and the tide is due. Standard vermin clearance — the exact job a level 1 party is given in every adventure ever written.
 
-*Build (Moderate, 120):* six mitflits at party level −2 (20 each). Difficult terrain, rising water on a timer, poor light.
+*Build (Moderate, 120):* six giant centipedes at party level −2 (20 each). Difficult terrain, rising water on a timer, poor light.
 
-**Why this fight and not another:** the party's first combat is against the creatures who turn out to be the heart of the campaign, and it is completely routine, sanctioned, and paid by the head. Nobody will ever tell them they did anything wrong.
+**Why this fight and not another:** new recruits prove themselves through the worst job available, not the most impressive one, and nobody will ever tell them that's what just happened. They come out of the tunnels soaked and stinking, and that — not a speech, not a ceremony — is the institution's actual first lesson about what it values.
+
+*(Changed 2026-09-09 from an earlier draft where the infestation was a mitflit nest — see `ideas/story/bible/species/mitflits.md`. Mitflits are established as rare at this point in the campaign and never treated as vermin; a level-1 party's throwaway first fight is the wrong place for either to be true of them. The tide/difficult-terrain/poor-light shape of the encounter is unchanged.)*
 
 **What matters:** whether they kill them, drive them off, or find another way. **Record it.** This is the first entry in the tone ledger, and the campaign is watching.
 
@@ -266,5 +268,5 @@ Then it moves an obstacle out of its way, and **a man is killed.** One man, name
 1. **Does the Contact resolve here or open Chapter Two?** As written it is session 8. Ending on the launch order buys a session and costs a climax.
 2. **Which PC gets plant #11** (the Frame's unordered movement) — pick for player, not character.
 3. **Which PC witnesses plant #12** (the cultist helping) — same principle, different player.
-4. **Does anyone free the mitflit in the trap in session 4?** It is the first mitflit any of them has *spoken* to, three sessions after the first one they fought.
+4. **Does anyone free the mitflit in the trap in session 4?** It is the first mitflit any of them has met at all — Session One's flood tunnel fight no longer involves one (see §6, changed 2026-09-09), so this is a clean first contact, not a second chance after an earlier fight.
 5. **Does the party keep the lens?** If it goes into an evidence locker, getting it back in Chapter Five is its own scene.

@@ -49,8 +49,9 @@ silent, that divergence is real and simply not written down yet. Ask; don't defa
   Thread Grid entries)*
 - Chapter One, **Session Four** has an authored beat: a harbour patrol finds flood barriers, tide
   marks, and a mitflit caught in a wall trap, furious and refusing help it obviously needs. Open
-  Call #4 asks whether anyone frees it, noting it's "the first mitflit any of them has spoken to,
-  three sessions after the first one they fought." *(`blank-inheritance-ch1-v2.md`)*
+  Call #4 asks whether anyone frees it. As of 2026-09-09 this is confirmed as **the first mitflit
+  any of them meet at all** — Session One no longer involves one (see below).
+  *(`blank-inheritance-ch1-v2.md`)*
 - The bible's own "Show, Never Tell" texture list (§4) includes, among many unrelated background
   details, one glancing line: "Mitflit traps on the harbour wall with a few coins' bounty, same as
   rat traps." Written as one unexplained detail in a long list — not a scene, not a tracked thread,
@@ -105,11 +106,16 @@ first thing the campaign shows. If a future scene needs a mitflit to be unpopula
 that's fine and consistent with canon; a mitflit being trapped, bountied, or killed as routine is
 not, ever.
 
-**Session One's real first combat (`ch1-v2.md`, "Flood tunnel clearance") is a mitflit nest of six,
-framed as "standard vermin clearance."** This was written before the 2026-09-09 correction and has
-not yet been checked against it — see **Open questions** below. Do not treat that encounter's
-existing "vermin clearance" framing as a green light for vermin language elsewhere; if anything it
-needs the same scrutiny "The Road In" got, not the reverse.
+**Session One's first combat used to be a mitflit nest — fixed 2026-09-09, same day as the rest of
+this file.** I initially flagged this as an open question rather than fixing it outright, hedging
+that the nest might be defensible as an early sign of the gathering-together above. Ingram's
+response was correctly blunt: *"Doesn't that scene now massively contradict everything I've been
+saying? ... of course we need to replace our Mitflit combat encounter with a different fight
+entirely."* **The lesson: a "standard vermin clearance" combat encounter against a sentient species
+is the same problem as the trap, not a smaller one, and doesn't get a pass just because it wasn't
+raised in the same conversation.** The encounter is now six giant centipedes — same numbers
+(party level −2, 120 XP total), same storm-drain/rising-tide setting and "worst job, everyone
+comes out filthy" framing, zero mitflit content. See `blank-inheritance-ch1-v2.md` §6.
 
 **Never front-load mitflit content, especially anything morally troubling, before the campaign has
 done any work to make them feel like people.** The bible's own pacing (the Thread Grid) is
@@ -141,18 +147,6 @@ from Paizo defaults or from the §4 texture line in isolation.
 - What distinguishes "wild" from "ascended" mitflits?
 - How and why do mitflits specifically connect to Chapter One's plot? The idea entry explicitly
   says this is deliberately unresolved for now — don't invent a connection.
-- **Does Session One's "Flood tunnel clearance" encounter (`ch1-v2.md`, six mitflits, framed as
-  "standard vermin clearance") sit comfortably with the 2026-09-09 canon above, or does it need
-  revisiting?** Two ways this could resolve, and I'm not assuming either: (a) it's fine as written —
-  a level-1 party doing an unpleasant, unglamorous job clearing out an infestation-sized cluster
-  isn't the same claim as "this society exterminates mitflits as policy," especially if this nest
-  is itself an early, not-yet-understood sign of the gathering-together described above; or (b) the
-  "standard vermin clearance" framing and "nobody will ever tell them they did anything wrong" line
-  need the same kind of softening "The Road In" got. Flagging rather than touching it — Session One
-  content, not something raised in the conversation that produced the correction above.
-- Is "the first one they fought" (`ch1-v2.md` Open Call #4) the same incident as the flood tunnel
-  clearance above, or a separate encounter? (Most likely the same one, given the "three sessions
-  after" arithmetic lines up with the trap in Session Four — not yet confirmed directly.)
 - Does the general strike (Bobbin/the Elder, refusing to leave a Frame) connect mechanically to the
   gathering-to-go-home motivation above, or are these two separate strands of the same thread? Not
   stated either way — don't assume a link.
@@ -177,8 +171,10 @@ from Paizo defaults or from the §4 texture line in isolation.
    **Cut 2026-09-09.**
 7. **2026-09-09, direct conversation:** the vermin-framing/population-dynamics canon above
    confirmed — never exterminated/trapped as policy, nuisance-at-worst reputation, rare-becoming-
-   common as they gather to leave. Not yet reflected anywhere except this file; nothing in `data/`
-   currently contradicts it, but nothing else states it either.
+   common as they gather to leave.
+8. `ideas/story/blank-inheritance-ch1-v2.md` §6 — Session One's flood tunnel encounter changed from
+   six mitflits to six giant centipedes, and Open Call #4 updated to match. **2026-09-09,** same
+   conversation as #7, after I initially only flagged the tension instead of fixing it.
 
 ## Related
 
