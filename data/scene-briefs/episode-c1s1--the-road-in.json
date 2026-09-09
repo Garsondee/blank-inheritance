@@ -47,6 +47,28 @@
       "checkRef": "a-flourish",
       "when": { "condition": "if a player's own arrival has something worth rolling for" },
       "note": "Never required. This costs nothing on any result -- it exists to make an entrance a little more vivid, not to gate it. Plenty of good arrivals have nothing to roll for at all."
+    },
+    {
+      "id": "a-mark-at-head-height",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If a player's arrival takes them somewhere a stencil could plausibly sit -- a wall, a crate, a train window -- describe a small deep-violet mark at head height before anyone rolls. Then offer the check.",
+      "challengeRef": "c1s1-the-road-in",
+      "checkRef": "a-mark-at-head-height",
+      "when": { "condition": "if a player's own arrival passes somewhere a mark like this could plausibly be" },
+      "note": "Mystery Ledger #6, pays off Ch5. Offer it to as many of the six as fit naturally -- the mark turning up more than once, in the same exact shade, is the actual hook, not any single sighting. Never explain what it means or who's doing it. This replaced a mitflit-trap check cut 2026-09-09; see ideas/story/bible/species/mitflits.md."
+    },
+    {
+      "id": "a-frame-at-a-distance",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If a player's arrival passes anywhere a Frame could plausibly be working -- the docks, a maintenance yard, a road crew -- give everyone at the table a first sight of one at a distance before any roll: scale, sound, the ground answering its weight. Then offer the check to the whole table, not only the player whose arrival triggered it.",
+      "challengeRef": "c1s1-the-road-in",
+      "checkRef": "a-frame-at-a-distance",
+      "when": { "condition": "if any player's own arrival passes somewhere a Frame could plausibly be seen" },
+      "note": "Raw material for Mystery Ledger #11 (pays off Ch3, Ch6) on a critical success only -- a plain success is just real information about what a Frame is, which none of them have had reason to know yet. None of them know they'll ever pilot one. Offer this once for the table, not once per player."
     }
   ],
   "artefacts": [],
@@ -59,9 +81,11 @@
     "tracks": [],
     "onwards": "Straight into Intake Medicals. Time skips a few days on its own -- that scene opens already inside the queue, and this is where the six of them actually become a group for the first time.",
     "writeDown": [
-      "How each character arrived, worth one callback later if it fits naturally."
+      "How each character arrived, worth one callback later if it fits naturally.",
+      "Who succeeded on a-mark-at-head-height and how many times the violet mark came up across the six -- the repetition is the point, and Ch5 pays it off.",
+      "Whether anyone crit-succeeded on a-frame-at-a-distance (the Frame moving oddly carefully) -- that's the only branch that seeds Ledger #11."
     ]
   },
   "carryForward": [],
-  "notes": "Deliberately no shared beat and no artefact. The group forming is Intake Medicals' job, stated in its own queue beat and confirmed 2026-09-09 as intentional -- this scene must not spend that moment early. Assumes character sheets already exist (built at session zero, before this is ever played) -- the flourish check has real stats to roll against from the first line.\n\nThis scene originally opened with a mitflit-trap Encyclopaedia check (mystery-ledger content, mitflit trail step 1). CUT 2026-09-09 -- normalising casual harm to a sentient species as unremarked backdrop in the party's very first scene read far darker than intended, and contradicted an established prior campaign where mitflits were the ones being saved. See ideas/story/bible/species/mitflits.md before writing anything else involving mitflits. This scene needs a different mystery/texture beat in its place -- not yet chosen."
+  "notes": "Deliberately no shared beat and no artefact. The group forming is Intake Medicals' job, stated in its own queue beat and confirmed 2026-09-09 as intentional -- this scene must not spend that moment early. Assumes character sheets already exist (built at session zero, before this is ever played) -- the flourish check has real stats to roll against from the first line.\n\nThis scene originally opened with a mitflit-trap Encyclopaedia check (mystery-ledger content, mitflit trail step 1). CUT 2026-09-09 -- normalising casual harm to a sentient species as unremarked backdrop in the party's very first scene read far darker than intended, and contradicted an established prior campaign where mitflits were the ones being saved. See ideas/story/bible/species/mitflits.md before writing anything else involving mitflits.\n\nReplaced same day with two opportunistic Encyclopaedia checks pulled from the story bible's own Mystery Ledger rather than invented fresh: a-mark-at-head-height (the cicada stencils, Ledger #6) and a-frame-at-a-distance (a Frame's odd gentleness, raw material for Ledger #11). Both cost nothing on any result, same as a-flourish -- this scene stays zero-stakes throughout."
 }

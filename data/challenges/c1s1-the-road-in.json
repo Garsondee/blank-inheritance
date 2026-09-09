@@ -3,7 +3,7 @@
   "id": "c1s1-the-road-in",
   "type": "challenge",
   "name": "The Road In",
-  "description": "The flourish is pure texture and never costs anything on any result.",
+  "description": "Every check in this scene is opportunistic and costs nothing on any result -- a-flourish is pure texture, the other two are Encyclopaedia checks that only ever add information, never take it away.",
   "levelContext": 1,
   "checks": [
     {
@@ -18,10 +18,38 @@
         "criticalFailure": "Comically embarrassing, entirely harmless — it stalls right in front of everyone."
       },
       "repeatable": true
+    },
+    {
+      "id": "a-mark-at-head-height",
+      "name": "Recognise the mark",
+      "skillOptions": ["occultism", "society"],
+      "dc": { "value": 17, "basis": "level 1 DC 15, one step hard — most of the table won't get this, and that's the point", "adjustment": "hard" },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "Not the first one they've seen — always this exact deep violet, always at head height, always somewhere a crowd stops and waits. This one looks fresher than the others.",
+        "success": "It isn't the first one they've noticed today, now they think about it. Always the same deep violet. Always at head height.",
+        "failure": "Just paint.",
+        "criticalFailure": "They peg it confidently as a condemned-building notice, the kind the housing office stencils on empty lots. It isn't, and nobody around them corrects it."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "a-frame-at-a-distance",
+      "name": "Know what they're looking at",
+      "skillOptions": ["piloting", "society", "crafting"],
+      "dc": { "value": 15, "basis": "level 1 DC 15, no adjustment — this is offered to the whole table, not a specialist's roll", "adjustment": "none" },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "Everything in success, plus one more thing: it's moving carefully. More carefully than a war machine built to punch through a wall has any obvious reason to. Whoever's inside is minding something.",
+        "success": "A Directorate Frame — three storeys of plate and cable, moving like it weighs what it weighs. Common enough along the coast: they patrol, they haul, they do the structural work nothing smaller can. Nobody nearby looks afraid of it.",
+        "failure": "Big. Loud, in the way the ground is loud. That's all anyone gets from this far off.",
+        "criticalFailure": "Called with total confidence as derelict — mothballed, kept for scrap, no one's home. It very much is not, though nothing about it right now proves that wrong."
+      },
+      "repeatable": true
     }
   ],
   "resolutionMode": "narrative-only",
   "participants": ["Any of the six"],
   "relatedRefs": ["episode-c1s1-mothers-maiden-name", "episode-c1s1--the-road-in"],
-  "notes": "a-flourish is never mandatory and never worth offering more than once per player; if nobody wants it, the scene loses nothing.\n\nA second check, the-trap-on-the-fence (an Encyclopaedia check about a mitflit trap glimpsed on arrival), was cut entirely 2026-09-09 -- see the scene brief's own notes and ideas/story/bible/species/mitflits.md. This scene may gain a different Encyclopaedia check here once a replacement mystery is chosen."
+  "notes": "a-flourish is never mandatory and never worth offering more than once per player; if nobody wants it, the scene loses nothing.\n\nA check about a mitflit trap glimpsed on arrival was cut entirely 2026-09-09 -- see ideas/story/bible/species/mitflits.md for why (it read as this society normalising harm to a sentient species, and turned out to be factually wrong about the setting besides). Replaced 2026-09-09 with two opportunistic Encyclopaedia checks pulled from the story bible's own Mystery Ledger rather than invented fresh: a-mark-at-head-height (Ledger #6, the cicada stencils -- pays off Ch5) and a-frame-at-a-distance (raw material for Ledger #11, a Frame's odd gentleness -- pays off Ch3/Ch6, but only on a critical success here). Offer either to any player whose own arrival plausibly passes the trigger, and let anyone at the table roll who wants to, not only that player."
 }

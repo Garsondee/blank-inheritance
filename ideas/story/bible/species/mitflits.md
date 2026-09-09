@@ -56,6 +56,18 @@ silent, that divergence is real and simply not written down yet. Ask; don't defa
   rat traps." Written as one unexplained detail in a long list — not a scene, not a tracked thread,
   and never intended as the literal first thing the campaign shows the players.
   *(`blank-inheritance-ch1-v2.md` §4)*
+- **Confirmed directly by Ingram, 2026-09-09, and this is now settled canon, not just a tone
+  preference:** mitflits have never been treated as vermin or exterminated at any point in this
+  setting's history — that reading of the §4 trap line was a misstep on my part, not something the
+  line itself demanded. Their real social standing: not the city's most beloved citizens, but a
+  nuisance and considered rude at worst. Nobody hunts them, bounties them, or treats harming them as
+  routine.
+- **Population dynamics (confirmed 2026-09-09):** mitflits are extremely rare in the city at the
+  start of the campaign. They become steadily more common over its course — not because more are
+  being born or migrating in for ordinary reasons, but because they are actively **gathering
+  together on purpose, in order to all be in the same place when they leave to go home.** This is
+  the in-world engine behind the Thread Grid's "arrive in numbers... housed badly... complained
+  about in the papers" beats above — it's a deliberate convergence, not a population boom.
 
 ## Ingram's own take, and how it diverges from any real-world source
 
@@ -79,13 +91,25 @@ explicitly state above.
 ## Tone and register — what NOT to do
 
 **Never write mitflits as unremarked vermin or pests — trapped, bountied, or casually harmed as
-background texture.** Tried once, 2026-09-09, in the opening beat of "The Road In" (a mitflit trap
-on the harbour wall, glimpsed on arrival, offered as a passing Encyclopaedia check, bounty "same as
-rat traps"). Cut entirely after Ingram's correction: *"Mitflits as vermin is on a level that makes
-the society that the players are operating in one that kills sentient creatures casually and even
-cruelly... We don't want the players thinking that they are working for the Third Reich."* The
-single §4 line this was drawn from was always meant as one glancing, unexplained detail among many
-— not a scene, not a tracked thread, and never the literal first thing the campaign shows.
+background texture. This is not just a tone call, it is factually wrong about the setting.** Tried
+once, 2026-09-09, in the opening beat of "The Road In" (a mitflit trap on the harbour wall, glimpsed
+on arrival, offered as a passing Encyclopaedia check, bounty "same as rat traps"). Cut entirely
+after Ingram's correction: *"Mitflits as vermin is on a level that makes the society that the
+players are operating in one that kills sentient creatures casually and even cruelly... We don't
+want the players thinking that they are working for the Third Reich."* He then confirmed directly
+that this isn't only a matter of framing: **mitflits have never been exterminated or treated as
+vermin at any point in this setting's actual history.** They're a nuisance, considered rude at
+worst — never hunted, never bountied. The single §4 line this was drawn from was always meant as one
+glancing, unexplained detail among many — not a scene, not a tracked thread, and never the literal
+first thing the campaign shows. If a future scene needs a mitflit to be unpopular or an annoyance,
+that's fine and consistent with canon; a mitflit being trapped, bountied, or killed as routine is
+not, ever.
+
+**Session One's real first combat (`ch1-v2.md`, "Flood tunnel clearance") is a mitflit nest of six,
+framed as "standard vermin clearance."** This was written before the 2026-09-09 correction and has
+not yet been checked against it — see **Open questions** below. Do not treat that encounter's
+existing "vermin clearance" framing as a green light for vermin language elsewhere; if anything it
+needs the same scrutiny "The Road In" got, not the reverse.
 
 **Never front-load mitflit content, especially anything morally troubling, before the campaign has
 done any work to make them feel like people.** The bible's own pacing (the Thread Grid) is
@@ -112,16 +136,26 @@ from Paizo defaults or from the §4 texture line in isolation.
 
 ## Open questions
 
-- What is Ingram's further personal divergence from Paizo mitflits, beyond the star-traveling-race
-  reframe already on record? Confirmed to exist, not yet described anywhere — ask, don't guess.
+- What is Ingram's further personal divergence from Paizo mitflits, beyond what's now recorded
+  above? Confirmed to still exist beyond this file's contents — ask, don't guess.
 - What distinguishes "wild" from "ascended" mitflits?
 - How and why do mitflits specifically connect to Chapter One's plot? The idea entry explicitly
   says this is deliberately unresolved for now — don't invent a connection.
-- Is "the first one they fought" (`ch1-v2.md` Open Call #4) the same incident as the Thread Grid's
-  "seen at the wreckage... chased off," or a separate, not-yet-detailed combat encounter? Needs
-  confirming before either gets used as a scene reference.
-- What replaces the cut opening beat in "The Road In"? Ingram: "we'll find something else to
-  replace it with" — collaborative, not to be invented unilaterally.
+- **Does Session One's "Flood tunnel clearance" encounter (`ch1-v2.md`, six mitflits, framed as
+  "standard vermin clearance") sit comfortably with the 2026-09-09 canon above, or does it need
+  revisiting?** Two ways this could resolve, and I'm not assuming either: (a) it's fine as written —
+  a level-1 party doing an unpleasant, unglamorous job clearing out an infestation-sized cluster
+  isn't the same claim as "this society exterminates mitflits as policy," especially if this nest
+  is itself an early, not-yet-understood sign of the gathering-together described above; or (b) the
+  "standard vermin clearance" framing and "nobody will ever tell them they did anything wrong" line
+  need the same kind of softening "The Road In" got. Flagging rather than touching it — Session One
+  content, not something raised in the conversation that produced the correction above.
+- Is "the first one they fought" (`ch1-v2.md` Open Call #4) the same incident as the flood tunnel
+  clearance above, or a separate encounter? (Most likely the same one, given the "three sessions
+  after" arithmetic lines up with the trap in Session Four — not yet confirmed directly.)
+- Does the general strike (Bobbin/the Elder, refusing to leave a Frame) connect mechanically to the
+  gathering-to-go-home motivation above, or are these two separate strands of the same thread? Not
+  stated either way — don't assume a link.
 - When and how does Anabala actually get introduced?
 
 ## Appearances so far
@@ -137,9 +171,14 @@ from Paizo defaults or from the §4 texture line in isolation.
    detail; **cut 2026-09-09**, now points here instead. Act III Session Four beat kept, now points
    here. Two-aspect-rule worked example updated to match.
 5. `data/scene-briefs/episode-c1s1--the-road-in.json` — carried an Encyclopaedia check beat built
-   on the harbour-trap detail. **Cut 2026-09-09.**
+   on the harbour-trap detail. **Cut 2026-09-09,** replaced same day with two mitflit-free checks
+   (a cicada-stencil recall and a first Frame sighting, both pulled from the Mystery Ledger).
 6. `data/challenges/c1s1-the-road-in.json` — the corresponding check, `the-trap-on-the-fence`.
    **Cut 2026-09-09.**
+7. **2026-09-09, direct conversation:** the vermin-framing/population-dynamics canon above
+   confirmed — never exterminated/trapped as policy, nuisance-at-worst reputation, rare-becoming-
+   common as they gather to leave. Not yet reflected anywhere except this file; nothing in `data/`
+   currently contradicts it, but nothing else states it either.
 
 ## Related
 
