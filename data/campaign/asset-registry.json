@@ -1,0 +1,68 @@
+{
+  "$schema": "../schema/asset-registry.schema.json",
+  "id": "asset-registry",
+  "type": "asset-registry",
+  "description": "Source of truth for which artwork has been confirmed and assigned. artwork/ itself is gitignored (bulk, large); this file is tracked, so it's the only durable record that an assignment happened. Check this before assigning anything new -- the same picture must never get used for two things.",
+  "assets": [
+    {
+      "id": "episode-c1s1--the-road-in",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1s1--the-road-in.png",
+      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--the-road-in" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "garsondee_hand-painted_anime_background_art_matte_painting_goua_a2d86dfc-b90f-4cd3-9611-f34bf23be9b1.png",
+      "note": "An elevated coastal highway curving toward the city skyline, dramatic cumulus cloud bank, warm evening light. The road the six spotlights of The Road In are each travelling, from a distance."
+    },
+    {
+      "id": "shucks-mordant",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/shucks-mordant.png",
+      "assignedTo": { "kind": "npc", "ref": "shucks-mordant" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "ShucksMordant.png",
+      "note": "Already named by the artist -- a skeletal figure in a white coat and stethoscope, arms folded, standing in a cluttered clinic office with a wall clock and a first-aid kit. Matches the bible's doctor-founder exactly."
+    },
+    {
+      "id": "shucks-mordant--hand-detail",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/shucks-mordant--hand-detail.png",
+      "assignedTo": { "kind": "npc", "ref": "shucks-mordant" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "ShucksMordant_LeftHand.png",
+      "note": "Companion detail shot -- his skeletal hand resting on a desk edge, warm side light. A close-up variant, not the primary portrait."
+    },
+    {
+      "id": "hyuck",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/hyuck.png",
+      "assignedTo": { "kind": "npc", "ref": "hyuck" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "Hyuck.png",
+      "note": "Already named by the artist -- a massive gnoll warrior, feathers and painted bands, low-angle heroic framing. Confirms the gnoll-statue connection: Hyuck himself is the gnoll. Founder, alongside Shucks Mordant and Rupiah (blank-inheritance-master-timeline.md, ~200 years ago)."
+    },
+    {
+      "id": "rupiah",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/rupiah.png",
+      "assignedTo": { "kind": "npc", "ref": "rupiah" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "Rupiah.png",
+      "note": "Already named by the artist -- an elf-eared figure in golden window light, moths nearby, contemplative profile. The third founder alongside Hyuck and Shucks Mordant."
+    },
+    {
+      "id": "anabala",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/anabala.png",
+      "assignedTo": { "kind": "npc", "ref": "anabala" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "Anabala.png",
+      "note": "Already named by the artist, found under character-portraits/mitflits/ -- blue-skinned, tall-eared, wide-brimmed hat and round tinted glasses. The mitflit founder who recruited Hyuck, Shucks Mordant and Rupiah to intervene ~200 years ago (mitflits.md already names her as the founder)."
+    }
+  ]
+}

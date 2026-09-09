@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "asset-registry.schema.json",
+  "title": "Asset Registry",
+  "description": "The source of truth for which artwork/audio has been assigned to which scene/character/location, and where the confirmed file actually lives. Exists because artwork/ and audio/ are entirely gitignored (bulk, large) while this registry is tracked -- once an asset is confirmed and MOVED (never copied) out of an in-tray into its final organized folder, this file is the only tracked record that the assignment happened at all. Checked before assigning anything new, so the same piece of art never gets used twice by accident (ideas/entries/asset-review-pipeline.json). Singleton file: data/campaign/asset-registry.json.",
+  "type": "object",
+  "required": ["id", "assets"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "asset-registry" },
+    "type": { "const": "asset-registry" },
+    "description": { "type": "string" },
+    "assets": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/assetEntry" }
+    }
+  },
+  "$defs": {
+    "assetEntry": {
+      "type": "object",
+      "required": ["id", "kind", "category", "path", "assignedTo", "assignedDate"],
+      "properties": {
+        "id": { "type": "string", "description": "Matches the final filename's stem, and usually the assignedTo ref." },
+        "kind": { "enum": ["image", "audio"] },
+        "category": {
+          "enum": ["scenes", "character-portraits", "locations", "mechs"],
+          "description": "The final top-level folder under artwork/ (or a future audio/ equivalent) this asset lives in -- mirrors in-tray/'s own category subfolders, minus the in-tray/ prefix."
+        },
+        "path": { "type": "string", "description": "Repo-relative path to the final, confirmed file. Never an in-tray/ path -- once registered, the file has been MOVED, not copied." },
+        "assignedTo": {
+          "type": "object",
+          "required": ["kind", "ref"],
+          "properties": {
+            "kind": { "enum": ["scene", "npc", "location", "mech"] },
+            "ref": { "type": "string", "description": "The id of the scene-brief / npc / location / hangar entry this asset depicts." }
+          }
+        },
+        "assignedDate": { "type": "string", "format": "date" },
+        "sourceFilename": { "type": "string", "description": "The original in-tray filename, kept for provenance since generator output names carry no content info of their own." },
+        "note": { "type": "string", "description": "Anything worth remembering about the pick -- why this one, what it shows, a prompt fragment." }
+      }
+    }
+  }
+}
