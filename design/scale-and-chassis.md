@@ -352,11 +352,14 @@ This is where Flippa's *"compared to a mech, a human does have legendary agility
 - **Chassis classes should feel dramatically different**, not merely differ statistically. The Vesper is the worked example of how far to push it.
 - **Vision is a fourth balancing axis** (`ideas/entries/vision-as-chassis-axis.json`).
 
+**Decided 2026-09-09** (answers questions 3 and 4 below, in the course of designing Kit Issue):
+- **All five chassis are Directorate fleet assets, not purchased or commandeered.** Ingram: *"players can swap their vehicles freely and there are no limitations on the basic equipment accessible."* Shown to players openly and picked/swapped freely — the same "curated menu, free choice within it" philosophy applied to Kit Issue's personnel equipment. This resolves question 3 (the Kingfisher is issued, not commandeered) and question 4 (the acquisition economy is: none — no credits spent, no negotiation, no salvage requirement at this stage) for the roster as it stands today. Doesn't preclude a *later* out-of-catalogue vehicle being negotiated for or salvaged; it settles how the base five work. Recorded as data in `data/campaign/chassis-catalogue.json` (new schema: `data/schema/chassis.schema.json`), each chassis's own `acquisition` field citing this decision.
+- **Personnel equipment gets the identical treatment.** Same real 150cr Step-8 budget, but from a short Directorate-curated menu instead of the full SF2E catalogue, picked freely with no further restriction. `data/campaign/equipment-catalogue.json` (new schema: `data/schema/equipment-catalogue.schema.json`) is that menu — real SF2E "Commercial"-tier items, verified live against the Foundry compendium, reflavoured as boring/standard/Directorate-issue rather than invented.
+- **Still not decided:** whether/how Kit Issue is also where vehicle assignment actually happens narratively, versus that being a later scene tied to when ground roles first need a chassis (Session Eight's "One Frame launches. Five ground roles, live, for real" is the first point a chassis is obviously needed) — this is a scene-sequencing question, not a rules one, and hasn't been raised with Ingram yet.
+
 **Still open — Ingram's calls, not mine:**
 1. **Is Marked purely opt-in, or can a Claimant's own abilities apply it?** The second is scarier and gives Claimants real counter-play against a party that never exposes itself.
 2. **How much technician-day debt is one Field Repair worth?** Needs to hurt enough to be a decision. Not costed here — it's a dial on the existing economy, so it should be set alongside those numbers rather than in isolation.
-3. **Should the sports car be commandeered rather than issued?** The Handling DC 18 detail implies a story: it isn't Directorate kit. Possibly the first thing a player *negotiates* for through the correspondence system.
-4. **What does the chassis acquisition economy look like** now that vehicles are a full progression path — credits, in-fiction negotiation, battlefield salvage, or all three?
 5. **Does anything break if a player invests almost entirely in vehicles?** Day 1 assumes exactly one Frame launches and Day 6 assumes two; a vehicle-focused player is fine there, but the assumption should be checked before it becomes load-bearing later.
 
 ---
