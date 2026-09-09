@@ -152,7 +152,14 @@ The institution is **calcified rather than sinister**. The adults are not compet
 
 ---
 
-### Session Four — "Vermin"
+### Session Four — "Bulk Quantities"
+
+*(Renamed 2026-09-09 from "Vermin" -- an adversarial pass flagged that even as institutional irony, a
+title using that word for a session whose actual content is a sympathetic trapped mitflit read as
+the campaign's own framing rather than the Directorate's, especially out of context. "Bulk Quantities"
+pulls from this session's own real throughline instead -- the noon beat's "Bulk quantities of
+unremarkable reagents unaccounted for," which is what the night's fight and the arrest are actually
+about.)*
 
 **Morning** — Harbour patrol; flood barriers, tide marks, and a mitflit caught in a wall trap, furious and refusing help it obviously needs.
 **Noon** — Lab inventory. Bulk quantities of unremarkable reagents unaccounted for across three months.

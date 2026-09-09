@@ -254,9 +254,11 @@ The only act where things happen *to* them.
     metaphor. An exam timetable that will not be moved for anything.
 14. **They compare notes.** Everyone in this section came back irregular. *Moderate accomplishment,
     30 XP* — and the first thing they work out without being told.
-15. **The flood tunnel.** ENCOUNTER 1. Vermin clearance in the storm drains, tide due, poor light,
-    difficult terrain. **A proper fight, because this is where the table learns their characters
-    doing the thing SF2E is best at.** It is also the moral trap the entire campaign rests on.
+15. **The flood tunnel.** ENCOUNTER 1. A nest of Giant Centipedes in the storm drains, tide due, poor
+    light, difficult terrain *(changed 2026-09-09 from an earlier mitflit-nest draft -- see
+    ideas/story/bible/species/mitflits.md; the moral-trap material this step used to carry moved to
+    Session Four's mitflit-in-a-trap beat instead)*. **A proper fight, because this is where the table
+    learns their characters doing the thing SF2E is best at.**
 16. **The debrief.** Paid by the head. Filed. Nobody will ever tell them they did anything wrong.
 17. **The boots don't fit.** Something has gone wrong that is nobody's fault and everybody's problem.
 18. **THE SIZING BOARD.** ENCOUNTER 2, run in initiative, chaired by Nobu. They argue for their own
