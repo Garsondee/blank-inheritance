@@ -139,6 +139,50 @@ found live this session.
 
 ---
 
+## 6a. The first run — against predictions, not after them
+
+Run 2026-09-09, same session the predictions in §5 were committed. Full transcript is
+`docs/simulations/episode-c1s1--intake-medicals-2026-09-09.md`; excerpted findings below.
+
+### Predictions vs. what happened
+
+| # | Predicted | Result |
+|---|---|---|
+| 1 | `one-at-a-time` has no data structure for six different private conversations | **CONFIRMED.** All six were invented at the table from one `direction` note. Not wrong to leave this to GM improvisation, but the brief has no worked example of what "two or three questions each" sounds like for six different players, and should. |
+| 2 | Lateral Thinker beats the ladder rather than uses it | **CONFIRMED, with a sharper edge than predicted.** Fen asked a bystander rather than Shucks. Pricing it required a real judgement call the ladder note doesn't pre-answer: which skill, and is a bystander "the obvious way" or something else? Priced at DC 15 on the spot. Worked, but needed invention the doc claims is already resolved. |
+| 3 | Chaos Agent refusing outright has nowhere to go | **CONFIRMED exactly.** Nothing anywhere addresses a flat refusal of a `mandatory` beat. Improvised a cost ("no kit issue this afternoon") that happened to work; a less confident GM has no floor here at all. |
+| 4 | Form 12-B underperforms relative to how it reads on paper | **CONFIRMED.** Landed for exactly one persona (the one built to engage NPCs) and was invisible to the other five, who had a form to fill in and no reason to linger. |
+| 5 | The all-six realisation needs no fix | **CONFIRMED — but conditionally.** It only landed cleanly because the queue beat had already done its bonding work. A table that rushed the opener would likely need fallback #1 or #2 more often than the brief's confidence implies. |
+
+**Four of five predictions confirmed outright; the fifth confirmed with a caveat the prediction
+itself didn't anticipate.** That is itself informative — it means the read that produced these
+predictions (a GM who has now written and reviewed a lot of this content) is tracking real gaps
+correctly, which is worth knowing before trusting the same read on unreviewed scenes.
+
+### Tier 3 — live UI cross-check
+
+Every mechanical claim the transcript made was then performed against the actual running panel,
+not narrated: reset run state to empty, ticked `the-queue`/`one-at-a-time`/`the-flag`/`all-six`
+(all four mandatory beats, matching the transcript exactly), recorded a `success` outcome on
+`what-does-irregular-mean` standing in for Fen's invented approach, and left `the-form-itself`
+untouched since nobody attempted it in the transcript.
+
+**Result: exact match, no discrepancies.** Progress read `4/4`; the four ticked beats rendered
+`--done --mandatory`; the untouched conditional beat stayed `--conditional`, unpressed; the
+artefact stayed un-granted and its grant button stayed live. Nothing here found a UI bug — this
+run's findings are entirely tier-2 (content), not tier-3 (panel) — which is itself a real result:
+the plumbing built and live-verified earlier this session held up under a genuinely adversarial
+narrative run, not just the happy-path clicks that first proved it worked.
+
+### What this changes
+
+Three of the four confirmed findings point at the same underlying gap: **`mandatory: true` states
+that a beat must happen, but nothing in the schema carries what happens if a player declines, and
+nothing carries per-persona variation for a beat that structurally repeats once per player.**
+Neither is a UI problem. Both are schema/authoring gaps, and both are now real backlog rather than
+things a GM has to reinvent live every time — tracked in the issue this run's own findings opened
+(see the repo's issue tracker, same day).
+
 ## 7. Not yet a tool
 
 This is a documented procedure, run by hand, not a one-command Skill. Worth revisiting once it has
