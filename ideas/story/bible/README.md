@@ -6,11 +6,25 @@ exists so that doesn't happen twice.*
 
 ---
 
-## What this is, and why it's not `ideas/story/`'s two documents
+## What this is, and why it's not `ideas/story/`'s own source documents
 
-`ideas/story/blank-inheritance-v4.md` and `blank-inheritance-ch1-v2.md` are the compressed novel —
-the whole campaign's shape, written once, dense. They're where a species, a character or a place
-gets its first few sentences.
+`ideas/story/` holds five tier-1 source documents, and this directory expands on all of them:
+
+- `blank-inheritance-v4.md`, `blank-inheritance-ch1-v2.md` — the compressed novel and Chapter One
+  as eight sessions. The whole campaign's shape, written once, dense.
+- `blank-inheritance-master-timeline.md` — everything that happened before Day 1, in order. Added
+  2026-09-09.
+- `dossier-observer.md`, `dossier-cicada.md` — **the antagonists.** Complete GM reference for the
+  Watcher/Observer and for Cicada (Manako, the Faithful vs. the Cadre, the whole supply chain).
+  Explicitly flagged by Ingram as critical, standing material: *"we'll need to keep editing and
+  refining them as we go along to get closer to the 'truth' as we go."* Added 2026-09-09. **Check
+  these before writing anything involving the Watcher, Cicada, Manako, Nobu, or Shucks Mordant** —
+  they're already more complete than a bible/ entry would be for the same subject, which is why
+  neither antagonist gets a duplicate file in here; this directory's job for them is cross-referencing
+  and flagging contradictions, not re-summarizing.
+
+They're where a species, a character or a place gets its first few sentences — or, for the two
+dossiers, considerably more than a few.
 
 **This directory is the expanded encyclopaedia.** One file per entity that recurs, is going to
 recur, or is sensitive enough that getting it wrong matters. It exists because the two source

@@ -1,10 +1,10 @@
 # The Gnoll Statue (Hyuck)
 
 **Category:** location
-**Status:** partial — physical description and tone are locked, everything about who Hyuck was or
-why the statue exists is open. Ingram, 2026-09-09: "we'll have to refine it but it's something we
-can work with."
-**Sources:** `ideas/story/blank-inheritance-ch1-v2.md` §4, plus direct conversation, 2026-09-09.
+**Status:** partial — physical description, tone, and (almost certainly) Hyuck's identity are locked;
+exactly how the statue itself came to exist is still inference, not stated fact.
+**Sources:** `ideas/story/blank-inheritance-ch1-v2.md` §4 and §6, `ideas/story/blank-inheritance-master-timeline.md`,
+plus direct conversation, 2026-09-09.
 
 ## Read this first
 
@@ -42,6 +42,20 @@ in narration.
   time either description is used. And "does this ever pay off" (below) is answered: yes, at the end
   of Chapter One, played for exactly the "let them laugh, let somebody ask whether it's losing" tone
   this campaign wants.
+- **Who Hyuck almost certainly was, found 2026-09-09 reading `blank-inheritance-master-timeline.md`:**
+  ~200 years ago, "Anabala, moved by what's being done to her own people, recruits Hyuck, Shucks
+  Mordant, and Rupiah to intervene" — the founding party. This same group attempts the Kortos
+  retrieval that goes wrong and pulverises part of the buried ship into what becomes the Watcher, then
+  founds the Directorate itself ~195 years ago. **Hyuck is named as one of the four founders, and is
+  a gnoll.** A weathered/bronze gnoll statue in the harbour square with a plaque reading "Hyuck" is
+  therefore almost certainly a monument to this Hyuck — the name match plus a Directorate-founded
+  city plus a gnoll subject is about as strong as inference gets without a line of text that says so
+  outright. **Treat as near-certain, not yet 100% textually confirmed** — no source explicitly states
+  "the statue depicts founder Hyuck," so don't hard-lock it in front of the table without one more
+  check. *(`blank-inheritance-master-timeline.md`)*
+- If this holds, it also answers "why a gnoll specifically" (below): not a one-off or an unrelated
+  species thread, but the actual species of one of the city's four founders — worth checking whether
+  gnolls appear anywhere else as a result of that same founding-party fact before assuming they don't.
 
 ## Tone and register — what NOT to do
 
@@ -58,9 +72,10 @@ its role than an NPC who happens to know the answer.
 
 ## Open questions
 
-- Who or what was Hyuck?
-- Why a gnoll specifically? No gnoll species or culture is established anywhere else in this
-  campaign's sources so far — worth checking before assuming this is a one-off rather than a thread.
+- **Is the statue definitely OF founder-Hyuck, and does anyone in the city still know that, or has
+  it been forgotten the way the plaque itself has?** Near-certain per the timeline connection above,
+  but not yet confirmed as an explicit stated fact, and "does anyone remember" is a separate, open
+  question even if the identity is right.
 - **Stone or bronze?** §4 calls it "weathered" (read as stone when this file was first written);
   §6's Session Eight text calls it "a bronze gnoll" outright. Not yet reconciled — pick one before
   either scene is actually run, since a Claimant grappling a bronze statue and a weathered stone one
@@ -79,7 +94,12 @@ its role than an NPC who happens to know the answer.
 3. `ideas/story/blank-inheritance-ch1-v2.md` §6, Session Eight — the statue's real, already-written
    payoff: the Chapter One Claimant fights it, then its reflection. Connection surfaced 2026-09-09
    while building a session-structure map artifact, not previously noticed by either of us.
+4. `ideas/story/blank-inheritance-master-timeline.md` — Hyuck named as one of the Directorate's four
+   founders, ~200 years ago. Connection surfaced 2026-09-09, same day the timeline was first shared.
 
 ## Related
 
 - [Bible README](../README.md)
+- [ideas/story/blank-inheritance-master-timeline.md](../../blank-inheritance-master-timeline.md)
+- [ideas/story/dossier-observer.md](../../dossier-observer.md) §3 — the Kortos incident this founding
+  party caused.

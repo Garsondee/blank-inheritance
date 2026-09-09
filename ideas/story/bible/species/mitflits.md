@@ -69,6 +69,20 @@ silent, that divergence is real and simply not written down yet. Ask; don't defa
   together on purpose, in order to all be in the same place when they leave to go home.** This is
   the in-world engine behind the Thread Grid's "arrive in numbers... housed badly... complained
   about in the papers" beats above — it's a deliberate convergence, not a population boom.
+- **Anabala is a founder of the Directorate itself, found 2026-09-09 reading
+  `blank-inheritance-master-timeline.md`.** ~200 years ago a human lord enslaved a mitflit clan for
+  their "savant intelligence," using it to design weapons. Anabala, "moved by what's being done to
+  her own people," recruited Hyuck, Shucks Mordant, and Rupiah to intervene — the same intervention
+  that goes wrong at Kortos and produces the Watcher. This is the mitflit-and-Directorate connection
+  that was previously only "a chance to bring them in properly" from the unfinished prior campaign —
+  it's now also a literal founding fact: **the institution that later treats mitflits as an
+  afterthought exists partly because one mitflit's suffering moved someone to found it.** Sharpens
+  why "treating mitflits as vermin" was such a bad miss — the irony isn't incidental, it's structural.
+- **A dangling thread, same source, not yet connected to anything:** the enslaved clan included "one
+  mitflit [who] invents a power generator that draws unwanted attention from the shadow realm — a
+  thread nobody ever followed up on." Explicitly filed by that document as a genuine gap, not a
+  design question — what became of the generator, or whether it connects to anything since, has
+  never been established. Don't invent an answer; flag it if it becomes relevant.
 
 ## Ingram's own take, and how it diverges from any real-world source
 
@@ -175,10 +189,16 @@ from Paizo defaults or from the §4 texture line in isolation.
 8. `ideas/story/blank-inheritance-ch1-v2.md` §6 — Session One's flood tunnel encounter changed from
    six mitflits to six giant centipedes, and Open Call #4 updated to match. **2026-09-09,** same
    conversation as #7, after I initially only flagged the tension instead of fixing it.
+9. `ideas/story/blank-inheritance-master-timeline.md` — Anabala's founder status and the shadow-realm
+   generator thread. **2026-09-09,** the day the master timeline and both antagonist dossiers were
+   first shared.
 
 ## Related
 
 - [Bible README](../README.md)
+- [ideas/story/blank-inheritance-master-timeline.md](../../blank-inheritance-master-timeline.md)
+- [ideas/story/bible/locations/the-gnoll-statue.md](../locations/the-gnoll-statue.md) — Hyuck, from
+  the same founding party as Anabala.
 - [design/induction.md](../../../../design/induction.md)
 - [ideas/entries/mitflits-and-anabala.json](../../../entries/mitflits-and-anabala.json)
 - [data/scene-briefs/episode-c1s1--the-road-in.json](../../../../data/scene-briefs/episode-c1s1--the-road-in.json)
