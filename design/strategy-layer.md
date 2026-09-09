@@ -251,6 +251,116 @@ of their resources. Six mechanisms, five of which already exist:
 
 ---
 
+## 10. Chapter architecture: how a rung is actually earned
+
+### The arithmetic, corrected
+
+A session is **three hours of table time**, and scenes run 5 to 45 minutes. That is **eight to
+twelve scenes per session**, not four. The four-quarter day is the *frame*; a quarter holds two or
+three scenes, not one.
+
+Chapter One is eight sessions. At nine scenes each that is **roughly seventy scenes for one
+chapter**, which sets a hard constraint on the format: **most scenes must be cheap to author and
+short to run.** A format that only works for 25-minute set pieces cannot fill a chapter.
+
+### Five kinds of scene
+
+| Kind | Length | Per session | What it is for |
+|---|---|---|---|
+| **Set piece** | 30–45 min | 1–2 | The encounter, the drill, the board hearing. The thing people remember. |
+| **Pressure** | 15–20 min | 2–3 | A real decision with a real cost. Usually moves a track. |
+| **Texture** | 5–10 min | 2–4 | One image, one joke, one plant. Often no checks at all. |
+| **Solo / Anchor** | 5–10 min | 1–2 | One player, their own life. This is where Bonds comes from. |
+| **Downtime** | 10 min | 1 | The slice board. The strategy layer's own scene. |
+
+**Texture scenes are the load-bearing ones for this campaign specifically**, and they are the
+cheapest to write. They are where the breadcrumb trails live, and they are what stops the mystery
+arriving as exposition. A texture scene is three sentences and a detail; nine of them across a
+session is where the world comes from.
+
+### A rung is won at a Board, not bought at a counter
+
+Standing pays for a Clearance rung, but **Standing alone never grants one.** Each rung is won in a
+scene: a hearing, a review, a panel of adults who have to be convinced. Run it in initiative, the
+same way Session Two's Sizing Board is already written to be run.
+
+This matters for three reasons:
+
+1. **Session Two already teaches it.** The Sizing Board is a social encounter run in initiative
+   with real stakes, and its stated purpose is teaching the table that social scenes here can be
+   encounters. Every later Board is that lesson paying off.
+2. **Advancement becomes a scene rather than a number.** "You are Cadets now" is an announcement.
+   Arguing your way through a review board while a Directorate officer reads your file back at you
+   is a memory.
+3. **It is the campaign's theme, again.** The subject is who gets believed. A Board is being
+   believed, in a room, by people with the authority to say no. The party climbing this ladder is
+   them succeeding where Rika, Hori, Manako and Taka each failed.
+
+**Boards are also where Standing is visibly spent**, which makes the whole track legible without a
+tutorial.
+
+### Chapter One: Recruits to Duty Section
+
+Two rungs in eight sessions, and the second is taken during an emergency rather than granted after
+one.
+
+| Session | Teaches | Rung movement |
+|---|---|---|
+| 1 | Two sheets exist. The ground roles exist. | Recruits |
+| 2 | **Social scenes can be encounters** (the Sizing Board) | *first Board* — **→ Cadets** |
+| 3 | Frame scale, and that it is mostly comedy | Cadets |
+| 4 | Investigation has a shape: pattern → stakeout → prisoner | Cadets |
+| 5 | The ground roles are not decoration | Standing earned unsupervised |
+| 6 | A hazard set piece with no enemy in it | Standing earned in public |
+| 7 | They act without being told to | *Standing spent* |
+| 8 | Everything at once, for real | **→ Duty Section**, taken not granted |
+
+The last one is the point. In Session Eight nobody has standing to give an order, so the party
+self-deploys, and the rung is a *description of what they already did* rather than a permission
+they were handed. That is the moment the fantasy of rapid advancement actually lands.
+
+### The two breadcrumb trails
+
+Both run entirely on texture scenes, and both must be laid before anything is explained.
+
+**The mitflits — vermin to person.** The shape of this trail is a series of demotions in the
+party's own certainty.
+
+| Session | The breadcrumb |
+|---|---|
+| 1 | They clear a nest of them out of a storm drain. Routine, sanctioned, paid by the head. Nobody ever tells them they did anything wrong. |
+| 2 | Mitflit traps on the harbour wall, with a small bounty. The same traps, the same wall, as the rat traps. |
+| 4 | One caught in a wall trap. Furious, and refusing help it obviously needs. **The first one they talk to rather than fight.** |
+| 5 | The storm drains have been in use. Not by them — but the drains are theirs, and somebody else is walking through. |
+| 8 | A Frame moves more gently than its pilot ordered. Nobody can explain the hydraulics. |
+
+**Manako — a man who saw something and was not believed.** Every step reads as a terrorist
+conspiracy and is actually one person's grief with a chemistry set.
+
+| Session | The breadcrumb |
+|---|---|
+| 2 | A cicada stencil by the tram stop. It is graffiti. |
+| 4 | Bulk theft of extremely dull reagents, three months running. |
+| 4 | **A lens that does nothing.** It works perfectly. There is simply nothing in that room to see. |
+| 5 | The stencils are all at head height, on walls facing where people *wait*. |
+| 6 | Four canisters, and ninety seconds of sky. Cultists helping people up while being arrested, and not resisting. |
+| 7 | The trail ends at professionals with no opinions about the sky — and countersigned paperwork. |
+
+**The rule both trails obey:** give them the anomaly before the question. Every unexplained detail
+seeded here must be a fact a sharp table can reassemble later, never a thing withheld and then
+announced. A player who writes down "the lens didn't work" in Session Four and understands why in
+Chapter Five has had the best experience this campaign can offer.
+
+### What this asks of the authoring format
+
+- **Scenes must be writable in ten minutes.** A texture scene is a goal line, two beats and one
+  NPC voice sample. If the schema demands more than that to validate, it is wrong.
+- **A scene must be able to have no checks at all** and still be a scene.
+- **Trails need to be visible in prep.** A future addition worth having: tagging a scene with which
+  trail it feeds, so a chapter can be checked for a trail that has quietly stopped being laid.
+
+---
+
 *Related: `ideas/story/blank-inheritance-v4.md` §6 (the Mirror), §15 (escalation and the Mass
 Clock), §16–17 (threads), §20 (bifurcations), §21 (peril roster), §22 (risks);
 `design/ux-doctrine.md` §3, §7a, §10.7; `ideas/entries/redacted-document-chain.json`;
