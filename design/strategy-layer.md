@@ -253,15 +253,25 @@ of their resources. Six mechanisms, five of which already exist:
 
 ## 10. Chapter architecture: how a rung is actually earned
 
-### The arithmetic, corrected
+### The unit is the arc, not the session
 
-A session is **three hours of table time**, and scenes run 5 to 45 minutes. That is **eight to
-twelve scenes per session**, not four. The four-quarter day is the *frame*; a quarter holds two or
-three scenes, not one.
+**Corrected 2026-09-09, and the correction matters.** An earlier draft of this section sized
+scenes to fill a three-hour session and derived a scene count per chapter from it. Ingram threw
+that out:
 
-Chapter One is eight sessions. At nine scenes each that is **roughly seventy scenes for one
-chapter**, which sets a hard constraint on the format: **most scenes must be cheap to author and
-short to run.** A format that only works for 25-minute set pieces cannot fill a chapter.
+> *"I'm in no way expecting a single playing session to achieve any amount of content. Groups will
+> fluctuate between getting lots done and getting very little done during a session. Fights can
+> take a lot of time to complete. So throw away any ideas of limiting yourself. The goal is to
+> create the right number of scenes to tell the story arc, there's not a specific limit there's
+> just a goal."*
+
+**So do not count scenes per session.** A session is elastic and will not be the same twice. The
+unit of design is **the arc** — *recruit to cadet* — and the question is always "what does that
+transformation actually require", never "what fits in three hours".
+
+One thing survives from the discarded version: **scenes vary enormously in length**, from a
+five-minute image to a ninety-minute fight, and the short ones are the ones a schedule-driven
+approach quietly drops. Write them anyway. They are where the world comes from.
 
 ### Five kinds of scene
 
