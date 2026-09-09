@@ -1,0 +1,2105 @@
+{
+  "$schema": "../schema/ancestry-catalogue.schema.json",
+  "id": "ancestry-catalogue",
+  "type": "ancestry-catalogue",
+  "description": "The real, complete SF2E ancestry catalogue (51 entries), extracted live from gamesystems/sf2e/packs/ancestries for the induction terminal's Page 2 (design/induction-terminal.md). Boosts/flaws are Player Core's own choice slots -- a single-ability array is a fixed boost/flaw, a multi-ability array is a free choice the player resolves; core/induction/ancestry.mjs resolves a player's picks against these into the flat ability lists tools/character-builder/derive.mjs consumes. `terrestrial` is this project's own tag (not an SF2E field, see project_induction_and_newcomers memory / design/induction.md §2): can this species itself BE the 'presents as human/elf/halfling or similar' disguise, i.e. does picking it as a REAL ancestry skip the induction terminal's alien-lockdown sub-flow (Page 6a). Currently true only for the five classic ancestries (Human, Elf, Dwarf, Gnome, Halfling); Orc and Goblin are the nearest borderline case (Earth-folklore-adjacent, but SF2E writes them as their own starfaring species with no stated tie to Golarion-fantasy monsterfolk) and were left non-terrestrial -- this is a plain boolean in a data file, trivial to correct if that boundary is wrong. Heritage and ancestry-feat selection are deliberately NOT part of this catalogue or Page 2 -- deferred to the real post-induction character sheet, same reasoning as class feats/spells (design doc §5): both are real menu picks that grant their own rule text, not numbers derive.mjs needs. Singleton file: data/campaign/ancestry-catalogue.json.",
+  "ancestries": [
+    {
+      "id": "android",
+      "name": "Android",
+      "hp": 8,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "dex"
+        ],
+        [
+          "int"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "cha"
+        ]
+      ],
+      "languages": [
+        "common"
+      ],
+      "additionalLanguages": 1,
+      "traits": [
+        "android",
+        "humanoid"
+      ],
+      "rarity": "common",
+      "vision": "low-light-vision",
+      "description": "Androids first emerged as synthetic beings crafted by many technologically advanced civilizations throughout the galaxy. The first androids were created by humanoid peoples in their own images, but after the technology that animated the living constructs spread, androids began displaying a fantastic diversity of forms. Androids in the Pact Worlds were originally designed as servants, but today androids and other robotic beings stand as equals to organic ancestries under the Pact. Some androids have formed their own independent communities, while most integrate seamlessly into Pact Worlds societies. Unlike many other technological constructs, androids are more than intricate synthetic organs and complex programming, and each possesses their own soul.",
+      "terrestrial": false
+    },
+    {
+      "id": "astrazoan",
+      "name": "Astrazoan",
+      "hp": 8,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "dex"
+        ],
+        [
+          "cha"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "con"
+        ]
+      ],
+      "languages": [
+        "common"
+      ],
+      "additionalLanguages": 1,
+      "traits": [
+        "aberration",
+        "astrazoan"
+      ],
+      "rarity": "common",
+      "vision": "low-light-vision",
+      "description": "Astrazoans have no clear origins or known home world. Their malleable bodies hide a peculiar natural shape they rarely show to anyone. But by changing their bodies to adapt to new situations, astrazoans have found as many homes as they have identities among the varied cultures of the galaxy.",
+      "terrestrial": false
+    },
+    {
+      "id": "bantrid",
+      "name": "Bantrid",
+      "hp": 6,
+      "size": "sm",
+      "speed": 25,
+      "boosts": [
+        [
+          "con"
+        ],
+        [
+          "dex"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "wis"
+        ]
+      ],
+      "languages": [
+        "common",
+        "bantridi"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "aberration",
+        "bantrid"
+      ],
+      "rarity": "common",
+      "vision": "darkvision",
+      "description": "Having only recently awoken from stasis on the small Liavaran moon of Hibb, bantrids are a compact but stout species with the unique physiological feature of using a dense sphere for locomotion. They both physically and culturally drive themselves with an overwhelming desire to keep moving forward, whether it be through technological innovation or interstellar exploration.",
+      "terrestrial": false
+    },
+    {
+      "id": "barathu",
+      "name": "Barathu",
+      "hp": 8,
+      "size": "med",
+      "speed": 5,
+      "boosts": [
+        [
+          "con"
+        ],
+        [
+          "wis"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "dex"
+        ]
+      ],
+      "languages": [
+        "common",
+        "brethedan"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "aberration",
+        "barathu"
+      ],
+      "rarity": "common",
+      "vision": "normal",
+      "description": "Barathus are floating beings with bizarre body shapes who evolved on the gas giant Bretheda. Barathus rewrite their own genetic code instinctively and at will, shaping their bodies into a stunning array of unique forms.",
+      "terrestrial": false
+    },
+    {
+      "id": "brenneri",
+      "name": "Brenneri",
+      "hp": 8,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "con"
+        ],
+        [
+          "cha"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "str"
+        ]
+      ],
+      "languages": [
+        "common",
+        "brenneri"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "brenneri",
+        "humanoid"
+      ],
+      "rarity": "common",
+      "vision": "darkvision",
+      "description": "Otter-like brenneris are often friendly and social, but can pack a punch when cornered. They use their specialized whiskers to sense the emotions of people around them, usually fostering empathetic understanding. But when emotions are strong or aggressive, a peaceful brenneri might clutch a friend's hand or squeeze their favorite rock for comfort, while an aggressive brenneri might dive head-first into conflict.",
+      "terrestrial": false
+    },
+    {
+      "id": "contemplative",
+      "name": "Contemplative",
+      "hp": 6,
+      "size": "med",
+      "speed": 5,
+      "boosts": [
+        [
+          "cha"
+        ],
+        [
+          "int"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "str"
+        ]
+      ],
+      "languages": [
+        "common",
+        "akitonian"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "aberration",
+        "contemplative"
+      ],
+      "rarity": "common",
+      "vision": "low-light-vision",
+      "description": "Shaped by countless generations' pursuit of mental self-perfection, contemplatives have huge brains equally suited to math and magic. Their natural telekinesis propels them through the air as their measured curiosity drives them to discovery and innovation.",
+      "terrestrial": false
+    },
+    {
+      "id": "copaxi",
+      "name": "Copaxi",
+      "hp": 6,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "con"
+        ],
+        [
+          "cha"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "wis"
+        ]
+      ],
+      "languages": [
+        "common",
+        "copaxi"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "copaxi",
+        "humanoid"
+      ],
+      "rarity": "common",
+      "vision": "normal",
+      "description": "Copaxis once lived in majestic floating sky cities and had an innate connection to the universe's natural gravitational forces. Their abuse of their home world's environment led to devastating civil wars and has ruined the planet—now, they must chart a new path.",
+      "terrestrial": false
+    },
+    {
+      "id": "dragonkin",
+      "name": "Dragonkin",
+      "hp": 10,
+      "size": "lg",
+      "speed": 20,
+      "boosts": [
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "flaws": [],
+      "languages": [
+        "common",
+        "draconic",
+        "triaxian"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "dragon",
+        "dragonkin",
+        "humanoid"
+      ],
+      "rarity": "common",
+      "vision": "darkvision",
+      "description": "Draconic in appearance and fiercely loyal, dragonkin are deeply empathic beings capable of forming a nearly unbreakable spiritual bond with one other creature, which manifests in telepathic communication and tactical synergy.",
+      "terrestrial": false
+    },
+    {
+      "id": "dwarf",
+      "name": "Dwarf",
+      "hp": 10,
+      "size": "med",
+      "speed": 20,
+      "boosts": [
+        [
+          "con"
+        ],
+        [
+          "wis"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "cha"
+        ]
+      ],
+      "languages": [
+        "common",
+        "dwarven",
+        "orcish"
+      ],
+      "additionalLanguages": 1,
+      "traits": [
+        "dwarf",
+        "humanoid"
+      ],
+      "rarity": "common",
+      "vision": "darkvision",
+      "description": "Short, squat, and hardy, dwarves take great pride in their traditions and are known as the best and fairest crafters in the galaxy.",
+      "terrestrial": true
+    },
+    {
+      "id": "elebrian",
+      "name": "Elebrian",
+      "hp": 6,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "con"
+        ],
+        [
+          "int"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "wis"
+        ]
+      ],
+      "languages": [
+        "common",
+        "eoxian"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "elebrian",
+        "humanoid"
+      ],
+      "rarity": "common",
+      "vision": "normal",
+      "description": "Elebrians are humanoids with enlarged craniums and innate magical aptitude. While they were originally the dominant species on Eox before a cataclysm ravaged their planet, only a few elebrians survive in isolated bunker communities or as living entertainment in corporate facilities.",
+      "terrestrial": false
+    },
+    {
+      "id": "elf",
+      "name": "Elf",
+      "hp": 6,
+      "size": "med",
+      "speed": 30,
+      "boosts": [
+        [
+          "dex"
+        ],
+        [
+          "int"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "con"
+        ]
+      ],
+      "languages": [
+        "common",
+        "elven"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "elf",
+        "humanoid"
+      ],
+      "rarity": "common",
+      "vision": "low-light-vision",
+      "description": "For millennia, elves have dwelled among the stars and charted courses across the galaxy. A wide diaspora of elves have lived across a hundred worlds for many thousands of years, connected to each other by a shared history of skycraft, magic, and cosmic wonder.",
+      "terrestrial": true
+    },
+    {
+      "id": "entu-colony",
+      "name": "Entu Colony",
+      "hp": 6,
+      "size": "sm",
+      "speed": 20,
+      "boosts": [
+        [
+          "con"
+        ],
+        [
+          "wis"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "cha"
+        ]
+      ],
+      "languages": [
+        "common",
+        "entu"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "entu-colony"
+      ],
+      "rarity": "common",
+      "vision": "normal",
+      "description": "Entus are telepathic fungal colonies that can form a perfect symbiosis with animal hosts. A willing entu host transforms into an uplifted thinking creature possessing a dual soul fused permanently in harmony with its entu companion.",
+      "terrestrial": false
+    },
+    {
+      "id": "fonqugon",
+      "name": "Fonqugon",
+      "hp": 6,
+      "size": "sm",
+      "speed": 20,
+      "boosts": [
+        [
+          "con"
+        ],
+        [
+          "int"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "cha"
+        ]
+      ],
+      "languages": [
+        "common",
+        "rodnarthian",
+        "szandite"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "fonqugon",
+        "ooze"
+      ],
+      "rarity": "common",
+      "vision": "low-light-vision",
+      "description": "With multiple brains and the combined expertise of an ancient network of peaceful allied planets, fonqugons are brilliant mathematicians and scientists. Their oozelike bodies and capable intellecects allow them to survive the harsh, unpredictable weather of their treacherous home world.",
+      "terrestrial": false
+    },
+    {
+      "id": "formian",
+      "name": "Formian",
+      "hp": 6,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "flaws": [],
+      "languages": [
+        "castrovelian",
+        "common",
+        "formian"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "formian"
+      ],
+      "rarity": "common",
+      "vision": "low-light-vision",
+      "description": "Formians are psychic insectile humanoids with features similar to gigantic ants. They coexist on Castrovel with lashuntas and elves, but brutal generation-spanning wars between formian colonies and lashunta city-states still loom in living memory. Formians are more than components of a hive mind, but their social nature and psychic connections are core aspects of their identities.",
+      "terrestrial": false
+    },
+    {
+      "id": "gfolian",
+      "name": "G'folian",
+      "hp": 8,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "con"
+        ],
+        [
+          "wis"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "str"
+        ]
+      ],
+      "languages": [
+        "common",
+        "gfolian"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "amphibious",
+        "beast",
+        "gfolian"
+      ],
+      "rarity": "common",
+      "vision": "low-light-vision",
+      "description": "G'folians are a species of philosophical hexapods known to inhabit the region of broken space called Kazmurg's Absurdity. A unique chemical composition in their stomachs allows them to expel gouts of flame.",
+      "terrestrial": false
+    },
+    {
+      "id": "gnarefuroid",
+      "name": "Gnarefuroid",
+      "hp": 8,
+      "size": "sm",
+      "speed": 20,
+      "boosts": [
+        [
+          "con"
+        ],
+        [
+          "int"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "cha"
+        ]
+      ],
+      "languages": [
+        "aklo",
+        "common",
+        "gnarefuroid"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "aberration",
+        "cosmic",
+        "gnarefuroid"
+      ],
+      "rarity": "rare",
+      "vision": "low-light-vision",
+      "description": "Gnarefuroids began as intelligent junkyard scavengers, incorporating their surroundings into their bodies to survive. As discarded technology became more sophisticated and xenobiology more diverse, gnarefuroids evolved to become more social and autonomous. Their cravings for new flavors eventually overcame their hermitic instincts.",
+      "terrestrial": false
+    },
+    {
+      "id": "gnome",
+      "name": "Gnome",
+      "hp": 8,
+      "size": "sm",
+      "speed": 25,
+      "boosts": [
+        [
+          "con"
+        ],
+        [
+          "cha"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "str"
+        ]
+      ],
+      "languages": [
+        "common",
+        "fey",
+        "gnomish"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "gnome",
+        "humanoid"
+      ],
+      "rarity": "common",
+      "vision": "low-light-vision",
+      "description": "Gnomes are a small and hardy species with pre-Gap ancestry that can trace their origins back to wanderers from the First World.",
+      "terrestrial": true
+    },
+    {
+      "id": "goblin",
+      "name": "Goblin",
+      "hp": 6,
+      "size": "sm",
+      "speed": 25,
+      "boosts": [
+        [
+          "dex"
+        ],
+        [
+          "cha"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "wis"
+        ]
+      ],
+      "languages": [
+        "common",
+        "goblin"
+      ],
+      "additionalLanguages": 1,
+      "traits": [
+        "goblin",
+        "humanoid"
+      ],
+      "rarity": "common",
+      "vision": "darkvision",
+      "description": "How goblins have managed to prosper long enough to spread across the galaxy is a testament to their ability to survive despite themselves. These eccentric and voracious tricksters are both drawn to and fascinated by dangerous machines, roaring fire, and unstable mayhem. They can live anywhere, eat anything, and thrive despite whatever obstacles get in their way.",
+      "terrestrial": false
+    },
+    {
+      "id": "halfling",
+      "name": "Halfling",
+      "hp": 6,
+      "size": "sm",
+      "speed": 25,
+      "boosts": [
+        [
+          "dex"
+        ],
+        [
+          "wis"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "str"
+        ]
+      ],
+      "languages": [
+        "common",
+        "halfling"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "halfling",
+        "humanoid"
+      ],
+      "rarity": "common",
+      "vision": "normal",
+      "description": "Halflings are small and plucky folk who took to the freedom of spacefaring with bravery and resilience. They bring humor, curiosity, and charm to the furthest reaches of the galaxy. While they're famous for their incredible luck, many halflings' most remarkable trait is their strength of character and will.",
+      "terrestrial": true
+    },
+    {
+      "id": "human",
+      "name": "Human",
+      "hp": 8,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "flaws": [],
+      "languages": [
+        "common"
+      ],
+      "additionalLanguages": 1,
+      "traits": [
+        "human",
+        "humanoid"
+      ],
+      "rarity": "common",
+      "vision": "normal",
+      "description": "Humans are known for their ability to adapt and thrive in the most challenging situations, including the mysterious loss of their home world, Golarion. Ambitious, creative, and endlessly curious, humans maintain a robust presence in the galaxy, often taking on positions of leadership or acting at the forefront of exploration. Humans can be found almost anywhere, doing almost anything.",
+      "terrestrial": true
+    },
+    {
+      "id": "ijtikri",
+      "name": "Ijtikri",
+      "hp": 8,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "con"
+        ],
+        [
+          "wis"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "cha"
+        ]
+      ],
+      "languages": [
+        "common",
+        "vesk"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "aberration",
+        "ijtikri"
+      ],
+      "rarity": "common",
+      "vision": "darkvision",
+      "description": "Colloquially called stone-faced squids, ijtikris protect their soft mantle within a rocky shell. Upon metamorphosing into an adult, each ijtikri joins the nearest community they can find, eagerly integrating with their newly adopted family.",
+      "terrestrial": false
+    },
+    {
+      "id": "ikeshti",
+      "name": "Ikeshti",
+      "hp": 6,
+      "size": "sm",
+      "speed": 25,
+      "boosts": [
+        [
+          "dex"
+        ],
+        [
+          "int"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "wis"
+        ]
+      ],
+      "languages": [
+        "common",
+        "akitonian"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "humanoid",
+        "ikeshti"
+      ],
+      "rarity": "common",
+      "vision": "normal",
+      "description": "Ikeshtis are intelligent bipedal lizards with hard red scales and a compact build. Native to the harsh planet of Akiton, they're hardy, resolute, and passionate, working ceaselessly for the survival of themselves and their tight-knit communities. Many have a knack for invention and enjoy finding new purposes for old or damaged objects.",
+      "terrestrial": false
+    },
+    {
+      "id": "izalguun",
+      "name": "Izalguun",
+      "hp": 8,
+      "size": "lg",
+      "speed": 20,
+      "boosts": [
+        [
+          "str"
+        ],
+        [
+          "int"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "dex"
+        ]
+      ],
+      "languages": [
+        "common",
+        "izalguun"
+      ],
+      "additionalLanguages": 1,
+      "traits": [
+        "beast",
+        "humanoid",
+        "izalguun"
+      ],
+      "rarity": "common",
+      "vision": "darkvision",
+      "description": "Izalguuns, a secretive species originally from the Scoured Stars System, have had a troubled past. A long time ago, most izalguuns left their trinary solar system to escape the influence of their god Kadrical. These large, six-limbed people focus on community and survival, and they don't like to talk about their history.",
+      "terrestrial": false
+    },
+    {
+      "id": "kalo",
+      "name": "Kalo",
+      "hp": 6,
+      "size": "med",
+      "speed": 20,
+      "boosts": [
+        [
+          "dex"
+        ],
+        [
+          "cha"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "con"
+        ]
+      ],
+      "languages": [
+        "common",
+        "kalo"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "aquatic",
+        "humanoid",
+        "kalo"
+      ],
+      "rarity": "common",
+      "vision": "darkvision",
+      "description": "Kalos hail from a watery moon orbiting Bretheda. These aquatic humanoids have art and creativity at the center of their culture, and they employ fluid fighting styles in combat.",
+      "terrestrial": false
+    },
+    {
+      "id": "kasatha",
+      "name": "Kasatha",
+      "hp": 8,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "str"
+        ],
+        [
+          "wis"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "cha"
+        ]
+      ],
+      "languages": [
+        "common",
+        "kasatha"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "humanoid",
+        "kasatha"
+      ],
+      "rarity": "common",
+      "vision": "normal",
+      "description": "Steeped in the ancient traditions of a distant home world orbiting a dying star, kasathas are four-armed humanoids who arrived in the Pact Worlds aboard a massive worldship named Idari. Striving for cosmic balance in all things, kasathas take pride in tempering their technological advances with the wisdom of their ancestors.",
+      "terrestrial": false
+    },
+    {
+      "id": "khizar",
+      "name": "Khizar",
+      "hp": 8,
+      "size": "med",
+      "speed": 20,
+      "boosts": [
+        [
+          "con"
+        ],
+        [
+          "wis"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "dex"
+        ]
+      ],
+      "languages": [
+        "common",
+        "khizar"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "khizar",
+        "plant"
+      ],
+      "rarity": "uncommon",
+      "vision": "normal",
+      "description": "Khizars are intelligent plants who live in harmony with nature and have learned to communicate telepathically with other creatures.",
+      "terrestrial": false
+    },
+    {
+      "id": "lashunta",
+      "name": "Lashunta",
+      "hp": 6,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "cha"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "languages": [
+        "common",
+        "castrovelian"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "humanoid",
+        "lashunta"
+      ],
+      "rarity": "common",
+      "vision": "normal",
+      "description": "Long ago, lashuntas evolved psychic abilities and a unique dimorphism that helped them survive on their home world of Castrovel. In modern times, lashuntas manipulate their own genetics at puberty, allowing each individual to develop into an enhanced scholar or warrior, though not every lashunta commits to these traditional choices.",
+      "terrestrial": false
+    },
+    {
+      "id": "leshy",
+      "name": "Leshy",
+      "hp": 8,
+      "size": "sm",
+      "speed": 25,
+      "boosts": [
+        [
+          "con"
+        ],
+        [
+          "wis"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "int"
+        ]
+      ],
+      "languages": [
+        "common",
+        "fey"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "leshy",
+        "plant"
+      ],
+      "rarity": "common",
+      "vision": "low-light-vision",
+      "description": "Leshies are immortal spirits of nature dwelling within plant vessels whose shapes resemble those of humanoids or animals. When a leshy incarnates into a new body, they leave behind most of their memories and experiences, allowing themselves to perceive the Universe anew without the burden of mortal preconceptions.",
+      "terrestrial": false
+    },
+    {
+      "id": "madrosarai",
+      "name": "Madrosarai",
+      "hp": 8,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "dex"
+        ],
+        [
+          "cha"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "str"
+        ]
+      ],
+      "languages": [
+        "common",
+        "madrosarai"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "humanoid",
+        "madrosarai"
+      ],
+      "rarity": "common",
+      "vision": "normal",
+      "description": "Madrosarais are a humanoid species with magically infused blood who strive to control their emotions. They possess eyes in the backs of their heads and believe in societal order.",
+      "terrestrial": false
+    },
+    {
+      "id": "maraquoi",
+      "name": "Maraquoi",
+      "hp": 8,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "flaws": [],
+      "languages": [
+        "common",
+        "maratan"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "humanoid",
+        "maraquoi"
+      ],
+      "rarity": "common",
+      "vision": "low-light-vision",
+      "description": "Bipedal humanoids from the Brethedan moon of Marata, maraquois focus on developing networks of relationships. They have seven distinct genders that all contribute to their species' reproduction.",
+      "terrestrial": false
+    },
+    {
+      "id": "moyishuu",
+      "name": "Moyishuu",
+      "hp": 8,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "dex"
+        ],
+        [
+          "cha"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "wis"
+        ]
+      ],
+      "languages": [
+        "common",
+        "fey"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "fey",
+        "humanoid",
+        "moyishuu"
+      ],
+      "rarity": "common",
+      "vision": "normal",
+      "description": "Passionate interstellar travelers with origins in the First World, the fey known as moyishuus are renowned across the galaxy as funloving explorers and adventurers.",
+      "terrestrial": false
+    },
+    {
+      "id": "novian",
+      "name": "Novian",
+      "hp": 6,
+      "size": "tiny",
+      "speed": 20,
+      "boosts": [
+        [
+          "str"
+        ],
+        [
+          "cha"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "wis"
+        ]
+      ],
+      "languages": [
+        "common",
+        "pyric"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "cosmic",
+        "novian"
+      ],
+      "rarity": "common",
+      "vision": "normal",
+      "description": "Novians are miniature suns—tiny flying motes of superheated plasma and flame, born from the death of a star. Incredibly dense despite their size, novians emit a powerful gravitational field, enabling them to move and manipulate objects and exert their force on others.",
+      "terrestrial": false
+    },
+    {
+      "id": "nuar",
+      "name": "Nuar",
+      "hp": 10,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "con"
+        ],
+        [
+          "int"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "cha"
+        ]
+      ],
+      "languages": [
+        "common"
+      ],
+      "additionalLanguages": 2,
+      "traits": [
+        "humanoid",
+        "nuar"
+      ],
+      "rarity": "uncommon",
+      "vision": "darkvision",
+      "description": "A distant, smaller cousin of minotaurs, nuars have a calm nature that belies their tall frame. With their home and history lost to the vacuum of the Gap, nuars find company in other cultures while creating their own as they go. Adept at solving problems and mysteries, a nuar is always an asset wherever they are.",
+      "terrestrial": false
+    },
+    {
+      "id": "orc",
+      "name": "Orc",
+      "hp": 10,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "flaws": [],
+      "languages": [
+        "common",
+        "orcish"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "humanoid",
+        "orc"
+      ],
+      "rarity": "common",
+      "vision": "darkvision",
+      "description": "Orcs are a proud people known for their loyalty and ferocity. They tend to value principled and trustworthy allies, seek out great challenges, and choose their life paths without regret or hesitation.",
+      "terrestrial": false
+    },
+    {
+      "id": "orocoran",
+      "name": "Orocoran",
+      "hp": 6,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "dex"
+        ],
+        [
+          "wis"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "con"
+        ]
+      ],
+      "languages": [
+        "common",
+        "aklo"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "aberration",
+        "orocoran"
+      ],
+      "rarity": "common",
+      "vision": "darkvision",
+      "description": "Since the destruction of their home world, some orocorans have freed themselves from the influence of Aucturn's foul, eldritch fluids. To these orocorans, while life remains a struggle, they've emerged from their recent hardships newly born, with eyes wide open and minds sharp, to discover a life of possibility and potential.",
+      "terrestrial": false
+    },
+    {
+      "id": "osharu",
+      "name": "Osharu",
+      "hp": 6,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "int"
+        ],
+        [
+          "wis"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "con"
+        ]
+      ],
+      "languages": [
+        "common",
+        "osharu"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "humanoid",
+        "osharu"
+      ],
+      "rarity": "common",
+      "vision": "darkvision",
+      "description": "Sluglike osharus inhabit the harsh planet of Pabaq. As religiously studious creatures, they're famous across the galaxy for their pious, intelligent, and inquisitive natures. They've built numerous prestigious university-cities across their home world, now launched to the galactic stage by the new Drift beacon in its system.",
+      "terrestrial": false
+    },
+    {
+      "id": "pahtra",
+      "name": "Pahtra",
+      "hp": 8,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "cha"
+        ],
+        [
+          "dex"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "con"
+        ]
+      ],
+      "languages": [
+        "common",
+        "pahtra",
+        "vesk"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "humanoid",
+        "pahtra"
+      ],
+      "rarity": "common",
+      "vision": "darkvision",
+      "description": "Pahtras are a humanoid feline species from a nearby star system. They're highly competitive and known for their achievements in magic, music, and war. Their home world was recently freed from the Veskarium's occupation, and they've joined the Pact Worlds.",
+      "terrestrial": false
+    },
+    {
+      "id": "raxilite",
+      "name": "Raxilite",
+      "hp": 6,
+      "size": "tiny",
+      "speed": 25,
+      "boosts": [
+        [
+          "dex"
+        ],
+        [
+          "int"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "str"
+        ]
+      ],
+      "languages": [
+        "common",
+        "raxi"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "plant",
+        "raxilite"
+      ],
+      "rarity": "common",
+      "vision": "low-light-vision",
+      "description": "Raxilites are tiny, community-focused sapient plants with a penchant for technological innovation, especially when it comes to augmenting their bodies with useful tools.",
+      "terrestrial": false
+    },
+    {
+      "id": "ryphorian",
+      "name": "Ryphorian",
+      "hp": 8,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "con"
+        ],
+        [
+          "wis"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "str"
+        ]
+      ],
+      "languages": [
+        "common",
+        "draconic",
+        "triaxian"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "humanoid",
+        "ryphorian"
+      ],
+      "rarity": "common",
+      "vision": "low-light-vision",
+      "description": "Ryphorians are the most widespread species of the planet Triaxus, tied to that world's eccentric orbit with a peculiar form of seasonal trimorphism that affects most of the population.",
+      "terrestrial": false
+    },
+    {
+      "id": "sarcesian",
+      "name": "Sarcesian",
+      "hp": 8,
+      "size": "lg",
+      "speed": 25,
+      "boosts": [
+        [
+          "dex"
+        ],
+        [
+          "cha"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "str"
+        ]
+      ],
+      "languages": [
+        "common",
+        "sarcesian",
+        "sarcesian-signed"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "humanoid",
+        "sarcesian"
+      ],
+      "rarity": "common",
+      "vision": "normal",
+      "description": "Sarcesians are natural spacefarers who glide through the void of space on butterfly wings of energy and light.",
+      "terrestrial": false
+    },
+    {
+      "id": "shirren",
+      "name": "Shirren",
+      "hp": 10,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "con"
+        ],
+        [
+          "wis"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "cha"
+        ]
+      ],
+      "languages": [
+        "common",
+        "shirren"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "humanoid",
+        "shirren"
+      ],
+      "rarity": "common",
+      "vision": "normal",
+      "description": "The insectile shirrens split from the destructive Swarm, forsaking the ruthless hive mind to pursue personal freedom and end the cycle of interstellar violence. Shirrens are a species of telepaths devoted to their own individualism, building chosen communities, and living in harmony with other peoples.",
+      "terrestrial": false
+    },
+    {
+      "id": "shobhad",
+      "name": "Shobhad",
+      "hp": 8,
+      "size": "lg",
+      "speed": 25,
+      "boosts": [
+        [
+          "str"
+        ],
+        [
+          "wis"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "cha"
+        ]
+      ],
+      "languages": [
+        "akitonian",
+        "common",
+        "shobhad"
+      ],
+      "additionalLanguages": 1,
+      "traits": [
+        "humanoid",
+        "shobhad"
+      ],
+      "rarity": "common",
+      "vision": "normal",
+      "description": "Shobhads, or shobhad-neh as they refer to themselves collectively, are nomadic people native to the planet Akiton. Though other species speculate shobhads might be descendants of planar travelers or even mutant offspring of another species, shobhads know they've been part of Akiton forever. These enormous four-armed humanoids see themselves as Akiton's original children and wander its surface in a millennia-long journey.",
+      "terrestrial": false
+    },
+    {
+      "id": "skittermander",
+      "name": "Skittermander",
+      "hp": 6,
+      "size": "sm",
+      "speed": 25,
+      "boosts": [
+        [
+          "cha"
+        ],
+        [
+          "dex"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "wis"
+        ]
+      ],
+      "languages": [
+        "common",
+        "vesk"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "humanoid",
+        "skittermander"
+      ],
+      "rarity": "common",
+      "vision": "low-light-vision",
+      "description": "Skittermanders are energetic, six-armed humanoids with brightly colored fur. Skittermanders accomplish tasks with chaotic enthusiasm and typically enjoy teamwork, defying even their would-be conquerors through collaboration.",
+      "terrestrial": false
+    },
+    {
+      "id": "talphi",
+      "name": "Talphi",
+      "hp": 6,
+      "size": "sm",
+      "speed": 20,
+      "boosts": [
+        [
+          "dex"
+        ],
+        [
+          "cha"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "wis"
+        ]
+      ],
+      "languages": [
+        "common",
+        "talphirian",
+        "vesk"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "humanoid",
+        "talphi"
+      ],
+      "rarity": "common",
+      "vision": "normal",
+      "description": "Talphis are members of a mole-like humanoid species from Vesk-4 who specialize in burrowing, gravity attunement, and elemental earth magic.",
+      "terrestrial": false
+    },
+    {
+      "id": "trox",
+      "name": "Trox",
+      "hp": 10,
+      "size": "lg",
+      "speed": 25,
+      "boosts": [
+        [
+          "str"
+        ],
+        [
+          "con"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "dex"
+        ]
+      ],
+      "languages": [
+        "common",
+        "nchaki"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "humanoid",
+        "trox"
+      ],
+      "rarity": "common",
+      "vision": "darkvision",
+      "description": "Troxes are hulking bipedal insectile beings who coexist with shirrens on N'Chak, a moon of Liavara, where they're ruled by the living incarnation of their ancestral god, Hylax the Forever Queen.",
+      "terrestrial": false
+    },
+    {
+      "id": "urog",
+      "name": "Urog",
+      "hp": 6,
+      "size": "lg",
+      "speed": 20,
+      "boosts": [
+        [
+          "con"
+        ],
+        [
+          "int",
+          "wis"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "cha"
+        ]
+      ],
+      "languages": [
+        "common",
+        "urog"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "beast",
+        "urog"
+      ],
+      "rarity": "common",
+      "vision": "darkvision",
+      "description": "Urogs are contemplative, silicon-based life-forms inspired by geometry and are often found wandering the stars in search of answers to the galaxy's most enigmatic questions.",
+      "terrestrial": false
+    },
+    {
+      "id": "vesk",
+      "name": "Vesk",
+      "hp": 10,
+      "size": "med",
+      "speed": 20,
+      "boosts": [
+        [
+          "con"
+        ],
+        [
+          "str"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "wis"
+        ]
+      ],
+      "languages": [
+        "common",
+        "vesk"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "humanoid",
+        "vesk"
+      ],
+      "rarity": "common",
+      "vision": "low-light-vision",
+      "description": "Vesk are a warmongering, reptilian people who conquered the eight worlds in their solar system shortly after they developed spaceflight, forming the Veskarium empire. Vesk tend to embrace conflict and respect strength and military might.",
+      "terrestrial": false
+    },
+    {
+      "id": "vlaka",
+      "name": "Vlaka",
+      "hp": 6,
+      "size": "med",
+      "speed": 25,
+      "boosts": [
+        [
+          "wis"
+        ],
+        [
+          "cha"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "dex"
+        ]
+      ],
+      "languages": [
+        "common",
+        "vlaka"
+      ],
+      "additionalLanguages": 1,
+      "traits": [
+        "humanoid",
+        "vlaka"
+      ],
+      "rarity": "common",
+      "vision": "normal",
+      "description": "Vlakas are wolflike nomads whose thick fur coats help them survive in the frigid cold, as it is on their home world of Lajok. They have an incredible sense of smell and are often born deaf, blind, or deafblind.",
+      "terrestrial": false
+    },
+    {
+      "id": "vulkarisu",
+      "name": "Vulkarisu",
+      "hp": 6,
+      "size": "sm",
+      "speed": 25,
+      "boosts": [
+        [
+          "cha"
+        ],
+        [
+          "dex"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "str"
+        ]
+      ],
+      "languages": [
+        "common",
+        "castrovelian",
+        "vulkari"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "humanoid",
+        "vulkarisu"
+      ],
+      "rarity": "common",
+      "vision": "low-light-vision",
+      "description": "Vulkarisu are intelligent, bipedal humanoids that look like a mix between a fox and a squirrel. Cute and fluffy, they're often confused with squoxes. Vulkarisu are curious and adaptive, with an impressive talent for linguistics and passion for exploring the Universe.",
+      "terrestrial": false
+    },
+    {
+      "id": "worlanisi",
+      "name": "Worlanisi",
+      "hp": 6,
+      "size": "sm",
+      "speed": 20,
+      "boosts": [
+        [
+          "str"
+        ],
+        [
+          "cha"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "wis"
+        ]
+      ],
+      "languages": [
+        "common",
+        "worlanisi"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "humanoid",
+        "worlanisi"
+      ],
+      "rarity": "common",
+      "vision": "low-light-vision",
+      "description": "Worlanisis are naturally lucky, blue-skinned humanoids who might be bioengineered super soldiers, nomadic daredevils, or anything in between. The worlanisi diaspora is diverse and vast, but they agree on one thing—they invented the infinity deck.",
+      "terrestrial": false
+    },
+    {
+      "id": "ysoki",
+      "name": "Ysoki",
+      "hp": 6,
+      "size": "sm",
+      "speed": 25,
+      "boosts": [
+        [
+          "dex"
+        ],
+        [
+          "int"
+        ],
+        [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      ],
+      "flaws": [
+        [
+          "str"
+        ]
+      ],
+      "languages": [
+        "akitonian",
+        "common",
+        "ysoki"
+      ],
+      "additionalLanguages": 0,
+      "traits": [
+        "humanoid",
+        "ratfolk"
+      ],
+      "rarity": "common",
+      "vision": "low-light-vision",
+      "description": "Once known as ratfolk, ysoki are clever and flexible. With roots on countless worlds, ysoki work alongside larger species, helping to establish communities and accomplish tough tasks. From the largest of crowds to the tightest of tunnels, a ysoki always knows how to find their way.",
+      "terrestrial": false
+    }
+  ]
+}

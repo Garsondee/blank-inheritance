@@ -124,7 +124,7 @@ login.
 | Page | What it does | Help-toggle content |
 |---|---|---|
 | **1. Orientation** | Not just flavor text anymore — a real explanation, before anything is asked: what this terminal is, what the player is about to do, roughly how long it takes, and what to have ready (a character concept, nothing more — this is explicitly stated so nobody logs in unprepared). The acceptance-letter beat (already in `data/scene-briefs/episode-c1s1--the-road-in.json`) opens it. | This page IS the OOC layer, by design — no toggle needed. |
-| **2. Ancestry** | Real ancestry (mechanical). **Selecting non-terrestrial flips a hidden flag and queues the lockdown sub-flow (Page 6a).** | OOC: what this changes (boosts/flaw, HP, size, speed, ancestry feats) — mechanical register. |
+| **2. Ancestry** — **built** | Real ancestry (mechanical), all 51, grouped Terrestrial-Presenting/Alien-Coded with a live name filter (2026-09-09 decision: "full catalogue, grouped/searchable" over a curated shortlist). Boost/flaw choice slots resolved against the real compendium data (`data/campaign/ancestry-catalogue.json`); heritage and ancestry feat are **not** picked here — see §5, extended. **Selecting non-terrestrial flips a hidden flag and queues the lockdown sub-flow (Page 6a, not yet built — Page 2 itself only shows a short, reassuring note in the same spot).** | OOC: what this changes (boosts/flaw, HP, size, speed) — mechanical register, plus an explicit statement that an ancestry feat comes next, on the real character sheet, same as class feats. |
 | **3. Background** | Real background. | OOC: mechanical (two boosts, a skill, a background feat). |
 | **4. Class** | Real class — the pick only. Feats and spell selection explicitly deferred (§1). | OOC: mechanical (key ability, HP per level, saves, class DC, proficiencies) — plus a plain statement that feats/spells come next, on the real character sheet, not lost or skipped. |
 | **5. Attribute Boosts** | Ancestry/background/class boosts apply automatically (read-only, sourced from Pages 2-4); four player-chosen free boosts. | OOC: "this permanently raises one of six numbers that drive almost every roll you make" — the single most consequential page. |
@@ -170,6 +170,16 @@ Kit Issue equipment-catalogue pattern, considered and rejected here), the resolu
 number correct, but no class feats or spells picked. The player finishes that on the real sf2e
 character sheet once their token is on the landing page (§6) — the system's own UI for this already
 exists and is already correct, per `ux-doctrine.md` §11.
+
+**Extended 2026-09-09, while building Page 2: the identical logic applies to Heritage and Ancestry
+Feat, both real parts of Player Core's Step 3 ("Select an Ancestry").** Checked against the live
+`sf2e.heritages` compendium (302 entries, a handful per ancestry — e.g. Dwarf alone has several) and
+`sf2e.ancestry-features` (51 named feats, most cross-tagged to several ancestries by trait, e.g.
+"Limited Telepathy" is legal for nine different species) — both are real menu picks that grant their
+own rule text, structurally the same shape as a class feat, not a number `derive.mjs` needs. Page 2
+resolves ancestry boosts/flaws (required — they feed ability modifiers directly) and stops there;
+heritage and ancestry feat are picked on the real character sheet afterward, same as class feats and
+spells. Not a new decision, the same one applied to the next case it obviously covers.
 
 ---
 
@@ -223,29 +233,59 @@ exists and is already correct, per `ux-doctrine.md` §11.
    `theatre-of-the-mind-staging.md`) actually consumes it.
 4. **Is backstory (the eight questions) editable later**, or one-time? Still open from the original
    idea file.
-5. **Full vs. curated ancestry/background/class lists** — Kit Issue curated equipment on a real
-   design rationale (Directorate-issue feels boring/standard on purpose); does the same logic apply
-   to chargen options, or should this be the real full SF2E catalog? Different question, not
-   automatically the same answer.
+5. **Full vs. curated ancestry/background/class lists — resolved for ancestry, 2026-09-09:** asked
+   directly rather than assumed, since Kit Issue's curated-equipment rationale doesn't automatically
+   transfer. Answer: **full catalogue, grouped/searchable** — all 51 real ancestries, split
+   Terrestrial-Presenting/Alien-Coded with a live filter, not a hand-picked shortlist. Background and
+   class lists are a separate question each, not automatically the same answer either way.
 6. **The lockdown follow-up questions' actual content** — the tone rules are now clear (§4a), the
    actual copy for the 2-3 questions isn't written yet.
+7. **The exact terrestrial/alien-coded boundary, in `data/campaign/ancestry-catalogue.json`'s
+   `terrestrial` flag.** Currently just the five classic ancestries (Human, Elf, Dwarf, Gnome,
+   Halfling); every other real SF2E ancestry, Orc and Goblin included, is tagged alien-coded. Orc and
+   Goblin are the nearest real edge case — Earth-folklore-adjacent, but SF2E writes them as their own
+   starfaring species with no stated Golarion-monsterfolk framing, so they were left on the
+   alien-coded side rather than assumed in. A plain boolean per ancestry, trivial to correct.
 
 ---
 
 ## 8. Build status
 
 This design was requested "research, design first" — no code — and stayed that way through the first
-draft. **That has changed: the shell application and Page 1 (Orientation) are now built**, against
-exactly this shape, the same incremental way the scene runner itself was built:
-`module/blank-inheritance/scripts/foundry/induction-terminal.mjs` (the `InductionTerminal`
-ApplicationV2 class plus the singleton mount/refresh/unmount/open functions), one template
-(`templates/induction/page1-orientation.hbs`, reusing `.bi-doc`), and the `Induction.Page1.*` lang
-keys. Registered on `game.modules.get("blank-inheritance").api.openInductionTerminal` — deliberately
-not auto-mounted on `ready` yet, since the "opens automatically for a characterless user" trigger
-(§6) isn't built. Verified live in the local Foundry instance: mounts cleanly, no console errors, the
-`.bi-doc` styling and layout render correctly, and the Begin button's placeholder handler fires.
-Covered by the generic tier0 architecture tests rather than a bespoke suite, per that test's own
-design. Page 2 (Ancestry) onward are not built — §4's table is still the plan for each.
+draft. **That has changed: the shell application, Page 1 (Orientation) and Page 2 (Ancestry) are now
+built**, against exactly this shape, the same incremental way the scene runner itself was built.
+
+**The shell:** `module/blank-inheritance/scripts/foundry/induction-terminal.mjs` — the
+`InductionTerminal` ApplicationV2 class, the singleton mount/refresh/unmount/open functions, and page
+swapping (`static PARTS` declares one template per page; `_configureRenderParts` picks which one is
+the active render target, under a constant partId, so `HandlebarsApplicationMixin`'s own
+`_replaceHTML` *swaps* the rendered page instead of stacking a new one beside a stale one). Registered
+on `game.modules.get("blank-inheritance").api.openInductionTerminal` — deliberately not auto-mounted
+on `ready` yet, since the "opens automatically for a characterless user" trigger (§6) isn't built.
+
+**Page 1:** `templates/induction/page1-orientation.hbs`, reusing `.bi-doc`, `Induction.Page1.*` lang
+keys.
+
+**Page 2:** `templates/induction/page2-ancestry.hbs` plus `module/blank-inheritance/scripts/core/induction-ancestry.mjs`
+(pure boost/flaw choice-slot resolution — no Foundry, tested against both hand-built fixtures and the
+real catalogue in `test/tier1-induction-ancestry.test.mjs`), `data/campaign/ancestry-catalogue.json` +
+`data/schema/ancestry-catalogue.schema.json` (all 51 real SF2E ancestries, extracted live from
+`gamesystems/sf2e/packs/ancestries` — the same live-Foundry-query technique used earlier this session
+for the equipment catalogue and the Giant Centipede), `Induction.Page2.*` lang keys. Ability names and
+size labels reuse sf2e's own `PF2E.Ability*`/`PF2E.ActorSize*` localization keys rather than
+duplicating them (`ux-doctrine.md` §11). Heritage and ancestry feat are deliberately not resolved here
+— §5, extended.
+
+Both pages verified live in the local Foundry instance: mount cleanly, no console errors beyond
+pre-existing environment noise unrelated to this module, `.bi-doc` styling and layout render
+correctly, the live ancestry filter narrows correctly, boost/flaw picking and the picked-state
+highlighting work (including the mid-choice indexing case a manual trace caught before it ever ran —
+see the resolveSlots comment in the core module), the OOC help `<details>` stays open across a
+re-render, the alien-lockdown note appears only for non-terrestrial picks, Continue stays disabled
+until every choice is resolved, and Back/Change-ancestry/Continue all navigate correctly across many
+transitions with no DOM stacking or duplication. Covered by the generic tier0 architecture tests for
+the UI shell (templates/lang/CSS) plus a dedicated pure-logic suite for the choice resolution — `npm
+run test:ui` 418/418 passing. Pages 3-9 are not built — §4's table is still the plan for each.
 
 ---
 

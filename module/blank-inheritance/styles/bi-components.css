@@ -570,6 +570,155 @@
 }
 .bi-induction__begin:hover { background: var(--bi-paper); }
 .bi-induction__begin:focus-visible { outline: 2px solid var(--bi-vermilion); outline-offset: 2px; }
+.bi-induction__begin:disabled { opacity: 0.4; cursor: not-allowed; }
+.bi-induction__begin:disabled:hover { background: var(--bi-paper-shade); }
+
+/* Page 2 (Ancestry) onward: Back sits opposite Continue rather than both
+   pinned right, and Back is deliberately quieter -- Continue is the button
+   this page wants pressed. */
+.bi-induction__actions--split { justify-content: space-between; }
+.bi-induction__back {
+  font-family: var(--bi-font-typewriter);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bi-paper-ink-2);
+  background: none;
+  border: 1px solid var(--bi-paper-rule);
+  border-radius: 2px;
+  padding: 9px 22px;
+  cursor: pointer;
+}
+.bi-induction__back:hover { background: var(--bi-paper-shade); color: var(--bi-paper-ink); }
+.bi-induction__back:focus-visible { outline: 2px solid var(--bi-vermilion); outline-offset: 2px; }
+
+/* The live-filterable, grouped ancestry picker (Page 2 §4: "full catalogue,
+   grouped/searchable", decided 2026-09-09). */
+.bi-induction__filter-row { margin-bottom: 16px; }
+.bi-induction__filter {
+  width: 100%;
+  font-family: var(--bi-font-typewriter);
+  font-size: 13px;
+  color: var(--bi-paper-ink);
+  background: var(--bi-paper-shade);
+  border: 1px solid var(--bi-paper-rule);
+  border-radius: 2px;
+  padding: 8px 10px;
+}
+.bi-induction__filter::placeholder { color: var(--bi-paper-ink-2); }
+
+.bi-induction__groups { display: flex; flex-direction: column; gap: 18px; margin-bottom: 8px; }
+.bi-induction__group h2 { margin-top: 0; }
+
+.bi-induction__ancestry-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.bi-induction__ancestry-item {
+  font-family: var(--bi-font-typewriter);
+  font-size: 12px;
+  color: var(--bi-paper-ink);
+  background: var(--bi-paper);
+  border: 1px solid var(--bi-paper-rule);
+  border-radius: 2px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.bi-induction__ancestry-item:hover { background: var(--bi-paper-shade); }
+.bi-induction__ancestry-item[hidden] { display: none; }
+
+.bi-induction__no-matches { font-style: italic; font-size: 13px; color: var(--bi-paper-ink-2); }
+
+/* The resolved-ancestry summary: real stats, then its boost/flaw choices. */
+.bi-induction__selected { margin-bottom: 8px; }
+.bi-induction__selected-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.bi-induction__selected-name {
+  margin: 0;
+  font-family: var(--bi-font-document);
+  font-size: 20px;
+  font-weight: 700;
+  color: #17130c;
+}
+.bi-induction__change {
+  font-family: var(--bi-font-typewriter);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--bi-paper-ink-2);
+  background: none;
+  border: none;
+  border-bottom: 1px dotted var(--bi-paper-rule);
+  padding: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.bi-induction__change:hover { color: var(--bi-vermilion); border-bottom-color: var(--bi-vermilion); }
+
+.bi-induction__slots { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.bi-induction__slot { display: block; }
+.bi-induction__slot-hint {
+  display: block;
+  font-family: var(--bi-font-typewriter);
+  font-size: 11px;
+  color: var(--bi-paper-ink-2);
+  margin-bottom: 5px;
+}
+.bi-induction__fixed {
+  display: inline-block;
+  font-family: var(--bi-font-typewriter);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--bi-paper-ink);
+}
+.bi-induction__options { display: flex; flex-wrap: wrap; gap: 6px; }
+.bi-induction__option {
+  font-family: var(--bi-font-typewriter);
+  font-size: 12px;
+  color: var(--bi-paper-ink);
+  background: var(--bi-paper);
+  border: 1px solid var(--bi-paper-rule);
+  border-radius: 2px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.bi-induction__option:hover { background: var(--bi-paper-shade); }
+.bi-induction__option--picked {
+  background: var(--bi-vermilion);
+  border-color: var(--bi-vermilion-dim);
+  color: var(--bi-paper);
+  font-weight: 700;
+}
+.bi-induction__option:focus-visible { outline: 2px solid var(--bi-vermilion); outline-offset: 2px; }
+
+.bi-induction__no-flaw { font-style: italic; font-size: 13px; color: var(--bi-paper-ink-2); }
+
+/* The alien-lockdown's OOC half (design doc §4a): plainly reassuring,
+   deliberately set apart from the mechanical rows above it, never styled
+   like a warning -- no vermilion, no border-color alarm. */
+.bi-induction__lockdown-note {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--bi-paper-ink-2);
+  border-left: 3px solid var(--bi-paper-rule);
+  padding-left: 12px;
+  margin: 16px 0;
+}
+
+/* The OOC help toggle -- a native <details>, so the Handlebars mixin's own
+   _preSyncPartState/_syncPartState (data-sync) keeps it open across a
+   re-render instead of slamming shut on every boost pick. */
+.bi-induction__help { margin: 18px 0; font-size: 13px; }
+.bi-induction__help summary {
+  cursor: pointer;
+  font-family: var(--bi-font-typewriter);
+  font-size: 12px;
+  color: var(--bi-paper-ink-2);
+  letter-spacing: 0.03em;
+}
+.bi-induction__help summary:hover { color: var(--bi-paper-ink); }
+.bi-induction__help p { margin: 10px 0 0; color: var(--bi-paper-ink-2); }
 
 /* --- Kanji used structurally, not decoratively ----------------------- */
 

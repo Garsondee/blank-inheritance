@@ -1,0 +1,154 @@
+{{!--
+    The induction terminal — Page 2, Ancestry.
+
+    Real ancestry (mechanical), not the terrestrial disguise -- see
+    design/induction-terminal.md §4 and the project_induction_and_newcomers
+    memory. Two states in one template: picking (the grouped/filterable list
+    of all 51 real SF2E ancestries) and resolving (the chosen ancestry's real
+    stats plus its boost/flaw choices). Heritage and ancestry-feat selection
+    are deliberately NOT here -- deferred to the real character sheet, same
+    reasoning as class feats/spells (design doc §5).
+
+    PAPER register throughout, same .bi-doc/.bi-form-row vocabulary as Page 1
+    and the scene runner -- this is a form, not a readout.
+--}}
+<section class="bi-induction">
+    <div class="bi-doc bi-induction__page">
+        <header class="bi-doc__head">
+            <h1 class="bi-doc__title">{{localize "BLANKINHERITANCE.Induction.Page2.Title"}}</h1>
+            <div class="bi-doc__meta">
+                {{localize "BLANKINHERITANCE.Induction.Page2.FormNumber"}}
+                {{#if userName}}<br><b>{{userName}}</b>{{/if}}
+            </div>
+        </header>
+
+        <p>{{localize "BLANKINHERITANCE.Induction.Page2.Intro"}}</p>
+
+        {{#unless selected}}
+        <div class="bi-induction__filter-row">
+            <input type="text" class="bi-induction__filter" data-induction-filter
+                   placeholder="{{localize 'BLANKINHERITANCE.Induction.Page2.FilterPlaceholder'}}" value="{{filterValue}}">
+        </div>
+
+        <div class="bi-induction__groups">
+            <div class="bi-induction__group">
+                <h2>{{localize "BLANKINHERITANCE.Induction.Page2.GroupTerrestrial"}}</h2>
+                <div class="bi-induction__ancestry-list">
+                    {{#each ancestryGroups.terrestrial}}
+                    <button type="button" class="bi-induction__ancestry-item" data-action="pickAncestry"
+                            data-ancestry-id="{{this.id}}" data-induction-name="{{this.nameLower}}">{{this.name}}</button>
+                    {{/each}}
+                </div>
+            </div>
+            <div class="bi-induction__group">
+                <h2>{{localize "BLANKINHERITANCE.Induction.Page2.GroupAlien"}}</h2>
+                <div class="bi-induction__ancestry-list">
+                    {{#each ancestryGroups.alienCoded}}
+                    <button type="button" class="bi-induction__ancestry-item" data-action="pickAncestry"
+                            data-ancestry-id="{{this.id}}" data-induction-name="{{this.nameLower}}">{{this.name}}</button>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+        <p class="bi-induction__no-matches" data-induction-no-matches hidden>{{localize "BLANKINHERITANCE.Induction.Page2.NoMatches"}}</p>
+        {{/unless}}
+
+        {{#if selected}}
+        <div class="bi-induction__selected">
+            <div class="bi-induction__selected-head">
+                <h2 class="bi-induction__selected-name">{{selected.name}}</h2>
+                <button type="button" class="bi-induction__change" data-action="changeAncestry">{{localize "BLANKINHERITANCE.Induction.Page2.Change"}}</button>
+            </div>
+            <p>{{selected.description}}</p>
+
+            <div class="bi-form-row">
+                <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page2.StatHP"}}</span>
+                <span class="bi-form-row__lead"></span>
+                <span class="bi-form-row__value">{{selected.hp}}</span>
+            </div>
+            <div class="bi-form-row">
+                <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page2.StatSize"}}</span>
+                <span class="bi-form-row__lead"></span>
+                <span class="bi-form-row__value">{{selected.sizeLabel}}</span>
+            </div>
+            <div class="bi-form-row">
+                <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page2.StatSpeed"}}</span>
+                <span class="bi-form-row__lead"></span>
+                <span class="bi-form-row__value">{{selected.speed}} ft.</span>
+            </div>
+            <div class="bi-form-row">
+                <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page2.StatLanguages"}}</span>
+                <span class="bi-form-row__lead"></span>
+                <span class="bi-form-row__value">{{selected.languagesLabel}}</span>
+            </div>
+            <div class="bi-form-row">
+                <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page2.StatVision"}}</span>
+                <span class="bi-form-row__lead"></span>
+                <span class="bi-form-row__value">{{selected.visionLabel}}</span>
+            </div>
+
+            <h2>{{localize "BLANKINHERITANCE.Induction.Page2.BoostsTitle"}}</h2>
+            <div class="bi-induction__slots">
+                {{#each selected.boostSlots}}
+                <div class="bi-induction__slot">
+                    {{#if this.fixed}}
+                    <span class="bi-induction__fixed">{{this.fixedLabel}}</span>
+                    {{else}}
+                    <span class="bi-induction__slot-hint">{{localize "BLANKINHERITANCE.Induction.Page2.ChooseOne"}}</span>
+                    <div class="bi-induction__options">
+                        {{#each this.options}}
+                        <button type="button"
+                                class="bi-induction__option {{#if this.picked}}bi-induction__option--picked{{/if}}"
+                                data-action="pickBoost" data-slot-index="{{this.slotIndex}}" data-ability="{{this.ability}}"
+                                aria-pressed="{{this.picked}}">{{this.label}}</button>
+                        {{/each}}
+                    </div>
+                    {{/if}}
+                </div>
+                {{/each}}
+            </div>
+
+            <h2>{{localize "BLANKINHERITANCE.Induction.Page2.FlawsTitle"}}</h2>
+            {{#if selected.hasFlaws}}
+            <div class="bi-induction__slots">
+                {{#each selected.flawSlots}}
+                <div class="bi-induction__slot">
+                    {{#if this.fixed}}
+                    <span class="bi-induction__fixed">{{this.fixedLabel}}</span>
+                    {{else}}
+                    <span class="bi-induction__slot-hint">{{localize "BLANKINHERITANCE.Induction.Page2.ChooseOne"}}</span>
+                    <div class="bi-induction__options">
+                        {{#each this.options}}
+                        <button type="button"
+                                class="bi-induction__option {{#if this.picked}}bi-induction__option--picked{{/if}}"
+                                data-action="pickFlaw" data-slot-index="{{this.slotIndex}}" data-ability="{{this.ability}}"
+                                aria-pressed="{{this.picked}}">{{this.label}}</button>
+                        {{/each}}
+                    </div>
+                    {{/if}}
+                </div>
+                {{/each}}
+            </div>
+            {{else}}
+            <p class="bi-induction__no-flaw">{{localize "BLANKINHERITANCE.Induction.Page2.NoFlaw"}}</p>
+            {{/if}}
+
+            {{#unless selected.terrestrial}}
+            <p class="bi-induction__lockdown-note">{{localize "BLANKINHERITANCE.Induction.Page2.LockdownNote"}}</p>
+            {{/unless}}
+
+            <details class="bi-induction__help" data-sync="help">
+                <summary>{{localize "BLANKINHERITANCE.Induction.Page2.HelpSummary"}}</summary>
+                <p>{{localize "BLANKINHERITANCE.Induction.Page2.HelpBody"}}</p>
+            </details>
+        </div>
+        {{/if}}
+
+        <div class="bi-induction__actions bi-induction__actions--split">
+            <button type="button" class="bi-induction__back" data-action="back">{{localize "BLANKINHERITANCE.Induction.Page2.Back"}}</button>
+            <button type="button" class="bi-induction__begin" data-action="continueFromAncestry" {{#unless isComplete}}disabled{{/unless}}>
+                {{localize "BLANKINHERITANCE.Induction.Page2.Continue"}}
+            </button>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ancestry-catalogue.schema.json",
+  "title": "Ancestry Catalogue",
+  "description": "The real, complete SF2E ancestry catalogue (51 entries), extracted live from gamesystems/sf2e/packs/ancestries for the induction terminal's Page 2 (design/induction-terminal.md). No reflavoring -- this is the character's REAL ancestry, not the terrestrial disguise (project_induction_and_newcomers memory). Singleton file: data/campaign/ancestry-catalogue.json.",
+  "type": "object",
+  "required": ["id", "ancestries"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "ancestry-catalogue" },
+    "type": { "const": "ancestry-catalogue" },
+    "description": { "type": "string" },
+    "ancestries": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ancestryEntry" }
+    }
+  },
+  "$defs": {
+    "ancestryEntry": {
+      "type": "object",
+      "required": ["id", "name", "hp", "size", "speed", "boosts", "flaws", "terrestrial"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "hp": { "type": "integer", "description": "Ancestry HP, before class HP and the Con modifier -- tools/character-builder/derive.mjs's deriveHP `ancestryHP` input." },
+        "size": { "enum": ["tiny", "sm", "med", "lg"] },
+        "speed": { "type": "integer", "description": "Land Speed in feet, unencumbered." },
+        "boosts": {
+          "type": "array",
+          "description": "One entry per boost slot, in Player Core's own order. A single-ability entry (e.g. [\"con\"]) is a fixed boost -- apply automatically, no player choice. A multi-ability entry is a free choice among exactly those abilities; core/induction/ancestry.mjs is what resolves a player's pick against this shape.",
+          "items": {
+            "type": "array",
+            "items": { "enum": ["str", "dex", "con", "int", "wis", "cha"] },
+            "minItems": 1
+          }
+        },
+        "flaws": {
+          "type": "array",
+          "description": "Same shape and resolution rule as boosts. An empty array means this ancestry has no flaw at all (a 'voluntary' ancestry, e.g. Human, Orc, Maraquoi, Dragonkin, Formian -- two free boosts, no flaw, per the remaster).",
+          "items": {
+            "type": "array",
+            "items": { "enum": ["str", "dex", "con", "int", "wis", "cha"] },
+            "minItems": 1
+          }
+        },
+        "languages": { "type": "array", "items": { "type": "string" }, "description": "Starting languages, always known." },
+        "additionalLanguages": { "type": "integer", "description": "How many extra languages an Intelligence boost (or similar) can add from the ancestry's own list. Informational only -- the induction terminal does not yet let a player spend these (open question, design doc §7)." },
+        "traits": { "type": "array", "items": { "type": "string" } },
+        "rarity": { "enum": ["common", "uncommon", "rare", "unique"] },
+        "vision": { "type": "string" },
+        "description": { "type": "string", "description": "Real Player Core / Galactic Ancestries / Alien Core flavor text, HTML-stripped." },
+        "terrestrial": {
+          "type": "boolean",
+          "description": "This project's own tag, not an SF2E field (project_induction_and_newcomers memory, design/induction.md §2): can this species itself BE the 'presents as human/elf/halfling or similar' disguise? True only for Human, Elf, Dwarf, Gnome, Halfling. Picking a non-terrestrial ancestry on Page 2 queues the alien-lockdown sub-flow (Page 6a) -- picking a terrestrial one does not. A plain boolean, trivially correctable if the boundary is wrong."
+        }
+      }
+    }
+  }
+}

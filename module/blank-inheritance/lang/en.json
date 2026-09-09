@@ -167,6 +167,30 @@
         "WhatYouNeedTitle": "What to have ready",
         "WhatYouNeed": "Just a concept — a rough idea of who you want to play. Everything else, this form will ask you for, one step at a time.",
         "Begin": "Begin"
+      },
+      "Page2": {
+        "Title": "Ancestry",
+        "FormNumber": "FORM 1-B — ANCESTRY DECLARATION",
+        "Intro": "Your character's real ancestry — not the one they'll wear at the table. Every option here is real and mechanical; how it's disguised in play is entirely yours to decide later.",
+        "FilterPlaceholder": "Filter by name…",
+        "GroupTerrestrial": "Terrestrial-Presenting",
+        "GroupAlien": "Alien-Coded",
+        "NoMatches": "Nothing matches that filter.",
+        "HelpSummary": "What does this actually change?",
+        "HelpBody": "Ancestry permanently sets six things on your sheet: two or three ability boosts (and sometimes one flaw), your base Hit Points, your Size, your Speed, and which languages you start with. It does not pick an ancestry feat — you'll choose one on your own character sheet once your token is on the table, the same way class feats work.",
+        "StatHP": "Hit Points",
+        "StatSize": "Size",
+        "StatSpeed": "Speed",
+        "StatLanguages": "Languages",
+        "StatVision": "Vision",
+        "BoostsTitle": "Ability Boosts",
+        "FlawsTitle": "Ability Flaws",
+        "NoFlaw": "No ancestry flaw.",
+        "ChooseOne": "Choose one:",
+        "Change": "Change ancestry",
+        "LockdownNote": "Playing something other than Human, Elf, Dwarf, Gnome or Halfling is fully encouraged — it just means a few extra private questions later in the process. Those are between you and this screen; whether you ever tell anyone at the table is entirely your call, and there is no wrong answer.",
+        "Back": "Back",
+        "Continue": "Continue"
       }
     }
   }
