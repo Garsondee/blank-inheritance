@@ -5,7 +5,7 @@
 the two now need to be held together without letting the second change the first prematurely.
 **Sources:** `data/scene-briefs/episode-c1s1--intake-medicals.json` (his full voice/cast entry),
 `ideas/story/blank-inheritance-master-timeline.md`, `ideas/story/dossier-cicada.md` §6,
-direct conversation, 2026-09-09.
+`ideas/story/dossier-first-impact.md`, direct conversation, 2026-09-09, 2026-09-10.
 
 ## Read this first
 
@@ -37,6 +37,34 @@ carried quietly, not a reason to make him cagey now — see the guardrail below,
 - **Not established either way: whether he knows he's a target**, or remembers Manako's disgrace as
   anything more than routine institutional business from decades ago. Don't assume; his existing
   voice reads as a man untroubled by anything in particular, which may simply mean he doesn't know.
+- **He is literally an animated skeleton — confirmed 2026-09-10, not a figure of speech.** Started as
+  a rogue with real medical skill, and became Dr. Shucks Mordant on the strength of it. Every kid who
+  meets him at Intake Medicals sees an actual walking skeleton in a white coat and stethoscope — the
+  portrait already assigned to him (`artwork/character-portraits/shucks-mordant.png`) is literal, not
+  stylized. His "two hundred years old" line is not an idiom either.
+- **The right hand is a detached familiar, and doesn't know it's supposed to be his.** Some while ago
+  he put his hand into a beam of powerful necromantic energy; the hand survived the experience by
+  becoming its own thing — a small, independent, commandable familiar, and (as an emergent property of
+  whatever that beam actually was) **it can fly, using a kite.** It is not currently attached to his
+  arm: in-universe, his sleeve currently ends in a **very convincing prosthetic**, indistinguishable at
+  a glance. **A Perception or Medicine check on meeting him is the honest way a table notices** — this
+  is a real, checkable detail, not narration the GM just hands out.
+- **The hand has gone its own way, and Shucks doesn't mind.** It is, in his own words effectively,
+  "a conspiracy theorist" — investigating what's actually happening in the city entirely on its own
+  initiative, without his help or knowledge, and **unable to talk normally** (how it communicates, if
+  at all, is open — see below). He doesn't know where it currently is. It always comes back eventually,
+  once hungry, the way a stroppy cat does. He is genuinely unworried about the whole arrangement.
+
+### The Hand — a sub-character in its own right
+
+A small, mobile, nonverbal investigator, independently pursuing its own theory of what's going on in
+the city, with no loyalty check-in to Shucks and no coordination with the party unless a scene puts
+them in its path. Its "conspiracy theorist" framing plus genuine access (it's been loose in the city,
+unsupervised, for an unstated length of time) makes it a plausible source of a real, oddly-specific
+scrap of true information at an unexpected moment — flying past on a kite, or turning up somewhere it
+has no business being. Not built as a scene or an NPC stat block yet; flagged here so it isn't lost,
+and as a candidate for its own file if it becomes a recurring presence rather than a standing detail
+about Shucks.
 
 ## Tone and register — what NOT to do
 
@@ -56,6 +84,11 @@ city at large knows the Directorate had four founders, or that Shucks — the in
 kid sees on day one — is one of them. Treat it as true but not necessarily publicly known unless a
 scene establishes otherwise.
 
+**Being a literal skeleton doesn't change the tone rule.** His warmth and deadpan calm are still the
+correct read — a kind, unsettling-looking mentor, not a horror element. The "kids notice the prosthetic
+isn't real" beat should land as a small, checkable oddity in an otherwise gentle scene, the same
+register as everything else already built at Intake Medicals, not a jump-scare.
+
 ## Open questions
 
 - Does he know he's on the revenge list?
@@ -67,6 +100,13 @@ scene establishes otherwise.
 - How does founder-Shucks relate to founder-Anabala and founder-Hyuck now, if at all? Rupiah is
   independently confirmed still active (Founding Day appearances) — is Shucks in similar ongoing
   contact with the others, or estranged, or something else entirely?
+- How did the hand actually detach — is the necromantic-beam incident itself campaign-relevant (tied to
+  the Gap, First Impact, or something else entirely unrelated he stumbled into), or purely personal
+  history with no wider hook?
+- Does the hand communicate at all (writing, gesture, tapping out a code) or is it genuinely silent and
+  unreadable? What has it actually learned, wandering the city on its own?
+- Is the hand ever going to cross paths with the party, and if so, does it recognise Shucks in them (six
+  kids who just met its estranged other half) or have no idea who they are?
 
 ## Appearances so far
 
@@ -84,3 +124,4 @@ scene establishes otherwise.
 - [ideas/story/bible/locations/the-gnoll-statue.md](../locations/the-gnoll-statue.md) — Hyuck, from the same founding party.
 - [ideas/story/blank-inheritance-master-timeline.md](../../blank-inheritance-master-timeline.md)
 - [ideas/story/dossier-cicada.md](../../dossier-cicada.md) §6
+- [ideas/story/dossier-first-impact.md](../../dossier-first-impact.md) — the Kortos incident he was present for.

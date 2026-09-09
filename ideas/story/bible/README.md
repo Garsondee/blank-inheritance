@@ -14,14 +14,19 @@ exists so that doesn't happen twice.*
   as eight sessions. The whole campaign's shape, written once, dense.
 - `blank-inheritance-master-timeline.md` — everything that happened before Day 1, in order. Added
   2026-09-09.
-- `dossier-observer.md`, `dossier-cicada.md` — **the antagonists.** Complete GM reference for the
-  Watcher/Observer and for Cicada (Manako, the Faithful vs. the Cadre, the whole supply chain).
-  Explicitly flagged by Ingram as critical, standing material: *"we'll need to keep editing and
-  refining them as we go along to get closer to the 'truth' as we go."* Added 2026-09-09. **Check
-  these before writing anything involving the Watcher, Cicada, Manako, Nobu, or Shucks Mordant** —
-  they're already more complete than a bible/ entry would be for the same subject, which is why
-  neither antagonist gets a duplicate file in here; this directory's job for them is cross-referencing
-  and flagging contradictions, not re-summarizing.
+- `dossier-observer.md`, `dossier-cicada.md`, `dossier-first-impact.md`, `dossier-shinobu.md` — the
+  dossier family: full GM-reference treatment for anything too big for a bible/ entry. The first two
+  are **the antagonists** (the Watcher/Observer; Cicada — Manako, the Faithful vs. the Cadre, the whole
+  supply chain), explicitly flagged by Ingram as critical, standing material: *"we'll need to keep
+  editing and refining them as we go along to get closer to the 'truth' as we go."* Added 2026-09-09.
+  `dossier-first-impact.md` (added 2026-09-10) is the full origin event — the Kortos incident, the
+  founders, what the Watcher and the Frames actually are, and this world's loose relationship to
+  Golarion. `dossier-shinobu.md` (added 2026-09-10) is a sympathetic witness NPC, not an antagonist,
+  but her material was dossier-length rather than a few sentences, so it lives here on the same
+  pattern. **Check these before writing anything involving the Watcher, Cicada, Manako, Nobu, Shucks
+  Mordant, the founders, or Shinobu** — they're already more complete than a bible/ entry would be for
+  the same subject, which is why none of these get a duplicate file in `bible/`; this directory's job
+  for them is cross-referencing and flagging contradictions, not re-summarizing.
 
 They're where a species, a character or a place gets its first few sentences — or, for the two
 dossiers, considerably more than a few.

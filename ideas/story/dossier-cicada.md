@@ -183,6 +183,19 @@ Most walk out wanting to know more. Wanting to know more is how you enter the cu
 
 **A PC can attend one and walk out converted. Genuinely. Not as a trap.**
 
+**A real choice, every time — confirmed 2026-09-10 via Nozomi's own case (see below).** After the
+demonstration, the audience is explicitly given the option to leave and tell people what they saw, or
+stay and learn more. This isn't a formality — it's the honest heart of why the cult catches sincere
+people: nobody is trapped into anything, they're offered a door out at the exact moment they'd most
+want one, and most people who stay do so because they were genuinely persuaded, not because they
+couldn't leave.
+
+**Worked example: Nozomi.** The presumptive first Frame pilot attended one of these shows weeks before
+Day 1, was shown the Watcher undeniably, stayed, and was told directly by a senior cultist that she was
+"working for the wrong side." The next day she declined the draft outright — turned off her beeper and
+phone. The party's own induction happened earlier than planned as a direct result: a seat needed
+filling sooner than scheduled. Full treatment: `ideas/story/bible/characters/nozomi.md`.
+
 ### The lens
 
 Manako's own conversion instrument: ground glass treated with Sap. Look through it and denial is not available. Rational, respectful of the target's intelligence, and exactly what a scientist would build.
