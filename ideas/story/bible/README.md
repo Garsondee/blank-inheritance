@@ -50,10 +50,18 @@ never parsed by anything. Different job, different shape.
 ```
 ideas/story/bible/
   README.md          -- this file
+  LEDGER.md           -- every direct question ever asked and Ingram's answer, verbatim. Read this note.
   species/            one file per sentient or notable species — mitflits.md is the first
   characters/          one file per named character worth tracking across sessions
   locations/            one file per place the party returns to or that carries real weight
 ```
+
+**`LEDGER.md` is the single most load-bearing file in this directory — read it before this README if
+you're only reading one.** It's the chronological record of every question asked directly and answered
+directly: the actual, primary source everything else here gets compiled from when a fact came from a
+direct question rather than the two tier-1 source documents. **Check it before asking anything** — a
+question already asked and answered there must never be asked again, and its answer must never be
+silently re-guessed differently the second time.
 
 Add a new top-level category here only when an entity genuinely doesn't fit the three above
 (a faction, an object, an institution) — don't force one of these three to hold something it
