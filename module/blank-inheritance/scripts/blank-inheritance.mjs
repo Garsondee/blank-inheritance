@@ -42,6 +42,7 @@ import {
   registerSceneRunnerSettings,
   resetSceneRunnerCache
 } from "./foundry/scene-runner.mjs";
+import { openInductionTerminal } from "./foundry/induction-terminal.mjs";
 import {
   advanceSegment,
   ensureDowntimeVault,
@@ -81,7 +82,13 @@ Hooks.once("init", () => {
       // once-per-session action rather than an in-play one, so it lives on
       // the API rather than taking up room on a panel used mid-scene.
       openSceneRunner,
-      resetSceneRunnerCache
+      resetSceneRunnerCache,
+      // Session-zero character creation (design/induction-terminal.md).
+      // Deliberately not auto-mounted on ready -- the "opens automatically
+      // for a characterless user" trigger isn't built yet, so this is the
+      // manual, once-per-player way in until it is. No isGM gate: any user,
+      // including the GM previewing it, may open this.
+      openInductionTerminal
     };
   }
 

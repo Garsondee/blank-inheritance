@@ -155,6 +155,19 @@
       "Granted": "The party now hold \"{title}\".",
       "Held": "Held by the party",
       "Insight": "Free to ask"
+    },
+    "Induction": {
+      "Page1": {
+        "Title": "Induction",
+        "FormNumber": "FORM 1-A — CANDIDATE REGISTRATION",
+        "Intro1": "The letter said to report here. This is here — a Directorate terminal, humming quietly, waiting for a name it doesn't have yet.",
+        "Intro2": "You're about to build the character you'll be playing. This takes most people twenty to thirty minutes. Nothing here is final — anything too complicated for a form gets finished properly once you're actually in the game, on your character's own sheet.",
+        "WhatToExpectTitle": "What to expect",
+        "WhatToExpect": "You'll choose who your character is — their ancestry, their background, their training — and answer a handful of real questions about who they are as a person, not just what they can do. If a question ever seems unclear, look for a small toggle that switches the form to plain, out-of-character language explaining exactly what's being asked. Every answer here feeds directly into the campaign; nothing is just flavour text. At the end, you'll have a working character and a token waiting for you at the table.",
+        "WhatYouNeedTitle": "What to have ready",
+        "WhatYouNeed": "Just a concept — a rough idea of who you want to play. Everything else, this form will ask you for, one step at a time.",
+        "Begin": "Begin"
+      }
     }
   }
 }

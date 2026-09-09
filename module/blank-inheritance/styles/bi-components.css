@@ -535,6 +535,42 @@
 }
 .bi-form-row__value { color: var(--bi-paper-ink); font-weight: 700; white-space: nowrap; }
 
+/* ---------------------------------------------------------------------
+   INDUCTION TERMINAL — session-zero character creation.
+   Page 1 only so far (design/induction-terminal.md). Deliberately minimal:
+   the host just centres a .bi-doc on screen, everything else reuses the
+   PAPER document vocabulary above rather than inventing new furniture.
+   "We'll make it look attractive later" -- functional first, on purpose.
+   --------------------------------------------------------------------- */
+.bi-induction-host {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  pointer-events: none;
+}
+.bi-induction { pointer-events: auto; }
+.bi-induction__page { width: min(640px, 92vw); max-height: 86vh; overflow-y: auto; }
+
+.bi-induction__actions { display: flex; justify-content: flex-end; margin-top: 28px; }
+.bi-induction__begin {
+  font-family: var(--bi-font-typewriter);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bi-paper-ink);
+  background: var(--bi-paper-shade);
+  border: 1px solid var(--bi-paper-rule);
+  border-radius: 2px;
+  padding: 9px 22px;
+  cursor: pointer;
+}
+.bi-induction__begin:hover { background: var(--bi-paper); }
+.bi-induction__begin:focus-visible { outline: 2px solid var(--bi-vermilion); outline-offset: 2px; }
+
 /* --- Kanji used structurally, not decoratively ----------------------- */
 
 /* A vertical run of Kanji down a document margin. Genuine Japanese

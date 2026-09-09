@@ -1,0 +1,40 @@
+{{!--
+    The induction terminal — Page 1, Orientation.
+
+    Diegetically a Directorate terminal; mechanically the first page of
+    session-zero character creation. See design/induction-terminal.md for
+    the full page-by-page design. This page collects nothing -- it exists
+    so nobody starts making mechanical choices without first knowing what
+    they're about to do. Deliberately no help-toggle content here: this
+    whole page IS the OOC layer, plainly written, no switch needed.
+
+    PAPER register, reusing .bi-doc -- built, tested, and unused by any
+    shipped template until now. This is a document, not a readout, matching
+    every other Directorate form already built (design/visual-identity.md §1b).
+--}}
+<section class="bi-induction">
+    <div class="bi-doc bi-induction__page">
+        <header class="bi-doc__head">
+            <h1 class="bi-doc__title">{{localize "BLANKINHERITANCE.Induction.Page1.Title"}}</h1>
+            <div class="bi-doc__meta">
+                {{localize "BLANKINHERITANCE.Induction.Page1.FormNumber"}}
+                {{#if userName}}<br><b>{{userName}}</b>{{/if}}
+            </div>
+        </header>
+
+        <p>{{localize "BLANKINHERITANCE.Induction.Page1.Intro1"}}</p>
+        <p>{{localize "BLANKINHERITANCE.Induction.Page1.Intro2"}}</p>
+
+        <h2>{{localize "BLANKINHERITANCE.Induction.Page1.WhatToExpectTitle"}}</h2>
+        <p>{{localize "BLANKINHERITANCE.Induction.Page1.WhatToExpect"}}</p>
+
+        <h2>{{localize "BLANKINHERITANCE.Induction.Page1.WhatYouNeedTitle"}}</h2>
+        <p>{{localize "BLANKINHERITANCE.Induction.Page1.WhatYouNeed"}}</p>
+
+        <div class="bi-induction__actions">
+            <button type="button" class="bi-induction__begin" data-action="begin">
+                {{localize "BLANKINHERITANCE.Induction.Page1.Begin"}}
+            </button>
+        </div>
+    </div>
+</section>
