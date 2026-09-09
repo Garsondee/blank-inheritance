@@ -140,11 +140,13 @@ The institution is **calcified rather than sinister**. The adults are not compet
 **Evening** — Somebody suggests a race. It happens. **A Frame moves more gently than its pilot ordered.**
 **Night** — Return; whoever asks Taka gets a beat of silence, something about hydraulic compensation, and a change of subject.
 
-**Frame-scale hazard, not combat.** A mock tenement of scaffold and sandbags, a weighted mannequin on the third floor with **DO NOT CRUSH THE CIVILIAN** painted on its chest, and a scoring sheet.
+**Frame-scale AND Vehicle-scale hazard course, not real combat.** Changed 2026-09-09 from a single hazard to a multi-station drill on a real city-scale map (10x grid, per `scale-and-chassis.md` §14f) — this is also the first time vehicles are shown to the party and assigned, not just Frames. Training turrets and target arrays test accuracy and fire discipline; the original mock tenement — a weighted mannequin on the third floor, **DO NOT CRUSH THE CIVILIAN** painted on its chest, and a scoring sheet — stays as one station among several, since it was too good a beat to cut. Nothing on this course can seriously hurt a Frame or a vehicle; it's calibrated to be passable, even a little silly, on purpose.
 
-*Build (Moderate, 120):* a complex hazard — progressive structural collapse with a round counter. Frame-scale Athletics and Crafting checks, cascading failure states, no enemy.
+*Build (Moderate, 120):* a complex hazard across several stations — Athletics/Crafting for the tenement, Piloting and attack rolls against static training turrets for the range stations, cascading failure states, no live enemy anywhere on the course.
 
-**This is the session that teaches the two-sheet structure**, and it is a comedy. Six teenagers discover they command six-storey machines that can shrug through a wall and cannot reliably lift a mannequin.
+**This is the session that teaches the two-sheet structure**, and it is a comedy. Six teenagers discover they command six-storey machines (and now vehicles) that can shrug through a wall, put a round through a target a city block away, and still cannot reliably lift a mannequin.
+
+**Why it's deliberately imperfect, by design:** the Directorate hasn't faced a real Frame-scale threat yet, so this drill is allowed to teach the wrong lessons — confidence, comedy, "we're basically fine at this." *(The correction comes later: Session Eight's actual first Claimant fight is deliberately hard, even brutal, and should read as proof they weren't ready. Badly damaging or destroying a Frame or a vehicle there is expected and generates real repair backlog — see `data/campaign/config.json`'s `frameEconomy` — never a PC death.)*
 
 **Make the table love Taka tonight.** Everything he is for later depends on it.
 
@@ -236,6 +238,8 @@ Then a fine mist, and **the sky fills**: stalked, eyed, listening, past the hori
 **The Frame combat.** A siren pattern they have heard exactly once, in a classroom, on a list of alarms never used. Conflicting instructions. A duty officer reading from a binder. **Oda** taking a decision nobody has standing to overrule because nobody has ever had to.
 
 **One Frame launches. Five ground roles, live, for real.**
+
+*(This is the encounter Session Three's drill was deliberately not — the drill taught confidence and comedy on purpose; this should read as proof they weren't ready. Frame and vehicle damage, even destruction, is expected and on the table here, generating real repair backlog. Never a PC death.)*
 
 *Build (Severe at Frame scale, 180):* one Claimant built to the Frame's tier. **Do not overcomplicate the statblock** — this is one player's first Frame combat inside a two-hour session with five other people acting.
 

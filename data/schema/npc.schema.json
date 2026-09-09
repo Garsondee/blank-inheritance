@@ -18,6 +18,10 @@
     "namingPlaceholderRef": { "type": ["string", "null"] },
     "openQuestionRefs": { "type": "array", "items": { "type": "string" } },
     "status": { "type": "string" },
+    "crewChiefForRef": {
+      "type": ["string", "null"],
+      "description": "This NPC is the named head of one pilot's repair crew (campaign/config.json#frameEconomy.repairCrew) -- the id of the kid (data/characters/kids/) they serve. One crew chief per pilot, six total. Distinct from Ground Roles (campaign/ground-roles.json), which are PC-played, not NPCs."
+    },
     "statblock": {
       "description": "Optional combat/skill stat block, only needed if this NPC could plausibly roll dice against the party. Same shape as creature.schema.json.",
       "anyOf": [
