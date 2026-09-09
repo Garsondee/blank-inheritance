@@ -1,7 +1,7 @@
 // Tier 1 — the session progress bar's pure logic.
 //
 // Real wall-clock time, not fictional game-time: "how far through
-// tonight's session am I," where the session is 7:30-10 PM. Every check
+// tonight's session am I," where the session is 7:30-10:30 PM. Every check
 // here passes an explicit Date rather than calling new Date(), so this
 // suite is deterministic regardless of when it's actually run.
 
@@ -11,12 +11,12 @@ import assert from "node:assert/strict";
 import { sessionWindow, sessionProgress, formatMinutes } from "../module/blank-inheritance/scripts/core/session-clock.mjs";
 
 const at = (h, m = 0, s = 0) => new Date(2026, 0, 5, h, m, s);
-const W = sessionWindow(); // defaults: window 5pm-midnight, session 7:30-10pm
+const W = sessionWindow(); // defaults: window 5pm-midnight, session 7:30-10:30pm
 
-test("sessionWindow defaults to the Monday Group's real 7:30-10 PM session in a wider window", () => {
+test("sessionWindow defaults to the Monday Group's real 7:30-10:30 PM session in a wider window", () => {
   assert.equal(W.windowStart, 17 * 60);
   assert.equal(W.sessionStart, 19 * 60 + 30);
-  assert.equal(W.sessionEnd, 22 * 60);
+  assert.equal(W.sessionEnd, 22 * 60 + 30);
   assert.equal(W.windowEnd, 24 * 60);
 });
 
@@ -39,7 +39,7 @@ test("before the session: phase is 'before', a countdown label, zero session fil
 });
 
 test("during the session: phase is 'during', fill matches elapsed fraction, a percentage label", () => {
-  const p = sessionProgress(at(20, 45), W); // 8:45 PM = 75 of 150 minutes = 50%
+  const p = sessionProgress(at(21, 0), W); // 9:00 PM = 90 of 180 minutes = 50%
   assert.equal(p.phase, "during");
   assert.ok(Math.abs(p.sessionFillFrac - 0.5) < 1e-9);
   assert.equal(p.label, "50% through tonight's session");
@@ -47,20 +47,20 @@ test("during the session: phase is 'during', fill matches elapsed fraction, a pe
 
 test("exactly at the session boundaries counts as during, not before/after", () => {
   assert.equal(sessionProgress(at(19, 30), W).phase, "during");
-  assert.equal(sessionProgress(at(22, 0), W).phase, "during");
+  assert.equal(sessionProgress(at(22, 30), W).phase, "during");
 });
 
 test("shortly after the session: phase is 'after', an 'over' label, full session fill", () => {
-  const p = sessionProgress(at(22, 20), W); // 20 min past 10 PM
+  const p = sessionProgress(at(22, 50), W); // 20 min past 10:30
   assert.equal(p.phase, "after");
   assert.equal(p.sessionFillFrac, 1);
   assert.equal(p.label, "Running 20m over");
 });
 
-test("long after the session: an 'ended ... ago' label instead of 'over'", () => {
-  const p = sessionProgress(at(23, 45), W); // 1h45 past 10 PM
-  assert.equal(p.phase, "after");
-  assert.equal(p.label, "Session ended 1h 45m ago");
+test("the over/ended wording flips at 90 minutes past the end, not at the end itself", () => {
+  const p = sessionProgress(at(23, 59), W); // 1h29 past 10:30 is still 'over';
+  assert.equal(p.phase, "after");             // the 90-minute cutoff is what flips the wording
+  assert.equal(p.label, "Running 1h 29m over");
 });
 
 test("windowFrac places 'now' proportionally along the WHOLE bar, clamped to the window", () => {

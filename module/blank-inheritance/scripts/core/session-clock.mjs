@@ -4,7 +4,9 @@
  * Not fictional time (that's the toprail's own Day/Time readout, driven by
  * console.js's `state` and measured in-world). This is REAL wall-clock
  * time: "I should be able to see at a glance how far through the session
- * I am," where "the session" is the actual Monday-night table, 7:30–10 PM.
+ * I am," where "the session" is the actual Monday-night table, 7:30–10:30 PM
+ * — the half-hour matters, because running to 10 and running to 10:30 are
+ * both ordinary and only one of them should read as overrunning.
  * A GM's own meta-tool riding on top of the in-fiction console, same
  * category as the terminal's Director mode — for the person running the
  * game, not the characters in it.
@@ -18,13 +20,13 @@ const toMinutes = (h, m) => h * 60 + m;
 /**
  * The window: a wider span than the session itself, so there is real
  * "not started yet" / "wrapped up" context either side of it, not just a
- * bar that is either empty or full. Defaults: 5:00 PM window open, 7:30–10
+ * bar that is either empty or full. Defaults: 5:00 PM window open, 7:30–10:30
  * PM highlighted as the session itself, midnight window close.
  */
 export function sessionWindow({
   windowStartHour = 17, windowStartMinute = 0,
   sessionStartHour = 19, sessionStartMinute = 30,
-  sessionEndHour = 22, sessionEndMinute = 0,
+  sessionEndHour = 22, sessionEndMinute = 30,
   windowEndHour = 24, windowEndMinute = 0
 } = {}) {
   const windowStart = toMinutes(windowStartHour, windowStartMinute);

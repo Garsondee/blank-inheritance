@@ -91,3 +91,33 @@ test("summarizeDiff: mismatch case names each category present, omits categories
   assert.match(summary, /1 only remote/);
   assert.doesNotMatch(summary, /only local/);
 });
+
+// --- The harvest direction reads the same diff inverted ------------------
+//
+// sync-harvest.mjs calls diffChecksums(remoteMap, localMap) — the server in
+// the FIRST position, because on a pull the server is the source of truth
+// rather than the destination. That swap silently inverts what two of the
+// four result fields mean, and getting it backwards would report a failed
+// download as "history, nothing to worry about". Pinned here because the
+// field names cannot be made to read correctly for both directions at once.
+
+test("pulled: a file on the server that did not arrive locally lands in onlyLocal", () => {
+  const remote = new Map([["sessions/2026-09-09.json", "h1"], ["runs/head-height.json", "h2"]]);
+  const pulled = new Map([["sessions/2026-09-09.json", "h1"]]);
+  const diff = diffChecksums(remote, pulled);
+  assert.deepEqual(diff.onlyLocal, ["runs/head-height.json"], "a failed download must be distinguishable from history");
+  assert.deepEqual(diff.onlyRemote, []);
+});
+
+test("pulled: a file the repo kept from an earlier harvest lands in onlyRemote", () => {
+  const remote = new Map([["sessions/2026-09-09.json", "h1"]]);
+  const pulled = new Map([["sessions/2026-09-09.json", "h1"], ["sessions/2026-08-01.json", "old"]]);
+  const diff = diffChecksums(remote, pulled);
+  assert.deepEqual(diff.onlyRemote, ["sessions/2026-08-01.json"], "an older harvest is history, not a fault");
+  assert.deepEqual(diff.onlyLocal, [], "and must not be counted as a failed download");
+});
+
+test("pulled: content that arrived different is `changed` in either direction", () => {
+  const diff = diffChecksums(new Map([["a.json", "h1"]]), new Map([["a.json", "h2"]]));
+  assert.deepEqual(diff.changed, ["a.json"]);
+});

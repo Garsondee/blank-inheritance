@@ -14,6 +14,7 @@
  */
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { parseChecksumLines } from "./checksums.mjs";
 
@@ -80,4 +81,51 @@ export async function remoteChecksums({ remoteDir, keyPath, hostKey, remoteHost 
     remoteCommand,
   ]);
   return parseChecksumLines(stdout);
+}
+
+/**
+ * Whether a remote directory exists at all.
+ *
+ * Harvest runs against storage/, which Foundry only creates once something
+ * has actually written to it -- so "not there yet" is an ordinary state on a
+ * fresh server, not a failure, and has to be distinguishable from a genuine
+ * connection problem before remoteChecksums is asked to cd into it.
+ */
+export async function remoteDirectoryExists({ remoteDir, keyPath, hostKey, remoteHost }) {
+  const { stdout } = await execFileAsync(PLINK, [
+    "-ssh",
+    "-i", keyPath,
+    "-hostkey", hostKey,
+    "-batch",
+    remoteHost,
+    `test -d '${remoteDir}' && echo yes || echo no`,
+  ]);
+  return stdout.trim().endsWith("yes");
+}
+
+/**
+ * Pulls every file named in remoteMap down into localDir, one at a time.
+ *
+ * The mirror of uploadDirectory, and file-by-file for the same reason: a
+ * recursive pscp does not reliably overwrite a file that already exists at
+ * the destination, which on this side would mean silently keeping a stale
+ * copy of a session record that had since changed on the server.
+ *
+ * This direction is READ-ONLY on the server. Nothing here deletes, moves or
+ * rewrites anything remote -- the module design's harvest rule is that
+ * promotable content only ever travels Foundry-to-repo, and that a human
+ * decides what to do with it afterwards.
+ */
+export async function downloadDirectory({ remoteDir, localDir, keyPath, hostKey, remoteHost, remoteMap }) {
+  for (const relativePath of remoteMap.keys()) {
+    const destination = path.join(localDir, relativePath);
+    await mkdir(path.dirname(destination), { recursive: true });
+    await execFileAsync(PSCP, [
+      "-i", keyPath,
+      "-hostkey", hostKey,
+      "-batch",
+      `${remoteHost}:${remoteDir}/${relativePath}`,
+      destination,
+    ]);
+  }
 }
