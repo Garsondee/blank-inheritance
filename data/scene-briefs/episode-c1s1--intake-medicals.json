@@ -5,21 +5,24 @@
   "episodeRef": "episode-c1s1-mothers-maiden-name",
   "sceneRef": "intake-medicals",
   "title": "Intake Medicals",
-  "goal": "Every player has spoken in character, and every character has been told privately that their blood screen came back irregular and not to worry about it. By the end they know it happened to all six of them.",
-  "howToPlay": "A school medical crossed with a passport office. Warm, slow, faintly ridiculous. Nobody is in danger here and nothing bad happens.",
-  "runsAbout": "25 minutes",
+  "goal": "Every player has had a private, unhurried moment with Shucks, and every character has been told their blood screen came back irregular. By the end they have worked out that it happened to all six of them.",
+  "howToPlay": "A school medical crossed with a passport office, and then one genuinely kind conversation each. Warm, slow, unhurried. Nobody is in danger here and nothing bad happens.",
+  "runsAbout": "30-40 minutes, because every player gets a private scene",
   "mode": "social",
   "accomplishment": {
-    "award": "minor",
-    "xp": 10,
-    "forWhat": "Working out, without being told, that all six of them were flagged."
+    "award": "moderate",
+    "xp": 30,
+    "forWhat": "Working out, without being told, that everyone in their section was flagged."
   },
   "intro": {
-    "where": "The Directorate's medical hall on the combined campus, first morning of intake. Forty seventeen-year-olds in a queue that has not moved in eleven minutes.",
-    "firstThing": "A hand-lettered sign reading FORMS FIRST — NO EXCEPTIONS, taped over an older sign reading MEDICALS FIRST.",
-    "readAloud": "There are forty of you and one queue, and it has not moved in eleven minutes. Somewhere ahead a man is saying \"other arm\" over and over in exactly the same tone.\n\nA hand-lettered sign says FORMS FIRST — NO EXCEPTIONS. It is taped over an older sign, in better handwriting, that says MEDICALS FIRST.",
+    "where": "The Directorate's medical hall on the combined campus, first morning of intake. Several hundred candidates arrived this week and were sorted into sections on Monday; these six ended up in the same one. Nobody has said why, and nobody has thought to ask.",
+    "firstThing": "A hand-lettered sign reading FORMS FIRST - NO EXCEPTIONS, taped over an older sign, in better handwriting, reading MEDICALS FIRST.",
+    "readAloud": "Section Nine is thirty-odd people and one queue, and it has not moved in eleven minutes.\n\nYou came from different places for different reasons and you all wrote the same letter. The person in front of you is twice your age. The person behind you is not, and has opinions about the queue.\n\nSomewhere ahead a man is saying “other arm” over and over in exactly the same tone.\n\nA hand-lettered sign says FORMS FIRST - NO EXCEPTIONS. It is taped over an older sign, in better handwriting, that says MEDICALS FIRST.",
     "carriesIn": [
-      { "when": "This is the campaign's first scene", "then": "Nothing carries in. Everything here is a first impression, so give each player one unhurried moment to make one." }
+      {
+        "when": "This is the campaign's first scene",
+        "then": "Nothing carries in. Everything is a first impression, so give each player one unhurried moment to make one - including saying what they left behind to be standing in this queue."
+      }
     ]
   },
   "cast": [
@@ -30,27 +33,53 @@
       "role": "Chief Medical Officer",
       "arrival": "quiet",
       "brief": {
-        "wants": "To get through forty medicals before lunch. That is genuinely all he wants, and he is very good at it.",
+        "wants": "To do forty medicals properly rather than quickly, and to make sure each of these six leaves his room feeling looked after. He has done ten thousand of these and is still interested in every one, which is the rarest thing about him.",
         "opensWith": "\"Name. Not the one on the form — the one you actually use.\"",
         "willDiscuss": [
-          { "topic": "The job", "note": "How many of these he has done. The number he gives is high and he is not exaggerating." },
-          { "topic": "Their parents", "note": "He processed them too, and remembers them. This is charming and should stay charming." },
-          { "topic": "Anything at all", "note": "He will talk about anything except the flag, and he is good company." }
+          {
+            "topic": "What they physically are",
+            "note": "He already knows. A disguise does not work on the man holding the blood sample, and he will not pretend otherwise. Respectful, matter-of-fact, completely unbothered."
+          },
+          {
+            "topic": "Their comfort, practically",
+            "note": "How long they can hold it comfortably. Whether the maintenance hurts. What they actually eat, because the canteen will not have it and he can sign for alternatives."
+          },
+          {
+            "topic": "What he would need to know in an emergency",
+            "note": "The kindest question in the scene, and the one that quietly puts it all on file."
+          },
+          {
+            "topic": "Their parents",
+            "note": "He processed them too, decades ago, and remembers them clearly. Keep this charming."
+          }
         ],
         "willNotDiscuss": [
-          { "topic": "What \"irregular\" means on the screen", "why": "He is forbidden from saying. He also thinks the rule is stupid, and both facts show to anyone who reads him." }
+          {
+            "topic": "What the irregular marker means, or what their track is for",
+            "why": "He is forbidden, he thinks the rule is stupid, and both show to anyone who reads him. Note the shape: he deflects about the INSTITUTION'S secret, never about the player's."
+          }
         ],
         "coercible": [
-          { "topic": "A standing offer to come back to him later", "how": "Being liked. Pressure makes him bureaucratic rather than frightened — he has outlasted better interrogators than a seventeen-year-old.", "challengeRef": "c1s1-the-medical" }
+          {
+            "topic": "A standing offer to come back to him later",
+            "how": "Being liked. Pressure makes him bureaucratic rather than frightened — he has outlasted better interrogators than a seventeen-year-old.",
+            "challengeRef": "c1s1-the-medical"
+          }
         ],
         "voice": {
-          "register": "Brisk, warm, deadpan. Talks while doing something else. Never looks up.",
-          "tics": ["Gives instructions as single words: \"Arm.\" \"Light.\" \"Breathe.\"", "Compares them to relatives he processed decades ago"],
+          "register": "Warm, unhurried, deadpan. Asks a question and then actually waits. Two hundred years old and has not run out of interest in people.",
+          "tics": [
+            "Gives instructions as single words - Arm. Light. Breathe.",
+            "Says the practical thing before the kind thing, and means both",
+            "Compares them to relatives he processed decades ago"
+          ],
           "samples": [
-            "\"Arm. Other arm. Look at the light, not at me.\"",
-            "\"You're the fourth Ishikawa I've had through here and none of you can sit still.\"",
-            "\"It's a screen. Screens flag things. You're fine.\"",
-            "\"Don't go home and worry your mother about it.\""
+            "“Arm. Other arm. Look at the light, not at me.”",
+            "“Yes, I know. Sit down. You’re the fourth this morning and I’m not writing it anywhere it matters.”",
+            "“How long can you hold it comfortably? I’m not asking how long you can hold it.”",
+            "“If you come in here unconscious, what do I need to know that I wouldn’t be able to see?”",
+            "“What do you actually eat? The canteen won’t have it. I can sign for alternatives.”",
+            "“It’s a screen. Screens flag things. You’re fine.”"
           ]
         }
       }
@@ -65,13 +94,18 @@
         "wants": "For the forms to be filled in correctly. She has no other ambitions today.",
         "opensWith": "Which box they have got wrong.",
         "willDiscuss": [
-          { "topic": "Why the form asks twice", "note": "Box four goes to Records and box nineteen goes to Welfare, and the two departments have not spoken since the flood. She is not embarrassed by this." }
+          {
+            "topic": "Why the form asks twice",
+            "note": "Box four goes to Records and box nineteen goes to Welfare, and the two departments have not spoken since the flood. She is not embarrassed by this."
+          }
         ],
         "willNotDiscuss": [],
         "coercible": [],
         "voice": {
           "register": "Flat, patient, entirely without irony. She has explained this many times and will explain it again.",
-          "tics": ["Answers the question she was asked and then stops talking"],
+          "tics": [
+            "Answers the question she was asked and then stops talking"
+          ],
           "samples": [
             "\"Box four is mother's maiden name. Box nineteen is also mother's maiden name, but in capitals.\"",
             "\"No, I don't know why.\"",
@@ -106,9 +140,10 @@
       "kind": "action",
       "mandatory": true,
       "delivery": "table",
-      "text": "Shucks sees them one at a time. Give each player about thirty seconds alone with him.",
-      "direction": "This is the only private moment in the session, and it is what makes the last beat land. If you can physically turn to one player and lower your voice, do that.",
-      "npcRef": "shucks"
+      "text": "Shucks sees them one at a time. Give every player a private scene - two or three questions each, no more.",
+      "direction": "This is the players’ first real experience of the setting treating them as individuals, so do not rush it. He already knows what each of them physically is, because he has the blood sample and two centuries of practice, and he says so plainly and kindly rather than making anyone perform a reveal. For a character who is exactly what they appear to be, ask about what they left behind to come here, or an old badly-set fracture, or a relative he remembers processing forty years ago. Nobody sits out this scene.",
+      "npcRef": "shucks",
+      "note": "PAIRS WITH THE TERMINAL. The induction system locks down and demands to know how they evaded detection; the doctor says yes, I know, sit down, are you comfortable. Same fact, two parts of one institution - the system files you, the man asks how you are. Run them close together."
     },
     {
       "id": "the-flag",
@@ -116,21 +151,21 @@
       "mandatory": true,
       "delivery": "solo",
       "text": "Tell each of them privately that their screen came back irregular, that it is very common, and that they should not worry about it.",
-      "readAloud": "\"Screen came back irregular. It does that. Half this queue will come back irregular. Don't go home and worry your mother about it.\"",
+      "readAloud": "“Screen came back irregular. It does that. Don’t go home and worry your mother about it.”",
       "direction": "Say it the same way six times. Bored, kind, already reaching for the next form. The flatness is what sells it.",
       "npcRef": "shucks",
       "after": "one-at-a-time",
-      "note": "PLANT — mystery ledger #1, pays off Chapter 6. The screen is checking the city's children for traces of mitflit ancestry, because that is what lets a person link with a Frame's core. Nobody in the room knows this except Shucks, and he is not allowed to say it."
+      "note": "PLANT - mystery ledger #1, pays off Chapter 6. Several hundred candidates are screened on application; the ones carrying an unusual marker are quietly streamed onto this course together, because only people with that marker can operate a Frame. Nobody on the track is told so."
     },
     {
       "id": "all-six",
       "kind": "action",
       "mandatory": true,
       "delivery": "table",
-      "text": "They find out it happened to all six of them.",
-      "direction": "If a player raises it themselves, get out of the way and let the table run the scene. That is the best version and it usually happens on its own.",
+      "text": "They work out that everyone in their section came back irregular.",
+      "direction": "Being streamed by aptitude is what schools do, so the arrangement should feel unremarkable right up until somebody counts. The reveal to aim for is not “we are special” - it is quieter: we were sorted, on arrival, by something in our blood, and it was so ordinary that none of us thought to ask.",
       "after": "the-flag",
-      "note": "IF NOBODY RAISES IT, three fallbacks in order of preference. (1) A kid from the queue who is not one of them says it loudly to nobody: \"Did anyone else get irregular? My mum's going to lose it.\" (2) Shucks says it to the room on his way out: \"That's the whole morning irregular. Records is going to have a lovely afternoon.\" (3) The clerk reads out the flagged list for collection. It is everyone, and she is not remotely bothered. Do not leave the scene without this planted."
+      "note": "IF NOBODY RAISES IT, three fallbacks in order of preference. (1) A candidate from another queue says it loudly and cheerfully: anyone else get irregular, my mum is going to lose it. (2) Shucks says it to the room on his way out: that is the whole section irregular, Records will be thrilled. (3) The clerk reads the flagged list out for collection and it is everyone. Do not leave the scene without this planted."
     },
     {
       "id": "what-does-irregular-mean",
@@ -142,7 +177,9 @@
       "npcRef": "shucks",
       "challengeRef": "c1s1-the-medical",
       "checkRef": "read-shucks",
-      "when": { "condition": "if anyone asks about the flag" },
+      "when": {
+        "condition": "if anyone asks about the flag"
+      },
       "note": "Every way at this is in data/challenges/c1s1-the-medical.json, each with its own DC and its own cost. If a player invents a different approach, price it on the scene's own ladder: DC 13 if it costs them something real, DC 15 for the obvious way, DC 17 if it is free or skips a step, DC 20 if it gets more than the scene was going to give them."
     },
     {
@@ -153,7 +190,9 @@
       "text": "Somebody gets a proper look at the paperwork.",
       "challengeRef": "c1s1-the-medical",
       "checkRef": "palm-the-form",
-      "when": { "condition": "if a player goes for the form rather than the man" },
+      "when": {
+        "condition": "if a player goes for the form rather than the man"
+      },
       "handoutRef": null,
       "note": "On a success they keep it. This is the scene's artefact and the first thing in the campaign the party owns rather than was told."
     }
@@ -175,18 +214,29 @@
   "outro": {
     "endsWhen": "The last of them is processed and the queue moves on to kit issue. If the all-six realisation has landed, end on it — do not play past it.",
     "readAloud": "The queue shuffles forward. Somebody ahead is being told to look at the light and not at the doctor. Outside, it has started to rain on forty bicycles.",
-    "artefactRefs": ["form-12b-public"],
+    "artefactRefs": [
+      "form-12b-public"
+    ],
     "tracks": [
-      { "track": "bonds", "delta": 1, "why": "If the six of them worked the flag out together rather than being told, they have their first shared secret. That is what Bonds is for." },
-      { "track": "standing", "delta": null, "why": "Only if somebody was caught going through the paperwork. Shucks finds it funny; Records does not. A small, survivable dent." }
+      {
+        "track": "bonds",
+        "delta": 1,
+        "why": "If the six of them worked the flag out together rather than being told, they have their first shared secret. That is what Bonds is for."
+      },
+      {
+        "track": "standing",
+        "delta": null,
+        "why": "Only if somebody was caught going through the paperwork. Shucks finds it funny; Records does not. A small, survivable dent."
+      }
     ],
     "onwards": "Kit issue and ground role selection this afternoon, where Nobu signs the slips personally and is oddly generous with the allowance. Anyone who impressed Shucks this morning has a name he will remember.",
     "writeDown": [
-      "Which of the six worked out the pattern, and whether they told the others or kept it.",
+      "What each character actually is, and who at the table now knows it.",
+      "Which of the six worked out the sorting, and whether they said so out loud.",
       "Who Shucks liked, and who he found funny. Both matter in Chapter 6.",
-      "Whether anyone treated the flag as frightening rather than annoying — that player is reading the campaign correctly and should be encouraged."
+      "Whether anyone treated the flag as frightening rather than annoying - that player is reading the campaign correctly."
     ]
   },
   "carryForward": [],
-  "notes": "First scene of the campaign. Its whole job is to make six strangers into a table and to plant one fact none of them can use yet. It contains no danger, no antagonist and no clock, and it should still be one of the sessions people remember, because it is the last time any of them are ordinary."
+  "notes": "First scene of the campaign. Its job is to turn six strangers into a table, give every player one private moment with an adult who is kind to them, and plant one fact none of them can use yet. No danger, no antagonist, no clock, and it should still be one of the scenes people remember - because it is the last time any of them are ordinary, and because somebody finally asked them a question nobody had thought to ask before."
 }

@@ -18,33 +18,49 @@ induction officer explaining the berserk protocol is doing their job, not servin
 **The rule that follows:** the players learn the setting at the speed the characters do, and never
 faster. If the party has not been told something, the GM has not told the table either.
 
-### They applied. That is the important part.
+### They applied. So did several hundred other people.
 
-**Settled 2026-09-09.** The party are **volunteers, not conscripts.** Signing up was a thing each of
-them decided to do next with their life, and each player defines their own reason for it — where
-they came from, what they left, and why this. The campaign does not issue anybody a backstory.
+**Settled 2026-09-09.** The party are **volunteers, not conscripts.** Signing up was something each
+of them decided to do next with their life, and **each player defines their own reason** — where
+they came from, what they left, why this. The campaign issues nobody a backstory.
 
-**Age is not a barrier.** Some of them may be considerably older than the local intake. This
-resolves a tension rather than creating one: the bible says pilots are seventeen because *it is the
-age the charter permits conscription* — law, not biology. Conscription has an age. **Volunteering
-does not.** Two intake streams, one building: local seventeen-year-olds who were called up, and
-these six, who wrote in.
+**Age is not a barrier.** The bible's "pilots are seventeen" is because the charter permits
+*conscription* at seventeen. Law, not biology. Conscription has an age; volunteering does not. Two
+intake streams in one building, and some of these six may be considerably older than the local kids.
 
-**And that reframes the flag.** They were not summoned and then screened. They **applied, were
-screened as part of applying, and were accepted** — and all six came back irregular.
+### Why all six are flagged: they are a cohort, not a coincidence
 
-So the opening mystery is not *why were we sent for*. It is quieter and better: *we each chose this
-independently, we were each accepted, and it turns out every one of us has the same anomaly on
-file.* Nobody has done anything to them. They walked in. The institution simply said yes for a
-reason it did not mention.
+**The Directorate takes several hundred candidates a semester and screens every one of them.** A
+blood draw, thirty seconds, no explanation offered because none is thought necessary. Most come back
+clear. A small number come back with an unusual marker, and **those candidates are quietly streamed
+onto a different course, together.**
 
-The letter that arrives is an **acceptance**, not an order. It is polite, official, slightly warmer
-than it needs to be, and entirely unexplained.
+**Only people carrying that marker can operate a Frame.** That is the entire reason the track
+exists, and nobody on it is told so.
 
-**What this leaves open:** whether the Directorate went looking for people like them at all, or
-whether it simply takes everyone who applies and quietly notes what the screen says. The second is
-more damning and much more in character for an institution whose founding sin is filing things and
-saying nothing.
+Where the marker comes from varies and does not need to be uniform:
+
+- **Real mitflit ancestry**, generations back and long forgotten.
+- **A random mutation**, with no history behind it at all.
+- **A resonant component** in an android or a construct, which happens to do the same job by an
+  entirely different route.
+- Whatever else a given character needs. The marker is a *functional* category, not a bloodline.
+
+**Why this is the right answer**, and better than the two I proposed before it:
+
+1. **It is mundane.** No conspiracy is required to explain why all six are flagged. They are all
+   flagged because being flagged is the entry criterion for the course they are on. An institution
+   sorting several hundred applicants by a test result is the least sinister thing imaginable, and
+   it is doing something enormous.
+2. **The mystery moves to the right place.** It is not *why us*. It is *what is this marker, and why
+   will nobody say what it means.* The Directorate is not concealing a selection. It is concealing a
+   **meaning**, which is precisely its founding sin.
+3. **They will not notice for a while.** Being streamed by aptitude is what schools do. The party
+   should find the arrangement completely unremarkable until the moment they realise that everybody
+   in their section came back irregular, and that this cannot be a coincidence in a cohort of six.
+
+**The reveal to aim for** is not "we are special". It is quieter: *we were sorted, on arrival, by
+something in our blood, and the sorting was so ordinary that none of us thought to ask.*
 
 ## 2. Everyone is wearing a shape that is not theirs
 
@@ -92,7 +108,66 @@ skill check somebody else rolls. The system may *know*; the table finds out when
 
 ---
 
-## 3. The induction terminal
+## 3. The medical: one adult who already knows
+
+**Shucks Mordant sees every candidate privately, and he knows exactly what each of them is.**
+
+A disguise does not work on the person taking your blood. Whatever a character presents as, the base
+physician has the sample, the readings and two centuries of having seen it before. There is no check
+to pass and no way to hide it, and **that is the point of the scene rather than a problem with it.**
+
+**He is kind, curious, respectful and extremely knowledgeable.** Not incurious — an earlier draft of
+this document made him bored and that was wrong. He has done ten thousand of these and is still
+interested in every one, which is the rarest thing about him.
+
+### The pair it forms with the terminal
+
+These two scenes are the same fact meeting two different parts of one institution, and they should
+be run close together so the contrast lands.
+
+| | The terminal | The doctor |
+|---|---|---|
+| Finds out | by tripping a screen | by looking at a blood sample |
+| Reaction | lockdown, and a demand to know how they evaded detection | "Yes, I know. Sit down." |
+| What it wants | a record | to be sure they are all right |
+| What it is | the founding sin | the reason the place is worth saving |
+
+**That contrast is the whole Directorate in two rooms.** The system files you. The man asks how you
+are. Both are sincere, and only one of them is any use to a frightened seventeen-year-old.
+
+### What he asks
+
+**A few questions each, tailored, and not many.** Two or three. The aim is a little extra depth and
+a good first experience, not an interrogation.
+
+For a character wearing a shape that is not theirs, his questions are practical and gentle, and they
+are the questions a doctor would actually ask:
+
+- *"How long can you hold it comfortably? I'm not asking how long you can hold it."*
+- *"Does the maintenance hurt? Some of them hurt."*
+- *"What do you actually eat? The canteen will not have it and I can sign for alternatives."*
+- *"If you come in here unconscious, what do I need to know that I would not be able to see?"*
+- *"Who else knows? — I'm not asking for names. I'm asking whether you have anyone."*
+
+**The fourth one is the scene.** It is the kindest question in the campaign and it is also, in
+retrospect, the moment the Directorate acquired a complete medical record of something the party
+thought was theirs alone. He is not doing that on purpose. He is being a good doctor. Both things
+are true and neither cancels the other.
+
+**Every character gets a private moment, not only the disguised ones.** For a character who is
+exactly what they appear to be, he asks about the thing they left behind to come here, or an old
+badly-set fracture, or a relative he processed forty years ago and remembers clearly. Nobody sits
+out this scene.
+
+### What he will not do
+
+He will not say what the marker means or what the track is for. He is forbidden, he thinks the rule
+is stupid, and both facts show plainly to anyone who reads him. **He does not pretend not to know
+what they are** — the deflection is about the institution's secret, never about the player's.
+
+---
+
+## 4. The induction terminal
 
 Character creation, run in fiction, as a scene. The players sit at a Directorate terminal and fill
 in the induction questionnaire, and what comes out is a character sheet.
@@ -139,65 +214,116 @@ Three rules about this, because it is the kind of joke that goes wrong easily:
 
 ---
 
-## 4. Recruit to cadet: what the arc actually is
+## 5. Recruit to cadet, and the shape of levels 1–2
 
-**Recruit** is somebody the Directorate sent for. No standing, no role, no kit, no idea what any of
-this is. They are being processed.
+**Levels 1→2 is Chapter One.** One thousand XP. The encounter ledger in
+`ideas/story/blank-inheritance-ch1-v2.md` already balances it — eight encounters at 680, with
+accomplishment awards carrying the remaining ~320. **Nothing below changes those numbers.** This is
+the same chapter, reorganised around the intake premise and the Clearance rungs, in five acts.
 
-**Cadet** is somebody the Directorate has decided is worth training. A role, kit that fits, a name
-people use, and the right to choose their own duty.
+**Do not count sessions.** Some scenes below are five minutes and one of them is a ninety-minute
+fight. Acts end when they end.
 
-The distance between those is five movements. **Do not count sessions.** Some of these are five
-minutes; one of them is a ninety-minute fight.
+### Act I — INTAKE · *Recruit → Cadet*
 
-### Arrival — *the city, and the fact that they were sent for*
-1. **The acceptance.** The letter that brought them, read before play starts. Polite, official,
-   slightly warmer than it needs to be, and entirely unexplained. Each player says what they left
-   to answer it.
-2. **Arriving.** First sight of the place: cliff-top red tile against the smokestack line, sail
-   traders tied up alongside coal cranes. Six strangers converging on the same gate.
-3. **The gate.** Papers, a queue, a form. Mitflit traps on the harbour wall with a small bounty on
-   them, same as the rat traps — nobody remarks on it.
+The only act where things happen *to* them.
 
-### Processing — *the institution, and the flag*
-4. **Intake medicals.** Written. The screen comes back irregular, privately, six times.
-5. **The induction terminal.** The questionnaire, the help toggle, and the lockdown for anybody
-   wearing a shape that is not theirs.
-6. **Kit issue.** Nobu signs the slips personally and is oddly generous with the allowance. Nobody
-   has any idea why, including him, most days.
-7. **The dormitory.** Six unfamiliar beds and somebody has already taken the good one. This is the
-   scene where they stop being six players and start being a party.
+1. **The acceptance.** Read before play. Polite, official, slightly warmer than it needs to be, and
+   unexplained. Each player says what they left to answer it.
+2. **Arriving.** Cliff-top red tile against the smokestack line, sail traders alongside coal cranes.
+   Several hundred other candidates, all doing the same thing they are.
+3. **The hall.** Forms, noise, a queue. Mitflit traps on the harbour wall outside with a small
+   bounty on them, same as the rat traps. Nobody remarks on it. *(Mitflit trail, step 1.)*
+4. **The screen.** A blood draw. Thirty seconds. No explanation, because none is thought necessary.
+5. **The sorting.** Names read from a list, groups formed, corridors pointed at. The six of them end
+   up in the same group. **This should feel completely unremarkable.**
+6. **The dormitory.** Six unfamiliar beds and somebody has already taken the good one. This is where
+   they stop being six players and start being a party.
+7. **The medical.** Shucks, privately, one at a time (§3). Every character gets a moment; every
+   disguised one gets the questions only a doctor would think to ask.
+8. **"Irregular."** Said flatly, six times, in six separate rooms.
+9. **The terminal.** The induction questionnaire, the help toggle, and the lockdown (§4).
+10. **Kit issue.** Nobu signs personally and is oddly generous with the allowance.
+11. **Ground role aptitude**, taught by doing. The five lenses, introduced as chores.
+12. **Hangar Four.** They see a Frame and do not get to touch it. Something under a tarp at the back
+    has a blank maintenance schedule.
+13. **Assembly.** An anthem with no composer credited. The berserk protocol recited sing-song by
+    people who learned it at fourteen, opening with a line about brothers that everyone hears as
+    metaphor. An exam timetable that will not be moved for anything.
+14. **They compare notes.** Everyone in this section came back irregular. *Moderate accomplishment,
+    30 XP* — and the first thing they work out without being told.
+15. **The flood tunnel.** ENCOUNTER 1. Vermin clearance in the storm drains, tide due, poor light,
+    difficult terrain. **A proper fight, because this is where the table learns their characters
+    doing the thing SF2E is best at.** It is also the moral trap the entire campaign rests on.
+16. **The debrief.** Paid by the head. Filed. Nobody will ever tell them they did anything wrong.
+17. **The boots don't fit.** Something has gone wrong that is nobody's fault and everybody's problem.
+18. **THE SIZING BOARD.** ENCOUNTER 2, run in initiative, chaired by Nobu. They argue for their own
+    kit in front of people who can say no. **→ CADETS.**
 
-### Sorting — *the five lenses, and the first sight of a Frame*
-8. **Ground role aptitude**, taught by doing rather than lectured. Each of the five roles is a way
-   of looking at the world, and the campaign's mysteries are later solved through them.
-9. **Hangar Four.** They see a Frame for the first time and do not get to touch it. There is a tarp
-   over something at the back with a blank maintenance schedule.
-10. **Assembly.** An anthem with no composer credited. The berserk protocol recited sing-song by
-    four hundred teenagers who learned it at fourteen, opening with a line about brothers that
-    everybody takes as metaphor.
+### Act II — TRAINING · *Cadet*
 
-### Testing — *the first fight, and what it costs nobody*
-11. **The flood tunnel.** A routine level-1 clearance: vermin in the storm drains, tide due, poor
-    light, difficult terrain. **This exists so the table learns their characters in combat**, which
-    is the thing SF2E does best, and it should be a proper fight rather than a formality.
-    It is also the moral trap the entire campaign is built on, and nobody will ever tell them they
-    did anything wrong.
-12. **The debrief.** Paid by the head. Filed. Forgotten by everyone except the campaign.
+They touch a Frame for the first time, and it is funny.
 
-### Arguing — *and the rung*
-13. **The boots don't fit.** Something has gone wrong that is nobody's fault and everybody's
-    problem, and fixing it requires talking to an adult with a countersignature.
-14. **The Sizing Board.** A supply hearing, run in initiative, chaired by Nobu. They argue for
-    their own kit in front of people who can say no. **They come out of it as cadets.**
+The quarry, Taka's briefing of things that have gone wrong in previous years, and **ENCOUNTER 3**:
+a progressive structural collapse with a weighted mannequin on the third floor and DO NOT CRUSH THE
+CIVILIAN painted on its chest. Six teenagers discover they command six-storey machines that can walk
+through a wall and cannot reliably lift a dummy. Somebody suggests a race; it happens; **a Frame
+moves more gently than its pilot ordered.** Make the table love Taka tonight — everything he is for
+later depends on it.
 
-**Why the Board is the right ending for this arc:** every scene before it happened *to* them.
-The Board is the first thing they do *at* the institution. That is the whole difference between a
-recruit and a cadet, and it is worth making them earn it in a room.
+*For a disguised character, the cavity is the scene.* It forms a seat for whoever links with it, and
+what it forms is not the shape they walk around in.
 
----
+### Act III — DUTY · *Cadet*
 
-## 5. The two-aspect rule
+Real work, and the first object that does not behave.
+
+Harbour patrol and flood barriers. **A mitflit caught in a wall trap, furious, refusing help it
+obviously needs** — the first one they talk to rather than kill *(mitflit trail, step 2)*. Lab
+inventory turns up bulk quantities of extremely dull reagents missing across three months.
+**ENCOUNTER 4**, the lab stakeout: four professionals through a window at two in the morning, there
+for the boring shelf, fighting to flee rather than to the death. **At least one can be taken alive.**
+
+And in the crate: **a lens that does nothing.** It works perfectly. There is simply nothing in that
+room to see. *(Manako trail — the best breadcrumb in the chapter.)*
+
+### Act IV — THE PATTERN · *Cadet*
+
+The city starts to have a shape.
+
+The stencil sweep, tedious and endless, and **sited with obvious deliberation** if anyone maps it.
+Escort duty at a public meeting where Satoru answers a hostile question straight, to visible
+institutional discomfort. **ENCOUNTER 5**, the tunnel run: couriers in the storm drains and a sluice
+gate on a municipal timer that only Structural Command can read — half the encounter is the water,
+and it teaches that the ground roles are not decoration one act before they need that badly. Then a
+dog that will not walk down one particular street, and an owner exasperated enough to explain at
+length.
+
+### Act V — FOUNDING DAY, AND THE ALARM · *→ Duty Section*
+
+**ENCOUNTER 6**: two centuries of an institution that has never been needed, celebrated in the
+harbour square. Ninety seconds of sky. A crowd of hundreds through gaps built for dozens, every
+ground role with a job, real damage on the table and nobody obliged to die. **No combat, on
+purpose** — the cultists do not run and do not fight, and the party are ordered to detain people who
+will not resist.
+
+Then statements taken kindly by people writing down something else. Oda's address: an aerosolised
+agent, a documented phenomenon, no cause for concern — **and he is not lying**, he has been told the
+same thing. **ENCOUNTER 7**, the reagent trail, the first thing the party does that nobody asked
+them to do, ending at professionals with no opinions about the sky and countersigned paperwork.
+
+And then the wrong alarm, and an institution finding out in real time that it has never rehearsed
+this. **ENCOUNTER 8**: one Frame launches, five ground roles live. The thing in the harbour fights a
+bronze statue with total sincerity for ninety seconds, and when the statue proves unresponsive it
+turns and fights the statue's reflection in the water. **Play it straight and let them laugh.**
+
+Then it moves an obstacle out of its way and a man is killed. One man, named later, in a list they
+will read.
+
+**→ DUTY SECTION.** Nobody had standing to give the order. They went anyway. The rung is a
+description of what they already did.
+
+## 6. The two-aspect rule
 
 **Every scene carries at least two things that matter.** Not one plant and some connective tissue —
 two, and they should be different in kind. A joke and a plant. A relationship and a piece of
@@ -214,7 +340,7 @@ lint could flag any scene declaring fewer than two.
 
 ---
 
-## 6. Writing the Watcher
+## 7. Writing the Watcher
 
 Ingram, 2026-09-09: *"it's a strange and curious mix of godlike and childlike intelligence."*
 
