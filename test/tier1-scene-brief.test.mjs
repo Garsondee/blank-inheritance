@@ -235,6 +235,59 @@ test("an accumulating pool crosses on the way up instead", () => {
   assert.equal(clockState(rising, { ...emptyRunState(), spent: ["push", "push", "push"] }).crossed.length, 1);
 });
 
+// A setup check resolved BEFORE this subsystem starts, seeding the pool's
+// actual starting value -- Flood Tunnel's clear-the-jam beat shifting the
+// Compactor Cycle's Encroachment, the first real use of startModifiers.
+const SEEDED = {
+  id: "compactor-fixture",
+  pools: [{
+    id: "encroachment", name: "Encroachment", mode: "accumulating", start: 0, floor: 0, ceiling: 5,
+    startModifiers: [{ poolRef: "encroachment", beatRef: "clear-the-jam", failure: 1, criticalFailure: 1 }]
+  }]
+};
+
+test("startModifiers: a beat's recorded failure shifts the pool's effective start", () => {
+  const clock = clockState(SEEDED, tickedWith("clear-the-jam", "failure"));
+  assert.equal(clock.start, 1, "0 authored + 1 from the failed clear-the-jam");
+  assert.equal(clock.current, 1);
+});
+
+test("startModifiers: success (a degree with no authored modifier) contributes nothing", () => {
+  const clock = clockState(SEEDED, tickedWith("clear-the-jam", "success"));
+  assert.equal(clock.start, 0);
+});
+
+test("startModifiers: a beat that hasn't been ticked yet contributes nothing", () => {
+  // The GM opens the subsystem before recording the setup check's outcome --
+  // must read as "not seeded yet", not throw or silently assume a degree.
+  const clock = clockState(SEEDED, emptyRunState());
+  assert.equal(clock.start, 0);
+});
+
+test("startModifiers: criticalFailure carries its own modifier, same as failure here", () => {
+  const clock = clockState(SEEDED, tickedWith("clear-the-jam", "criticalFailure"));
+  assert.equal(clock.start, 1);
+});
+
+test("startModifiers stacks with spends against the same seeded start", () => {
+  const withSpend = {
+    ...SEEDED,
+    spends: [{ id: "override", poolRef: "encroachment", delta: -1 }]
+  };
+  const state = { ...tickedWith("clear-the-jam", "failure"), spent: ["override"] };
+  assert.equal(clockState(withSpend, state).current, 0, "1 seeded - 1 spent, floored at 0 either way");
+});
+
+test("the real Compactor Cycle subsystem and Flood Tunnel brief agree on the beat id", () => {
+  // Not a fixture -- the actual authored files. Catches the beatRef and the
+  // scene-brief's own beat id drifting apart from each other silently.
+  const subsystem = readJson(new URL("c1s1-compactor-cycle.json", new URL("../data/subsystems/", import.meta.url)));
+  const brief = realBrief("episode-c1s1--flood-tunnel");
+  const pool = subsystem.pools.find((p) => p.id === "encroachment");
+  const beatRef = pool.startModifiers[0].beatRef;
+  assert.ok(brief.beats.some((b) => b.id === beatRef), `flood-tunnel has no beat "${beatRef}" for the subsystem to read`);
+});
+
 test("a scene with no clock says so rather than inventing one", () => {
   assert.equal(clockState({ pools: [] }, emptyRunState()), null);
   assert.equal(sceneRunnerState({ brief: BRIEF }).clock, null);

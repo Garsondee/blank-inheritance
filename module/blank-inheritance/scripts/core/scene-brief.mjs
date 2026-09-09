@@ -193,6 +193,13 @@ export function beatProgress(brief, runState) {
  * Deltas are applied with their authored sign, never inferred from the pool's
  * mode: a diminishing pool can still be given time back, and guessing the
  * direction from `mode` would make that unauthorable.
+ *
+ * `startModifiers` reads the SAME runState this function was already given —
+ * `state.ticked[beatRef].degree` is exactly what #onRecordOutcome writes when
+ * the GM ticks a beat in this same scene-brief, so a setup check resolved
+ * before this subsystem starts (Flood Tunnel's clear-the-jam, seeding the
+ * Compactor Cycle's Encroachment) needs no new cross-file lookup — just
+ * reading a beat id this pool's own author chose to reference.
  */
 export function clockState(subsystem, runState, poolId = null) {
   const pools = subsystem?.pools ?? [];
@@ -203,8 +210,15 @@ export function clockState(subsystem, runState, poolId = null) {
   const deltaFor = new Map((subsystem?.spends ?? []).filter((s) => s.poolRef === pool.id).map((s) => [s.id, s.delta ?? 0]));
   const spent = state.spent.reduce((sum, id) => sum + (deltaFor.get(id) ?? 0), 0);
 
+  const seeded = (pool.startModifiers ?? [])
+    .filter((m) => m.poolRef === pool.id)
+    .reduce((sum, m) => {
+      const degree = state.ticked[m.beatRef]?.degree;
+      return sum + (degree ? (m[degree] ?? 0) : 0);
+    }, 0);
+
   const start = pool.start ?? pool.current ?? 0;
-  const raw = start + spent;
+  const raw = start + seeded + spent;
   const floor = pool.floor ?? null;
   const ceiling = pool.ceiling ?? null;
   let current = raw;
@@ -215,7 +229,7 @@ export function clockState(subsystem, runState, poolId = null) {
     poolId: pool.id,
     name: pool.name ?? pool.id,
     mode: pool.mode ?? null,
-    start,
+    start: start + seeded,
     current,
     spent: -spent,
     exhausted: floor !== null && current <= floor,
