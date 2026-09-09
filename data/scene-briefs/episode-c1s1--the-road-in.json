@@ -47,18 +47,6 @@
       "checkRef": "a-flourish",
       "when": { "condition": "if a player's own arrival has something worth rolling for" },
       "note": "Never required. This costs nothing on any result -- it exists to make an entrance a little more vivid, not to gate it. Plenty of good arrivals have nothing to roll for at all."
-    },
-    {
-      "id": "the-trap",
-      "kind": "check",
-      "mandatory": false,
-      "delivery": "table",
-      "text": "Somewhere on a fence line one of them passes, easy to miss: a small wire trap with a coin bounty tag on it, identical to the rat traps twenty feet further along.",
-      "challengeRef": "c1s1-the-road-in",
-      "checkRef": "the-trap-on-the-fence",
-      "when": { "condition": "if anyone's arrival passes it, or if anyone asks what it's for" },
-      "direction": "Don't call attention to it. This is an Encyclopaedia check (design/encyclopaedia-checks.md) -- offer it freely if it comes up, never force it.",
-      "note": "PLANT -- the mitflit trail, step 1 (design/induction.md; my own tracking label, not one of the story bible's own numbered Mystery Ledger entries). The first thing any of them ever sees of a mitflit, and it should read as absolutely nothing, whether or not anyone rolls. Session Four already has the real payoff to this one -- a live mitflit caught in a wall trap, furious, refusing help (ideas/story/blank-inheritance-ch1-v2.md, Session Four morning) -- the first any of them has spoken to, three sessions after the first they fought."
     }
   ],
   "artefacts": [],
@@ -71,10 +59,9 @@
     "tracks": [],
     "onwards": "Straight into Intake Medicals. Time skips a few days on its own -- that scene opens already inside the queue, and this is where the six of them actually become a group for the first time.",
     "writeDown": [
-      "How each character arrived, worth one callback later if it fits naturally.",
-      "Whether anyone noticed the trap on the fence, and what they decided it was for."
+      "How each character arrived, worth one callback later if it fits naturally."
     ]
   },
   "carryForward": [],
-  "notes": "Deliberately no shared beat and no artefact. The group forming is Intake Medicals' job, stated in its own queue beat and confirmed 2026-09-09 as intentional -- this scene must not spend that moment early. Assumes character sheets already exist (built at session zero, before this is ever played) -- the flourish check has real stats to roll against from the first line."
+  "notes": "Deliberately no shared beat and no artefact. The group forming is Intake Medicals' job, stated in its own queue beat and confirmed 2026-09-09 as intentional -- this scene must not spend that moment early. Assumes character sheets already exist (built at session zero, before this is ever played) -- the flourish check has real stats to roll against from the first line.\n\nThis scene originally opened with a mitflit-trap Encyclopaedia check (mystery-ledger content, mitflit trail step 1). CUT 2026-09-09 -- normalising casual harm to a sentient species as unremarked backdrop in the party's very first scene read far darker than intended, and contradicted an established prior campaign where mitflits were the ones being saved. See ideas/story/bible/species/mitflits.md before writing anything else involving mitflits. This scene needs a different mystery/texture beat in its place -- not yet chosen."
 }

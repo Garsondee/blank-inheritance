@@ -232,8 +232,10 @@ The only act where things happen *to* them.
    unexplained. Each player says what they left to answer it.
 2. **Arriving.** Cliff-top red tile against the smokestack line, sail traders alongside coal cranes.
    Several hundred other candidates, all doing the same thing they are.
-3. **The hall.** Forms, noise, a queue. Mitflit traps on the harbour wall outside with a small
-   bounty on them, same as the rat traps. Nobody remarks on it. *(Mitflit trail, step 1.)*
+3. **The hall.** Forms, noise, a queue. *(A texture detail belongs here — not yet chosen; see
+   ideas/story/bible/species/mitflits.md before reaching for a mitflit one. A version of this step
+   used to plant a mitflit trap on the harbour wall, unremarked, "same as the rat traps" — cut
+   2026-09-09, see that file for why.)*
 4. **The screen.** A blood draw. Thirty seconds. No explanation, because none is thought necessary.
 5. **The sorting.** Names read from a list, groups formed, corridors pointed at. The six of them end
    up in the same group. **This should feel completely unremarkable.**
@@ -279,7 +281,9 @@ what it forms is not the shape they walk around in.
 Real work, and the first object that does not behave.
 
 Harbour patrol and flood barriers. **A mitflit caught in a wall trap, furious, refusing help it
-obviously needs** — the first one they talk to rather than kill *(mitflit trail, step 2)*. Lab
+obviously needs** — the first one they talk to rather than kill, and the first personal mitflit
+content in the campaign (check ideas/story/bible/species/mitflits.md before running this — it
+matters that this reads as a specific, sympathetic rescue, not routine pest control). Lab
 inventory turns up bulk quantities of extremely dull reagents missing across three months.
 **ENCOUNTER 4**, the lab stakeout: four professionals through a window at two in the morning, there
 for the boring shelf, fighting to flee rather than to the death. **At least one can be taken alive.**
@@ -329,8 +333,9 @@ description of what they already did.
 two, and they should be different in kind. A joke and a plant. A relationship and a piece of
 geography. A rules lesson and a thread breadcrumb.
 
-Checked against the arc above: the gate carries institutional texture *and* the first mitflit trap.
-The dormitory carries party formation *and* whatever each player chose to bring from home. The
+Checked against the arc above: the hall carries institutional texture *and* whatever replaces the
+cut mitflit-trap plant, still open. The dormitory carries party formation *and* whatever each
+player chose to bring from home. The
 flood tunnel carries a combat tutorial *and* the moral trap. Assembly carries worldbuilding *and*
 plant #8.
 
