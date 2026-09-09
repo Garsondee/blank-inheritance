@@ -52,15 +52,54 @@ export const BEAT_STATES = Object.freeze({
 
 /** A run with nothing done yet. Shape is the contract for the stored world setting. */
 export function emptyRunState() {
-  return { ticked: {}, spent: [], opened: [] };
+  return { ticked: {}, spent: [], opened: [], granted: [] };
 }
 
 function runStateOf(runState) {
   return {
     ticked: runState?.ticked ?? {},
     spent: Array.isArray(runState?.spent) ? runState.spent : [],
-    opened: Array.isArray(runState?.opened) ? runState.opened : []
+    opened: Array.isArray(runState?.opened) ? runState.opened : [],
+    granted: Array.isArray(runState?.granted) ? runState.granted : []
   };
+}
+
+/**
+ * The artefacts this scene can hand over, and whether the party has them yet.
+ *
+ * Granting is one-way on purpose. An artefact is a permanent possession — the
+ * players can re-read it in Chapter 7 and find the thing they walked past in
+ * Chapter 1 — so there is no ungrant here and none in the adapter either.
+ * Un-showing something six people have already read is not a thing software
+ * can do, and pretending otherwise would be the dangerous kind of button.
+ */
+export function artefactsWithState(brief, runState) {
+  const granted = new Set(runStateOf(runState).granted);
+  return (brief?.artefacts ?? []).map((artefact) => ({
+    ...artefact,
+    clearance: artefact.clearance ?? 0,
+    granted: granted.has(artefact.id)
+  }));
+}
+
+/**
+ * A scene's artefacts grouped into redaction chains.
+ *
+ * Several artefacts sharing a `documentRef` are the same document at different
+ * clearance levels. Sorted low to high so the panel can show what the party
+ * holds and what the next rung would get them, side by side.
+ */
+export function redactionChains(brief) {
+  const chains = new Map();
+  for (const artefact of brief?.artefacts ?? []) {
+    const key = artefact.documentRef ?? artefact.id;
+    if (!chains.has(key)) chains.set(key, []);
+    chains.get(key).push(artefact);
+  }
+  for (const versions of chains.values()) {
+    versions.sort((a, b) => (a.clearance ?? 0) - (b.clearance ?? 0));
+  }
+  return chains;
 }
 
 /** Authored beats are sparse on purpose; this is where the defaults live. */
@@ -259,9 +298,21 @@ export function sceneRunnerState({ brief, subsystem = null, runState = emptyRunS
     id: brief.id,
     title: brief.title ?? brief.id,
     summary: brief.summary ?? null,
+    // The goal box, which the panel shows above everything else. `goal` is the
+    // checkable outcome, `howToPlay` the register, and they are separate fields
+    // because they answer different questions and were previously one blurred
+    // paragraph that answered neither.
+    goal: brief.goal ?? null,
+    howToPlay: brief.howToPlay ?? null,
+    runsAbout: brief.runsAbout ?? null,
+    mode: brief.mode ?? null,
+    accomplishment: brief.accomplishment ?? null,
+    intro: brief.intro ?? null,
+    outro: brief.outro ?? null,
     cast: (brief.cast ?? []).map((member) => ({ ...member, displayName: displayName(member) })),
     beats: beatsWithState(brief, runState),
     progress: beatProgress(brief, runState),
+    artefacts: artefactsWithState(brief, runState),
     handouts: brief.handouts ?? [],
     offers: brief.offers ?? [],
     carryForward: brief.carryForward ?? [],

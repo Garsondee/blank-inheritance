@@ -13,6 +13,91 @@
     "sceneRef": { "type": "string", "description": "The `id` of the scene inside that episode's `scenes` array — not its `order`, which moves when a scene is inserted." },
     "title": { "type": "string", "description": "What the GM sees at the top of the panel. Usually the scene's own title." },
     "summary": { "type": "string", "description": "One or two lines: what this scene is for. The thing to re-read thirty seconds before running it." },
+    "goal": { "type": "string", "description": "What you want out of this scene, stated as an outcome you could check afterwards — \"every player has spoken in character and every character has been told privately their screen flagged\". Not a theme, not a mood. The thing that has to be true when it ends." },
+    "howToPlay": { "type": "string", "description": "The register, in plain terms a GM can act on: pace, warmth, whether anyone is in danger. \"A school medical crossed with a passport office. Warm, slow, faintly ridiculous. Nobody is in danger here.\"" },
+    "runsAbout": { "type": "string", "description": "Rough table time, e.g. \"25 minutes\". Scenes are short on purpose — a three-hour session is many small scenes, not three long ones." },
+    "mode": {
+      "enum": ["social", "exploration", "combat", "frame", "downtime"],
+      "description": "Which SF2E shape this scene resolves in. The strategy layer decides which scenes happen and what is at stake; SF2E decides how they resolve (design/strategy-layer.md). `exploration` means the real exploration rules, with attrition and resting."
+    },
+    "accomplishment": {
+      "type": ["object", "null"],
+      "description": "Accomplishment XP, if this scene has an award attached. GM Core's own values: minor 10, moderate 30, major 80.",
+      "properties": {
+        "award": { "enum": ["minor", "moderate", "major"] },
+        "xp": { "type": "integer" },
+        "forWhat": { "type": "string", "description": "What they have to actually do to earn it." }
+      },
+      "additionalProperties": false
+    },
+    "intro": {
+      "type": "object",
+      "description": "How to get into the scene. The joins between scenes are where a session runs rough, so they are authored rather than improvised (design/strategy-layer.md §6).",
+      "properties": {
+        "where": { "type": "string", "description": "Where they are and how they got here." },
+        "firstThing": { "type": "string", "description": "The first thing they see or hear. The concrete detail you open on." },
+        "readAloud": { "type": ["string", "null"], "description": "Optional boxed text for the opening." },
+        "carriesIn": {
+          "type": "array",
+          "description": "What a PREVIOUS scene's outcome changes about this one. The most-missed field in scene writing: a scene that reads identically whatever happened before it is not connected to anything.",
+          "items": {
+            "type": "object",
+            "required": ["when", "then"],
+            "properties": {
+              "when": { "type": "string", "description": "The prior outcome, in plain terms — \"if they took a prisoner in the lab\"." },
+              "then": { "type": "string", "description": "What is different here because of it." }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "outro": {
+      "type": "object",
+      "description": "How to get out, and the scene's only hook back up to the strategy layer. This is where a scene stops being a scene and becomes a move on the board.",
+      "properties": {
+        "endsWhen": { "type": "string", "description": "What actually ends it. Say it plainly so the scene does not sag past its own finish." },
+        "readAloud": { "type": ["string", "null"] },
+        "artefactRefs": { "type": "array", "items": { "type": "string" }, "description": "ids from this brief's `artefacts` that the party can leave holding." },
+        "tracks": {
+          "type": "array",
+          "description": "Which strategy-layer tracks this scene can move, and why. Suggestions for the GM, never automatic — the outcome belongs to play.",
+          "items": {
+            "type": "object",
+            "required": ["track", "why"],
+            "properties": {
+              "track": { "enum": ["mass", "comprehension", "standing", "bonds", "technicianDays"] },
+              "delta": { "type": ["integer", "null"], "description": "Signed. null when the size depends on what happened." },
+              "why": { "type": "string", "description": "What the party has to do for this to move." }
+            },
+            "additionalProperties": false
+          }
+        },
+        "onwards": { "type": ["string", "null"], "description": "What lands on tomorrow's board because of this scene." },
+        "writeDown": { "type": "array", "items": { "type": "string" }, "description": "Prompts for the tone ledger and the session log — the questions next session's writing will want answered." }
+      },
+      "additionalProperties": false
+    },
+    "artefacts": {
+      "type": "array",
+      "description": "Things the party can leave this scene permanently owning. An artefact becomes a real Foundry journal page whose ownership flips from GM-only to player-readable at the moment it is earned, and stays theirs for the rest of the campaign, browsable on the phone.\n\nDistinct from `handouts`, which are shown transiently and revert when closed. An artefact is EARNED and KEPT — a fact about the Directorate the party took rather than were told, which reads differently at the table.",
+      "items": {
+        "type": "object",
+        "required": ["id", "title"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "documentRef": { "type": ["string", "null"], "description": "Groups a redaction chain: several artefacts sharing a documentRef are the same document at different clearance levels (ideas/entries/redacted-document-chain.json, accepted). A Clearance rung therefore unlocks less-redacted versions of documents the party already holds." },
+          "clearance": { "type": "integer", "minimum": 0, "description": "Which Clearance rung this version corresponds to. 0 is the public version." },
+          "title": { "type": "string" },
+          "body": { "type": ["string", "null"], "description": "The artefact itself as HTML. Materialised into a journal page on first grant; editing this and re-pushing updates it in place." },
+          "imagePath": { "type": ["string", "null"], "description": "For an artefact that is a photograph or a scan rather than text." },
+          "earnedBy": { "type": ["string", "null"], "description": "GM-facing: what the party has to do to end up holding this." },
+          "gmNote": { "type": ["string", "null"], "description": "What the GM should know that the players should not." }
+        },
+        "additionalProperties": false
+      }
+    },
     "clockRef": {
       "type": ["string", "null"],
       "description": "id of a subsystem.schema.json instance whose pools this scene runs on a visible clock — e.g. a shift's twelve walls as a diminishing pool, spent down by that subsystem's `spends`. null for the many scenes with no clock."

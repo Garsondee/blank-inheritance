@@ -166,7 +166,8 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       pickScene: SceneRunner.#onPickScene,
       postCheck: SceneRunner.#onPostCheck,
       revealHandout: SceneRunner.#onRevealHandout,
-      revealHandoutSolo: SceneRunner.#onRevealHandoutSolo
+      revealHandoutSolo: SceneRunner.#onRevealHandoutSolo,
+      grantArtefact: SceneRunner.#onGrantArtefact
     }
   };
 
@@ -364,6 +365,59 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     } catch (err) {
       console.error("Blank Inheritance | Could not post that check:", err);
       ui.notifications.warn(String(err?.message ?? err));
+    }
+  }
+
+  /**
+   * Hand something over for keeps.
+   *
+   * Different in kind from revealing a handout, and the difference is the whole
+   * point. A handout is SHOWN — Foundry opens it with temporary ownership that
+   * reverts the moment the player closes the window. An artefact is GIVEN: its
+   * ownership is written to the database, it appears in their own journal
+   * directory, and it is still there in Chapter 7 when somebody re-reads it and
+   * notices the thing they walked past in Chapter 1.
+   *
+   * One-way on purpose. There is no ungrant here and there is none in
+   * core/scene-brief.mjs either — un-showing something six people have already
+   * read is not a thing software can do, and a button that pretended otherwise
+   * would be worse than no button.
+   */
+  static async #onGrantArtefact(event, target) {
+    const briefId = currentBriefId();
+    const artefactId = target.dataset.artefactId;
+    const artefact = (this._scene?.brief?.artefacts ?? []).find((a) => a.id === artefactId);
+    if (!artefact) return;
+
+    const confirmed = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize("BLANKINHERITANCE.Runner.Grant") },
+      content: `<p>${game.i18n.format("BLANKINHERITANCE.Runner.GrantConfirm", { title: artefact.title })}</p>
+                <p><em>${game.i18n.localize("BLANKINHERITANCE.Runner.GrantConfirmHint")}</em></p>`
+    }).catch(() => false);
+    if (!confirmed) return;
+
+    try {
+      const page = await ensureHandoutPage(artefact);
+      if (!page) return;
+
+      // The permanent half: written to the database rather than granted for the
+      // life of one window. OBSERVER, not OWNER -- they can read it and cannot
+      // edit it, which is the right grade for a document somebody else wrote.
+      await page.parent.update({ "ownership.default": CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER });
+
+      // And show it once, immediately, so the moment of getting it is a moment
+      // rather than something they find later in a directory.
+      await foundry.documents.collections.Journal.show(page, { force: true, users: [] });
+
+      const state = runStateFor(briefId);
+      if (!state.granted.includes(artefactId)) {
+        await writeRunState(briefId, { ...state, granted: [...state.granted, artefactId] });
+      }
+      ui.notifications.info(game.i18n.format("BLANKINHERITANCE.Runner.Granted", { title: artefact.title }));
+      this.render({});
+    } catch (err) {
+      console.error("Blank Inheritance | Could not hand over that artefact:", err);
+      ui.notifications.error(String(err?.message ?? err));
     }
   }
 

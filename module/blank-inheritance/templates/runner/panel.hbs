@@ -40,6 +40,33 @@
         <p class="bi-runner__empty">{{localize "BLANKINHERITANCE.Runner.NoScene"}}</p>
         {{/unless}}
 
+        {{!-- The goal box. First, always, and stating a checkable outcome
+              rather than a theme — "what has to be true when this ends". --}}
+        {{#if goal}}
+        <section class="bi-runner__section bi-runner__goalbox">
+            <p class="bi-runner__goal-label">{{localize "BLANKINHERITANCE.Runner.Goal"}}</p>
+            <p class="bi-runner__goal">{{goal}}</p>
+            {{#if howToPlay}}<p class="bi-runner__howto">{{howToPlay}}</p>{{/if}}
+            <p class="bi-runner__meta">
+                {{#if runsAbout}}<span>{{runsAbout}}</span>{{/if}}
+                {{#if mode}}<span>{{mode}}</span>{{/if}}
+                {{#if accomplishment}}<span>{{accomplishment.xp}} XP — {{accomplishment.forWhat}}</span>{{/if}}
+            </p>
+        </section>
+        {{/if}}
+
+        {{#if intro}}
+        <section class="bi-runner__section">
+            <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Intro"}}</h3>
+            {{#if intro.where}}<p class="bi-runner__beat-text">{{intro.where}}</p>{{/if}}
+            {{#if intro.firstThing}}<p class="bi-runner__note">{{intro.firstThing}}</p>{{/if}}
+            {{#if intro.readAloud}}<div class="bi-runner__read">{{intro.readAloud}}</div>{{/if}}
+            {{#each intro.carriesIn}}
+            <p class="bi-runner__carries"><b>{{when}}</b> — {{then}}</p>
+            {{/each}}
+        </section>
+        {{/if}}
+
         {{#if clock}}
         <section class="bi-runner__section">
             <h3 class="bi-runner__section-title">{{clock.name}}</h3>
@@ -61,15 +88,6 @@
         </section>
         {{/if}}
 
-        {{#if cast.length}}
-        <section class="bi-runner__section">
-            <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Cast"}}</h3>
-            {{#each cast}}
-            {{> "modules/blank-inheritance/templates/runner/person.hbs"}}
-            {{/each}}
-        </section>
-        {{/if}}
-
         {{#if beats.length}}
         <section class="bi-runner__section">
             <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Beats"}}</h3>
@@ -78,6 +96,15 @@
                 {{> "modules/blank-inheritance/templates/runner/beat.hbs"}}
                 {{/each}}
             </ul>
+        </section>
+        {{/if}}
+
+        {{#if cast.length}}
+        <section class="bi-runner__section">
+            <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Cast"}}</h3>
+            {{#each cast}}
+            {{> "modules/blank-inheritance/templates/runner/person.hbs"}}
+            {{/each}}
         </section>
         {{/if}}
 
@@ -103,6 +130,47 @@
                 </div>
             </article>
             {{/each}}
+        </section>
+        {{/if}}
+
+        {{#if artefacts.length}}
+        <section class="bi-runner__section">
+            <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Artefacts"}}</h3>
+            {{#each artefacts}}
+            <article class="bi-runner__person">
+                <h4 class="bi-runner__person-name">{{title}}</h4>
+                {{#if earnedBy}}<p class="bi-runner__person-role">{{earnedBy}}</p>{{/if}}
+                {{#if gmNote}}<p class="bi-runner__note">{{gmNote}}</p>{{/if}}
+                <div class="bi-runner__actions">
+                    {{#if granted}}
+                    <span class="bi-runner__held">{{localize "BLANKINHERITANCE.Runner.Held"}}</span>
+                    {{else}}
+                    <button type="button" class="bi-runner__stamp" data-action="grantArtefact"
+                        data-artefact-id="{{id}}">{{localize "BLANKINHERITANCE.Runner.Grant"}}</button>
+                    {{/if}}
+                </div>
+            </article>
+            {{/each}}
+        </section>
+        {{/if}}
+
+        {{#if outro}}
+        <section class="bi-runner__section">
+            <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Outro"}}</h3>
+            {{#if outro.endsWhen}}<p class="bi-runner__beat-text">{{outro.endsWhen}}</p>{{/if}}
+            {{#if outro.readAloud}}<div class="bi-runner__read">{{outro.readAloud}}</div>{{/if}}
+            {{#each outro.tracks}}
+            <p class="bi-runner__track"><b>{{track}}</b> {{why}}</p>
+            {{/each}}
+            {{#if outro.onwards}}<p class="bi-runner__note">{{outro.onwards}}</p>{{/if}}
+            {{#if outro.writeDown.length}}
+            <p class="bi-runner__goal-label">{{localize "BLANKINHERITANCE.Runner.WriteDown"}}</p>
+            <ul class="bi-runner__topics">
+                {{#each outro.writeDown}}
+                <li class="bi-runner__topic">{{this}}</li>
+                {{/each}}
+            </ul>
+            {{/if}}
         </section>
         {{/if}}
 

@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/episode.schema.json",
+  "id": "episode-c1s1-mothers-maiden-name",
+  "type": "episode",
+  "title": "Mother's Maiden Name (Again)",
+  "dayRange": { "start": 1, "end": 1 },
+  "summary": "Chapter One, session one. Six seventeen-year-olds are processed into civil defence over one ordinary day: a medical, a kit issue, a canteen, and a night shift clearing vermin out of a storm drain. Nothing that happens to them today is dangerous, and one thing that happens to them today is the whole campaign.",
+  "structure": "Four quarters, many short scenes rather than four long ones. The morning and noon are warm and administrative, the evening is the table falling in love with an NPC, and the night is a completely routine SF2E first combat that will matter more than anyone at the table can currently tell.",
+  "designRequirement": "Make the players like each other's characters before anything is at stake. Plant the DNA flag. Do not explain the Frames, the Watcher, Cicada, the mitflits or the Gap.",
+  "castingNote": "Make the table love Taka tonight. Everything he is for later depends on it.",
+  "downtime": "None. One continuous day of intake — the four-slice economy is taught next session, when there is something worth spending a slice on.",
+  "scenes": [
+    {
+      "order": 1,
+      "id": "intake-medicals",
+      "title": "Intake Medicals",
+      "description": "A queue, a form that asks for mother's maiden name twice, and a two-hundred-year-old doctor telling each of them privately that their blood screen came back irregular and not to worry about it.",
+      "briefRef": "episode-c1s1--intake-medicals",
+      "challengeRefs": ["c1s1-the-medical"]
+    }
+  ],
+  "requiredBeats": [
+    "Every one of the six is told privately that their screen flagged, and the party works out it was all of them.",
+    "Nobody explains what the screen tests for. Shucks is forbidden, and he thinks the rule is stupid."
+  ],
+  "endOfEpisodeEffects": [],
+  "openQuestionRefs": [],
+  "danglingThreads": [
+    "What a blood screen with a pre-printed IRREGULAR tick-box is actually looking for."
+  ],
+  "notes": "Only the first scene is authored so far. The remaining three quarters — kit issue with Nobu, the canteen with Taka, and the flood tunnel clearance — are outlined in ideas/story/blank-inheritance-ch1-v2.md and not yet written as briefs."
+}

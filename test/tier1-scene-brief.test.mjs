@@ -22,6 +22,7 @@ import {
   DEGREES,
   beatProgress,
   beatState,
+  artefactsWithState,
   beatsWithState,
   castFor,
   clockState,
@@ -30,6 +31,7 @@ import {
   hiddenAdjustment,
   normalizeBeat,
   postedDc,
+  redactionChains,
   sceneRunnerState,
   spendsFor
 } from "../module/blank-inheritance/scripts/core/scene-brief.mjs";
@@ -400,6 +402,57 @@ test("the night scene carries the same lens table as the evening, id for id", ()
   const night = realBrief("episode-05-head-height--night-cannery-row").gmModifiers.find((m) => m.id === "lens-density");
   assert.ok(evening && night);
   assert.deepEqual(night.byLocation, evening.byLocation, "the two copies of the lens table have drifted apart");
+});
+
+test("an artefact is not held until it is granted, and granting is one-way", () => {
+  const brief = { artefacts: [{ id: "form", title: "Form 12-B" }, { id: "photo", title: "A photograph" }] };
+  const fresh = artefactsWithState(brief, emptyRunState());
+  assert.deepEqual(fresh.map((a) => a.granted), [false, false]);
+
+  const held = artefactsWithState(brief, { ...emptyRunState(), granted: ["form"] });
+  assert.deepEqual(held.map((a) => a.granted), [true, false]);
+
+  // There is deliberately no ungrant anywhere in this module. Un-showing
+  // something six people have already read is not a thing software can do.
+  assert.equal(typeof globalThis.ungrantArtefact, "undefined");
+});
+
+test("artefacts default to clearance 0 rather than undefined", () => {
+  // The redaction chain sorts on clearance; an undefined would sort
+  // unpredictably against real numbers and scramble a document's versions.
+  const [a] = artefactsWithState({ artefacts: [{ id: "x", title: "X" }] }, emptyRunState());
+  assert.equal(a.clearance, 0);
+});
+
+test("artefacts sharing a documentRef form one chain, ordered low clearance first", () => {
+  const brief = {
+    artefacts: [
+      { id: "memo-c3", documentRef: "memo", clearance: 3, title: "Memo (unredacted)" },
+      { id: "memo-c0", documentRef: "memo", clearance: 0, title: "Memo (public)" },
+      { id: "photo", title: "A photograph" }
+    ]
+  };
+  const chains = redactionChains(brief);
+  assert.equal(chains.size, 2, "the two memo versions are one document, the photo is its own");
+  assert.deepEqual(chains.get("memo").map((a) => a.clearance), [0, 3], "lowest clearance first");
+  assert.deepEqual(chains.get("photo").map((a) => a.id), ["photo"], "an artefact with no documentRef chains alone");
+});
+
+test("the real Act 1 Scene 1 carries an intro, an outro and an earnable artefact", () => {
+  const brief = readJson(new URL("episode-c1s1--intake-medicals.json", BRIEF_DIR));
+  const state = sceneRunnerState({ brief, runState: emptyRunState() });
+
+  assert.ok(state.goal, "the goal box has to have something in it");
+  assert.ok(state.intro.where && state.intro.firstThing, "you cannot open a scene you have not been told the shape of");
+  assert.ok(state.outro.endsWhen, "a scene that does not say how it ends will sag past its own finish");
+  assert.ok(state.outro.tracks.length, "the outro is the only hook back up to the strategy layer");
+
+  // Every artefact the outro promises must actually exist in the brief.
+  const ids = new Set(state.artefacts.map((a) => a.id));
+  for (const ref of brief.outro.artefactRefs ?? []) {
+    assert.ok(ids.has(ref), `the outro hands over "${ref}", which this brief does not define`);
+  }
+  assert.equal(state.artefacts[0].granted, false, "nothing is held before it is earned");
 });
 
 test("the assembled state carries everything the panel renders, and nothing it does not", () => {

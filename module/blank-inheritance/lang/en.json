@@ -143,7 +143,17 @@
       "CritSuccess": "Crit success",
       "Success": "Success",
       "Failure": "Failure",
-      "CritFailure": "Crit fail"
+      "CritFailure": "Crit fail",
+      "Goal": "What has to be true when this ends",
+      "Intro": "Getting in",
+      "Outro": "Getting out",
+      "Artefacts": "They can keep",
+      "WriteDown": "Write down",
+      "Grant": "Hand it over",
+      "GrantConfirm": "Give the players \"{title}\" permanently?",
+      "GrantConfirmHint": "It goes into their own journals and stays there for the rest of the campaign. This cannot be undone.",
+      "Granted": "The party now hold \"{title}\".",
+      "Held": "Held by the party"
     }
   }
 }

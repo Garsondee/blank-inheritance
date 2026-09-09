@@ -5300,3 +5300,73 @@
   border-color: var(--bi-vermilion);
   color: var(--bi-vermilion-dim);
 }
+
+/* --- The goal box, the joins, and things the party keeps ------------- */
+
+/* First thing on the page and the only block with its own ground. It answers
+   one question — what has to be true when this scene ends — and it is boxed
+   because a GM glancing down mid-sentence should find it without reading. */
+.bi-runner__goalbox {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: rgb(255 255 255 / 40%);
+  border: 1px solid var(--bi-paper-rule);
+  border-left-width: 3px;
+}
+.bi-runner__goal-label {
+  font-family: var(--bi-font-typewriter);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bi-paper-ink-2);
+  margin: 0 0 5px;
+}
+.bi-runner__goal { margin: 0; font-size: 14.5px; color: #17130c; }
+.bi-runner__howto { margin: 8px 0 0; font-size: 13px; font-style: italic; color: var(--bi-paper-ink-2); }
+.bi-runner__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 9px 0 0;
+  font-family: var(--bi-font-typewriter);
+  font-size: 10.5px;
+  color: var(--bi-paper-ink-2);
+}
+
+/* What a previous scene's outcome changes about this one. Rendered as a
+   margin annotation because that is what it is. */
+.bi-runner__carries {
+  font-size: 12.5px;
+  margin: 6px 0 0;
+  padding-left: 11px;
+  border-left: 2px dotted var(--bi-paper-rule);
+  color: var(--bi-paper-ink-2);
+}
+.bi-runner__carries b { color: #17130c; }
+
+/* A strategy-layer track this scene can move. */
+.bi-runner__track {
+  font-size: 12.5px;
+  margin: 5px 0 0;
+}
+.bi-runner__track b {
+  font-family: var(--bi-font-typewriter);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bi-vermilion-dim);
+  margin-right: 7px;
+}
+
+/* Already handed over. Deliberately not a button — granting is one-way, and a
+   disabled-looking control invites somebody to hunt for the undo that is not
+   there. It reads as a receipt instead. */
+.bi-runner__held {
+  font-family: var(--bi-font-typewriter);
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--bi-vermilion-dim);
+  border-bottom: 1px solid var(--bi-vermilion-dim);
+  padding-bottom: 1px;
+}
