@@ -18,28 +18,33 @@ induction officer explaining the berserk protocol is doing their job, not servin
 **The rule that follows:** the players learn the setting at the speed the characters do, and never
 faster. If the party has not been told something, the GM has not told the table either.
 
-### The consequence, flagged rather than assumed
+### They applied. That is the important part.
 
-If all six are new to the city **and** all six come back irregular on the intake screen, then the
-summons is not a coincidence and the screening did not happen on arrival.
+**Settled 2026-09-09.** The party are **volunteers, not conscripts.** Signing up was a thing each of
+them decided to do next with their life, and each player defines their own reason for it — where
+they came from, what they left, and why this. The campaign does not issue anybody a backstory.
 
-**They were found first, and then sent for.**
+**Age is not a barrier.** Some of them may be considerably older than the local intake. This
+resolves a tension rather than creating one: the bible says pilots are seventeen because *it is the
+age the charter permits conscription* — law, not biology. Conscription has an age. **Volunteering
+does not.** Two intake streams, one building: local seventeen-year-olds who were called up, and
+these six, who wrote in.
 
-That is a stronger opening mystery than the original — "we were all flagged" becomes "we were all
-*selected*, from a distance, by people who already knew what they were looking for" — and it fits
-the established fiction rather than straining it. The screen looks for traces of mitflit ancestry
-(bible §3). Ancestry like that would be scattered across a continent, not concentrated in one
-harbour city. Of course you would have to send for people.
+**And that reframes the flag.** They were not summoned and then screened. They **applied, were
+screened as part of applying, and were accepted** — and all six came back irregular.
 
-It also gives Session One's flag plant a second edge for free: the party is not being screened,
-they are being *confirmed*.
+So the opening mystery is not *why were we sent for*. It is quieter and better: *we each chose this
+independently, we were each accepted, and it turns out every one of us has the same anomaly on
+file.* Nobody has done anything to them. They walked in. The institution simply said yes for a
+reason it did not mention.
 
-**This changes existing canon and is therefore a proposal, not a decision.** It affects the DNA
-screen's framing, the conscription charter (the charter permits conscription at seventeen — does it
-permit conscription from outside the city?), and Kai, who was local. Worth settling before more of
-Chapter One is written.
+The letter that arrives is an **acceptance**, not an order. It is polite, official, slightly warmer
+than it needs to be, and entirely unexplained.
 
----
+**What this leaves open:** whether the Directorate went looking for people like them at all, or
+whether it simply takes everyone who applies and quietly notes what the screen says. The second is
+more damning and much more in character for an institution whose founding sin is filing things and
+saying nothing.
 
 ## 2. Everyone is wearing a shape that is not theirs
 
@@ -68,6 +73,19 @@ Three things it interlocks with, none of which needed changing to accommodate it
 - **The Directorate's founding sin** is information suppression as a reflex. A party each keeping
   one true thing back is not hypocrisy, it is sympathy — and it makes the institution's habit
   legible from the inside.
+
+### The Directorate's own position on it
+
+**The institution discourages making alien origin publicly known**, and advises keeping it to close
+friends and family. That is presented as protection, and it is partly sincere.
+
+This matters because it means the disguise is not six players independently deciding to hide. It is
+**policy** — quiet, reasonable-sounding, delivered during induction by somebody being kind. Which
+makes it the founding sin again, in its gentlest possible form: an institution managing what people
+are allowed to know about each other, for their own good, and calling it discretion.
+
+It also sets the exact shape of the theme. The Directorate says *tell close friends only*. The
+campaign is about six people deciding who counts as a close friend.
 
 **The reveal belongs to the player, always.** Not to the GM, not to the induction system, not to a
 skill check somebody else rolls. The system may *know*; the table finds out when the player decides.
@@ -133,8 +151,9 @@ The distance between those is five movements. **Do not count sessions.** Some of
 minutes; one of them is a ninety-minute fight.
 
 ### Arrival — *the city, and the fact that they were sent for*
-1. **The summons.** The letter that brought them, read before play starts. It is polite, official,
-   and entirely unexplained.
+1. **The acceptance.** The letter that brought them, read before play starts. Polite, official,
+   slightly warmer than it needs to be, and entirely unexplained. Each player says what they left
+   to answer it.
 2. **Arriving.** First sight of the place: cliff-top red tile against the smokestack line, sail
    traders tied up alongside coal cranes. Six strangers converging on the same gate.
 3. **The gate.** Papers, a queue, a form. Mitflit traps on the harbour wall with a small bounty on

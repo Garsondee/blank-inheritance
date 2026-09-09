@@ -76,8 +76,8 @@
       "expiresOn": null
     },
     {
-      "id": "kais-locker",
-      "name": "Kai's locker",
+      "id": "nozomis-locker",
+      "name": "Nozomi's locker",
       "effect": "It has not been cleared. Somebody is still paying the fee on it.",
       "cost": "1 slice",
       "expiresOn": null
