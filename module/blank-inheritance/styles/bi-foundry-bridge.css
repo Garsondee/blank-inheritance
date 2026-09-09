@@ -363,3 +363,73 @@ body.bi-theme .bi-banner-lane .bi-banner { pointer-events: auto; }
     forced-color-adjust: none;
   }
 }
+
+/* ==========================================================
+   THE SCENE RUNNER — where the GM's script sits
+   ---------------------------------------------------------
+   A full-height drawer down the LEFT, chosen over doctrine
+   §10.5's right-hand drawer column deliberately (2026-09-09):
+   the right belongs to Foundry's own sidebar, which sits at
+   --z-index-app and which this module has a standing policy
+   of not fighting.
+
+   Mounted as a direct child of #interface, the same idiom as
+   #bi-command-bar and #bi-stage -- not inside #ui-middle,
+   which is width:60% with pointer-events:none.
+
+   Unlike the bar and the stage, this one DOES move Foundry's
+   own furniture: a drawer that occupies a third of the screen
+   is genuinely taking that space rather than floating over it,
+   and #ui-left-column-1 holds both the scene controls and the
+   player roster (see the note above about v14 putting the
+   roster there rather than at the bottom of the window).
+   Leaving them underneath would bury two things the GM uses.
+   ========================================================== */
+
+body.bi-theme #bi-scene-runner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  /* Stops where the chassis starts, so the two never overlap. */
+  bottom: calc(var(--bi-bar-height) + 12px);
+  width: var(--bi-runner-width);
+  /* Same band as the bar: above the canvas, below Foundry's own windows,
+     so a journal or a character sheet still opens on top of the script. */
+  z-index: calc(var(--z-index-app) - 1);
+}
+
+/* Slide Foundry's left column clear of the drawer while it is open.
+   `:has()` rather than a body class set from a hook -- no state to
+   desync, and it cannot be missed on a first render (the same reasoning
+   as the sidebar gutter above).
+
+   --ui-scale is deliberately NOT applied here: #ui-left is itself scaled, so
+   a margin expressed in its own coordinate space already scales with it, and
+   multiplying would double-count.
+
+   MEASURED LIVE 2026-09-09 at 1600x1000, UI scale 1.0: drawer 496px wide,
+   #ui-left sitting at left:496, bar padding-left 730px (18 + 496 + 216).
+   The arithmetic is exact at 100%. It has NOT been checked at a non-100% UI
+   scale -- if the column ever lands short or long, that is the first thing
+   to measure. */
+body.bi-theme:has(#bi-scene-runner) #ui-left {
+  margin-left: var(--bi-runner-width);
+  transition: margin-left 250ms ease;
+}
+
+/* The bar's own left reservation has to grow by the same amount, or the
+   CAST legend ends up underneath the roster's new position -- the exact
+   collision that was found live on 2026-09-07 and fixed by reserving the
+   roster's footprint in the first place. */
+body.bi-theme:has(#bi-scene-runner) .bi-bar {
+  padding-left: calc(
+    18px + var(--bi-runner-width) +
+    (var(--bi-players-width) + var(--bi-players-edge)) * var(--ui-scale)
+  );
+}
+
+/* The application root ApplicationV2 creates is not the sheet itself — the
+   sheet is panel.hbs's own root inside it (same arrangement as #bi-stage).
+   The host carries the position; .bi-runner fills it. */
+body.bi-theme #bi-scene-runner { display: flex; }
+body.bi-theme #bi-scene-runner > .bi-runner { flex: 1 1 auto; min-height: 0; }

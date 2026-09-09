@@ -338,6 +338,14 @@
      right frame size is a function of how many people are in the room. */
   --bi-stage-gap: 18px;
 
+  /* The GM's scene runner — the script drawer down the left. "About a third
+     of the screen" as asked for, but clamped rather than a bare 33vw: below
+     ~1100px a third is too narrow for a column of prose to be readable, and
+     above ~1900px it stops being a margin and starts being the page. The
+     panel is PAPER, so its width is a measure of line length first and a
+     fraction of the viewport second. */
+  --bi-runner-width: clamp(340px, 31vw, 560px);
+
   --bi-toprail-height: 54px;   /* scene status strip          */
   /* The session progress bar sits directly under the toprail, inside the
      SAME top layer (see .bi-console__top) — so the layer's own height is

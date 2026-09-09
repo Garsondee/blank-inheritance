@@ -1,0 +1,120 @@
+{{!--
+    The GM's script for the scene they are running.
+
+    GM-only by CONSTRUCTION, not by a conditional: foundry/scene-runner.mjs
+    is never instantiated on a player's client at all, the same way
+    DirectorBar is not (doctrine Law 11 — redaction is removal, not hiding).
+    There is therefore no `canDirect` guard anywhere in this file, and adding
+    one would be a sign somebody had made the panel reachable by a player.
+
+    Rendered entirely in the PAPER register. This is a document a person
+    wrote, not a readout a machine produced, and design/visual-identity.md
+    §1b's split is semantic before it is decorative.
+--}}
+<section class="bi-runner">
+    <header class="bi-runner__head">
+        {{#if episodeTitle}}<p class="bi-runner__episode">{{episodeTitle}}</p>{{/if}}
+        <h2 class="bi-runner__title">{{#if title}}{{title}}{{else}}{{localize "BLANKINHERITANCE.Runner.Title"}}{{/if}}</h2>
+        {{#if summary}}<p class="bi-runner__summary">{{summary}}</p>{{/if}}
+
+        {{!-- The episode's own scene list, which §10.7 asks the Scene drawer
+              to carry anyway. It is also the only thing binding "the scene
+              we are running" to authored content: canvas.scene is a MAP, and
+              most of a theatre-of-the-mind session has no map at all. --}}
+        {{#if scenes.length}}
+        <ul class="bi-runner__scenes">
+            {{#each scenes}}
+            <li><button type="button" class="bi-runner__scene" data-action="pickScene"
+                    data-brief-id="{{briefRef}}" aria-current="{{isCurrent}}">{{order}}. {{title}}</button></li>
+            {{/each}}
+        </ul>
+        {{/if}}
+
+        {{#if progress}}
+        <p class="bi-runner__progress">{{localize "BLANKINHERITANCE.Runner.Progress"}} <b>{{progress.mandatoryDone}}/{{progress.mandatory}}</b></p>
+        {{/if}}
+    </header>
+
+    <div class="bi-runner__scroll">
+        {{#unless title}}
+        <p class="bi-runner__empty">{{localize "BLANKINHERITANCE.Runner.NoScene"}}</p>
+        {{/unless}}
+
+        {{#if clock}}
+        <section class="bi-runner__section">
+            <h3 class="bi-runner__section-title">{{clock.name}}</h3>
+            <p class="bi-runner__clock{{#if clock.exhausted}} bi-runner__clock--spent{{/if}}">
+                <span class="bi-runner__clock-value">{{clock.current}}</span>
+                <span class="bi-runner__clock-of">{{localize "BLANKINHERITANCE.Runner.Of"}} {{clock.start}}</span>
+            </p>
+            {{#each clock.crossed}}
+            <p class="bi-runner__threshold">{{effect}}</p>
+            {{/each}}
+            {{#if spends.length}}
+            <div class="bi-runner__spends">
+                {{#each spends}}
+                <button type="button" class="bi-runner__stamp" data-action="spend" data-spend-id="{{id}}"
+                    title="{{note}}">{{label}}</button>
+                {{/each}}
+            </div>
+            {{/if}}
+        </section>
+        {{/if}}
+
+        {{#if cast.length}}
+        <section class="bi-runner__section">
+            <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Cast"}}</h3>
+            {{#each cast}}
+            {{> "modules/blank-inheritance/templates/runner/person.hbs"}}
+            {{/each}}
+        </section>
+        {{/if}}
+
+        {{#if beats.length}}
+        <section class="bi-runner__section">
+            <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Beats"}}</h3>
+            <ul class="bi-runner__beats">
+                {{#each beats}}
+                {{> "modules/blank-inheritance/templates/runner/beat.hbs"}}
+                {{/each}}
+            </ul>
+        </section>
+        {{/if}}
+
+        {{#if handouts.length}}
+        <section class="bi-runner__section">
+            <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Handouts"}}</h3>
+            {{#each handouts}}
+            <article class="bi-runner__person">
+                <h4 class="bi-runner__person-name">{{title}}</h4>
+                {{#if gmNotes}}<p class="bi-runner__note">{{gmNotes}}</p>{{/if}}
+                {{#if catchables.length}}
+                <ul class="bi-runner__topics">
+                    {{#each catchables}}
+                    <li class="bi-runner__topic">{{this}}</li>
+                    {{/each}}
+                </ul>
+                {{/if}}
+                <div class="bi-runner__actions">
+                    <button type="button" class="bi-runner__stamp" data-action="revealHandout"
+                        data-handout-id="{{id}}">{{localize "BLANKINHERITANCE.Runner.Reveal"}}</button>
+                    <button type="button" class="bi-runner__stamp" data-action="revealHandoutSolo"
+                        data-handout-id="{{id}}">{{localize "BLANKINHERITANCE.Runner.RevealSolo"}}</button>
+                </div>
+            </article>
+            {{/each}}
+        </section>
+        {{/if}}
+
+        {{#if carryForward.length}}
+        <section class="bi-runner__section">
+            <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.CarryForward"}}</h3>
+            <ul class="bi-runner__topics">
+                {{#each carryForward}}
+                <li class="bi-runner__topic">{{this}}</li>
+                {{/each}}
+            </ul>
+        </section>
+        {{/if}}
+    </div>
+</section>

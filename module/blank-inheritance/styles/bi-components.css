@@ -4862,3 +4862,441 @@
   animation: bi-lamp-pulse 1.8s var(--bi-ease-servo) infinite;
 }
 @media (prefers-reduced-motion: reduce) { .bi-frame__key--nudge { animation: none; } }
+
+/* =====================================================================
+   THE SCENE RUNNER — the GM's script
+   design/theatre-of-the-mind-staging.md, ux-doctrine.md §10.7
+
+   PAPER, entirely. Every other persistent surface in this module is
+   GLASS, and that is correct for them: a command bar reports what a
+   machine measured. This does not. It is the running order somebody
+   wrote for tonight, and §1b's rule is semantic before it is
+   decorative — a document must not be mistakable for a readout, and
+   this is a document.
+
+   Which leaves the question visual-identity.md §12 left explicitly
+   open: "How a paper interface signals that it is interactive... will
+   not be settled by argument; it needs one screen built and looked
+   at." This is that screen, and the answer it proposes is that paper
+   signals interactivity the way paper actually does — a printed box
+   takes a tick, a worked line gets struck through, a stamp presses,
+   and the sheet lifts very slightly when a hand is over it. Nothing
+   glows. Nothing is a button pretending to be metal.
+   ===================================================================== */
+
+.bi-runner {
+  display: flex;
+  flex-direction: column;
+  background: var(--bi-mat-paper);
+  color: var(--bi-paper-ink);
+  font-family: var(--bi-font-document);
+  font-size: 14px;
+  line-height: var(--bi-doc-leading);
+  box-shadow: var(--bi-bevel-down), 6px 0 24px rgb(0 0 0 / 55%);
+  border-right: 1px solid var(--bi-paper-shade);
+}
+
+/* --- Head: what scene this is, and how to get to another one --------- */
+
+.bi-runner__head {
+  flex: 0 0 auto;
+  padding: 16px 20px 12px;
+  border-bottom: 3px double var(--bi-paper-rule);
+  background: linear-gradient(180deg, rgb(255 255 255 / 22%), transparent);
+}
+.bi-runner__title {
+  font-family: var(--bi-font-document);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.25;
+  margin: 0;
+  color: #17130c;
+}
+.bi-runner__episode {
+  font-family: var(--bi-font-typewriter);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--bi-paper-ink-2);
+  margin: 0 0 3px;
+  text-transform: uppercase;
+}
+.bi-runner__summary {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--bi-paper-ink-2);
+  margin: 8px 0 0;
+}
+
+/* The episode's other scenes. A plain typed list, because that is what a
+   running order is — not tabs, which this stylesheet has never had and
+   which would read as software rather than as paper. */
+.bi-runner__scenes {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+.bi-runner__scene {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 1px 2px;
+  font-family: var(--bi-font-typewriter);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--bi-paper-ink-2);
+  cursor: pointer;
+  border-bottom: 1px dotted transparent;
+}
+.bi-runner__scene:hover { color: var(--bi-paper-ink); border-bottom-color: var(--bi-paper-rule); }
+.bi-runner__scene:focus-visible { outline: 2px solid var(--bi-vermilion); outline-offset: 2px; }
+.bi-runner__scene[aria-current="true"] {
+  color: #17130c;
+  font-weight: 700;
+  border-bottom-color: var(--bi-vermilion);
+}
+
+/* --- The scrolling body --------------------------------------------- */
+
+.bi-runner__scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  padding: 4px 20px 24px;
+}
+
+.bi-runner__section { margin-top: 22px; }
+.bi-runner__section-title {
+  font-family: var(--bi-font-document);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bi-paper-ink-2);
+  margin: 0 0 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--bi-paper-rule);
+}
+
+/* --- The clock: a printed tally, not an instrument ------------------- */
+
+.bi-runner__clock {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--bi-font-typewriter);
+  margin-bottom: 10px;
+}
+.bi-runner__clock-value {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  color: #17130c;
+}
+.bi-runner__clock-of {
+  font-size: 12px;
+  color: var(--bi-paper-ink-2);
+}
+.bi-runner__clock--spent .bi-runner__clock-value { color: var(--bi-vermilion-dim); }
+
+.bi-runner__threshold {
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--bi-vermilion-dim);
+  border-left: 2px solid var(--bi-vermilion-dim);
+  padding-left: 9px;
+  margin: 8px 0;
+}
+
+.bi-runner__spends { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+/* A stamp. Pressing it is the physical metaphor, so it presses. */
+.bi-runner__stamp {
+  appearance: none;
+  cursor: pointer;
+  font-family: var(--bi-font-typewriter);
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--bi-vermilion-dim);
+  background: none;
+  border: 1.5px solid var(--bi-vermilion-dim);
+  border-radius: 2px;
+  padding: 3px 8px;
+  opacity: 0.82;
+  transition: transform var(--bi-dur-servo) var(--bi-ease-servo), opacity var(--bi-dur-servo) var(--bi-ease-servo);
+}
+.bi-runner__stamp:hover { opacity: 1; }
+.bi-runner__stamp:active { transform: translateY(1px) scale(0.98); opacity: 1; }
+.bi-runner__stamp:focus-visible { outline: 2px solid var(--bi-vermilion); outline-offset: 2px; }
+.bi-runner__stamp[disabled] { opacity: 0.35; cursor: default; }
+
+/* --- Cast: who you have to be --------------------------------------- */
+
+.bi-runner__person {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgb(141 124 86 / 34%);
+}
+.bi-runner__person:last-child { border-bottom: 0; }
+.bi-runner__person-name {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #17130c;
+  margin: 0;
+}
+.bi-runner__person-role {
+  font-family: var(--bi-font-typewriter);
+  font-size: 11px;
+  color: var(--bi-paper-ink-2);
+  margin: 1px 0 9px;
+}
+.bi-runner__person--walkon .bi-runner__person-name { font-size: 14px; font-weight: 400; }
+
+/* What they want. The single most useful line on the page, so it is the
+   one thing here allowed to be loud. */
+.bi-runner__wants {
+  font-size: 14.5px;
+  color: #17130c;
+  border-left: 3px solid var(--bi-vermilion-dim);
+  padding-left: 11px;
+  margin: 0 0 10px;
+}
+
+.bi-runner__topics { list-style: none; margin: 0 0 10px; padding: 0; }
+.bi-runner__topic {
+  position: relative;
+  padding-left: 16px;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+.bi-runner__topic::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--bi-paper-rule);
+}
+.bi-runner__topic b { color: #17130c; font-weight: 700; }
+.bi-runner__topic i { color: var(--bi-paper-ink-2); font-style: italic; }
+/* Refusals get the crossed-out marker a real annotated page would use. */
+.bi-runner__topic--refused::before { content: "\00d7"; color: var(--bi-vermilion-dim); }
+
+/* Sample lines. A different face on purpose — this is the only text on the
+   page you might actually say out loud, and it should not look like a note
+   about the person. */
+.bi-runner__samples { margin: 8px 0 0; padding: 0; }
+.bi-runner__sample {
+  font-family: var(--bi-font-mincho);
+  font-size: 13.5px;
+  line-height: 1.62;
+  color: #17130c;
+  margin: 0 0 6px;
+  padding: 5px 11px;
+  background: rgb(255 255 255 / 34%);
+  border-left: 2px solid var(--bi-paper-rule);
+}
+
+/* --- Beats: the checklist ------------------------------------------- */
+
+.bi-runner__beats { list-style: none; margin: 0; padding: 0; }
+
+.bi-runner__beat {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 10px;
+  padding: 7px 6px 7px 4px;
+  margin: 0 -6px;
+  border-radius: 2px;
+  transition: transform var(--bi-dur-servo) var(--bi-ease-servo), background-color var(--bi-dur-servo) var(--bi-ease-servo);
+}
+/* The sheet lifts under a hand. This is the whole hover vocabulary; there
+   is no glow anywhere on paper. */
+.bi-runner__beat:hover { background: rgb(255 255 255 / 30%); transform: translateY(-1px); }
+
+.bi-runner__beat-body { min-width: 0; }
+.bi-runner__beat-text { margin: 0; font-size: 14px; }
+
+/* A required beat is marked in the margin the way a form marks one. */
+.bi-runner__beat--mandatory .bi-runner__beat-text::after {
+  content: "\00a0*";
+  color: var(--bi-vermilion);
+  font-weight: 700;
+}
+
+/* Worked through: struck, not hidden. */
+.bi-runner__beat--done .bi-runner__beat-text {
+  color: var(--bi-paper-ink-2);
+  text-decoration: line-through;
+  text-decoration-color: var(--bi-vermilion-dim);
+  text-decoration-thickness: 1px;
+}
+
+/* A fork whose roll has not landed. Both sides visible, indented, dimmed —
+   the GM has to have read both before the dice decide which one they run. */
+.bi-runner__beat--pending {
+  margin-left: 14px;
+  border-left: 1px dotted var(--bi-paper-rule);
+  padding-left: 10px;
+  opacity: 0.72;
+}
+/* The road not taken. Ruled off rather than deleted: what did not happen is
+   part of what happened, and the run record wants it. */
+.bi-runner__beat--nottaken {
+  opacity: 0.38;
+  margin-left: 14px;
+  padding-left: 10px;
+}
+.bi-runner__beat--nottaken .bi-runner__beat-text { text-decoration: line-through; text-decoration-thickness: 1px; }
+.bi-runner__beat--nottaken:hover { transform: none; }
+
+/* A GM-judged trigger. Shown, never hidden — you cannot recognise a cue
+   you were never told about. Rendered as a margin annotation. */
+.bi-runner__beat--conditional {
+  margin-left: 14px;
+  border-left: 2px dashed var(--bi-paper-rule);
+  padding-left: 10px;
+}
+
+.bi-runner__when {
+  display: block;
+  font-family: var(--bi-font-hand);
+  font-size: 12px;
+  color: var(--bi-paper-ink-2);
+  margin-bottom: 2px;
+}
+
+/* Delivery that is not "say it to the room" has to be visible at a glance. */
+.bi-runner__tag {
+  display: inline-block;
+  font-family: var(--bi-font-typewriter);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid var(--bi-paper-rule);
+  border-radius: 2px;
+  padding: 0 4px;
+  margin-right: 6px;
+  color: var(--bi-paper-ink-2);
+  vertical-align: 1px;
+}
+.bi-runner__tag--solo { border-color: var(--bi-vermilion-dim); color: var(--bi-vermilion-dim); font-weight: 700; }
+.bi-runner__tag--passive { font-style: italic; }
+
+/* --- The tick box ---------------------------------------------------- */
+
+.bi-runner__tick {
+  appearance: none;
+  cursor: pointer;
+  position: relative;
+  width: 19px;
+  height: 19px;
+  margin-top: 3px;
+  padding: 0;
+  background: rgb(255 255 255 / 40%);
+  border: 1.5px solid var(--bi-paper-ink-2);
+  border-radius: 1px;
+  transition: border-color var(--bi-dur-servo) var(--bi-ease-servo);
+}
+.bi-runner__tick:focus-visible { outline: 2px solid var(--bi-vermilion); outline-offset: 2px; }
+
+/* The mark itself: two borders rotated into a tick, so it is drawn rather
+   than typed — a glyph would sit on the text baseline and read as a font. */
+.bi-runner__tick::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 6px;
+  height: 11px;
+  border: solid var(--bi-vermilion);
+  border-width: 0 2px 2px 0;
+  transform: rotate(42deg) scale(0.6);
+  opacity: 0;
+  transition: opacity var(--bi-dur-servo) var(--bi-ease-servo), transform var(--bi-dur-servo) var(--bi-ease-servo);
+}
+/* Hovering shows the mark faintly, in pencil — a preview of the action, and
+   the paper equivalent of a button's hover state. */
+.bi-runner__tick:hover::after { opacity: 0.28; transform: rotate(42deg) scale(1); }
+.bi-runner__tick[aria-pressed="true"] { border-color: var(--bi-vermilion-dim); }
+.bi-runner__tick[aria-pressed="true"]::after { opacity: 1; transform: rotate(42deg) scale(1); }
+
+/* --- Read-aloud, direction, notes ------------------------------------ */
+
+/* Boxed text. Set apart because it is the one block you say verbatim, and
+   mistaking a note to yourself for a line you read out is a real error. */
+.bi-runner__read {
+  font-family: var(--bi-font-mincho);
+  font-size: 14px;
+  line-height: 1.72;
+  color: #17130c;
+  white-space: pre-wrap;
+  margin: 8px 0 4px;
+  padding: 11px 14px;
+  background: rgb(255 255 255 / 45%);
+  border: 1px solid var(--bi-paper-rule);
+  border-left-width: 3px;
+}
+
+/* The director's note — how to play it, not what happens. In the hand face:
+   the one voice on the page that is not the institution's. */
+.bi-runner__direction {
+  font-family: var(--bi-font-hand);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--bi-vermilion-dim);
+  margin: 6px 0 2px;
+}
+
+.bi-runner__note {
+  font-family: var(--bi-font-typewriter);
+  font-size: 11.5px;
+  line-height: 1.65;
+  color: var(--bi-paper-ink-2);
+  margin: 5px 0 0;
+}
+
+.bi-runner__actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+
+/* --- Progress, and the empty state ----------------------------------- */
+
+.bi-runner__progress {
+  font-family: var(--bi-font-typewriter);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--bi-paper-ink-2);
+  margin-top: 4px;
+}
+.bi-runner__progress b { color: var(--bi-vermilion-dim); }
+
+.bi-runner__empty {
+  font-size: 13.5px;
+  font-style: italic;
+  color: var(--bi-paper-ink-2);
+  padding: 26px 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bi-runner__beat,
+  .bi-runner__stamp,
+  .bi-runner__tick,
+  .bi-runner__tick::after { transition: none; }
+  .bi-runner__beat:hover { transform: none; }
+  .bi-runner__stamp:active { transform: none; }
+}
+
+/* The degree a check actually came out at, once the GM has recorded it.
+   Filled rather than merely brighter: on paper the difference between an
+   option and a decision is ink on it. */
+.bi-runner__stamp--picked {
+  opacity: 1;
+  font-weight: 700;
+  background: rgb(209 64 42 / 14%);
+  border-color: var(--bi-vermilion);
+  color: var(--bi-vermilion-dim);
+}

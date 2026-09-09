@@ -37,6 +37,12 @@ import { buildStageDemoScenes, createStageDemoMacroIfMissing } from "./foundry/s
 import { announceCastChange, primeStingCache } from "./foundry/sting.mjs";
 import { checkForSplash, forceDismissSplash, primeSplashCache, registerSplashSettings } from "./foundry/splash.mjs";
 import {
+  mountSceneRunner,
+  openSceneRunner,
+  registerSceneRunnerSettings,
+  resetSceneRunnerCache
+} from "./foundry/scene-runner.mjs";
+import {
   advanceSegment,
   ensureDowntimeVault,
   registerCampaignSettings,
@@ -70,7 +76,12 @@ Hooks.once("init", () => {
       // writeAuthoredProfile above. buildStageDemoScenes also has its own
       // macro; this is the console-friendly way in.
       buildStageDemoScenes,
-      writeAuthoredCast
+      writeAuthoredCast,
+      // Which episode's running order the scene runner is showing. A
+      // once-per-session action rather than an in-play one, so it lives on
+      // the API rather than taking up room on a panel used mid-scene.
+      openSceneRunner,
+      resetSceneRunnerCache
     };
   }
 
@@ -87,6 +98,11 @@ Hooks.once("init", () => {
   // No onChange here on purpose -- see foundry/splash.mjs#registerSplashSettings's
   // own comment for why this one world setting doesn't need one.
   registerSplashSettings();
+
+  // Which episode is open, which scene inside it, and which beats have
+  // happened. All GM-written, all world-scoped: what the table did is a fact
+  // about the campaign, not about one browser.
+  registerSceneRunnerSettings();
 });
 
 Hooks.once("ready", async () => {
@@ -135,6 +151,15 @@ Hooks.once("ready", async () => {
     mountCommandBar(game.user.isGM ? DirectorBar : PlayerBar);
   } catch (err) {
     console.error("Blank Inheritance | Could not mount the command bar:", err);
+  }
+
+  // The GM's script. Its own try: a panel that fails to mount must not stop
+  // the bar or the sync macros. GM-only is enforced inside mountSceneRunner
+  // rather than here, so a player's client never constructs the class at all.
+  try {
+    mountSceneRunner();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not mount the scene runner:", err);
   }
 
   if (!game.user.isGM) return;
