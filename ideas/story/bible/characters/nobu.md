@@ -91,10 +91,10 @@ confirmation of something the table already half-suspected from his manner.
 
 - Last name, age, how long he's actually served — nothing recorded.
 - The food/drink desk tic — proposed, not confirmed.
-- What's actually in the "oddly generous" upgrade at Kit Issue, mechanically? See
-  `data/campaign/equipment-catalogue.json` and `data/campaign/chassis-catalogue.json` — the
-  catalogues are built; whether/how Nobu personally slips something extra to each player is still
-  being designed as part of the Kit Issue scene itself.
+
+**Resolved 2026-09-09:** the Kit Issue "extra thing" is one additional free item from
+`data/campaign/equipment-catalogue.json`, given to all six without exception, presented as
+completely mundane — see `data/scene-briefs/episode-c1s1--kit-issue.json`'s `the-extra-thing` beat.
 
 ## Appearances so far
 
@@ -105,6 +105,9 @@ confirmation of something the table already half-suspected from his manner.
 3. `ideas/story/dossier-cicada.md` §6, §8 and `blank-inheritance-master-timeline.md` — the real
    reason for the generosity, the revenge-list placement, and his role in the column's funding.
    Absorbed into this file 2026-09-09, same day the dossiers were first shared.
+4. `data/scene-briefs/episode-c1s1--kit-issue.json` — first real scene built, 2026-09-09. Full
+   cast/voice entry, the mandatory `the-extra-thing` plant beat, and an explicit spoiler note on
+   that beat pointing back here.
 
 ## Related
 

@@ -25,6 +25,14 @@
       "description": "A queue, a form that asks for mother's maiden name twice, and a two-hundred-year-old doctor telling each of them privately that their blood screen came back irregular and not to worry about it. This is where the six of them are a group for the first time.",
       "briefRef": "episode-c1s1--intake-medicals",
       "challengeRefs": ["c1s1-the-medical"]
+    },
+    {
+      "order": 3,
+      "id": "kit-issue",
+      "title": "Kit Issue",
+      "description": "A busy quartermaster's counter. Every player picks equipment from a curated Directorate menu and a first ground role, and every player gets one small, unexplained extra from Nobu -- a plant, not a payoff, for much later.",
+      "briefRef": "episode-c1s1--kit-issue",
+      "challengeRefs": ["c1s1-kit-issue"]
     }
   ],
   "requiredBeats": [
@@ -36,5 +44,5 @@
   "danglingThreads": [
     "What a blood screen with a pre-printed IRREGULAR tick-box is actually looking for."
   ],
-  "notes": "The Road In and Intake Medicals are authored. The remaining quarters — kit issue with Nobu, the canteen with Taka, and the flood tunnel clearance — are outlined in ideas/story/blank-inheritance-ch1-v2.md and not yet written as briefs."
+  "notes": "The Road In, Intake Medicals and Kit Issue are authored. The remaining quarters — the canteen with Taka and the flood tunnel clearance (now six Giant Centipedes, not mitflits — see ideas/story/bible/species/mitflits.md) — are outlined in ideas/story/blank-inheritance-ch1-v2.md and not yet written as briefs."
 }
