@@ -10,6 +10,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import {
   isFixedSlot,
   resolveSlots,
+  claimedAbilities,
   isAncestryChoiceComplete,
   resolveAncestryIngredients,
   groupAncestries,
@@ -105,6 +106,10 @@ test("resolveAncestryIngredients: throws rather than silently deriving from an i
 });
 
 test("groupAncestries: splits by the terrestrial tag, alphabetical within each group", () => {
+  // Deliberately fed in NON-alphabetical input order, so this only passes if
+  // groupAncestries actually sorts rather than just preserving input order
+  // (found live 2026-09-09: the old version didn't sort at all, and this
+  // same test's old fixture happened to never exercise that gap).
   const ancestries = [
     { id: "vesk", name: "Vesk", terrestrial: false },
     { id: "human", name: "Human", terrestrial: true },
@@ -112,8 +117,36 @@ test("groupAncestries: splits by the terrestrial tag, alphabetical within each g
     { id: "android", name: "Android", terrestrial: false }
   ];
   const { terrestrial, alienCoded } = groupAncestries(ancestries);
-  assert.deepEqual(terrestrial.map((a) => a.id), ["human", "elf"]);
-  assert.deepEqual(alienCoded.map((a) => a.id), ["vesk", "android"]);
+  assert.deepEqual(terrestrial.map((a) => a.id), ["elf", "human"], "Elf sorts before Human");
+  assert.deepEqual(alienCoded.map((a) => a.id), ["android", "vesk"], "Android sorts before Vesk");
+});
+
+test("claimedAbilities: a fixed sibling slot's ability is claimed against a free slot too", () => {
+  // Dwarf's real shape: fixed con, fixed wis, free among all six. The free
+  // slot may not duplicate either fixed ability -- Player Core's "different
+  // ability score" rule applies across an ancestry's own boosts as a set,
+  // not just between two free slots.
+  const slots = [["con"], ["wis"], ["str", "dex", "con", "int", "wis", "cha"]];
+  const claimed = claimedAbilities(slots, [], 2);
+  assert.deepEqual([...claimed].sort(), ["con", "wis"]);
+});
+
+test("claimedAbilities: a sibling free slot's already-made pick is claimed against another free slot", () => {
+  const slots = [["str", "dex", "con", "int", "wis", "cha"], ["str", "dex", "con", "int", "wis", "cha"]];
+  const claimed = claimedAbilities(slots, ["str"], 1);
+  assert.deepEqual([...claimed], ["str"]);
+});
+
+test("claimedAbilities: an unresolved sibling free slot claims nothing yet", () => {
+  const slots = [["str", "dex", "con", "int", "wis", "cha"], ["str", "dex", "con", "int", "wis", "cha"]];
+  const claimed = claimedAbilities(slots, [], 1);
+  assert.deepEqual([...claimed], []);
+});
+
+test("claimedAbilities: the slot's OWN current pick is never claimed against itself", () => {
+  const slots = [["str", "dex", "con", "int", "wis", "cha"]];
+  const claimed = claimedAbilities(slots, ["str"], 0);
+  assert.deepEqual([...claimed], []);
 });
 
 test("filterAncestries: case-insensitive substring match on name; a blank query matches everything", () => {

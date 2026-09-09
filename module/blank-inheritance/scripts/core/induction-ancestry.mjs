@@ -60,6 +60,29 @@ export function resolveSlots(slots, picks = []) {
 }
 
 /**
+ * Which abilities a free slot may NOT pick, because some other slot in the
+ * same list (a fixed sibling, or a different free slot already resolved)
+ * has already claimed it.
+ *
+ * Player Core pg. 18: "If you're applying two or more boosts at the same
+ * time... you must apply each of these boosts to a different ability
+ * score" -- an ancestry's fixed boosts and its own free boost are all
+ * granted together, so the free one can never legally duplicate a fixed
+ * sibling's ability either, not just another free slot's pick. Same rule
+ * for flaws. Found live 2026-09-09: nothing enforced this, so Human's two
+ * fully-free boost slots could both be pointed at "str", silently producing
+ * an illegal +2 once fed to derive.mjs.
+ */
+export function claimedAbilities(slots, picks, excludeSlotIndex) {
+  const { resolved } = resolveSlots(slots, picks);
+  const claimed = new Set();
+  resolved.forEach((ability, slotIndex) => {
+    if (ability != null && slotIndex !== excludeSlotIndex) claimed.add(ability);
+  });
+  return claimed;
+}
+
+/**
  * Every boost/flaw slot resolved -- Page 2's Continue gate. An ancestry
  * with no free slots at all (none of the 51 happen to have zero free slots,
  * but nothing here assumes otherwise) is complete the moment it's picked.
@@ -93,9 +116,10 @@ export function resolveAncestryIngredients(ancestry, boostPicks, flawPicks) {
  * schema for what it actually means and its stated boundary.
  */
 export function groupAncestries(ancestries) {
+  const byName = (a, b) => a.name.localeCompare(b.name);
   return {
-    terrestrial: ancestries.filter((a) => a.terrestrial),
-    alienCoded: ancestries.filter((a) => !a.terrestrial)
+    terrestrial: ancestries.filter((a) => a.terrestrial).sort(byName),
+    alienCoded: ancestries.filter((a) => !a.terrestrial).sort(byName)
   };
 }
 

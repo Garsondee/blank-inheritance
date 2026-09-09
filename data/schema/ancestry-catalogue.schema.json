@@ -18,7 +18,7 @@
   "$defs": {
     "ancestryEntry": {
       "type": "object",
-      "required": ["id", "name", "hp", "size", "speed", "boosts", "flaws", "terrestrial"],
+      "required": ["id", "name", "hp", "size", "speed", "boosts", "flaws", "languages", "vision", "description", "terrestrial"],
       "properties": {
         "id": { "type": "string" },
         "name": { "type": "string" },
@@ -27,7 +27,7 @@
         "speed": { "type": "integer", "description": "Land Speed in feet, unencumbered." },
         "boosts": {
           "type": "array",
-          "description": "One entry per boost slot, in Player Core's own order. A single-ability entry (e.g. [\"con\"]) is a fixed boost -- apply automatically, no player choice. A multi-ability entry is a free choice among exactly those abilities; core/induction/ancestry.mjs is what resolves a player's pick against this shape.",
+          "description": "One entry per boost slot, in Player Core's own order. A single-ability entry (e.g. [\"con\"]) is a fixed boost -- apply automatically, no player choice. A multi-ability entry is a free choice among exactly those abilities; core/induction-ancestry.mjs is what resolves a player's pick against this shape.",
           "items": {
             "type": "array",
             "items": { "enum": ["str", "dex", "con", "int", "wis", "cha"] },

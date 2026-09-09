@@ -25,32 +25,39 @@
         <p>{{localize "BLANKINHERITANCE.Induction.Page2.Intro"}}</p>
 
         {{#unless selected}}
-        <div class="bi-induction__filter-row">
-            <input type="text" class="bi-induction__filter" data-induction-filter
-                   placeholder="{{localize 'BLANKINHERITANCE.Induction.Page2.FilterPlaceholder'}}" value="{{filterValue}}">
-        </div>
+            {{#if loadFailed}}
+            <div class="bi-induction__load-error">
+                <p class="bi-induction__load-error-title">{{localize "BLANKINHERITANCE.Induction.Page2.LoadFailedTitle"}}</p>
+                <p>{{localize "BLANKINHERITANCE.Induction.Page2.LoadFailedBody"}}</p>
+            </div>
+            {{else}}
+            <div class="bi-induction__filter-row">
+                <input type="text" class="bi-induction__filter" data-induction-filter
+                       placeholder="{{localize 'BLANKINHERITANCE.Induction.Page2.FilterPlaceholder'}}" value="{{filterValue}}">
+            </div>
 
-        <div class="bi-induction__groups">
-            <div class="bi-induction__group">
-                <h2>{{localize "BLANKINHERITANCE.Induction.Page2.GroupTerrestrial"}}</h2>
-                <div class="bi-induction__ancestry-list">
-                    {{#each ancestryGroups.terrestrial}}
-                    <button type="button" class="bi-induction__ancestry-item" data-action="pickAncestry"
-                            data-ancestry-id="{{this.id}}" data-induction-name="{{this.nameLower}}">{{this.name}}</button>
-                    {{/each}}
+            <div class="bi-induction__groups">
+                <div class="bi-induction__group">
+                    <h2>{{localize "BLANKINHERITANCE.Induction.Page2.GroupTerrestrial"}}</h2>
+                    <div class="bi-induction__ancestry-list">
+                        {{#each ancestryGroups.terrestrial}}
+                        <button type="button" class="bi-induction__ancestry-item" data-action="pickAncestry"
+                                data-ancestry-id="{{this.id}}" data-induction-name="{{this.nameLower}}">{{this.name}}</button>
+                        {{/each}}
+                    </div>
+                </div>
+                <div class="bi-induction__group">
+                    <h2>{{localize "BLANKINHERITANCE.Induction.Page2.GroupAlien"}}</h2>
+                    <div class="bi-induction__ancestry-list">
+                        {{#each ancestryGroups.alienCoded}}
+                        <button type="button" class="bi-induction__ancestry-item" data-action="pickAncestry"
+                                data-ancestry-id="{{this.id}}" data-induction-name="{{this.nameLower}}">{{this.name}}</button>
+                        {{/each}}
+                    </div>
                 </div>
             </div>
-            <div class="bi-induction__group">
-                <h2>{{localize "BLANKINHERITANCE.Induction.Page2.GroupAlien"}}</h2>
-                <div class="bi-induction__ancestry-list">
-                    {{#each ancestryGroups.alienCoded}}
-                    <button type="button" class="bi-induction__ancestry-item" data-action="pickAncestry"
-                            data-ancestry-id="{{this.id}}" data-induction-name="{{this.nameLower}}">{{this.name}}</button>
-                    {{/each}}
-                </div>
-            </div>
-        </div>
-        <p class="bi-induction__no-matches" data-induction-no-matches hidden>{{localize "BLANKINHERITANCE.Induction.Page2.NoMatches"}}</p>
+            <p class="bi-induction__no-matches" data-induction-no-matches hidden>{{localize "BLANKINHERITANCE.Induction.Page2.NoMatches"}}</p>
+            {{/if}}
         {{/unless}}
 
         {{#if selected}}
@@ -98,9 +105,9 @@
                     <div class="bi-induction__options">
                         {{#each this.options}}
                         <button type="button"
-                                class="bi-induction__option {{#if this.picked}}bi-induction__option--picked{{/if}}"
+                                class="bi-induction__option {{#if this.picked}}bi-induction__option--picked{{/if}} {{#if this.claimed}}bi-induction__option--claimed{{/if}}"
                                 data-action="pickBoost" data-slot-index="{{this.slotIndex}}" data-ability="{{this.ability}}"
-                                aria-pressed="{{this.picked}}">{{this.label}}</button>
+                                aria-pressed="{{this.picked}}" {{#if this.claimed}}disabled{{/if}}>{{this.label}}</button>
                         {{/each}}
                     </div>
                     {{/if}}
@@ -120,9 +127,9 @@
                     <div class="bi-induction__options">
                         {{#each this.options}}
                         <button type="button"
-                                class="bi-induction__option {{#if this.picked}}bi-induction__option--picked{{/if}}"
+                                class="bi-induction__option {{#if this.picked}}bi-induction__option--picked{{/if}} {{#if this.claimed}}bi-induction__option--claimed{{/if}}"
                                 data-action="pickFlaw" data-slot-index="{{this.slotIndex}}" data-ability="{{this.ability}}"
-                                aria-pressed="{{this.picked}}">{{this.label}}</button>
+                                aria-pressed="{{this.picked}}" {{#if this.claimed}}disabled{{/if}}>{{this.label}}</button>
                         {{/each}}
                     </div>
                     {{/if}}

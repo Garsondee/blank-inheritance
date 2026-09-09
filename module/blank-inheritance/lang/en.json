@@ -176,6 +176,8 @@
         "GroupTerrestrial": "Terrestrial-Presenting",
         "GroupAlien": "Alien-Coded",
         "NoMatches": "Nothing matches that filter.",
+        "LoadFailedTitle": "The ancestry list didn't load.",
+        "LoadFailedBody": "That's this terminal's fault, not yours — nothing was lost. Use Back below, then Begin again; if it keeps happening, tell your GM.",
         "HelpSummary": "What does this actually change?",
         "HelpBody": "Ancestry permanently sets six things on your sheet: two or three ability boosts (and sometimes one flaw), your base Hit Points, your Size, your Speed, and which languages you start with. It does not pick an ancestry feat — you'll choose one on your own character sheet once your token is on the table, the same way class feats work.",
         "StatHP": "Hit Points",

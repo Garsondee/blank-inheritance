@@ -31,6 +31,7 @@
 import { fetchModuleJson } from "./io.mjs";
 import {
   resolveSlots,
+  claimedAbilities,
   isAncestryChoiceComplete,
   groupAncestries,
   filterAncestries
@@ -58,12 +59,18 @@ const sizeLabel = (key) => game.i18n.localize(SIZE_KEYS[key] ?? key);
 
 let ancestryCataloguePromise = null;
 
-/** Fetched once per client session and cached -- 51 entries, not re-fetched on every page visit. */
+/**
+ * Fetched once per client session and cached -- 51 entries, not re-fetched
+ * on every page visit. `failed` is on the returned object (not just logged)
+ * so the caller can show a real error state instead of an empty list that
+ * silently looks like "there are simply no ancestries" -- found live
+ * 2026-09-09, nothing distinguished those two cases before.
+ */
 function loadAncestryCatalogue() {
   ancestryCataloguePromise ??= fetchModuleJson("data/campaign/campaign/ancestry-catalogue.json").catch((err) => {
     console.error("Blank Inheritance | Could not load the ancestry catalogue:", err);
     ancestryCataloguePromise = null; // let the next page-render retry rather than sticking on a failed fetch forever
-    return { ancestries: [] };
+    return { ancestries: [], failed: true };
   });
   return ancestryCataloguePromise;
 }
@@ -150,6 +157,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     const ancestry = this._ancestries.find((a) => a.id === this.state.ancestry.id) ?? null;
 
     return {
+      loadFailed: catalogue.failed === true,
       filterValue: this.state.ancestry.filter,
       ancestryGroups: { terrestrial: terrestrial.map(toRow), alienCoded: alienCoded.map(toRow) },
       selected: ancestry ? this.#decorateAncestry(ancestry) : null,
@@ -159,19 +167,30 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
 
   /** Everything Page 2's template needs about the chosen ancestry, precomputed. */
   #decorateAncestry(ancestry) {
+    // Titlecase per word, not just the string's first letter -- languages
+    // like "sarcesian-signed" need every word capitalised (matches
+    // visionLabel's own approach below; found live 2026-09-09 where
+    // languagesLabel's simpler version produced "Sarcesian-signed").
+    const titleCase = (s) => s.replace(/\b\w/g, (c) => c.toUpperCase());
+
     const decorateSlots = (slots, picks) => {
       const { resolved } = resolveSlots(slots, picks);
-      let pickIndex = 0;
       return slots.map((slot, slotIndex) => {
         if (slot.length === 1) return { fixed: true, fixedLabel: abilityLabel(slot[0]) };
         const picked = resolved[slotIndex] ?? null;
-        pickIndex += 1;
+        // Player Core: boosts (and separately flaws) granted at the same
+        // time must each land on a different ability -- a fixed sibling
+        // slot's ability, or another free slot's already-made pick, is off
+        // the table here too. Found live 2026-09-09: nothing enforced this
+        // before, so e.g. Human's two free boosts could both go to "str".
+        const claimed = claimedAbilities(slots, picks, slotIndex);
         return {
           fixed: false,
           options: slot.map((ability) => ({
             ability,
             label: abilityLabel(ability),
             picked: ability === picked,
+            claimed: claimed.has(ability) && ability !== picked,
             slotIndex
           }))
         };
@@ -185,8 +204,8 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       hp: ancestry.hp,
       sizeLabel: sizeLabel(ancestry.size),
       speed: ancestry.speed,
-      languagesLabel: ancestry.languages.map((l) => l.charAt(0).toUpperCase() + l.slice(1)).join(", "),
-      visionLabel: ancestry.vision.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+      languagesLabel: (ancestry.languages ?? []).map((l) => titleCase(l.replace(/-/g, " "))).join(", "),
+      visionLabel: titleCase((ancestry.vision ?? "normal").replace(/-/g, " ")),
       terrestrial: ancestry.terrestrial,
       hasFlaws: ancestry.flaws.length > 0,
       boostSlots: decorateSlots(ancestry.boosts, this.state.ancestry.boostPicks),
@@ -255,14 +274,28 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   static async #onPickBoost(_event, target) {
-    const slotIndex = Number(target.dataset.slotIndex);
-    this.#setFreePick(this.state.ancestry.boostPicks, this.#freeSlotPosition("boosts", slotIndex), target.dataset.ability);
-    this.render({});
+    this.#pickFreeSlot("boosts", this.state.ancestry.boostPicks, target);
   }
 
   static async #onPickFlaw(_event, target) {
+    this.#pickFreeSlot("flaws", this.state.ancestry.flawPicks, target);
+  }
+
+  /**
+   * Shared by #onPickBoost/#onPickFlaw. Refuses a pick a sibling slot has
+   * already claimed even if the button's disabled attribute were somehow
+   * bypassed (a stale render, direct DOM manipulation) -- the template's
+   * `claimed` flag is the primary defense, this is the second one, since an
+   * illegal double-boost silently reaching derive.mjs is a real rules bug,
+   * not just a UI nicety.
+   */
+  #pickFreeSlot(kind, picks, target) {
     const slotIndex = Number(target.dataset.slotIndex);
-    this.#setFreePick(this.state.ancestry.flawPicks, this.#freeSlotPosition("flaws", slotIndex), target.dataset.ability);
+    const ability = target.dataset.ability;
+    const ancestry = this._ancestries.find((a) => a.id === this.state.ancestry.id);
+    const slots = ancestry?.[kind] ?? [];
+    if (claimedAbilities(slots, picks, slotIndex).has(ability)) return;
+    this.#setFreePick(picks, this.#freeSlotPosition(kind, slotIndex), ability);
     this.render({});
   }
 
@@ -310,8 +343,16 @@ export function getInductionTerminal() {
   return active;
 }
 
+/**
+ * Resets state every call, even when reusing an existing instance --
+ * openInductionTerminal's own doc comment promises "always starting at Page
+ * 1," which was false for a second invocation before this fixed it (found
+ * live 2026-09-09: re-opening mid-flow silently resumed wherever state had
+ * been left, with no visible way to tell that had happened).
+ */
 export function mountInductionTerminal() {
   if (!active) active = new InductionTerminal();
+  else active.state = { page: 1, ancestry: { id: null, filter: "", boostPicks: [], flawPicks: [] } };
   active.render({ force: true });
   return active;
 }

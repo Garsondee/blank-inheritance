@@ -691,8 +691,29 @@
   font-weight: 700;
 }
 .bi-induction__option:focus-visible { outline: 2px solid var(--bi-vermilion); outline-offset: 2px; }
+/* Already claimed by a sibling slot (a fixed ability, or another free
+   slot's pick) -- Player Core's "different ability score" rule, not just a
+   UI preference. Struck through rather than hidden, so the reason a button
+   won't respond is visible, not just inert. */
+.bi-induction__option--claimed {
+  color: var(--bi-paper-ink-2);
+  text-decoration: line-through;
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.bi-induction__option--claimed:hover { background: var(--bi-paper); }
 
 .bi-induction__no-flaw { font-style: italic; font-size: 13px; color: var(--bi-paper-ink-2); }
+
+/* The catalogue failed to load -- distinct from "there are simply no
+   ancestries", never silently indistinguishable from it. */
+.bi-induction__load-error { margin-bottom: 8px; }
+.bi-induction__load-error-title {
+  font-family: var(--bi-font-typewriter);
+  font-weight: 700;
+  color: var(--bi-vermilion-dim);
+  margin-bottom: 6px;
+}
 
 /* The alien-lockdown's OOC half (design doc §4a): plainly reassuring,
    deliberately set apart from the mechanical rows above it, never styled
