@@ -1,11 +1,12 @@
 # Mitflits
 
 **Category:** species
-**Status:** partial — core reframe is locked, but Ingram has explicitly said his own further take
-isn't written down anywhere yet. Do not treat this file as complete.
+**Status:** established — the origin reframe Ingram flagged as "further, not yet written down" on
+2026-09-09 was asked directly and answered in full on 2026-09-10 (`bible/LEDGER.md` #6). Still watch
+for smaller details surfacing later, but the core divergence from Paizo is now complete and locked.
 **Sources:** `ideas/entries/mitflits-and-anabala.json`, `ideas/story/blank-inheritance-v4.md` §9 +
-Thread Grid, `ideas/story/blank-inheritance-ch1-v2.md` §4 + Session Four + Open Call #4, plus
-direct conversation with Ingram, 2026-09-09.
+Thread Grid, `ideas/story/blank-inheritance-ch1-v2.md` §4 + Session Four + Open Call #4,
+`ideas/story/bible/LEDGER.md` #6 and #7, direct conversation with Ingram, 2026-09-09 and 2026-09-10.
 
 ## Read this first
 
@@ -78,11 +79,40 @@ silent, that divergence is real and simply not written down yet. Ask; don't defa
   it's now also a literal founding fact: **the institution that later treats mitflits as an
   afterthought exists partly because one mitflit's suffering moved someone to found it.** Sharpens
   why "treating mitflits as vermin" was such a bad miss — the irony isn't incidental, it's structural.
-- **A dangling thread, same source, not yet connected to anything:** the enslaved clan included "one
-  mitflit [who] invents a power generator that draws unwanted attention from the shadow realm — a
-  thread nobody ever followed up on." Explicitly filed by that document as a genuine gap, not a
-  design question — what became of the generator, or whether it connects to anything since, has
-  never been established. Don't invent an answer; flag it if it becomes relevant.
+- **The shadow-realm generator thread is RESOLVED, not dangling — corrected 2026-09-10
+  (`LEDGER.md` #6).** Earlier drafts (this file included, and `dossier-first-impact.md` §2) called it
+  "a thread nobody ever followed up on." That was wrong. **A mitflit savant CHILD** — not an adult
+  under the lord's direction, curiosity-driven — built the generator. Switching it on let shadow-plane
+  creatures overrun the town below the castle; the castle itself then came under siege as Anabala's
+  recruited four (Hyuck, Shucks Mordant, Rupiah, and Anabala herself) approached. They fought up
+  through the exploiting lord's own manor house as shadow creatures poured in and a "fog wall of
+  shadow" closed on them, worked out that destroying the generator was the fix, did it, and the
+  shadow-plane incursion retreated. **This is a wholly separate incident from the Kortos exotic-matter
+  accident** — same overall intervention, same four people, but its own earlier encounter with its own
+  ending, not connected to the Watcher or anything downstream of it. Nothing further to resolve here
+  unless a new question surfaces.
+- **Mitflits' real origin, confirmed in full 2026-09-10 (`LEDGER.md` #7) — this is Ingram's own
+  further divergence from Paizo, previously flagged as existing but not written down:** mitflits are
+  the descendants of an **alien robotic crew** whose vessel crashed on Golarion **thousands of years
+  ago** — long, long before the Kortos incident, and unconnected to it. Over that vast span their
+  biology, magic and cybernetics **muddled together and degraded**: they dispersed, forgot their own
+  skills, and became weaker, more primitive, and more violent — which is the real, in-universe origin
+  of their current reputation as "the least of races," not an accident of how the wider world happened
+  to perceive them. **Small communities did survive intact enough to keep the old ways and older
+  memories alive**, and it's specifically that surviving thread of memory that makes "finding a way
+  home" a real, achievable goal rather than a fantasy — the gathering-to-leave arc (above) is these
+  communities' actual, long-worked-toward plan, not a spontaneous impulse.
+- **Anabala is one of these old ones, and far older than the ~200-year Kortos incident.** Hundreds of
+  years before Kortos, she became host to a powerful **female demon** — self-interested but not evil —
+  who gave her access to great power and enough clarity to search deep into "the mind of the Mitflit"
+  (the species' own collective memory/psyche). What the demon found there suggested mitflits could
+  become a powerful people again, and the demon wants them to succeed. **Anabala is a High Priestess
+  and Prophet of the mitflits** — a specific, real religious/spiritual leadership title within their
+  surviving culture, not just "a mitflit who happens to be old."
+- **Rupiah is the reason "gathering to go home" is happening at all.** Where others met mitflits with
+  violence, **Rupiah used diplomacy** — and started them down the actual path toward getting home.
+  This directly connects one of the Directorate's own founders to the campaign's central ongoing
+  mitflit thread, not just to the founding/Kortos incident. *(Elf, elf nobility — `LEDGER.md` #8.)*
 
 ## Ingram's own take, and how it diverges from any real-world source
 
@@ -94,14 +124,16 @@ nuisance-management goblins usually get.
 to a simpler form over a very long time — not fey, not goblins by origin. Closer to a
 lost-civilization / amnesiac-precursor framing than to anything Paizo's flavor text suggests.
 
-**This campaign's *further* divergence — not yet written down anywhere:** Ingram has said directly
-that his own personal take on mitflits goes beyond the reframe above and doesn't agree with how
-Paizo presents them (2026-09-09: *"You didn't know how to write the Mitflits because you don't
-know my own personal unusual take on Mitflits which doesn't agree with how they are presented by
-Paizo, so how could you know."*). What that further divergence actually is has not been recorded
-anywhere. **Do not guess at it, and do not fall back on Paizo flavor** — comic goblin-adjacent
-pest, casual contempt from NPCs, played for cheap laughs — for anything this file doesn't
-explicitly state above.
+**This campaign's *further* divergence — now recorded in full, `LEDGER.md` #7:** alien robotic crew,
+not organic star-travelers in the generic sense; a crash thousands of years ago, not merely "long
+ago"; biology/magic/cybernetics degrading together into confusion over that span, which is *why* they
+declined into "the least of races" rather than that decline being unexplained; small surviving
+communities as the actual load-bearing reason a return home is possible at all; and Anabala's real
+nature (demon-hosted high priestess/prophet, far older than the other three founders) and Rupiah's
+real role (the one who chose diplomacy and started the return-home path) both now settled facts, not
+open questions. **Still do not fall back on Paizo flavor** — comic goblin-adjacent pest, casual
+contempt from NPCs, played for cheap laughs — for anything a future question doesn't explicitly cover;
+the discipline that produced this section stays the same even though this particular gap is closed.
 
 ## Tone and register — what NOT to do
 
@@ -156,15 +188,21 @@ from Paizo defaults or from the §4 texture line in isolation.
 
 ## Open questions
 
-- What is Ingram's further personal divergence from Paizo mitflits, beyond what's now recorded
-  above? Confirmed to still exist beyond this file's contents — ask, don't guess.
-- What distinguishes "wild" from "ascended" mitflits?
+- ~~What is Ingram's further personal divergence from Paizo mitflits?~~ **Answered 2026-09-10,
+  `LEDGER.md` #7** — see "What's established" above.
+- What distinguishes "wild" from "ascended" mitflits? Does this map onto the split between
+  degraded-and-forgotten communities versus the small ones that kept the old ways alive
+  (`LEDGER.md` #7), or is it an unrelated distinction? Not stated either way — don't assume a link.
 - How and why do mitflits specifically connect to Chapter One's plot? The idea entry explicitly
   says this is deliberately unresolved for now — don't invent a connection.
 - Does the general strike (Bobbin/the Elder, refusing to leave a Frame) connect mechanically to the
   gathering-to-go-home motivation above, or are these two separate strands of the same thread? Not
   stated either way — don't assume a link.
-- When and how does Anabala actually get introduced?
+- When and how does Anabala actually get introduced? Now a much bigger reveal than before, given her
+  true age and nature (`LEDGER.md` #7) — worth deciding deliberately rather than letting it happen
+  incidentally.
+- What does the demon hosted in Anabala actually want, beyond "the mitflits to succeed" — does it
+  have its own agenda that could ever put it at odds with her, or with the party?
 
 ## Appearances so far
 
@@ -192,11 +230,21 @@ from Paizo defaults or from the §4 texture line in isolation.
 9. `ideas/story/blank-inheritance-master-timeline.md` — Anabala's founder status and the shadow-realm
    generator thread. **2026-09-09,** the day the master timeline and both antagonist dossiers were
    first shared.
+10. **2026-09-10, `LEDGER.md` #6 and #7:** the shadow-realm generator thread resolved (a mitflit
+    savant child's device, a siege, a destruction, wholly separate from Kortos); the full origin
+    reframe (alien robotic crew, thousands of years ago, degradation into "least of races," surviving
+    communities as the reason a return home is possible); Anabala's true age/nature (demon-hosted
+    high priestess/prophet); Rupiah's role starting the return-home path via diplomacy. Also touched:
+    `ideas/story/dossier-first-impact.md` §2 (corrected to match), `ideas/story/blank-inheritance-
+    master-timeline.md` (new pre-Kortos row for the siege).
 
 ## Related
 
 - [Bible README](../README.md)
+- [Bible LEDGER](../LEDGER.md) — #6, #7, #8: the source of everything added 2026-09-10.
 - [ideas/story/blank-inheritance-master-timeline.md](../../blank-inheritance-master-timeline.md)
+- [ideas/story/dossier-first-impact.md](../../dossier-first-impact.md) — the Kortos incident, wholly
+  separate from the shadow-realm generator siege above despite sharing the same four people.
 - [ideas/story/bible/locations/the-gnoll-statue.md](../locations/the-gnoll-statue.md) — Hyuck, from
   the same founding party as Anabala.
 - [design/induction.md](../../../../design/induction.md)

@@ -46,6 +46,10 @@ guessing at it again.
 | 2 | 2026-09-10 | Nozomi and the party's early activation | Answered |
 | 3 | 2026-09-10 | Who is Shinobu | Answered |
 | 4 | 2026-09-10 | This world's relationship to Golarion | Answered |
+| 5 | 2026-09-10 | The Frame's seat = the pilot's true form | Answered |
+| 6 | 2026-09-10 | The shadow-realm generator thread | Answered |
+| 7 | 2026-09-10 | Mitflits' real origin (Ingram's further divergence) | Answered |
+| 8 | 2026-09-10 | The founders' 200-year survival, and Rupiah's ancestry | Partially answered |
 
 *(Continues below as new entries are added — keep this index in sync, in order, every time.)*
 
@@ -159,3 +163,108 @@ written origin-event dossier, filed verbatim as its own document.
 
 **Filed to:** `ideas/story/dossier-first-impact.md` (new file, the full dossier, including §13 stating
 this Golarion relationship explicitly); `ideas/story/blank-inheritance-master-timeline.md`'s header note.
+
+---
+
+### 5 — The Frame's seat = the pilot's true form
+
+**Date:** 2026-09-10
+**Asked because:** `dossier-first-impact.md` §8 had just revealed each Frame's core is a living
+organism "making itself a seat," and project memory separately held that a Frame's cavity forms a
+seat for a disguised alien pilot's true shape — two facts that looked identical but had never been
+confirmed as the same thing.
+
+**Q:** *"dossier-first-impact.md §8 just revealed each Frame's core is a living, mitflit-scale
+organism that's 'making itself a seat.' Separately, I understand (from project memory) that a Frame's
+cavity is meant to form a seat for a pilot's TRUE shape — relevant for disguised alien PCs. Are these
+the same thing (the living core is literally shaping itself to fit whoever's piloting, alien or not),
+or two different facts I shouldn't conflate?"*
+
+**A:** *"Same thing — it's shaping itself for the pilot."*
+
+**Filed to:** `ideas/story/dossier-first-impact.md` §8, a confirming paragraph added directly under
+the original reveal.
+
+---
+
+### 6 — The shadow-realm generator thread
+
+**Date:** 2026-09-10
+**Asked because:** both `bible/species/mitflits.md` and `dossier-first-impact.md` independently
+flagged the same detail — a mitflit's power generator drawing "unwanted attention from the shadow
+realm" — as a genuine, never-followed-up-on loose end.
+
+**Q:** *"Two files now separately flag the same loose end: a mitflit under the exploiting lord (~200+
+years ago) invented a power generator that drew unwanted attention from 'the shadow realm,' and it
+was never followed up on. Does this connect to anything already established (the Observer,
+Claimants, the founders' longevity, anything else), or is it a genuinely separate thread for later?"*
+
+**A:** *"The generator was destroyed. When it was turned on the town below the castle was overrun by
+shadow plane creatures. Then the castle came under siege as the players approached. The players ended
+up inside the manor house of this exploiting lord, shadow baddies invaded, things got chaotic but the
+group kept moving up the castle as the fog wall of shadow approached. They worked out how to disable
+the generator by destroying it and the shadows retreated. This is separate to the exotic matter, the
+generator was made by a Mitflit savant child who was just curious. To my mind Mitflits were star
+faring robots originally but their biology and magic and cybernetics all became muddled on Golarion
+over the thousands of years. They became a joke, the least of races, but Rupiah used diplomacy with
+them instead of violence and started them down a path towards getting home."*
+
+*(This answer runs directly into #7's territory — the mitflit-origin material here and in #7 is one
+continuous answer, split across two questions. Read both together.)*
+
+**Filed to:** `bible/species/mitflits.md` ("What's established" — the resolved siege, and the origin
+material shared with #7); `ideas/story/dossier-first-impact.md` §2 (corrected — was calling this
+unresolved), §12 (Loose Threads entry closed); `ideas/story/blank-inheritance-master-timeline.md`
+(new pre-Kortos row for the siege, and a table-structure bug this edit happened to catch and fix).
+
+---
+
+### 7 — Mitflits' real origin (Ingram's further divergence from Paizo)
+
+**Date:** 2026-09-10
+**Asked because:** `bible/species/mitflits.md`'s own Open Questions section had carried this exact
+question, verbatim, since 2026-09-09: *"What is Ingram's further personal divergence from Paizo
+mitflits, beyond what's now recorded above? Confirmed to still exist beyond this file's contents —
+ask, don't guess."* The file itself said to ask. This is that ask.
+
+**Q:** *"mitflits.md's own open questions say: 'What is Ingram's further personal divergence from
+Paizo mitflits, beyond what's now recorded above? Confirmed to still exist beyond this file's
+contents — ask, don't guess.' So: what's the further divergence?"*
+
+**A:** *"Alien robotic crew members who crashed on Golarion thousands of years ago. They dispersed
+and they forgot their skills. They became weaker and more primitive and more violent. But small
+communities of Mitflits did manage to survive in some places and keep alive the old ways and the
+older memories allowing for a return home. Anabala is one such old one because a very long time ago,
+hundreds of years earlier, she became the host of a powerful female demon who gave her access to
+great power and who brought enough clarity to be able to root around deep in the mind of the Mitflit.
+What the demon found suggested that the Mitflits could potentially be a powerful people. The demon is
+self interested but not evil and wants the Mitflits to succeed, Anabala is after all considered a
+high priestess and prophet of the Mitflits."*
+
+**Filed to:** `bible/species/mitflits.md` ("What's established", "Ingram's own take" section rewritten
+in full, Open Questions closed/updated, Appearances log); this closes the specific open question the
+file itself had been carrying since 2026-09-09.
+
+---
+
+### 8 — The founders' 200-year survival, and Rupiah's ancestry
+
+**Date:** 2026-09-10
+**Asked because:** Shucks Mordant has an obvious mechanism for outliving two centuries (literal
+undeath, #1 above); the other three founders don't, and nothing on record said why they're all still
+active, or what Rupiah even is.
+
+**Q:** *"The four founders (Anabala, Hyuck, Shucks Mordant, Rupiah) are all still active roughly 200
+years after Kortos. Shucks has an obvious mechanism (literal undeath). Is the others' longevity
+explained by something (the Kortos incident itself changed them; naturally long-lived species;
+exposure to the exotic matter) or just an unexamined fact of who they are — and separately, what IS
+Rupiah, ancestry-wise? The portrait reads elf-eared but nothing's confirmed."*
+
+**A:** *"Rupiah is an elf, elf nobility infact."*
+
+**Status: PARTIALLY ANSWERED.** Only the ancestry half was addressed — the longevity question (why
+all four are still active 200 years later) was not answered either way and **remains genuinely open.**
+Do not infer an answer from silence; ask again separately if it becomes relevant.
+
+**Filed to:** `data/campaign/asset-registry.json` (Rupiah's portrait note); `ideas/story/dossier-
+first-impact.md` §12 (Loose Threads — ancestry closed, longevity explicitly marked still open).

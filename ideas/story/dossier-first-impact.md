@@ -25,12 +25,19 @@ The old party's adventure was not originally about a portal. It was about a loca
 captured a large clan of mitflits and was exploiting their savant-level intelligence to design weapons
 of war — growing very rich on it in the process.
 
-Side effects of that exploitation, as originally described:
+Two separate incidents came out of that exploitation — same four people, same overall intervention,
+but two different encounters with two different endings:
 
-- **A power generator.** One of the exploited mitflits invented one, and it drew unwanted attention
-  from the shadow realm. This thread was never resolved or followed up on. It sits in the historical
-  record as a loose end, not a closed loop.
-- **The catastrophic release of exotic matter** — the incident below.
+- **The generator siege, resolved (`bible/LEDGER.md` #6, added 2026-09-10; corrects earlier drafts of
+  this file that called it an unresolved thread).** A mitflit savant *child* — curiosity, not
+  direction from the lord — built a power generator. Switching it on let shadow-plane creatures
+  overrun the town below the castle; the castle then came under siege as Anabala's four approached.
+  They fought up through the exploiting lord's own manor house as a "fog wall of shadow" closed in,
+  worked out that destroying the generator was the fix, did it, and the incursion retreated. **Wholly
+  separate from the exotic-matter incident below** — its own encounter, its own ending, nothing left
+  dangling.
+- **The catastrophic release of exotic matter** — the incident below, and the one that actually
+  matters for everything downstream of this document.
 
 **Anabala**, moved by what was being done to her own people, recruited **Hyuck**, **Shucks Mordant**,
 and **Rupiah** to intervene.
@@ -124,6 +131,11 @@ steel exoskeleton.** The Directorate has tried many shell designs around these c
 fail catastrophically. Every single one, eventually, **develops the same hole in the same position —
 officially logged as metal fatigue. It is not fatigue. The core is making a seat.**
 
+**Confirmed 2026-09-10 (`bible/LEDGER.md` #5): this IS the mechanism behind "the cavity fits a
+disguised alien pilot's true shape."** One fact, not two — the living core is shaping itself for
+whoever is actually piloting, alien or not. Every Frame is quietly adapting to its pilot from the
+inside, the entire time, whether anyone involved knows that's what's happening.
+
 *(Full mechanical treatment: story bible v4, §3.)*
 
 ---
@@ -160,7 +172,7 @@ proving themselves right.**
 
 | When | What |
 |---|---|
-| Before the incident | The exploiting lord; the mitflits; the power generator and the shadow realm's attention |
+| Before the incident, resolved separately | The exploiting lord; a mitflit savant child's power generator; the shadow-realm siege and its destruction (`bible/species/mitflits.md`, `LEDGER.md` #6) |
 | ~200 years ago | The throw, the failed catch, the container splits, the aperture opens at Kortos |
 | Same event | Regional containment; the aperture crushed; the ending left uncertain |
 | Same event (understood later) | The crushing pulverises the ship's sensor system into what becomes the Watcher |
@@ -175,14 +187,21 @@ proving themselves right.**
 
 Not gaps to be filled unilaterally — genuine open questions, as established:
 
-- **The power generator and the shadow realm.** Never resolved in the original telling, and never
-  picked up since. Whether it connects to anything in the present campaign is entirely undecided.
+- ~~The power generator and the shadow realm.~~ **Resolved 2026-09-10** — see §2 and
+  `bible/species/mitflits.md`. A separate, closed incident; not connected to anything downstream of
+  the Kortos accident.
 - **What actually happened to the portal itself**, beyond "crushed into a small space and either
   destroyed or converted into something else." This was left uncertain by design and should probably
   stay that way rather than be resolved for its own sake.
 - **Whether anything else survived the crushing** besides the fragment that became the Watcher — the
   museum piece (a coherent, unpulverised remnant, story bible v4 §13) suggests at least one other piece
   is out there, but its full extent has never been established.
+- **Why the four founders are all still active roughly 200 years later.** Asked directly 2026-09-10
+  (`bible/LEDGER.md` #8) alongside Rupiah's ancestry — **only the ancestry half was answered.** Rupiah
+  is confirmed an elf, elf nobility specifically. Shucks Mordant has an obvious mechanism (literal
+  undeath, `bible/characters/shucks-mordant.md`). Whether the Kortos incident itself is *why* all four
+  have survived this long, versus it just being an unexamined fact of who they naturally are, is
+  **still genuinely open** — don't invent an answer either way.
 
 ---
 
