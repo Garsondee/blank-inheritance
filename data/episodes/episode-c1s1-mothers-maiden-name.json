@@ -41,6 +41,16 @@
       "description": "Taka renames all six of them before the plates are cleared, and the wider trainee body gets its first real screen time. Ends cold: a tannoy reads Section Nine's assignment last, worst, and non-negotiable -- storm drain clearance. Whether the party knows it's more than that depends on what they asked.",
       "briefRef": "episode-c1s1--canteen",
       "challengeRefs": ["c1s1-canteen"]
+    },
+    {
+      "order": 5,
+      "id": "flood-tunnel",
+      "title": "Flood Tunnel Clearance",
+      "description": "The campaign's first fight. Two quick checks to get the drainage/compactor system running, which is what wakes the six Giant Centipedes nesting in it. An optional 'closing in' hazard (the compactor cycle itself) can run alongside the fight for a harder, more tactical version. Ends with a long rest back at student accommodation, and the six of them realising, over the water, that they were all flagged.",
+      "briefRef": "episode-c1s1--flood-tunnel",
+      "challengeRefs": ["c1s1-flood-tunnel"],
+      "encounterRef": "c1s1-flood-tunnel",
+      "subsystemRef": "c1s1-compactor-cycle"
     }
   ],
   "requiredBeats": [

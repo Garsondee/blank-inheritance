@@ -100,7 +100,7 @@ The institution is **calcified rather than sinister**. The adults are not compet
 **Morning** — Intake medicals; Shucks Mordant, forms that ask twice, and a flagged screen each of them is told privately not to worry about.
 **Noon** — Kit issue and ground role selection; Nobu signs the slips personally and is oddly generous with the allowance.
 **Evening** — Canteen. Taka arrives uninvited and has renamed all six of them before the plates are cleared. *(Built out 2026-09-09 — see `data/scene-briefs/episode-c1s1--canteen.json`: this is also where Section Nine gets its assignment, no choice offered, read last and worst over a tannoy after several other sections' more interesting-sounding ones. The party can learn it's not just drains through hard Recall Knowledge or by asking Taka directly, but nothing changes the assignment itself.)*
-**Night** — **ENCOUNTER 1: Flood tunnel clearance.**
+**Night** — **ENCOUNTER 1: Flood tunnel clearance.** *(Built out 2026-09-09 — see `data/scene-briefs/episode-c1s1--flood-tunnel.json`, `data/encounters/c1s1-flood-tunnel.json`. Real map: Cze & Peku's "Trash Compactor" — a control platform north, a sunken central floor around a glowing grate, conveyor walkways flanking both sides. Two quick checks start the drainage system and provoke the fight. An optional subsystem, `c1s1-compactor-cycle.json`, adds a "closing in" hazard on top of the fight for a harder table — purely additive, drop it for the simpler version.)*
 
 **The fight.** New recruits get the worst job. The storm drains under the old town have a centipede infestation and the tide is due. Standard vermin clearance — the exact job a level 1 party is given in every adventure ever written.
 
@@ -110,7 +110,7 @@ The institution is **calcified rather than sinister**. The adults are not compet
 
 *(Changed 2026-09-09 from an earlier draft where the infestation was a mitflit nest — see `ideas/story/bible/species/mitflits.md`. Mitflits are established as rare at this point in the campaign and never treated as vermin; a level-1 party's throwaway first fight is the wrong place for either to be true of them. The tide/difficult-terrain/poor-light shape of the encounter is unchanged.)*
 
-**What matters:** whether they kill them, drive them off, or find another way. **Record it.** This is the first entry in the tone ledger, and the campaign is watching.
+**What matters:** whether they kill them, drive them off, or find another way. **Record it.** This is the first entry in the tone ledger, and the campaign is watching. *(Written when this fight was mitflits, whose treatment fed directly into the Observer's own Mirror mechanic — dossier-observer.md §13. Now that it's centipedes, non-sentient animals with no connection to that thread, this line is worth keeping as color for this specific party's own established character, but it is NOT the Mirror. Don't conflate the two.)*
 
 *Ends on:* six teenagers comparing notes over the water and working out they were all flagged.
 

@@ -190,8 +190,8 @@
         "properties": {
           "id": { "type": "string", "pattern": "^[a-z0-9-]+$", "description": "Stable — tick state is keyed on it, so renaming a beat mid-campaign forgets whether it happened." },
           "kind": {
-            "enum": ["action", "check", "reveal"],
-            "description": "action = something happens in the fiction. check = resolved by a roll (needs challengeRef). reveal = puts something in front of the players (needs handoutRef). Defaults to action."
+            "enum": ["action", "check", "reveal", "combat"],
+            "description": "action = something happens in the fiction. check = resolved by a roll (needs challengeRef). reveal = puts something in front of the players (needs handoutRef). combat = a real encounter runs (needs encounterRef; subsystemRef if a hazard/clock runs alongside it). Defaults to action."
           },
           "text": { "type": "string", "description": "Stage direction — what this beat IS, in the GM's own shorthand. Rendered as prose." },
           "readAloud": { "type": ["string", "null"], "description": "Verbatim boxed text, if there is any. Set apart typographically from `text`, because one is a note to yourself and the other is a thing you say to six people." },
@@ -205,6 +205,8 @@
           "handoutRef": { "type": ["string", "null"], "description": "id of an entry in `handouts` below." },
           "challengeRef": { "type": ["string", "null"], "description": "id of a challenge.schema.json instance in data/challenges/. Checks are NOT inlined here — challenge.schema.json already models a handful of DC'd checks with full four-degree outcomes, and episode.scenes[].challengeRefs was already wired for exactly this." },
           "checkRef": { "type": ["string", "null"], "description": "The `id` of one check inside that challenge. A challenge is \"one or a handful\" of checks, so a scene's rolls group into one file per scene rather than one file per roll; this names which of them this beat is." },
+          "encounterRef": { "type": ["string", "null"], "description": "id of an encounter.schema.json instance in data/encounters/, for a kind:\"combat\" beat." },
+          "subsystemRef": { "type": ["string", "null"], "description": "id of a subsystem.schema.json instance in data/subsystems/, when a hazard/clock/pool runs alongside this beat (a combat beat with an environmental hazard, or a pure subsystem scene with no encounter at all)." },
           "after": { "type": ["string", "null"], "description": "id of a beat this cannot happen before. Ordering only — it does not hide this beat." },
           "when": {
             "type": "object",
