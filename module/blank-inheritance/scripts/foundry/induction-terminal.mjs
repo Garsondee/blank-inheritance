@@ -7,7 +7,10 @@
  * class feats/spells are deliberately left for the real character sheet
  * afterward, not handled here. See design/induction-terminal.md for the
  * full page-by-page design; this file and its templates currently build
- * Page 1 (orientation) and Page 2 (ancestry).
+ * Page 1 (orientation), Page 2 (ancestry), Page 7 (finishing details) and
+ * Page 8 (the eight questions). Pages 3-6 and 9 don't exist yet -- Page 2's
+ * own Continue temporarily jumps straight to Page 7, see that handler's
+ * own comment.
  *
  * PLAYER-FACING BY CONSTRUCTION, unlike the scene runner (GM-only) and the
  * command bar (seat-dependent) -- any user may open this, including a GM
@@ -36,6 +39,15 @@ import {
   groupAncestries,
   filterAncestries
 } from "../core/induction-ancestry.mjs";
+import {
+  insertSuggestion,
+  isFinishingComplete,
+  addLanguage,
+  removeLanguage,
+  buildLanguageSuggestions,
+  getPath,
+  setPath
+} from "../core/induction-intake.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -51,6 +63,16 @@ const SIZE_KEYS = {
 };
 const abilityLabel = (key) => game.i18n.localize(ABILITY_KEYS[key] ?? key);
 const sizeLabel = (key) => game.i18n.localize(SIZE_KEYS[key] ?? key);
+
+/**
+ * Titlecase per word, not just the string's first letter -- ancestry
+ * languages like "sarcesian-signed" (and the catalogue's own plain-lowercase
+ * "common") need every word capitalised. Shared by #decorateAncestry
+ * (Page 2's own languagesLabel/visionLabel) and #page7Context (the language
+ * widget's ancestry-derived suggestion chips) -- both display the exact
+ * same raw catalogue strings and must not disagree on their casing.
+ */
+const titleCase = (s) => s.replace(/\b\w/g, (c) => c.toUpperCase());
 
 /* ---------------------------------------------------------------- */
 /*  Campaign data (data/campaign/campaign/*.json -- the doubled       */
@@ -75,6 +97,35 @@ function loadAncestryCatalogue() {
   return ancestryCataloguePromise;
 }
 
+let intakePromptsPromise = null;
+
+/** Same cache/failed-flag pattern as loadAncestryCatalogue, for Pages 7-8's suggestion-chip content. */
+function loadIntakePrompts() {
+  intakePromptsPromise ??= fetchModuleJson("data/campaign/campaign/induction-intake-prompts.json").catch((err) => {
+    console.error("Blank Inheritance | Could not load the induction intake prompts:", err);
+    intakePromptsPromise = null;
+    return {
+      genderIdentityOptions: [], pronounOptions: [], appearanceOptions: [],
+      banalQuestions: [], eightQuestions: [], failed: true
+    };
+  });
+  return intakePromptsPromise;
+}
+
+/**
+ * Player Core pg. 97 (reference/srd/player-core/134-languages.json) --
+ * the Common Ancestry Languages + Common Regional Languages tables,
+ * hand-transcribed same as ancestry-catalogue.json is for ancestries (the
+ * SRD mirror is never synced to Foundry, so it can't be fetched live).
+ * Deliberately excludes the Uncommon Extraplanar table (Aklo, Chthonian,
+ * etc.) as too exotic for a default suggestion chip -- still reachable via
+ * the widget's own free-text "Add" field.
+ */
+const CURATED_LANGUAGES = [
+  "Common", "Kasatha", "Pahtra",
+  "Akitonian", "Brethedan", "Castrovelian", "Diasporan", "Draconic", "Eoxian", "Trinary", "Vercite", "Vesk"
+];
+
 export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "bi-induction-terminal",
@@ -88,7 +139,14 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       changeAncestry: InductionTerminal.#onChangeAncestry,
       pickBoost: InductionTerminal.#onPickBoost,
       pickFlaw: InductionTerminal.#onPickFlaw,
-      continueFromAncestry: InductionTerminal.#onContinueFromAncestry
+      continueFromAncestry: InductionTerminal.#onContinueFromAncestry,
+      continueFromFinishing: InductionTerminal.#onContinueFromFinishing,
+      backFromFinishing: InductionTerminal.#onBackFromFinishing,
+      addLanguage: InductionTerminal.#onAddLanguage,
+      removeLanguage: InductionTerminal.#onRemoveLanguage,
+      addLanguageCustom: InductionTerminal.#onAddLanguageCustom,
+      continueFromQuestions: InductionTerminal.#onContinueFromQuestions,
+      backFromQuestions: InductionTerminal.#onBackFromQuestions
     }
   };
 
@@ -101,6 +159,14 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     page2: {
       template: `${TEMPLATE_ROOT}/page2-ancestry.hbs`,
       scrollable: [".bi-induction__page"]
+    },
+    page7: {
+      template: `${TEMPLATE_ROOT}/page7-finishing.hbs`,
+      scrollable: [".bi-induction__page"]
+    },
+    page8: {
+      template: `${TEMPLATE_ROOT}/page8-questions.hbs`,
+      scrollable: [".bi-induction__page"]
     }
   };
 
@@ -112,6 +178,17 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       filter: "",
       boostPicks: [], // parallel to the FREE boost slots only, see core/induction-ancestry.mjs
       flawPicks: []
+    },
+    finishing: {
+      name: "",
+      pronouns: "",
+      genderIdentity: "",
+      appearance: "",
+      languages: [],
+      banalAnswers: {} // keyed by induction-intake-prompts.json's banalQuestions[].id
+    },
+    intake: {
+      questions: {} // keyed by induction-intake-prompts.json's eightQuestions[].id
     }
   };
 
@@ -143,6 +220,8 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   async _prepareContext() {
     const base = { userName: game.user?.name ?? "" };
     if (this.state.page === 2) return { ...base, ...(await this.#page2Context()) };
+    if (this.state.page === 7) return { ...base, ...(await this.#page7Context()) };
+    if (this.state.page === 8) return { ...base, ...(await this.#page8Context()) };
     return base;
   }
 
@@ -167,12 +246,6 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
 
   /** Everything Page 2's template needs about the chosen ancestry, precomputed. */
   #decorateAncestry(ancestry) {
-    // Titlecase per word, not just the string's first letter -- languages
-    // like "sarcesian-signed" need every word capitalised (matches
-    // visionLabel's own approach below; found live 2026-09-09 where
-    // languagesLabel's simpler version produced "Sarcesian-signed").
-    const titleCase = (s) => s.replace(/\b\w/g, (c) => c.toUpperCase());
-
     const decorateSlots = (slots, picks) => {
       const { resolved } = resolveSlots(slots, picks);
       return slots.map((slot, slotIndex) => {
@@ -213,10 +286,104 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     };
   }
 
+  async #page7Context() {
+    const prompts = await loadIntakePrompts();
+    const ancestry = this._ancestries.find((a) => a.id === this.state.ancestry.id) ?? null;
+
+    // Each key spelled out literally, not built from a template string --
+    // the repo-wide lang-key coverage test statically scans source text for
+    // dotted BLANKINHERITANCE key references, so a `${key}`-interpolated
+    // helper here would only ever contribute its own unresolvable static
+    // prefix (found live authoring this very page -- see git history).
+    const nameField = this.#decoratePromptField({
+      id: "name", statePath: "finishing.name",
+      label: game.i18n.localize("BLANKINHERITANCE.Induction.Page7.NameLabel")
+    });
+
+    const promptFields = [
+      this.#decoratePromptField({
+        id: "pronouns", statePath: "finishing.pronouns",
+        label: game.i18n.localize("BLANKINHERITANCE.Induction.Page7.PronounsLabel"),
+        suggestions: prompts.pronounOptions
+      }),
+      this.#decoratePromptField({
+        id: "gender-identity", statePath: "finishing.genderIdentity",
+        label: game.i18n.localize("BLANKINHERITANCE.Induction.Page7.GenderIdentityLabel"),
+        suggestions: prompts.genderIdentityOptions
+      }),
+      ...prompts.banalQuestions.map((q) => this.#decoratePromptField({
+        id: q.id, statePath: `finishing.banalAnswers.${q.id}`, label: q.text, isTextarea: true, suggestions: q.suggestions
+      })),
+      this.#decoratePromptField({
+        id: "appearance", statePath: "finishing.appearance",
+        label: game.i18n.localize("BLANKINHERITANCE.Induction.Page7.AppearanceLabel"), isTextarea: true,
+        suggestions: prompts.appearanceOptions
+      })
+    ];
+
+    return {
+      loadFailed: prompts.failed === true,
+      nameField,
+      promptFields,
+      languages: this.state.finishing.languages,
+      languageSuggestions: buildLanguageSuggestions(
+        (ancestry?.languages ?? []).map((l) => titleCase(l.replace(/-/g, " "))),
+        CURATED_LANGUAGES,
+        this.state.finishing.languages
+      ),
+      isComplete: isFinishingComplete(this.state.finishing)
+    };
+  }
+
+  async #page8Context() {
+    const prompts = await loadIntakePrompts();
+    const promptFields = prompts.eightQuestions.map((q) => this.#decoratePromptField({
+      id: q.id,
+      statePath: `intake.questions.${q.id}`,
+      label: `${q.number}. ${q.text}`,
+      isTextarea: true,
+      suggestions: q.suggestions,
+      helpBody: q.purposeNote
+    }));
+    return { loadFailed: prompts.failed === true, promptFields };
+  }
+
+  /**
+   * The suggestion-chip + free-text view-model shared by Page 7 and Page 8
+   * (design doc's requirement: every RP-response field gets a list of
+   * suggested answers AS WELL AS a free-text box). One shape, so both
+   * templates {{#each}} over it identically -- adding a 9th banal question
+   * or a per-question help note is a pure content edit in
+   * induction-intake-prompts.json, never a template/adapter change.
+   *
+   * `helpBody` is Page 8-only (its per-question OOC purpose toggle); Page
+   * 7's fields omit it. `syncKey` must be UNIQUE per field, not a shared
+   * literal like Page 2's single "help" -- Foundry's data-sync state is a
+   * flat dictionary keyed by that literal attribute value, so eight
+   * identical data-sync="help" toggles on Page 8 would all collapse onto
+   * one tracked entry.
+   */
+  #decoratePromptField({ id, statePath, label, isTextarea = false, suggestions = [], helpBody = null }) {
+    const elementId = `bi-prompt-${id}`;
+    const separator = isTextarea ? "\n\n" : ", ";
+    return {
+      id,
+      statePath,
+      elementId,
+      isTextarea,
+      label,
+      value: getPath(this.state, statePath),
+      suggestions: (suggestions ?? []).map((text) => ({ text, targetElementId: elementId, separator })),
+      helpBody,
+      syncKey: helpBody ? `help-${id}` : null
+    };
+  }
+
   /** @override */
   _onRender(context, options) {
     super._onRender?.(context, options);
     this.#bindFilter();
+    this.#bindPromptFields();
   }
 
   /**
@@ -245,6 +412,57 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       const noMatches = this.element.querySelector("[data-induction-no-matches]");
       if (noMatches) noMatches.hidden = anyVisible;
     });
+  }
+
+  /**
+   * Pages 7-8's free-text fields and their suggestion chips. Same reasoning
+   * as #bindFilter: typing and suggestion-insert both write straight to
+   * state via plain DOM listeners, never `this.render()` -- a render mid-
+   * edit fights the Handlebars mixin's own focus-restore, which restores
+   * FOCUS but never caret position. Harmless no-op on any other page (the
+   * querySelectorAll below simply matches nothing).
+   *
+   * Suggestion clicks use ONE delegated listener on the page root rather
+   * than one per chip -- it survives a language-widget re-render (a real
+   * `this.render()`, see #onAddLanguage etc.) with no per-chip rebinding.
+   */
+  #bindPromptFields() {
+    const root = this.element;
+    if (!root) return;
+
+    root.querySelectorAll("[data-prompt-field]").forEach((field) => {
+      if (field.dataset.biBound) return;
+      field.dataset.biBound = "1";
+      field.addEventListener("input", () => {
+        setPath(this.state, field.dataset.promptField, field.value);
+        if (field.dataset.promptField === "finishing.name") this.#syncContinueFromFinishingDisabled();
+      });
+    });
+
+    if (!root.dataset.biPromptBound) {
+      root.dataset.biPromptBound = "1";
+      root.addEventListener("click", (event) => {
+        const chip = event.target.closest("[data-prompt-suggestion]");
+        if (!chip) return;
+        const field = document.getElementById(chip.dataset.promptTarget);
+        if (!field) return;
+        // .value = ... does NOT dispatch an 'input' event, so the write to
+        // state below is not optional -- without it the inserted text would
+        // show on screen but vanish on the next real render.
+        const next = insertSuggestion(field.value, chip.dataset.suggestionText, chip.dataset.promptSeparator);
+        field.value = next;
+        setPath(this.state, field.dataset.promptField, next);
+        field.focus();
+        if (typeof field.setSelectionRange === "function") field.setSelectionRange(next.length, next.length);
+        if (field.dataset.promptField === "finishing.name") this.#syncContinueFromFinishingDisabled();
+      });
+    }
+  }
+
+  /** Direct DOM toggle, not a render -- Page 7's Name field is the only thing gating Continue, and it must react on every keystroke. */
+  #syncContinueFromFinishingDisabled() {
+    const button = this.element?.querySelector('[data-action="continueFromFinishing"]');
+    if (button) button.disabled = !isFinishingComplete(this.state.finishing);
   }
 
   /* --- actions -------------------------------------------------- */
@@ -319,17 +537,62 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   /**
-   * Page 3 (Background) is not built yet -- same "log rather than no-op
-   * silently" idiom as Page 1's Begin, so trying this before the rest of
-   * the form exists is visibly informative rather than looking broken.
+   * TEMPORARY: Pages 3-6 (Background/Class/Attribute Boosts/Portrait) don't
+   * exist yet. Jumping straight to Page 7 keeps the terminal click-through
+   * testable end to end rather than dead-ending here -- restore this to
+   * `this.state.page = 3; this.render({})` once Page 3 is built. See
+   * design/induction-terminal.md §8.
    */
   static async #onContinueFromAncestry(_event, _target) {
     const ancestry = this._ancestries.find((a) => a.id === this.state.ancestry.id);
     if (!isAncestryChoiceComplete(ancestry, this.state.ancestry.boostPicks, this.state.ancestry.flawPicks)) return;
+    this.state.page = 7;
+    this.render({});
+  }
+
+  static async #onContinueFromFinishing(_event, _target) {
+    if (!isFinishingComplete(this.state.finishing)) return;
+    this.state.page = 8;
+    this.render({});
+  }
+
+  static async #onBackFromFinishing(_event, _target) {
+    this.state.page = 2;
+    this.render({});
+  }
+
+  static async #onAddLanguage(_event, target) {
+    this.state.finishing.languages = addLanguage(this.state.finishing.languages, target.dataset.language);
+    this.render({});
+  }
+
+  static async #onRemoveLanguage(_event, target) {
+    this.state.finishing.languages = removeLanguage(this.state.finishing.languages, target.dataset.language);
+    this.render({});
+  }
+
+  static async #onAddLanguageCustom(_event, _target) {
+    const input = this.element?.querySelector("[data-langlist-input]");
+    if (!input) return;
+    this.state.finishing.languages = addLanguage(this.state.finishing.languages, input.value);
+    input.value = "";
+    this.render({});
+  }
+
+  /**
+   * Page 9 (Review & Confirm) is not built yet -- same "log rather than
+   * no-op silently" idiom as Page 2's own former stub.
+   */
+  static async #onContinueFromQuestions(_event, _target) {
     console.log(
-      `Blank Inheritance | Induction terminal: ancestry "${ancestry?.name}" confirmed -- ` +
-      "Page 3 (Background) is not built yet. See design/induction-terminal.md for the full page-by-page design."
+      "Blank Inheritance | Induction terminal: the Eight Questions confirmed -- " +
+      "Page 9 (Review & Confirm) is not built yet. See design/induction-terminal.md for the full page-by-page design."
     );
+  }
+
+  static async #onBackFromQuestions(_event, _target) {
+    this.state.page = 7;
+    this.render({});
   }
 }
 
@@ -352,7 +615,19 @@ export function getInductionTerminal() {
  */
 export function mountInductionTerminal() {
   if (!active) active = new InductionTerminal();
-  else active.state = { page: 1, ancestry: { id: null, filter: "", boostPicks: [], flawPicks: [] } };
+  // Mirrors the class field's own default state literal above exactly --
+  // the two must be kept in sync by hand (found live 2026-09-09, the first
+  // time this reset existed at all: it's the one place a NEW state
+  // sub-object has to be added twice, once here and once as the class
+  // field's own default).
+  else {
+    active.state = {
+      page: 1,
+      ancestry: { id: null, filter: "", boostPicks: [], flawPicks: [] },
+      finishing: { name: "", pronouns: "", genderIdentity: "", appearance: "", languages: [], banalAnswers: {} },
+      intake: { questions: {} }
+    };
+  }
   active.render({ force: true });
   return active;
 }

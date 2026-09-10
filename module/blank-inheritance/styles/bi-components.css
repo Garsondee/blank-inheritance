@@ -741,6 +741,77 @@
 .bi-induction__help summary:hover { color: var(--bi-paper-ink); }
 .bi-induction__help p { margin: 10px 0 0; color: var(--bi-paper-ink-2); }
 
+/* Pages 7-8: one free-text control + a row of suggestion chips that INSERT
+   into it on click (design doc §4, "a list of possible ideas but also a
+   text box to write whatever you'd like"). Chips reuse .bi-induction__option
+   unchanged -- only the field wrapper and its own control are new. */
+.bi-prompt-field { margin-bottom: 18px; }
+.bi-prompt-field__label {
+  display: block;
+  font-family: var(--bi-font-typewriter);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  color: var(--bi-paper-ink-2);
+  margin-bottom: 5px;
+}
+.bi-prompt-field__control {
+  display: block;
+  width: 100%;
+  font-family: var(--bi-font-typewriter);
+  font-size: 13px;
+  color: var(--bi-paper-ink);
+  background: var(--bi-paper-shade);
+  border: 1px solid var(--bi-paper-rule);
+  border-radius: 2px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+}
+.bi-prompt-field__control::placeholder { color: var(--bi-paper-ink-2); }
+.bi-prompt-field__control:focus-visible { outline: 2px solid var(--bi-vermilion); outline-offset: 1px; }
+.bi-prompt-field__control--textarea {
+  min-height: 64px;
+  line-height: 1.5;
+  resize: vertical;
+}
+.bi-prompt-field__optional-note {
+  font-style: italic;
+  font-size: 12px;
+  color: var(--bi-paper-ink-2);
+  margin: -8px 0 16px;
+}
+
+/* Page 7's language tag list -- a genuinely different shape from a prompt
+   field: multiple discrete values, added/removed, not one string typed
+   into a single box. */
+.bi-langlist { margin-bottom: 8px; }
+.bi-langlist__chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.bi-langlist__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--bi-font-typewriter);
+  font-size: 12px;
+  color: var(--bi-paper);
+  background: var(--bi-vermilion-dim);
+  border-radius: 2px;
+  padding: 5px 6px 5px 10px;
+}
+.bi-langlist__remove {
+  font-family: var(--bi-font-typewriter);
+  font-size: 13px;
+  line-height: 1;
+  color: var(--bi-paper);
+  background: none;
+  border: none;
+  padding: 0 2px;
+  cursor: pointer;
+  opacity: 0.8;
+}
+.bi-langlist__remove:hover { opacity: 1; }
+.bi-langlist__empty { font-style: italic; font-size: 13px; color: var(--bi-paper-ink-2); margin: 0 0 10px; }
+.bi-langlist__custom { display: flex; gap: 6px; margin-top: 10px; }
+.bi-langlist__custom .bi-induction__filter { flex: 1; margin: 0; }
+
 /* --- Kanji used structurally, not decoratively ----------------------- */
 
 /* A vertical run of Kanji down a document margin. Genuine Japanese

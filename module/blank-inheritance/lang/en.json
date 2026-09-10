@@ -193,6 +193,33 @@
         "LockdownNote": "Playing something other than Human, Elf, Dwarf, Gnome or Halfling is fully encouraged — it just means a few extra private questions later in the process. Those are between you and this screen; whether you ever tell anyone at the table is entirely your call, and there is no wrong answer.",
         "Back": "Back",
         "Continue": "Continue"
+      },
+      "Page7": {
+        "Title": "Finishing Details",
+        "FormNumber": "FORM 1-G — PERSONAL PARTICULARS",
+        "Intro": "The mechanical parts are done. This is the rest of who they are — a name, how they're addressed, and a few small things about them. Every box here has a row of suggestions you can click to fill it in fast, and every box is also just a box — write whatever you like instead, or as well.",
+        "NameLabel": "Name",
+        "NamePlaceholder": "Your character's name…",
+        "PronounsLabel": "Pronouns",
+        "GenderIdentityLabel": "Gender identity",
+        "AppearanceLabel": "Appearance notes",
+        "LanguagesTitle": "Languages",
+        "AddLanguagePlaceholder": "Add a language…",
+        "AddLanguage": "Add",
+        "NoLanguagesYet": "No languages added yet.",
+        "RemoveLanguage": "Remove",
+        "BanalOptionalNote": "None of this is required except your name — write as much or as little as you like.",
+        "Back": "Back",
+        "Continue": "Continue"
+      },
+      "Page8": {
+        "Title": "Personal Declaration",
+        "FormNumber": "FORM 1-H — PERSONAL DECLARATION",
+        "Intro": "Eight real questions. Every answer becomes something the campaign actually uses — a connection, a side plot, a vulnerability, a running joke.",
+        "OptionalNote": "Nothing on this page is required. Leave any or all of it blank and continue — you can always come back to this later.",
+        "HelpSummary": "What's this actually for?",
+        "Back": "Back",
+        "Continue": "Continue"
       }
     }
   }

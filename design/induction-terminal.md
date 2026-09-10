@@ -129,8 +129,8 @@ login.
 | **4. Class** | Real class — the pick only. Feats and spell selection explicitly deferred (§1). | OOC: mechanical (key ability, HP per level, saves, class DC, proficiencies) — plus a plain statement that feats/spells come next, on the real character sheet, not lost or skipped. |
 | **5. Attribute Boosts** | Ancestry/background/class boosts apply automatically (read-only, sourced from Pages 2-4); four player-chosen free boosts. | OOC: "this permanently raises one of six numbers that drive almost every roll you make" — the single most consequential page. |
 | **6. Portrait** | Upload via Foundry's real system, then crop client-side to the project's own established **2:3 ratio** (`design/theatre-of-the-mind-staging.md` — the same ratio every other staged portrait already uses, so a new character doesn't look inconsistent next to the cast that already exists). **If the lockdown fired on Page 2, this page also collects the passing portrait — a second upload+crop, or a pick from a curated gallery (§4a).** | OOC: why the crop matters (visual consistency across the roster), not a mechanical explanation. |
-| **7. Finishing Details** | Character name, pronouns, appearance notes, languages. | Minimal — mostly self-explanatory. |
-| **8. The Eight Questions** | Bible §20's real quiz, verbatim, free-text answers. | OOC: narrative-purpose register — what each answer is *for* in campaign terms. |
+| **7. Finishing Details** — **built** | Name (the only required field), pronouns, gender identity, a few light "banal" texture questions, appearance notes, languages. Every field pairs free text with a row of illustrative suggestion chips that insert into the same box on click — never a separate/binding choice. Languages are a real multi-value tag list (add/remove), suggested from the character's own ancestry plus a curated common-language list (Player Core pg. 97), with a free-text "Add" escape hatch. | Minimal — mostly self-explanatory. |
+| **8. The Eight Questions** — **built** | Bible §20's real quiz, verbatim, free-text answers, same suggestion-chip pattern as Page 7. Nothing is required — leaving every box blank and continuing is a real, supported path. | OOC: narrative-purpose register — what each answer is *for* in campaign terms, shown per-question where the bible states one explicitly. |
 | **9. Review & Confirm** | Full derived sheet via `derive.mjs`, read-only, one confirm button. On confirm: creates the real Actor, places a token, hands off to the landing page (§6). | N/A. |
 
 ### 4a. The alien-lockdown sub-flow — expanded 2026-09-09
@@ -250,19 +250,27 @@ spells. Not a new decision, the same one applied to the next case it obviously c
    `design/campaign-arc.md`'s already-extensive Day 1 pilot material (reduced personnel-scale HP, a
    stronger Frame, now also confirmed "exhausted from their duties") is a real, **player-chosen**
    chargen path (`bible/LEDGER.md` #10) — one of the six may opt to start the campaign as an already-
-   active, veteran pilot rather than a fresh recruit. Nothing built so far (Pages 1-2) has a fork for
-   this; every page assumes the standard new-recruit flow. Needs a real design pass of its own before
-   Page 4 (Class) or Page 9 (Review) can be considered complete — a veteran's "basic but viable" sheet
-   plausibly needs different defaults than a recruit's. `day1-pilot-hp-reduction-amount` (the exact
-   number) is still open in `open-questions.json` and blocks finishing this properly.
+   active, veteran pilot rather than a fresh recruit. Nothing built so far (Pages 1-2, 7-8) has a fork
+   for this; every page assumes the standard new-recruit flow. Needs a real design pass of its own
+   before Page 4 (Class) or Page 9 (Review) can be considered complete — a veteran's "basic but viable"
+   sheet plausibly needs different defaults than a recruit's. `day1-pilot-hp-reduction-amount` (the
+   exact number) is still open in `open-questions.json` and blocks finishing this properly.
+9. **Page 7's gender-identity suggestion list is a judgment call, not a decision made elsewhere.**
+   `data/campaign/induction-intake-prompts.json`'s `genderIdentityOptions` (13 entries) deliberately
+   excludes "Two-Spirit" — a closed, Indigenous-specific identity term tied to particular nations' own
+   traditions, not a generic synonym for nonbinary, and this setting has no established Indigenous-
+   culture analog. The field is always free text too, so nothing is actually blocked — this only
+   affects what's pre-populated as a suggestion. Worth Ingram's own confirmation rather than treated as
+   settled by default.
 
 ---
 
 ## 8. Build status
 
 This design was requested "research, design first" — no code — and stayed that way through the first
-draft. **That has changed: the shell application, Page 1 (Orientation) and Page 2 (Ancestry) are now
-built**, against exactly this shape, the same incremental way the scene runner itself was built.
+draft. **That has changed: the shell application, Page 1 (Orientation), Page 2 (Ancestry), Page 7
+(Finishing Details) and Page 8 (The Eight Questions) are now built**, against exactly this shape, the
+same incremental way the scene runner itself was built.
 
 **The shell:** `module/blank-inheritance/scripts/foundry/induction-terminal.mjs` — the
 `InductionTerminal` ApplicationV2 class, the singleton mount/refresh/unmount/open functions, and page
@@ -292,9 +300,50 @@ highlighting work (including the mid-choice indexing case a manual trace caught 
 see the resolveSlots comment in the core module), the OOC help `<details>` stays open across a
 re-render, the alien-lockdown note appears only for non-terrestrial picks, Continue stays disabled
 until every choice is resolved, and Back/Change-ancestry/Continue all navigate correctly across many
-transitions with no DOM stacking or duplication. Covered by the generic tier0 architecture tests for
-the UI shell (templates/lang/CSS) plus a dedicated pure-logic suite for the choice resolution — `npm
-run test:ui` 418/418 passing. Pages 3-9 are not built — §4's table is still the plan for each.
+transitions with no DOM stacking or duplication.
+
+**Pages 7 and 8, built 2026-09-10** — new requirements, given directly: every RP-response field pairs
+free text with a row of suggested answers a player can click to insert, gender identity gets a real
+suggestion list (grounded in the story bible's own "all genders adjustable" line and the accepted
+intake-form idea's "queer/LGBTQ+-aware" commitment), a few light "banal" texture questions sit alongside
+the finishing details, and nothing on Page 8 is required. `scripts/core/induction-intake.mjs` (pure:
+`insertSuggestion`, `isFinishingComplete`, the language add/remove/suggestion helpers, a dotted-path
+get/set) plus `data/campaign/induction-intake-prompts.json` (the suggestion/question *content* —
+deliberately a data file, not `lang/en.json` keys, since it's enumerable content parallel to a canonical
+source, same reasoning as the ancestry catalogue) drive both pages' templates through one shared
+view-model (`#decoratePromptField`), so adding a 9th banal question or a new suggestion is a content
+edit, never a template/adapter change. The language widget is a second, genuinely different component —
+a real multi-value tag list, suggested from the character's own chosen ancestry plus a curated
+common-language list hand-transcribed from Player Core pg. 97 (`reference/srd/player-core/
+134-languages.json`, never synced to Foundry so it can't be fetched live) — mapping onto
+`kid.schema.json`'s existing `pcStatblock.languages` field with zero transformation.
+
+Suggestion-click and typing are both plain DOM listeners, never `this.render()` mid-edit, same reasoning
+as Page 2's own live-filter box (confirmed against Foundry's real `_preSyncPartState` source:
+focus-restore never restores caret position). Page 8's eight per-question OOC help toggles each need a
+**unique** `data-sync` value — copying Page 2's single `data-sync="help"` literal would only track one
+of the eight correctly, since that state is a flat dictionary keyed by the literal attribute value; this
+was verified live by opening two different questions' toggles simultaneously and confirming both stayed
+open independently. A real display bug was also found and fixed live: an ancestry's own raw language
+strings (`"common"`, lowercase, straight from the catalogue) need the same per-word title-casing Page
+2's own `languagesLabel` already applies, or the language widget's ancestry-derived suggestion chips
+read inconsistently with Page 2's own display of the identical data — `titleCase` is now a shared
+module-scope helper instead of living only inside `#decorateAncestry`.
+
+Since Pages 3-6 don't exist yet, Page 2's own Continue **temporarily** jumps straight to Page 7 (was: a
+stub that only logged) so the terminal stays click-through testable end to end; restore this once Page 3
+is built (see that handler's own comment). Page 8's Continue is now the stub, matching Page 2's former
+idiom exactly.
+
+`kid.schema.json` gained `pronouns`, `genderIdentity`, `appearance` (all optional/nullable strings) and
+`intake.banal[]`/`intake.questions[]` (raw Q&A, `{id, answer}` pairs) — deliberately **not** merged into
+`anchors`, which stays capped at 3 and a separate, later, collaborative concept; distilling an intake
+answer into a real Anchor stays a human decision, not something this terminal does automatically.
+
+Covered by the generic tier0 architecture tests for the UI shell (templates/lang/CSS) plus dedicated
+pure-logic suites for both the ancestry choice resolution and the intake suggestion/language logic —
+`npm run test:ui` 454/454 passing. Pages 3-6 and 9 are not built — §4's table is still the plan for
+each.
 
 ---
 
