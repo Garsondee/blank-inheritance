@@ -8,10 +8,11 @@
  * afterward, not handled here. See design/induction-terminal.md for the
  * full page-by-page design; this file and its templates currently build
  * Page 1 (orientation), Page 2 (ancestry), Page 3 (background), Page 4
- * (class), Page 5 (attribute boosts), Page 7 (finishing details) and Page 8
- * (the eight questions). Pages 6 and 9 don't exist yet -- Page 5's own
- * Continue temporarily jumps straight to Page 7, see that handler's own
- * comment.
+ * (class), Page 5 (attribute boosts), Page 7 (finishing details), Page 8
+ * (the eight questions) and Page 9 (review & confirm — the only page that
+ * touches the real world, see #createCharacterActor). Page 6 (portrait)
+ * doesn't exist yet -- Page 5's own Continue temporarily jumps straight to
+ * Page 7, see that handler's own comment.
  *
  * PLAYER-FACING BY CONSTRUCTION, unlike the scene runner (GM-only) and the
  * command bar (seat-dependent) -- any user may open this, including a GM
@@ -33,19 +34,22 @@
  */
 
 import { fetchModuleJson } from "./io.mjs";
-import { resolveSlots, claimedAbilities, isLegalPick } from "../core/boost-slots.mjs";
+import { resolveSlots, claimedAbilities, isLegalPick, isFixedSlot } from "../core/boost-slots.mjs";
 import {
   isAncestryChoiceComplete,
+  resolveAncestryIngredients,
   groupAncestries,
   filterAncestries
 } from "../core/induction-ancestry.mjs";
 import {
   isBackgroundChoiceComplete,
+  resolveBackgroundIngredients,
   groupBackgroundsByRarity,
   filterBackgrounds
 } from "../core/induction-background.mjs";
-import { isClassChoiceComplete } from "../core/induction-class.mjs";
-import { FREE_BOOST_SLOTS, isFreeBoostsComplete } from "../core/induction-attributes.mjs";
+import { isClassChoiceComplete, resolveClassIngredients } from "../core/induction-class.mjs";
+import { FREE_BOOST_SLOTS, isFreeBoostsComplete, resolveFreeBoosts } from "../core/induction-attributes.mjs";
+import { isReviewComplete } from "../core/induction-review.mjs";
 import {
   insertSuggestion,
   isFinishingComplete,
@@ -205,6 +209,8 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       pickFreeBoost: InductionTerminal.#onPickFreeBoost,
       continueFromAttributes: InductionTerminal.#onContinueFromAttributes,
       backFromAttributes: InductionTerminal.#onBackFromAttributes,
+      confirmCharacter: InductionTerminal.#onConfirmCharacter,
+      backFromReview: InductionTerminal.#onBackFromReview,
       continueFromFinishing: InductionTerminal.#onContinueFromFinishing,
       backFromFinishing: InductionTerminal.#onBackFromFinishing,
       addLanguage: InductionTerminal.#onAddLanguage,
@@ -244,6 +250,10 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     page8: {
       template: `${TEMPLATE_ROOT}/page8-questions.hbs`,
       scrollable: [".bi-induction__page"]
+    },
+    page9: {
+      template: `${TEMPLATE_ROOT}/page9-review.hbs`,
+      scrollable: [".bi-induction__page"]
     }
   };
 
@@ -278,6 +288,11 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     },
     intake: {
       questions: {} // keyed by induction-intake-prompts.json's eightQuestions[].id
+    },
+    review: {
+      confirming: false, // true only while #createCharacterActor's own await chain is in flight
+      error: null,
+      createdActorId: null
     }
   };
 
@@ -316,6 +331,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     if (this.state.page === 5) return { ...base, ...this.#page5Context() };
     if (this.state.page === 7) return { ...base, ...(await this.#page7Context()) };
     if (this.state.page === 8) return { ...base, ...(await this.#page8Context()) };
+    if (this.state.page === 9) return { ...base, ...(await this.#page9Context()) };
     return base;
   }
 
@@ -617,6 +633,57 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       helpBody: q.purposeNote
     }));
     return { loadFailed: prompts.failed === true, promptFields };
+  }
+
+  /**
+   * A read-only summary of every choice made across Pages 1-8 -- NOT a
+   * computed sheet. This terminal never re-implements sf2e's own AC/HP/
+   * skill/save math (design doc §2's "collect the right raw ingredients,
+   * hand them to functions that already exist" — here, that function is
+   * sf2e's own derived-data engine, not a local one): the real numbers
+   * appear on the real character sheet the moment #createCharacterActor
+   * embeds the real ancestry/background/class Items, which is what
+   * "review" actually confirms here -- the CHOICES, not a preview of math
+   * this page deliberately doesn't compute itself.
+   */
+  async #page9Context() {
+    const prompts = await loadIntakePrompts();
+    const ancestry = this._ancestries.find((a) => a.id === this.state.ancestry.id) ?? null;
+    const background = this._backgrounds.find((b) => b.id === this.state.background.id) ?? null;
+    const cls = this._classes.find((c) => c.id === this.state.class.id) ?? null;
+
+    const resolvedLabels = (slots, picks) => resolveSlots(slots, picks).resolved
+      .filter((ability) => ability != null)
+      .map((ability) => abilityLabel(ability));
+
+    const answerRows = (questions, answers) => questions
+      .map((q) => ({ prompt: q.text ?? q.prompt, answer: getPath({ a: answers }, `a.${q.id}`) }))
+      .filter((row) => row.answer);
+
+    return {
+      loadFailed: prompts.failed === true,
+      ancestryName: ancestry?.name ?? null,
+      ancestryBoostLabels: ancestry ? resolvedLabels(ancestry.boosts, this.state.ancestry.boostPicks) : [],
+      ancestryFlawLabels: ancestry ? resolvedLabels(ancestry.flaws, this.state.ancestry.flawPicks) : [],
+      backgroundName: background?.name ?? null,
+      backgroundBoostLabels: background ? resolvedLabels(background.boosts, this.state.background.boostPicks) : [],
+      className: cls?.name ?? null,
+      classKeyAbilityLabel: cls ? resolvedLabels([cls.keyAbility], this.state.class.keyAbilityPicks)[0] : null,
+      freeBoostLabels: resolvedLabels(FREE_BOOST_SLOTS, this.state.attributes.freeBoostPicks),
+      name: this.state.finishing.name,
+      pronouns: this.state.finishing.pronouns || null,
+      genderIdentity: this.state.finishing.genderIdentity || null,
+      appearance: this.state.finishing.appearance || null,
+      languages: this.state.finishing.languages,
+      hasLanguages: this.state.finishing.languages.length > 0,
+      banalAnswers: answerRows(prompts.banalQuestions, this.state.finishing.banalAnswers),
+      questionAnswers: answerRows(prompts.eightQuestions, this.state.intake.questions),
+      isComplete: isReviewComplete(this.state),
+      confirming: this.state.review.confirming,
+      error: this.state.review.error,
+      createdActorId: this.state.review.createdActorId,
+      createdActorName: this.state.review.createdActorId ? game.actors.get(this.state.review.createdActorId)?.name : null
+    };
   }
 
   /**
@@ -934,20 +1001,166 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     this.render({});
   }
 
-  /**
-   * Page 9 (Review & Confirm) is not built yet -- same "log rather than
-   * no-op silently" idiom as Page 2's own former stub.
-   */
   static async #onContinueFromQuestions(_event, _target) {
-    console.log(
-      "Blank Inheritance | Induction terminal: the Eight Questions confirmed -- " +
-      "Page 9 (Review & Confirm) is not built yet. See design/induction-terminal.md for the full page-by-page design."
-    );
+    this.state.page = 9;
+    this.render({});
   }
 
   static async #onBackFromQuestions(_event, _target) {
     this.state.page = 7;
     this.render({});
+  }
+
+  static async #onBackFromReview(_event, _target) {
+    this.state.page = 8;
+    this.render({});
+  }
+
+  /**
+   * The one action in this whole terminal that touches the real world.
+   * Guarded three ways: isReviewComplete gates the button itself; this
+   * handler re-checks it (defense in depth, same reasoning as every other
+   * confirm gate here); #createCharacterActor re-resolves every choice
+   * through its own throwing resolveXIngredients call BEFORE creating
+   * anything, so a state reachable only by skipping the UI (direct state
+   * mutation, a future routing bug) still can't produce a half-built Actor.
+   */
+  static async #onConfirmCharacter(_event, _target) {
+    // The template already hides this button once createdActorId is set --
+    // this guard is for the same reason every other one in this file
+    // exists: don't trust that the only way in is through the button that
+    // happens to currently be rendered. Without it, a second invocation
+    // (a stale click queued before re-render, direct console access) would
+    // silently create a SECOND actor from the same state.
+    if (!isReviewComplete(this.state) || this.state.review.confirming || this.state.review.createdActorId) return;
+    this.state.review.confirming = true;
+    this.state.review.error = null;
+    this.render({});
+
+    try {
+      const actor = await this.#createCharacterActor();
+      this.state.review.createdActorId = actor.id;
+    } catch (err) {
+      console.error("Blank Inheritance | Induction terminal: character creation failed:", err);
+      this.state.review.error = err?.message ?? String(err);
+    } finally {
+      this.state.review.confirming = false;
+      this.render({});
+    }
+  }
+
+  /**
+   * The validated recipe (design/induction-terminal.md's own Page 9
+   * build-status paragraph has the full live-verification trail this came
+   * from -- summarized here): resolve every choice, fetch the three real
+   * compendium Items, strip their OWN further-item grants (class features/
+   * background feat/ancestry feat -- deferred to the real character sheet,
+   * the same principle already applied to every other feat/spell pick in
+   * this terminal; leaving them attached is ALSO what caused a real,
+   * reproducible indefinite hang live-testing this page, isolated to
+   * Soldier's 18-entry class-feature grant list processing on embed), embed
+   * them with the player's boost/key-ability selections pre-set, add the
+   * background's Lore skill as its own Item (background's trainedSkills.lore
+   * is NOT covered by the same auto-apply sf2e uses for trainedSkills.value),
+   * write the four free boosts onto the Actor directly (Player Core Step 6
+   * isn't tied to any Item), then sync current HP to the newly-computed max
+   * (a fresh Actor's system.attributes.hp.value ships at the sf2e schema's
+   * generic default, not the character's own just-derived max -- confirmed
+   * live, not assumed).
+   *
+   * On any failure after the Actor exists, deletes it rather than leaving a
+   * half-built character in the world -- then re-throws so the caller shows
+   * the real error instead of silently losing it.
+   */
+  async #createCharacterActor() {
+    const ancestry = this._ancestries.find((a) => a.id === this.state.ancestry.id);
+    const background = this._backgrounds.find((b) => b.id === this.state.background.id);
+    const cls = this._classes.find((c) => c.id === this.state.class.id);
+
+    // Throws (and creates nothing) if any prior page's choice doesn't
+    // actually resolve cleanly -- see this method's own doc comment.
+    resolveAncestryIngredients(ancestry, this.state.ancestry.boostPicks, this.state.ancestry.flawPicks);
+    resolveBackgroundIngredients(background, this.state.background.boostPicks);
+    resolveClassIngredients(cls, this.state.class.keyAbilityPicks);
+    resolveFreeBoosts(this.state.attributes.freeBoostPicks);
+
+    const slotSelections = (field, resolved) => Object.fromEntries(
+      resolved.map((ability, i) => [`${field}.${i}.selected`, ability]).filter(([, a]) => a != null)
+    );
+
+    const ancestrySelections = {
+      ...slotSelections("boosts", resolveSlots(ancestry.boosts, this.state.ancestry.boostPicks).resolved),
+      ...slotSelections("flaws", resolveSlots(ancestry.flaws, this.state.ancestry.flawPicks).resolved)
+    };
+    const backgroundSelections = slotSelections("boosts", resolveSlots(background.boosts, this.state.background.boostPicks).resolved);
+    const classSelections = isFixedSlot(cls.keyAbility)
+      ? {}
+      : { "keyAbility.selected": resolveSlots([cls.keyAbility], this.state.class.keyAbilityPicks).resolved[0] };
+
+    const [ancestryUuid, backgroundUuid, classUuid] = await Promise.all([
+      this.#resolveCompendiumUuid("ancestries", ancestry.id),
+      this.#resolveCompendiumUuid("backgrounds", background.id),
+      this.#resolveCompendiumUuid("classes", cls.id)
+    ]);
+
+    const actor = await Actor.create({
+      name: this.state.finishing.name.trim(),
+      type: "character",
+      system: { abilities: null, details: { level: { value: 1 } } }
+    }, { render: false });
+
+    try {
+      const [ancestrySrc, backgroundSrc, classSrc] = await Promise.all([
+        this.#prepareAbcSource(ancestryUuid, ancestrySelections),
+        this.#prepareAbcSource(backgroundUuid, backgroundSelections),
+        this.#prepareAbcSource(classUuid, classSelections)
+      ]);
+      await actor.createEmbeddedDocuments("Item", [ancestrySrc, backgroundSrc, classSrc], { keepId: true, render: false });
+
+      if (background.loreSkills.length) {
+        await actor.createEmbeddedDocuments(
+          "Item",
+          background.loreSkills.map((name) => ({ type: "lore", name, system: { proficient: { value: 1 } } })),
+          { render: false }
+        );
+      }
+
+      await actor.update({ "system.build.attributes.boosts.1": this.state.attributes.freeBoostPicks });
+      await actor.update({ "system.attributes.hp.value": actor.system.attributes.hp.max });
+
+      return actor;
+    } catch (err) {
+      await actor.delete().catch(() => {});
+      throw err;
+    }
+  }
+
+  /** `fromUuid` needs the real compendium document id -- resolved from our own catalogue's `id` (a kebab slug) against the live compendium's own `system.slug`, same field the catalogue extraction itself keyed on. */
+  async #resolveCompendiumUuid(packName, slug) {
+    const pack = game.packs.get(`sf2e.${packName}`);
+    const docs = await pack.getDocuments();
+    const doc = docs.find((d) => d.system.slug === slug);
+    if (!doc) throw new Error(`Could not find "${slug}" in the sf2e.${packName} compendium.`);
+    return doc.uuid;
+  }
+
+  /**
+   * Fetch a real compendium Item and prepare it for embedding: strip its
+   * own further-item grants (see #createCharacterActor's doc comment for
+   * why) and pre-set whichever boost-slot/key-ability selections the
+   * player actually made, at the exact system-data paths sf2e's own
+   * AttributeBuilder application writes to live (verified against
+   * gamesystems/sf2e/sf2e.mjs directly, not guessed).
+   */
+  async #prepareAbcSource(uuid, selections) {
+    const doc = await fromUuid(uuid);
+    if (!doc) throw new Error(`Could not resolve compendium item "${uuid}".`);
+    const source = doc.toObject();
+    source.system.items = {};
+    for (const [path, value] of Object.entries(selections)) {
+      foundry.utils.setProperty(source.system, path, value);
+    }
+    return source;
   }
 }
 
@@ -983,7 +1196,8 @@ export function mountInductionTerminal() {
       class: { id: null, keyAbilityPicks: [] },
       attributes: { freeBoostPicks: [] },
       finishing: { name: "", pronouns: "", genderIdentity: "", appearance: "", languages: [], banalAnswers: {} },
-      intake: { questions: {} }
+      intake: { questions: {} },
+      review: { confirming: false, error: null, createdActorId: null }
     };
   }
   active.render({ force: true });

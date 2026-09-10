@@ -131,7 +131,7 @@ login.
 | **6. Portrait** | Upload via Foundry's real system, then crop client-side to the project's own established **2:3 ratio** (`design/theatre-of-the-mind-staging.md` — the same ratio every other staged portrait already uses, so a new character doesn't look inconsistent next to the cast that already exists). **If the lockdown fired on Page 2, this page also collects the passing portrait — a second upload+crop, or a pick from a curated gallery (§4a).** | OOC: why the crop matters (visual consistency across the roster), not a mechanical explanation. |
 | **7. Finishing Details** — **built** | Name (the only required field), pronouns, gender identity, a few light "banal" texture questions, appearance notes, languages. Every field pairs free text with a row of illustrative suggestion chips that insert into the same box on click — never a separate/binding choice. Languages are a real multi-value tag list (add/remove), suggested from the character's own ancestry plus a curated common-language list (Player Core pg. 97), with a free-text "Add" escape hatch. | Minimal — mostly self-explanatory. |
 | **8. The Eight Questions** — **built** | Bible §20's real quiz, verbatim, free-text answers, same suggestion-chip pattern as Page 7. Nothing is required — leaving every box blank and continuing is a real, supported path. | OOC: narrative-purpose register — what each answer is *for* in campaign terms, shown per-question where the bible states one explicitly. |
-| **9. Review & Confirm** | Full derived sheet via `derive.mjs`, read-only, one confirm button. On confirm: creates the real Actor, places a token, hands off to the landing page (§6). | N/A. |
+| **9. Review & Confirm** — **built** | A read-only summary of every choice, NOT a computed sheet — resolved 2026-09-10, see the build-status paragraph below for why the original "full derived sheet via `derive.mjs`" plan turned out to be architecturally wrong. One Confirm button. On confirm: creates a real Actor, embeds the real ancestry/background/class compendium Items with the player's boost/key-ability selections pre-set, so sf2e's own derived-data engine computes AC/HP/skills/saves live, exactly like a real character sheet. Token placement and the landing page remain open (§7 item 1 — no lobby scene concept exists yet). | N/A. |
 
 ### 4a. The alien-lockdown sub-flow — expanded 2026-09-09
 
@@ -193,17 +193,31 @@ spells. Not a new decision, the same one applied to the next case it obviously c
    allowed to touch Foundry's file-access globals"* — the terminal must call into it, not touch
    `FilePicker` directly. The crop step itself is a client-side canvas operation before upload, new
    work with no existing precedent in this codebase.
-3. Page 9 calls `derive.mjs`'s functions against the collected state to compute the full sheet, and
-   displays it for confirmation — nothing is written to Foundry before this point.
+3. **Corrected 2026-09-10, after live investigation — Page 9 does NOT call `derive.mjs`.** The original
+   plan (this line, until today) assumed the terminal would compute a full derived sheet itself and
+   write the numbers to the Actor. That's architecturally wrong for a real sf2e `character` Actor:
+   shipped characters store `system.abilities` as `null` and have no flat `system.attributes.ac` at
+   all — AC/HP/skills/saves are computed **live** by sf2e's own derived-data engine from embedded
+   ancestry/background/class Items, never stored as numbers (confirmed by a real regression test,
+   `test/tier1-generators.test.mjs`'s "deliberately does not write system.abilities or attributes.ac"
+   case, and independently by `design/foundry-module-design.md` §2). Page 9 instead displays a
+   read-only summary of the player's raw CHOICES (not a computed preview), and on confirm embeds the
+   real compendium Items directly — the real numbers appear on Foundry's own already-correct character
+   sheet the moment those Items land, with zero derivation math duplicated in this terminal.
+   `derive.mjs` remains genuinely unreachable from browser code as things stand (it lives outside
+   `module/blank-inheritance/`, and nothing in this repo's tooling bridges that gap) — moot now that
+   Page 9 doesn't need it, but worth recording since the original plan assumed otherwise without ever
+   checking.
 4. **On confirm:** a real `Actor` document is created via Foundry's Document API (never raw file
-   access — the established Safety principle, `design/foundry-module-design.md`'s Safety section),
-   using `kid.schema.json`'s shape and the existing `core/generators/character.mjs` generator (so
-   far only exercised against a synthetic fixture — this would be its first real use). **Then:** a
-   token for that Actor is placed into a scene, and the player is routed to a landing page rather
-   than dropped into the raw Foundry sidebar — matching `terminal-login-landing-page`'s own concept
-   of booting into "either the campaign map or the player's personal terminal." **Which scene the
-   token lands on is a real open question (§7)** — nothing currently defines a "lobby" or "dorm"
-   scene for this purpose.
+   access — the established Safety principle, `design/foundry-module-design.md`'s Safety section).
+   `core/generators/character.mjs` (mentioned here as "so far only exercised against a synthetic
+   fixture") turned out not to be the right tool either — it deliberately writes only identity/level,
+   by design, for the same reason `derive.mjs` doesn't apply (see point 3). Page 9's own
+   `#createCharacterActor` creates the Actor directly instead; see its build-status paragraph below
+   for the full real recipe. **Token placement and the landing page remain unbuilt** — the player is
+   NOT currently routed anywhere after confirm beyond Page 9's own success message. **Which scene a
+   token would land on is still a real open question (§7)** — nothing currently defines a "lobby" or
+   "dorm" scene for this purpose, and building token placement without one would just be guessing.
 5. **The eight questions' answers need to leave Foundry and reach this repo for the GM/Claude to
    actually use them** — the whole point of goal 7 (context for future session generation). This is
    `ideas/entries/character-creation-intake-form.json`'s own named v1 scope: session-boundary
@@ -250,7 +264,7 @@ spells. Not a new decision, the same one applied to the next case it obviously c
    `design/campaign-arc.md`'s already-extensive Day 1 pilot material (reduced personnel-scale HP, a
    stronger Frame, now also confirmed "exhausted from their duties") is a real, **player-chosen**
    chargen path (`bible/LEDGER.md` #10) — one of the six may opt to start the campaign as an already-
-   active, veteran pilot rather than a fresh recruit. Nothing built so far (Pages 1-5, 7-8) has a fork
+   active, veteran pilot rather than a fresh recruit. Nothing built so far (Pages 1-5, 7-9) has a fork
    for this; every page assumes the standard new-recruit flow. Needs a real design pass of its own
    before Page 4 (Class) or Page 9 (Review) can be considered complete — a veteran's "basic but viable"
    sheet plausibly needs different defaults than a recruit's. `day1-pilot-hp-reduction-amount` (the
@@ -265,9 +279,10 @@ spells. Not a new decision, the same one applied to the next case it obviously c
 
 This design was requested "research, design first" — no code — and stayed that way through the first
 draft. **That has changed: the shell application, Page 1 (Orientation), Page 2 (Ancestry), Page 3
-(Background), Page 4 (Class), Page 5 (Attribute Boosts), Page 7 (Finishing Details) and Page 8 (The
-Eight Questions) are now built**, against exactly this shape, the same incremental way the scene
-runner itself was built.
+(Background), Page 4 (Class), Page 5 (Attribute Boosts), Page 7 (Finishing Details), Page 8 (The Eight
+Questions) and Page 9 (Review & Confirm) are now built**, against exactly this shape, the same
+incremental way the scene runner itself was built. Only Page 6 (Portrait) remains — the induction
+terminal now produces a real, playable character end to end.
 
 **The shell:** `module/blank-inheritance/scripts/foundry/induction-terminal.mjs` — the
 `InductionTerminal` ApplicationV2 class, the singleton mount/refresh/unmount/open functions, and page
@@ -417,7 +432,7 @@ forged-pick check against this page's own claimed-ability set -- confirmed rejec
 `isLegalPick`'s regression test predicts for any of the four call sites, not just the one that
 originally surfaced it.
 
-Pages 6 and 9 are not built — §4's table is still the plan for each.
+Page 6 is not built — §4's table is still the plan.
 
 **Presentation pass, 2026-09-10** — a progress tracker and a page-transition animation, added across
 every built page at Ingram's direct request for "a nicely styled CSS form with bells and whistles."
@@ -430,6 +445,77 @@ JavaScript at all: `_replaceHTML` already replaces `.bi-induction__page` with a 
 on every swap (the whole reason the page-swap architecture works), so a plain CSS `@keyframes` fade/rise
 on that class re-fires on its own for every transition, and is already zeroed under
 `prefers-reduced-motion` via the existing `--bi-dur-servo` token, no new media query needed.
+
+**Page 9, built 2026-09-10 — the capstone, and the hardest page in this terminal by a wide margin.**
+Ingram chose "full correctness" when the original plan (a derived-sheet preview computed by this
+terminal, written to the Actor) turned out to be architecturally wrong — see §6 point 3's own
+correction. What "full correctness" actually required took two full rounds of live investigation
+before a single line of Page 9 code was written:
+
+- **Where the math runs.** `tools/character-builder/derive.mjs` is unreachable from browser code —
+  it lives outside `module/blank-inheritance/`, and nothing in this repo's tooling (checked
+  `tools/module-sync/` file by file) ever bridges that gap. Moot in the end: real sf2e `character`
+  Actors store `system.abilities` as `null` and compute AC/HP/skills/saves **live** from embedded
+  ancestry/background/class Items, never as stored numbers — confirmed by a real regression test
+  (`test/tier1-generators.test.mjs`) already guarding `core/generators/character.mjs` against writing
+  flat fields. So Page 9 doesn't compute a sheet at all; it displays the player's raw CHOICES
+  read-only, and lets sf2e's own engine do the real math the instant the real Items land.
+- **How sf2e itself applies an ancestry/background/class.** No `ChoiceSet`/rule-element machinery is
+  involved (verified against the real compendium JSON, not assumed) — a boost selection is a plain
+  write to `system.boosts.<slot>.selected` (or `system.keyAbility.selected` for a class), read by
+  each Item type's own `prepareActorData()` every data-prep cycle. Confirmed by reading sf2e's actual
+  `AttributeBuilder` application source (`gamesystems/sf2e/sf2e.mjs`) — the same write path this
+  terminal now uses directly, skipping the dialog UI entirely since the player already made these
+  choices on Pages 2-5.
+- **A real, reproducible hang, found live.** Embedding a compendium Item with its own `system.items`
+  grant descriptors intact (background's granted feat, and especially a class's full list of class
+  features across every level 1-20) triggers what a live console trace showed as a repeating
+  compendium-reindex loop that never returns — isolated by process of elimination across five
+  disposable test Actors (each created, inspected, then deleted) down to Soldier's 18-entry grant
+  list specifically. The fix turned out to already match this terminal's own standing policy: strip
+  `system.items` before embedding and never call `createGrantedItems()` at all — ancestry feat,
+  background feat, and every class feature/feat/spell are deferred to the real character sheet, the
+  exact same principle already applied consistently since Page 2. Background's Lore skill (not
+  covered by sf2e's own trainedSkills-value auto-apply) is created as its own `type: "lore"` Item
+  instead. A second live finding: a freshly created Actor's `system.attributes.hp.value` ships at the
+  sf2e schema's own generic default, not the character's just-derived max — Page 9 explicitly syncs
+  it after everything else lands.
+- **The validated recipe**, run live end to end on a real test character (Human/Smuggler/Soldier,
+  boosts resolved, four free boosts, then deleted): every computed number matched hand-calculated
+  expectations exactly — ability modifiers, the HP breakdown ("Ancestry HP +8, Class HP +10,
+  Constitution +2"), AC, Class DC ("Base DC 10, Constitution +2, Trained +3"), and Smuggler's Stealth
+  training auto-applying with zero extra code. `#createCharacterActor` (in
+  `module/blank-inheritance/scripts/foundry/induction-terminal.mjs`) resolves every choice through
+  the existing throwing `resolveXIngredients` functions before touching the world at all, fetches the
+  three real compendium Items live (`game.packs.get("sf2e.<type>").getDocuments()`, matched against
+  the catalogue's own `id` against each document's real `system.slug` — the catalogues never stored a
+  UUID, so this resolves one at confirm time), embeds them with `{keepId: true, render: false}`
+  (`render: false` matters — its absence was the proximate trigger for a full sheet-render hang
+  distinct from the grant-list hang above, also found live), and deletes the Actor and re-throws on
+  any failure after creation rather than leaving a half-built character in the world (verified live
+  with a deliberately broken class id: clean error shown, zero orphaned Actor, and the exact same
+  attempt succeeded immediately after fixing the id — the failure path doesn't get "stuck"). A second
+  defense-in-depth gap was found and fixed the same pass: nothing stopped `#onConfirmCharacter` from
+  running a second time after a successful creation (the template hides the button, but the handler
+  itself didn't check) — would have silently created a duplicate Actor from the same state; fixed
+  with an explicit `createdActorId` guard, verified live by invoking the action directly a second time
+  post-success and confirming no second Actor appeared.
+- **Deliberately out of scope, same as everywhere else in this terminal:** Heritage (a required
+  sibling pick in real Player Core chargen, confirmed it never touches ability boosts at all so its
+  absence doesn't break anything mechanical), every class feature/feat/spell, the ancestry and
+  background feats, and the "N more skills of your choice" free skill counts (confirmed live that
+  sf2e's own data model has **no tracking mechanism for these at all** — purely advisory text; a
+  player just sets `skills.<x>.rank` directly on the real sheet, with no record of which source
+  granted it). Token placement and a landing page remain unbuilt — no lobby scene concept exists yet
+  (§7 item 1); Page 9's success state is the end of the line for now.
+
+Verified live end to end: the full Page 8 → 9 → 8 routing chain; the review summary displays every
+collected field correctly (identity, resolved ancestry/background/class boosts by name, the four free
+boosts, banal and eight-questions answers); Confirm creates a real, mechanically correct Actor;
+re-opening the terminal and building a second character works identically. `npm run test:ui` green
+throughout — `test/tier1-induction-review.test.mjs` covers the one genuinely pure piece
+(`isReviewComplete`'s gate logic); the Actor-creation sequence itself isn't unit-testable (it's
+entirely Foundry Document API calls) and was validated live instead, per this paragraph.
 
 ---
 

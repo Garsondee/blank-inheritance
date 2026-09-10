@@ -285,6 +285,30 @@
         "HelpSummary": "What's this actually for?",
         "Back": "Back",
         "Continue": "Continue"
+      },
+      "Page9": {
+        "Title": "Review & Confirm",
+        "FormNumber": "FORM 1-I — FINAL DECLARATION",
+        "Intro": "Everything below is what actually gets written down. Nothing is created until you confirm.",
+        "ErrorTitle": "That didn't go through.",
+        "SectionIdentity": "Identity",
+        "SectionMechanical": "Mechanical",
+        "SectionTexture": "Texture",
+        "SectionQuestions": "Personal Declaration",
+        "StatName": "Name",
+        "StatPronouns": "Pronouns",
+        "StatGender": "Gender Identity",
+        "StatLanguages": "Languages",
+        "StatAncestry": "Ancestry",
+        "StatBackground": "Background",
+        "StatClass": "Class",
+        "StatFreeBoosts": "Free Boosts",
+        "ConfirmNote": "Class feats, spells, an ancestry/background feat, and any skills beyond what's listed above still need finishing on your own character sheet, once your token is on the table — same as every real character.",
+        "Confirm": "Confirm",
+        "Confirming": "Creating your character…",
+        "SuccessTitle": "Done. You're in the system now.",
+        "SuccessBody": "{actorName} exists. Find your token once your GM places it, and finish the rest — feats, spells, the last few skills — on your own character sheet.",
+        "Back": "Back"
       }
     }
   }

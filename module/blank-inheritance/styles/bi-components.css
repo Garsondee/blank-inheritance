@@ -754,6 +754,18 @@
 
 .bi-induction__no-flaw { font-style: italic; font-size: 13px; color: var(--bi-paper-ink-2); }
 
+/* Page 9: the review summary's own small furniture -- a plain note (an
+   appearance/lore-style paragraph) and a Q/A pair (banal + eight-questions
+   review rows), both quieter than the .bi-form-row facts above them. */
+.bi-induction__review-note { font-style: italic; color: var(--bi-paper-ink-2); margin: -6px 0 14px; }
+.bi-induction__review-qa { font-size: 13px; margin: 0 0 10px; }
+.bi-induction__review-qa em { font-style: normal; color: var(--bi-paper-ink-2); }
+
+/* The confirm-success state -- deliberately calm, not a celebratory
+   banner; a Directorate form acknowledging receipt, not throwing confetti. */
+.bi-induction__success { margin: 10px 0 24px; padding: 16px 18px; border: 1px solid var(--bi-paper-rule); border-radius: 2px; background: var(--bi-paper-shade); }
+.bi-induction__success-title { font-family: var(--bi-font-document); font-weight: 700; font-size: 17px; margin: 0 0 8px; color: #17130c; }
+
 /* Page 3: an uncommon/rare background's rarity, called out once rather than
    labeling every row -- common is the unremarkable default and gets no tag
    at all (isNonCommonRarity gates this in the adapter). */
