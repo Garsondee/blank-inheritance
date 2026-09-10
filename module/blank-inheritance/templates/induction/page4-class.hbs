@@ -1,0 +1,140 @@
+{{!--
+    The induction terminal — Page 4, Class.
+
+    Real class (mechanical), the pick only -- see design/induction-terminal.md
+    §4/§5. Only 6 real SF2E classes exist, so this page skips the filter/
+    grouping pattern Pages 2-3 need at 51/154 entries -- a flat list is the
+    honest fit for a small catalogue, not a shortcut. Key ability is one
+    boost slot (core/boost-slots.mjs, shared with ancestry/background) --
+    fixed for five classes, a real choice for Witchwarper. Class features,
+    feats and spells are deliberately NOT here -- deferred to the real
+    character sheet, same reasoning as ancestry feat/heritage and
+    background feat (§5).
+
+    PAPER register throughout, same .bi-doc/.bi-form-row vocabulary as
+    Pages 1-3.
+--}}
+<section class="bi-induction">
+    <div class="bi-doc bi-induction__page">
+        <header class="bi-doc__head">
+            <h1 class="bi-doc__title">{{localize "BLANKINHERITANCE.Induction.Page4.Title"}}</h1>
+            <div class="bi-doc__meta">
+                {{localize "BLANKINHERITANCE.Induction.Page4.FormNumber"}}
+                {{#if userName}}<br><b>{{userName}}</b>{{/if}}
+            </div>
+        </header>
+
+        <div class="bi-induction__tracker" role="list" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
+            {{#each trackerSteps}}
+            <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
+                  role="listitem" title="{{this.number}}. {{this.label}}">{{this.number}}</span>
+            {{/each}}
+        </div>
+
+        <p>{{localize "BLANKINHERITANCE.Induction.Page4.Intro"}}</p>
+
+        {{#unless selected}}
+            {{#if loadFailed}}
+            <div class="bi-induction__load-error">
+                <p class="bi-induction__load-error-title">{{localize "BLANKINHERITANCE.Induction.Page2.LoadFailedTitle"}}</p>
+                <p>{{localize "BLANKINHERITANCE.Induction.Page2.LoadFailedBody"}}</p>
+            </div>
+            {{else}}
+            <div class="bi-induction__ancestry-list">
+                {{#each classes}}
+                <button type="button" class="bi-induction__ancestry-item" data-action="pickClass" data-class-id="{{this.id}}">{{this.name}}</button>
+                {{/each}}
+            </div>
+            {{/if}}
+        {{/unless}}
+
+        {{#if selected}}
+        <div class="bi-induction__selected">
+            <div class="bi-induction__selected-head">
+                <h2 class="bi-induction__selected-name">{{selected.name}}</h2>
+                <button type="button" class="bi-induction__change" data-action="changeClass">{{localize "BLANKINHERITANCE.Induction.Page4.Change"}}</button>
+            </div>
+            <p>{{selected.description}}</p>
+
+            <div class="bi-form-row">
+                <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page4.StatHP"}}</span>
+                <span class="bi-form-row__lead"></span>
+                <span class="bi-form-row__value">{{selected.hp}}</span>
+            </div>
+            <div class="bi-form-row">
+                <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page4.StatPerception"}}</span>
+                <span class="bi-form-row__lead"></span>
+                <span class="bi-form-row__value">{{selected.perceptionLabel}}</span>
+            </div>
+            <div class="bi-form-row">
+                <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page4.StatFortitude"}}</span>
+                <span class="bi-form-row__lead"></span>
+                <span class="bi-form-row__value">{{selected.fortitudeLabel}}</span>
+            </div>
+            <div class="bi-form-row">
+                <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page4.StatReflex"}}</span>
+                <span class="bi-form-row__lead"></span>
+                <span class="bi-form-row__value">{{selected.reflexLabel}}</span>
+            </div>
+            <div class="bi-form-row">
+                <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page4.StatWill"}}</span>
+                <span class="bi-form-row__lead"></span>
+                <span class="bi-form-row__value">{{selected.willLabel}}</span>
+            </div>
+            <div class="bi-form-row">
+                <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page4.StatWeapons"}}</span>
+                <span class="bi-form-row__lead"></span>
+                <span class="bi-form-row__value">{{selected.attacksLabel}}</span>
+            </div>
+            <div class="bi-form-row">
+                <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page4.StatArmor"}}</span>
+                <span class="bi-form-row__lead"></span>
+                <span class="bi-form-row__value">{{selected.defensesLabel}}</span>
+            </div>
+
+            <h2>{{localize "BLANKINHERITANCE.Induction.Page4.KeyAbilityTitle"}}</h2>
+            <div class="bi-induction__slots">
+                <div class="bi-induction__slot">
+                    {{#if selected.keyAbilitySlot.fixed}}
+                    <span class="bi-induction__fixed">{{selected.keyAbilitySlot.fixedLabel}}</span>
+                    {{else}}
+                    <span class="bi-induction__slot-hint">{{localize "BLANKINHERITANCE.Induction.Page2.ChooseOne"}}</span>
+                    <div class="bi-induction__options">
+                        {{#each selected.keyAbilitySlot.options}}
+                        <button type="button"
+                                class="bi-induction__option {{#if this.picked}}bi-induction__option--picked{{/if}}"
+                                data-action="pickClassKeyAbility" data-slot-index="{{this.slotIndex}}" data-ability="{{this.ability}}"
+                                aria-pressed="{{this.picked}}">{{this.label}}</button>
+                        {{/each}}
+                    </div>
+                    {{/if}}
+                </div>
+            </div>
+
+            <h2>{{localize "BLANKINHERITANCE.Induction.Page4.SkillsTitle"}}</h2>
+            {{#if selected.hasTrainedSkills}}
+            <div class="bi-form-row">
+                <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page4.StatSkills"}}</span>
+                <span class="bi-form-row__lead"></span>
+                <span class="bi-form-row__value">{{selected.trainedSkillsLabel}}</span>
+            </div>
+            {{/if}}
+            {{#if selected.additionalSkillsNote}}
+            <p class="bi-induction__no-flaw">{{selected.additionalSkillsNote}}</p>
+            {{/if}}
+
+            <details class="bi-induction__help" data-sync="help">
+                <summary>{{localize "BLANKINHERITANCE.Induction.Page4.HelpSummary"}}</summary>
+                <p>{{localize "BLANKINHERITANCE.Induction.Page4.HelpBody"}}</p>
+            </details>
+        </div>
+        {{/if}}
+
+        <div class="bi-induction__actions bi-induction__actions--split">
+            <button type="button" class="bi-induction__back" data-action="backFromClass">{{localize "BLANKINHERITANCE.Induction.Page4.Back"}}</button>
+            <button type="button" class="bi-induction__begin" data-action="continueFromClass" {{#unless isComplete}}disabled{{/unless}}>
+                {{localize "BLANKINHERITANCE.Induction.Page4.Continue"}}
+            </button>
+        </div>
+    </div>
+</section>

@@ -7,10 +7,10 @@
  * class feats/spells are deliberately left for the real character sheet
  * afterward, not handled here. See design/induction-terminal.md for the
  * full page-by-page design; this file and its templates currently build
- * Page 1 (orientation), Page 2 (ancestry), Page 3 (background), Page 7
- * (finishing details) and Page 8 (the eight questions). Pages 4-6 and 9
- * don't exist yet -- Page 3's own Continue temporarily jumps straight to
- * Page 7, see that handler's own comment.
+ * Page 1 (orientation), Page 2 (ancestry), Page 3 (background), Page 4
+ * (class), Page 7 (finishing details) and Page 8 (the eight questions).
+ * Pages 5-6 and 9 don't exist yet -- Page 4's own Continue temporarily
+ * jumps straight to Page 7, see that handler's own comment.
  *
  * PLAYER-FACING BY CONSTRUCTION, unlike the scene runner (GM-only) and the
  * command bar (seat-dependent) -- any user may open this, including a GM
@@ -32,7 +32,7 @@
  */
 
 import { fetchModuleJson } from "./io.mjs";
-import { resolveSlots, claimedAbilities } from "../core/boost-slots.mjs";
+import { resolveSlots, claimedAbilities, isLegalPick } from "../core/boost-slots.mjs";
 import {
   isAncestryChoiceComplete,
   groupAncestries,
@@ -43,6 +43,7 @@ import {
   groupBackgroundsByRarity,
   filterBackgrounds
 } from "../core/induction-background.mjs";
+import { isClassChoiceComplete } from "../core/induction-class.mjs";
 import {
   insertSuggestion,
   isFinishingComplete,
@@ -64,8 +65,30 @@ const ABILITY_KEYS = {
 const SIZE_KEYS = {
   tiny: "PF2E.ActorSizeTiny", sm: "PF2E.ActorSizeSmall", med: "PF2E.ActorSizeMedium", lg: "PF2E.ActorSizeLarge"
 };
+// Index 0-4 = untrained..legendary (sf2e's real proficiency scale). Spelled
+// out literally, not built from a template string -- same lang-key-coverage
+// reason as #page7Context's own comment on this.
+const RANK_KEYS = [
+  "PF2E.ProficiencyLevel0", "PF2E.ProficiencyLevel1", "PF2E.ProficiencyLevel2",
+  "PF2E.ProficiencyLevel3", "PF2E.ProficiencyLevel4"
+];
+const ATTACK_CATEGORIES = [
+  { key: "simple", labelKey: "BLANKINHERITANCE.Induction.Page4.AttackSimple" },
+  { key: "martial", labelKey: "BLANKINHERITANCE.Induction.Page4.AttackMartial" },
+  { key: "advanced", labelKey: "BLANKINHERITANCE.Induction.Page4.AttackAdvanced" },
+  { key: "unarmed", labelKey: "BLANKINHERITANCE.Induction.Page4.AttackUnarmed" }
+];
+const DEFENSE_CATEGORIES = [
+  { key: "unarmored", labelKey: "BLANKINHERITANCE.Induction.Page4.DefenseUnarmored" },
+  { key: "light", labelKey: "BLANKINHERITANCE.Induction.Page4.DefenseLight" },
+  { key: "medium", labelKey: "BLANKINHERITANCE.Induction.Page4.DefenseMedium" },
+  { key: "heavy", labelKey: "BLANKINHERITANCE.Induction.Page4.DefenseHeavy" }
+];
 const abilityLabel = (key) => game.i18n.localize(ABILITY_KEYS[key] ?? key);
 const sizeLabel = (key) => game.i18n.localize(SIZE_KEYS[key] ?? key);
+const rankLabel = (rank) => game.i18n.localize(RANK_KEYS[rank] ?? RANK_KEYS[0]);
+/** Reuses sf2e's own PF2E.Skill.<Name> keys (ux-doctrine.md §11) -- verified against gamesystems/sf2e/lang/en.json's real nested shape, see #page3Context's own history with this. */
+const skillLabel = (slug) => game.i18n.localize(`PF2E.Skill.${slug.charAt(0).toUpperCase()}${slug.slice(1)}`);
 
 /**
  * Titlecase per word, not just the string's first letter -- ancestry
@@ -110,6 +133,18 @@ function loadBackgroundCatalogue() {
     return { backgrounds: [], failed: true };
   });
   return backgroundCataloguePromise;
+}
+
+let classCataloguePromise = null;
+
+/** Same cache/failed-flag pattern as loadAncestryCatalogue, for Page 4's real class list. */
+function loadClassCatalogue() {
+  classCataloguePromise ??= fetchModuleJson("data/campaign/campaign/class-catalogue.json").catch((err) => {
+    console.error("Blank Inheritance | Could not load the class catalogue:", err);
+    classCataloguePromise = null;
+    return { classes: [], failed: true };
+  });
+  return classCataloguePromise;
 }
 
 let intakePromptsPromise = null;
@@ -160,6 +195,11 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       pickBackgroundBoost: InductionTerminal.#onPickBackgroundBoost,
       continueFromBackground: InductionTerminal.#onContinueFromBackground,
       backFromBackground: InductionTerminal.#onBackFromBackground,
+      pickClass: InductionTerminal.#onPickClass,
+      changeClass: InductionTerminal.#onChangeClass,
+      pickClassKeyAbility: InductionTerminal.#onPickClassKeyAbility,
+      continueFromClass: InductionTerminal.#onContinueFromClass,
+      backFromClass: InductionTerminal.#onBackFromClass,
       continueFromFinishing: InductionTerminal.#onContinueFromFinishing,
       backFromFinishing: InductionTerminal.#onBackFromFinishing,
       addLanguage: InductionTerminal.#onAddLanguage,
@@ -182,6 +222,10 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     },
     page3: {
       template: `${TEMPLATE_ROOT}/page3-background.hbs`,
+      scrollable: [".bi-induction__page"]
+    },
+    page4: {
+      template: `${TEMPLATE_ROOT}/page4-class.hbs`,
       scrollable: [".bi-induction__page"]
     },
     page7: {
@@ -208,6 +252,10 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       filter: "",
       boostPicks: [] // backgrounds have no flaws (Player Core: "two boosts... no flaw")
     },
+    class: {
+      id: null,
+      keyAbilityPicks: [] // one slot (core/induction-class.mjs); empty until a free key ability needs a pick
+    },
     finishing: {
       name: "",
       pronouns: "",
@@ -224,6 +272,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   /** The loaded catalogues, kept so action handlers don't re-fetch on every click. */
   _ancestries = [];
   _backgrounds = [];
+  _classes = [];
 
   /**
    * @override
@@ -251,6 +300,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     const base = { userName: game.user?.name ?? "", trackerSteps: this.#trackerSteps() };
     if (this.state.page === 2) return { ...base, ...(await this.#page2Context()) };
     if (this.state.page === 3) return { ...base, ...(await this.#page3Context()) };
+    if (this.state.page === 4) return { ...base, ...(await this.#page4Context()) };
     if (this.state.page === 7) return { ...base, ...(await this.#page7Context()) };
     if (this.state.page === 8) return { ...base, ...(await this.#page8Context()) };
     return base;
@@ -359,13 +409,6 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
 
   /** Everything Page 3's template needs about the chosen background, precomputed. */
   #decorateBackground(background) {
-    // Reuses sf2e's own PF2E.Skill.<Name> keys (ux-doctrine.md §11) rather
-    // than duplicating the 18 skill names -- verified against the real
-    // gamesystems/sf2e/lang/en.json shape, not guessed (a first attempt
-    // assumed a flat PF2E.Skill<Name> key with no dot and would have
-    // silently rendered every skill as its own raw key on screen).
-    const skillLabel = (slug) => game.i18n.localize(`PF2E.Skill.${slug.charAt(0).toUpperCase()}${slug.slice(1)}`);
-
     const { resolved } = resolveSlots(background.boosts, this.state.background.boostPicks);
     const claimed = (slotIndex) => claimedAbilities(background.boosts, this.state.background.boostPicks, slotIndex);
     const boostSlots = background.boosts.map((slot, slotIndex) => {
@@ -410,6 +453,70 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       hasNamedSkills: (background.trainedSkills ?? []).length > 0 || (background.loreSkills ?? []).length > 0,
       feat: background.feat,
       boostSlots
+    };
+  }
+
+  async #page4Context() {
+    const catalogue = await loadClassCatalogue();
+    this._classes = catalogue.classes ?? [];
+    const cls = this._classes.find((c) => c.id === this.state.class.id) ?? null;
+
+    return {
+      loadFailed: catalogue.failed === true,
+      classes: this._classes.map((c) => ({ id: c.id, name: c.name })),
+      selected: cls ? this.#decorateClass(cls) : null,
+      isComplete: isClassChoiceComplete(cls, this.state.class.keyAbilityPicks)
+    };
+  }
+
+  /** Everything Page 4's template needs about the chosen class, precomputed. */
+  #decorateClass(cls) {
+    const { resolved } = resolveSlots([cls.keyAbility], this.state.class.keyAbilityPicks);
+    const picked = resolved[0] ?? null;
+    const keyAbilitySlot = cls.keyAbility.length === 1
+      ? { fixed: true, fixedLabel: abilityLabel(cls.keyAbility[0]) }
+      : {
+          fixed: false,
+          options: cls.keyAbility.map((ability) => ({
+            ability, label: abilityLabel(ability), picked: ability === picked, slotIndex: 0
+          }))
+        };
+
+    const additionalSkillsNote = cls.trainedSkills.additional > 0
+      ? game.i18n.format("BLANKINHERITANCE.Induction.Page4.PlusMoreSkills", { count: cls.trainedSkills.additional })
+      : null;
+
+    // A category shows plainly at "trained" (the expected floor); a HIGHER
+    // rank is a genuine specialization worth calling out (e.g. Operative's
+    // guns at Expert). Untrained (rank 0) categories are simply omitted --
+    // Envoy has zero weapon proficiency above unarmed/simple, and showing
+    // "Advanced Weapons: Untrained" for every class would be noise, not signal.
+    const proficiencySummary = (ranks, categories) => categories
+      .filter(({ key }) => ranks[key] > 0)
+      .map(({ key, labelKey }) => {
+        const label = game.i18n.localize(labelKey);
+        return ranks[key] > 1 ? `${label} (${rankLabel(ranks[key])})` : label;
+      })
+      .concat(cls.attacks?.otherName && categories === ATTACK_CATEGORIES
+        ? [`${cls.attacks.otherName} (${rankLabel(cls.attacks.otherRank)})`]
+        : [])
+      .join(", ");
+
+    return {
+      id: cls.id,
+      name: cls.name,
+      description: cls.description,
+      hp: cls.hp,
+      perceptionLabel: rankLabel(cls.perception),
+      fortitudeLabel: rankLabel(cls.savingThrows.fortitude),
+      reflexLabel: rankLabel(cls.savingThrows.reflex),
+      willLabel: rankLabel(cls.savingThrows.will),
+      trainedSkillsLabel: cls.trainedSkills.fixed.map((slug) => skillLabel(slug)).join(", "),
+      hasTrainedSkills: cls.trainedSkills.fixed.length > 0,
+      additionalSkillsNote,
+      attacksLabel: proficiencySummary(cls.attacks, ATTACK_CATEGORIES),
+      defensesLabel: proficiencySummary(cls.defenses, DEFENSE_CATEGORIES),
+      keyAbilitySlot
     };
   }
 
@@ -651,10 +758,21 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
    * manipulation) -- the template's `claimed` flag is the primary defense,
    * this is the second one, since an illegal double-boost silently reaching
    * derive.mjs is a real rules bug, not just a UI nicety.
+   *
+   * Also refuses an ability that isn't even a member of the target slot's
+   * own option list -- found live 2026-09-10 (adversarial-testing Page 4's
+   * key-ability picker with a fabricated target: `claimedAbilities` alone
+   * only rejects an ability another slot has ALREADY resolved, it never
+   * validates that a brand-new pick belongs to ITS OWN slot in the first
+   * place, since the real template never renders a button for an illegal
+   * ability at all -- this closes that gap for a forged target on all
+   * three real callers (ancestry boosts/flaws, background boosts, class
+   * key ability), not just the one that surfaced it.
    */
   #pickFreeSlot(picksPath, slots, target) {
     const slotIndex = Number(target.dataset.slotIndex);
     const ability = target.dataset.ability;
+    if (!isLegalPick(slots[slotIndex] ?? [], ability)) return;
     const picks = getPath(this.state, picksPath);
     if (claimedAbilities(slots, picks, slotIndex).has(ability)) return;
     // picks is parallel to the FREE slots only (core/boost-slots.mjs), so a
@@ -686,23 +804,52 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     this.render({});
   }
 
-  /**
-   * TEMPORARY: Pages 4-6 (Class/Attribute Boosts/Portrait) don't exist yet.
-   * Jumping straight to Page 7 keeps the terminal click-through testable
-   * end to end rather than dead-ending here -- restore this to
-   * `this.state.page = 4; this.render({})` once Page 4 is built (the same
-   * temporary-skip role Page 2's own Continue held until Page 3 existed).
-   * See design/induction-terminal.md §8.
-   */
   static async #onContinueFromBackground(_event, _target) {
     const background = this._backgrounds.find((b) => b.id === this.state.background.id);
     if (!isBackgroundChoiceComplete(background, this.state.background.boostPicks)) return;
-    this.state.page = 7;
+    this.state.page = 4;
     this.render({});
   }
 
   static async #onBackFromBackground(_event, _target) {
     this.state.page = 2;
+    this.render({});
+  }
+
+  static async #onPickClass(_event, target) {
+    this.state.class.id = target.dataset.classId;
+    this.state.class.keyAbilityPicks = [];
+    this.render({});
+  }
+
+  static async #onChangeClass(_event, _target) {
+    this.state.class.id = null;
+    this.state.class.keyAbilityPicks = [];
+    this.render({});
+  }
+
+  static async #onPickClassKeyAbility(_event, target) {
+    const cls = this._classes.find((c) => c.id === this.state.class.id);
+    this.#pickFreeSlot("class.keyAbilityPicks", cls ? [cls.keyAbility] : [], target);
+  }
+
+  /**
+   * TEMPORARY: Pages 5-6 (Attribute Boosts/Portrait) don't exist yet.
+   * Jumping straight to Page 7 keeps the terminal click-through testable
+   * end to end rather than dead-ending here -- restore this to
+   * `this.state.page = 5; this.render({})` once Page 5 is built (the same
+   * temporary-skip role Page 3's own Continue held until Page 4 existed).
+   * See design/induction-terminal.md §8.
+   */
+  static async #onContinueFromClass(_event, _target) {
+    const cls = this._classes.find((c) => c.id === this.state.class.id);
+    if (!isClassChoiceComplete(cls, this.state.class.keyAbilityPicks)) return;
+    this.state.page = 7;
+    this.render({});
+  }
+
+  static async #onBackFromClass(_event, _target) {
+    this.state.page = 3;
     this.render({});
   }
 
@@ -713,7 +860,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   static async #onBackFromFinishing(_event, _target) {
-    this.state.page = 3;
+    this.state.page = 4;
     this.render({});
   }
 
@@ -781,6 +928,7 @@ export function mountInductionTerminal() {
       page: 1,
       ancestry: { id: null, filter: "", boostPicks: [], flawPicks: [] },
       background: { id: null, filter: "", boostPicks: [] },
+      class: { id: null, keyAbilityPicks: [] },
       finishing: { name: "", pronouns: "", genderIdentity: "", appearance: "", languages: [], banalAnswers: {} },
       intake: { questions: {} }
     };

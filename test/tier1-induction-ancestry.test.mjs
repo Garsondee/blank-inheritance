@@ -7,7 +7,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 
-import { isFixedSlot, resolveSlots, claimedAbilities } from "../module/blank-inheritance/scripts/core/boost-slots.mjs";
+import { isFixedSlot, resolveSlots, claimedAbilities, isLegalPick } from "../module/blank-inheritance/scripts/core/boost-slots.mjs";
 import {
   isAncestryChoiceComplete,
   resolveAncestryIngredients,
@@ -18,6 +18,18 @@ import {
 test("isFixedSlot: a single-ability slot is fixed, a multi-ability slot is a free choice", () => {
   assert.equal(isFixedSlot(["con"]), true);
   assert.equal(isFixedSlot(["str", "dex", "con", "int", "wis", "cha"]), false);
+});
+
+test("isLegalPick: true for an ability actually in the slot's own list, false otherwise", () => {
+  // Found live 2026-09-10 (Page 4, a fabricated pickClassKeyAbility target):
+  // claimedAbilities alone never catches this -- it only rejects an ability
+  // a SIBLING slot already resolved, it doesn't check whether the candidate
+  // even belongs to ITS OWN slot's option list in the first place. Real
+  // shape: Witchwarper's key-ability slot is ["cha", "int"] -- "str" was
+  // never a legal pick for it, but reached state anyway before this guard.
+  assert.equal(isLegalPick(["cha", "int"], "cha"), true);
+  assert.equal(isLegalPick(["cha", "int"], "str"), false);
+  assert.equal(isLegalPick(["con"], "con"), true, "a fixed slot's own single ability is still legal to name explicitly");
 });
 
 test("resolveSlots: fixed slots resolve on their own, consuming no pick", () => {

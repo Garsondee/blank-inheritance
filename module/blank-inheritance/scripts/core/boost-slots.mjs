@@ -24,6 +24,21 @@ export function isFixedSlot(slot) {
 }
 
 /**
+ * Whether `ability` is even a member of `slot`'s own option list -- a
+ * narrower, PRIOR check than claimedAbilities, which only tells you
+ * whether something ELSE has already taken an ability, never whether a
+ * brand-new candidate belongs to this slot at all. Added 2026-09-10: found
+ * live that a caller skipping this check and going straight to
+ * claimedAbilities lets a forged pick (an ability no button for this slot
+ * was ever rendered for) through silently, since claimedAbilities' own
+ * resolveSlots call only validates picks already sitting in the array, not
+ * a new one being considered.
+ */
+export function isLegalPick(slot, ability) {
+  return slot.includes(ability);
+}
+
+/**
  * Resolve one source's (an ancestry's, a background's) boost OR flaw slots
  * against a player's picks.
  *

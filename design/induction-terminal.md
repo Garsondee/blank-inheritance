@@ -126,7 +126,7 @@ login.
 | **1. Orientation** | Not just flavor text anymore — a real explanation, before anything is asked: what this terminal is, what the player is about to do, roughly how long it takes, and what to have ready (a character concept, nothing more — this is explicitly stated so nobody logs in unprepared). The acceptance-letter beat (already in `data/scene-briefs/episode-c1s1--the-road-in.json`) opens it. | This page IS the OOC layer, by design — no toggle needed. |
 | **2. Ancestry** — **built** | Real ancestry (mechanical), all 51, grouped Terrestrial-Presenting/Alien-Coded with a live name filter (2026-09-09 decision: "full catalogue, grouped/searchable" over a curated shortlist). Boost/flaw choice slots resolved against the real compendium data (`data/campaign/ancestry-catalogue.json`); heritage and ancestry feat are **not** picked here — see §5, extended. **Selecting non-terrestrial flips a hidden flag and queues the lockdown sub-flow (Page 6a, not yet built — Page 2 itself only shows a short, reassuring note in the same spot).** | OOC: what this changes (boosts/flaw, HP, size, speed) — mechanical register, plus an explicit statement that an ancestry feat comes next, on the real character sheet, same as class feats. |
 | **3. Background** — **built** | Real background (mechanical), all 154, grouped Common/Uncommon/Rare with a live name filter — the axis that actually matters at this scale, same "full catalogue, grouped/searchable" decision as Page 2. Boost slots resolved against the real compendium data (`data/campaign/background-catalogue.json`); trained skills, Lore skill(s) and the granted background feat are shown read-only, **not** picked here — some real backgrounds phrase their skill grant as a genuine prose choice the flat data can't represent, and the feat itself is deferred to the real character sheet, same reasoning as ancestry feat/heritage. | OOC: mechanical (two boosts, one or two trained skills, a skill feat) — plus the same "a skill feat comes next, on the real character sheet" statement Page 2 makes for ancestry feat. |
-| **4. Class** | Real class — the pick only. Feats and spell selection explicitly deferred (§1). | OOC: mechanical (key ability, HP per level, saves, class DC, proficiencies) — plus a plain statement that feats/spells come next, on the real character sheet, not lost or skipped. |
+| **4. Class** — **built** | Real class — the pick only, all 6 (`data/campaign/class-catalogue.json`, extracted live from `gamesystems/sf2e/packs/classes`). A flat list, not grouped/filtered — 6 items is the honest fit, unlike ancestry's 51 or background's 154. Key ability is one boost slot (core/boost-slots.mjs, shared with ancestry/background) — fixed for five classes, a real choice for Witchwarper (Charisma or Intelligence). Trained skills, weapon/armor proficiencies shown read-only; the free skill count ("plus N more of your choice") and class features/feats/spells are explicitly deferred (§1/§5). | OOC: mechanical (key ability, HP per level, saves, proficiencies) — plus a plain statement that feats/spells come next, on the real character sheet, not lost or skipped, and that Class DC starts Trained for every class at level 1. |
 | **5. Attribute Boosts** | Ancestry/background/class boosts apply automatically (read-only, sourced from Pages 2-4); four player-chosen free boosts. | OOC: "this permanently raises one of six numbers that drive almost every roll you make" — the single most consequential page. |
 | **6. Portrait** | Upload via Foundry's real system, then crop client-side to the project's own established **2:3 ratio** (`design/theatre-of-the-mind-staging.md` — the same ratio every other staged portrait already uses, so a new character doesn't look inconsistent next to the cast that already exists). **If the lockdown fired on Page 2, this page also collects the passing portrait — a second upload+crop, or a pick from a curated gallery (§4a).** | OOC: why the crop matters (visual consistency across the roster), not a mechanical explanation. |
 | **7. Finishing Details** — **built** | Name (the only required field), pronouns, gender identity, a few light "banal" texture questions, appearance notes, languages. Every field pairs free text with a row of illustrative suggestion chips that insert into the same box on click — never a separate/binding choice. Languages are a real multi-value tag list (add/remove), suggested from the character's own ancestry plus a curated common-language list (Player Core pg. 97), with a free-text "Add" escape hatch. | Minimal — mostly self-explanatory. |
@@ -250,7 +250,7 @@ spells. Not a new decision, the same one applied to the next case it obviously c
    `design/campaign-arc.md`'s already-extensive Day 1 pilot material (reduced personnel-scale HP, a
    stronger Frame, now also confirmed "exhausted from their duties") is a real, **player-chosen**
    chargen path (`bible/LEDGER.md` #10) — one of the six may opt to start the campaign as an already-
-   active, veteran pilot rather than a fresh recruit. Nothing built so far (Pages 1-3, 7-8) has a fork
+   active, veteran pilot rather than a fresh recruit. Nothing built so far (Pages 1-4, 7-8) has a fork
    for this; every page assumes the standard new-recruit flow. Needs a real design pass of its own
    before Page 4 (Class) or Page 9 (Review) can be considered complete — a veteran's "basic but viable"
    sheet plausibly needs different defaults than a recruit's. `day1-pilot-hp-reduction-amount` (the
@@ -265,8 +265,8 @@ spells. Not a new decision, the same one applied to the next case it obviously c
 
 This design was requested "research, design first" — no code — and stayed that way through the first
 draft. **That has changed: the shell application, Page 1 (Orientation), Page 2 (Ancestry), Page 3
-(Background), Page 7 (Finishing Details) and Page 8 (The Eight Questions) are now built**, against
-exactly this shape, the same incremental way the scene runner itself was built.
+(Background), Page 4 (Class), Page 7 (Finishing Details) and Page 8 (The Eight Questions) are now
+built**, against exactly this shape, the same incremental way the scene runner itself was built.
 
 **The shell:** `module/blank-inheritance/scripts/foundry/induction-terminal.mjs` — the
 `InductionTerminal` ApplicationV2 class, the singleton mount/refresh/unmount/open functions, and page
@@ -355,10 +355,10 @@ read inconsistently with Page 2's own display of the identical data — `titleCa
 module-scope helper instead of living only inside `#decorateAncestry`.
 
 At the time these two pages were built, Pages 3-6 didn't exist yet, so Page 2's own Continue
-**temporarily** jumped straight to Page 7. Page 3 was built the same day (see its own build-status
-paragraph above) and now owns that temporary redirect instead — Page 2's Continue goes to the real
-Page 3, Page 3's Continue temporarily jumps to Page 7 until Page 4 exists. Page 8's Continue is the
-stub, matching Page 2's former idiom exactly.
+**temporarily** jumped straight to Page 7. That temporary redirect has since moved twice more, each
+time to the newest built page — Page 3 owned it briefly, then Page 4 (see its own build-status
+paragraph below); Page 2 → 3 and Page 3 → 4 are both real now. Page 8's Continue is the stub, matching
+Page 2's former idiom exactly.
 
 `kid.schema.json` gained `pronouns`, `genderIdentity`, `appearance` (all optional/nullable strings) and
 `intake.banal[]`/`intake.questions[]` (raw Q&A, `{id, answer}` pairs) — deliberately **not** merged into
@@ -367,7 +367,37 @@ answer into a real Anchor stays a human decision, not something this terminal do
 
 Covered by the generic tier0 architecture tests for the UI shell (templates/lang/CSS) plus dedicated
 pure-logic suites for both the ancestry choice resolution and the intake suggestion/language logic.
-Pages 4-6 and 9 are not built — §4's table is still the plan for each.
+
+**Page 4, built 2026-09-10:** `templates/induction/page4-class.hbs` plus
+`module/blank-inheritance/scripts/core/induction-class.mjs`, `data/campaign/class-catalogue.json` +
+`data/schema/class-catalogue.schema.json` (all 6 real SF2E classes, extracted live from
+`gamesystems/sf2e/packs/classes`), `Induction.Page4.*` lang keys. A flat list, not grouped/filtered —
+6 items is the honest fit for a small catalogue, unlike ancestry's 51 or background's 154. Key ability
+reuses the exact same boost-slot machinery as ancestry/background (`resolveSlots`, wrapped to a
+one-element slots array), since it's structurally identical: fixed for five classes, a real free choice
+for Witchwarper (Charisma or Intelligence) — proving the earlier boost-slots.mjs/state-path.mjs
+extractions pay off on their third real consumer with zero new picking logic. Trained skills and
+weapon/armor proficiency ranks reuse sf2e's own `PF2E.Skill.<Name>`/`PF2E.ProficiencyLevel<N>`
+localization keys; a proficiency category renders plainly at Trained (the universal floor) and only
+calls out its rank when genuinely higher (e.g. Operative's guns at Expert), and an untrained category
+is omitted rather than shown as noise. The free skill count and class features/feats/spells stay
+explicitly deferred, same reasoning as ancestry feat/heritage and background feat.
+
+**A real, shared defense-in-depth gap was found and fixed live, adversarially testing this page:**
+`claimedAbilities` alone only rejects an ability a SIBLING slot has already resolved -- it never
+validated that a brand-new pick even belongs to its OWN slot's option list, since the real template
+never renders a button for an illegal ability in the first place. A fabricated `pickClassKeyAbility`
+target with `ability: "str"` (not a legal Witchwarper option) reached `state.class.keyAbilityPicks`
+unrejected. Fixed with a new pure `isLegalPick(slot, ability)` in `core/boost-slots.mjs`, checked in
+`#pickFreeSlot` before `claimedAbilities` runs at all -- this is the SHARED picker (ancestry boosts,
+ancestry flaws, background boosts, class key ability), so the fix and its regression test cover all
+four call sites at once, not just the one that surfaced it. Verified live both ways: the forged illegal
+pick is now rejected, and a legitimate pick immediately after still succeeds.
+
+All four pages' Continue/Back chain verified live end to end: Page 2 → 3 → 4 → 7 → 4 → 3, state intact
+in both directions at every step (Soldier's fixed key ability needs no pick at all and still gates
+Continue correctly; Witchwarper's real choice gates correctly until picked). Pages 5-6 and 9 are not
+built — §4's table is still the plan for each.
 
 **Presentation pass, 2026-09-10** — a progress tracker and a page-transition animation, added across
 every built page at Ingram's direct request for "a nicely styled CSS form with bells and whistles."
