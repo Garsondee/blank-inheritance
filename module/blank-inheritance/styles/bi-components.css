@@ -891,6 +891,125 @@
 .bi-langlist__custom { display: flex; gap: 6px; margin-top: 10px; }
 .bi-langlist__custom .bi-induction__filter { flex: 1; margin: 0; }
 
+/* Page 6: portrait upload + client-side crop -- the terminal's only place
+   that captures a real image file (scripts/foundry/io.mjs's
+   writeStorageFile, the only module allowed to touch Foundry's
+   file-access globals). Fixed 2:3 throughout, matching every other staged
+   portrait (design/theatre-of-the-mind-staging.md). Height is a literal
+   px value alongside width, never `aspect-ratio` -- same reason as
+   .bi-frame__art elsewhere in this file: tier3-theme-contract.test.mjs
+   bans aspect-ratio anywhere in this shared stylesheet. */
+.bi-portrait { margin-bottom: 8px; }
+
+/* One hidden native file input, reused by all three states below (the
+   empty chooser, "Change Photo" mid-crop, and "Change Photo" once done) --
+   a <label for="..."> triggers it with no click-relay JS required. */
+.bi-portrait__file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.bi-portrait__chooser {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: 220px;
+  height: 330px;
+  text-align: center;
+  background: var(--bi-paper-shade);
+  border: 1px dashed var(--bi-paper-rule);
+  border-radius: 2px;
+  cursor: pointer;
+}
+.bi-portrait__chooser:hover { background: var(--bi-paper); }
+.bi-portrait__chooser:focus-within { outline: 2px solid var(--bi-vermilion); outline-offset: 2px; }
+.bi-portrait__chooser-label {
+  font-family: var(--bi-font-typewriter);
+  font-size: 12px;
+  font-style: italic;
+  color: var(--bi-paper-ink-2);
+}
+.bi-portrait__choose-button {
+  font-family: var(--bi-font-typewriter);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bi-paper-ink);
+  background: var(--bi-paper);
+  border: 1px solid var(--bi-paper-rule);
+  border-radius: 2px;
+  padding: 9px 22px;
+}
+
+.bi-portrait__crop { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.bi-portrait__viewport {
+  position: relative;
+  width: 220px;
+  height: 330px;
+  overflow: hidden;
+  background: var(--bi-paper-shade);
+  border: 1px solid var(--bi-paper-rule);
+  cursor: grab;
+  /* Stops the browser's own touch-scroll/pinch gestures from fighting the
+     pointer-drag pan handler on a touchscreen. */
+  touch-action: none;
+}
+.bi-portrait__viewport--dragging { cursor: grabbing; }
+/* Sized by JS on load (naturalWidth/height x scale) and repositioned on
+   every drag/zoom via a direct style.transform write, never a re-render --
+   same reasoning as Page 2's live filter box (a render mid-drag would fight
+   the pointer, not just the caret). max-width: none overrides .bi-doc's
+   img rule (if any inherited one exists) so the image is never capped to
+   its container before the transform scales it. */
+.bi-portrait__viewport img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: none;
+  transform-origin: 0 0;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+.bi-portrait__zoom-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 220px;
+  font-family: var(--bi-font-typewriter);
+  font-size: 11px;
+  color: var(--bi-paper-ink-2);
+}
+.bi-portrait__zoom-row input[type="range"] { flex: 1; }
+.bi-portrait__crop-actions { display: flex; align-items: center; gap: 14px; }
+.bi-portrait__uploading { font-style: italic; font-size: 12px; color: var(--bi-paper-ink-2); margin: 0; }
+
+.bi-portrait__done { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.bi-portrait__preview {
+  width: 220px;
+  height: 330px;
+  overflow: hidden;
+  border: 1px solid var(--bi-paper-rule);
+  background: var(--bi-paper-shade);
+}
+.bi-portrait__preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.bi-portrait__error {
+  font-family: var(--bi-font-typewriter);
+  font-size: 12px;
+  color: var(--bi-vermilion-dim);
+  margin: 12px 0 0;
+}
+
 /* --- Kanji used structurally, not decoratively ----------------------- */
 
 /* A vertical run of Kanji down a document margin. Genuine Japanese

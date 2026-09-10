@@ -75,6 +75,57 @@ export async function writeStorageJson(dirName, filename, data) {
   return `${dirName}/${filename}`;
 }
 
+/**
+ * Write one arbitrary file (a Blob -- the induction terminal's own cropped-
+ * portrait canvas output, via canvas.toBlob) into the module's persistent
+ * storage. Same `uploadPersistent` call as writeStorageJson, generalized
+ * past JSON: the File is built directly from the Blob instead of a
+ * JSON.stringify'd string.
+ *
+ * `dirName` may be `""` to write straight into storage/ itself -- see the
+ * live-found note below on why a caller may need that. Unlike
+ * writeStorageJson, this returns the FULL Foundry-relative path
+ * (`modules/<id>/storage/<dirName>/<filename>`, or just `modules/<id>/
+ * storage/<filename>` when dirName is empty), not just `<dirName>/
+ * <filename>` -- deliberately different, not an inconsistency. Every
+ * existing writeStorageJson caller only ever uses its return value for
+ * human-readable display (report.mjs manually prepends its own literal
+ * "storage/" at its one call site), never as a real Document field. A
+ * cropped portrait's path DOES need to go straight into a real field
+ * (Actor#img), so the caller needs a ready-to-use path, not a fragment it
+ * has to know how to complete itself. Read straight off `result.path` --
+ * the server's own response, already correctly built (and already
+ * confirmed correct for an empty dirName, which a hand-built template
+ * string would have rendered as a doubled slash) -- rather than
+ * reconstructed here from dirName/filename by hand.
+ *
+ * The caller is responsible for ensureDirectory when writing into a real
+ * subdirectory, same division of labor as writeStorageJson. **Found live
+ * 2026-09-10, building the induction terminal's Page 6: `createDirectory`
+ * (and thus `ensureDirectory`) is unreliable on at least this Foundry
+ * v14.367/Windows install -- it throws a FALSE "EEXIST" for a directory
+ * that demonstrably does not exist yet (confirmed against the real
+ * filesystem AND against Foundry's own `FilePicker.browse`), for every
+ * fresh directory tried, including through Foundry's own first-party
+ * "Create Subfolder" UI button, not just this module's own code. A
+ * caller that cannot risk landing in a subdirectory that never actually
+ * gets created should pass `dirName: ""` and write straight into
+ * storage/ itself (already guaranteed to exist once persistentStorage is
+ * enabled), using a distinctive filename prefix instead of a folder for
+ * organization -- exactly what Page 6's own portrait upload does now.**
+ */
+export async function writeStorageFile(dirName, filename, blob, mimeType) {
+  const file = new File([blob], filename, { type: mimeType });
+  const result = await foundry.applications.apps.FilePicker.implementation.uploadPersistent(MODULE_ID, dirName, file, {}, { notify: false });
+  if (!result || result === false || !result.path) {
+    throw new Error(
+      `uploadPersistent did not return a success result for ${dirName}/${filename} — ` +
+      "see console for the FilePicker response."
+    );
+  }
+  return result.path;
+}
+
 export async function writeReportFile(report) {
   const dirName = "test-reports";
   await ensureDirectory(`modules/${MODULE_ID}/storage/${dirName}`);

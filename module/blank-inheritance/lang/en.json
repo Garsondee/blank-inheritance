@@ -259,6 +259,24 @@
         "Back": "Back",
         "Continue": "Continue"
       },
+      "Page6": {
+        "Title": "Portrait",
+        "FormNumber": "FORM 1-F — PHOTOGRAPHIC IDENTIFICATION",
+        "Intro": "A photograph for your file — optional, but every character in this campaign uses the same frame, and it's a nice thing to have waiting for you at the table. Upload one below and adjust it to fit; Section Nine keeps standard imagery on hand for anyone who'd rather skip this.",
+        "NoPhotoLabel": "No photograph on file",
+        "ChoosePhoto": "Choose Photo",
+        "ChangePhoto": "Change Photo",
+        "RemovePhoto": "Remove",
+        "ZoomLabel": "Zoom",
+        "UseThisCrop": "Use This Crop",
+        "Uploading": "Uploading…",
+        "InvalidFileType": "That doesn't look like an image file — choose a photo (JPEG, PNG, WebP, etc.) instead.",
+        "FileTooLarge": "That file is too large (over 20MB). Try a smaller photo.",
+        "HelpSummary": "What's this actually for?",
+        "HelpBody": "There's no mechanical effect from your choice of photo, or from skipping it entirely. Every character portrait in this campaign is shown in the same tall frame, so keeping the crop close to the guide box just keeps your character looking consistent next to the rest of the cast once play begins.",
+        "Back": "Back",
+        "Continue": "Continue"
+      },
       "Page7": {
         "Title": "Finishing Details",
         "FormNumber": "FORM 1-G — PERSONAL PARTICULARS",

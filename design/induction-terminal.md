@@ -128,7 +128,7 @@ login.
 | **3. Background** — **built** | Real background (mechanical), all 154, grouped Common/Uncommon/Rare with a live name filter — the axis that actually matters at this scale, same "full catalogue, grouped/searchable" decision as Page 2. Boost slots resolved against the real compendium data (`data/campaign/background-catalogue.json`); trained skills, Lore skill(s) and the granted background feat are shown read-only, **not** picked here — some real backgrounds phrase their skill grant as a genuine prose choice the flat data can't represent, and the feat itself is deferred to the real character sheet, same reasoning as ancestry feat/heritage. | OOC: mechanical (two boosts, one or two trained skills, a skill feat) — plus the same "a skill feat comes next, on the real character sheet" statement Page 2 makes for ancestry feat. |
 | **4. Class** — **built** | Real class — the pick only, all 6 (`data/campaign/class-catalogue.json`, extracted live from `gamesystems/sf2e/packs/classes`). A flat list, not grouped/filtered — 6 items is the honest fit, unlike ancestry's 51 or background's 154. Key ability is one boost slot (core/boost-slots.mjs, shared with ancestry/background) — fixed for five classes, a real choice for Witchwarper (Charisma or Intelligence). Trained skills, weapon/armor proficiencies shown read-only; the free skill count ("plus N more of your choice") and class features/feats/spells are explicitly deferred (§1/§5). | OOC: mechanical (key ability, HP per level, saves, proficiencies) — plus a plain statement that feats/spells come next, on the real character sheet, not lost or skipped, and that Class DC starts Trained for every class at level 1. |
 | **5. Attribute Boosts** — **built** | Four free boosts, the fourth real consumer of the shared boost-slot machinery (core/boost-slots.mjs) — no catalogue, no picker/resolver two-state, just four identical fully-open slots shown directly. Ancestry/background/class boosts from Pages 2-4 are NOT re-shown here (each is already visible on its own page); the four free boosts must differ from each other, but may legally repeat an ability those earlier pages already boosted — a separate step, per Player Core's own "different ability at the same time" rule. | OOC: "this permanently raises one of six numbers that drive almost every roll you make" — the single most consequential page. |
-| **6. Portrait** | Upload via Foundry's real system, then crop client-side to the project's own established **2:3 ratio** (`design/theatre-of-the-mind-staging.md` — the same ratio every other staged portrait already uses, so a new character doesn't look inconsistent next to the cast that already exists). **If the lockdown fired on Page 2, this page also collects the passing portrait — a second upload+crop, or a pick from a curated gallery (§4a).** | OOC: why the crop matters (visual consistency across the roster), not a mechanical explanation. |
+| **6. Portrait** — **built** | Upload via Foundry's real system, then crop client-side to the project's own established **2:3 ratio** (`design/theatre-of-the-mind-staging.md` — the same ratio every other staged portrait already uses, so a new character doesn't look inconsistent next to the cast that already exists). Genuinely optional — Continue is never gated on it, same treatment as every Page 7/8 field except Page 7's name, and Foundry's own default silhouette makes skipping it a real, unpenalized path. **Scoped down from the original plan, deliberately: the lockdown passing-portrait dual-collection (§4a) is NOT built this pass** — matches Page 2's own existing minimal treatment (a short reassuring note, not the full sub-flow) rather than the table's original "this page also collects the passing portrait" line. | OOC: why the crop matters (visual consistency across the roster), not a mechanical explanation. |
 | **7. Finishing Details** — **built** | Name (the only required field), pronouns, gender identity, a few light "banal" texture questions, appearance notes, languages. Every field pairs free text with a row of illustrative suggestion chips that insert into the same box on click — never a separate/binding choice. Languages are a real multi-value tag list (add/remove), suggested from the character's own ancestry plus a curated common-language list (Player Core pg. 97), with a free-text "Add" escape hatch. | Minimal — mostly self-explanatory. |
 | **8. The Eight Questions** — **built** | Bible §20's real quiz, verbatim, free-text answers, same suggestion-chip pattern as Page 7. Nothing is required — leaving every box blank and continuing is a real, supported path. | OOC: narrative-purpose register — what each answer is *for* in campaign terms, shown per-question where the bible states one explicitly. |
 | **9. Review & Confirm** — **built** | A read-only summary of every choice, NOT a computed sheet — resolved 2026-09-10, see the build-status paragraph below for why the original "full derived sheet via `derive.mjs`" plan turned out to be architecturally wrong. One Confirm button. On confirm: creates a real Actor, embeds the real ancestry/background/class compendium Items with the player's boost/key-ability selections pre-set, so sf2e's own derived-data engine computes AC/HP/skills/saves live, exactly like a real character sheet. Token placement and the landing page remain open (§7 item 1 — no lobby scene concept exists yet). | N/A. |
@@ -278,11 +278,14 @@ spells. Not a new decision, the same one applied to the next case it obviously c
 ## 8. Build status
 
 This design was requested "research, design first" — no code — and stayed that way through the first
-draft. **That has changed: the shell application, Page 1 (Orientation), Page 2 (Ancestry), Page 3
-(Background), Page 4 (Class), Page 5 (Attribute Boosts), Page 7 (Finishing Details), Page 8 (The Eight
-Questions) and Page 9 (Review & Confirm) are now built**, against exactly this shape, the same
-incremental way the scene runner itself was built. Only Page 6 (Portrait) remains — the induction
-terminal now produces a real, playable character end to end.
+draft. **That has changed: all nine pages are now built** — Page 1 (Orientation), Page 2 (Ancestry),
+Page 3 (Background), Page 4 (Class), Page 5 (Attribute Boosts), Page 6 (Portrait), Page 7 (Finishing
+Details), Page 8 (The Eight Questions) and Page 9 (Review & Confirm) — against exactly this shape, the
+same incremental way the scene runner itself was built. The Page 1→9 chain is fully real end to end now
+too: every page's Continue/Back goes to its actual neighbor, with no temporary skip anywhere anymore
+(Page 6's own build-status paragraph below has the one real gap this surfaced — Page 7's Back still
+pointed at Page 5, not Page 6, a leftover from before Page 6 existed that the forward-direction fix
+never caught). The induction terminal produces a real, playable character end to end, portrait included.
 
 **The shell:** `module/blank-inheritance/scripts/foundry/induction-terminal.mjs` — the
 `InductionTerminal` ApplicationV2 class, the singleton mount/refresh/unmount/open functions, and page
@@ -532,6 +535,63 @@ re-opening the terminal and building a second character works identically. `npm 
 throughout — `test/tier1-induction-review.test.mjs` covers the one genuinely pure piece
 (`isReviewComplete`'s gate logic); the Actor-creation sequence itself isn't unit-testable (it's
 entirely Foundry Document API calls) and was validated live instead, per this paragraph.
+
+**Page 6, built 2026-09-10 — the last page, and a genuinely new capability (real file upload,
+client-side image cropping) with no precedent anywhere in this codebase.** `core/induction-portrait.mjs`
+is the pure half: cover-scale/pan/zoom/clamp geometry and the zoom-slider's [0,1]-normalized ↔ raw-scale
+conversion, all hand-derived and hand-verified in `test/tier1-induction-portrait.test.mjs` (every
+expected value computed independently by hand, not just asserted against the implementation) — the
+adapter's live interaction code (a native `<input type="file">` reused across all three states via a
+wrapping `<label>`, Pointer Events drag-to-pan with `setPointerCapture`, a normalized zoom slider) writes
+the resulting crop straight to the preview `<img>`'s own `style.transform` on every move, never through
+`this.render()`, same reasoning as every other high-frequency interaction in this terminal (Page 2's live
+filter, Pages 7-8's suggestion chips). Output is a fixed 512x768 (2:3, matching `design/
+theatre-of-the-mind-staging.md`) canvas draw from the crop's own source rectangle, exported WebP-first
+(quality 0.86, matching `tools/stage-assets/stage_assets.py`'s own precedent) with a PNG fallback, then
+uploaded via a new `io.mjs` export, `writeStorageFile` — the same `uploadPersistent` primitive
+`writeStorageJson` already used for JSON, generalized to an arbitrary Blob. Deliberately scoped down from
+§4's table: the lockdown's passing-portrait dual-collection (§4a) is NOT built this pass, matching Page
+2's own existing minimal treatment of the same sub-flow. Genuinely optional throughout — Continue is
+never gated on having a portrait at all.
+
+**A real, live-discovered, upstream Foundry bug, not a bug in this codebase:** `createDirectory` throws a
+false "EEXIST: file already exists" for a directory that demonstrably does not exist yet, on this Foundry
+v14.367/Windows install, for every fresh directory tried — confirmed against the real filesystem directly
+(`Test-Path`), against Foundry's own `FilePicker.browse` (which correctly agrees nothing is there), and,
+decisively, through Foundry's own first-party "Create Subfolder" UI button in a real File Picker dialog
+(not just this module's code) — so `ensureDirectory`'s walk-and-catch pattern (fine for a directory that
+genuinely already exists) can never actually create a NEW one on this install. Root cause is out of reach
+(the server process isn't in this repo's read-only local mirror), so the fix is a live-verified
+workaround, not a patch to Foundry: Page 6 uploads straight into `storage/` itself (`dirName: ""`,
+already guaranteed to exist once persistentStorage is enabled) with a distinctive `portrait-` filename
+prefix doing the organizing job a real subfolder would otherwise do, calling no `ensureDirectory` at all.
+`writeStorageFile` also now reads its return path straight off the server's own response (`result.path`)
+instead of hand-building `${dirName}/${filename}`, both because that's the authoritative value and
+because a hand-built template would have rendered a doubled slash for an empty `dirName` specifically.
+Both the bug and the fix are recorded on `writeStorageFile`'s own doc comment in `io.mjs` for the next
+person who needs a new persistent-storage subdirectory and hits the same wall.
+
+**A second real bug, found live clicking through the actual Back chain rather than only jumping pages via
+state (which is how most of this session's page-to-page testing had been done for speed):** Page 7's Back
+button still pointed at Page 5, skipping Page 6 entirely — a leftover from Pages 7-8's own build round,
+before Page 6 existed, when 5→7 was the temporary skip. `#onContinueFromAttributes` (the forward
+direction) was correctly restored to point at Page 6 the moment it was built, carrying its own TEMPORARY
+comment as a reminder; `#onBackFromFinishing` (the backward direction) carried no such comment and was
+simply never revisited. Fixed to `this.state.page = 6`; every page's Back/Continue now correctly
+round-trips to its immediate neighbor in both directions, verified live end to end (Page 5 → 6 → 7 → 6 →
+5, all four transitions via real button clicks, not direct state assignment).
+
+Verified live end to end, using a real uploaded and cropped image throughout (a synthetic canvas-drawn
+test image, injected as a real `File` via `DataTransfer` — the standard technique for driving a native
+file input from outside a real user gesture, exercising the actual `change` listener rather than
+bypassing it): the empty → cropping → uploading → done → remove → empty state cycle; the invalid-file-type
+rejection path; drag-to-pan and the zoom slider both matching hand-computed pixel values exactly,
+including a zoom applied AFTER a drag (confirming the two compose correctly, not just independently); a
+full character creation (Human/Smuggler/Soldier/"Nova Ashworth II") with the uploaded portrait carried all
+the way through Page 9's Confirm into `Actor#img`, then opened the real sf2e character sheet and confirmed
+the portrait actually renders there, correctly, alongside the correct AC/HP/saves — the first live proof
+that Page 6's output and Page 9's Actor-creation pipeline actually agree with each other, not just each
+verified in isolation. `npm run test:ui` 504/504.
 
 ---
 

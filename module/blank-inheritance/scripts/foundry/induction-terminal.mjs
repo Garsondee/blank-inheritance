@@ -6,13 +6,15 @@
  * out the other end is a real Actor, with a "basic but viable" sheet --
  * class feats/spells are deliberately left for the real character sheet
  * afterward, not handled here. See design/induction-terminal.md for the
- * full page-by-page design; this file and its templates currently build
- * Page 1 (orientation), Page 2 (ancestry), Page 3 (background), Page 4
- * (class), Page 5 (attribute boosts), Page 7 (finishing details), Page 8
- * (the eight questions) and Page 9 (review & confirm — the only page that
- * touches the real world, see #createCharacterActor). Page 6 (portrait)
- * doesn't exist yet -- Page 5's own Continue temporarily jumps straight to
- * Page 7, see that handler's own comment.
+ * full page-by-page design; this file and its templates now build all nine
+ * pages: Page 1 (orientation), Page 2 (ancestry), Page 3 (background),
+ * Page 4 (class), Page 5 (attribute boosts), Page 6 (portrait), Page 7
+ * (finishing details), Page 8 (the eight questions) and Page 9 (review &
+ * confirm). Two pages touch the real world: Page 6 uploads a cropped image
+ * (#uploadCroppedPortrait, via scripts/foundry/io.mjs) and Page 9 creates
+ * the real Actor (#createCharacterActor) -- every other page only ever
+ * writes to this.state. The Page 5→6→7 chain is real now too; no page's
+ * Continue temporarily skips another one anymore.
  *
  * PLAYER-FACING BY CONSTRUCTION, unlike the scene runner (GM-only) and the
  * command bar (seat-dependent) -- any user may open this, including a GM
@@ -33,8 +35,13 @@
  * that mixin's _replaceHTML/_configureRenderParts for why.
  */
 
-import { fetchModuleJson } from "./io.mjs";
+import { fetchModuleJson, writeStorageFile } from "./io.mjs";
 import { resolveSlots, claimedAbilities, isLegalPick, isFixedSlot } from "../core/boost-slots.mjs";
+import {
+  OUTPUT_WIDTH, OUTPUT_HEIGHT,
+  coverScale, initialCropState, panBy, zoomTo, cropSourceRect,
+  sliderValueToScale, scaleToSliderValue
+} from "../core/induction-portrait.mjs";
 import {
   isAncestryChoiceComplete,
   resolveAncestryIngredients,
@@ -90,6 +97,11 @@ const DEFENSE_CATEGORIES = [
   { key: "medium", labelKey: "BLANKINHERITANCE.Induction.Page4.DefenseMedium" },
   { key: "heavy", labelKey: "BLANKINHERITANCE.Induction.Page4.DefenseHeavy" }
 ];
+/** Must match .bi-portrait__viewport/.bi-portrait__chooser's CSS px size exactly -- the crop math only produces a correct source rect if the box it was computed against is the box actually on screen. */
+const PORTRAIT_BOX = { width: 220, height: 330 };
+/** A soft sanity cap, not a real limit -- protects against a wildly wrong file pick (an unrelated multi-hundred-MB file), not a meaningful photo size. */
+const PORTRAIT_MAX_FILE_BYTES = 20 * 1024 * 1024;
+
 const abilityLabel = (key) => game.i18n.localize(ABILITY_KEYS[key] ?? key);
 const sizeLabel = (key) => game.i18n.localize(SIZE_KEYS[key] ?? key);
 const rankLabel = (rank) => game.i18n.localize(RANK_KEYS[rank] ?? RANK_KEYS[0]);
@@ -209,6 +221,10 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       pickFreeBoost: InductionTerminal.#onPickFreeBoost,
       continueFromAttributes: InductionTerminal.#onContinueFromAttributes,
       backFromAttributes: InductionTerminal.#onBackFromAttributes,
+      removePortrait: InductionTerminal.#onRemovePortrait,
+      confirmPortraitCrop: InductionTerminal.#onConfirmPortraitCrop,
+      continueFromPortrait: InductionTerminal.#onContinueFromPortrait,
+      backFromPortrait: InductionTerminal.#onBackFromPortrait,
       confirmCharacter: InductionTerminal.#onConfirmCharacter,
       backFromReview: InductionTerminal.#onBackFromReview,
       continueFromFinishing: InductionTerminal.#onContinueFromFinishing,
@@ -241,6 +257,10 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     },
     page5: {
       template: `${TEMPLATE_ROOT}/page5-attributes.hbs`,
+      scrollable: [".bi-induction__page"]
+    },
+    page6: {
+      template: `${TEMPLATE_ROOT}/page6-portrait.hbs`,
       scrollable: [".bi-induction__page"]
     },
     page7: {
@@ -278,6 +298,11 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     attributes: {
       freeBoostPicks: [] // parallel to core/induction-attributes.mjs's four FREE_BOOST_SLOTS
     },
+    portrait: {
+      path: null, // the full Foundry-relative path once uploaded, e.g. "modules/blank-inheritance/storage/portraits/<id>.webp"
+      uploading: false,
+      error: null
+    },
     finishing: {
       name: "",
       pronouns: "",
@@ -300,6 +325,19 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   _ancestries = [];
   _backgrounds = [];
   _classes = [];
+
+  /**
+   * Page 6's in-progress crop session: a chosen-but-not-yet-uploaded file,
+   * its object URL, natural size, and live pan/zoom state ({scale,
+   * offsetX, offsetY} -- see core/induction-portrait.mjs). Deliberately NOT
+   * part of `state`, same reasoning as _ancestries above: this is working/
+   * interaction data mutated directly by drag and zoom-slider listeners on
+   * every pointermove, never a discrete "choice" the rest of the terminal
+   * (or Page 9's review) needs to reason about -- only the committed
+   * result (state.portrait.path) is. Cleared, and its objectUrl revoked,
+   * on a successful upload, a fresh file pick, or a remount.
+   */
+  _portraitCropSession = null;
 
   /**
    * @override
@@ -329,6 +367,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     if (this.state.page === 3) return { ...base, ...(await this.#page3Context()) };
     if (this.state.page === 4) return { ...base, ...(await this.#page4Context()) };
     if (this.state.page === 5) return { ...base, ...this.#page5Context() };
+    if (this.state.page === 6) return { ...base, ...this.#page6Context() };
     if (this.state.page === 7) return { ...base, ...(await this.#page7Context()) };
     if (this.state.page === 8) return { ...base, ...(await this.#page8Context()) };
     if (this.state.page === 9) return { ...base, ...(await this.#page9Context()) };
@@ -573,6 +612,43 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     return { freeBoostSlots, isComplete: isFreeBoostsComplete(this.state.attributes.freeBoostPicks) };
   }
 
+  /**
+   * No catalogue fetch either, same reason as #page5Context -- everything
+   * here is either the committed upload result (state.portrait) or the
+   * live crop session (_portraitCropSession). Never gates Continue: a
+   * portrait is optional, same treatment as every Page 7/8 field except
+   * Page 7's name (design doc's own "optional, no wrong answer" pattern,
+   * extended here since nothing in the design doc ever said this one was
+   * required, and Foundry's own default silhouette makes "skip it" a real,
+   * unpenalized path rather than a broken one).
+   */
+  #page6Context() {
+    const session = this._portraitCropSession;
+    const shared = {
+      portraitPath: this.state.portrait.path,
+      portraitUploading: this.state.portrait.uploading,
+      portraitError: this.state.portrait.error
+    };
+    if (!session) return { isCropping: false, ...shared };
+
+    const cover = coverScale(session.naturalWidth, session.naturalHeight, PORTRAIT_BOX.width, PORTRAIT_BOX.height);
+    return {
+      isCropping: true,
+      cropImageUrl: session.objectUrl,
+      // The transform this renders is only the STARTING point for a fresh
+      // crop session -- every live drag/zoom after that writes straight to
+      // the DOM (#paintPortraitCropTransform), never through a render. This
+      // still has to stay correct for the re-renders THAT DO happen mid-crop
+      // (the uploading/error states below), which read the same live
+      // session.crop this paints from, so the two never disagree.
+      cropOffsetXNeg: -session.crop.offsetX,
+      cropOffsetYNeg: -session.crop.offsetY,
+      cropScale: session.crop.scale,
+      cropZoomSliderValue: scaleToSliderValue(session.crop.scale, cover),
+      ...shared
+    };
+  }
+
   async #page7Context() {
     const prompts = await loadIntakePrompts();
     const ancestry = this._ancestries.find((a) => a.id === this.state.ancestry.id) ?? null;
@@ -722,6 +798,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     super._onRender?.(context, options);
     this.#bindFilter();
     this.#bindPromptFields();
+    this.#bindPortraitCropper();
   }
 
   /**
@@ -807,6 +884,158 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   #syncContinueFromFinishingDisabled() {
     const button = this.element?.querySelector('[data-action="continueFromFinishing"]');
     if (button) button.disabled = !isFinishingComplete(this.state.finishing);
+  }
+
+  /**
+   * Page 6's file input, drag-to-pan, and zoom slider. Same reasoning as
+   * #bindFilter/#bindPromptFields: every one of these fires far too often
+   * (a slider's `input` event, a pointermove during a drag) to route
+   * through `this.render()` without fighting the interaction it's
+   * responding to -- panning/zooming write straight to _portraitCropSession
+   * and repaint the preview's CSS transform directly
+   * (#paintPortraitCropTransform). A harmless no-op on any other page.
+   */
+  #bindPortraitCropper() {
+    const fileInput = this.element?.querySelector("[data-portrait-file-input]");
+    if (fileInput && !fileInput.dataset.biBound) {
+      fileInput.dataset.biBound = "1";
+      fileInput.addEventListener("change", () => this.#onPortraitFileChosen(fileInput));
+    }
+
+    const zoom = this.element?.querySelector("[data-portrait-zoom]");
+    if (zoom && !zoom.dataset.biBound) {
+      zoom.dataset.biBound = "1";
+      zoom.addEventListener("input", () => this.#onPortraitZoomInput(zoom));
+    }
+
+    const viewport = this.element?.querySelector("[data-portrait-viewport]");
+    if (viewport && !viewport.dataset.biBound) {
+      viewport.dataset.biBound = "1";
+      this.#bindPortraitDrag(viewport);
+    }
+  }
+
+  /**
+   * A newly chosen file becomes a fresh crop session, cover-scaled and
+   * centered (core/induction-portrait.mjs's initialCropState). Guarded
+   * against an upload already in flight both here AND by the template's
+   * own `disabled` on the file input while portrait.uploading -- otherwise
+   * picking a second file mid-upload would let the first upload's own
+   * success handler revoke the SECOND session's still-in-use object URL
+   * out from under it once it resolves (found reasoning through the async
+   * ordering while building this, not live -- same defense-in-depth
+   * instinct as every other guarded action in this file).
+   */
+  async #onPortraitFileChosen(fileInput) {
+    const file = fileInput.files?.[0];
+    fileInput.value = ""; // choosing the SAME file again must still fire 'change'
+    if (!file || this.state.portrait.uploading) return;
+
+    if (!file.type.startsWith("image/")) {
+      this.state.portrait.error = game.i18n.localize("BLANKINHERITANCE.Induction.Page6.InvalidFileType");
+      this.render({});
+      return;
+    }
+    if (file.size > PORTRAIT_MAX_FILE_BYTES) {
+      this.state.portrait.error = game.i18n.localize("BLANKINHERITANCE.Induction.Page6.FileTooLarge");
+      this.render({});
+      return;
+    }
+
+    this.#clearPortraitCropSession();
+    this.state.portrait.error = null;
+
+    const objectUrl = URL.createObjectURL(file);
+    let naturalWidth, naturalHeight;
+    try {
+      ({ naturalWidth, naturalHeight } = await this.#loadImageSize(objectUrl));
+    } catch (err) {
+      URL.revokeObjectURL(objectUrl);
+      this.state.portrait.error = err?.message ?? String(err);
+      this.render({});
+      return;
+    }
+
+    this._portraitCropSession = {
+      file, objectUrl, naturalWidth, naturalHeight,
+      crop: initialCropState(naturalWidth, naturalHeight, PORTRAIT_BOX.width, PORTRAIT_BOX.height)
+    };
+    this.render({});
+  }
+
+  /** A plain Image load, off-DOM, just to read the file's real pixel size before building the initial crop state. */
+  #loadImageSize(objectUrl) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve({ naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight });
+      img.onerror = () => reject(new Error("Could not read that as an image."));
+      img.src = objectUrl;
+    });
+  }
+
+  /** Revokes the session's object URL before dropping it -- every path that replaces or ends a crop session goes through this, never a bare `= null`. */
+  #clearPortraitCropSession() {
+    if (this._portraitCropSession) URL.revokeObjectURL(this._portraitCropSession.objectUrl);
+    this._portraitCropSession = null;
+  }
+
+  /** The zoom slider is a normalized [0,1] value, not a raw scale -- see induction-portrait.mjs's own comment on why. */
+  #onPortraitZoomInput(zoomEl) {
+    const session = this._portraitCropSession;
+    if (!session) return;
+    const cover = coverScale(session.naturalWidth, session.naturalHeight, PORTRAIT_BOX.width, PORTRAIT_BOX.height);
+    const nextScale = sliderValueToScale(Number(zoomEl.value), cover);
+    session.crop = zoomTo(session.crop, nextScale, session.naturalWidth, session.naturalHeight, PORTRAIT_BOX.width, PORTRAIT_BOX.height);
+    this.#paintPortraitCropTransform();
+  }
+
+  /**
+   * Pointer Events, not separate mouse/touch handlers -- unifies both under
+   * one listener set and works on the Electron/Chromium client this
+   * project targets either way. setPointerCapture keeps the drag going
+   * even if the pointer leaves the viewport mid-drag, avoiding the classic
+   * "pointerup outside the element never fires" bug a plain mouseup would have.
+   */
+  #bindPortraitDrag(viewport) {
+    let dragging = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    viewport.addEventListener("pointerdown", (event) => {
+      if (!this._portraitCropSession) return;
+      dragging = true;
+      lastX = event.clientX;
+      lastY = event.clientY;
+      viewport.classList.add("bi-portrait__viewport--dragging");
+      viewport.setPointerCapture(event.pointerId);
+    });
+
+    viewport.addEventListener("pointermove", (event) => {
+      if (!dragging) return;
+      const session = this._portraitCropSession;
+      if (!session) return;
+      const dx = event.clientX - lastX;
+      const dy = event.clientY - lastY;
+      lastX = event.clientX;
+      lastY = event.clientY;
+      session.crop = panBy(session.crop, dx, dy, session.naturalWidth, session.naturalHeight, PORTRAIT_BOX.width, PORTRAIT_BOX.height);
+      this.#paintPortraitCropTransform();
+    });
+
+    const endDrag = () => {
+      dragging = false;
+      viewport.classList.remove("bi-portrait__viewport--dragging");
+    };
+    viewport.addEventListener("pointerup", endDrag);
+    viewport.addEventListener("pointercancel", endDrag);
+  }
+
+  /** Writes the crop <img>'s transform directly -- the live-drag/zoom counterpart to #page6Context's own render-time computation of the same values. */
+  #paintPortraitCropTransform() {
+    const session = this._portraitCropSession;
+    const img = this.element?.querySelector("[data-portrait-crop-image]");
+    if (!session || !img) return;
+    img.style.transform = `translate(${-session.crop.offsetX}px, ${-session.crop.offsetY}px) scale(${session.crop.scale})`;
   }
 
   /* --- actions -------------------------------------------------- */
@@ -953,23 +1182,102 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     this.#pickFreeSlot("attributes.freeBoostPicks", FREE_BOOST_SLOTS, target);
   }
 
-  /**
-   * TEMPORARY: Page 6 (Portrait) doesn't exist yet. Jumping straight to
-   * Page 7 keeps the terminal click-through testable end to end rather
-   * than dead-ending here -- restore this to `this.state.page = 6;
-   * this.render({})` once Page 6 is built (the same temporary-skip role
-   * Page 4's own Continue held until Page 5 existed). See
-   * design/induction-terminal.md §8.
-   */
   static async #onContinueFromAttributes(_event, _target) {
     if (!isFreeBoostsComplete(this.state.attributes.freeBoostPicks)) return;
-    this.state.page = 7;
+    this.state.page = 6;
     this.render({});
   }
 
   static async #onBackFromAttributes(_event, _target) {
     this.state.page = 4;
     this.render({});
+  }
+
+  static async #onRemovePortrait(_event, _target) {
+    this.state.portrait.path = null;
+    this.state.portrait.error = null;
+    this.render({});
+  }
+
+  /**
+   * The one other action in this terminal (besides Page 9's Confirm) that
+   * touches the real world. Guarded against a second concurrent upload the
+   * same way Page 9's confirm guards against a second Actor -- the
+   * template already disables this button while uploading, this is the
+   * defense-in-depth re-check.
+   */
+  static async #onConfirmPortraitCrop(_event, _target) {
+    const session = this._portraitCropSession;
+    if (!session || this.state.portrait.uploading) return;
+    this.state.portrait.uploading = true;
+    this.state.portrait.error = null;
+    this.render({});
+
+    try {
+      this.state.portrait.path = await this.#uploadCroppedPortrait(session);
+      this.#clearPortraitCropSession();
+    } catch (err) {
+      console.error("Blank Inheritance | Induction terminal: portrait upload failed:", err);
+      this.state.portrait.error = err?.message ?? String(err);
+    } finally {
+      this.state.portrait.uploading = false;
+      this.render({});
+    }
+  }
+
+  static async #onContinueFromPortrait(_event, _target) {
+    this.state.page = 7;
+    this.render({});
+  }
+
+  static async #onBackFromPortrait(_event, _target) {
+    this.state.page = 5;
+    this.render({});
+  }
+
+  /**
+   * Draws the crop session's current source rectangle (core/
+   * induction-portrait.mjs's cropSourceRect) from the live preview <img>
+   * into a fixed OUTPUT_WIDTH x OUTPUT_HEIGHT canvas, exports it, and
+   * uploads it via io.mjs -- the only module allowed to touch Foundry's
+   * file-access globals, per that file's own header.
+   *
+   * Writes straight into storage/ itself (dirName: "", a distinctive
+   * "portrait-" filename prefix doing the organizing a real subfolder
+   * would otherwise do) rather than a storage/portraits/ subdirectory,
+   * and calls no ensureDirectory at all -- found live building this page:
+   * createDirectory is unreliable on this Foundry install for any fresh
+   * directory (see writeStorageFile's own doc comment in io.mjs for the
+   * full finding, confirmed even through Foundry's own first-party
+   * "Create Subfolder" UI, not just this module's code). storage/ itself
+   * is already guaranteed to exist once persistentStorage is enabled, so
+   * writing straight into it sidesteps the broken call entirely rather
+   * than working around it.
+   */
+  async #uploadCroppedPortrait(session) {
+    const img = this.element?.querySelector("[data-portrait-crop-image]");
+    if (!img) throw new Error("The crop preview isn't available — try choosing the photo again.");
+
+    const canvas = document.createElement("canvas");
+    canvas.width = OUTPUT_WIDTH;
+    canvas.height = OUTPUT_HEIGHT;
+    const ctx = canvas.getContext("2d");
+    const { sx, sy, sWidth, sHeight } = cropSourceRect(session.crop, PORTRAIT_BOX.width, PORTRAIT_BOX.height);
+    ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
+
+    const { blob, mimeType, extension } = await this.#exportCanvasBlob(canvas);
+    const filename = `portrait-${foundry.utils.randomID()}.${extension}`;
+    return writeStorageFile("", filename, blob, mimeType);
+  }
+
+  /** WebP first -- matches tools/stage-assets/stage_assets.py's own precedent (Foundry serves it natively, PIXI loads it as a texture with no special handling); a PNG fallback for a browser build that can't encode WebP. */
+  async #exportCanvasBlob(canvas) {
+    const toBlob = (type, quality) => new Promise((resolve) => canvas.toBlob(resolve, type, quality));
+    const webp = await toBlob("image/webp", 0.86);
+    if (webp) return { blob: webp, mimeType: "image/webp", extension: "webp" };
+    const png = await toBlob("image/png");
+    if (png) return { blob: png, mimeType: "image/png", extension: "png" };
+    throw new Error("This browser could not export the cropped image.");
   }
 
   static async #onContinueFromFinishing(_event, _target) {
@@ -979,7 +1287,13 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   static async #onBackFromFinishing(_event, _target) {
-    this.state.page = 5;
+    // Was `= 5` from when this was written (Pages 7-8's own build round,
+    // before Page 6 existed) -- the forward skip (#onContinueFromAttributes)
+    // got restored when Page 6 landed, but this backward one was missed at
+    // the time since it never carried its own TEMPORARY comment. Found
+    // live testing Page 6's own Back/Continue seam, clicking through the
+    // real chain rather than only jumping pages via state.
+    this.state.page = 6;
     this.render({});
   }
 
@@ -1106,6 +1420,10 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     const actor = await Actor.create({
       name: this.state.finishing.name.trim(),
       type: "character",
+      // Omitted entirely when no portrait was uploaded -- Foundry's own
+      // default (a generic silhouette) is a real, unpenalized path per
+      // Page 6's own "optional" framing, not a gap this has to fill in.
+      ...(this.state.portrait.path ? { img: this.state.portrait.path } : {}),
       system: { abilities: null, details: { level: { value: 1 } } }
     }, { render: false });
 
@@ -1190,12 +1508,21 @@ export function mountInductionTerminal() {
   // sub-object has to be added twice, once here and once as the class
   // field's own default).
   else {
+    // A stale crop session (object URL and all) belongs to whatever
+    // character was mid-portrait last time this instance was open --
+    // revoke it explicitly rather than letting a fresh Page 6 visit
+    // silently inherit it (a leaked blob: URL, not a functional bug, but
+    // the same "don't let one character's working state bleed into the
+    // next" reasoning as every field being reset below).
+    if (active._portraitCropSession) URL.revokeObjectURL(active._portraitCropSession.objectUrl);
+    active._portraitCropSession = null;
     active.state = {
       page: 1,
       ancestry: { id: null, filter: "", boostPicks: [], flawPicks: [] },
       background: { id: null, filter: "", boostPicks: [] },
       class: { id: null, keyAbilityPicks: [] },
       attributes: { freeBoostPicks: [] },
+      portrait: { path: null, uploading: false, error: null },
       finishing: { name: "", pronouns: "", genderIdentity: "", appearance: "", languages: [], banalAnswers: {} },
       intake: { questions: {} },
       review: { confirming: false, error: null, createdActorId: null }
