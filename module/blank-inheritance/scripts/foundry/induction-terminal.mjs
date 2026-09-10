@@ -7,10 +7,10 @@
  * class feats/spells are deliberately left for the real character sheet
  * afterward, not handled here. See design/induction-terminal.md for the
  * full page-by-page design; this file and its templates currently build
- * Page 1 (orientation), Page 2 (ancestry), Page 7 (finishing details) and
- * Page 8 (the eight questions). Pages 3-6 and 9 don't exist yet -- Page 2's
- * own Continue temporarily jumps straight to Page 7, see that handler's
- * own comment.
+ * Page 1 (orientation), Page 2 (ancestry), Page 3 (background), Page 7
+ * (finishing details) and Page 8 (the eight questions). Pages 4-6 and 9
+ * don't exist yet -- Page 3's own Continue temporarily jumps straight to
+ * Page 7, see that handler's own comment.
  *
  * PLAYER-FACING BY CONSTRUCTION, unlike the scene runner (GM-only) and the
  * command bar (seat-dependent) -- any user may open this, including a GM
@@ -32,22 +32,25 @@
  */
 
 import { fetchModuleJson } from "./io.mjs";
+import { resolveSlots, claimedAbilities } from "../core/boost-slots.mjs";
 import {
-  resolveSlots,
-  claimedAbilities,
   isAncestryChoiceComplete,
   groupAncestries,
   filterAncestries
 } from "../core/induction-ancestry.mjs";
 import {
+  isBackgroundChoiceComplete,
+  groupBackgroundsByRarity,
+  filterBackgrounds
+} from "../core/induction-background.mjs";
+import {
   insertSuggestion,
   isFinishingComplete,
   addLanguage,
   removeLanguage,
-  buildLanguageSuggestions,
-  getPath,
-  setPath
+  buildLanguageSuggestions
 } from "../core/induction-intake.mjs";
+import { getPath, setPath } from "../core/state-path.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -97,6 +100,18 @@ function loadAncestryCatalogue() {
   return ancestryCataloguePromise;
 }
 
+let backgroundCataloguePromise = null;
+
+/** Same cache/failed-flag pattern as loadAncestryCatalogue, for Page 3's real background list. */
+function loadBackgroundCatalogue() {
+  backgroundCataloguePromise ??= fetchModuleJson("data/campaign/campaign/background-catalogue.json").catch((err) => {
+    console.error("Blank Inheritance | Could not load the background catalogue:", err);
+    backgroundCataloguePromise = null;
+    return { backgrounds: [], failed: true };
+  });
+  return backgroundCataloguePromise;
+}
+
 let intakePromptsPromise = null;
 
 /** Same cache/failed-flag pattern as loadAncestryCatalogue, for Pages 7-8's suggestion-chip content. */
@@ -140,6 +155,11 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       pickBoost: InductionTerminal.#onPickBoost,
       pickFlaw: InductionTerminal.#onPickFlaw,
       continueFromAncestry: InductionTerminal.#onContinueFromAncestry,
+      pickBackground: InductionTerminal.#onPickBackground,
+      changeBackground: InductionTerminal.#onChangeBackground,
+      pickBackgroundBoost: InductionTerminal.#onPickBackgroundBoost,
+      continueFromBackground: InductionTerminal.#onContinueFromBackground,
+      backFromBackground: InductionTerminal.#onBackFromBackground,
       continueFromFinishing: InductionTerminal.#onContinueFromFinishing,
       backFromFinishing: InductionTerminal.#onBackFromFinishing,
       addLanguage: InductionTerminal.#onAddLanguage,
@@ -160,6 +180,10 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       template: `${TEMPLATE_ROOT}/page2-ancestry.hbs`,
       scrollable: [".bi-induction__page"]
     },
+    page3: {
+      template: `${TEMPLATE_ROOT}/page3-background.hbs`,
+      scrollable: [".bi-induction__page"]
+    },
     page7: {
       template: `${TEMPLATE_ROOT}/page7-finishing.hbs`,
       scrollable: [".bi-induction__page"]
@@ -176,8 +200,13 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     ancestry: {
       id: null,
       filter: "",
-      boostPicks: [], // parallel to the FREE boost slots only, see core/induction-ancestry.mjs
+      boostPicks: [], // parallel to the FREE boost slots only, see core/boost-slots.mjs
       flawPicks: []
+    },
+    background: {
+      id: null,
+      filter: "",
+      boostPicks: [] // backgrounds have no flaws (Player Core: "two boosts... no flaw")
     },
     finishing: {
       name: "",
@@ -192,8 +221,9 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     }
   };
 
-  /** The loaded catalogue, kept so action handlers don't re-fetch on every click. */
+  /** The loaded catalogues, kept so action handlers don't re-fetch on every click. */
   _ancestries = [];
+  _backgrounds = [];
 
   /**
    * @override
@@ -220,6 +250,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   async _prepareContext() {
     const base = { userName: game.user?.name ?? "" };
     if (this.state.page === 2) return { ...base, ...(await this.#page2Context()) };
+    if (this.state.page === 3) return { ...base, ...(await this.#page3Context()) };
     if (this.state.page === 7) return { ...base, ...(await this.#page7Context()) };
     if (this.state.page === 8) return { ...base, ...(await this.#page8Context()) };
     return base;
@@ -283,6 +314,81 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       hasFlaws: ancestry.flaws.length > 0,
       boostSlots: decorateSlots(ancestry.boosts, this.state.ancestry.boostPicks),
       flawSlots: decorateSlots(ancestry.flaws, this.state.ancestry.flawPicks)
+    };
+  }
+
+  async #page3Context() {
+    const catalogue = await loadBackgroundCatalogue();
+    this._backgrounds = catalogue.backgrounds ?? [];
+
+    const filtered = filterBackgrounds(this._backgrounds, this.state.background.filter);
+    const { common, uncommon, rare } = groupBackgroundsByRarity(filtered);
+    const toRow = (b) => ({ id: b.id, name: b.name, nameLower: b.name.toLowerCase() });
+
+    const background = this._backgrounds.find((b) => b.id === this.state.background.id) ?? null;
+
+    return {
+      loadFailed: catalogue.failed === true,
+      filterValue: this.state.background.filter,
+      backgroundGroups: { common: common.map(toRow), uncommon: uncommon.map(toRow), rare: rare.map(toRow) },
+      selected: background ? this.#decorateBackground(background) : null,
+      isComplete: isBackgroundChoiceComplete(background, this.state.background.boostPicks)
+    };
+  }
+
+  /** Everything Page 3's template needs about the chosen background, precomputed. */
+  #decorateBackground(background) {
+    // Reuses sf2e's own PF2E.Skill.<Name> keys (ux-doctrine.md §11) rather
+    // than duplicating the 18 skill names -- verified against the real
+    // gamesystems/sf2e/lang/en.json shape, not guessed (a first attempt
+    // assumed a flat PF2E.Skill<Name> key with no dot and would have
+    // silently rendered every skill as its own raw key on screen).
+    const skillLabel = (slug) => game.i18n.localize(`PF2E.Skill.${slug.charAt(0).toUpperCase()}${slug.slice(1)}`);
+
+    const { resolved } = resolveSlots(background.boosts, this.state.background.boostPicks);
+    const claimed = (slotIndex) => claimedAbilities(background.boosts, this.state.background.boostPicks, slotIndex);
+    const boostSlots = background.boosts.map((slot, slotIndex) => {
+      if (slot.length === 1) return { fixed: true, fixedLabel: abilityLabel(slot[0]) };
+      const picked = resolved[slotIndex] ?? null;
+      return {
+        fixed: false,
+        options: slot.map((ability) => ({
+          ability,
+          label: abilityLabel(ability),
+          picked: ability === picked,
+          claimed: claimed(slotIndex).has(ability) && ability !== picked,
+          slotIndex
+        }))
+      };
+    });
+
+    // Some real backgrounds list TWO entries in trainedSkills or loreSkills
+    // meaning "choose one of these", not "grants both" -- e.g. Spike
+    // Larcenist's real text is "trained in Thievery and EITHER Absalom
+    // Station Lore OR Underworld Lore". A flat ", "-joined row reads as
+    // "grants both" regardless of which is true, actively misleading a
+    // player for the "choose one" case. Found live 2026-09-10 by picking
+    // Spike Larcenist and comparing the summary row against its own
+    // description directly above it. joinNames flags 2+ entries as a
+    // choice (" or ") rather than silently presenting it as a grant.
+    const joinNames = (names) => (names.length > 1 ? names.join(" or ") : names.join(", "));
+
+    return {
+      id: background.id,
+      name: background.name,
+      rarity: background.rarity,
+      isUncommon: background.rarity === "uncommon",
+      isRare: background.rarity === "rare",
+      description: background.description,
+      trainedSkillsLabel: joinNames((background.trainedSkills ?? []).map(skillLabel)),
+      trainedSkillsAreChoice: (background.trainedSkills ?? []).length > 1,
+      hasTrainedSkills: (background.trainedSkills ?? []).length > 0,
+      loreSkillsLabel: joinNames(background.loreSkills ?? []),
+      loreSkillsAreChoice: (background.loreSkills ?? []).length > 1,
+      hasLoreSkills: (background.loreSkills ?? []).length > 0,
+      hasNamedSkills: (background.trainedSkills ?? []).length > 0 || (background.loreSkills ?? []).length > 0,
+      feat: background.feat,
+      boostSlots
     };
   }
 
@@ -387,12 +493,18 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   /**
-   * The live ancestry-name filter: plain DOM show/hide, not an
-   * application re-render per keystroke. A full render on every keystroke
-   * would fight the user for cursor position (the Handlebars mixin restores
-   * FOCUS after a re-render, not caret position) for a box whose result is
-   * cheap to compute without going through _prepareContext at all -- 51
-   * items is nothing to filter directly in the browser.
+   * The live name filter shared by Page 2 (ancestry) and Page 3
+   * (background): plain DOM show/hide, not an application re-render per
+   * keystroke. A full render on every keystroke would fight the user for
+   * cursor position (the Handlebars mixin restores FOCUS after a
+   * re-render, not caret position) for a box whose result is cheap to
+   * compute without going through _prepareContext at all -- even 154 items
+   * is nothing to filter directly in the browser.
+   *
+   * Generalized 2026-09-10 (was ancestry-only, hardcoding
+   * `this.state.ancestry.filter`) via a `data-filter-path` attribute each
+   * page's own filter input carries -- same dotted-path idiom as Pages
+   * 7-8's prompt fields.
    */
   #bindFilter() {
     const field = this.element?.querySelector("[data-induction-filter]");
@@ -400,7 +512,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     field.dataset.biBound = "1";
 
     field.addEventListener("input", () => {
-      this.state.ancestry.filter = field.value;
+      setPath(this.state, field.dataset.filterPath, field.value);
       const query = field.value.trim().toLowerCase();
       const items = this.element.querySelectorAll("[data-induction-name]");
       let anyVisible = false;
@@ -492,61 +604,84 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   static async #onPickBoost(_event, target) {
-    this.#pickFreeSlot("boosts", this.state.ancestry.boostPicks, target);
+    const ancestry = this._ancestries.find((a) => a.id === this.state.ancestry.id);
+    this.#pickFreeSlot("ancestry.boostPicks", ancestry?.boosts ?? [], target);
   }
 
   static async #onPickFlaw(_event, target) {
-    this.#pickFreeSlot("flaws", this.state.ancestry.flawPicks, target);
+    const ancestry = this._ancestries.find((a) => a.id === this.state.ancestry.id);
+    this.#pickFreeSlot("ancestry.flawPicks", ancestry?.flaws ?? [], target);
+  }
+
+  static async #onPickBackgroundBoost(_event, target) {
+    const background = this._backgrounds.find((b) => b.id === this.state.background.id);
+    this.#pickFreeSlot("background.boostPicks", background?.boosts ?? [], target);
   }
 
   /**
-   * Shared by #onPickBoost/#onPickFlaw. Refuses a pick a sibling slot has
-   * already claimed even if the button's disabled attribute were somehow
-   * bypassed (a stale render, direct DOM manipulation) -- the template's
-   * `claimed` flag is the primary defense, this is the second one, since an
-   * illegal double-boost silently reaching derive.mjs is a real rules bug,
-   * not just a UI nicety.
+   * Shared by every free-boost/flaw picker (ancestry's two, background's
+   * one). `picksPath` is a dotted state path -- generalized 2026-09-10 when
+   * background became a third consumer, replacing a two-array identity
+   * comparison (#setFreePick) that could only ever tell ancestry.boostPicks
+   * apart from ancestry.flawPicks, nothing else.
+   *
+   * Refuses a pick a sibling slot has already claimed even if the button's
+   * disabled attribute were somehow bypassed (a stale render, direct DOM
+   * manipulation) -- the template's `claimed` flag is the primary defense,
+   * this is the second one, since an illegal double-boost silently reaching
+   * derive.mjs is a real rules bug, not just a UI nicety.
    */
-  #pickFreeSlot(kind, picks, target) {
+  #pickFreeSlot(picksPath, slots, target) {
     const slotIndex = Number(target.dataset.slotIndex);
     const ability = target.dataset.ability;
-    const ancestry = this._ancestries.find((a) => a.id === this.state.ancestry.id);
-    const slots = ancestry?.[kind] ?? [];
+    const picks = getPath(this.state, picksPath);
     if (claimedAbilities(slots, picks, slotIndex).has(ability)) return;
-    this.#setFreePick(picks, this.#freeSlotPosition(kind, slotIndex), ability);
+    // picks is parallel to the FREE slots only (core/boost-slots.mjs), so a
+    // slot's own index among ALL slots isn't its index among free ones
+    // whenever a fixed slot comes before it.
+    const position = slots.slice(0, slotIndex).filter((slot) => slot.length > 1).length;
+    const next = [...picks];
+    next[position] = ability;
+    setPath(this.state, picksPath, next);
+    this.render({});
+  }
+
+  static async #onContinueFromAncestry(_event, _target) {
+    const ancestry = this._ancestries.find((a) => a.id === this.state.ancestry.id);
+    if (!isAncestryChoiceComplete(ancestry, this.state.ancestry.boostPicks, this.state.ancestry.flawPicks)) return;
+    this.state.page = 3;
+    this.render({});
+  }
+
+  static async #onPickBackground(_event, target) {
+    this.state.background.id = target.dataset.backgroundId;
+    this.state.background.boostPicks = [];
+    this.render({});
+  }
+
+  static async #onChangeBackground(_event, _target) {
+    this.state.background.id = null;
+    this.state.background.boostPicks = [];
     this.render({});
   }
 
   /**
-   * Which position in the picks array a given slot occupies -- picks are
-   * parallel to the free slots only (core/induction-ancestry.mjs), so a
-   * slot's own index among ALL slots isn't its index among free ones
-   * whenever a fixed slot comes before it.
+   * TEMPORARY: Pages 4-6 (Class/Attribute Boosts/Portrait) don't exist yet.
+   * Jumping straight to Page 7 keeps the terminal click-through testable
+   * end to end rather than dead-ending here -- restore this to
+   * `this.state.page = 4; this.render({})` once Page 4 is built (the same
+   * temporary-skip role Page 2's own Continue held until Page 3 existed).
+   * See design/induction-terminal.md §8.
    */
-  #freeSlotPosition(kind, slotIndex) {
-    const ancestry = this._ancestries.find((a) => a.id === this.state.ancestry.id);
-    const slots = ancestry?.[kind] ?? [];
-    return slots.slice(0, slotIndex).filter((slot) => slot.length > 1).length;
-  }
-
-  #setFreePick(picks, position, value) {
-    const next = [...picks];
-    next[position] = value;
-    if (picks === this.state.ancestry.boostPicks) this.state.ancestry.boostPicks = next;
-    else this.state.ancestry.flawPicks = next;
-  }
-
-  /**
-   * TEMPORARY: Pages 3-6 (Background/Class/Attribute Boosts/Portrait) don't
-   * exist yet. Jumping straight to Page 7 keeps the terminal click-through
-   * testable end to end rather than dead-ending here -- restore this to
-   * `this.state.page = 3; this.render({})` once Page 3 is built. See
-   * design/induction-terminal.md §8.
-   */
-  static async #onContinueFromAncestry(_event, _target) {
-    const ancestry = this._ancestries.find((a) => a.id === this.state.ancestry.id);
-    if (!isAncestryChoiceComplete(ancestry, this.state.ancestry.boostPicks, this.state.ancestry.flawPicks)) return;
+  static async #onContinueFromBackground(_event, _target) {
+    const background = this._backgrounds.find((b) => b.id === this.state.background.id);
+    if (!isBackgroundChoiceComplete(background, this.state.background.boostPicks)) return;
     this.state.page = 7;
+    this.render({});
+  }
+
+  static async #onBackFromBackground(_event, _target) {
+    this.state.page = 2;
     this.render({});
   }
 
@@ -557,7 +692,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   static async #onBackFromFinishing(_event, _target) {
-    this.state.page = 2;
+    this.state.page = 3;
     this.render({});
   }
 
@@ -624,6 +759,7 @@ export function mountInductionTerminal() {
     active.state = {
       page: 1,
       ancestry: { id: null, filter: "", boostPicks: [], flawPicks: [] },
+      background: { id: null, filter: "", boostPicks: [] },
       finishing: { name: "", pronouns: "", genderIdentity: "", appearance: "", languages: [], banalAnswers: {} },
       intake: { questions: {} }
     };

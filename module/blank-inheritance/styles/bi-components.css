@@ -705,6 +705,24 @@
 
 .bi-induction__no-flaw { font-style: italic; font-size: 13px; color: var(--bi-paper-ink-2); }
 
+/* Page 3: an uncommon/rare background's rarity, called out once rather than
+   labeling every row -- common is the unremarkable default and gets no tag
+   at all (isNonCommonRarity gates this in the adapter). */
+.bi-induction__rarity-tag {
+  display: inline-block;
+  font-family: var(--bi-font-typewriter);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--bi-paper-rule);
+  border-radius: 2px;
+  padding: 2px 7px;
+  margin: -2px 0 10px;
+  color: var(--bi-paper-ink-2);
+}
+.bi-induction__rarity-tag--uncommon { border-color: var(--bi-vermilion-dim); color: var(--bi-vermilion-dim); }
+.bi-induction__rarity-tag--rare { border-color: var(--bi-vermilion); color: var(--bi-vermilion); font-weight: 700; }
+
 /* The catalogue failed to load -- distinct from "there are simply no
    ancestries", never silently indistinguishable from it. */
 .bi-induction__load-error { margin-bottom: 8px; }

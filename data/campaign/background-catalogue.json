@@ -1,0 +1,4074 @@
+{
+  "$schema": "../schema/background-catalogue.schema.json",
+  "id": "background-catalogue",
+  "type": "background-catalogue",
+  "description": "The real, complete SF2E background catalogue (154 entries), extracted live from gamesystems/sf2e/packs/backgrounds for the induction terminal Page 3 (design/induction-terminal.md). Skill/Lore/feat grants are informational only -- some real backgrounds offer a prose CHOICE (e.g. Starship Dweller: trained in the Crafting or Piloting skill) that this flat shape cannot represent; the description text is always the source of truth, never overridden by the terminal.",
+  "backgrounds": [
+    {
+      "id": "absalom-local",
+      "name": "Absalom Local",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "society"
+      ],
+      "loreSkills": [
+        "Absalom Station Lore"
+      ],
+      "feat": "Streetwise",
+      "description": "You've made the Lorespire Complex your home and are immersed in the culture of Absalom Station. While most Starfinders can't wait to leave the station and explore the distant galaxy, you know Absalom Station hides enough mysteries and secrets to keep you busy for a dozen lifetimes. Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in the Society skill and the Absalom Station Lore skill. You gain the Streetwise skill feat."
+    },
+    {
+      "id": "acolyte-grave-world",
+      "name": "Acolyte (Grave World)",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "con",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "survival"
+      ],
+      "loreSkills": [],
+      "feat": "Urban Survivalist",
+      "description": "You've joined the Xenowardens because you care deeply about nature and conserving natural resources. You find ways to connect with nature in even the most unlikely places, and you're an advocate for helpless creatures. Choose two attribute boosts. One must be Constitution or Wisdom, and one is a free attribute boost. You are trained in the Survival skill and either the Cooking or Life Science Lore skill. You gain the Urban Survivalist skill feat."
+    },
+    {
+      "id": "acquistive",
+      "name": "Acquistive",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "deception"
+      ],
+      "loreSkills": [
+        "Media Lore"
+      ],
+      "feat": "Charming Liar",
+      "description": "While most Starfinders joined the Society for a chance to explore the galaxy or uncover ancient history, you joined for far more practical reasons: wealth, fame, and power! You intend to use your status as a Starfinder to make contacts, seize opportunities, become a media sensation, and, of course, get rich. Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in the Deception skill and the Media Lore skill. You gain the Charming Liar skill feat."
+    },
+    {
+      "id": "advocate",
+      "name": "Advocate",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [],
+      "loreSkills": [
+        "Legal Lore"
+      ],
+      "feat": null,
+      "description": "You love being a member of the Starfinder Society, and deeply cherish the bonds you've formed with your fellow Starfinders. Inspired by these bonds, your moral compass, a sense of justice, or perhaps fellow Starfinder Zigvigix's public effort, you advocate for the betterment of all Starfinders. Sometimes this means lobbying to improve work conditions and support systems, sometimes this means volunteering your time to causes and services you believe make a positive impact, and sometimes this means healing wounds, assisting with recovery, or offering a compassionate shoulder to lean on to a Starfinder in need. Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in your choice of either the Diplomacy or the Medicine skill, and the Legal Lore skill. If you choose Diplomacy, you gain the No Cause for Alarm skill feat. If you choose Medicine, you gain the Battle Medicine skill feat."
+    },
+    {
+      "id": "akashic-recorder",
+      "name": "Akashic Recorder",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "int",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "occultism"
+      ],
+      "loreSkills": [],
+      "feat": "Assurance",
+      "description": "Your mind is mystically linked to the Akashic Record, an astral repository of all knowledge and memory. You might be a member of the Akashic Society. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in the Occultism skill and a Lore skill of your choice. You gain the Assurance skill feat with one of the skills granted by this background."
+    },
+    {
+      "id": "akitonian-explorer",
+      "name": "Akitonian Explorer",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "survival"
+      ],
+      "loreSkills": [
+        "Akiton Lore"
+      ],
+      "feat": "Terrain Expertise",
+      "description": "You've been to the planet Akiton before, perhaps for a vacation, to visit a friend, through your work with the Starfinder Society, or because it's your home. You're accustomed to the hardscrabble life its citizens lead and know how to survive the region's badlands and wastelands in case of emergency. Choose two attribute boosts. One must be to Constitution or Wisdom, and one is a free attribute boost. You're trained in the Survival skill and the Akiton Lore skill. You gain the Terrain Expertise skill feat, selecting one of the following terrains: arctic, desert, mountain, or plains."
+    },
+    {
+      "id": "alien-hunter",
+      "name": "Alien Hunter",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "dex",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "survival"
+      ],
+      "loreSkills": [
+        "Life Science Lore"
+      ],
+      "feat": "Experienced Tracker",
+      "description": "Access You played Starfinder Playtest Scenario #2: It Came from the Vast! during the Starfinder Second Edition PlaytestYou explored the Xenowardens starship Bloom and teamed up with a ghost to destroy Sample 62, a vicious alien monster that killed the starship's crew. The experience shaped you, and you understand that sometimes alien creatures must be destroyed to protect the wider region or galaxy. Choose two attribute boosts. One must be to Dexterity or Wisdom, and one is a free attribute boost. You're trained in the Survival skill and the Life Science Lore skill. You gain the Experienced Tracker skill feat."
+    },
+    {
+      "id": "ancient-elebrian",
+      "name": "Ancient Elebrian",
+      "rarity": "rare",
+      "boosts": [
+        [
+          "cha",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [],
+      "loreSkills": [
+        "Eox Lore"
+      ],
+      "feat": null,
+      "description": "You're an ancient resident of Eox. You might have survived in magitech stasis deep inside a ruined necropolis, or you might serve as the trusted, longtime attendant of an undying bone sage. You likely view modern life in the Pact Worlds with a mixture of amusement and contempt. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. Choose a magic tradition. You're trained in that tradition's associated skill and the Eox Lore skill. Choose one 2nd-rank or lower spell from that tradition. You can cast this spell once per day as an innate spell."
+    },
+    {
+      "id": "anomaly-hunter",
+      "name": "Anomaly Hunter",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "int",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [],
+      "loreSkills": [],
+      "feat": "Oddity Identification",
+      "description": "You're a paranormal investigator on the trail of a cosmic mystery, cryptid, or conspiracy. You might investigate the effects of the Newborn hatching from Aucturn, explore the Ghost Levels on Absalom Station, seek an explanation for the Gap, or try to unravel some other mystery. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in four of the following skills: Arcana, Ghost Levels Lore, Nature, Occultism, Newborn Lore, Religion, Survival, or Stealth. You gain the Oddity Identification skill feat even if you don't meet the prerequisites."
+    },
+    {
+      "id": "antediluvian-seeker",
+      "name": "Antediluvian Seeker",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "crafting"
+      ],
+      "loreSkills": [],
+      "feat": "Specialty Crafting",
+      "description": "You're Fascinated by artifacts that originate from bygone eras, and you've even learned to craft functional replicas of them. You might be a xenoarchaeologist or a historian, or perhaps you're a reenactor creating period-accurate costumes and props. Choose two attribute boosts. One must be to Constitution or Wisdom, and one is a free attribute boost. You're trained in the Crafting skill and the Gap Lore skill or a Lore skill related to your field of study. You gain the Specialty Crafting skill feat."
+    },
+    {
+      "id": "arena-veteran",
+      "name": "Arena Veteran",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "dex",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "performance"
+      ],
+      "loreSkills": [
+        "Sports Lore"
+      ],
+      "feat": "Fascinating Performance",
+      "description": "Some say the red sands of Akiton get their color from the blood spilled in the arenas of Arl, and you've spilled your share as a gladiator. You might be from Akiton, Eox, or anywhere blood sports are popular. Choose two attribute boosts. One must be to Strength or Dexterity, and one is a free attribute boost. You're trained in the Performance skill and the Sports Lore skill. You gain the Fascinating Performance skill feat."
+    },
+    {
+      "id": "artist",
+      "name": "Artist",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "dex"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "crafting"
+      ],
+      "loreSkills": [
+        "Art Lore"
+      ],
+      "feat": "Specialty Crafting",
+      "description": "Your art is your greatest passion, whatever form it takes. Adventuring might help you find inspiration, or simply be a way to survive until you become a world-famous artist. Choose two attribute boosts. One must be to Dexterity or Charisma, and one is a free attribute boost. You're trained in the Crafting skill and the Art Lore skill. You gain the Specialty Crafting skill feat."
+    },
+    {
+      "id": "athlete",
+      "name": "Athlete",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "athletics"
+      ],
+      "loreSkills": [
+        "Sports Lore"
+      ],
+      "feat": "Deadlift",
+      "description": "You've strengthened your body through practice drills and workouts, making sure not to waste a single drop of sweat in your quest for gains. You might be a champion fighting in arena matches, a hardcore gym rat, or a heavy hitter on a competitive sports team—what matters to you is the rush you get when you beat a personal record. Choose two attribute boosts. One must be to Strength or Dexterity, and one is a free attribute boost. You're trained in the Athletics skill and the Sports Lore skill. You gain the Deadlift skill feat."
+    },
+    {
+      "id": "bartender",
+      "name": "Bartender",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "diplomacy"
+      ],
+      "loreSkills": [
+        "Alcohol Lore"
+      ],
+      "feat": "Seasoned",
+      "description": "Every city in the galaxy, from Akiton's grimy junk depots to the glittering cybercities of Verces, has something in common—there's always a bar. And you're the one behind the counter pouring drinks, breaking up fights, and learning more about your patrons than you ever wanted to know. Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in the Diplomacy skill and the Alcohol Lore skill. You gain the Seasoned skill feat."
+    },
+    {
+      "id": "bouncer",
+      "name": "Bouncer",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "intimidation"
+      ],
+      "loreSkills": [],
+      "feat": "Intimidating Glare",
+      "description": "You know how to leverage your powerful physique to earn a paycheck. You might guard a bank or private vault, a glitzy night club, or a seedy dive. Whatever the case, you're the muscle. Choose two attribute boosts. One must be to Strength or Charisma, and one is a free attribute boost. You're trained in the Intimidation skill and a Lore skill related to your workplace; for example, if you work at a casino, you might have Gambling Lore. You gain the Intimidating Glare skill feat."
+    },
+    {
+      "id": "bounty-hunter",
+      "name": "Bounty Hunter",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "survival"
+      ],
+      "loreSkills": [
+        "Underworld Lore"
+      ],
+      "feat": "Experienced Tracker",
+      "description": "You hunt people down for credits. You might work with a corporation, military, or some other organization. Choose two attribute boosts. One must be to Strength or Constitution, and one is a free attribute boost. You're trained in the Survival skill and the Underworld Lore skill. You gain the Experienced Tracker skill feat."
+    },
+    {
+      "id": "brutaris-player",
+      "name": "Brutaris Player",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "athletics"
+      ],
+      "loreSkills": [
+        "Sports Lore"
+      ],
+      "feat": null,
+      "description": "The sound of a roaring crowd still sends your heart pumping as you recall your glory days as a brutaris player. Whether you retired successfully or were taken out of commission at the height of your career, you maintained your conditioning and are always ready for your next big game. Choose two attribute boosts. One must be to Strength or Constitution, and one is a free attribute boost. You're trained in the Athletics skill and the Sports Lore skill. You gain the Quick Jump or Titan Wrestler skill feat."
+    },
+    {
+      "id": "busker",
+      "name": "Busker",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "con"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "performance"
+      ],
+      "loreSkills": [
+        "Lore skill relevant to your act"
+      ],
+      "feat": "Impressive Performance",
+      "description": "You're a street performer in a busy spaceport. You might serenade passersby with music or create street art, or perhaps you use elaborate costumes while you dance to entertain crowds. Choose two attribute boosts. One must be to Constitution or Charisma, and one is a free attribute boost. You're trained in the Performance skill and a Lore skill relevant to your act. You gain the Impressive Performance skill feat."
+    },
+    {
+      "id": "chatty",
+      "name": "Chatty",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "society"
+      ],
+      "loreSkills": [
+        "Technology Lore"
+      ],
+      "feat": "Digital Ambassador",
+      "description": "You're a social butterfly on the infosphere. You've met people from all over the galaxy, and your virtual identity is just as important to you as your real one. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. You're trained in the Society skill and the Technology Lore skill. You gain the Digital Ambassador skill feat."
+    },
+    {
+      "id": "chevalier",
+      "name": "Chevalier",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "str",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "society"
+      ],
+      "loreSkills": [
+        "Warfare Lore"
+      ],
+      "feat": null,
+      "description": "You live by a code of chivalry and participate in the traditions of ancient cultures. You might have ties to Lost Golarion through your heritage, or you might be a scholar interested in studying ancient Golarion cultures. Choose two attribute boosts. One must be to Strength or Wisdom, and one is a free attribute boost. You're trained in the Society skill and the Warfare Lore skill. You gain the Shield Block general feat."
+    },
+    {
+      "id": "city-slicker",
+      "name": "City Slicker",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "dex"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "deception"
+      ],
+      "loreSkills": [],
+      "feat": "Face in the Crowd",
+      "description": "You've lived long enough in a major settlement to know how to keep your head down, avoid direct eye contact, and otherwise move about your day without drawing any attention to yourself. Whether you were a detective tailing a suspect or just lived in a crime-ridden neighborhood, you've always been able to slip into a crowd to avoid causing trouble. Choose two attribute boosts. One must be to Dexterity or Charisma, and one is a free attribute boost. You're trained in the Deception skill and a Lore skill about a specific settlement. You gain the Face in the Crowd skill feat."
+    },
+    {
+      "id": "clansworn",
+      "name": "Clansworn",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "con",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "athletics"
+      ],
+      "loreSkills": [
+        "Mining Lore"
+      ],
+      "feat": "Hefty Hauler",
+      "description": "Your allegiance lies with Ulrikka Clanholdings. You are a member of a dwarven clan or one of their retainers. You might be a laborer on a mining rig, a long-distance delivery pilot, or the blood relative of a director or other prominent figure. Choose two attribute boosts. One must be Constitution or Strength, and one is a free attribute boost. You are trained in the Athletics skill and the Mining Lore skill. You gain the Hefty Hauler skill feat."
+    },
+    {
+      "id": "cleaner",
+      "name": "Cleaner",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "dex"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "deception"
+      ],
+      "loreSkills": [
+        "Underworld Lore"
+      ],
+      "feat": "Without a Trace",
+      "description": "You know how to remove all traces of a crime. Whether you worked under the table for legitimate clients like AbadarCorp or learned your trade working for shady organizations and crime bosses, you know how to leave a crime scene as good as new. Choose two attribute boosts. One must be to Dexterity or Charisma, and one is a free attribute boost. You're trained in the Deception skill and Underworld Lore skill. You gain the Without a Trace skill feat."
+    },
+    {
+      "id": "cloud-chemist",
+      "name": "Cloud Chemist",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "crafting"
+      ],
+      "loreSkills": [
+        "Life Science Lore"
+      ],
+      "feat": "Serum Crafting",
+      "description": "You've studied the properties and chemical applications of the complex array of gases available on gas giants like Bretheda and Liavara. You might be a chemist, pharmacist, or mixologist. Choose two attribute boosts. One must be to Constitution or Intelligence, and one is a free attribute boost. You're trained in the Crafting skill and the Life Science Lore skill. You gain the Serum Crafting skill feat."
+    },
+    {
+      "id": "code-carrier",
+      "name": "Code Carrier",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "con",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "computers",
+        "deception"
+      ],
+      "loreSkills": [],
+      "feat": "Digital Diversion",
+      "description": "You or one of your personal tech items was infected with a harmless but annoying tech virus. You've learned to ignore its effects and transmit it to others as a temporary distraction. Choose two attribute boosts. One must be to Constitution or Intelligence, and one is a free attribute boost. You're trained in the Computers skill and the Deception skill. You gain the Digital Diversion skill feat."
+    },
+    {
+      "id": "comedian",
+      "name": "Comedian",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "performance"
+      ],
+      "loreSkills": [
+        "Media Lore"
+      ],
+      "feat": "Just Kidding",
+      "description": "Whether you're the office joker, a professional comedian, or just a troll on the infosphere, you're always prepared with a well-timed joke, even if it occasionally gets you in hot water when you cross the line. Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in the Performance skill and the Media Lore skill. You gain the Just Kidding skill feat."
+    },
+    {
+      "id": "consultant",
+      "name": "Consultant",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "int",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "computers"
+      ],
+      "loreSkills": [],
+      "feat": "Phreaker",
+      "description": "You're an AbadarCorp consultant who's been hired for your expertise in the field. You might be a former employee of Ulrikka Clanholdings or someone who's hoping to climb the ladder at AbadarCorp—or maybe you're a famous influencer who lied on their resume to get the job. Choose two attribute boosts. One must be Intelligence or Wisdom, and one is a free attribute boost. You're trained in the Computers skill and either the Infosphere or Media Lore skill. You gain the Phreaker skill feat."
+    },
+    {
+      "id": "cook",
+      "name": "Cook",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "survival"
+      ],
+      "loreSkills": [
+        "Cooking Lore"
+      ],
+      "feat": "Seasoned",
+      "description": "You grew up in the kitchens of a tavern or other dining establishment and excelled there, becoming an exceptional cook. Baking, cooking, a little brewing on the side—you've spent lots of time out of sight. It's about time you went out into the world to catch some sights for yourself. Choose two attribute boosts. One must be to Constitution or Intelligence, and one is a free attribute boost. You're trained in the Survival skill and the Cooking Lore skill. You gain the Seasoned skill feat."
+    },
+    {
+      "id": "corporate-agent",
+      "name": "Corporate Agent",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "society"
+      ],
+      "loreSkills": [
+        "Corporate Lore"
+      ],
+      "feat": "Management Material",
+      "description": "You're one among many professionals working in the corporate world, but you're not just any suit. You're a negotiator, dealmaker, or perhaps even a spy working to advance a particular corporation's agenda. You might be a cog in a corporation's massive machine or a shill for an up-and-coming entrepreneur no one has heard of... yet. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. You're trained in the Society skill and the Corporate Lore skill. You gain the Management Material skill feat."
+    },
+    {
+      "id": "courier",
+      "name": "Courier",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "survival"
+      ],
+      "loreSkills": [],
+      "feat": "Urban Survivalist",
+      "description": "You know your city or space station like the back of your hand (or other appropriate alien appendage), and nothing stops you from getting cargo to its destination. Choose two attribute boosts. One must be to Dexterity or Wisdom, and one is a free attribute boost. You're trained in the Survival skill and a Lore skill related to a settlement you've worked in. You gain the Urban Survivalist skill feat."
+    },
+    {
+      "id": "crèche-born",
+      "name": "Crèche Born",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "con",
+          "dex"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "survival"
+      ],
+      "loreSkills": [
+        "Diaspora Lore"
+      ],
+      "feat": "Terrain Expertise",
+      "description": "You were born in one of the crèche worlds of the Diaspora, magically maintained bubble ecosystems that flourish on hidden asteroids. Choose two attribute boosts. One must be to Dexterity or Constitution, and one is a free attribute boost. You're trained in the Survival skill and the Diaspora Lore skill. You gain the Terrain Expertise skill feat."
+    },
+    {
+      "id": "crystal-prospector",
+      "name": "Crystal Prospector",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "athletics"
+      ],
+      "loreSkills": [
+        "Mining Lore"
+      ],
+      "feat": "Hefty Hauler",
+      "description": "You've worked in a mine harvesting cerebinium crystals, shimmerstone, or some other magical mineral. Choose two attribute boosts. One must be to Strength or Constitution, and one is a free attribute boost. You're trained in the Athletics skill and the Mining Lore skill. You gain the Hefty Hauler skill feat."
+    },
+    {
+      "id": "cult-escapee",
+      "name": "Cult Escapee",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "dex"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "deception"
+      ],
+      "loreSkills": [
+        "Devourer Lore"
+      ],
+      "feat": null,
+      "description": "While you don't like to talk about it, you have a connection to one of the most dangerous cults in the Universe: the cult of the Devourer. Perhaps you used to be a member of this nihilistic religious cult, a close friend or family member joined their ranks, or you were once a victim of their predations. Whatever the connection, you slipped away and have been laying low ever since. Choose two attribute boosts. One must be to Dexterity or Charisma, and one is a free attribute boost. You're trained in the Deception skill and the Devourer Lore skill. You gain one of the following skill feats of your choice: Face in the Crowd or Lengthy Diversion."
+    },
+    {
+      "id": "cyberborn",
+      "name": "Cyberborn",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "con",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "crafting"
+      ],
+      "loreSkills": [
+        "Augmentation Lore"
+      ],
+      "feat": null,
+      "description": "Your body is a temple to change and technology. Since a young age, you've been upgrading your anatomy with augmentations, perhaps after a terrible accident, as part of an experiment, or because you desire to transform your body into something more. Choose two attribute boosts. One must be to Strength or Constitution, and one is a free attribute boost. You're trained in the Crafting skill and the Augmentation Lore skill. You gain the Augmented Body feat."
+    },
+    {
+      "id": "daegox-convict",
+      "name": "Daegox Convict",
+      "rarity": "rare",
+      "boosts": [
+        [
+          "con",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "deception"
+      ],
+      "loreSkills": [
+        "Underworld Lore"
+      ],
+      "feat": "Lengthy Diversion",
+      "description": "You or your parents were sentenced to live on the corporate prison planet Daegox-4. You might be a career criminal tired of serving time, a reformed villain ready to turn over a new leaf, or an innocent doomed by circumstance. When Control went down, you escaped into a new life of adventure. Choose two attribute boosts. One must be to Strength or Constitution, and one is a free attribute boost. You're trained in the Deception skill and the Underworld Lore skill. You gain the Lengthy Diversion skill feat."
+    },
+    {
+      "id": "dataphile",
+      "name": "Dataphile",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "computers"
+      ],
+      "loreSkills": [
+        "Infosphere Lore"
+      ],
+      "feat": "Digital Diversion",
+      "description": "You spend a lot of time in the Archives' Cortex, studying or maintaining the digital database that contains records of all the Starfinder Society's most impressive discoveries and missions. You know that information is power and consider conserving information a worthy goal. Choose two attribute boosts. One must be to Dexterity or Intelligence, and one is a free attribute boost. You're trained in the Computers skill and the Infosphere Lore skill. You gain the Digital Diversion skill feat."
+    },
+    {
+      "id": "defector",
+      "name": "Defector",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "dex"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "stealth"
+      ],
+      "loreSkills": [
+        "Warfare Lore"
+      ],
+      "feat": "Terrain Stalker",
+      "description": "You were an imperial trooper until you had a change of heart for one reason or another. You've given up your rank, and perhaps now you've allied with the people you were recently fighting against. Choose two attribute boosts. One must be to Dexterity or Constitution, and one is a free attribute boost. You're trained in the Stealth skill and the Warfare Lore skill. You gain the Terrain Stalker skill feat."
+    },
+    {
+      "id": "defiant-victor",
+      "name": "Defiant Victor",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "athletics"
+      ],
+      "loreSkills": [
+        "Labor Lore"
+      ],
+      "feat": null,
+      "description": "You've heard time and time again that a Starfinder needs to be knowledgeable, skilled, and personable—traits you've never had in abundance. But you didn't let that stop you from becoming a Starfinder! You've got what you consider to be the most important trait of all: defiant persistence! You don't let naysayers, bigwigs, or your own personal failings stop you from achieving your goals, just like you don't let a little blood, sweat, or tears keep you down. You know when push comes to shove, you can take the hits, and just keep coming. Failure isn't in your vocabulary! Choose two attribute boosts. One must be to Strength or Constitution, and one is a free attribute boost. You're trained in the Athletics skill and the Labor Lore skill. You gain the Toughness feat."
+    },
+    {
+      "id": "detective",
+      "name": "Detective",
+      "rarity": "common",
+      "boosts": [
+        [
+          "int",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "society"
+      ],
+      "loreSkills": [
+        "Underworld Lore"
+      ],
+      "feat": "Streetwise",
+      "description": "You solved crimes as a police inspector or took clandestine jobs for various clients as a private investigator. You might have become an adventurer as part of your next big mystery, but it's equally likely it was due to the consequences or aftermath of a prior case. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in the Society skill, and the Underworld Lore skill. You gain the Streetwise skill feat."
+    },
+    {
+      "id": "diplomat",
+      "name": "Diplomat",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "diplomacy"
+      ],
+      "loreSkills": [],
+      "feat": "Group Impression",
+      "description": "You've dedicated your career to facilitating peaceful alliances between different factions and peoples. You might work at an intergalactic embassy or travel aboard a starship on a mission to remote space. First contact situations are your specialty. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. You're trained in the Diplomacy skill and one Lore skill for a planet of your choosing. You gain the Group Impression skill feat."
+    },
+    {
+      "id": "disciple",
+      "name": "Disciple",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [],
+      "loreSkills": [],
+      "feat": "Religious Talisman",
+      "description": "You're a loyal disciple of a particular deity. You might have been raised in a religious culture or perhaps felt a kindred calling toward a god later in life, but you've honed your skills and devoted your life to living as a follower of that deity. Choose two attribute boosts. One must be an attribute specified in your deity's Divine Attribute entry, and one is a free attribute boost. You're trained in the deity's listed divine skill and a Lore skill related to your deity (Abadar Lore, for example). You gain the Religious Talisman skill feat even if you do not meet the feat's prerequisites."
+    },
+    {
+      "id": "doctor",
+      "name": "Doctor",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "medicine"
+      ],
+      "loreSkills": [
+        "Life Science Lore"
+      ],
+      "feat": "Battle Medicine",
+      "description": "You're an accomplished healer expertly using the latest tech and pharmaceuticals to treat your patients. You might work at a clinic, supervise a starship's medbay, serve as a military medic, or ply your trade in shady back alleys. Choose two attribute boosts. One must be to Dexterity or Intelligence, and one is a free attribute boost. You're trained in the Medicine skill and the Life Science Lore skill. You gain the Battle Medicine skill feat."
+    },
+    {
+      "id": "dream-prophet",
+      "name": "Dream Prophet",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "occultism"
+      ],
+      "loreSkills": [],
+      "feat": "Schooled in Secrets",
+      "description": "A mysterious entity haunts your dreams, granting you a glimpse of transcendence. These supernatural experiences have inspired you to seek greater connection with this power. You might find meaning in the Liavaran Dreamers' songs, recognize potential for universal change in the Newborn's birth, or embrace some other cosmic mystery. Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in the Occultism skill and a Lore skill related to your choice of metaphysical topics. You gain the Schooled in Secrets skill feat."
+    },
+    {
+      "id": "dreamer-disciple",
+      "name": "Dreamer Disciple",
+      "rarity": "rare",
+      "boosts": [
+        [
+          "cha",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "performance"
+      ],
+      "loreSkills": [
+        "Liavara Lore"
+      ],
+      "feat": "Virtuosic Performer",
+      "description": "You've communed with one of the Dreamers, the enlightened barathus singing unknowable songs on Liavara—and they revealed some cosmic truth to you. The revelation changed your life, and the echo of their song lingers in your own music. Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in the Performance skill and the Liavara Lore skill. You gain the Virtuosic Performer skill feat."
+    },
+    {
+      "id": "electrician",
+      "name": "Electrician",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "crafting"
+      ],
+      "loreSkills": [
+        "Physical Science Lore"
+      ],
+      "feat": "Electrical Engineer",
+      "description": "You know better than most the power of electricity, having survived several close calls yourself, and you know firsthand how shocking it can be when something goes wrong. Whether you learned by installing power stations or repairing broken circuits, you're familiar with the positives and negatives of electricity. Choose two attribute boosts. One must be to Constitution or Intelligence, and one is a free attribute boost. You're trained in the Crafting skill and the Physical Science Lore skill. You gain the Electrical Engineer skill feat."
+    },
+    {
+      "id": "emissary",
+      "name": "Emissary",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "society"
+      ],
+      "loreSkills": [],
+      "feat": "Multilingual",
+      "description": "As a diplomat or messenger, you traveled extensively, communicating with new people and brokering alliances wherever you went. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. You're trained in the Society skill and a Lore Skill related to one city or region you've visited often. You gain the Multilingual skill feat."
+    },
+    {
+      "id": "eoxian-local",
+      "name": "Eoxian Local",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "con"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "society"
+      ],
+      "loreSkills": [
+        "Eoxian Lore"
+      ],
+      "feat": "Streetwise",
+      "description": "You grew up on Eox or spent a significant amount of time there learning about the macabre customs and decadent culture of the grave world. Perhaps you're a survivor of the Hall of the Living, an Arcanamirium exchange student learning necromantic magic in Pact Port, or an aspiring necrovite's apprentice hoping for a chance at immortality. Choose two attribute boosts. One must be Charisma or Constitution, and one is a free attribute boost. You're trained in the Society skill and the Eoxian Lore skill. You gain the Streetwise skill feat."
+    },
+    {
+      "id": "escaped-experiment",
+      "name": "Escaped Experiment",
+      "rarity": "rare",
+      "boosts": [
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [],
+      "loreSkills": [],
+      "feat": null,
+      "description": "You were the subject of an experiment. You might be a creature born in a laboratory, a failed super soldier prototype, or a recipient of odd or unstable augmentations. You gain three free ability boosts. You choose two, and the GM chooses the third based on what type of experiment you were involved in. You gain the Canny Acumen general feat."
+    },
+    {
+      "id": "escort",
+      "name": "Escort",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "con"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "diplomacy"
+      ],
+      "loreSkills": [],
+      "feat": "Hobnobber",
+      "description": "People hire you to accompany them in social situations. You might be a charming courtesan, burly bodyguard, skillful interpreter, or something else. Choose two attribute boosts. One must be to Constitution or Charisma, and one is a free attribute boost. You're trained in the Diplomacy skill and a Lore skill related to your escort duties, such as Art Lore, Corporate Lore, Legal Lore, or Underworld Lore. You gain the Hobnobber skill feat."
+    },
+    {
+      "id": "esoteric-erudite",
+      "name": "Esoteric Erudite",
+      "rarity": "common",
+      "boosts": [
+        [
+          "int",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "occultism"
+      ],
+      "loreSkills": [
+        "Fiend Lore"
+      ],
+      "feat": "Schooled in Secrets",
+      "description": "You're fascinated with strange phenomena, occult rituals, dangerous magic, and planar beings. You've dedicated your life to unraveling these mysteries and studying the foul magic and dangerous creatures that are often related to them. Recently, you've spotted strange symbols written in blood around Absalom Station, which you believe might have a connection to fiends. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in the Occultism skill and the Fiend Lore skill. You gain the Schooled in Secrets skill feat."
+    },
+    {
+      "id": "exo-guardian",
+      "name": "Exo-Guardian",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "athletics"
+      ],
+      "loreSkills": [
+        "Warfare Lore"
+      ],
+      "feat": "Combat Climber",
+      "description": "You know the galaxy hides countless dangers, and you've trained hard to stand firm against these threats. You don't just want to be a Starfinder, you want to be a hero. Choose two attribute boosts. One must be to Strength or Dexterity, and one is a free attribute boost. You're trained in the Athletics skill and the Warfare Lore skill. You gain the Combat Climber skill feat."
+    },
+    {
+      "id": "fashionista",
+      "name": "Fashionista",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "dex"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "deception"
+      ],
+      "loreSkills": [
+        "Fashion Lore"
+      ],
+      "feat": "Favored Disguise",
+      "description": "You're a clothing connoisseur. You might be a fashion designer, trendy socialite, or famous model. One thing is for sure—you've got style. Choose two attribute boosts. One must be to Dexterity or Charisma, and one is a free attribute boost. You're trained in the Deception skill and the Fashion Lore skill. You gain the Favored Disguise skill feat."
+    },
+    {
+      "id": "final-survivor",
+      "name": "Final Survivor",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "stealth"
+      ],
+      "loreSkills": [],
+      "feat": "Terrain Stalker",
+      "description": "You were the last survivor of a horrifying incident. You might be the last person left alive on a Swarm huskworld, or you might have survived monsters breaching your ship in the distant Vast. Choose two attribute boosts. One must be to Constitution or Intelligence, and one is a free attribute boost. You're trained in the Stealth skill and a Lore skill related to the incident you survived. You gain the Terrain Stalker skill feat."
+    },
+    {
+      "id": "first-ones-scholar",
+      "name": "First Ones Scholar",
+      "rarity": "common",
+      "boosts": [
+        [
+          "int",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "society"
+      ],
+      "loreSkills": [
+        "First Ones Lore"
+      ],
+      "feat": "Assurance",
+      "description": "You've studied the First Ones extensively, poring over scientific journals and conspiracy theories alike, and have delved into the Starfinder Society's records of their ongoing survey of the city of Eternity. Whether you agree with First Seeker Sarmak's assessment of the danger posed by the First Ones or believe he jumped to erroneous conclusions, you're excited to visit the Wreck of the Returned in person. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in the Society skill and the First Ones Lore skill. You gain the Assurance skill feat with First Ones Lore."
+    },
+    {
+      "id": "fixer",
+      "name": "Fixer",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "society"
+      ],
+      "loreSkills": [
+        "Underworld Lore"
+      ],
+      "feat": "Streetwise",
+      "description": "It's not who you are, it's who you know—and you know a lot of people. They call you when they need a favor done, and you don't ask questions, except about the payout. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. You're trained in the Society skill and the Underworld Lore skill. You gain the Streetwise skill feat."
+    },
+    {
+      "id": "forum-aspirant",
+      "name": "Forum Aspirant",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "diplomacy"
+      ],
+      "loreSkills": [
+        "Starfinder Society Lore"
+      ],
+      "feat": "Hobnobber",
+      "description": "You consider yourself an exemplary Starfinder, and you aim to one day join the Forum, the council of respected Starfinders that guides the Starfinder Society and advises the First Seeker. Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in the Diplomacy skill and the Starfinder Society Lore skill. You gain the Hobnobber skill feat."
+    },
+    {
+      "id": "gambler",
+      "name": "Gambler",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "dex"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "deception"
+      ],
+      "loreSkills": [
+        "Games Lore"
+      ],
+      "feat": "Lie to Me",
+      "description": "The thrill of the win drew you into games of chance. This might have been a lucrative pastime that paled in comparison to the real risks of adventuring, or you might have fallen on hard times due to your gambling and pursued adventuring as a way out of a spiral. Choose two attribute boosts. One must be to Dexterity or Charisma, and one is a free attribute boost. You're trained in the Deception skill, and the Games Lore skill. You gain the Lie to Me skill feat."
+    },
+    {
+      "id": "gene-splicer",
+      "name": "Gene Splicer",
+      "rarity": "common",
+      "boosts": [
+        [
+          "int",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "crafting"
+      ],
+      "loreSkills": [],
+      "feat": "Serum Crafting",
+      "description": "You're an expert on biotech and genetics and frequently experiment on your own body. You might have worked with patients who needed gene therapy, conducted research in laboratories looking for the next breakthrough in biotech, or even concocted serums for your own personal use. Choose two attribute boosts. One must be to Strength or Intelligence, and one is a free attribute boost. You're trained in the Crafting skill and the Augmentation or Life Science Lore skill. You gain the Serum Crafting skill feat."
+    },
+    {
+      "id": "ghosted",
+      "name": "Ghosted",
+      "rarity": "rare",
+      "boosts": [
+        [
+          "con",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "arcana",
+        "occultism"
+      ],
+      "loreSkills": [
+        "Ghost Levels Lore"
+      ],
+      "feat": "Arcane Sense",
+      "description": "When the Newborn's cry shook Absalom Station, you were pulled into the Ghost Levels. You eventually found your way out, or you were rescued, but the experience still haunts you, and your aura bears the imprint of strange magic. Choose two attribute boosts. One must be to Constitution or Wisdom, and one is a free attribute boost. You're trained in the Arcana and Occultism skills and the Ghost Levels Lore skill. You gain the Arcane Sense skill feat."
+    },
+    {
+      "id": "grave-medic",
+      "name": "Grave Medic",
+      "rarity": "common",
+      "boosts": [
+        [
+          "int",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "medicine"
+      ],
+      "loreSkills": [
+        "Undead Lore"
+      ],
+      "feat": "Stitch Flesh",
+      "description": "You're a healer who doesn't keep people alive. Your specialty is treating undead patients. You might be undead yourself, a compassionate ally of the unliving, or maybe you've forced yourself to learn macabre protocols so you can stitch your friends back together. Whatever the case, you're experienced treating the mental and physical ailments of undead creatures. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in the Medicine skill and the Undead Lore skill. You gain the Stitch Flesh skill feat."
+    },
+    {
+      "id": "green-activist",
+      "name": "Green Activist",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "con",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "nature"
+      ],
+      "loreSkills": [
+        "Life Science Lore"
+      ],
+      "feat": "Train Animal",
+      "description": "You've joined the Xenowardens because you care deeply about nature and conserving natural resources. You find ways to connect with nature in even the most unlikely places, and you're an advocate for helpless creatures. Choose two attribute boosts. One must be to Constitution or Wisdom, and one is a free attribute boost. You're trained in the Nature skill and the Life Science Lore skill. You gain the Train Animal skill feat."
+    },
+    {
+      "id": "grifter",
+      "name": "Grifter",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "deception"
+      ],
+      "loreSkills": [],
+      "feat": "Charming Liar",
+      "description": "You're a con artist and trickster who swindles unsuspecting dupes and blackmails rubes, but it's nothing personal—you're just in it for the credits. You might run an operation on the side, or you might spend your career moving from settlement to settlement until you get caught in the act. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. You're trained in the Deception skill and a Lore skill related to a profession or subject you fake expertise in. You gain the Charming Liar skill feat."
+    },
+    {
+      "id": "guidances-favored",
+      "name": "Guidance's Favored",
+      "rarity": "common",
+      "boosts": [
+        [
+          "int",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "computers"
+      ],
+      "loreSkills": [
+        "Starfinder Society Lore"
+      ],
+      "feat": "Hologram Skeptic",
+      "description": "You communicate frequently with Guidance, the amalgam intelligence that advises the First Seeker, and even help maintain Guidance's servers. You consider Guidance the true heart of the Starfinder Society. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in the Computers skill and the Starfinder Society Lore skill. You gain the Hologram Skeptic skill feat."
+    },
+    {
+      "id": "gun-for-hire",
+      "name": "Gun for Hire",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "intimidation"
+      ],
+      "loreSkills": [
+        "Warfare Lore"
+      ],
+      "feat": "Quick Coercion",
+      "description": "You're a mercenary who rents your services to the highest bidder. You might pick up jobs at Absalom Station's Merc Lurk, hang around a dodgy Second City club looking for a lead, or run ads for your services on the infosphere. Choose two attribute boosts. One must be to Strength or Dexterity, and one is a free attribute boost. You're trained in the Intimidation skill and the Warfare Lore skill. You gain the Quick Coercion skill feat."
+    },
+    {
+      "id": "hacker",
+      "name": "Hacker",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "computers"
+      ],
+      "loreSkills": [
+        "Infosphere Lore"
+      ],
+      "feat": "Phreaker",
+      "description": "You've always had a knack for computers and virtual spaces and pride yourself on your ability to learn technical secrets. The open networks known as infospheres are your home and the place you can do your best work. You're highly competent when it comes to cracking code or accessing secure data. Choose two attribute boosts. One must be to Dexterity or Intelligence, and one is a free attribute boost. You're trained in the Computers skill and the Infosphere Lore skill. You gain the Phreaker skill feat."
+    },
+    {
+      "id": "hacktivist",
+      "name": "Hacktivist",
+      "rarity": "common",
+      "boosts": [
+        [
+          "int",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "computers"
+      ],
+      "loreSkills": [
+        "Technology Lore"
+      ],
+      "feat": "Phreaker",
+      "description": "You're a hacker with a cause, which might be personal, political, or religious. Perhaps you're a member of an anonymous collective working toward a common objective, or you might work alone. Whatever the case, you always have the tools to hack into secure systems—just don't get caught! Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in the Computers skill and the Technology Lore skill. You gain the Phreaker skill feat."
+    },
+    {
+      "id": "haunted",
+      "name": "Haunted",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "occultism"
+      ],
+      "loreSkills": [
+        "Spirit Lore"
+      ],
+      "feat": "Recognize Spell",
+      "description": "You're haunted by a restless spirit. You might have performed a ritual (either real or virtual) or come into possession of an object that drew the spirit to you. The spirit can't communicate effectively with you, but its haunting brings you paranormal insight—when you aren't having nightmares and cold sweats, at least. Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in the Occultism skill and the Spirit Lore skill. You gain the Recognize Spell skill feat."
+    },
+    {
+      "id": "hellforged-squire",
+      "name": "Hellforged Squire",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "con",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [],
+      "loreSkills": [
+        "Warfare Lore"
+      ],
+      "feat": "Assurance",
+      "description": "You've forged yourself to join the ranks of the Hellknights, and completing this mission to the letter of the contract is your duty, thrice sworn and infernally sealed. Choose two attribute boosts. One must be to Strength or Constitution, and one is a free attribute boost. You're trained in either the Athletics or Religion skill and the Warfare Lore skill. You gain the Assurance general feat for a skill of your choice."
+    },
+    {
+      "id": "hero-in-the-making",
+      "name": "Hero in the Making",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "intimidation"
+      ],
+      "loreSkills": [
+        "Absalom Station Lore"
+      ],
+      "feat": "Intimidating Glare",
+      "description": "You've always dreamed of being a hero—of fighting off nefarious villains, foiling sinister plots, and saving innocents from peril. In fact, you joined the Starfinder Society hoping to make this dream a reality. You've come to realize that while heroism is important, the events and situations that give rise to heroes are no laughing matter. Now, lives are on the line, and you're determined to stand your ground, fight the good fight, and protect the citizens of Absalom Station, no matter the dangers that come your way. Choose two attribute boosts. One must be to Strength or Dexterity, and one is a free attribute boost. You're trained in the Intimidation skill and the Absalom Station Lore skill. You gain the Intimidating Glare skill feat."
+    },
+    {
+      "id": "hitchhiker",
+      "name": "Hitchhiker",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "society"
+      ],
+      "loreSkills": [],
+      "feat": "Digital Ambassador",
+      "description": "You've hitched a ride on a ship traveling across the galaxy. You might have a planned destination or two. Maybe you're just along for the ride. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. You're trained in the Society skill and one Lore skill related to a planet or galactic culture, such as Aballon Lore or Preluria Lore. You gain the Digital Ambassador skill feat."
+    },
+    {
+      "id": "hustler",
+      "name": "Hustler",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "con"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [],
+      "loreSkills": [],
+      "feat": "Experienced Professional",
+      "description": "You've learned how to thrive in the gig economy of a dystopian world like Akiton, Apostae, or Verces. You might be an office worker moonlighting as a dive bar entertainer, a cyber café owner running a side business as a bounty hunter, or a courier who isn't too scrupulous to take on a shady side job. You always follow the money. Choose two attribute boosts. One must be to Constitution or Charisma, and one is a free attribute boost. You're trained in your choice of skill and a Lore skill relevant to your profession. You gain the Experienced Professional skill feat."
+    },
+    {
+      "id": "icon",
+      "name": "Icon",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "con"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "performance"
+      ],
+      "loreSkills": [
+        "Media Lore"
+      ],
+      "feat": "Impressive Performance",
+      "description": "Everybody wants their 15 minutes of fame, but for you, it's somehow become a lifestyle. Whether by luck or dedication, you're a star performer, celebrity, or popular influencer. Your face, voice, and style are commodities across known space, but for every adoring fan, there's a hater spreading gossip or paparazzi looking to capture your flaws. Choose two attribute boosts. One must be to Constitution or Charisma, and one is a free attribute boost. You're trained in the Performance skill and the Media Lore skill. You gain the Impressive Performance skill feat."
+    },
+    {
+      "id": "joro-clone",
+      "name": "Joro Clone",
+      "rarity": "rare",
+      "boosts": [
+        [
+          "con",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "crafting"
+      ],
+      "loreSkills": [
+        "Salvation's End Lore"
+      ],
+      "feat": "Assurance",
+      "description": "You were an inhabitant of Community Test Vault 341 of Salvation's End, one among hundreds of identical clones of your \"parent,\" Joro. You're a nonbinary human with the same average appearance, cheerful attitude, and goofy humor as your fellow clones. Your birth name is Joro (just like the others), but you distinguish yourself with a nickname based on a hobby or occupation, such as \"Baker Joro\" or \"Gamer Joro.\" Now, you're looking for your place in the wider galaxy. Choose two attribute boosts. One must be to Constitution or Wisdom, and one is a free attribute boost. You're trained in the Crafting skill and the Salvation's End Lore skill. You gain the Assurance skill feat with one of the skills granted by this background."
+    },
+    {
+      "id": "junker",
+      "name": "Junker",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "crafting"
+      ],
+      "loreSkills": [
+        "Junker Lore"
+      ],
+      "feat": "Quick Repair",
+      "description": "Another person's trash is your treasure. You might trawl the Diaspora for salvage or scour the junk heaps of Akiton for useful gear. Choose two attribute boosts. One must be to Strength or Dexterity, and one is a free attribute boost. You're trained in the Crafting skill and the Junker Lore skill. You gain the Quick Repair skill feat."
+    },
+    {
+      "id": "laborer",
+      "name": "Laborer",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "athletics"
+      ],
+      "loreSkills": [
+        "Labor Lore"
+      ],
+      "feat": "Hefty Hauler",
+      "description": "You've spent years performing arduous physical labor. It was a difficult life, but you somehow survived. You may have embraced adventuring as an easier method to make your way in the world, or you might adventure under someone else's command. Choose two attribute boosts. One must be to Strength or Constitution, and one is a free attribute boost. You're trained in the Athletics skill and the Labor Lore skill. You gain the Hefty Hauler skill feat."
+    },
+    {
+      "id": "lodge-administrator",
+      "name": "Lodge Administrator",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "diplomacy"
+      ],
+      "loreSkills": [
+        "Corporate Lore"
+      ],
+      "feat": "Group Impression",
+      "description": "You know that establishing a lodge takes more than talented field agents—it takes managers, administrators, and a firm knowledge of logistics! You know how to influence people, handle conflict, and interact with other factions and organizations. In fact, you'd probably make a good venture-captain yourself one day… Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in the Diplomacy skill and the Corporate Lore skill. You gain the Group Impression skill feat."
+    },
+    {
+      "id": "lorespire-archivist",
+      "name": "Lorespire Archivist",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "society"
+      ],
+      "loreSkills": [],
+      "feat": "Assurance",
+      "description": "You spend your spare time working at the Lorespire Complex as an archivist or educator, perhaps maintaining the Archives' massive collection of texts and artifacts or preparing displays in the First Seeker Ilyastre Memorial Museum. Choose two attribute boosts. One must be to Dexterity or Intelligence, and one is a free attribute boost. You're trained in the Society skill and one of the following Lore skills of your choice: Academia Lore, Library Lore, Museum Lore. You gain the Assurance skill feat for Society."
+    },
+    {
+      "id": "lost-aucturnite",
+      "name": "Lost Aucturnite",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "cha",
+          "con"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "occultism"
+      ],
+      "loreSkills": [
+        "Aucturn Lore"
+      ],
+      "feat": "Oddity Identification",
+      "description": "You once resided on Aucturn, a former planet in the Pact Worlds System that erupted when the Newborn hatched from it. Choose two attribute boosts. One must be to Constitution or Charisma, and one is a free attribute boost. You're trained in the Occultism skill and the Aucturn Lore skill. You gain the Oddity Identification skill feat."
+    },
+    {
+      "id": "magic-officer",
+      "name": "Magic Officer",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "arcana"
+      ],
+      "loreSkills": [
+        "Warfare Lore"
+      ],
+      "feat": "Arcane Sense",
+      "description": "You're a magical adept attached to a military unit, supporting your squad with both spells and shells. Choose two attribute boosts. One must be to Constitution or Intelligence, and one is a free attribute boost. You're trained in the Arcana skill and the Warfare Lore skill. You gain the Arcane Sense skill feat."
+    },
+    {
+      "id": "magic-scholar",
+      "name": "Magic Scholar",
+      "rarity": "common",
+      "boosts": [
+        [
+          "int",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [],
+      "loreSkills": [
+        "Academia Lore"
+      ],
+      "feat": "Quick Identification",
+      "description": "You study magic at the Arcanamirium on Absalom Station, one of Dykon's or Pabaq's universities, or somewhere else. You might be a novice still learning the basics of magic while enjoying university life or an opinionated professor researching a niche subject. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in your choice of the Arcana, Nature, Occultism, or Religion skill, based on your primary field of study, and the Academia Lore skill. You gain the Quick Identification skill feat."
+    },
+    {
+      "id": "magitech-specialist",
+      "name": "Magitech Specialist",
+      "rarity": "common",
+      "boosts": [
+        [
+          "int",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [],
+      "loreSkills": [
+        "Magitech Lore"
+      ],
+      "feat": "Quick Identification",
+      "description": "First Ones sites are known to integrate magitech: a combination of advanced technology and magic, working in synergy to create something utterly unique. You've studied modern magitech as well as the strange magical anomalies and warped realities that surround First Ones sites. You're certain your studies will serve you well in the Wreck of the Returned. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained your choice of either the Arcana or Occultism skill, as well as the Magitech Lore skill. You gain the Quick Identification skill feat."
+    },
+    {
+      "id": "manifold-recruiter",
+      "name": "Manifold Recruiter",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "society"
+      ],
+      "loreSkills": [],
+      "feat": "Multilingual",
+      "description": "You believe the Starfinder Society is strongest when its members come from diverse backgrounds and societies. You work hard to recruit new members to the Starfinder Society and enjoy immersing yourself in different cultures and learning new languages. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. You're trained in the Society skill and a Lore skill for one planet of your choice. You gain the Multilingual skill feat."
+    },
+    {
+      "id": "masked",
+      "name": "Masked",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "cha",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "religion"
+      ],
+      "loreSkills": [
+        "Devil Lore"
+      ],
+      "feat": "Religious Talisman",
+      "description": "You conceal your face with a mask of Embroi, marking yourself as one who congresses with devils. You might have been trapped by a diabolical contract or are a willing minion of fiendish masters. Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in the Religion skill and the Devil Lore skill. You gain the Religious Talisman skill feat."
+    },
+    {
+      "id": "miner",
+      "name": "Miner",
+      "rarity": "common",
+      "boosts": [
+        [
+          "str",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "survival"
+      ],
+      "loreSkills": [
+        "Mining Lore"
+      ],
+      "feat": "Terrain Expertise",
+      "description": "You earned a living wrenching precious minerals from the lightless depths of the earth. Adventuring might have seemed lucrative or glamorous compared to this backbreaking labor—and if you have to head back underground, this time you plan to do so armed with a real weapon instead of a miner's pick. Choose two attribute boosts. One must be to Strength or Wisdom, and one is a free attribute boost. You're trained in the Survival skill and the Mining Lore skill. You gain the Terrain Expertise skill feat with underground terrain."
+    },
+    {
+      "id": "necromancers-apprentice",
+      "name": "Necromancer's Apprentice",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "arcana"
+      ],
+      "loreSkills": [
+        "Necromancy Lore"
+      ],
+      "feat": "Quick Identification",
+      "description": "You apprenticed under a necromancer-a hard education in a field where a cadaver you were dissecting could suddenly animate and every magical artifact seemed deadly. Now on your own, you're grateful you learned to identify magical threats quickly and thoroughly. Choose two attribute boosts. One must be to Constitution or Intelligence, and one is a free attribute boost. You're trained in the Arcana skill and the Necromancy Lore skill. You gain the Quick Identification skill feat."
+    },
+    {
+      "id": "outlaw",
+      "name": "Outlaw",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "intimidation"
+      ],
+      "loreSkills": [
+        "Underworld Lore"
+      ],
+      "feat": "Intimidating Shot",
+      "description": "You're a career criminal with a nasty reputation. Perhaps unfair circumstances forced you into a life of crime, or maybe you enjoy the thrill you get from pulling off a heist or living through a shoot-out. Either way, this life is the only one you know, and thanks to the bounty on your head, you're in it until the casket drops or you make enough creds to buy a new one. Choose two attribute boosts. One must be to Strength or Charisma, and one is a free attribute boost. You're trained in the Intimidation skill and the Underworld Lore skill. You gain the Intimidating Shot skill feat."
+    },
+    {
+      "id": "party-crasher",
+      "name": "Party Crasher",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "cha",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "diplomacy"
+      ],
+      "loreSkills": [
+        "Ghost Levels Lore"
+      ],
+      "feat": "No Cause for Alarm",
+      "description": "Access You played Starfinder Playtest Adventure: A Cosmic Birthday during the Starfinder Second Edition PlaytestYou were present on Absalom Station when one of the Midwives attempted to drain the station's fabled starstone reactor to ease the birth of the Newborn from its planetary womb. You bonded with the citizens of Little Akiton and explored the Ghost Levels in your quest to save Absalom Station. Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in the Diplomacy skill and the Ghost Levels Lore skill. You gain the No Cause for Alarm skill feat."
+    },
+    {
+      "id": "passionate-naturalist",
+      "name": "Passionate Naturalist",
+      "rarity": "common",
+      "boosts": [
+        [
+          "int",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "nature"
+      ],
+      "loreSkills": [
+        "Life Science"
+      ],
+      "feat": "Assurance",
+      "description": "Your first love is the myriad organic beings of the natural world, from the simplest single-celled organisms to the most verdant flora and ingenious fauna, and you're determined to see as much of it as you can. To facilitate this passion for biological discovery, you often volunteer to survey alien worlds, perhaps working with Fitch aboard the Starfinder flagship Master of Stars or helping Dr. Heldin Sevaile add entries to his ever-growing Catalog of the Natural World. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in the Nature skill and the Life Science Lore skill. You gain the Assurance skill feat with Nature."
+    },
+    {
+      "id": "phisher",
+      "name": "Phisher",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "computers"
+      ],
+      "loreSkills": [
+        "Infosphere Lore"
+      ],
+      "feat": "Phishing Expertise",
+      "description": "You're a fraudster who skillfully creates digital forgeries and manipulates others using the infosphere. You might be a cruel prankster, cunning grifter, or savvy spy. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. You're trained in the Computers skill and the Infosphere Lore skill. You gain the Phishing Expertise skill feat."
+    },
+    {
+      "id": "pickpocket",
+      "name": "Pickpocket",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "thievery"
+      ],
+      "loreSkills": [
+        "Underworld Lore"
+      ],
+      "feat": "Pickpocket",
+      "description": "You've learned to spot a tourist a mile away and deftly relieve them of the worldly possessions burdening them—it's better to travel light, after all! Choose two attribute boosts. One must be to Dexterity or Intelligence, and one is a free attribute boost. You're trained in the Thievery skill and the Underworld Lore skill. You gain the Pickpocket skill feat."
+    },
+    {
+      "id": "pilgrim",
+      "name": "Pilgrim",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "religion"
+      ],
+      "loreSkills": [],
+      "feat": "Student of the Canon",
+      "description": "Your strong faith drew you to travel to a far-flung destination—perhaps your church sent you on a holy mission, or maybe you hope to meditate at a sacred site. Choose two attribute boosts. One must be to Constitution or Wisdom, and one is a free attribute boost. You're trained in the Religion skill and a Lore skill relevant to your religion or philosophy. You gain the Student of the Canon skill feat."
+    },
+    {
+      "id": "planetary-preservationist",
+      "name": "Planetary Preservationist",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "cha",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "society"
+      ],
+      "loreSkills": [
+        "Physical Science Lore"
+      ],
+      "feat": "Digital Ambassador",
+      "description": "Access You played Starfinder Playtest Scenario #1: Shards of the Glass Planet during the Starfinder Second Edition PlaytestYou collaborated with the church of Weydan to preserve the ruins on the planet Birnam's Bubble, despite the force shards raining down upon them from space. The experience drove you into contact with an alien people called alithee, who helped you stabilize the planet's force shields and save the planet. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. You're trained in the Society skill and the Physical Science Lore skill. You gain the Digital Ambassador skill feat."
+    },
+    {
+      "id": "political-activist",
+      "name": "Political Activist",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "society"
+      ],
+      "loreSkills": [
+        "Absalom Station Lore"
+      ],
+      "feat": "Streetwise",
+      "description": "You're a citizen of Absalom Station and take your civic duty very seriously. You know Absalom Station's government system, politicians, power players, and major organizations like the back of your hand (or similar appendage!), and always strive to keep up with current events and lobby for positive change. You've even met a few members of the governing Syndicsguild in person, including Syndic Arlo Darose and Primex Kantol. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. You're trained in the Society skill and the Absalom Station Lore skill. You gain the Streetwise skill feat."
+    },
+    {
+      "id": "prisoner",
+      "name": "Prisoner",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "stealth"
+      ],
+      "loreSkills": [
+        "Underworld Lore"
+      ],
+      "feat": "Experienced Smuggler",
+      "description": "You've been imprisoned or punished for a crime, whether you were guilty or not. Now that your sentence has ended or you've escaped, you take full advantage of the newfound freedom of your adventuring life. Choose two attribute boosts. One must be to Strength or Constitution, and one is a free attribute boost. You're trained in the Stealth skill, and the Underworld Lore skill. You gain the Experienced Smuggler skill feat."
+    },
+    {
+      "id": "quantum-clone",
+      "name": "Quantum Clone",
+      "rarity": "rare",
+      "boosts": [
+        [
+          "con",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "deception"
+      ],
+      "loreSkills": [],
+      "feat": "Skill Training",
+      "description": "You're a perfect copy of another individual. You were created in a lab accident, or you were spontaneously born from some anomaly. You might share the original's memories and talents. Choose two attribute boosts. One must be to Constitution or Intelligence, and one is a free attribute boost. You're trained in the Deception skill and a Lore skill of your choice. You gain the Skill Training skill feat, even if you don't meet the prerequisites."
+    },
+    {
+      "id": "raised-by-belief",
+      "name": "Raised by Belief",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [],
+      "loreSkills": [],
+      "feat": "Assurance",
+      "description": "Whether in a monastery, a religious household, or just as part of your everyday life, your upbringing was steeped in the traditions of a particular deity. You might remain committed, or you might have turned from your childhood creed, but your skills are still founded in your devotion. Choose two attribute boosts. One must be an attribute specified in your deity's divine attribute entry, and the other is a free attribute boost. You're trained in the deity's listed divine skill and gain the Assurance feat with that skill. You are also trained in a Lore skill related to your deity (Abadar Lore, for example)."
+    },
+    {
+      "id": "rebel",
+      "name": "Rebel",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "con"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "deception"
+      ],
+      "loreSkills": [
+        "Warfare Lore"
+      ],
+      "feat": "Lie to Me",
+      "description": "You fought against an interstellar regime on a world like Pulonis or worked to take down the Azlanti Star Empire from the inside. Choose two attribute boosts. One must be to Constitution or Charisma, and one is a free attribute boost. You're trained in the Deception skill and the Warfare Lore skill. You gain the Lie to Me skill feat."
+    },
+    {
+      "id": "recluse",
+      "name": "Recluse",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "survival"
+      ],
+      "loreSkills": [],
+      "feat": "Dubious Knowledge",
+      "description": "You used to be someone, but that was in another life. You keep to yourself these days, eking out an existence as a hermit in the wilderness or a loner in a rundown neighborhood. You thought you put your past behind you, until a new disciple or an old enemy dragged you back into a life of adventure. Choose two attribute boosts. One must be to Constitution or Wisdom, and one is a free attribute boost. You're trained in the Survival skill and a Lore skill related to your former life. You gain the Dubious Knowledge skill feat."
+    },
+    {
+      "id": "recruit",
+      "name": "Recruit",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "survival"
+      ],
+      "loreSkills": [
+        "Warfare Lore"
+      ],
+      "feat": "Terrain Expertise",
+      "description": "You're a bright-eyed new recruit. You might be a Steward, an Aeon Guard, a Veskarium imperial trooper, or something else. Choose two attribute boosts. One must be to Strength or Constitution, and one is a free attribute boost. You're trained in the Survival skill and the Warfare Lore skill. You gain the Terrain Expertise skill feat."
+    },
+    {
+      "id": "religious-scholar",
+      "name": "Religious Scholar",
+      "rarity": "common",
+      "boosts": [
+        [
+          "int",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "religion"
+      ],
+      "loreSkills": [
+        "Lore skill for one god or religion of your choice"
+      ],
+      "feat": "Dubious Knowledge",
+      "description": "You're a passionate theologian, with a noted interest in religions and faiths that have been lost, forgotten, fallen out of favor over the passage of time, or endured the death of their god. You joined the Starfinder Society for the chance to study and chronicle these religions, as well as encounter as-yet-unknown ones through your travels. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in the Religion skill and the Lore skill for one god or religion of your choice. You gain the Dubious Knowledge skill feat."
+    },
+    {
+      "id": "robot-adversary",
+      "name": "Robot Adversary",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [],
+      "loreSkills": [
+        "Robot Lore skill"
+      ],
+      "feat": null,
+      "description": "You recognize the dreaded illumantula from databases the Starfinder Society discovered in Eternity and know without a doubt the danger it—and the First Ones—pose to the Pact Worlds. While you know you can't defeat such a formidable creation yourself (and you hope you'll never have to try!), you've trained to combat robots and other technological creatures the First Ones are known to have created. Choose two attribute boosts. One must be to Strength or Dexterity, and one is a free attribute boost. You're trained in your choice of either the Computers or Crafting skill, as well as the Robot Lore skill. You gain a skill feat: Phreaker if you chose Computers or Quick Repair if you chose Crafting."
+    },
+    {
+      "id": "runetouched",
+      "name": "Runetouched",
+      "rarity": "rare",
+      "boosts": [
+        [
+          "con",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "arcana"
+      ],
+      "loreSkills": [
+        "Lissala Lore"
+      ],
+      "feat": "Arcane Sense",
+      "description": "You were born with a strange, rune-shaped birthmark. If you were born in Azlanti Star Empire space, the state church of Lissala marked you for greatness. You've always had a talent for arcane magic. Choose two attribute boosts. One must be to Constitution or Intelligence, and one is a free attribute boost. You're trained in the Arcana skill and the Lissala Lore skill. You gain the Arcane Sense skill feat."
+    },
+    {
+      "id": "sacrifice",
+      "name": "Sacrifice",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "religion"
+      ],
+      "loreSkills": [],
+      "feat": null,
+      "description": "You were chosen as a sacrifice. You might be an attendant doomed to die with your Kalistocrat employer on a mausoleum ship, a victim of a ritual to appease a cruel god, or demon fodder for cultists. You lived through the ordeal, but it changed you. Choose two attribute boosts. One must be to Strength or Constitution, and one is a free attribute boost. You're trained in the Religion skill and a Lore skill related to the group or person who attempted to sacrifice you. You gain the Diehard general feat."
+    },
+    {
+      "id": "salvager",
+      "name": "Salvager",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "athletics"
+      ],
+      "loreSkills": [
+        "Salvage Lore"
+      ],
+      "feat": "Combat Climber",
+      "description": "You're part of a salvage crew trawling for wrecks in the Diaspora, sailing the mercurial Drift or somewhere out in the Vast. Choose two attribute boosts. One must be to Strength or Dexterity, and one is a free attribute boost. You're trained in the Athletics skill and the Salvage Lore skill. You gain the Combat Climber skill feat."
+    },
+    {
+      "id": "saw-the-afterlight",
+      "name": "Saw the Afterlight",
+      "rarity": "rare",
+      "boosts": [
+        [
+          "con",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [],
+      "loreSkills": [],
+      "feat": "Additional Lore",
+      "description": "You died and came back, but your return to life was no miracle, and you didn't glimpse paradise. You were trapped for eons in cold darkness cast in perfect silence. You became a speck crushed at the center of a black hole. You saw the Afterlight, and now it's always waiting for you behind your eyelids. Choose two attribute boosts. One must be to Constitution or Wisdom, and one is a free attribute boost. You gain the Diehard feat and the Additional Lore feat for Eox Lore or Undead Lore."
+    },
+    {
+      "id": "scalawag",
+      "name": "Scalawag",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "cha",
+          "dex"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [],
+      "loreSkills": [
+        "Piracy Lore"
+      ],
+      "feat": "Intimidating Shot",
+      "description": "You might be a scoundrel with a heart of gold, or a pirate who's learned to play nice for a paycheck—either way, your crew's set their sights on a new prize: the mysterious asteroid the sensors detected in the Diaspora. Choose two attribute boosts. One must be Dexterity or Charisma, and one is a free attribute boost. You're trained in either the Diplomacy or Intimidation skill and the Piracy Lore skill. You gain the Intimidating Shot skill feat."
+    },
+    {
+      "id": "scaletouched",
+      "name": "Scaletouched",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "con"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "diplomacy"
+      ],
+      "loreSkills": [
+        "Dragon Lore"
+      ],
+      "feat": "No Cause for Alarm",
+      "description": "You claim to have a connection to dragons, either real or imagined. You might have grown up with them on Triaxus, or you might have left your home world in the hopes of meeting one. Choose two attribute boosts. One must be to Constitution or Charisma, and one is a free attribute boost. You're trained in the Diplomacy skill and the Dragon Lore skill. You gain the No Cause for Alarm skill feat."
+    },
+    {
+      "id": "scam-mage",
+      "name": "Scam Mage",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "cha",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "deception"
+      ],
+      "loreSkills": [],
+      "feat": "Trick Magic Item",
+      "description": "You can't cast spells but mimic spellwork well enough to convince others you have magical powers. You've pretended to be a magical adept for so long you've learned to fool magic items into working at your touch. Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in the Deception skill and a magic tradition skill of your choice (Arcana, Nature, Occultism, or Religion). You gain the Trick Magic Item skill feat."
+    },
+    {
+      "id": "scientist",
+      "name": "Scientist",
+      "rarity": "common",
+      "boosts": [
+        [
+          "int",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "crafting"
+      ],
+      "loreSkills": [],
+      "feat": "Assurance",
+      "description": "You work in a lab and conduct research about a scientific topic. Perhaps you're a biotechnician, chemist, computer programmer, theoretical physicist, or accomplished researcher in some other field. Regardless of your specific training, you can employ your known science for personal gain or the betterment of galactic society. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in the Crafting skill and a Lore skill related to your field of research. You gain the Assurance skill feat with that Lore skill."
+    },
+    {
+      "id": "shimmerstone-savior",
+      "name": "Shimmerstone Savior",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "con",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "occultism"
+      ],
+      "loreSkills": [
+        "Vesk-8 Lore"
+      ],
+      "feat": "Oddity Identification",
+      "description": "Access You played Starfinder Playtest Scenario #4: Rescue at Shimmerstone Mine during the Starfinder Second Edition PlaytestYou rescued miners on the planet Vesk-8 during an event now known as the \"shattering.\" The experience has made you wary of strange magic and mental manipulation. Choose two attribute boosts. One must be to Constitution or Wisdom, and one is a free attribute boost. You're trained in the Occultism skill and the Vesk-8 Lore skill. You gain the Oddity Identification skill feat."
+    },
+    {
+      "id": "shipwrecked",
+      "name": "Shipwrecked",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "survival"
+      ],
+      "loreSkills": [],
+      "feat": "Survey Wildlife",
+      "description": "You were stranded on a remote planet far from your home world with few supplies. You only survived thanks to your survival training, or perhaps you picked up your survival skills from a companion or through risky trial and error. Choose two attribute boosts. One must be to Constitution or Wisdom, and one is a free attribute boost. You're trained in the Survival skill and a Lore skill related to the type of terrain where you were shipwrecked. You gain the Survey Wildlife skill feat."
+    },
+    {
+      "id": "showboater",
+      "name": "Showboater",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "performance"
+      ],
+      "loreSkills": [
+        "Media Lore"
+      ],
+      "feat": "Just Kidding",
+      "description": "You set out to be a famous Starfinder, and to cash in that fame for your own financial benefit. You aim to acquire multiple corporate sponsorships and brand deals, but for now, you're working on seizing every opportunity to be in the spotlight and soaking up the attention. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. You're trained in the Performance skill and the Media Lore skill. You gain the Just Kidding skill feat."
+    },
+    {
+      "id": "shrouded",
+      "name": "Shrouded",
+      "rarity": "rare",
+      "boosts": [
+        [
+          "con",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "medicine"
+      ],
+      "loreSkills": [
+        "Algollthu Lore"
+      ],
+      "feat": null,
+      "description": "You were one of 437 souls inside Riven Shroud when it collided with an alghollthu research station. You died in the collision and were revived by magitech rituals you don't understand. Choose two attribute boosts. One must be to Constitution or Wisdom, and one is a free attribute boost. You're trained in the Medicine skill and the Alghollthu Lore skill. You gain the Toughness general feat."
+    },
+    {
+      "id": "simulation-programmer",
+      "name": "Simulation Programmer",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "computers"
+      ],
+      "loreSkills": [
+        "Vidgame Lore"
+      ],
+      "feat": null,
+      "description": "You're a computer programmer who works at the Lorespire Complex, creating holographic and virtual reality training simulations. Often, these training sims are general use, giving agents hands-on experience surveying unexplored planets, handling valuable relics, and engaging in combat without risk. Some are more specific and challenging to create, and are often requested by notable Starfinders, such as Celita, Fitch, Venture-Captain Arvin, Venture-Captain Naiaj, or even First Seeker Sarmak. Choose two attribute boosts. One must be to Dexterity or Intelligence, and one is a free attribute boost. You're trained in the Computers skill and the Vidgame Lore skill. You gain your choice of either the Digital Diversion or the Hologram Skeptic skill feats."
+    },
+    {
+      "id": "skyrigger",
+      "name": "Skyrigger",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "acrobatics"
+      ],
+      "loreSkills": [],
+      "feat": "Cat Fall",
+      "description": "You're a worker on a massive, floating rig mining precious gases on Bretheda, Liavara, or some other gas giant. You've adapted to your dangerous work with grace. Choose two attribute boosts. One must be to Strength or Dexterity, and one is a free attribute boost. You're trained in the Acrobatics skill and your choice of the Bretheda Lore, Liavara Lore, or Mining Lore skill. You gain the Cat Fall skill feat."
+    },
+    {
+      "id": "smuggler",
+      "name": "Smuggler",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "stealth"
+      ],
+      "loreSkills": [
+        "Piracy Lore"
+      ],
+      "feat": "Experienced Smuggler",
+      "description": "You make your living smuggling cargo, whether on a planet or in the depths of space. You don't ask your clients too many questions, and the cargo could be anything—counterfeit products, illegal goods, stolen weapons... the bigger the risk, the bigger the payday. Choose two attribute boosts. One must be to Dexterity or Wisdom, and one is a free attribute boost. You're trained in the Stealth skill and the Piracy Lore skill. You gain the Experienced Smuggler skill feat."
+    },
+    {
+      "id": "socialite",
+      "name": "Socialite",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "society"
+      ],
+      "loreSkills": [],
+      "feat": "Plant Rumor",
+      "description": "Thanks to generational wealth or lucky circumstance, you live a charmed life flitting between galas dressed in the latest designer fashion. You memorialize every glittering moment on social media, and if nobody pays attention, that's just because they're jealous. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. You're trained in the Society skill and a Lore skill related to your home planet. You gain the Plant Rumor skill feat."
+    },
+    {
+      "id": "society-scout",
+      "name": "Society Scout",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "cha",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [],
+      "loreSkills": [],
+      "feat": "Multilingual",
+      "description": "As a Starfinder, your motto is explore, report, cooperate! Your goal is to discover and explore new places in distant space, uncover secrets of lost civilizations, and learn more about the galaxy around you by getting out there and adventuring. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. You're trained in either the Piloting or Society skill and a Lore skill of your choice. You gain the Multilingual skill feat."
+    },
+    {
+      "id": "space-pirate",
+      "name": "Space Pirate",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "intimidation"
+      ],
+      "loreSkills": [
+        "Piracy Lore"
+      ],
+      "feat": "Group Coercion",
+      "description": "You're a crewmate on a pirate vessel with ambitions of pillaging interstellar shipping lanes or taking over a chunk of a notable planetary body. Perhaps you grew up on such a ship, were taken prisoner by the crew at a young age and adapted to their lifestyle, or commandeered a vessel from a pirate captain. Choose two attribute boosts. One must be to Strength or Dexterity, and one is a free attribute boost. You're trained in the Intimidation skill and the Piracy Lore skill. You gain the Group Coercion skill feat."
+    },
+    {
+      "id": "space-trooper",
+      "name": "Space Trooper",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "athletics"
+      ],
+      "loreSkills": [
+        "Warfare Lore"
+      ],
+      "feat": "Quick Jump",
+      "description": "You've deployed or trained on many worlds—low-gravity planets like Pulonis, high-gravity \"crushers\" like Vesk-4, and far stranger locales. You acclimate easily to any environment command throws at you, ready to roll out of your drop pod and go! Choose two attribute boosts. One must be to Strength or Constitution, and one is a free attribute boost. You're trained in the Athletics skill and the Warfare Lore skill. You gain the Quick Jump skill feat."
+    },
+    {
+      "id": "space-trucker",
+      "name": "Space Trucker",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "piloting"
+      ],
+      "loreSkills": [
+        "Drift Lore"
+      ],
+      "feat": "Express Driver",
+      "description": "You transport goods across long distances in space. You might be part of a crew on a long-haul freighter, or you might be the captain of your own delivery shuttle. Choose two attribute boosts. One must be to Strength or Dexterity, and one is a free attribute boost. You're trained in the Piloting skill and the Drift Lore skill. You gain the Express Driver skill feat."
+    },
+    {
+      "id": "spacefarer",
+      "name": "Spacefarer",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "dex"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "piloting"
+      ],
+      "loreSkills": [
+        "Drift Lore"
+      ],
+      "feat": "Express Driver",
+      "description": "Some people might say you've been out in the Drift too long, but the truth is, you don't feel at home away from your post on a starship deck. You might crew a long-haul freighter, military gunship, or tourist shuttle. Truth is, you'd probably sign up for any job that took you off-world. Choose two attribute boosts. One must be to Dexterity or Constitution, and one is a free attribute boost. You're trained in the Piloting skill and the Drift Lore skill. You gain the Express Driver skill feat."
+    },
+    {
+      "id": "spike-larcenist",
+      "name": "Spike Larcenist",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "dex"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "thievery"
+      ],
+      "loreSkills": [
+        "Absalom Station Lore",
+        "Underworld Lore"
+      ],
+      "feat": "Subtle Theft",
+      "description": "You grew up deep in the Spike, Absalom Station's underbelly, and while life was sometimes hard and you often broke laws regarding personal property, you grew to love the Spike and its tight-knit communities. Now, you're a Starfinder—you get paid well, you've made friends in high places, and the wealthiest districts and fanciest establishments are open to you. You don't need to pick pockets, shoplift, or plan heists to get by anymore, but old habits die hard! Fortunately, your skills have a wide range of professional applications… Choose two attribute boosts. One must be to Dexterity or Charisma, and one is a free attribute boost. You're trained in the Thievery skill and either the Absalom Station Lore or the Underworld Lore skill. You gain the Subtle Theft skill feat."
+    },
+    {
+      "id": "starfinder-hopeful",
+      "name": "Starfinder Hopeful",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [],
+      "loreSkills": [
+        "Starfinder Society Lore"
+      ],
+      "feat": null,
+      "description": "You're a Starfinder megafan turned new recruit who's training at the Lorespire Complex and you're working hard to prepare for your final exam, the Commencement! You grew up watching Starfinder vidshows and playing Starfinder vidgames, you're a faithful subscriber to the Starfinder Chronicles podcast, and you obsessively follow news of the Society's exploits. You consider Starfinders celebrities and hope to meet all your favorites! Choose two attribute boosts. One must be to Strength or Dexterity, and one is a free attribute boost. You're trained in your choice of either the Acrobatics or the Athletics skill, and the Starfinder Society Lore skill. If you choose Acrobatics, you gain the Steady Balance skill feat. If you choose Athletics, you gain the Combat Climber skill feat."
+    },
+    {
+      "id": "starfinder-snoop",
+      "name": "Starfinder Snoop",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "stealth"
+      ],
+      "loreSkills": [
+        "Infosphere Lore",
+        "Underworld Lore"
+      ],
+      "feat": "Experienced Smuggler",
+      "description": "Most Starfinders are curious, but you bring this to a whole other level! You constantly put your nose where it doesn't belong, eavesdropping on important meetings, sneaking into restricted areas, and getting your hands on confidential data and documents. The stakes for failing are high, but you believe it's worth the risk! Choose two attribute boosts. One must be to Dexterity or Wisdom, and one is a free attribute boost. You're trained in the Stealth skill and either the Infosphere Lore or the Underworld Lore skill. You gain the Experienced Smuggler skill feat."
+    },
+    {
+      "id": "starfinder-trapsmith",
+      "name": "Starfinder Trapsmith",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "thievery"
+      ],
+      "loreSkills": [
+        "Hazard Lore"
+      ],
+      "feat": "Pickpocket",
+      "description": "You've watched enough vidcasts and played enough vidgames to know that ancient ruins, restricted complexes, and derelict starships have one thing in common: traps! You've trained hard as a trapsmith, locksmith, and—let's face it—thief, and you're confident you can keep you and your fellow Starfinders alive when the time comes. Choose two attribute boosts. One must be to Dexterity or Wisdom, and one is a free attribute boost. You're trained in the Thievery skill and the Hazard Lore skill. You gain the Pickpocket skill feat."
+    },
+    {
+      "id": "starship-dweller",
+      "name": "Starship Dweller",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "con",
+          "dex"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [],
+      "loreSkills": [],
+      "feat": null,
+      "description": "You grew up on the Idari or another starship and are accustomed to the artificial cycles, tight spaces, and maintenance shifts that have defined your lifestyle. Choose two attribute boosts. One must be to Dexterity or Constitution, and one is a free attribute boost. You're trained in the Crafting or Piloting skill and the Idari Lore skill. If you aren't from the Idari, choose another Lore skill relevant to the ship you lived on or Drift Lore. You are never clumsy or Off-Guard while Untethered."
+    },
+    {
+      "id": "stowaway",
+      "name": "Stowaway",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "dex"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "stealth"
+      ],
+      "loreSkills": [],
+      "feat": "Experienced Smuggler",
+      "description": "You snuck onto a ship and traveled a great distance as a stowaway. Your unsuspecting ride might be a battleship with lax security, an unoccupied research vessel, a busy cargo freighter, or a private shuttle. Choose two attribute boosts. One must be to Dexterity or Constitution, and one is a free attribute boost. You're trained in the Stealth skill and a Lore skill of your choice. You gain the Experienced Smuggler skill feat."
+    },
+    {
+      "id": "street-psychic",
+      "name": "Street Psychic",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "occultism"
+      ],
+      "loreSkills": [
+        "Fortune Telling Lore"
+      ],
+      "feat": "Oddity Identification",
+      "description": "You're a fortune teller, medium, or folk healer plying your trade in a busy port. Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in the Occultism skill and the Fortune Telling Lore skill. You gain the Oddity Identification skill feat."
+    },
+    {
+      "id": "street-rat",
+      "name": "Street Rat",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "survival"
+      ],
+      "loreSkills": [
+        "<Settlement> Lore"
+      ],
+      "feat": "Urban Survivalist",
+      "description": "You know the streets because they raised you. You grew up scraping by in a massive cityscape like those on Verces or Castrovel, or on a crowded space station like Absalom Station. You might have even managed to eke out a living in the claustrophobic vents of Aballon's megaplex settlements. Navigating dense crowds or scavenging useful rubbish is nothing new for you. Choose two attribute boosts. One must be to Dexterity or Wisdom, and one is a free attribute boost. You're trained in the Survival skill and a Lore skill about a specific settlement. You gain the Urban Survivalist skill feat."
+    },
+    {
+      "id": "street-vendor",
+      "name": "Street Vendor",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "diplomacy"
+      ],
+      "loreSkills": [
+        "Market Lore"
+      ],
+      "feat": "Bargain Hunter",
+      "description": "You sell goods at a busy marketplace, such as the Freemarkets of Absalom Station. You've developed a keen eye for spotting deals and scams, and you're a shrewd haggler. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. You're trained in the Diplomacy skill and the Market Lore skill. You gain the Bargain Hunter skill feat."
+    },
+    {
+      "id": "substation-custodian",
+      "name": "Substation Custodian",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "crafting"
+      ],
+      "loreSkills": [
+        "Starstone Reactor Lore"
+      ],
+      "feat": "Quick Repair",
+      "description": "One of your ancestors was a Custodian—one of the countless overlooked engineers who maintain Absalom Station's infrastructure, including the seven substations that funnel power from the Starstone reactor across the station. You once aspired to become a Custodian yourself, perhaps even working as an apprentice Custodian for a time, although in the end you chose to take another path. Fortunately, the skills you learned along the way still serve you well today. Choose two attribute boosts. One must be to Constitution or Intelligence, and one is a free attribute boost. You're trained in the Crafting skill and the Starstone Reactor Lore skill. You gain the Quick Repair skill feat."
+    },
+    {
+      "id": "taxi-driver",
+      "name": "Taxi Driver",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "piloting"
+      ],
+      "loreSkills": [],
+      "feat": "Express Driver",
+      "description": "You earn your living transporting people. You know the best shortcuts and scenic routes to any destination in your repertoire. Choose two attribute boosts. One must be to Dexterity or Wisdom, and one is a free attribute boost. You're trained in the Piloting skill and a Lore skill related to a specific planet or settlement where you've worked. You gain the Express Driver skill feat."
+    },
+    {
+      "id": "teacher",
+      "name": "Teacher",
+      "rarity": "common",
+      "boosts": [
+        [
+          "int",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [],
+      "loreSkills": [
+        "Academia Lore"
+      ],
+      "feat": "Experienced Professional",
+      "description": "You are incredibly knowledgeable, skilled, and perhaps even trained to teach children and adults about the world and its wonders. From books to classes, you're committed to imparting knowledge to all. Not everything can be taught or learned from a book, though, so you've become an adventurer to learn subjects more directly and bring that wisdom back to your students. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in your choice of either the Performance or Society skill, as well as the Academia Lore skill. You gain the Experienced Professional skill feat."
+    },
+    {
+      "id": "tech-delver",
+      "name": "Tech Delver",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "computers"
+      ],
+      "loreSkills": [],
+      "feat": "Additional Lore",
+      "description": "You're part of an expedition delving into the ruins of a First Ones city on Aballon, the Wreck of the Returned on Akiton, the Worldshards of Arshalin, or some other magitech complex. You might be a trained xenoarchaeologist or a lucky bandit. Choose two attribute boosts. One must be to Dexterity or Intelligence, and one is a free attribute boost. You're trained in the Computers skill and a Lore skill related to your expedition. You gain the Additional Lore general feat for a Lore related to your expedition."
+    },
+    {
+      "id": "tech-jaded",
+      "name": "Tech Jaded",
+      "rarity": "common",
+      "boosts": [
+        [
+          "int",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "computers"
+      ],
+      "loreSkills": [
+        "Technology Lore"
+      ],
+      "feat": "Hologram Skeptic",
+      "description": "You've seen enough flashing holo-ads and cutting-edge prototypes to last a lifetime. You might be trying to avoid detection, live a simpler lifestyle, or feel wary of technology for some other reason. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in the Computers skill and the Technology Lore skill. You gain the Hologram Skeptic skill feat."
+    },
+    {
+      "id": "tech-priest",
+      "name": "Tech Priest",
+      "rarity": "common",
+      "boosts": [
+        [
+          "int",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "computers",
+        "religion"
+      ],
+      "loreSkills": [],
+      "feat": null,
+      "description": "You commune with the divine through technology. You might be an initiate of Triune's clergy who travels through distant space to perform Drift Beacon maintenance. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in the Computers skill and the Religion skill. You can cast Speak with Computers as an innate divine spell once per day."
+    },
+    {
+      "id": "tech-support",
+      "name": "Tech Support",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "computers"
+      ],
+      "loreSkills": [
+        "Business Lore"
+      ],
+      "feat": "Quick Install",
+      "description": "Whether working in a military outpost, a deep space exploration vessel, or a local office, you have experience supporting your comrades by assisting with their tech. While you've undoubtedly survived several all-nighters protecting against hackers and restoring lost files, you've also learned how to quickly install updates on demand while minimizing downtime. Choose two attribute boosts. One must be to Constitution or Intelligence, and one is a free attribute boost. You're trained in the Computers skill and the Business Lore skill. You gain the Quick Install skill feat."
+    },
+    {
+      "id": "tech-troll",
+      "name": "Tech Troll",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "deception"
+      ],
+      "loreSkills": [
+        "Infosphere Lore"
+      ],
+      "feat": "Lengthy Diversion",
+      "description": "You enjoy teasing or tricking people using technology. You might be an infosphere trickster or a savvy thief who covers your crimes with digital distractions. Choose two attribute boosts. One must be to Dexterity or Intelligence, and one is a free attribute boost. You're trained in the Deception skill and the Infosphere Lore skill. You gain the Lengthy Diversion skill feat."
+    },
+    {
+      "id": "technophile",
+      "name": "Technophile",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "crafting"
+      ],
+      "loreSkills": [
+        "Technology Lore"
+      ],
+      "feat": "Quick Repair",
+      "description": "You love technology. You might be an inventor known for your unique creations, a skilled technician everyone relies on for support, or an enthusiast chasing the latest trends. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. You're trained in the Crafting skill and the Technology Lore skill. You gain the Quick Repair skill feat."
+    },
+    {
+      "id": "timelost",
+      "name": "Timelost",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "society"
+      ],
+      "loreSkills": [
+        "History Lore"
+      ],
+      "feat": "Dubious Knowledge",
+      "description": "You're not from this timeline. Somehow you became unstuck in time, or perhaps you attempted temporal travel and ended up getting trapped somewhen you don't belong. You gain two free attribute boosts. You're trained in the Society skill and the History Lore skill. You gain the Dubious Knowledge skill feat."
+    },
+    {
+      "id": "tomb-born",
+      "name": "Tomb Born",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "dex"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [],
+      "loreSkills": [
+        "Undead Lore"
+      ],
+      "feat": null,
+      "description": "Your parents conceived you for a fell purpose at a site tainted by death, like a wight's barrow, mass grave, or ossuary. Their reasons could be a mystery, or you might know of their grand design and seek to escape—or fulfill—their plans. Either way, you're at your most dangerous when near death. Choose two attribute boosts. One must be to Dexterity or Constitution, and one is a free attribute boost. You're trained in the Undead Lore skill. You gain the Final Spite reaction."
+    },
+    {
+      "id": "tourist",
+      "name": "Tourist",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "society"
+      ],
+      "loreSkills": [
+        "Travel Lore"
+      ],
+      "feat": "Crowd Surfing",
+      "description": "You've traveled all over the galaxy and have souvenirs to prove it. Navigating crowded streets and alien signage has become second nature to you. Choose two attribute boosts. One must be to Dexterity or Intelligence, and one is a free attribute boost. You're trained in the Society skill and the Travel Lore skill. You gain the Crowd Surfing skill feat even if you don't meet its prerequisites."
+    },
+    {
+      "id": "trooper",
+      "name": "Trooper",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "con",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "athletics"
+      ],
+      "loreSkills": [
+        "Warfare Lore"
+      ],
+      "feat": null,
+      "description": "You enlisted in a military or were recruited by a paramilitary group as a career trooper. As long as you've got enough guns and the right squad to back you up, you can handle just about anything. Choose two attribute boosts. One must be to Strength or Constitution, and one is a free attribute boost. You're trained in the Athletics skill and the Warfare Lore skill. You gain the Barricade feat."
+    },
+    {
+      "id": "unleashed",
+      "name": "Unleashed",
+      "rarity": "rare",
+      "boosts": [
+        [
+          "str",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "arcana",
+        "occultism"
+      ],
+      "loreSkills": [],
+      "feat": "Recognize Spell",
+      "description": "You've been trapped behind magical wards for as long as you can remember. When the Newborn's cry ripped through space and time, your magical prison disappeared. You're free, but you'll always feel the touch of the spells that bound you. Choose two attribute boosts. One must be to Strength or Wisdom, and one is a free attribute boost. You're trained in the Arcana and Occultism skills and a Lore skill of your choice. You gain the Recognize Spell skill feat."
+    },
+    {
+      "id": "urban-explorer",
+      "name": "Urban Explorer",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "survival"
+      ],
+      "loreSkills": [
+        "Lore skill for one city of your choice"
+      ],
+      "feat": "Urban Survivalist",
+      "description": "While some Starfinders are drawn to unexplored alien vistas, traipsing through bug-filled swamps and scaling steep mountain passes, you prefer exploring the urban jungles of the galaxy. Whether it's a pastoral village or a gleaming metropolis, you love to explore its tangled streets, visit its hotspots, forge local connections, and uncover its hidden secrets. Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in the Survival skill and the Lore skill for one city of your choice. You gain the Urban Survivalist skill feat."
+    },
+    {
+      "id": "vault-diviner",
+      "name": "Vault Diviner",
+      "rarity": "common",
+      "boosts": [
+        [
+          "int",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "arcana"
+      ],
+      "loreSkills": [
+        "Fortune-Telling Lore"
+      ],
+      "feat": "Arcane Sense",
+      "description": "You often spend your time in the Communion Vaults at the Lorespire Complex, performing magical divinations or experiments for the Starfinder Society. Perhaps you train under the enigmatic Starfinder Nykiti Lampadephoros or transcribe the dreams of Whisper of Solar Winds, a slumbering Liavaran Dreamer. Choose two attribute boosts. One must be to Intelligence or Wisdom, and one is a free attribute boost. You're trained in the Arcana skill and the Fortune-Telling Lore skill. You gain the Arcane Sense skill feat."
+    },
+    {
+      "id": "vidgamer",
+      "name": "Vidgamer",
+      "rarity": "common",
+      "boosts": [
+        [
+          "dex",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "computers"
+      ],
+      "loreSkills": [
+        "Vidgame Lore"
+      ],
+      "feat": "Hologram Skeptic",
+      "description": "Gaming is more than just a hobby for you: it's your way of life. Whether you're a professional player, game designer, hobbyist influencer, or just a gamer who has mastered every vidgame you can install, you're a true connoisseur who can spot the subtle signs of a virtual creation without a second glance. Choose two attribute boosts. One must be to Dexterity or Intelligence, and one is a free attribute boost. You're trained in the Computers skill and the Vidgame Lore skill. You gain the Hologram Skeptic skill feat."
+    },
+    {
+      "id": "war-hardened-hero",
+      "name": "War-Hardened Hero",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "str"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "intimidation"
+      ],
+      "loreSkills": [],
+      "feat": "Intimidating Glare",
+      "description": "Access You played Starfinder Playtest Adventure: Empires Devoured during the Starfinder Second Edition PlaytestYou were present on the planet Kehtaria when the Sihedron Guard attacked, launching the Azlanti-Veskarium war. Through your efforts to maintain peace and oust these invaders, you rallied survivors, fought the Sihedron Guard, defeated a nihilistic cult called the Heliacal Maw, and saved the surrounding Adalawe system from annihilation. Choose two attribute boosts. One must be to Strength or Charisma, and one is a free attribute boost. You're trained in the Intimidation skill and the Warfare Lore skill. You gain the Intimidating Glare skill feat."
+    },
+    {
+      "id": "wayfinder",
+      "name": "Wayfinder",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "survival"
+      ],
+      "loreSkills": [],
+      "feat": "Survey Wildlife",
+      "description": "You became a Starfinder because you longed to explore the furthest reaches of the galaxy. You specialize in exploring undiscovered planets and surviving in hostile environments. Choose two attribute boosts. One must be to Constitution or Wisdom, and one is a free attribute boost. You're trained in the Survival skill and your choice of either the Life Science Lore or Physical Science Lore skill. You gain the Survey Wildlife skill feat."
+    },
+    {
+      "id": "wheel-winner",
+      "name": "Wheel Winner",
+      "rarity": "uncommon",
+      "boosts": [
+        [
+          "cha",
+          "dex"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "performance"
+      ],
+      "loreSkills": [
+        "Media Lore"
+      ],
+      "feat": "Impressive Performance",
+      "description": "Access You played Starfinder Playtest Scenario #3: Wheel of Monsters during the Starfinder Second Edition PlaytestYou were a contestant on Wheel of Monsters, a game show hosted by media mogul Zo! While your fame is temporary, you intend to make the most of your moment in the spotlight. Choose two attribute boosts. One must be to Dexterity or Charisma, and one is a free attribute boost. You're trained in the Performance skill and the Media Lore skill. You gain the Impressive Performance skill feat."
+    },
+    {
+      "id": "willing-host",
+      "name": "Willing Host",
+      "rarity": "rare",
+      "boosts": [
+        [
+          "cha",
+          "wis"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [],
+      "loreSkills": [
+        "Spirit Lore"
+      ],
+      "feat": null,
+      "description": "You speak to spirits only you can perceive: wispy shreds of lost souls, household guardians, ancestral spirits, and other entities. You can negotiate with these beings, allowing them into your body to impart knowledge or aid in a task for the price of a favor. Choose two attribute boosts. One must be to Wisdom or Charisma, and one is a free attribute boost. You're trained in the Spirit Lore skill. You gain the Host Spirit action."
+    },
+    {
+      "id": "xenobiologist",
+      "name": "Xenobiologist",
+      "rarity": "common",
+      "boosts": [
+        [
+          "con",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "nature"
+      ],
+      "loreSkills": [
+        "Life Science Lore"
+      ],
+      "feat": "Survey Wildlife",
+      "description": "You're a scientist studying alien life-forms. You adventure just for the opportunity to observe new creatures on other planets. Choose two attribute boosts. One must be to Constitution or Intelligence, and one is a free attribute boost. You're trained in the Nature skill and the Life Science Lore skill. You gain the Survey Wildlife skill feat."
+    },
+    {
+      "id": "xenoseeker",
+      "name": "Xenoseeker",
+      "rarity": "common",
+      "boosts": [
+        [
+          "cha",
+          "int"
+        ],
+        [
+          "cha",
+          "con",
+          "dex",
+          "int",
+          "str",
+          "wis"
+        ]
+      ],
+      "trainedSkills": [
+        "society"
+      ],
+      "loreSkills": [
+        "Life Science Lore"
+      ],
+      "feat": "Multilingual",
+      "description": "You seek contact with alien life-forms. You might be a diplomat, researcher, explorer, or proselytizer sharing your beliefs. Choose two attribute boosts. One must be to Intelligence or Charisma, and one is a free attribute boost. You're trained in the Society skill and the Life Science Lore skill. You gain the Multilingual skill feat."
+    }
+  ]
+}

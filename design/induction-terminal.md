@@ -125,7 +125,7 @@ login.
 |---|---|---|
 | **1. Orientation** | Not just flavor text anymore — a real explanation, before anything is asked: what this terminal is, what the player is about to do, roughly how long it takes, and what to have ready (a character concept, nothing more — this is explicitly stated so nobody logs in unprepared). The acceptance-letter beat (already in `data/scene-briefs/episode-c1s1--the-road-in.json`) opens it. | This page IS the OOC layer, by design — no toggle needed. |
 | **2. Ancestry** — **built** | Real ancestry (mechanical), all 51, grouped Terrestrial-Presenting/Alien-Coded with a live name filter (2026-09-09 decision: "full catalogue, grouped/searchable" over a curated shortlist). Boost/flaw choice slots resolved against the real compendium data (`data/campaign/ancestry-catalogue.json`); heritage and ancestry feat are **not** picked here — see §5, extended. **Selecting non-terrestrial flips a hidden flag and queues the lockdown sub-flow (Page 6a, not yet built — Page 2 itself only shows a short, reassuring note in the same spot).** | OOC: what this changes (boosts/flaw, HP, size, speed) — mechanical register, plus an explicit statement that an ancestry feat comes next, on the real character sheet, same as class feats. |
-| **3. Background** | Real background. | OOC: mechanical (two boosts, a skill, a background feat). |
+| **3. Background** — **built** | Real background (mechanical), all 154, grouped Common/Uncommon/Rare with a live name filter — the axis that actually matters at this scale, same "full catalogue, grouped/searchable" decision as Page 2. Boost slots resolved against the real compendium data (`data/campaign/background-catalogue.json`); trained skills, Lore skill(s) and the granted background feat are shown read-only, **not** picked here — some real backgrounds phrase their skill grant as a genuine prose choice the flat data can't represent, and the feat itself is deferred to the real character sheet, same reasoning as ancestry feat/heritage. | OOC: mechanical (two boosts, one or two trained skills, a skill feat) — plus the same "a skill feat comes next, on the real character sheet" statement Page 2 makes for ancestry feat. |
 | **4. Class** | Real class — the pick only. Feats and spell selection explicitly deferred (§1). | OOC: mechanical (key ability, HP per level, saves, class DC, proficiencies) — plus a plain statement that feats/spells come next, on the real character sheet, not lost or skipped. |
 | **5. Attribute Boosts** | Ancestry/background/class boosts apply automatically (read-only, sourced from Pages 2-4); four player-chosen free boosts. | OOC: "this permanently raises one of six numbers that drive almost every roll you make" — the single most consequential page. |
 | **6. Portrait** | Upload via Foundry's real system, then crop client-side to the project's own established **2:3 ratio** (`design/theatre-of-the-mind-staging.md` — the same ratio every other staged portrait already uses, so a new character doesn't look inconsistent next to the cast that already exists). **If the lockdown fired on Page 2, this page also collects the passing portrait — a second upload+crop, or a pick from a curated gallery (§4a).** | OOC: why the crop matters (visual consistency across the roster), not a mechanical explanation. |
@@ -250,27 +250,23 @@ spells. Not a new decision, the same one applied to the next case it obviously c
    `design/campaign-arc.md`'s already-extensive Day 1 pilot material (reduced personnel-scale HP, a
    stronger Frame, now also confirmed "exhausted from their duties") is a real, **player-chosen**
    chargen path (`bible/LEDGER.md` #10) — one of the six may opt to start the campaign as an already-
-   active, veteran pilot rather than a fresh recruit. Nothing built so far (Pages 1-2, 7-8) has a fork
+   active, veteran pilot rather than a fresh recruit. Nothing built so far (Pages 1-3, 7-8) has a fork
    for this; every page assumes the standard new-recruit flow. Needs a real design pass of its own
    before Page 4 (Class) or Page 9 (Review) can be considered complete — a veteran's "basic but viable"
    sheet plausibly needs different defaults than a recruit's. `day1-pilot-hp-reduction-amount` (the
    exact number) is still open in `open-questions.json` and blocks finishing this properly.
-9. **Page 7's gender-identity suggestion list is a judgment call, not a decision made elsewhere.**
-   `data/campaign/induction-intake-prompts.json`'s `genderIdentityOptions` (13 entries) deliberately
-   excludes "Two-Spirit" — a closed, Indigenous-specific identity term tied to particular nations' own
-   traditions, not a generic synonym for nonbinary, and this setting has no established Indigenous-
-   culture analog. The field is always free text too, so nothing is actually blocked — this only
-   affects what's pre-populated as a suggestion. Worth Ingram's own confirmation rather than treated as
-   settled by default.
+9. ~~Page 7's gender-identity suggestion list is a judgment call.~~ **Confirmed 2026-09-10:** "Two-Spirit"
+   stays off `genderIdentityOptions` — Ingram agreed directly. The field is always free text too, so
+   nothing was ever blocked; this only ever affected what's pre-populated as a suggestion.
 
 ---
 
 ## 8. Build status
 
 This design was requested "research, design first" — no code — and stayed that way through the first
-draft. **That has changed: the shell application, Page 1 (Orientation), Page 2 (Ancestry), Page 7
-(Finishing Details) and Page 8 (The Eight Questions) are now built**, against exactly this shape, the
-same incremental way the scene runner itself was built.
+draft. **That has changed: the shell application, Page 1 (Orientation), Page 2 (Ancestry), Page 3
+(Background), Page 7 (Finishing Details) and Page 8 (The Eight Questions) are now built**, against
+exactly this shape, the same incremental way the scene runner itself was built.
 
 **The shell:** `module/blank-inheritance/scripts/foundry/induction-terminal.mjs` — the
 `InductionTerminal` ApplicationV2 class, the singleton mount/refresh/unmount/open functions, and page
@@ -293,14 +289,42 @@ size labels reuse sf2e's own `PF2E.Ability*`/`PF2E.ActorSize*` localization keys
 duplicating them (`ux-doctrine.md` §11). Heritage and ancestry feat are deliberately not resolved here
 — §5, extended.
 
-Both pages verified live in the local Foundry instance: mount cleanly, no console errors beyond
-pre-existing environment noise unrelated to this module, `.bi-doc` styling and layout render
-correctly, the live ancestry filter narrows correctly, boost/flaw picking and the picked-state
-highlighting work (including the mid-choice indexing case a manual trace caught before it ever ran —
-see the resolveSlots comment in the core module), the OOC help `<details>` stays open across a
-re-render, the alien-lockdown note appears only for non-terrestrial picks, Continue stays disabled
-until every choice is resolved, and Back/Change-ancestry/Continue all navigate correctly across many
-transitions with no DOM stacking or duplication.
+**Page 3, built 2026-09-10:** `templates/induction/page3-background.hbs` plus
+`module/blank-inheritance/scripts/core/induction-background.mjs`, `data/campaign/background-catalogue.json`
++ `data/schema/background-catalogue.schema.json` (all 154 real SF2E backgrounds, extracted live from
+`gamesystems/sf2e/packs/backgrounds`), `Induction.Page3.*` lang keys. The generic boost/flaw slot
+resolution itself (`resolveSlots`, `claimedAbilities`, `isFixedSlot`) moved out of
+`induction-ancestry.mjs` into its own `core/boost-slots.mjs` this same pass, since background boosts
+are structurally identical to ancestry's — re-exported from `induction-ancestry.mjs` so nothing else
+had to change. The free-boost-slot picker (`#pickFreeSlot`) and the live-filter binding (`#bindFilter`)
+were both generalized from ancestry-only (an identity-comparison hack, a hardcoded state path) to a
+dotted-path mechanism (`core/state-path.mjs`, itself extracted from Pages 7-8's own `getPath`/`setPath`)
+now shared by all three free-slot pickers and both filter boxes. Trained skills/Lore/feat are
+informational only, never a resolved player choice — real background text like Starship Dweller's
+"trained in the Crafting or Piloting skill" is a genuine prose choice the flat catalogue data can't
+represent, and the description field is always the actual rule. A background listing two Lore (or
+regular skill) names is flagged "(choose one)" and joined with "or" rather than a plain comma-joined
+list, after live adversarial testing (Spike Larcenist) showed the naive join reading as "grants both"
+when the real rule is "choose one" — found and fixed the same pass, before committing.
+
+All three pages verified live in the local Foundry instance, including deliberate adversarial checks:
+mount cleanly, no console errors beyond pre-existing environment noise unrelated to this module,
+`.bi-doc` styling and layout render correctly, the live filters narrow correctly on both pages (special
+characters, emoji, SQL-injection-shaped strings, a 500-character string — none broke the plain
+substring filter), boost/flaw picking and the picked-state highlighting work (including the mid-choice
+indexing case a manual trace caught before it ever ran — see the resolveSlots comment in the core
+module, and Escaped Experiment's real 3-boost-slot shape, which needed no special-casing at all), a
+forged pick bypassing the disabled attribute is still refused server-side (confirmed by calling the
+action handler directly with a fabricated target), Continue stays disabled with nothing selected and
+enables the instant a legal choice completes, and Back/Change/Continue all navigate correctly across
+many transitions including the full Page 2→3→7→3→2 round trip, with no DOM stacking, duplication, or
+state loss. Page 2's own OOC help `<details>` still stays open across a re-render and its alien-lockdown
+note still appears only for non-terrestrial picks, unaffected by the `#bindFilter`/`#pickFreeSlot`
+generalization. One pre-existing, non-blocking finding: `.bi-doc__meta`'s `white-space: nowrap` causes
+real horizontal overflow below roughly 500px viewport width — but Foundry itself declares a 1024×768
+minimum and warns "some features of the software will not work properly" below it, and there is zero
+overflow at that floor or above, so this was left alone rather than editing a class shared across every
+other `.bi-doc` surface in the module for a viewport size the platform itself doesn't support.
 
 **Pages 7 and 8, built 2026-09-10** — new requirements, given directly: every RP-response field pairs
 free text with a row of suggested answers a player can click to insert, gender identity gets a real
@@ -330,10 +354,11 @@ strings (`"common"`, lowercase, straight from the catalogue) need the same per-w
 read inconsistently with Page 2's own display of the identical data — `titleCase` is now a shared
 module-scope helper instead of living only inside `#decorateAncestry`.
 
-Since Pages 3-6 don't exist yet, Page 2's own Continue **temporarily** jumps straight to Page 7 (was: a
-stub that only logged) so the terminal stays click-through testable end to end; restore this once Page 3
-is built (see that handler's own comment). Page 8's Continue is now the stub, matching Page 2's former
-idiom exactly.
+At the time these two pages were built, Pages 3-6 didn't exist yet, so Page 2's own Continue
+**temporarily** jumped straight to Page 7. Page 3 was built the same day (see its own build-status
+paragraph above) and now owns that temporary redirect instead — Page 2's Continue goes to the real
+Page 3, Page 3's Continue temporarily jumps to Page 7 until Page 4 exists. Page 8's Continue is the
+stub, matching Page 2's former idiom exactly.
 
 `kid.schema.json` gained `pronouns`, `genderIdentity`, `appearance` (all optional/nullable strings) and
 `intake.banal[]`/`intake.questions[]` (raw Q&A, `{id, answer}` pairs) — deliberately **not** merged into
@@ -341,9 +366,8 @@ idiom exactly.
 answer into a real Anchor stays a human decision, not something this terminal does automatically.
 
 Covered by the generic tier0 architecture tests for the UI shell (templates/lang/CSS) plus dedicated
-pure-logic suites for both the ancestry choice resolution and the intake suggestion/language logic —
-`npm run test:ui` 454/454 passing. Pages 3-6 and 9 are not built — §4's table is still the plan for
-each.
+pure-logic suites for both the ancestry choice resolution and the intake suggestion/language logic.
+Pages 4-6 and 9 are not built — §4's table is still the plan for each.
 
 ---
 

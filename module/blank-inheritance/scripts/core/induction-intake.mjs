@@ -77,31 +77,7 @@ export function buildLanguageSuggestions(ancestryLanguages, curated, current) {
   return suggestions;
 }
 
-/**
- * Read a dotted path ("finishing.pronouns", "intake.questions.q1") off a
- * plain object. A missing segment reads as "" (not undefined) so a template
- * value binding never has to null-guard.
- */
-export function getPath(obj, path) {
-  const value = path.split(".").reduce((node, key) => (node == null ? undefined : node[key]), obj);
-  return value ?? "";
-}
-
-/**
- * Write a dotted path, creating intermediate plain objects as needed.
- * Mutates `obj` in place -- state.finishing/state.intake are fresh
- * sub-objects owned by this application instance, not shared or read by
- * identity across renders, so a scalar leaf write here is the same idiom
- * #bindFilter already uses for state.ancestry.filter. (The ancestry picks
- * arrays are reassigned immutably instead, because those ARE iterated by
- * identity in a template {{#each}} across renders -- a different case.)
- */
-export function setPath(obj, path, value) {
-  const segments = path.split(".");
-  const last = segments.pop();
-  const target = segments.reduce((node, key) => {
-    if (node[key] == null || typeof node[key] !== "object") node[key] = {};
-    return node[key];
-  }, obj);
-  target[last] = value;
-}
+// getPath/setPath moved to core/state-path.mjs 2026-09-10, when Page 3's
+// free-boost-slot picking needed the identical dotted-path mechanism --
+// re-exported here so existing imports of this module don't need to change.
+export { getPath, setPath } from "./state-path.mjs";
