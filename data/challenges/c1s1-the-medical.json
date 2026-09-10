@@ -3,7 +3,7 @@
   "id": "c1s1-the-medical",
   "type": "challenge",
   "name": "The Medical — finding out what \"irregular\" means",
-  "description": "Five ways at the same fact, at five DCs. Shucks will not say what the screen tests for, so every route here gets at it sideways. The party is level 1, so the base DC is 15 and the ladder runs 13 / 15 / 17 / 20 (SF2E DC-by-level plus the standard easy/hard adjustments). Nobody has to succeed at any of this — the scene works if they never ask.",
+  "description": "Five ways at the same fact, at five DCs, plus one unrelated overheard thread. Shucks will not say what the screen tests for, so every route here gets at it sideways. The party is level 1, so the base DC is 15 and the ladder runs 13 / 15 / 17 / 20 (SF2E DC-by-level plus the standard easy/hard adjustments). Nobody has to succeed at any of this — the scene works if they never ask. overhear-the-search is a different topic entirely (added 2026-09-10, LEDGER.md #11) — pure incidental texture from the queue, not part of the 'irregular' ladder.",
   "levelContext": 1,
   "checks": [
     {
@@ -68,6 +68,20 @@
         "failure": "Pleasant, forgettable, next.",
         "criticalFailure": "They try too hard and he becomes bureaucratic. Nothing is lost except the opening, and the opening will come back."
       }
+    },
+    {
+      "id": "overhear-the-search",
+      "name": "Overhear something in the queue",
+      "skillOptions": ["perception"],
+      "dc": { "value": 17, "basis": "level 1 DC 15, one step hard — a good roll, per Ingram directly, for something that isn't being said to them", "adjustment": "hard" },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "Enough to actually piece together: a name, half-caught — something like \"Nozomi\" — paired with the word \"pilot,\" which doesn't fit anything anyone's told them yet. Whoever's talking clocks being overheard and the conversation ends immediately, too fast to be casual.",
+        "success": "Two staff a few feet away, tired rather than careful: \"...still hasn't turned up,\" \"...still looking,\" a shared look before one of them notices the queue is close enough to hear and they change the subject. Nothing that resolves into a name or a reason.",
+        "failure": "Queue noise. Nothing distinguishable from anything else being said around them.",
+        "criticalFailure": "They catch a fragment and land on the wrong, boring explanation — a supply requisition gone missing, someone's rota mixed up — and half-believe it enough to repeat it later. A real, plausible red herring, not a trap; just wrong."
+      },
+      "repeatable": false
     }
   ],
   "resolutionMode": "narrative-only",

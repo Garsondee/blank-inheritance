@@ -50,6 +50,10 @@ guessing at it again.
 | 6 | 2026-09-10 | The shadow-realm generator thread | Answered |
 | 7 | 2026-09-10 | Mitflits' real origin (Ingram's further divergence) | Answered |
 | 8 | 2026-09-10 | The founders' 200-year survival, and Rupiah's ancestry | Partially answered |
+| 9 | 2026-09-10 | Disguise before induction (The Road In) | Answered |
+| 10 | 2026-09-10 | "Nothing you cannot leave" — intended meaning | Answered |
+| 11 | 2026-09-10 | Does the party's early activation ever surface | Answered |
+| 12 | 2026-09-10 | The campus's first-look register | Answered |
 
 *(Continues below as new entries are added — keep this index in sync, in order, every time.)*
 
@@ -268,3 +272,106 @@ Do not infer an answer from silence; ask again separately if it becomes relevant
 
 **Filed to:** `data/campaign/asset-registry.json` (Rupiah's portrait note); `ideas/story/dossier-
 first-impact.md` §12 (Loose Threads — ancestry closed, longevity explicitly marked still open).
+
+---
+
+### 9 — Disguise before induction (The Road In)
+
+**Date:** 2026-09-10
+**Asked because:** `design/induction.md` establishes the disguise itself as policy explained *during*
+induction, by somebody being kind — but The Road In happens before any character has heard that policy,
+and nothing on record said whether a non-terrestrial PC is already disguising out of lifelong habit, or
+travels as their true self for one last time before induction tells them to hide it.
+
+**Q:** *"design/induction.md establishes the disguise itself as 'policy—delivered during induction by
+somebody being kind.' That's when the POLICY is explained. But during The Road In (each character's own
+separate journey TO the city, before they've heard that policy), is a non-terrestrial character already
+disguising themselves out of lifelong habit/instinct, or do they travel as their true self and only
+start disguising once induction tells them to?"*
+
+**A:** *"I'll let the players decide. If a player decides to completely ignore this stricture I'll
+happily roll with it. Characters may react with a little bit of alarm if they see an alien walking
+about, but it's just considered to be extremely rare, not impossible."*
+
+**Filed to:** `design/induction.md` (new paragraph after "The reveal belongs to the player, always,"
+confirming disguise-before-induction is the player's own call, plus the "rare, not impossible"
+alarm-reaction note).
+
+---
+
+### 10 — "Nothing you cannot leave" — intended meaning
+
+**Date:** 2026-09-10
+**Asked because:** the-letter beat's own direction flagged the line as doing real work, worth letting
+the table sit with, but never said what that work actually was — a GM improvising this live could easily
+over-explain it into a planted clue it was never meant to be.
+
+**Q:** *"The letter's line 'nothing you cannot carry, and nothing you cannot leave' is flagged in the
+scene-brief's own direction as doing real work, worth letting the table sit with. Is there a specific
+intended meaning behind it (foreshadowing something concrete — what conscription actually costs, an
+image that pays off later), or is it deliberately open atmospheric phrasing without one correct
+reading?"*
+
+**A:** *"The dossiers are full of unusual poetic language. I take it to mean, come along with your stuff
+but you aren't moving house more like going into the military so travel light, things will be
+provided."*
+
+**Filed to:** `data/scene-briefs/episode-c1s1--the-road-in.json` (`the-letter` beat's `direction` field
+— practical military-packing instruction, house-style poetic officialese, explicitly not a hidden key
+with one correct unlock).
+
+---
+
+### 11 — Does the party's early activation ever surface
+
+**Date:** 2026-09-10
+**Asked because:** Nozomi's defection put this six-person induction ahead of the normal semester
+schedule (established in her own bible entry), and it was genuinely open whether that acceleration
+should ever be perceptible to the PCs themselves at the table, or stay a GM-only fact.
+
+**Q:** *"Nozomi's defection means this particular six-person induction happened earlier than a normal
+cycle would have. Several hundred OTHER candidates are still arriving on the same normal semester
+schedule. Should this ever be perceptible to the six PCs themselves during The Road In / Intake Medicals
+— something feels rushed, different, off — or should it read as completely unremarkable and routine to
+them, with the acceleration invisible except to the GM?"*
+
+**A:** *"Maybe they overhear a conversation with a good perception roll early on whilst in the queue.
+They could overhear the frantic search for the missing pilot.
+In the original idea of this script there was an option to have a player start as a veteran, if they do
+this then they'll start as an active frame pilot, with a slightly better frame, damaged HP and they will
+be exhausted from their duties."*
+
+**Reconciliation note:** the "veteran" option is NOT new lore — it's the same mechanic already carried
+under the name "the Day 1 pilot" in `design/campaign-arc.md` (direct quote, 2026-09-06) and four entries
+in `data/campaign/open-questions.json`. Cross-linked rather than duplicated; see Filed to below. The
+induction terminal has no chargen branch for this path yet — tracked, not silently assumed.
+
+**Filed to:** `data/challenges/c1s1-the-medical.json` (new `overhear-the-search` check, DC17 Perception,
+insight, four fragmentary outcomes); `data/scene-briefs/episode-c1s1--intake-medicals.json` (new
+optional beat after `the-queue`); `ideas/story/bible/characters/nozomi.md` (Open Questions, Tone/
+register); `design/campaign-arc.md` (new paragraph connecting "exhausted from their duties" to the
+Exhaustion track, flagging what's still open); `design/induction-terminal.md` §7 (new open item 8, the
+unbuilt veteran/recruit chargen branch); `data/campaign/open-questions.json`
+(`day1-pilot-hp-reduction-amount` — `relatedRefs`/`notes` extended, still `status: open`).
+
+---
+
+### 12 — The campus's first-look register
+
+**Date:** 2026-09-10
+**Asked because:** `design/induction.md`'s "Arriving" beat describes the campus's physical details
+(cliff-top red tile, smokestacks, sail traders alongside coal cranes) but never settled whether the
+dominant FEEL on first arrival reads as military or school — a register choice that shapes how every
+later campus scene gets played.
+
+**Q:** *"On first arrival at the combined campus ('Arriving' — cliff-top red tile, smokestacks, sail
+traders alongside coal cranes, several hundred other candidates), what's the dominant register: does it
+read more MILITARY (drill, barracks, stern uniformed presence) or more SCHOOL (classrooms, quads,
+institutional-but-mundane, closer to an ordinary campus that happens to also do this)?"*
+
+**A:** *"A genuine, deliberate mix — neither dominates"* — both registers carry equal weight from the
+first look; the tonal dissonance is the point of the very first image, not something that reveals itself
+gradually.
+
+**Filed to:** `design/induction.md` (beat #2 "Arriving," extended with the confirmed genuine/deliberate
+mix of school and military register).

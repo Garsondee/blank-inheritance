@@ -207,8 +207,8 @@
       "question": "The Day 1 pilot's injury is now reduced starting Hit Points at personnel scale (resolved 2026-09-06, see day1-pilot-slice-penalty-scaling). The shape is decided; the number is not \u2014 how much HP, and is it a flat reduction, a percentage, or a specific ability-score/class-feature change?",
       "status": "open",
       "resolution": null,
-      "relatedRefs": ["design/campaign-arc.md#design-principle-penalties-cost-risk-never-choice", "data/episodes/episode-01-contact-unclassified.json"],
-      "notes": "Deliberately not invented here \u2014 this is a real balance number for a specific named character beat, not something to guess at."
+      "relatedRefs": ["design/campaign-arc.md#design-principle-penalties-cost-risk-never-choice", "data/episodes/episode-01-contact-unclassified.json", "ideas/story/bible/LEDGER.md#10", "design/induction-terminal.md"],
+      "notes": "Deliberately not invented here \u2014 this is a real balance number for a specific named character beat, not something to guess at. Confirmed 2026-09-10 (LEDGER.md #10): this is a player-CHOSEN chargen option (\"the Day 1 pilot\"/\"veteran\" start), not an assigned narrative role, and the pilot also starts exhausted from their duties on top of the reduced HP \u2014 a plausible fit for the Exhaustion track (design/downtime-activities.md \u00a71, itself still a proposal). The induction terminal has no branch for this path yet; still needs this number before that branch can be built."
     }
   ]
 }

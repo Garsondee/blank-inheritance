@@ -64,13 +64,23 @@ getting it wrong (she clams up, the party gets nothing, maybe burns the chance f
 established backstory, not an active investigation thread for Session One specifically. Whether/when
 the party learns any of this is open (see below).
 
+**The Intake Medicals overhear check (`overhear-the-search`) must stay a fragment, even on a critical
+success.** Confirmed 2026-09-10: this is meant to be perceptible as "something is happening," not a
+resolvable lead. Even the crit-success outcome only half-catches a name and a mismatched word —
+enough to make a sharp player go quiet and wonder, never enough to act on. Don't let a future beat
+build directly off what a player overheard here without a real, separate scene making it actionable.
+
 ## Open questions
 
-- When (if ever) does the party learn Nozomi existed at all, let alone why? Is this Chapter One
-  material, or does it surface later alongside the wider Cicada/recruitment threads (Chapter Five+, per
-  `dossier-cicada.md` §11)?
+- ~~When (if ever) does the party learn Nozomi existed at all?~~ **Partially answered 2026-09-10
+  (`LEDGER.md` #10):** a fragment can surface as early as Chapter One, Session One — a real, optional
+  Perception check while queueing at Intake Medicals (`overhear-the-search`,
+  `data/challenges/c1s1-the-medical.json`). Deliberately a fragment only, never her name resolving to
+  anything actionable — see Tone and register below. When the FULL story surfaces (if ever, beyond this
+  early hint) is still open.
 - Can the party actually visit/interview her, and if so, when does that become available, and what's
-  the real DC/skill for "don't ruffle her feathers"?
+  the real DC/skill for "don't ruffle her feathers"? Still fully open — the overhear check above is
+  not that interview, only a hint one might exist to find later.
 - What does she actually say, if handled well? Nothing specific has been scripted yet — a candidate for
   the "competing accounts" mechanic (story bible §13), same as Shinobu.
 - Does she ever reappear as an active figure (ally, complication, recruited fully into Cicada), or does

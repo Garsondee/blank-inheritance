@@ -48,6 +48,20 @@ Stated directly, 2026-09-06, answering a specific balance question but reaching 
 
   **Resolved 2026-09-06, and not by rescaling the number.** The bible's stated disadvantage — a real injury that *"permanently lose[s] one discretionary slice per day to ongoing medical obligations"* — was flagged because the 2→4 slice change had quietly halved its real weight. The actual fix isn't a bigger slice tax; per the new design principle directly above, a permanent slice loss was always the wrong shape of penalty regardless of its size, because it shrinks the character's menu forever rather than raising the stakes of playing them. **Superseded: the Day 1 pilot's injury is now reduced starting Hit Points at personnel scale, not a discretionary-slice tax.** It costs them nothing in a Frame — full Resonance, full action economy, full choice of what to do with every slice — and everything the moment they're not in one: `design/scale-and-chassis.md` §11 already means a Frame going down puts its pilot on foot, personnel-scale, and any Ground Role scene already deals real damage against a real HP pool. A low one turns those existing, already-modelled moments into something that reads as genuinely dangerous rather than a rules footnote. Their existing advantage (68% starting Resonance, Harmonised, three actions from round one) is untouched — this changes the shape of the cost, not the size of the reward it was already paired against.
 
+  **New detail, 2026-09-10 (`bible/LEDGER.md` #10), asked about as "starting as a veteran" before the
+  connection to this existing mechanic was made explicit: the Day 1 pilot starts *exhausted from
+  their duties*, on top of the reduced personnel-scale HP.** Ingram's own framing: *"if they do this
+  then they'll start as an active frame pilot, with a slightly better frame, damaged HP and they will
+  be exhausted from their duties."* Confirms this is a genuine **player-chosen chargen option** (opt
+  in, not assigned), not just narrative flavour attached to a pre-written character. The natural home
+  for "exhausted" is the Exhaustion track (`design/downtime-activities.md` §1 — Fatigued at stage 1,
+  climbing to Slowed/Stupefied/Unconscious) — a strong, obvious connection, **not yet confirmed as the
+  actual mechanism**, since that track is itself still a proposal, not locked. Still fully open:
+  `day1-pilot-hp-reduction-amount` (the exact number), `day1-pilot-day6-choice`, and
+  `ground-five-day1-knowledge` (all `open-questions.json`) — and now also **whether the induction
+  terminal needs a real "new recruit or Day 1 veteran" branch in its own chargen flow**, which nothing
+  built so far accounts for (`design/induction-terminal.md`).
+
 ## The 8-level arc
 
 - **Kids and Frames level up in lockstep**, milestone-based (not XP-budget), gated by: a **significant defeat of a Claimant**, followed by **enough downtime for the pilots' Frames to actually be refit/upgraded**. Leveling is earned by surviving and recovering, not just by fighting. **⚠ Revised 2026-09-06 — lockstep is now a *cap*, not an equality.** Frames run on an *upgrade-point economy*: players earn points from downtime activities and from winning combat at both scales, spend them on upgrades, and enough points levels the Frame. Points are **individual per pilot**, not drawn from the shared technician-day pool, because each pilot has their own repair crew. **A Frame may sit at most one level either side of its pilot** — investment is rewarded up to a point without Frame-focus becoming an overpowering strategy, and the cap keeps encounter maths predictable. Combat awards guarantee a floor so no Frame is stranded. Over-investing punishes itself through the existing systems rather than a new one: hangar time is time not resting, so Exhaustion climbs, Bleed goes unmanaged, and untouched Anchors invite Suppression. Full detail in `config.json`'s `frameEconomy.upgradePoints` and `frameEconomy.repairCrew`; remaining parameters in `frame-upgrade-economy` and `repair-crew-relationship`.

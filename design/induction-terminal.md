@@ -246,6 +246,15 @@ spells. Not a new decision, the same one applied to the next case it obviously c
    Goblin are the nearest real edge case — Earth-folklore-adjacent, but SF2E writes them as their own
    starfaring species with no stated Golarion-monsterfolk framing, so they were left on the
    alien-coded side rather than assumed in. A plain boolean per ancestry, trivial to correct.
+8. **A whole unbuilt branch, found 2026-09-10: "new recruit" vs. "the Day 1 pilot."**
+   `design/campaign-arc.md`'s already-extensive Day 1 pilot material (reduced personnel-scale HP, a
+   stronger Frame, now also confirmed "exhausted from their duties") is a real, **player-chosen**
+   chargen path (`bible/LEDGER.md` #10) — one of the six may opt to start the campaign as an already-
+   active, veteran pilot rather than a fresh recruit. Nothing built so far (Pages 1-2) has a fork for
+   this; every page assumes the standard new-recruit flow. Needs a real design pass of its own before
+   Page 4 (Class) or Page 9 (Review) can be considered complete — a veteran's "basic but viable" sheet
+   plausibly needs different defaults than a recruit's. `day1-pilot-hp-reduction-amount` (the exact
+   number) is still open in `open-questions.json` and blocks finishing this properly.
 
 ---
 

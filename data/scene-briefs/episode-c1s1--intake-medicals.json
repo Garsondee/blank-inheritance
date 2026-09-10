@@ -126,6 +126,19 @@
       "note": "This is the first time these six people have been in a room together. It is worth two minutes."
     },
     {
+      "id": "overhear-the-search",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If anyone wants a Perception check while stuck in the queue, offer it -- no trigger needed beyond being here.",
+      "challengeRef": "c1s1-the-medical",
+      "checkRef": "overhear-the-search",
+      "when": {
+        "condition": "always available while the queue beat is live, no specific trigger needed"
+      },
+      "note": "Confirmed 2026-09-10 (LEDGER.md #11): a real, checkable way the party's early activation can surface, without it ever being explained to them. This is NOT an investigation hook -- see bible/characters/nozomi.md's own Tone and register section. Whatever they overhear stays a fragment; don't let this beat resolve into a name they can act on beyond wondering."
+    },
+    {
       "id": "form-12b",
       "kind": "action",
       "mandatory": false,

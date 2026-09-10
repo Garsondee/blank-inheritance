@@ -106,6 +106,16 @@ campaign is about six people deciding who counts as a close friend.
 **The reveal belongs to the player, always.** Not to the GM, not to the induction system, not to a
 skill check somebody else rolls. The system may *know*; the table finds out when the player decides.
 
+**Whether a character is already disguising themselves BEFORE induction (during The Road In, their
+own journey in) is the player's call too — confirmed 2026-09-10.** Ingram: *"I'll let the players
+decide. If a player decides to completely ignore this stricture I'll happily roll with it."* Some will
+have been managing how they're seen their whole life, policy or not; a player who wants their
+character's journey in to be the last time anyone saw them as themselves gets that beat instead — both
+are available, and it's never assumed either way without asking. **If a character is seen undisguised
+before or during this window, the world's reaction is calibrated: a little alarm, not hysteria** —
+non-terrestrial ancestries are *rare*, not impossible, and a stranger seeing one reacts to something
+unusual, not something the setting has never encountered.
+
 ---
 
 ## 3. The medical: one adult who already knows
@@ -231,7 +241,11 @@ The only act where things happen *to* them.
 1. **The acceptance.** Read before play. Polite, official, slightly warmer than it needs to be, and
    unexplained. Each player says what they left to answer it.
 2. **Arriving.** Cliff-top red tile against the smokestack line, sail traders alongside coal cranes.
-   Several hundred other candidates, all doing the same thing they are.
+   Several hundred other candidates, all doing the same thing they are. **First-look register,
+   confirmed 2026-09-10: a genuine, deliberate mix of school and military, neither dominant from the
+   very first image** — not a school that reveals its militarization gradually, and not a barracks with
+   incongruous classrooms underneath. Both registers carry equal weight in the very first description:
+   drill and uniformed presence in the same breath as quads and classroom windows.
 3. **The hall.** Forms, noise, a queue. *(A texture detail belongs here — not yet chosen; see
    ideas/story/bible/species/mitflits.md before reaching for a mitflit one. A version of this step
    used to plant a mitflit trap on the harbour wall, unremarked, "same as the rat traps" — cut
