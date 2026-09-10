@@ -500,6 +500,22 @@ before a single line of Page 9 code was written:
   itself didn't check) — would have silently created a duplicate Actor from the same state; fixed
   with an explicit `createdActorId` guard, verified live by invoking the action directly a second time
   post-success and confirming no second Actor appeared.
+- **A second, separate auto-grant mechanism, found the same day capturing this doc's own screenshot
+  gallery — `GrantItem` rule elements.** Escaped Experiment (a real, rare background) grants its
+  "Canny Acumen" feat this way rather than through `system.items` — a genuinely different mechanism
+  clearing `system.items = {}` does nothing to stop, undetected by the first hang investigation
+  because Smuggler/Soldier/Witchwarper (the classes/backgrounds already tested) don't use it at all.
+  Canny Acumen itself carries a `ChoiceSet` (which proficiency to boost), so embedding Escaped
+  Experiment unstripped popped a real interactive dialog mid-embed — not a hang this time, but the
+  same practical failure on a real player's screen: Confirm silently stuck on a popup they don't
+  understand until someone clicks it. Fixed with a pure, tested `stripGrantItemRules()`
+  (`core/induction-review.mjs`) filtering only `GrantItem` entries out of `system.rules` before
+  embedding, leaving unrelated rules (e.g. an ancestry's own `ActiveEffectLike` flag) untouched —
+  verified live by re-running the exact Escaped Experiment build that triggered this: clean, no
+  dialog, "Canny Acumen" correctly absent from the finished Actor. Also confirmed, on the same
+  re-test, that Vesk's own real `-1 Wisdom` flaw correctly reduced a doubly-boosted Wisdom from +2 to
+  +1 — the ancestry-flaw application path, never specifically exercised before (Human has none),
+  works exactly as designed.
 - **Deliberately out of scope, same as everywhere else in this terminal:** Heritage (a required
   sibling pick in real Player Core chargen, confirmed it never touches ability boosts at all so its
   absence doesn't break anything mechanical), every class feature/feat/spell, the ancestry and

@@ -11,7 +11,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { isReviewComplete } from "../module/blank-inheritance/scripts/core/induction-review.mjs";
+import { isReviewComplete, stripGrantItemRules } from "../module/blank-inheritance/scripts/core/induction-review.mjs";
 
 const COMPLETE_STATE = {
   ancestry: { id: "human" },
@@ -37,6 +37,36 @@ test("isReviewComplete: false with any single piece missing", () => {
 test("isReviewComplete: false on a completely empty/fresh state, and never throws on missing sub-objects", () => {
   assert.equal(isReviewComplete({}), false);
   assert.equal(isReviewComplete(undefined), false);
+});
+
+test("stripGrantItemRules: removes a GrantItem rule element, real shape (Escaped Experiment's own 'Canny Acumen' grant)", () => {
+  // Found live 2026-09-10: embedding this background WITHOUT stripping its
+  // GrantItem rule auto-granted "Canny Acumen", which itself popped a real
+  // interactive ChoiceSet dialog mid-embed and hung the whole confirm flow
+  // until someone clicked it. system.items = {} alone does nothing against
+  // this -- it's a completely separate grant mechanism.
+  const rules = [{ key: "GrantItem", uuid: "Compendium.sf2e.feats.Item.i4yRvVwvXbGZDsD1" }];
+  assert.deepEqual(stripGrantItemRules(rules), []);
+});
+
+test("stripGrantItemRules: leaves unrelated rules alone (real shape: Human's own ActiveEffectLike flag)", () => {
+  const rules = [{
+    key: "ActiveEffectLike", mode: "override", path: "flags.system.standardizedAncestryFeats",
+    priority: 10, value: { ancestralSkills: { skillOne: "diplomacy", skillTwo: "society" } }
+  }];
+  assert.deepEqual(stripGrantItemRules(rules), rules);
+});
+
+test("stripGrantItemRules: removes ONLY the GrantItem entries out of a mixed list", () => {
+  const grantRule = { key: "GrantItem", uuid: "Compendium.sf2e.feats.Item.someId" };
+  const otherRule = { key: "ActiveEffectLike", path: "some.flag" };
+  assert.deepEqual(stripGrantItemRules([grantRule, otherRule]), [otherRule]);
+});
+
+test("stripGrantItemRules: handles an empty or missing rules array without throwing", () => {
+  assert.deepEqual(stripGrantItemRules([]), []);
+  assert.deepEqual(stripGrantItemRules(undefined), []);
+  assert.deepEqual(stripGrantItemRules(null), []);
 });
 
 test("isReviewComplete: does NOT require optional fields (pronouns, languages, backstory answers) to be set", () => {

@@ -49,7 +49,7 @@ import {
 } from "../core/induction-background.mjs";
 import { isClassChoiceComplete, resolveClassIngredients } from "../core/induction-class.mjs";
 import { FREE_BOOST_SLOTS, isFreeBoostsComplete, resolveFreeBoosts } from "../core/induction-attributes.mjs";
-import { isReviewComplete } from "../core/induction-review.mjs";
+import { isReviewComplete, stripGrantItemRules } from "../core/induction-review.mjs";
 import {
   insertSuggestion,
   isFinishingComplete,
@@ -1157,6 +1157,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     if (!doc) throw new Error(`Could not resolve compendium item "${uuid}".`);
     const source = doc.toObject();
     source.system.items = {};
+    source.system.rules = stripGrantItemRules(source.system.rules);
     for (const [path, value] of Object.entries(selections)) {
       foundry.utils.setProperty(source.system, path, value);
     }

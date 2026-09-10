@@ -37,3 +37,27 @@ export function isReviewComplete(state) {
     isFreeBoostsComplete(state?.attributes?.freeBoostPicks ?? [])
   );
 }
+
+/**
+ * Remove any `GrantItem` rule element from a compendium Item's own
+ * `system.rules` before embedding it on a fresh Actor.
+ *
+ * `system.items` grant descriptors (a background's own feat, a class's
+ * features) are one mechanism sf2e uses to auto-grant a further Item on
+ * embed -- stripped separately, by the caller, just by clearing that field.
+ * `GrantItem` is a SEPARATE mechanism (a real rule element) that does the
+ * same thing but isn't touched by clearing `system.items` at all. Found
+ * live 2026-09-10: Escaped Experiment (a real background) grants "Canny
+ * Acumen" this way, and Canny Acumen itself carries a ChoiceSet (which
+ * proficiency to boost) that pops a real interactive dialog mid-embed --
+ * on a real player's screen, Confirm would silently hang on a popup they
+ * don't understand until someone clicks it. Every other feat/spell/further
+ * grant is already deferred to the real character sheet (design doc §5);
+ * this closes the one path that could still auto-grant something despite
+ * that policy. Filters rather than clearing `system.rules` outright, so
+ * unrelated rules (e.g. an ancestry's own ActiveEffectLike flag) are left
+ * intact.
+ */
+export function stripGrantItemRules(rules) {
+  return (rules ?? []).filter((rule) => rule.key !== "GrantItem");
+}
