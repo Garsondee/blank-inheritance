@@ -127,7 +127,7 @@ login.
 | **2. Ancestry** — **built** | Real ancestry (mechanical), all 51, grouped Terrestrial-Presenting/Alien-Coded with a live name filter (2026-09-09 decision: "full catalogue, grouped/searchable" over a curated shortlist). Boost/flaw choice slots resolved against the real compendium data (`data/campaign/ancestry-catalogue.json`); heritage and ancestry feat are **not** picked here — see §5, extended. **Selecting non-terrestrial flips a hidden flag and queues the lockdown sub-flow (Page 6a, not yet built — Page 2 itself only shows a short, reassuring note in the same spot).** | OOC: what this changes (boosts/flaw, HP, size, speed) — mechanical register, plus an explicit statement that an ancestry feat comes next, on the real character sheet, same as class feats. |
 | **3. Background** — **built** | Real background (mechanical), all 154, grouped Common/Uncommon/Rare with a live name filter — the axis that actually matters at this scale, same "full catalogue, grouped/searchable" decision as Page 2. Boost slots resolved against the real compendium data (`data/campaign/background-catalogue.json`); trained skills, Lore skill(s) and the granted background feat are shown read-only, **not** picked here — some real backgrounds phrase their skill grant as a genuine prose choice the flat data can't represent, and the feat itself is deferred to the real character sheet, same reasoning as ancestry feat/heritage. | OOC: mechanical (two boosts, one or two trained skills, a skill feat) — plus the same "a skill feat comes next, on the real character sheet" statement Page 2 makes for ancestry feat. |
 | **4. Class** — **built** | Real class — the pick only, all 6 (`data/campaign/class-catalogue.json`, extracted live from `gamesystems/sf2e/packs/classes`). A flat list, not grouped/filtered — 6 items is the honest fit, unlike ancestry's 51 or background's 154. Key ability is one boost slot (core/boost-slots.mjs, shared with ancestry/background) — fixed for five classes, a real choice for Witchwarper (Charisma or Intelligence). Trained skills, weapon/armor proficiencies shown read-only; the free skill count ("plus N more of your choice") and class features/feats/spells are explicitly deferred (§1/§5). | OOC: mechanical (key ability, HP per level, saves, proficiencies) — plus a plain statement that feats/spells come next, on the real character sheet, not lost or skipped, and that Class DC starts Trained for every class at level 1. |
-| **5. Attribute Boosts** | Ancestry/background/class boosts apply automatically (read-only, sourced from Pages 2-4); four player-chosen free boosts. | OOC: "this permanently raises one of six numbers that drive almost every roll you make" — the single most consequential page. |
+| **5. Attribute Boosts** — **built** | Four free boosts, the fourth real consumer of the shared boost-slot machinery (core/boost-slots.mjs) — no catalogue, no picker/resolver two-state, just four identical fully-open slots shown directly. Ancestry/background/class boosts from Pages 2-4 are NOT re-shown here (each is already visible on its own page); the four free boosts must differ from each other, but may legally repeat an ability those earlier pages already boosted — a separate step, per Player Core's own "different ability at the same time" rule. | OOC: "this permanently raises one of six numbers that drive almost every roll you make" — the single most consequential page. |
 | **6. Portrait** | Upload via Foundry's real system, then crop client-side to the project's own established **2:3 ratio** (`design/theatre-of-the-mind-staging.md` — the same ratio every other staged portrait already uses, so a new character doesn't look inconsistent next to the cast that already exists). **If the lockdown fired on Page 2, this page also collects the passing portrait — a second upload+crop, or a pick from a curated gallery (§4a).** | OOC: why the crop matters (visual consistency across the roster), not a mechanical explanation. |
 | **7. Finishing Details** — **built** | Name (the only required field), pronouns, gender identity, a few light "banal" texture questions, appearance notes, languages. Every field pairs free text with a row of illustrative suggestion chips that insert into the same box on click — never a separate/binding choice. Languages are a real multi-value tag list (add/remove), suggested from the character's own ancestry plus a curated common-language list (Player Core pg. 97), with a free-text "Add" escape hatch. | Minimal — mostly self-explanatory. |
 | **8. The Eight Questions** — **built** | Bible §20's real quiz, verbatim, free-text answers, same suggestion-chip pattern as Page 7. Nothing is required — leaving every box blank and continuing is a real, supported path. | OOC: narrative-purpose register — what each answer is *for* in campaign terms, shown per-question where the bible states one explicitly. |
@@ -250,7 +250,7 @@ spells. Not a new decision, the same one applied to the next case it obviously c
    `design/campaign-arc.md`'s already-extensive Day 1 pilot material (reduced personnel-scale HP, a
    stronger Frame, now also confirmed "exhausted from their duties") is a real, **player-chosen**
    chargen path (`bible/LEDGER.md` #10) — one of the six may opt to start the campaign as an already-
-   active, veteran pilot rather than a fresh recruit. Nothing built so far (Pages 1-4, 7-8) has a fork
+   active, veteran pilot rather than a fresh recruit. Nothing built so far (Pages 1-5, 7-8) has a fork
    for this; every page assumes the standard new-recruit flow. Needs a real design pass of its own
    before Page 4 (Class) or Page 9 (Review) can be considered complete — a veteran's "basic but viable"
    sheet plausibly needs different defaults than a recruit's. `day1-pilot-hp-reduction-amount` (the
@@ -265,8 +265,9 @@ spells. Not a new decision, the same one applied to the next case it obviously c
 
 This design was requested "research, design first" — no code — and stayed that way through the first
 draft. **That has changed: the shell application, Page 1 (Orientation), Page 2 (Ancestry), Page 3
-(Background), Page 4 (Class), Page 7 (Finishing Details) and Page 8 (The Eight Questions) are now
-built**, against exactly this shape, the same incremental way the scene runner itself was built.
+(Background), Page 4 (Class), Page 5 (Attribute Boosts), Page 7 (Finishing Details) and Page 8 (The
+Eight Questions) are now built**, against exactly this shape, the same incremental way the scene
+runner itself was built.
 
 **The shell:** `module/blank-inheritance/scripts/foundry/induction-terminal.mjs` — the
 `InductionTerminal` ApplicationV2 class, the singleton mount/refresh/unmount/open functions, and page
@@ -396,8 +397,27 @@ pick is now rejected, and a legitimate pick immediately after still succeeds.
 
 All four pages' Continue/Back chain verified live end to end: Page 2 → 3 → 4 → 7 → 4 → 3, state intact
 in both directions at every step (Soldier's fixed key ability needs no pick at all and still gates
-Continue correctly; Witchwarper's real choice gates correctly until picked). Pages 5-6 and 9 are not
-built — §4's table is still the plan for each.
+Continue correctly; Witchwarper's real choice gates correctly until picked).
+
+**Page 5, built 2026-09-10:** `templates/induction/page5-attributes.hbs` plus
+`module/blank-inheritance/scripts/core/induction-attributes.mjs`, `Induction.Page5.*` lang keys. No new
+data file, no catalogue, no picker/resolver two-state -- four identical, fully-open boost slots
+(`FREE_BOOST_SLOTS`, a plain constant) shown directly, the fourth real consumer of
+`core/boost-slots.mjs`'s shared machinery (ancestry boosts, ancestry flaws, background boosts, class
+key ability, now this) with zero new picking logic. `#pickFreeSlot` and `isLegalPick` (found fixing
+Page 4's own adversarial gap) both apply here unchanged. The generic `resolveSlots`/`claimedAbilities`
+mechanics are already covered by `test/tier1-induction-ancestry.test.mjs`; the new test file only
+covers what's Page-5-specific (the four-identical-slots shape, and that a free boost legally CAN repeat
+an ability ancestry/background/class already boosted, since Player Core's "different ability at the
+same time" rule only constrains the four free boosts against each other). Page 4's Continue now goes to
+the real Page 5; Page 5's own Continue temporarily jumps to Page 7 until Page 6 exists, the same
+temporary-skip role Page 4's Continue held until this page was built. Verified live end to end
+(Page 4 → 5 → 7 → 5 → 4, state intact both directions), including a repeat of Page 4's adversarial
+forged-pick check against this page's own claimed-ability set -- confirmed rejected, exactly as
+`isLegalPick`'s regression test predicts for any of the four call sites, not just the one that
+originally surfaced it.
+
+Pages 6 and 9 are not built — §4's table is still the plan for each.
 
 **Presentation pass, 2026-09-10** — a progress tracker and a page-transition animation, added across
 every built page at Ingram's direct request for "a nicely styled CSS form with bells and whistles."

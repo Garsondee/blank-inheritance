@@ -250,6 +250,15 @@
         "Back": "Back",
         "Continue": "Continue"
       },
+      "Page5": {
+        "Title": "Attribute Boosts",
+        "FormNumber": "FORM 1-E — APTITUDE ALLOCATION",
+        "Intro": "Four more boosts, entirely your choice — on top of whatever your ancestry, background and class already set on their own pages. Each of the four below must go to a different ability.",
+        "HelpSummary": "What does this actually change?",
+        "HelpBody": "This permanently raises one of the six numbers that drive almost every roll you make — the single most consequential page in this form. A free boost can land on an ability your ancestry, background or class already raised; it simply adds another +1 there. The four boosts below must each go to a different ability from each other, but not necessarily different from what's already been set elsewhere.",
+        "Back": "Back",
+        "Continue": "Continue"
+      },
       "Page7": {
         "Title": "Finishing Details",
         "FormNumber": "FORM 1-G — PERSONAL PARTICULARS",

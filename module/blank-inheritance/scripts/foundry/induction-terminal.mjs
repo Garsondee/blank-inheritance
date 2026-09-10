@@ -8,9 +8,10 @@
  * afterward, not handled here. See design/induction-terminal.md for the
  * full page-by-page design; this file and its templates currently build
  * Page 1 (orientation), Page 2 (ancestry), Page 3 (background), Page 4
- * (class), Page 7 (finishing details) and Page 8 (the eight questions).
- * Pages 5-6 and 9 don't exist yet -- Page 4's own Continue temporarily
- * jumps straight to Page 7, see that handler's own comment.
+ * (class), Page 5 (attribute boosts), Page 7 (finishing details) and Page 8
+ * (the eight questions). Pages 6 and 9 don't exist yet -- Page 5's own
+ * Continue temporarily jumps straight to Page 7, see that handler's own
+ * comment.
  *
  * PLAYER-FACING BY CONSTRUCTION, unlike the scene runner (GM-only) and the
  * command bar (seat-dependent) -- any user may open this, including a GM
@@ -44,6 +45,7 @@ import {
   filterBackgrounds
 } from "../core/induction-background.mjs";
 import { isClassChoiceComplete } from "../core/induction-class.mjs";
+import { FREE_BOOST_SLOTS, isFreeBoostsComplete } from "../core/induction-attributes.mjs";
 import {
   insertSuggestion,
   isFinishingComplete,
@@ -200,6 +202,9 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       pickClassKeyAbility: InductionTerminal.#onPickClassKeyAbility,
       continueFromClass: InductionTerminal.#onContinueFromClass,
       backFromClass: InductionTerminal.#onBackFromClass,
+      pickFreeBoost: InductionTerminal.#onPickFreeBoost,
+      continueFromAttributes: InductionTerminal.#onContinueFromAttributes,
+      backFromAttributes: InductionTerminal.#onBackFromAttributes,
       continueFromFinishing: InductionTerminal.#onContinueFromFinishing,
       backFromFinishing: InductionTerminal.#onBackFromFinishing,
       addLanguage: InductionTerminal.#onAddLanguage,
@@ -226,6 +231,10 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     },
     page4: {
       template: `${TEMPLATE_ROOT}/page4-class.hbs`,
+      scrollable: [".bi-induction__page"]
+    },
+    page5: {
+      template: `${TEMPLATE_ROOT}/page5-attributes.hbs`,
       scrollable: [".bi-induction__page"]
     },
     page7: {
@@ -255,6 +264,9 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     class: {
       id: null,
       keyAbilityPicks: [] // one slot (core/induction-class.mjs); empty until a free key ability needs a pick
+    },
+    attributes: {
+      freeBoostPicks: [] // parallel to core/induction-attributes.mjs's four FREE_BOOST_SLOTS
     },
     finishing: {
       name: "",
@@ -301,6 +313,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     if (this.state.page === 2) return { ...base, ...(await this.#page2Context()) };
     if (this.state.page === 3) return { ...base, ...(await this.#page3Context()) };
     if (this.state.page === 4) return { ...base, ...(await this.#page4Context()) };
+    if (this.state.page === 5) return { ...base, ...this.#page5Context() };
     if (this.state.page === 7) return { ...base, ...(await this.#page7Context()) };
     if (this.state.page === 8) return { ...base, ...(await this.#page8Context()) };
     return base;
@@ -518,6 +531,30 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       defensesLabel: proficiencySummary(cls.defenses, DEFENSE_CATEGORIES),
       keyAbilitySlot
     };
+  }
+
+  /**
+   * No catalogue to fetch (unlike Pages 2-4) -- the four slots are a fixed
+   * constant (core/induction-attributes.mjs's FREE_BOOST_SLOTS), so this
+   * needs no await at all, unlike every other #pageNContext.
+   */
+  #page5Context() {
+    const { resolved } = resolveSlots(FREE_BOOST_SLOTS, this.state.attributes.freeBoostPicks);
+    const freeBoostSlots = FREE_BOOST_SLOTS.map((slot, slotIndex) => {
+      const picked = resolved[slotIndex] ?? null;
+      const claimed = claimedAbilities(FREE_BOOST_SLOTS, this.state.attributes.freeBoostPicks, slotIndex);
+      return {
+        options: slot.map((ability) => ({
+          ability,
+          label: abilityLabel(ability),
+          picked: ability === picked,
+          claimed: claimed.has(ability) && ability !== picked,
+          slotIndex
+        }))
+      };
+    });
+
+    return { freeBoostSlots, isComplete: isFreeBoostsComplete(this.state.attributes.freeBoostPicks) };
   }
 
   async #page7Context() {
@@ -833,23 +870,38 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     this.#pickFreeSlot("class.keyAbilityPicks", cls ? [cls.keyAbility] : [], target);
   }
 
-  /**
-   * TEMPORARY: Pages 5-6 (Attribute Boosts/Portrait) don't exist yet.
-   * Jumping straight to Page 7 keeps the terminal click-through testable
-   * end to end rather than dead-ending here -- restore this to
-   * `this.state.page = 5; this.render({})` once Page 5 is built (the same
-   * temporary-skip role Page 3's own Continue held until Page 4 existed).
-   * See design/induction-terminal.md §8.
-   */
   static async #onContinueFromClass(_event, _target) {
     const cls = this._classes.find((c) => c.id === this.state.class.id);
     if (!isClassChoiceComplete(cls, this.state.class.keyAbilityPicks)) return;
-    this.state.page = 7;
+    this.state.page = 5;
     this.render({});
   }
 
   static async #onBackFromClass(_event, _target) {
     this.state.page = 3;
+    this.render({});
+  }
+
+  static async #onPickFreeBoost(_event, target) {
+    this.#pickFreeSlot("attributes.freeBoostPicks", FREE_BOOST_SLOTS, target);
+  }
+
+  /**
+   * TEMPORARY: Page 6 (Portrait) doesn't exist yet. Jumping straight to
+   * Page 7 keeps the terminal click-through testable end to end rather
+   * than dead-ending here -- restore this to `this.state.page = 6;
+   * this.render({})` once Page 6 is built (the same temporary-skip role
+   * Page 4's own Continue held until Page 5 existed). See
+   * design/induction-terminal.md §8.
+   */
+  static async #onContinueFromAttributes(_event, _target) {
+    if (!isFreeBoostsComplete(this.state.attributes.freeBoostPicks)) return;
+    this.state.page = 7;
+    this.render({});
+  }
+
+  static async #onBackFromAttributes(_event, _target) {
+    this.state.page = 4;
     this.render({});
   }
 
@@ -860,7 +912,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   static async #onBackFromFinishing(_event, _target) {
-    this.state.page = 4;
+    this.state.page = 5;
     this.render({});
   }
 
@@ -929,6 +981,7 @@ export function mountInductionTerminal() {
       ancestry: { id: null, filter: "", boostPicks: [], flawPicks: [] },
       background: { id: null, filter: "", boostPicks: [] },
       class: { id: null, keyAbilityPicks: [] },
+      attributes: { freeBoostPicks: [] },
       finishing: { name: "", pronouns: "", genderIdentity: "", appearance: "", languages: [], banalAnswers: {} },
       intake: { questions: {} }
     };
