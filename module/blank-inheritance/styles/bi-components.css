@@ -553,7 +553,56 @@
   pointer-events: none;
 }
 .bi-induction { pointer-events: auto; }
-.bi-induction__page { width: min(640px, 92vw); max-height: 86vh; overflow-y: auto; }
+/* Every page swap replaces .bi-induction__page with a genuinely new DOM
+   node (_replaceHTML's whole point, see the file-header comment in
+   induction-terminal.mjs) -- so a plain CSS animation here re-fires on its
+   own for every transition, no JS class-toggling needed. Zeroed by
+   --bi-dur-servo under prefers-reduced-motion already. */
+.bi-induction__page {
+  width: min(640px, 92vw);
+  max-height: 86vh;
+  overflow-y: auto;
+  animation: bi-induction-page-in var(--bi-dur-servo) var(--bi-ease-servo);
+}
+@keyframes bi-induction-page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* The routing-slip progress tracker, every page's header (design doc §4's
+   nine-page table, shown in full even for pages not built yet -- "step 3 of
+   9" should read honestly, not just count however many exist so far). A
+   Directorate form's own control-number furniture, not a generic wizard
+   progress bar -- numbered stamps in a row, not a filled bar, to stay in
+   the PAPER register rather than borrowing a GLASS-side idiom. */
+.bi-induction__tracker { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 22px; }
+.bi-induction__tracker-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--bi-paper-rule);
+  font-family: var(--bi-font-typewriter);
+  font-size: 11px;
+  color: var(--bi-paper-ink-2);
+  opacity: 0.45;
+  transition: opacity var(--bi-dur-snap) var(--bi-ease-servo), transform var(--bi-dur-snap) var(--bi-ease-servo);
+}
+.bi-induction__tracker-step--done {
+  opacity: 1;
+  border-color: var(--bi-paper-ink-2);
+  color: var(--bi-paper-ink);
+  background: var(--bi-paper-shade);
+}
+.bi-induction__tracker-step--current {
+  opacity: 1;
+  border: 2px solid var(--bi-vermilion);
+  color: var(--bi-vermilion-dim);
+  font-weight: 700;
+  transform: scale(1.14);
+}
 
 .bi-induction__actions { display: flex; justify-content: flex-end; margin-top: 28px; }
 .bi-induction__begin {

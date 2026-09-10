@@ -24,6 +24,13 @@
             </div>
         </header>
 
+        <div class="bi-induction__tracker" role="list" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
+            {{#each trackerSteps}}
+            <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
+                  role="listitem" title="{{this.number}}. {{this.label}}">{{this.number}}</span>
+            {{/each}}
+        </div>
+
         <p>{{localize "BLANKINHERITANCE.Induction.Page3.Intro"}}</p>
 
         {{#unless selected}}

@@ -369,6 +369,18 @@ Covered by the generic tier0 architecture tests for the UI shell (templates/lang
 pure-logic suites for both the ancestry choice resolution and the intake suggestion/language logic.
 Pages 4-6 and 9 are not built — §4's table is still the plan for each.
 
+**Presentation pass, 2026-09-10** — a progress tracker and a page-transition animation, added across
+every built page at Ingram's direct request for "a nicely styled CSS form with bells and whistles."
+The tracker is a routing-slip-style row of nine numbered stamps (`#trackerSteps()`, computed once in
+the shared `_prepareContext` base context so every page template gets it for free) — done/current/
+upcoming, shown in full even for pages not built yet so "step 3 of 9" reads honestly. Deliberately
+numbered stamps, not a filled progress bar — a Directorate form's own control-number furniture, staying
+in the PAPER register rather than borrowing a GLASS-side idiom. The page-transition animation needed no
+JavaScript at all: `_replaceHTML` already replaces `.bi-induction__page` with a genuinely new DOM node
+on every swap (the whole reason the page-swap architecture works), so a plain CSS `@keyframes` fade/rise
+on that class re-fires on its own for every transition, and is already zeroed under
+`prefers-reduced-motion` via the existing `--bi-dur-servo` token, no new media query needed.
+
 ---
 
 *Related: `design/induction.md` (the narrative design this is the technical half of),

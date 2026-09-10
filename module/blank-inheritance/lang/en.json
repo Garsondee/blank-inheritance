@@ -157,6 +157,9 @@
       "Insight": "Free to ask"
     },
     "Induction": {
+      "Tracker": {
+        "Label": "Induction progress"
+      },
       "Page1": {
         "Title": "Induction",
         "FormNumber": "FORM 1-A — CANDIDATE REGISTRATION",

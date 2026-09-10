@@ -248,12 +248,33 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
 
   /** @override */
   async _prepareContext() {
-    const base = { userName: game.user?.name ?? "" };
+    const base = { userName: game.user?.name ?? "", trackerSteps: this.#trackerSteps() };
     if (this.state.page === 2) return { ...base, ...(await this.#page2Context()) };
     if (this.state.page === 3) return { ...base, ...(await this.#page3Context()) };
     if (this.state.page === 7) return { ...base, ...(await this.#page7Context()) };
     if (this.state.page === 8) return { ...base, ...(await this.#page8Context()) };
     return base;
+  }
+
+  /**
+   * The routing-slip progress tracker every page's header shows (design
+   * doc §4's own page table, all nine entries -- shown even for the ones
+   * not built yet, so "you are on step 3 of 9" reads honestly rather than
+   * only ever showing however many pages happen to exist so far). Computed
+   * once in the shared base context so every page template gets it for
+   * free, rather than each page's own #pageNContext() repeating it.
+   */
+  #trackerSteps() {
+    const labels = [
+      "Orientation", "Ancestry", "Background", "Class", "Attributes",
+      "Portrait", "Finishing", "Questions", "Review"
+    ];
+    return labels.map((label, index) => {
+      const number = index + 1;
+      const isDone = number < this.state.page;
+      const isCurrent = number === this.state.page;
+      return { number, label, isDone, isCurrent, isUpcoming: !isDone && !isCurrent };
+    });
   }
 
   async #page2Context() {
