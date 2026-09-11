@@ -1,4 +1,4 @@
-"""The tile pyramid the annotation UI pans over.
+"""The tile pyramid the gazetteer pans over.
 
 The claim worth testing is not "tiles were written" but **tile (x, y, z)
 contains the image region the client will believe it contains**. The client

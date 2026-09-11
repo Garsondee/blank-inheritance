@@ -116,7 +116,7 @@
 
     "tiles": {
       "type": ["object", "null"],
-      "description": "The pyramid the annotation UI pans over, built from the master by tools/gazetteer/tile.py. Null before it has been built.",
+      "description": "The pyramid the gazetteer pans over, built from the master by tools/gazetteer/tile.py. Null before it has been built.",
       "additionalProperties": false,
       "properties": {
         "dir": { "type": "string" },

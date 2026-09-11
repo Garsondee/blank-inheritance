@@ -4,7 +4,7 @@
     python tools/gazetteer/tile.py
 
 The master is 12400x12400 and 110 MB. A browser will not hold that as one
-image, so the annotation tool reads tiles instead. Re-run this after any
+image, so the gazetteer reads tiles instead. Re-run this after any
 Photoshop export; the manifest records which master the current pyramid was
 built from, so a stale pyramid is detected rather than guessed at.
 
