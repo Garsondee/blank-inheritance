@@ -56,9 +56,17 @@
 <main class="gz-main">
   <div id="map" class="gz-map"></div>
 
+  <!-- Drag to widen. A lore note is prose, and prose in a 340px column is
+       the other half of "the session panel is too small" -- the map and the
+       reading surface want different amounts of room at different moments,
+       and only the person doing the work knows which moment this is. -->
+  <div class="gz-resize" id="side-resize" role="separator" aria-orientation="vertical"
+       aria-label="Resize the side panel" tabindex="0"></div>
+
   <aside class="gz-side">
-    <section class="gz-panel" id="inspector">
+    <section class="gz-panel gz-panel--capped" id="inspector">
       <h2 class="gz-panel__head">Inspector</h2>
+      <div class="gz-panel__body">
       <div class="gz-empty" id="inspector-empty">
         Nothing selected. Draw something, or pick a shape on the map.
       </div>
@@ -129,32 +137,62 @@
           <button type="button" class="gz-btn gz-btn--danger" id="btn-batch-delete">Delete selected</button>
         </div>
       </form>
+      </div>
     </section>
 
-    <section class="gz-panel gz-panel--grow">
+    <!-- The session list is the surface this tool is actually FOR: working
+         through a session's worth of locations one at a time. It therefore
+         gets the remaining height unconditionally and a floor it cannot be
+         pushed below, rather than whatever the panels above happen to leave
+         over -- a tall batch form used to crush it to three visible rows out
+         of thirty-six. -->
+    <section class="gz-panel gz-panel--grow" id="session-panel">
       <h2 class="gz-panel__head">
         Session
         <span class="gz-count" id="item-count">0</span>
       </h2>
+
       <div class="gz-filters">
         <input id="f-search" type="search" placeholder="filter by name, note or reference" autocomplete="off">
-        <label class="gz-select-all">
-          <input type="checkbox" id="select-all-visible" disabled>
-          <span id="select-all-label">select all shown</span>
-        </label>
+        <!-- Doubles as the progress readout: how much of this session still
+             needs writing is the single most useful number here, so it lives
+             on the control you would reach for anyway rather than in a
+             separate line of chrome. -->
+        <div class="gz-chips" id="status-chips" role="group" aria-label="Filter by status">
+          <button type="button" class="gz-chip is-on" data-status="all">All <span class="gz-chip__n" id="chip-n-all">0</span></button>
+          <button type="button" class="gz-chip" data-status="todo">Needs lore <span class="gz-chip__n" id="chip-n-todo">0</span></button>
+          <button type="button" class="gz-chip" data-status="locked">Locked <span class="gz-chip__n" id="chip-n-locked">0</span></button>
+        </div>
+        <div class="gz-listbar">
+          <label class="gz-select-all">
+            <input type="checkbox" id="select-all-visible" disabled>
+            <span id="select-all-label">select all</span>
+          </label>
+          <label class="gz-sort">
+            sort
+            <select id="f-sort">
+              <option value="ref">by reference</option>
+              <option value="name">by name</option>
+              <option value="added">by added</option>
+            </select>
+          </label>
+        </div>
       </div>
-      <p class="gz-hint gz-list-hint">Click a row to view it · Shift-click for a range · Ctrl-click to add one · click a name or note to rename it in place.</p>
-      <ul class="gz-list" id="item-list"></ul>
+      <ul class="gz-list" id="item-list"
+          title="Click a row to view it · Shift-click for a range · Ctrl-click to add one · click a name or note to edit it in place"></ul>
+      <p class="gz-hint gz-list-hint">Shift-click a range · Ctrl-click to add · click a name or note to edit</p>
     </section>
 
-    <section class="gz-panel">
+    <section class="gz-panel" id="layers-panel">
       <h2 class="gz-panel__head">Layers</h2>
-      <label class="gz-check"><input type="checkbox" id="l-grid" checked> Reference grid</label>
-      <label class="gz-check"><input type="checkbox" id="l-buildings" checked> Real buildings</label>
-      <label class="gz-check"><input type="checkbox" id="l-items" checked> Drawn locations</label>
-      <label class="gz-check"><input type="checkbox" id="l-published" checked> Published locations</label>
-      <label class="gz-check"><input type="checkbox" id="l-suppressed"> Removed buildings</label>
-      <p class="gz-hint" id="layer-hint"></p>
+      <div class="gz-panel__body">
+        <label class="gz-check"><input type="checkbox" id="l-grid" checked> Reference grid</label>
+        <label class="gz-check"><input type="checkbox" id="l-buildings" checked> Real buildings</label>
+        <label class="gz-check"><input type="checkbox" id="l-items" checked> Drawn locations</label>
+        <label class="gz-check"><input type="checkbox" id="l-published" checked> Published locations</label>
+        <label class="gz-check"><input type="checkbox" id="l-suppressed"> Removed buildings</label>
+        <p class="gz-hint" id="layer-hint"></p>
+      </div>
     </section>
   </aside>
 </main>

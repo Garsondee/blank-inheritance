@@ -193,6 +193,8 @@ async function boot() {
 
   wireLayerToggles(gridLayer);
   wireChrome();
+  wireCollapsiblePanels();
+  wireSidebarResize();
   wireKeys();
 
   // Finishing a shape puts the caret in the Note field, which is right: the
@@ -696,6 +698,50 @@ let visibleIds = [];
 // rather than re-anchoring on each one.
 let lastClickedId = null;
 
+// Which slice of the session the list is showing, and in what order. "todo"
+// is the one that matters day to day: the whole working loop is "which of
+// these still needs writing", and before this that question could only be
+// answered by scrolling the whole list looking for rows without a name.
+let statusFilter = "all";   // all | todo | locked
+let sortMode = "ref";       // ref | name | added
+
+/** The rows the list should show right now: text filter, status filter and
+ *  sort, in that order. Sorting by REFERENCE is the default because this is
+ *  a gazetteer -- things near each other on the map belong near each other
+ *  in the list, and a session is worked through a district at a time. */
+function itemsForList() {
+  const q = state.filter.trim().toLowerCase();
+  const rows = state.items.filter((item) => {
+    if (statusFilter === "todo" && item.locked) return false;
+    if (statusFilter === "locked" && !item.locked) return false;
+    if (!q) return true;
+    const refs = (item.derived && item.derived.refs) || [];
+    return `${item.name} ${item.note} ${item.kind} ${refs.join(" ")}`
+      .toLowerCase().includes(q);
+  });
+  // "￿" sorts unnamed items last rather than first: a list of blanks
+  // above everything named is the opposite of useful when the point is to
+  // read what is already written.
+  if (sortMode === "ref") {
+    return rows.sort((a, b) => (liveRef(a) || "￿").localeCompare(liveRef(b) || "￿"));
+  }
+  if (sortMode === "name") {
+    return rows.sort((a, b) => (a.name || "￿").localeCompare(b.name || "￿"));
+  }
+  return rows; // "added" -- state.items order, untouched
+}
+
+function updateStatusChips() {
+  const total = state.items.length;
+  const locked = state.items.filter((it) => it.locked).length;
+  $("chip-n-all").textContent = String(total);
+  $("chip-n-todo").textContent = String(total - locked);
+  $("chip-n-locked").textContent = String(locked);
+  document.querySelectorAll("#status-chips .gz-chip").forEach((chip) => {
+    chip.classList.toggle("is-on", chip.dataset.status === statusFilter);
+  });
+}
+
 function renderList() {
   const list = $("item-list");
   const sel = new Set(state.draw.selectedList());
@@ -703,10 +749,7 @@ function renderList() {
   const q = state.filter.trim().toLowerCase();
   let shown = 0;
   visibleIds = [];
-  for (const item of state.items) {
-    const refs = (item.derived && item.derived.refs) || [];
-    const hay = `${item.name} ${item.note} ${item.kind} ${refs.join(" ")}`.toLowerCase();
-    if (q && !hay.includes(q)) continue;
+  for (const item of itemsForList()) {
     shown += 1;
     visibleIds.push(item.localId);
     const li = document.createElement("li");
@@ -716,7 +759,7 @@ function renderList() {
       <input type="checkbox" class="gz-item__check" ${sel.has(item.localId) ? "checked" : ""}
              aria-label="select ${escapeHtml(item.name || `unnamed ${item.tier}`)}">
       <span class="gz-item__dot" style="background:${TIER_COLOUR[item.tier]}"></span>
-      <span>
+      <span class="gz-item__text">
         <span class="gz-item__name" title="${item.locked ? "locked — unlock to rename" : "click to rename"}">${item.name
           ? escapeHtml(item.name)
           : `<em>unnamed ${item.tier}</em>`}</span>
@@ -753,8 +796,19 @@ function renderList() {
     });
     list.appendChild(li);
   }
-  $("item-count").textContent = q ? `${shown}/${state.items.length}` : String(state.items.length);
+  const filtered = q || statusFilter !== "all";
+  $("item-count").textContent = filtered
+    ? `${shown}/${state.items.length}` : String(state.items.length);
+  if (!shown) {
+    const li = document.createElement("li");
+    li.className = "gz-list__empty";
+    li.textContent = statusFilter === "todo" && !q
+      ? "Nothing left to write here — every item in this session is locked."
+      : "Nothing matches that filter.";
+    list.appendChild(li);
+  }
   updateSelectAllControl(sel);
+  updateStatusChips();
 }
 
 function rangeSelect(toId) {
@@ -866,6 +920,10 @@ function wireChrome() {
   });
   $("btn-save").addEventListener("click", save);
   $("f-search").addEventListener("input", (e) => { state.filter = e.target.value; renderList(); });
+  document.querySelectorAll("#status-chips .gz-chip").forEach((chip) => {
+    chip.addEventListener("click", () => { statusFilter = chip.dataset.status; renderList(); });
+  });
+  $("f-sort").addEventListener("change", () => { sortMode = $("f-sort").value; renderList(); });
   $("select-all-visible").addEventListener("change", () => {
     const checked = $("select-all-visible").checked;
     const next = new Set(state.draw.selectedList());
@@ -1066,6 +1124,134 @@ function deleteItems(ids) {
 
 function deleteSelected() {
   deleteItems(state.draw.selectedList());
+}
+
+// --- sidebar shape -----------------------------------------------------------
+//
+// Both of these exist for the same reason: the session list is the surface
+// this tool is actually for, and it was getting whatever height the panels
+// above it happened to leave over -- three visible rows out of thirty-six.
+// A floor in CSS stops the worst of it; these two let the person working
+// decide the rest, because how much room the list versus the map versus a
+// lore note deserves changes from minute to minute and only they know which
+// minute this is. Both remember what was chosen: re-making the same layout
+// decision on every reload is its own small tax.
+
+const COLLAPSE_KEY = "gz.collapsedPanels";
+const WIDTH_KEY = "gz.sideWidth";
+const SIDE_MIN = 280;
+const SIDE_MAX = 900;
+
+/** localStorage is a convenience here, never a source of truth -- it throws
+ *  outright in some contexts (private windows, blocked site data), and a
+ *  layout preference is not worth taking the page down for. */
+function readStore(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw === null ? fallback : JSON.parse(raw);
+  } catch (e) { return fallback; }
+}
+function writeStore(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* not worth failing over */ }
+}
+
+function wireCollapsiblePanels() {
+  const collapsed = readStore(COLLAPSE_KEY, {}) || {};
+  document.querySelectorAll(".gz-panel").forEach((panel) => {
+    const head = panel.querySelector(":scope > .gz-panel__head");
+    const body = panel.querySelector(":scope > .gz-panel__body");
+    // No body wrapper = not collapsible. The session panel has none on
+    // purpose: collapsing the list this tool exists to work through is not
+    // a feature, it is a way to lose the list.
+    if (!head || !body || !panel.id) return;
+    head.classList.add("is-toggle");
+    head.setAttribute("role", "button");
+    head.setAttribute("tabindex", "0");
+    if (collapsed[panel.id]) panel.classList.add("is-collapsed");
+
+    const toggle = () => {
+      panel.classList.toggle("is-collapsed");
+      collapsed[panel.id] = panel.classList.contains("is-collapsed");
+      writeStore(COLLAPSE_KEY, collapsed);
+    };
+    head.addEventListener("click", toggle);
+    head.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+    });
+  });
+}
+
+// Past this the sidebar carries the inspector and the list side by side
+// instead of stacked -- see .gz-side.is-wide. Below it there is not enough
+// room for two readable columns and stacking is the better of the two bad
+// options.
+const SIDE_TWO_COLUMN = 640;
+// The map is the other half of this tool and must not be squeezed to a
+// letterbox by a width that was reasonable on a bigger window. Found live:
+// a 701px sidebar saved on a wide window left a 278px map on a narrow one,
+// and pushed the page into horizontal overflow.
+const MAP_MIN = 360;
+
+function setSideWidth(px) {
+  const ceiling = Math.max(SIDE_MIN, Math.min(SIDE_MAX, window.innerWidth - MAP_MIN));
+  const w = Math.min(ceiling, Math.max(SIDE_MIN, Math.round(px)));
+  document.documentElement.style.setProperty("--gz-side-w", w + "px");
+  document.querySelector(".gz-side").classList.toggle("is-wide", w >= SIDE_TWO_COLUMN);
+  return w;
+}
+
+function wireSidebarResize() {
+  const handle = $("side-resize");
+  const saved = readStore(WIDTH_KEY, null);
+  // Always run it, saved or not: this is also what decides one column vs two.
+  setSideWidth(typeof saved === "number"
+    ? saved
+    : document.querySelector(".gz-side").getBoundingClientRect().width);
+
+  handle.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    handle.setPointerCapture(e.pointerId);
+    handle.classList.add("is-dragging");
+    let width = null;
+    const move = (ev) => { width = setSideWidth(window.innerWidth - ev.clientX); };
+    const end = () => {
+      handle.removeEventListener("pointermove", move);
+      handle.removeEventListener("pointerup", end);
+      handle.removeEventListener("pointercancel", end);
+      handle.classList.remove("is-dragging");
+      // Leaflet caches the container size; without this the map keeps the
+      // old width until something else happens to invalidate it.
+      state.map.invalidateSize();
+      if (width !== null) writeStore(WIDTH_KEY, width);
+    };
+    handle.addEventListener("pointermove", move);
+    handle.addEventListener("pointerup", end);
+    handle.addEventListener("pointercancel", end);
+  });
+
+  handle.addEventListener("keydown", (e) => {
+    const step = e.shiftKey ? 40 : 10;
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    const current = parseInt(getComputedStyle(document.documentElement)
+      .getPropertyValue("--gz-side-w"), 10) || SIDE_MIN;
+    const width = setSideWidth(current + (e.key === "ArrowLeft" ? step : -step));
+    state.map.invalidateSize();
+    writeStore(WIDTH_KEY, width);
+  });
+
+  // Re-clamp when the window changes, and deliberately do NOT write the
+  // result back: a width squeezed down to fit a small window is not a new
+  // preference, and overwriting it would quietly lose the chosen one the
+  // first time the tool was opened on a laptop.
+  window.addEventListener("resize", () => {
+    const requested = readStore(WIDTH_KEY, null);
+    setSideWidth(typeof requested === "number"
+      ? requested
+      : parseInt(getComputedStyle(document.documentElement)
+          .getPropertyValue("--gz-side-w"), 10) || SIDE_MIN);
+    state.map.invalidateSize();
+  });
 }
 
 function wireLayerToggles(gridLayer) {

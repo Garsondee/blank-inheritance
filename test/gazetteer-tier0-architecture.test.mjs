@@ -225,6 +225,55 @@ test("a locked item is protected everywhere it could be deleted or overwritten",
     "moved wholesale with the arrow keys");
 });
 
+test("the session list keeps a usable height whatever the inspector is doing", () => {
+  // The session list is the surface this tool is for -- working through a
+  // session's worth of locations one at a time -- and it was getting
+  // whatever height the panels above happened to leave over: three visible
+  // rows out of thirty-six, because a batch form is ~496px tall.
+  //
+  // The floor has to sit on the LIST, not the panel: measured live, the
+  // panel's own chrome (search, status chips, select-all, sort, hint) takes
+  // ~157px before a single row is drawn, so a 260px floor on the panel left
+  // a 103px list -- two rows. Worth pinning, since the obvious place to put
+  // a min-height is the panel and it silently under-delivers.
+  const css = readFileSync(join(STATIC, "gazetteer.css"), "utf8");
+  assert.ok(/\.gz-list\s*\{[^}]*min-height:\s*\d+px/.test(css),
+    "gazetteer.css no longer gives .gz-list its own min-height -- a floor on " +
+    "the panel instead is eaten by the panel's own chrome, which is how the " +
+    "list ended up two rows tall with a batch form open");
+  assert.ok(/\.gz-panel--capped[^{]*\{[^}]*max-height/.test(css),
+    "the inspector is no longer height-capped -- uncapped, a tall batch form " +
+    "pushes the session list off the bottom of the sidebar");
+
+  // The map is the other half of the tool: a sidebar width saved on a wide
+  // window must not squeeze it to a letterbox on a narrow one (seen live:
+  // a 701px sidebar left a 278px map and overflowed the page sideways).
+  const app = readFileSync(join(STATIC, "app.js"), "utf8");
+  assert.ok(/MAP_MIN/.test(app) && /window\.innerWidth\s*-\s*MAP_MIN/.test(app),
+    "app.js no longer clamps the sidebar against the viewport -- a stored " +
+    "width from a bigger window will squeeze the map and overflow the page");
+});
+
+test("the session panel itself cannot be collapsed away", () => {
+  // Collapsing is keyed off a .gz-panel__body wrapper. The inspector and
+  // layers panels have one; the session panel deliberately does not,
+  // because collapsing the list this tool exists to work through is not a
+  // feature, it is a way to lose the list.
+  const html = readFileSync(join(STATIC, "index.html"), "utf8");
+  const section = (id) => {
+    const start = html.indexOf(`id="${id}"`);
+    assert.ok(start > -1, `index.html no longer has #${id}`);
+    return html.slice(start, html.indexOf("</section>", start));
+  };
+  assert.ok(section("inspector").includes("gz-panel__body"),
+    "#inspector lost its .gz-panel__body wrapper and can no longer be collapsed");
+  assert.ok(section("layers-panel").includes("gz-panel__body"),
+    "#layers-panel lost its .gz-panel__body wrapper and can no longer be collapsed");
+  assert.ok(!section("session-panel").includes("gz-panel__body"),
+    "#session-panel gained a .gz-panel__body wrapper, which makes the session " +
+    "list collapsible -- the one panel that must always be visible");
+});
+
 test("the shared fixture is reachable from both suites' expected paths", () => {
   const fixture = JSON.parse(
     readFileSync(join(here, "fixtures", "gazetteer-grid-cases.json"), "utf8"));
