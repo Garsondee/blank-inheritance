@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "location.schema.json",
+  "title": "Location",
+  "description": "A place on the campaign map: a district, a building or block, or a pinned point. One file per location in data/locations/. Produced by promoting a tools/gazetteer drawing-session item once its lore has been written together, not authored from scratch -- see tools/gazetteer/core/location.py's promote(). geometry.rings is canonical (lon/lat, WGS84); everything under `derived` is recomputed from it by tools/gazetteer/derive.mjs and must never be hand-edited. `realWorld` is research about the real Kobe geography this map was drawn from -- material for writing a convincing place, never itself canon, and no string from it may appear verbatim in `lore`.",
+  "type": "object",
+  "required": ["$schema", "id", "type", "tier", "geometry", "derived", "authoring"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string" },
+    "type": { "const": "location" },
+
+    "tier": {
+      "enum": ["region", "site", "point"],
+      "description": "region: a district -- regions tessellate, and the goal is the whole map broken into them. site: a building, complex or block inside a region. point: a pin with a story and no footprint."
+    },
+
+    "name": { "type": ["string", "null"] },
+    "nameJa": { "type": ["string", "null"] },
+    "namingPlaceholderRef": { "type": ["string", "null"] },
+
+    "kind": {
+      "type": "string",
+      "description": "A short, blunt classifier for sorting and map colour -- district / quarter / waterfront / industrial / residential / civic / commercial / transport / military / green / water / landmark / ruin / infrastructure / other, or blank. Not the terrain system; finer character belongs in lore.summary, where it can be prose."
+    },
+
+    "geometry": {
+      "type": "object",
+      "description": "Canonical. lon/lat (WGS84), never image pixels or map-frame metres -- design/map-generation.md: the frame's centre, rotation and extent have all changed before, and pixel coordinates would silently detach a location from its place the next time they do.",
+      "required": ["rings"],
+      "additionalProperties": false,
+      "properties": {
+        "rings": {
+          "type": "array",
+          "description": "One or more closed rings. A site tier normally has exactly one; a region may hold several disjoint parts. Each ring is [lon, lat] pairs.",
+          "minItems": 1,
+          "items": {
+            "type": "array",
+            "minItems": 3,
+            "items": {
+              "type": "array",
+              "items": { "type": "number" },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          }
+        },
+        "point": {
+          "type": ["array", "null"],
+          "description": "For tier 'point' only: [lon, lat]. Null for region/site.",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+
+    "pinAnchor": {
+      "type": ["array", "null"],
+      "description": "[lon, lat] -- where a Foundry map pin should actually sit. Null defaults to the area centroid, which lands badly on an L-shaped or annular footprint (a courtyard, a dock basin); set this explicitly once that matters.",
+      "items": { "type": "number" },
+      "minItems": 2,
+      "maxItems": 2
+    },
+
+    "derived": {
+      "type": "object",
+      "description": "Everything computable from geometry, recomputed on every promotion/re-derive and never hand-edited. Present so the file is readable and queryable without running the tool.",
+      "additionalProperties": false,
+      "properties": {
+        "imagePx": { "description": "geometry.rings reprojected to campaign-map image pixels, same shape as geometry.rings.", "type": "array" },
+        "centroidPx": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+        "cells": { "type": "array", "items": { "type": "string" }, "description": "Every grid reference the shape touches -- tools/gazetteer/core/grid.py's cell_coverage, area-exact." },
+        "ref": { "type": ["string", "null"], "description": "The single reference to say aloud -- the cell the centroid falls in." },
+        "areaM2": { "type": ["number", "null"] },
+        "withinRegionRef": {
+          "type": ["string", "null"],
+          "description": "For a site or point: the region id whose area covers this location's centroid, by majority if more than one candidate region overlaps. Null if no region has been drawn over this ground yet, or for a region itself."
+        },
+        "containsRefs": {
+          "type": "array",
+          "description": "For a region: site/point location ids whose centroid falls inside it. Always empty for a site or point.",
+          "items": { "type": "string" }
+        },
+        "neighbourRefs": {
+          "type": "array",
+          "description": "For a region: other region ids sharing a boundary. Not yet computed by the promotion path -- populated by a future adjacency pass; empty until then.",
+          "items": { "type": "string" }
+        },
+        "sourceSession": { "type": ["string", "null"], "description": "The gazetteer draft this was promoted from, for provenance." },
+        "sourceLocalId": { "type": ["string", "null"], "description": "The item's localId within that session." },
+        "promotedDate": { "type": ["string", "null"], "format": "date" }
+      }
+    },
+
+    "authoring": {
+      "type": "object",
+      "required": ["note", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "note": {
+          "type": "string",
+          "description": "The human's rough note from the drawing session, carried over verbatim. Never rewritten -- corrections append, they do not overwrite. This is the brief the lore below was written from."
+        },
+        "status": {
+          "enum": ["needs-lore", "drafted", "approved"],
+          "description": "needs-lore: promoted with a note but no written lore yet. drafted: lore written, not yet reviewed together. approved: signed off."
+        }
+      }
+    },
+
+    "lore": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "summary": { "type": "string", "description": "A GM-facing paragraph: what this place is, in plain instructional sentences (design/gm-facing prose style)." },
+        "playerFacing": { "type": "string", "description": "What a player would see/hear on arrival, or an Encyclopaedia-check reveal. Law 11: only what has actually been learned." },
+        "gmOnly": { "type": "string", "description": "Anything hidden -- a Fact per design/npc-social-intel.md's pattern, a hook, a hazard." }
+      }
+    },
+
+    "realWorld": {
+      "type": "object",
+      "description": "Research about the real Kobe geography under this shape -- from tools/gazetteer/enrich.py querying data/map/kurose.gpkg. Never canon. No string here may appear verbatim in `lore`.",
+      "additionalProperties": true,
+      "properties": {
+        "character": { "type": "string" },
+        "dominantLanduse": { "type": ["string", "null"] },
+        "buildingCount": { "type": ["integer", "null"] },
+        "realNames": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "factionRefs": { "type": "array", "items": { "type": "string" } },
+    "npcRefs": { "type": "array", "items": { "type": "string" } },
+    "episodeRefs": { "type": "array", "items": { "type": "string" } },
+    "openQuestionRefs": { "type": "array", "items": { "type": "string" } },
+    "bibleRef": { "type": ["string", "null"], "description": "ideas/story/bible/locations/<name>.md, for a place that recurs or carries weight." },
+    "assetRefs": { "type": "array", "items": { "type": "string" }, "description": "data/campaign/asset-registry.json entry ids." }
+  }
+}

@@ -1,0 +1,184 @@
+{
+  "$schema": "../schema/groundtruth-overrides.schema.json",
+  "id": "groundtruth-overrides",
+  "type": "groundtruth-overrides",
+  "description": "Real-world features the campaign map no longer has. The GeoPackage stays true to the real place; this records where the painted map disagrees with it, so adopting a building's footprint never offers one that has been painted out.",
+  "suppressedFeatures": [
+    {
+      "featureId": "677c878b192f0da6",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "b6ac25fd53329daa",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "d7e324675ad6a253:riser0",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "2d8e3aab036efca9",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "196c4e6013010570",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "d7e324675ad6a253:wall6",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "d7e324675ad6a253:wall4",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "b5cf0f2f35a3fb88",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "d7e324675ad6a253:wall5",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "d7e324675ad6a253:wall2",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "d7e324675ad6a253:wall3",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "d7e324675ad6a253:wall1",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "d7e324675ad6a253:wall0",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "d7e324675ad6a253:wall7",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "7d9b18587944b22f",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "c737d7acc014c295",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "e4f5432b98909a05",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "d251528b4af5ab06:riser0",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "97cac890750627ed:riser1",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "97cac890750627ed:riser0",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "322c48876a2eab3c",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "d251528b4af5ab06:wall4",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "d251528b4af5ab06:wall5",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "d7b7560429294987",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "d251528b4af5ab06:wall3",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "d251528b4af5ab06:wall6",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "d251528b4af5ab06:wall7",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "098a48d1a4cd11c6",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "ef94a39aa0248ce6",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "da91d7136d0f085d",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "7e7ae88a6d5b09aa",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "d251528b4af5ab06:wall0",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "d251528b4af5ab06:wall1",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "d251528b4af5ab06:wall2",
+      "note": "",
+      "when": "2026-09-11"
+    },
+    {
+      "featureId": "df25881b86e4c8f3",
+      "note": "",
+      "when": "2026-09-11"
+    }
+  ],
+  "suppressedAreas": []
+}

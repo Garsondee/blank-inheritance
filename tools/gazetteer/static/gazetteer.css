@@ -1,0 +1,342 @@
+/* Gazetteer tool chrome.
+ *
+ * Page furniture only — every colour, face and metric comes from the module's
+ * own bi-tokens.css. Nothing here invents a value, which is the whole point of
+ * loading the real stylesheet rather than mocking it: if the campaign's palette
+ * changes, this changes with it.
+ *
+ * PAPER register (design/ux-doctrine.md §7b). A survey sheet and a set of notes
+ * are documents, so this is bone and ink and ruled fields, not phosphor.
+ */
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--bi-void);
+  color: var(--bi-paper-ink);
+  font-family: var(--bi-font-document);
+}
+
+body {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: hidden;
+}
+
+/* --- top bar ------------------------------------------------------------- */
+
+.gz-bar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 8px 14px;
+  background: var(--bi-paper);
+  border-bottom: 2px solid var(--bi-paper-rule);
+  box-shadow: 0 2px 0 var(--bi-paper-shade), 0 6px 14px rgba(0,0,0,.5);
+  position: relative;
+  z-index: 500;
+}
+
+.gz-bar__title { display: flex; align-items: baseline; gap: 10px; }
+.gz-bar__jp {
+  font-family: var(--bi-font-mincho);
+  font-size: var(--bi-jp-size-lg);
+  letter-spacing: var(--bi-kanji-tracking);
+  color: var(--bi-paper-ink-2);
+}
+.gz-bar__name {
+  font-family: var(--bi-font-stencil);
+  font-size: 15px;
+  letter-spacing: .18em;
+  color: var(--bi-paper-ink);
+}
+
+/* The readout is the one thing on this page that is always true and always
+   moving, so it gets the monospace face and a fixed width — a number that
+   jitters in position is harder to read than one that changes value. */
+.gz-readout {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--bi-font-typewriter-clean);
+  min-width: 230px;
+}
+.gz-readout__ref {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--bi-paper-ink);
+  min-width: 84px;
+}
+.gz-readout__px { font-size: 11px; color: var(--bi-paper-ink-2); }
+
+.gz-tools { display: flex; gap: 4px; margin-left: auto; }
+
+.gz-tool, .gz-btn {
+  font-family: var(--bi-font-condensed);
+  font-size: 12px;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  padding: 6px 11px;
+  border: 1px solid var(--bi-paper-rule);
+  background: linear-gradient(180deg, #efe7d2, var(--bi-paper-shade));
+  color: var(--bi-paper-ink);
+  cursor: pointer;
+  border-radius: 2px;
+}
+.gz-tool:hover, .gz-btn:hover { background: #f6efdd; }
+.gz-tool.is-active {
+  background: var(--bi-paper-ink);
+  color: var(--bi-paper);
+  border-color: var(--bi-paper-ink);
+}
+.gz-btn--danger { color: var(--bi-vermilion); }
+
+.gz-bar__right { display: flex; align-items: center; gap: 10px; }
+.gz-save {
+  font-family: var(--bi-font-typewriter);
+  font-size: 11px;
+  color: var(--bi-paper-ink-2);
+}
+.gz-save.is-dirty { color: var(--bi-vermilion); }
+
+/* --- layout -------------------------------------------------------------- */
+
+.gz-main { display: grid; grid-template-columns: 1fr 340px; min-height: 0; }
+.gz-map { background: var(--bi-void); }
+
+.gz-side {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--bi-paper);
+  border-left: 2px solid var(--bi-paper-rule);
+  overflow: hidden;
+}
+
+.gz-panel {
+  border-bottom: 1px solid var(--bi-paper-rule);
+  padding: 10px 12px 12px;
+  min-height: 0;
+}
+.gz-panel--grow { flex: 1; display: flex; flex-direction: column; }
+
+.gz-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 8px;
+  font-family: var(--bi-font-condensed);
+  font-size: 11px;
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  color: var(--bi-paper-ink-2);
+  border-bottom: 1px solid var(--bi-paper-rule);
+  padding-bottom: 5px;
+}
+.gz-count {
+  font-family: var(--bi-font-typewriter-clean);
+  background: var(--bi-paper-shade);
+  padding: 1px 7px;
+  border-radius: 2px;
+}
+
+.gz-empty, .gz-hint {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--bi-paper-ink-2);
+  margin: 6px 0 0;
+}
+
+/* --- form ---------------------------------------------------------------- */
+
+.gz-field { display: block; margin-bottom: 9px; }
+.gz-field__label {
+  display: block;
+  font-family: var(--bi-font-condensed);
+  font-size: 10px;
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  color: var(--bi-paper-ink-2);
+  margin-bottom: 3px;
+}
+.gz-field__label em { font-style: normal; opacity: .65; text-transform: none; letter-spacing: 0; }
+
+.gz-field input, .gz-field select, .gz-field textarea, .gz-filters input {
+  width: 100%;
+  font-family: var(--bi-font-document);
+  font-size: 13px;
+  color: var(--bi-paper-ink);
+  background: #f4eeda;
+  border: 1px solid var(--bi-paper-rule);
+  border-radius: 2px;
+  padding: 5px 7px;
+}
+.gz-field textarea { resize: vertical; line-height: 1.45; }
+.gz-field input:focus, .gz-field textarea:focus, .gz-field select:focus {
+  outline: 2px solid var(--bi-brass);
+  outline-offset: -1px;
+}
+
+.gz-facts {
+  margin: 10px 0 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+  font-family: var(--bi-font-typewriter-clean);
+  font-size: 11px;
+}
+.gz-facts dt { color: var(--bi-paper-ink-2); }
+.gz-facts dd { margin: 0; color: var(--bi-paper-ink); word-break: break-word; }
+
+.gz-form__actions { display: flex; gap: 6px; margin-top: 10px; }
+
+.gz-promote {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--bi-paper-rule);
+}
+.gz-btn--promote {
+  width: 100%;
+  text-align: center;
+  background: var(--bi-brass);
+  color: var(--bi-brass-shadow);
+  border-color: var(--bi-brass-dark);
+  font-weight: 700;
+}
+.gz-btn--promote:hover { background: var(--bi-brass-lit); }
+.gz-btn--promote:disabled {
+  background: var(--bi-paper-shade);
+  color: var(--bi-paper-ink-2);
+  border-color: var(--bi-paper-rule);
+  cursor: not-allowed;
+}
+.gz-promote .gz-hint { margin-bottom: 6px; }
+.gz-promote .gz-hint.is-blocked { color: var(--bi-vermilion); }
+.gz-promote .gz-hint.is-done { color: var(--bi-ok); }
+
+/* --- item list ----------------------------------------------------------- */
+
+.gz-filters { margin-bottom: 6px; }
+
+.gz-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+.gz-item {
+  display: grid;
+  grid-template-columns: 8px 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+  padding: 5px 4px;
+  border-bottom: 1px dotted var(--bi-paper-rule);
+  cursor: pointer;
+}
+.gz-item:hover { background: #f4eeda; }
+.gz-item.is-selected { background: var(--bi-paper-shade); box-shadow: inset 3px 0 0 var(--bi-brass); }
+.gz-item__dot { width: 8px; height: 8px; border-radius: 50%; align-self: center; }
+.gz-item__name { font-size: 13px; }
+.gz-item__name em { font-style: italic; color: var(--bi-paper-ink-2); }
+.gz-item__note {
+  display: block;
+  font-size: 11px;
+  color: var(--bi-paper-ink-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gz-item__ref {
+  font-family: var(--bi-font-typewriter-clean);
+  font-size: 11px;
+  color: var(--bi-paper-ink-2);
+}
+
+.gz-check {
+  display: block;
+  font-size: 12px;
+  margin: 3px 0;
+  cursor: pointer;
+}
+
+/* --- status -------------------------------------------------------------- */
+
+.gz-status {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 5px 14px;
+  background: var(--bi-steel-800);
+  color: var(--bi-bone-dim);
+  font-family: var(--bi-font-typewriter-clean);
+  font-size: 11px;
+  border-top: 1px solid var(--bi-steel-600);
+}
+.gz-status__keys { color: var(--bi-bone-dark); }
+.gz-status.is-warn { color: var(--bi-amber); }
+.gz-status.is-error { color: var(--bi-vermilion); }
+
+/* --- map overlays -------------------------------------------------------- */
+
+.leaflet-container { background: var(--bi-void); font-family: var(--bi-font-document); }
+
+/* Vertex handles. Square and small: a round handle reads as a map symbol, a
+   square one reads as a control, and on a sheet already full of circles the
+   difference matters. */
+.gz-vertex {
+  background: var(--bi-paper);
+  border: 2px solid var(--bi-vermilion);
+  border-radius: 1px;
+  margin: -5px 0 0 -5px;
+  width: 10px; height: 10px;
+  cursor: grab;
+}
+.gz-vertex:hover { background: var(--bi-vermilion); }
+.gz-vertex--mid {
+  border-color: var(--bi-brass);
+  border-style: dashed;
+  opacity: .75;
+  width: 8px; height: 8px;
+  margin: -4px 0 0 -4px;
+}
+.gz-vertex--mid:hover { opacity: 1; background: var(--bi-brass); }
+
+.gz-pin {
+  width: 14px; height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  border: 2px solid var(--bi-paper);
+  background: var(--bi-vermilion);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.6);
+}
+.gz-pin--published {
+  width: 16px; height: 16px;
+  margin: -8px 0 0 -8px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: var(--bi-brass);
+  border-color: var(--bi-brass-lit);
+}
+
+.gz-tip {
+  background: var(--bi-paper);
+  border: 1px solid var(--bi-paper-rule);
+  color: var(--bi-paper-ink);
+  font-size: 11px;
+  padding: 2px 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.4);
+}
+.gz-tip::before { display: none; }
+
+.gz-marquee {
+  position: absolute;
+  border: 1px dashed var(--bi-vermilion);
+  background: rgba(209, 64, 42, .12);
+  pointer-events: none;
+  z-index: 700;
+}

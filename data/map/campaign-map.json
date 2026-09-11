@@ -83,6 +83,13 @@
       }
     ]
   },
-  "tiles": null,
+  "tiles": {
+    "dir": "tools/gazetteer/_tiles",
+    "tileSize": 512,
+    "maxZoom": 5,
+    "format": "webp",
+    "builtFromSha256": "990701f31aed26bb15d4b277d4e288ca74770ab83e4e8f5ee2d65f9c672a01ee",
+    "builtDate": "2026-09-11"
+  },
   "openQuestionRefs": []
 }

@@ -107,3 +107,11 @@ harvest/test-reports/
 # Drawing-session drafts: raw input awaiting hand-conversion into real location
 # entities, exactly like data/map/editor-submissions/ before them.
 /data/map/gazetteer-drafts/
+
+# SQLite WAL-mode sidecar files. citymap.store.gpkg opens data/map/kurose.gpkg
+# with journal_mode=WAL (a long feature-query read must never block a short
+# write), which creates these next to the tracked .gpkg on first connection.
+# Transient local state, not content -- the same tracked-database/untracked-
+# journal split as a .git/index vs its .lock.
+*.gpkg-wal
+*.gpkg-shm

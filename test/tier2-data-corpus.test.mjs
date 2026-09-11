@@ -44,9 +44,16 @@ function walkJson(dir, out = []) {
 // unrelated map-editor-rearchitecture work; walkJson does a plain filesystem
 // walk and does not consult .gitignore, so an explicit skip is required here
 // exactly like the schema/ one just above, not something git alone fixes).
+// data/map/gazetteer-drafts/ is the same shape of exclusion for the same
+// reason, one tool later: tools/gazetteer's drawing-session dumps are scratch
+// (core/session.py's own docstring calls them that explicitly) that becomes a
+// real data/locations/*.json entity only once promoted — so a real session
+// file left on disk from actually using the tool must not fail this tier
+// either (found 2026-09-11, verifying the gazetteer itself, same class of bug).
 const EXCLUDED_PATH_SEGMENTS = [
   `${path.sep}schema${path.sep}`,
   `${path.sep}map${path.sep}editor-submissions${path.sep}`,
+  `${path.sep}map${path.sep}gazetteer-drafts${path.sep}`,
 ];
 
 function isCorpusFile(absPath) {
@@ -61,8 +68,14 @@ test("isCorpusFile: excludes schema definitions and gitignored editor-submission
     isCorpusFile(path.join(dataRoot, "map", "editor-submissions", "submission-20260823-202227-731688.json")),
     false
   );
+  assert.equal(
+    isCorpusFile(path.join(dataRoot, "map", "gazetteer-drafts", "session-20260911-144323.json")),
+    false
+  );
   assert.equal(isCorpusFile(path.join(dataRoot, "npcs", "commander.json")), true);
   assert.equal(isCorpusFile(path.join(dataRoot, "map", "frames", "kurose-12km.json")), true);
+  assert.equal(isCorpusFile(path.join(dataRoot, "map", "groundtruth-overrides.json")), true);
+  assert.equal(isCorpusFile(path.join(dataRoot, "map", "campaign-map.json")), true);
 });
 
 let ajvAvailable = true;

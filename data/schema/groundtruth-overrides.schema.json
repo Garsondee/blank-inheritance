@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "groundtruth-overrides.schema.json",
+  "title": "Ground-truth Overrides",
+  "description": "Real-world features the campaign map no longer has. data/map/kurose.gpkg describes the real place the map was drawn from; the painted map has diverged from it (the operation log sank three islands, and the Photoshop master has been reworked by hand since). This singleton records where the two disagree, so that clicking a building to adopt its footprint never offers one that has been painted out. Suppression is never deletion: the GeoPackage stays true to the real place, so 'what was here before it was levelled' remains answerable, a mistake is undoable, and the record is a small tracked file with readable diffs rather than a change buried in a 120 MB binary. Consumed by tools/gazetteer/core/overrides.py.",
+  "type": "object",
+  "required": ["$schema", "id", "type", "suppressedFeatures", "suppressedAreas"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "groundtruth-overrides" },
+    "type": { "const": "groundtruth-overrides" },
+    "description": { "type": "string" },
+
+    "suppressedFeatures": {
+      "type": "array",
+      "description": "Named exactly, for 'that specific building is gone'.",
+      "items": {
+        "type": "object",
+        "required": ["featureId"],
+        "additionalProperties": false,
+        "properties": {
+          "featureId": {
+            "type": "string",
+            "description": "A feature id from the GeoPackage. Stable across re-imports by construction -- derived in source CRS before rotation, per design/map-generation.md."
+          },
+          "note": { "type": "string", "description": "Why it is gone, in the campaign's terms if that is known." },
+          "when": { "type": ["string", "null"], "description": "ISO date the suppression was recorded. Not an in-fiction date." }
+        }
+      }
+    },
+
+    "suppressedAreas": {
+      "type": "array",
+      "description": "A polygon inside which everything is gone -- an airport, a reclaimed island, a block levelled by a Claimant. Areas exist because listing four thousand feature ids for a sunk island would be unreadable, unreviewable, and would silently fail to cover anything added to the ground truth later inside the same footprint. A feature is suppressed by an area when its CENTROID falls inside: a wall or a road that merely clips the corner of a levelled block has not itself been levelled.",
+      "items": {
+        "type": "object",
+        "required": ["id", "ringPx"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "ringPx": {
+            "type": "array",
+            "description": "The polygon in campaign-map image pixels -- the space it was drawn in, and the space the suppression test runs in.",
+            "minItems": 3,
+            "items": {
+              "type": "array",
+              "items": { "type": "number" },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "ring": {
+            "type": "array",
+            "description": "The same polygon as lon/lat (WGS84), attached at save time. Canonical in the sense design/map-generation.md means: it survives the map being re-exported at a different size.",
+            "items": {
+              "type": "array",
+              "items": { "type": "number" },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "refs": {
+            "type": "array",
+            "description": "Grid references the area covers, derived. Present so the file can be read without running the tool.",
+            "items": { "type": "string" }
+          },
+          "note": { "type": "string" },
+          "when": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<!--
+  The Gazetteer — drawing locations onto the campaign map.
+
+  Themed with the module's own stylesheet layers, loaded exactly the way
+  design/ui/style-prototype.html loads them: tokens and components, never the
+  Foundry bridge. PAPER register throughout, per design/ux-doctrine.md §7b —
+  this is a survey sheet and a set of notes, which is what PAPER is for. The
+  repo's other two map tools are its only unthemed surfaces; the standing
+  Visual Identity Directive says unify, so this one does.
+
+  Leaflet is used with CRS.Simple, so every coordinate on this page is a
+  campaign-map image pixel. There is no geography in the browser: projection
+  needs the 31° page rotation and pyproj, and lives on the server.
+-->
+<html lang="en" class="bi-scope">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gazetteer — Survey</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="/theme/bi-fonts.css">
+<link rel="stylesheet" href="/theme/bi-tokens.css">
+<link rel="stylesheet" href="/theme/bi-components.css">
+<link rel="stylesheet" href="/static/gazetteer.css">
+</head>
+<body>
+
+<header class="gz-bar">
+  <div class="gz-bar__title">
+    <span class="gz-bar__jp">地誌</span>
+    <span class="gz-bar__name">GAZETTEER</span>
+  </div>
+
+  <div class="gz-readout" id="readout">
+    <span class="gz-readout__ref" id="readout-ref">—</span>
+    <span class="gz-readout__px" id="readout-px"></span>
+  </div>
+
+  <div class="gz-tools" id="tools" role="toolbar" aria-label="Tools">
+    <button class="gz-tool is-active" data-tool="pan"     data-key="V" title="Pan and select (V)">Select</button>
+    <button class="gz-tool" data-tool="region"  data-key="R" title="Draw a region — districts tessellate (R)">Region</button>
+    <button class="gz-tool" data-tool="site"    data-key="S" title="Draw a site — a building or block (S)">Site</button>
+    <button class="gz-tool" data-tool="point"   data-key="P" title="Place a pin (P)">Pin</button>
+    <button class="gz-tool" data-tool="adopt"   data-key="B" title="Click a real building to take its footprint (B)">Adopt</button>
+    <button class="gz-tool" data-tool="remove"  data-key="X" title="Remove real buildings the painted map no longer has (X)">Remove</button>
+  </div>
+
+  <div class="gz-bar__right">
+    <span class="gz-save" id="save-state">saved</span>
+    <button class="gz-btn" id="btn-save" title="Save the session (Ctrl+S)">Save</button>
+  </div>
+</header>
+
+<main class="gz-main">
+  <div id="map" class="gz-map"></div>
+
+  <aside class="gz-side">
+    <section class="gz-panel" id="inspector">
+      <h2 class="gz-panel__head">Inspector</h2>
+      <div class="gz-empty" id="inspector-empty">
+        Nothing selected. Draw something, or pick a shape on the map.
+      </div>
+      <form class="gz-form" id="inspector-form" hidden>
+        <label class="gz-field">
+          <span class="gz-field__label">Tier</span>
+          <select id="f-tier">
+            <option value="region">Region — a district</option>
+            <option value="site">Site — a building or block</option>
+            <option value="point">Pin — a point with a story</option>
+          </select>
+        </label>
+        <label class="gz-field">
+          <span class="gz-field__label">Name <em>optional</em></span>
+          <input id="f-name" type="text" autocomplete="off" placeholder="leave blank and we'll name it together">
+        </label>
+        <label class="gz-field">
+          <span class="gz-field__label">Kind</span>
+          <select id="f-kind"></select>
+        </label>
+        <label class="gz-field">
+          <span class="gz-field__label">Note</span>
+          <textarea id="f-note" rows="5" placeholder="rough is fine — what it is, who's there, what happens"></textarea>
+        </label>
+        <label class="gz-field">
+          <span class="gz-field__label">Tags <em>comma separated</em></span>
+          <input id="f-tags" type="text" autocomplete="off">
+        </label>
+        <dl class="gz-facts" id="f-facts"></dl>
+        <div class="gz-form__actions">
+          <button type="button" class="gz-btn" id="btn-zoom">Zoom to</button>
+          <button type="button" class="gz-btn gz-btn--danger" id="btn-delete">Delete</button>
+        </div>
+        <div class="gz-promote" id="promote-box">
+          <p class="gz-hint" id="promote-hint"></p>
+          <button type="button" class="gz-btn gz-btn--promote" id="btn-promote">Promote to a real location</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="gz-panel gz-panel--grow">
+      <h2 class="gz-panel__head">
+        Session
+        <span class="gz-count" id="item-count">0</span>
+      </h2>
+      <div class="gz-filters">
+        <input id="f-search" type="search" placeholder="filter by name, note or reference" autocomplete="off">
+      </div>
+      <ul class="gz-list" id="item-list"></ul>
+    </section>
+
+    <section class="gz-panel">
+      <h2 class="gz-panel__head">Layers</h2>
+      <label class="gz-check"><input type="checkbox" id="l-grid" checked> Reference grid</label>
+      <label class="gz-check"><input type="checkbox" id="l-buildings" checked> Real buildings</label>
+      <label class="gz-check"><input type="checkbox" id="l-items" checked> Drawn locations</label>
+      <label class="gz-check"><input type="checkbox" id="l-published" checked> Published locations</label>
+      <label class="gz-check"><input type="checkbox" id="l-suppressed"> Removed buildings</label>
+      <p class="gz-hint" id="layer-hint"></p>
+    </section>
+  </aside>
+</main>
+
+<footer class="gz-status">
+  <span id="status">loading…</span>
+  <span class="gz-status__keys" id="status-keys"></span>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module" src="/static/app.js"></script>
+</body>
+</html>
