@@ -1,0 +1,88 @@
+{
+  "$schema": "../schema/campaign-map.schema.json",
+  "id": "campaign-map",
+  "type": "campaign-map",
+  "description": "The campaign map is a hand-finished Photoshop raster. The vector pipeline that produced its base is retired as a renderer (2026-09-11) but survives as geometry and as ground truth: data/map/frames/kurose-12km.json still says where the page is and how it is turned, and data/map/kurose.gpkg still holds 230,061 real features under it. This manifest is what joins the picture to both.",
+  "image": {
+    "path": "artwork/in-tray/campaign-map.png",
+    "width": 12400,
+    "height": 12400,
+    "sha256": "990701f31aed26bb15d4b277d4e288ca74770ab83e4e8f5ee2d65f9c672a01ee",
+    "note": "Maintained by hand in Photoshop. Still sitting in the in-tray; it wants a permanent home under artwork/ and an asset-registry entry, which is a decision about where, not a technical blocker."
+  },
+  "border": {
+    "px": 200
+  },
+  "content": {
+    "width": 12000,
+    "height": 12000
+  },
+  "grid": {
+    "cellPx": 200,
+    "cellsPerMajor": 10,
+    "cols": 60,
+    "rows": 60,
+    "separator": "·",
+    "majorColLetters": "ABCDEF"
+  },
+  "frameRef": "kurose-12km",
+  "metresPerPixel": 1.0,
+  "calibration": {
+    "mode": "exact",
+    "matrix": null,
+    "checkedDate": "2026-09-11",
+    "residualPx": 0,
+    "controlPoints": [
+      {
+        "label": "mountain-front",
+        "imagePx": [
+          4018.33,
+          3855.1
+        ],
+        "lonLat": [
+          135.1975,
+          34.7062
+        ],
+        "note": "Shin-Kobe Station at the foot of the mountain front -- the sharpest edge on the map."
+      },
+      {
+        "label": "harbour-edge",
+        "imagePx": [
+          4573.04,
+          6580.37
+        ],
+        "lonLat": [
+          135.1876,
+          34.6825
+        ],
+        "note": "The Port Tower and the inner harbour quays; built waterfront the op log never touched."
+      },
+      {
+        "label": "city-grid",
+        "imagePx": [
+          4508.81,
+          5046.93
+        ],
+        "lonLat": [
+          135.1955,
+          34.6947
+        ],
+        "note": "Sannomiya's dense regular street grid -- where a sub-metre offset would beat visibly against the painting."
+      },
+      {
+        "label": "river-mouth",
+        "imagePx": [
+          2738.68,
+          6825.16
+        ],
+        "lonLat": [
+          135.169,
+          34.689
+        ],
+        "note": "The Minatogawa channel; a hard line no amount of painting moves."
+      }
+    ]
+  },
+  "tiles": null,
+  "openQuestionRefs": []
+}

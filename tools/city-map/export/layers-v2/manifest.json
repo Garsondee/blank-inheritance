@@ -1,0 +1,171 @@
+{
+  "frameId": "kurose-12km",
+  "styleId": "kurose-1950s",
+  "resolutionPx": [
+    12000,
+    12000
+  ],
+  "tiles": 6,
+  "pxPerTile": 2000,
+  "supersample": 2,
+  "gridSpacingM": 200.0,
+  "layers": [
+    {
+      "index": 0,
+      "file": "00-land-base.png",
+      "blendMode": "Normal",
+      "note": null
+    },
+    {
+      "index": 1,
+      "file": "01-hillshade.png",
+      "blendMode": "Multiply",
+      "note": "Multiply. Clipped to a max factor of 1.0 -- loses a small (~1.22x ceiling) highlight boost real Multiply blending cannot express; everything else is exact."
+    },
+    {
+      "index": 2,
+      "file": "02-sea.png",
+      "blendMode": "Normal",
+      "note": null
+    },
+    {
+      "index": 3,
+      "file": "03-landuse.png",
+      "blendMode": "Multiply",
+      "note": "Multiply. RGB is the tint FACTOR relative to the paper colour, not the raw landuse colour -- looks unfamiliar at face value in Normal blend, correct once set to Multiply."
+    },
+    {
+      "index": 4,
+      "file": "04-zoning.png",
+      "blendMode": "Multiply",
+      "note": "Multiply. Legal land-use zoning (用途地域) from MLIT A29, in the conventional Japanese zoning-map colours -- residential greens, commercial pinks, industrial blues. Separate from the buildings layer on purpose: it says what the ground is ZONED for, which is not the same as what is built on it."
+    },
+    {
+      "index": 5,
+      "file": "05-coastal-fade.png",
+      "blendMode": "Normal",
+      "note": null
+    },
+    {
+      "index": 6,
+      "file": "06-water-bodies.png",
+      "blendMode": "Normal",
+      "note": null
+    },
+    {
+      "index": 7,
+      "file": "07-contours.png",
+      "blendMode": "Normal",
+      "note": null
+    },
+    {
+      "index": 8,
+      "file": "08-rivers.png",
+      "blendMode": "Normal",
+      "note": null
+    },
+    {
+      "index": 9,
+      "file": "09-roads.png",
+      "blendMode": "Normal",
+      "note": null
+    },
+    {
+      "index": 10,
+      "file": "10-railways.png",
+      "blendMode": "Normal",
+      "note": null
+    },
+    {
+      "index": 11,
+      "file": "11-barriers.png",
+      "blendMode": "Normal",
+      "note": "Walls, seawalls, retaining walls, fences and hedges (OSM barrier=*). Weighted by kind -- a seawall draws heavier than a hedge."
+    },
+    {
+      "index": 12,
+      "file": "12-buildings.png",
+      "blendMode": "Normal",
+      "note": null
+    },
+    {
+      "index": 13,
+      "file": "13-terrain-shadow.png",
+      "blendMode": "Multiply",
+      "note": "Multiply. Exact -- this multiplier is mathematically bounded to [castShadowFloor, 1.0] and never needs to brighten, unlike hillshade."
+    },
+    {
+      "index": 14,
+      "file": "14-cast-shadows.png",
+      "blendMode": "Normal",
+      "note": "Building cast shadows only (Minkowski sweep). Bridge shadows live in the 'bridges' layer instead, matching the original's own separate always-on-top bridge pass."
+    },
+    {
+      "index": 15,
+      "file": "15-bridges.png",
+      "blendMode": "Normal",
+      "note": "Bridge decks + their own shadow, redrawn on top of everything below -- never shadow-multiplied."
+    },
+    {
+      "index": 16,
+      "file": "16-power.png",
+      "blendMode": "Normal",
+      "note": "Transmission and distribution lines, their pylons/poles, and substations/plants. Drawn in red on purpose (direct request) so the grid reads as infrastructure, not terrain."
+    },
+    {
+      "index": 17,
+      "file": "17-structures.png",
+      "blendMode": "Normal",
+      "note": "man_made=* -- the small vertical stuff (silos, tanks, chimneys, cranes, masts, water towers) as point marks, plus linear/area works (piers, breakwaters, quays, embankments) as outlines."
+    },
+    {
+      "index": 18,
+      "file": "18-lamps.png",
+      "blendMode": "Normal",
+      "note": null
+    },
+    {
+      "index": 19,
+      "file": "19-historic.png",
+      "blendMode": "Normal",
+      "note": "Shrines, monuments, ruins, forts and archaeological sites. Wayside shrines dominate the count in this frame."
+    },
+    {
+      "index": 20,
+      "file": "20-services.png",
+      "blendMode": "Normal",
+      "note": "Civic services, glyph-coded by kind: cross = medical, square = police/fire, triangle = education, circle = civic/worship."
+    },
+    {
+      "index": 21,
+      "file": "21-evacuation.png",
+      "blendMode": "Normal",
+      "note": "Designated evacuation/assembly points, in signage green (matching real Japanese evacuation signing). Given its own layer and heavier marks deliberately."
+    },
+    {
+      "index": 22,
+      "file": "22-neighbourhoods.png",
+      "blendMode": "Normal",
+      "note": "Place-name labels (city/town/suburb/quarter/neighbourhood), sized by rank, Japanese over romanised. Placement is collision-avoided and computed over the WHOLE frame deterministically, so a label never half- appears at a tile seam."
+    },
+    {
+      "index": 23,
+      "file": "23-grid-lines.png",
+      "blendMode": "Normal",
+      "note": "New reference overlay, not part of the map's own look."
+    },
+    {
+      "index": 24,
+      "file": "24-grid-labels.png",
+      "blendMode": "Normal",
+      "note": "New reference overlay. Numbered col,row from the frame's own origin -- consistent across tiles."
+    }
+  ],
+  "attribution": {
+    "openStreetMap": "(c) OpenStreetMap contributors, ODbL 1.0.",
+    "gsiDem": "出典：国土地理院ウェブサイト (GSI elevation tiles).",
+    "gsiEvacuation": "出典：国土地理院ウェブサイト（https://hinanmap.gsi.go.jp/）指定緊急避難場所データ / Processed for this project. Designation is per hazard type and the source data may not be current; not authoritative evacuation guidance.",
+    "mlitZoning": "「国土数値情報（用途地域データ）」（国土交通省）をもとに作成 (Land-use zoning derived from MLIT National Land Numerical Information, A29-19.)"
+  },
+  "howToUse": "Stack files in ascending index order (00 at the bottom), each set to the listed blendMode. Layers not generated here (paper grain/vignette, road/place labels, cartouche, compass rose) are intentionally out of scope -- see tools/city-map/README.md."
+}

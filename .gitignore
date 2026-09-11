@@ -98,3 +98,12 @@ module/blank-inheritance/assets/stage/
 # at the table, and the whole reason the harvest direction exists. The sync
 # test reports are pure diagnostics, regenerated on every run, and are not.
 harvest/test-reports/
+
+# Gazetteer: calibration overlays and crops are regenerable working images,
+# not project content. Same treatment as tools/city-map/_out/.
+/tools/gazetteer/_calibration/
+/tools/gazetteer/_tiles/
+
+# Drawing-session drafts: raw input awaiting hand-conversion into real location
+# entities, exactly like data/map/editor-submissions/ before them.
+/data/map/gazetteer-drafts/
