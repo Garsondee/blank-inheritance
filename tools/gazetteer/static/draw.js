@@ -341,6 +341,60 @@ export function createDrawController(opts) {
   // OTHER layer's own listener firing afterward at all, because the small-
   // movement branch in up() below now does its own explicit hit-test.
 
+  // Mouse-sourced PointerEvents use pointerId 1 in every evergreen browser
+  // (Chrome, Firefox, Safari) -- there is exactly one mouse, so this is safe
+  // to assume rather than waiting to observe a real pointerdown first.
+  const MOUSE_POINTER_ID = 1;
+  // At most one tracked drag at a time -- see trackDrag's own comment.
+  let endActiveDrag = null;
+
+  /** Track a drag on `container` via Pointer Capture rather than a plain
+   *  document mousemove/mouseup pair. A plain pair leaks forever the moment
+   *  a single mouseup is ever lost -- seen live, more than once, in this
+   *  exact tool -- leaving a stale `move` handler that keeps firing on
+   *  every future mousemove anywhere on the page: a marquee box that never
+   *  closes and can hijack a later unrelated click, or (the right-click-pan
+   *  case below) the map re-panning on every subsequent mouse twitch, which
+   *  is exactly the "slides like ice, ends up on the other side of the map"
+   *  bug this replaced. Capture makes the browser guarantee a matching
+   *  pointerup/pointercancel lands on `container` no matter where the
+   *  button is actually released -- including outside the map. Two more
+   *  layers behind that one, since a browser guarantee is still one thing
+   *  going wrong away from the exact bug this is fixing: a `document`-level
+   *  pointerup/pointercancel pair as a backstop (harmless double-fire --
+   *  `end` only ever runs once, guarded below) catches a release capture
+   *  somehow missed but that still reached the page anywhere at all; and
+   *  `endActiveDrag`, called first, cleans up a still-live previous tracker
+   *  before a new one starts, so even a release that reached nowhere at all
+   *  costs at most one abandoned gesture rather than compounding for the
+   *  rest of the session. */
+  function trackDrag(container, { onMove, onEnd }) {
+    if (endActiveDrag) endActiveDrag();
+    container.setPointerCapture(MOUSE_POINTER_ID);
+    let ended = false;
+    function move(ev) { onMove(ev); }
+    function end(ev) {
+      if (ended) return;
+      ended = true;
+      container.removeEventListener("pointermove", move);
+      container.removeEventListener("pointerup", end);
+      container.removeEventListener("pointercancel", end);
+      document.removeEventListener("pointerup", end);
+      document.removeEventListener("pointercancel", end);
+      if (container.hasPointerCapture(MOUSE_POINTER_ID)) {
+        container.releasePointerCapture(MOUSE_POINTER_ID);
+      }
+      endActiveDrag = null;
+      onEnd(ev);
+    }
+    endActiveDrag = end;
+    container.addEventListener("pointermove", move);
+    container.addEventListener("pointerup", end);
+    container.addEventListener("pointercancel", end);
+    document.addEventListener("pointerup", end);
+    document.addEventListener("pointercancel", end);
+  }
+
   function beginMarquee(startEvent, kind) {
     const container = map.getContainer();
     const box = document.createElement("div");
@@ -371,8 +425,6 @@ export function createDrawController(opts) {
     }
 
     function up(ev) {
-      document.removeEventListener("mousemove", move);
-      document.removeEventListener("mouseup", up);
       container.removeChild(box);
       map.dragging.enable();
       map.getContainer().style.cursor = prevCursor;
@@ -411,8 +463,7 @@ export function createDrawController(opts) {
       }
     }
 
-    document.addEventListener("mousemove", move);
-    document.addEventListener("mouseup", up);
+    trackDrag(container, { onMove: move, onEnd: up });
   }
 
   function centroidPxOf(g) {
@@ -543,19 +594,16 @@ export function createDrawController(opts) {
     const startClient = { x: e.clientX, y: e.clientY };
     const startCentre = map.latLngToContainerPoint(map.getCenter());
 
-    function move(ev) {
-      const target = L.point(
-        startCentre.x - (ev.clientX - startClient.x),
-        startCentre.y - (ev.clientY - startClient.y),
-      );
-      map.setView(map.containerPointToLatLng(target), map.getZoom(), { animate: false });
-    }
-    function up() {
-      document.removeEventListener("mousemove", move);
-      document.removeEventListener("mouseup", up);
-    }
-    document.addEventListener("mousemove", move);
-    document.addEventListener("mouseup", up);
+    trackDrag(map.getContainer(), {
+      onMove(ev) {
+        const target = L.point(
+          startCentre.x - (ev.clientX - startClient.x),
+          startCentre.y - (ev.clientY - startClient.y),
+        );
+        map.setView(map.containerPointToLatLng(target), map.getZoom(), { animate: false });
+      },
+      onEnd() {},
+    });
   });
 
   // Select/pan gets a plain pointer at rest -- "default", not the browser's

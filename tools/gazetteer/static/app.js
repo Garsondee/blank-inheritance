@@ -585,6 +585,7 @@ function handleSelectionChange(ids) {
 }
 
 function renderInspector(localId) {
+  disarmBatchDelete();
   const item = localId && itemById(localId);
   $("batch-form").hidden = true;
   $("inspector-empty").hidden = !!item;
@@ -636,6 +637,7 @@ function renderInspector(localId) {
  * fifty buildings' classifications at once.
  */
 function renderBatchPanel(ids) {
+  disarmBatchDelete(); // the armed count is for a specific id list -- a changed selection must re-arm
   $("inspector-empty").hidden = true;
   $("inspector-form").hidden = true;
   $("batch-form").hidden = false;
@@ -651,35 +653,153 @@ function renderBatchPanel(ids) {
   renderList();
 }
 
+// Ids currently shown by the filter, in display order -- the range Shift-
+// click walks, and the set "select all shown" acts on. Rebuilt by every
+// renderList() call, so it is always exactly what is on screen right now.
+let visibleIds = [];
+// The anchor a Shift-click range is measured from. Set by a plain click or
+// a Ctrl/Cmd-click; deliberately NOT moved by Shift-click itself, so
+// several Shift-clicks in a row keep extending/shrinking the same range
+// rather than re-anchoring on each one.
+let lastClickedId = null;
+
 function renderList() {
   const list = $("item-list");
   const sel = new Set(state.draw.selectedList());
   list.innerHTML = "";
   const q = state.filter.trim().toLowerCase();
   let shown = 0;
+  visibleIds = [];
   for (const item of state.items) {
     const refs = (item.derived && item.derived.refs) || [];
     const hay = `${item.name} ${item.note} ${item.kind} ${refs.join(" ")}`.toLowerCase();
     if (q && !hay.includes(q)) continue;
     shown += 1;
+    visibleIds.push(item.localId);
     const li = document.createElement("li");
     li.className = "gz-item" + (sel.has(item.localId) ? " is-selected" : "");
     li.innerHTML = `
+      <input type="checkbox" class="gz-item__check" ${sel.has(item.localId) ? "checked" : ""}
+             aria-label="select ${escapeHtml(item.name || `unnamed ${item.tier}`)}">
       <span class="gz-item__dot" style="background:${TIER_COLOUR[item.tier]}"></span>
       <span>
-        <span class="gz-item__name">${item.name
+        <span class="gz-item__name" title="click to rename">${item.name
           ? escapeHtml(item.name)
           : `<em>unnamed ${item.tier}</em>`}</span>
-        <span class="gz-item__note">${escapeHtml((item.note || "").split("\n")[0] || "no note yet")}</span>
+        <span class="gz-item__note" title="click to edit">${escapeHtml((item.note || "").split("\n")[0] || "no note yet")}</span>
       </span>
       <span class="gz-item__ref">${escapeHtml(liveRef(item))}</span>`;
+
+    li.querySelector(".gz-item__check").addEventListener("click", (e) => {
+      e.stopPropagation();
+      state.draw.toggle(item.localId);
+      lastClickedId = item.localId;
+    });
+    li.querySelector(".gz-item__name").addEventListener("click", (e) => {
+      e.stopPropagation();
+      editItemField(item, "name", e.currentTarget, { multiline: false });
+    });
+    li.querySelector(".gz-item__note").addEventListener("click", (e) => {
+      e.stopPropagation();
+      editItemField(item, "note", e.currentTarget, { multiline: true });
+    });
+    // Plain click: the original "look at this one" gesture -- select and
+    // zoom. Ctrl/Cmd-click: toggle just this one in or out, no zoom (what
+    // Shift-click used to do, freed up below). Shift-click: range-select
+    // from the last plain/Ctrl click to here -- the actual ask, since
+    // toggling one at a time was the slow part of selecting "a bunch."
     li.addEventListener("click", (e) => {
-      if (e.shiftKey) state.draw.toggle(item.localId);
-      else { state.draw.select(item.localId); zoomTo(item); }
+      if (e.shiftKey) { rangeSelect(item.localId); return; }
+      if (e.ctrlKey || e.metaKey) { state.draw.toggle(item.localId); lastClickedId = item.localId; return; }
+      state.draw.select(item.localId);
+      zoomTo(item);
+      lastClickedId = item.localId;
     });
     list.appendChild(li);
   }
   $("item-count").textContent = q ? `${shown}/${state.items.length}` : String(state.items.length);
+  updateSelectAllControl(sel);
+}
+
+function rangeSelect(toId) {
+  const from = lastClickedId ? visibleIds.indexOf(lastClickedId) : -1;
+  const to = visibleIds.indexOf(toId);
+  if (from === -1 || to === -1) { state.draw.select(toId); lastClickedId = toId; return; }
+  const [lo, hi] = from < to ? [from, to] : [to, from];
+  state.draw.selectMany(visibleIds.slice(lo, hi + 1));
+}
+
+function updateSelectAllControl(sel) {
+  const box = $("select-all-visible");
+  const label = $("select-all-label");
+  if (!box || !label) return;
+  if (!visibleIds.length) {
+    box.checked = false; box.indeterminate = false; box.disabled = true;
+    label.textContent = "select all shown";
+    return;
+  }
+  const selectedVisible = visibleIds.filter((id) => sel.has(id)).length;
+  box.disabled = false;
+  box.checked = selectedVisible === visibleIds.length;
+  box.indeterminate = selectedVisible > 0 && selectedVisible < visibleIds.length;
+  label.textContent = selectedVisible
+    ? `${selectedVisible}/${visibleIds.length} shown selected`
+    : `select all ${visibleIds.length} shown`;
+}
+
+/** Turns a Session-list name/note into a live text input on click, for fast
+ *  cleanup right after a big adopt -- the Inspector form is still there for
+ *  anything bigger than a one-line fix. Deliberately a surgical DOM patch
+ *  (this span only), never a full renderList(): a renderList() triggered
+ *  from a blur-on-commit would rebuild every row, including one the user is
+ *  in the middle of clicking into next -- their click would land on a node
+ *  that had just been detached and replaced out from under it. Note only
+ *  ever edits its FIRST line here; anything after that is preserved
+ *  untouched, since this is a single-line control, not the Inspector's full
+ *  textarea. */
+function editItemField(item, field, span, { multiline }) {
+  if (span.querySelector("input")) return; // already editing; let the input take this click
+  const restLines = multiline ? (item.note || "").split("\n").slice(1) : [];
+  const currentValue = multiline ? (item.note || "").split("\n")[0] || "" : (item.name || "");
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "gz-item__edit";
+  input.value = currentValue;
+  input.placeholder = multiline ? "add a note…" : `name this ${item.tier}`;
+  span.textContent = "";
+  span.appendChild(input);
+  input.focus();
+  input.select();
+
+  let done = false;
+  function renderDisplay() {
+    if (multiline) span.textContent = (item.note || "").split("\n")[0] || "no note yet";
+    else span.innerHTML = item.name ? escapeHtml(item.name) : `<em>unnamed ${item.tier}</em>`;
+  }
+  function commit() {
+    if (done) return;
+    done = true;
+    if (multiline) item.note = [input.value, ...restLines].join("\n");
+    else item.name = input.value;
+    markDirty();
+    renderDisplay();
+    if (state.draw.selected() === item.localId) {
+      $("f-name").value = item.name || "";
+      $("f-note").value = item.note || "";
+      updatePromoteBox(item);
+    }
+  }
+  function cancel() {
+    if (done) return;
+    done = true;
+    renderDisplay();
+  }
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); input.blur(); }
+    else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); cancel(); }
+  });
+  input.addEventListener("click", (e) => e.stopPropagation());
+  input.addEventListener("blur", commit);
 }
 
 function liveRef(item) {
@@ -710,6 +830,12 @@ function wireChrome() {
   });
   $("btn-save").addEventListener("click", save);
   $("f-search").addEventListener("input", (e) => { state.filter = e.target.value; renderList(); });
+  $("select-all-visible").addEventListener("change", () => {
+    const checked = $("select-all-visible").checked;
+    const next = new Set(state.draw.selectedList());
+    visibleIds.forEach((id) => (checked ? next.add(id) : next.delete(id)));
+    state.draw.selectMany([...next]);
+  });
 
   const bind = (id, apply) => $(id).addEventListener("input", () => {
     const item = itemById(state.draw.selected());
@@ -762,12 +888,38 @@ function wireChrome() {
     renderBatchPanel(ids);
     setStatus(`applied to ${ids.length} items`);
   });
+  // Two clicks, not a native confirm dialog: that turned out to be silently
+  // unanswerable in this app's own preview environment -- it neither
+  // blocked nor threw, just always resolved as Cancel, so the
+  // button looked like it did nothing at all. A same-surface arm/confirm
+  // step needs no dialog API to work, so it can't be swallowed the same way.
   $("btn-batch-delete").addEventListener("click", () => {
     const ids = state.draw.selectedList();
-    if (ids.length && window.confirm(`Delete ${ids.length} items? This cannot be undone.`)) {
-      deleteItems(ids);
-    }
+    if (!ids.length) return;
+    if (!batchDeleteArmed) { armBatchDelete(ids.length); return; }
+    disarmBatchDelete();
+    deleteItems(ids);
   });
+}
+
+let batchDeleteArmed = false;
+let batchDeleteTimer = null;
+
+function armBatchDelete(count) {
+  batchDeleteArmed = true;
+  const btn = $("btn-batch-delete");
+  btn.textContent = `Click again to delete ${count}`;
+  btn.classList.add("is-armed");
+  clearTimeout(batchDeleteTimer);
+  batchDeleteTimer = setTimeout(disarmBatchDelete, 4000);
+}
+
+function disarmBatchDelete() {
+  if (!batchDeleteArmed) return;
+  batchDeleteArmed = false;
+  clearTimeout(batchDeleteTimer);
+  const btn = $("btn-batch-delete");
+  if (btn) { btn.textContent = "Delete selected"; btn.classList.remove("is-armed"); }
 }
 
 /**

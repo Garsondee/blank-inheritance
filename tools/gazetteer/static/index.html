@@ -133,7 +133,12 @@
       </h2>
       <div class="gz-filters">
         <input id="f-search" type="search" placeholder="filter by name, note or reference" autocomplete="off">
+        <label class="gz-select-all">
+          <input type="checkbox" id="select-all-visible" disabled>
+          <span id="select-all-label">select all shown</span>
+        </label>
       </div>
+      <p class="gz-hint gz-list-hint">Click a row to view it · Shift-click for a range · Ctrl-click to add one · click a name or note to rename it in place.</p>
       <ul class="gz-list" id="item-list"></ul>
     </section>
 

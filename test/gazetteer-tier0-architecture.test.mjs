@@ -91,6 +91,43 @@ test("the browser layer gets its grid arithmetic from core, not its own copy", (
   }
 });
 
+test("batch delete never again depends on window.confirm", () => {
+  // Regression guard for a real, live bug: window.confirm() turned out to be
+  // silently unanswerable in this app's own preview environment -- it never
+  // threw and never blocked, it just always resolved as Cancel, so the
+  // button looked like it did nothing at all. The fix was a same-surface
+  // arm/confirm click, which needs no dialog API and so cannot be swallowed
+  // the same way -- this only guards against the dialog quietly creeping
+  // back in, not against every possible future regression in that flow.
+  const src = readFileSync(join(STATIC, "app.js"), "utf8");
+  assert.ok(!/window\.confirm\(/.test(src),
+    "app.js calls window.confirm() again -- this was found to be silently " +
+    "unanswerable in this app's preview environment, which made batch " +
+    "delete look broken; use the arm/confirm button pattern instead");
+});
+
+test("a drag gesture cannot leak a document-level listener forever", () => {
+  // Regression guard for a real, live bug: the marquee and the right-click
+  // pan each tracked their own drag via a plain document mousemove/mouseup
+  // pair, which leaks forever the moment a single mouseup is ever lost (seen
+  // live, more than once, in this exact tool) -- a stale `move` handler then
+  // keeps firing on every future mousemove anywhere on the page, which is
+  // the "slides like ice, ends up on the other side of the map" bug. The fix
+  // moved both gestures onto Pointer Capture (plus a document-level
+  // pointerup/pointercancel backstop and defensive cleanup-on-next-drag) --
+  // this only checks the leaky pattern is gone and the capture-based one is
+  // present, not the full behaviour, which is verified live instead (see
+  // this tool's own plan doc's Verification section).
+  const src = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(!/document\.addEventListener\(\s*["']mouse(move|up)["']/.test(src),
+    "draw.js tracks a drag via a plain document mousemove/mouseup pair again -- " +
+    "this leaks forever the moment one mouseup is lost; use trackDrag() instead");
+  assert.ok(/setPointerCapture/.test(src) && /pointercancel/.test(src),
+    "draw.js's drag tracking no longer uses Pointer Capture -- a plain " +
+    "mousemove/mouseup pair cannot guarantee delivery if the button is " +
+    "released outside the map");
+});
+
 test("the shared fixture is reachable from both suites' expected paths", () => {
   const fixture = JSON.parse(
     readFileSync(join(here, "fixtures", "gazetteer-grid-cases.json"), "utf8"));

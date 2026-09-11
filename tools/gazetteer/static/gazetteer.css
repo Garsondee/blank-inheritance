@@ -93,6 +93,11 @@ body {
   border-color: var(--bi-paper-ink);
 }
 .gz-btn--danger { color: var(--bi-vermilion); }
+.gz-btn--danger.is-armed {
+  background: var(--bi-vermilion);
+  color: var(--bi-paper);
+  border-color: var(--bi-vermilion);
+}
 
 .gz-bar__right { display: flex; align-items: center; gap: 10px; }
 .gz-save {
@@ -252,7 +257,17 @@ body {
 
 /* --- item list ----------------------------------------------------------- */
 
-.gz-filters { margin-bottom: 6px; }
+.gz-filters { margin-bottom: 6px; display: flex; flex-direction: column; gap: 5px; }
+.gz-select-all {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--bi-paper-ink-2);
+  cursor: pointer;
+}
+.gz-select-all input { margin: 0; }
+.gz-list-hint { margin: 0 0 6px; font-size: 10.5px; }
 
 .gz-list {
   list-style: none;
@@ -264,7 +279,7 @@ body {
 }
 .gz-item {
   display: grid;
-  grid-template-columns: 8px 1fr auto;
+  grid-template-columns: auto 8px 1fr auto;
   gap: 8px;
   align-items: baseline;
   padding: 5px 4px;
@@ -273,6 +288,7 @@ body {
 }
 .gz-item:hover { background: #f4eeda; }
 .gz-item.is-selected { background: var(--bi-paper-shade); box-shadow: inset 3px 0 0 var(--bi-brass); }
+.gz-item__check { margin: 0; align-self: center; cursor: pointer; }
 .gz-item__dot { width: 8px; height: 8px; border-radius: 50%; align-self: center; }
 .gz-item__name { font-size: 13px; }
 .gz-item__name em { font-style: italic; color: var(--bi-paper-ink-2); }
@@ -283,6 +299,25 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.gz-item__name, .gz-item__note {
+  cursor: text;
+  border-bottom: 1px dotted transparent;
+  border-radius: 1px;
+}
+.gz-item__name:hover, .gz-item__note:hover {
+  border-bottom-color: var(--bi-paper-ink-2);
+}
+.gz-item__edit {
+  width: 100%;
+  font-family: var(--bi-font-document);
+  font-size: inherit;
+  color: var(--bi-paper-ink);
+  background: #f4eeda;
+  border: 1px solid var(--bi-brass);
+  border-radius: 2px;
+  padding: 1px 4px;
+  margin: -2px 0;
 }
 .gz-item__ref {
   font-family: var(--bi-font-typewriter-clean);
