@@ -25,6 +25,12 @@
       "description": "A short, blunt classifier for sorting and map colour -- district / quarter / waterfront / industrial / residential / civic / commercial / transport / military / green / water / landmark / ruin / infrastructure / other, or blank. Not the terrain system; finer character belongs in lore.summary, where it can be prose."
     },
 
+    "depth": {
+      "enum": ["named", "sketch", "scene", "standing"],
+      "default": "named",
+      "description": "How developed this location is supposed to be, and therefore what it owes -- see design/location-depth.md, enforced by tools/gazetteer/core/depth.py. named: a purpose in one line, the bulk tier. sketch: a few paragraphs, enough for a brief moment in passing. scene: enough to run a full scene with the group, and the first depth that earns its own artwork, playlist and a named NPC. standing: returned to across the campaign, carrying history and consequence. DECLARED by hand, never inferred from how much text exists -- declaring it first makes it a commission rather than a description. Independent of `tier`, which is geometric scale: a region can be depth named and a point can be depth standing."
+    },
+
     "geometry": {
       "type": "object",
       "description": "Canonical. lon/lat (WGS84), never image pixels or map-frame metres -- design/map-generation.md: the frame's centre, rotation and extent have all changed before, and pixel coordinates would silently detach a location from its place the next time they do.",
@@ -118,6 +124,38 @@
         "playerFacing": { "type": "string", "description": "What a player would see/hear on arrival, or an Encyclopaedia-check reveal. Law 11: only what has actually been learned." },
         "gmOnly": { "type": "string", "description": "Anything hidden -- a Fact per design/npc-social-intel.md's pattern, a hook, a hazard." }
       }
+    },
+
+    "scene": {
+      "type": "object",
+      "description": "What makes this place playable rather than merely described. Required in increasing amounts from depth 'sketch' upward -- see design/location-depth.md's requirements table. Absent or empty for a depth-'named' location, which is correct: a warehouse with a listed set of activities has been mis-declared.",
+      "additionalProperties": false,
+      "properties": {
+        "hooks": {
+          "type": "array",
+          "description": "Reasons to be here, or things that could happen. One is enough from 'sketch' up.",
+          "items": { "type": "string" }
+        },
+        "activities": {
+          "type": "array",
+          "description": "What the group can actually DO here, as opposed to look at. A location that cannot answer this is a sketch with ambitions, not a scene.",
+          "items": { "type": "string" }
+        },
+        "history": {
+          "type": "string",
+          "description": "Depth 'standing' only: what happened here before the campaign, and what has happened here during it. Grows in play -- this is what makes a returning group feel continuity rather than repetition."
+        },
+        "consequences": {
+          "type": "string",
+          "description": "Depth 'standing' only: how this place changes based on what the players did. A standing location identical on the fifth visit is a backdrop, not a location."
+        }
+      }
+    },
+
+    "playlistRefs": {
+      "type": "array",
+      "description": "Music/ambience playlists belonging to this location, so arriving somewhere sounds like arriving somewhere, and sounds the same on the fifth visit as the first. Required from depth 'scene' up. Ids into data/campaign/asset-registry.json, same as assetRefs.",
+      "items": { "type": "string" }
     },
 
     "realWorld": {

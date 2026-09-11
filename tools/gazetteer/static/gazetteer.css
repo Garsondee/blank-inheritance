@@ -289,6 +289,20 @@ body {
   margin: 8px 0 0;
 }
 
+/* What a location still owes at its declared depth. Three weights: the
+   contract in vermilion, the "complete" state in the settled green locking
+   already uses, and advice about the DECLARATION in plain ink -- advice that
+   shouted would be indistinguishable from a blocker. */
+.gz-owes { margin: 10px 0 0; }
+.gz-owes__line {
+  margin: 0 0 3px;
+  font-size: 11px;
+  line-height: 1.45;
+}
+.gz-owes__line.is-missing { color: var(--bi-vermilion); }
+.gz-owes__line.is-done { color: var(--bi-ok); }
+.gz-owes__line.is-advice { color: var(--bi-paper-ink-2); }
+
 .gz-facts {
   margin: 10px 0 0;
   display: grid;
@@ -467,6 +481,16 @@ body {
   text-transform: uppercase;
   color: var(--bi-ok);
 }
+/* Only rendered above depth `named` -- see depthBadge(). Vermilion when the
+   content has not caught up with the declaration yet. */
+.gz-item__depth {
+  font-family: var(--bi-font-condensed);
+  font-size: 9px;
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  color: var(--bi-brass-dark);
+}
+.gz-item__depth.is-owing { color: var(--bi-vermilion); }
 .gz-item__check { margin: 0; align-self: center; cursor: pointer; }
 /* min-width:0 or the name/note cell refuses to shrink below its own
    min-content and the whole list scrolls sideways instead of ellipsising. */

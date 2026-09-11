@@ -14,6 +14,7 @@
 import {
   imagePxToRef, refsTouched, polygonAreaPx, polygonCentroidPx, GridError,
 } from "/core/grid.mjs";
+import { check as checkDepth, suggestDepth, DEPTHS } from "/core/depth.mjs";
 import {
   createDrawController, ll, px, ringToLatLngs, fmtArea, round1, TIER_COLOUR,
 } from "/static/draw.js";
@@ -625,8 +626,11 @@ function renderInspector(localId) {
   // drawHandles' own check), and Delete refuses it outright rather than
   // silently doing nothing, which is what looked like a bug the last time
   // something silently refused to act here.
+  $("f-depth").value = item.depth || "named";
+  renderDepthOwes(item);
+
   const locked = !!item.locked;
-  ["f-name", "f-kind", "f-note", "f-tags"].forEach((id) => { $(id).disabled = locked; });
+  ["f-name", "f-kind", "f-note", "f-tags", "f-depth"].forEach((id) => { $(id).disabled = locked; });
   $("f-tier").disabled = locked || item.geometry.kind === "point";
   $("btn-lock").textContent = locked ? "Unlock" : "Lock";
   $("btn-delete").disabled = locked;
@@ -728,6 +732,14 @@ function itemsForList() {
   if (sortMode === "name") {
     return rows.sort((a, b) => (a.name || "￿").localeCompare(b.name || "￿"));
   }
+  // Deepest first: the handful of places that were commissioned as scenes or
+  // standing locations are the ones worth having at the top of a list of
+  // three hundred, and they are exactly the ones hardest to find otherwise.
+  if (sortMode === "depth") {
+    return rows.sort((a, b) =>
+      DEPTHS.indexOf(b.depth || "named") - DEPTHS.indexOf(a.depth || "named")
+      || (liveRef(a) || "￿").localeCompare(liveRef(b) || "￿"));
+  }
   return rows; // "added" -- state.items order, untouched
 }
 
@@ -740,6 +752,61 @@ function updateStatusChips() {
   document.querySelectorAll("#status-chips .gz-chip").forEach((chip) => {
     chip.classList.toggle("is-on", chip.dataset.status === statusFilter);
   });
+}
+
+/**
+ * What this location still owes at the depth it claims — live, on every
+ * keystroke, from the same module the promotion path uses.
+ *
+ * Three weights on purpose, per design/location-depth.md: `missing` is the
+ * contract and is stated plainly; `overweight` and `orphaned` are advice
+ * about the DECLARATION rather than the content, and are phrased as
+ * suggestions to promote. A warning that cannot be ignored becomes a warning
+ * that is always ignored, so these deliberately do not block anything.
+ */
+function renderDepthOwes(item) {
+  const box = $("depth-owes");
+  const result = checkDepth(item);
+  const parts = [];
+
+  if (result.missing.length) {
+    parts.push(`<p class="gz-owes__line is-missing"><strong>Still owes:</strong> `
+      + `${result.missing.map(escapeHtml).join(", ")}</p>`);
+  } else {
+    parts.push(`<p class="gz-owes__line is-done">Complete for <strong>${escapeHtml(result.depth)}</strong>`
+      + ` — ${result.words} words.</p>`);
+  }
+
+  result.overweight.forEach((note) => {
+    parts.push(`<p class="gz-owes__line is-advice">${escapeHtml(note)}.</p>`);
+  });
+  if (result.orphaned.length) {
+    parts.push(`<p class="gz-owes__line is-advice">Has ${result.orphaned.map(escapeHtml).join(", ")}`
+      + `, which ${escapeHtml(result.depth)} does not ask for.</p>`);
+  }
+
+  // Only worth saying when it is actually deeper than what is declared --
+  // "this already passes as named" is noise on a named location.
+  const deepest = suggestDepth(item);
+  if (deepest && DEPTHS.indexOf(deepest) > DEPTHS.indexOf(result.depth)) {
+    parts.push(`<p class="gz-owes__line is-advice">Already passes as `
+      + `<strong>${escapeHtml(deepest)}</strong> — consider promoting it.</p>`);
+  }
+
+  box.innerHTML = parts.join("");
+}
+
+/** Shown only above `named`. Most of a session is depth 0 by design, so a
+ *  badge on every row would be three hundred repetitions of the default and
+ *  would bury the handful that were actually commissioned as more. A red
+ *  marker means the content has not caught up with the declaration yet. */
+function depthBadge(item) {
+  const depth = item.depth || "named";
+  if (depth === "named") return "";
+  const owes = checkDepth(item).missing.length;
+  return `<span class="gz-item__depth${owes ? " is-owing" : ""}"`
+    + ` title="${owes ? `still owes ${owes} thing${owes === 1 ? "" : "s"}` : "complete"}">`
+    + `${escapeHtml(depth)}</span> `;
 }
 
 function renderList() {
@@ -765,7 +832,7 @@ function renderList() {
           : `<em>unnamed ${item.tier}</em>`}</span>
         <span class="gz-item__note" title="${item.locked ? "locked — unlock to edit" : "click to edit"}">${escapeHtml((item.note || "").split("\n")[0] || "no note yet")}</span>
       </span>
-      <span class="gz-item__ref">${item.locked ? '<span class="gz-item__lock">locked</span> ' : ""}${escapeHtml(liveRef(item))}</span>`;
+      <span class="gz-item__ref">${depthBadge(item)}${item.locked ? '<span class="gz-item__lock">locked</span> ' : ""}${escapeHtml(liveRef(item))}</span>`;
 
     li.querySelector(".gz-item__check").addEventListener("click", (e) => {
       e.stopPropagation();
@@ -941,10 +1008,15 @@ function wireChrome() {
     // the gate has to react live — found by driving the field rather than
     // reading the code, where "renderList() updates the UI" looked complete.
     updatePromoteBox(item);
+    // Name, kind and note are all inputs to the depth check, so what the
+    // location still owes has to be recomputed as they are typed, not only
+    // when the selection changes.
+    renderDepthOwes(item);
   });
   bind("f-name", (it) => { it.name = $("f-name").value; });
   bind("f-note", (it) => { it.note = $("f-note").value; });
   bind("f-kind", (it) => { it.kind = $("f-kind").value; });
+  bind("f-depth", (it) => { it.depth = $("f-depth").value; });
   bind("f-tags", (it) => {
     it.tags = $("f-tags").value.split(",").map((s) => s.trim()).filter(Boolean);
   });

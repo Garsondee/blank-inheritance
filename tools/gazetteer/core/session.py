@@ -46,6 +46,9 @@ DRAFT_DIR = os.path.join(_REPO_ROOT, "data", "map", "gazetteer-drafts")
 
 TIERS = ("region", "site", "point")
 SOURCES = ("drawn", "adopted", "merged")
+#: Narrative development, independent of `tier`'s geometric scale. Kept in
+#: step with core/depth.py's DEPTHS, which owns what each one obliges.
+DEPTHS = ("named", "sketch", "scene", "standing")
 
 #: A short, blunt vocabulary. Not the terrain system -- terrain is explicitly
 #: out of scope -- just enough to sort a list and colour a shape while drawing
@@ -86,7 +89,7 @@ def draft_path(draft_id, directory=None):
 
 
 def make_item(local_id, tier, geometry, note="", name="", kind="", tags=None,
-              source="drawn", source_feature_ids=None):
+              source="drawn", source_feature_ids=None, depth="named"):
     """One drawn thing, validated.
 
     Validation is strict and immediate rather than deferred to a later
@@ -115,11 +118,17 @@ def make_item(local_id, tier, geometry, note="", name="", kind="", tags=None,
     if tier == "point" and kind_geom != "point":
         raise ValueError("the 'point' tier must have point geometry")
 
+    if depth not in DEPTHS:
+        raise ValueError("depth must be one of %s, got %r" % (DEPTHS, depth))
+
     return {
         "localId": local_id,
         "tier": tier,
         "name": name or "",
         "kind": kind or "",
+        # How developed this is meant to become -- design/location-depth.md.
+        # Declared, never inferred, and defaulting to the cheapest rung.
+        "depth": depth,
         "note": note or "",
         "tags": list(tags or []),
         "source": source,

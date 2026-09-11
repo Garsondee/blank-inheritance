@@ -96,6 +96,10 @@ def build_location(item, location_id, georef, *, lore=None, name=None, nameJa=No
         "nameJa": nameJa if nameJa is not None else None,
         "namingPlaceholderRef": None,
         "kind": item.get("kind") or "",
+        # Carried from the draft, defaulting to the cheapest rung: an
+        # undeclared location owes the least, not the most. What that
+        # obligates is design/location-depth.md, checked by core/depth.py.
+        "depth": item.get("depth") or "named",
         "geometry": {"rings": rings, "point": point_ll},
         "pinAnchor": None,
         "derived": {
@@ -120,9 +124,13 @@ def build_location(item, location_id, georef, *, lore=None, name=None, nameJa=No
             "playerFacing": lore.get("playerFacing", ""),
             "gmOnly": lore.get("gmOnly", ""),
         },
+        # Empty at promotion and filled as the location is developed. Present
+        # rather than omitted so the shape of what a deeper location owes is
+        # visible in the file itself, not only in the specification.
+        "scene": {"hooks": [], "activities": [], "history": "", "consequences": ""},
         "realWorld": item.get("realWorld") or {},
         "factionRefs": [], "npcRefs": [], "episodeRefs": [], "openQuestionRefs": [],
-        "bibleRef": None, "assetRefs": [],
+        "bibleRef": None, "assetRefs": [], "playlistRefs": [],
     }
     return doc
 

@@ -87,6 +87,19 @@
           <span class="gz-field__label">Kind</span>
           <select id="f-kind"></select>
         </label>
+        <!-- Declared, never inferred: saying how much a place is going to
+             matter is a commission, and the obligations panel below then
+             reports whether the content has caught up. See
+             design/location-depth.md. -->
+        <label class="gz-field">
+          <span class="gz-field__label">Depth <em>how much this place owes</em></span>
+          <select id="f-depth">
+            <option value="named">Named — a purpose, one line</option>
+            <option value="sketch">Sketch — a brief moment in passing</option>
+            <option value="scene">Scene — a full scene with the group</option>
+            <option value="standing">Standing — returned to all campaign</option>
+          </select>
+        </label>
         <label class="gz-field">
           <span class="gz-field__label">Note</span>
           <textarea id="f-note" rows="5" placeholder="rough is fine — what it is, who's there, what happens"></textarea>
@@ -95,6 +108,10 @@
           <span class="gz-field__label">Tags <em>comma separated</em></span>
           <input id="f-tags" type="text" autocomplete="off">
         </label>
+        <!-- What this location still owes at its declared depth, live. The
+             three lists are deliberately different weights: `missing` is the
+             contract, the other two are advice about the declaration itself. -->
+        <div class="gz-owes" id="depth-owes"></div>
         <dl class="gz-facts" id="f-facts"></dl>
         <p class="gz-hint gz-lock-hint" id="lock-hint" hidden>
           Locked — this has a lore entry. Unlock to rename, edit or delete it.
@@ -173,6 +190,7 @@
             <select id="f-sort">
               <option value="ref">by reference</option>
               <option value="name">by name</option>
+              <option value="depth">by depth</option>
               <option value="added">by added</option>
             </select>
           </label>

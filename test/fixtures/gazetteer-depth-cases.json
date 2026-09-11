@@ -1,0 +1,190 @@
+{
+  "_comment": "Shared fixture for tools/gazetteer/core/depth.py and core/depth.mjs, asserted by BOTH test suites so the two implementations cannot drift. The browser half runs this check on every keystroke in the inspector; the Python half runs it at promotion. If they ever disagree, the tool tells you a location is finished and the promotion path refuses it. Spec: design/location-depth.md. Cases are hand-written, not generated from either implementation.",
+
+  "cases": [
+    {
+      "why": "The depth-0 standard: a name, a kind, one line of purpose. This is real text from the first session (Signal Box), which is what the 70-word ceiling was measured to accommodate.",
+      "doc": {
+        "depth": "named",
+        "name": "Signal Box",
+        "kind": "infrastructure",
+        "note": "Timber-framed on a brick base, controlling every movement through the Transfer and out along the causeway. Two signalmen a shift and a kettle that is never off. They have the best view of the whole crossing, and by long habit they wave at children on the platform."
+      },
+      "expect": { "ok": true, "missing": [], "overweightCount": 0, "orphanedCount": 0, "summaryWords": 47 }
+    },
+    {
+      "why": "A depth-0 entry that genuinely outgrew the rung. Real text (The Roadgate). Not incomplete -- mis-declared, so it reports overweight while still passing. Exactly ONE overweight note: at depth named the summary is the whole prose, and reporting the summary ceiling and the total ceiling separately would say the same thing twice.",
+      "doc": {
+        "depth": "named",
+        "name": "The Roadgate",
+        "kind": "military",
+        "note": "Both highway lanes onto the fortress island pass underneath it, through a concrete throat wide enough for two vehicles abreast and no more. Traffic slows to walking pace inside, which is the point: the ceiling is firing slits, and a barrier drops at either end independently. Drivers know the drill — window down, pass held up, engine off if asked. At shift change the queue runs back a quarter mile, and the second lane is shut far more often than anyone has ever explained."
+      },
+      "expect": { "ok": true, "missing": [], "overweightCount": 1, "orphanedCount": 0, "summaryWords": 84 }
+    },
+    {
+      "why": "Nothing written at all. Name and kind are required at every depth, so both are missing alongside the summary.",
+      "doc": { "depth": "named", "name": "", "kind": "", "note": "" },
+      "expect": { "ok": false, "missingCount": 3, "overweightCount": 0, "orphanedCount": 0 }
+    },
+    {
+      "why": "A depth-0 entry carrying attachments it has no business having yet -- a playlist and an NPC on a warehouse. Complete, but mis-declared from the other direction.",
+      "doc": {
+        "depth": "named",
+        "name": "Bonded Warehouse",
+        "kind": "industrial",
+        "note": "Sealed goods waiting on paperwork.",
+        "npcRefs": ["someone"],
+        "playlistRefs": ["a-playlist"]
+      },
+      "expect": { "ok": true, "missingCount": 0, "overweightCount": 0, "orphanedCount": 2 }
+    },
+    {
+      "why": "A complete sketch: summary, player-facing description, one hook. No NPC file, no art, no playlist -- correctly not required at depth 1.",
+      "doc": {
+        "depth": "sketch",
+        "name": "Permit Office",
+        "kind": "civic",
+        "lore": {
+          "summary": "Where island passes are issued, renewed and refused.",
+          "playerFacing": "Three windows, one of which is always shut. The waiting bench seats eleven and is usually full."
+        },
+        "scene": { "hooks": ["A clerk will bend the rules for someone who is genuinely desperate, once."] }
+      },
+      "expect": { "ok": true, "missingCount": 0, "overweightCount": 0, "orphanedCount": 0 }
+    },
+    {
+      "why": "Declared a sketch but written as a bare line: the player-facing description and the hook are both owed.",
+      "doc": {
+        "depth": "sketch",
+        "name": "Wash House",
+        "kind": "infrastructure",
+        "note": "Coin-fed washers and a drying yard."
+      },
+      "expect": { "ok": false, "missingCount": 2, "overweightCount": 0, "orphanedCount": 0 }
+    },
+    {
+      "why": "Declared a scene with nothing but a sketch's content. Everything the scene bundle obliges is listed: GM notes, a second activity, an NPC, art, a playlist.",
+      "doc": {
+        "depth": "scene",
+        "name": "Transfer Hall",
+        "kind": "transport",
+        "lore": {
+          "summary": "The concourse where the two rail systems meet and nobody may walk straight through.",
+          "playerFacing": "Benches, a tea stand, and a departures board listing the island services in a smaller column."
+        },
+        "scene": { "hooks": ["Somebody is being turned back at the barrier."], "activities": ["Queue and be inspected."] }
+      },
+      "expect": { "ok": false, "missingCount": 5, "overweightCount": 0, "orphanedCount": 0 }
+    },
+    {
+      "why": "A complete depth-2 scene, with the full bundle attached: two activities, an NPC file, its own art, its own playlist.",
+      "doc": {
+        "depth": "scene",
+        "name": "Baggage Inspection",
+        "kind": "military",
+        "lore": {
+          "summary": "A long shed beside the barrier where bags are opened on trestle tables.",
+          "playerFacing": "Two inspectors on a normal day and six when something has happened.",
+          "gmOnly": "The senior inspector is being quietly leaned on and is looking for a way out."
+        },
+        "scene": {
+          "hooks": ["Something in a PC's bag cannot be explained in one sentence."],
+          "activities": ["Talk your way past an inspection.", "Watch who else is being detained, and why."]
+        },
+        "npcRefs": ["senior-inspector"],
+        "assetRefs": ["art-baggage-inspection"],
+        "playlistRefs": ["playlist-the-transfer"]
+      },
+      "expect": { "ok": true, "missingCount": 0, "overweightCount": 0, "orphanedCount": 0 }
+    },
+    {
+      "why": "Declared standing, built as a scene: history and consequences are the two things depth 3 exists for, plus the deeper counts it owes (a third activity, a second NPC).",
+      "doc": {
+        "depth": "standing",
+        "name": "Long Hall",
+        "kind": "civic",
+        "lore": {
+          "summary": "The one building big enough to feed several hundred candidates in three seatings.",
+          "playerFacing": "Trestle tables, a serving line, a noticeboard thick with drill schedules.",
+          "gmOnly": "The noticeboard is how the Directorate actually distributes bad news."
+        },
+        "scene": {
+          "hooks": ["A notice goes up that changes somebody's posting."],
+          "activities": ["Eat, and overhear.", "Read the noticeboard."]
+        },
+        "npcRefs": ["mess-steward"],
+        "assetRefs": ["art-long-hall"],
+        "playlistRefs": ["playlist-long-hall"]
+      },
+      "expect": { "ok": false, "missingCount": 4, "overweightCount": 0, "orphanedCount": 0 }
+    },
+    {
+      "why": "Depth 3 has no total-word ceiling on purpose: a place the group returns to all campaign is allowed to accumulate. This one is deliberately long and must not be flagged overweight.",
+      "doc": {
+        "depth": "standing",
+        "name": "The Transfer",
+        "kind": "transport",
+        "lore": {
+          "summary": "The checkpoint everyone crossing to the island passes through, twice a day, for years.",
+          "playerFacing": "Eleven minutes when nothing is wrong and forty when it is. The barrier lanes move at different speeds and everybody has a theory about which.",
+          "gmOnly": "The permit system is being used to track movement, and nobody at the Transfer knows that."
+        },
+        "scene": {
+          "hooks": ["A familiar face is missing from their post."],
+          "activities": ["Cross under inspection.", "Work the queue for gossip.", "Get something through that should not go through."],
+          "history": "Built with the causeway. The island line was added later and badly, which is why the transfer exists at all rather than a through service. During play it has been closed twice, both times without explanation.",
+          "consequences": "If the party is ever caught moving something through, inspections tighten for everyone and the queue times in every later scene here double."
+        },
+        "npcRefs": ["senior-inspector", "signalman-on-nights"],
+        "assetRefs": ["art-the-transfer"],
+        "playlistRefs": ["playlist-the-transfer"]
+      },
+      "expect": { "ok": true, "missingCount": 0, "overweightCount": 0, "orphanedCount": 0 }
+    },
+    {
+      "why": "An unknown depth is refused rather than silently treated as named -- a typo in a declaration must not quietly downgrade what a location owes.",
+      "doc": { "depth": "epic", "name": "Somewhere", "kind": "civic", "note": "A place." },
+      "expect": { "ok": false, "known": false, "missingCount": 1 }
+    },
+    {
+      "why": "No depth declared at all defaults to named, the cheapest rung -- an undeclared location owes the least, not the most.",
+      "doc": { "name": "Gate Post", "kind": "military", "note": "A booth and a barrier arm." },
+      "expect": { "ok": true, "depth": "named", "missingCount": 0 }
+    }
+  ],
+
+  "suggestCases": [
+    {
+      "why": "Content that already satisfies depth 2 while declared depth 0: suggestDepth reports the deepest rung it would pass, which is the promote-this signal.",
+      "doc": {
+        "depth": "named",
+        "name": "Baggage Inspection",
+        "kind": "military",
+        "lore": {
+          "summary": "A long shed beside the barrier where bags are opened on trestle tables.",
+          "playerFacing": "Two inspectors on a normal day and six when something has happened.",
+          "gmOnly": "The senior inspector is being quietly leaned on."
+        },
+        "scene": {
+          "hooks": ["Something cannot be explained in one sentence."],
+          "activities": ["Talk your way past.", "Watch who else is detained."]
+        },
+        "npcRefs": ["senior-inspector"],
+        "assetRefs": ["art-baggage-inspection"],
+        "playlistRefs": ["playlist-the-transfer"]
+      },
+      "expect": "scene"
+    },
+    {
+      "why": "A bare line satisfies depth 0 and nothing above it.",
+      "doc": { "name": "Gate Post", "kind": "military", "note": "A booth and a barrier arm." },
+      "expect": "named"
+    },
+    {
+      "why": "Nothing satisfies any rung when there is no name.",
+      "doc": { "name": "", "kind": "", "note": "" },
+      "expect": null
+    }
+  ]
+}
