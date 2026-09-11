@@ -87,6 +87,13 @@ body {
   border-radius: 2px;
 }
 .gz-tool:hover, .gz-btn:hover { background: #f6efdd; }
+.gz-btn:disabled {
+  background: var(--bi-paper-shade);
+  color: var(--bi-paper-ink-2);
+  border-color: var(--bi-paper-rule);
+  cursor: not-allowed;
+}
+.gz-btn:disabled:hover { background: var(--bi-paper-shade); }
 .gz-tool.is-active {
   background: var(--bi-paper-ink);
   color: var(--bi-paper);
@@ -184,6 +191,16 @@ body {
   outline: 2px solid var(--bi-brass);
   outline-offset: -1px;
 }
+.gz-field input:disabled, .gz-field select:disabled, .gz-field textarea:disabled {
+  background: var(--bi-paper-shade);
+  color: var(--bi-paper-ink-2);
+  cursor: not-allowed;
+}
+
+.gz-lock-hint {
+  color: var(--bi-ok);
+  margin: 8px 0 0;
+}
 
 .gz-facts {
   margin: 10px 0 0;
@@ -230,6 +247,7 @@ body {
   line-height: 1.6;
   color: var(--bi-paper-ink-2);
 }
+.gz-batch__list li.is-locked { color: var(--bi-ok); }
 
 .gz-promote {
   margin-top: 12px;
@@ -288,6 +306,14 @@ body {
 }
 .gz-item:hover { background: #f4eeda; }
 .gz-item.is-selected { background: var(--bi-paper-shade); box-shadow: inset 3px 0 0 var(--bi-brass); }
+.gz-item.is-locked:not(.is-selected) { box-shadow: inset 3px 0 0 var(--bi-ok); }
+.gz-item__lock {
+  font-family: var(--bi-font-condensed);
+  font-size: 9px;
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  color: var(--bi-ok);
+}
 .gz-item__check { margin: 0; align-self: center; cursor: pointer; }
 .gz-item__dot { width: 8px; height: 8px; border-radius: 50%; align-self: center; }
 .gz-item__name { font-size: 13px; }

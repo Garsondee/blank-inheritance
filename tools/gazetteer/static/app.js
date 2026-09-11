@@ -617,6 +617,19 @@ function renderInspector(localId) {
   // cannot exist.
   $("f-tier").disabled = item.geometry.kind === "point";
 
+  // A locked item has a real lore entry and reads as settled -- every field
+  // that could change or destroy it is disabled until it is unlocked again,
+  // the vertex handles it would otherwise grow are skipped entirely (see
+  // drawHandles' own check), and Delete refuses it outright rather than
+  // silently doing nothing, which is what looked like a bug the last time
+  // something silently refused to act here.
+  const locked = !!item.locked;
+  ["f-name", "f-kind", "f-note", "f-tags"].forEach((id) => { $(id).disabled = locked; });
+  $("f-tier").disabled = locked || item.geometry.kind === "point";
+  $("btn-lock").textContent = locked ? "Unlock" : "Lock";
+  $("btn-delete").disabled = locked;
+  $("lock-hint").hidden = !locked;
+
   const facts = $("f-facts");
   facts.innerHTML = "";
   const rows = [];
@@ -655,15 +668,21 @@ function renderBatchPanel(ids) {
   $("inspector-empty").hidden = true;
   $("inspector-form").hidden = true;
   $("batch-form").hidden = false;
-  $("batch-count").textContent = `${ids.length} selected`;
+  const lockedCount = ids.filter((id) => { const it = itemById(id); return it && it.locked; }).length;
+  $("batch-count").textContent = `${ids.length} selected`
+    + (lockedCount ? ` (${lockedCount} locked)` : "");
   $("b-kind").value = "";
   $("b-note").value = "";
   $("b-tags").value = "";
   $("batch-list").innerHTML = ids.map((id) => {
     const it = itemById(id);
     if (!it) return "";
-    return `<li>${escapeHtml(it.name || `(unnamed ${it.tier})`)} — ${escapeHtml(liveRef(it))}</li>`;
+    return `<li class="${it.locked ? "is-locked" : ""}">${it.locked ? "[locked] " : ""}${escapeHtml(it.name || `(unnamed ${it.tier})`)} — ${escapeHtml(liveRef(it))}</li>`;
   }).join("");
+  // "Lock selected" always locks every one of them; "Unlock selected" only
+  // once ALL of them already are, so the button's own label never claims an
+  // action ("lock" vs "unlock") that would be a no-op for part of the group.
+  $("btn-batch-lock").textContent = ids.length && lockedCount === ids.length ? "Unlock selected" : "Lock selected";
   renderList();
 }
 
@@ -691,18 +710,19 @@ function renderList() {
     shown += 1;
     visibleIds.push(item.localId);
     const li = document.createElement("li");
-    li.className = "gz-item" + (sel.has(item.localId) ? " is-selected" : "");
+    li.className = "gz-item" + (sel.has(item.localId) ? " is-selected" : "")
+      + (item.locked ? " is-locked" : "");
     li.innerHTML = `
       <input type="checkbox" class="gz-item__check" ${sel.has(item.localId) ? "checked" : ""}
              aria-label="select ${escapeHtml(item.name || `unnamed ${item.tier}`)}">
       <span class="gz-item__dot" style="background:${TIER_COLOUR[item.tier]}"></span>
       <span>
-        <span class="gz-item__name" title="click to rename">${item.name
+        <span class="gz-item__name" title="${item.locked ? "locked — unlock to rename" : "click to rename"}">${item.name
           ? escapeHtml(item.name)
           : `<em>unnamed ${item.tier}</em>`}</span>
-        <span class="gz-item__note" title="click to edit">${escapeHtml((item.note || "").split("\n")[0] || "no note yet")}</span>
+        <span class="gz-item__note" title="${item.locked ? "locked — unlock to edit" : "click to edit"}">${escapeHtml((item.note || "").split("\n")[0] || "no note yet")}</span>
       </span>
-      <span class="gz-item__ref">${escapeHtml(liveRef(item))}</span>`;
+      <span class="gz-item__ref">${item.locked ? '<span class="gz-item__lock">locked</span> ' : ""}${escapeHtml(liveRef(item))}</span>`;
 
     li.querySelector(".gz-item__check").addEventListener("click", (e) => {
       e.stopPropagation();
@@ -711,10 +731,12 @@ function renderList() {
     });
     li.querySelector(".gz-item__name").addEventListener("click", (e) => {
       e.stopPropagation();
+      if (item.locked) { setStatus("locked — unlock it to rename", "warn"); return; }
       editItemField(item, "name", e.currentTarget, { multiline: false });
     });
     li.querySelector(".gz-item__note").addEventListener("click", (e) => {
       e.stopPropagation();
+      if (item.locked) { setStatus("locked — unlock it to edit", "warn"); return; }
       editItemField(item, "note", e.currentTarget, { multiline: true });
     });
     // Plain click: the original "look at this one" gesture -- select and
@@ -879,6 +901,14 @@ function wireChrome() {
   });
 
   $("btn-delete").addEventListener("click", deleteSelected);
+  $("btn-lock").addEventListener("click", () => {
+    const item = itemById(state.draw.selected());
+    if (!item) return;
+    item.locked = !item.locked;
+    markDirty();
+    renderInspector(item.localId);
+    state.draw.restyleOne(item.localId);
+  });
   $("btn-zoom").addEventListener("click", () => {
     const item = itemById(state.draw.selected());
     if (item) zoomTo(item);
@@ -891,16 +921,34 @@ function wireChrome() {
     const kind = $("b-kind").value;
     const note = $("b-note").value;
     const tags = $("b-tags").value.split(",").map((s) => s.trim()).filter(Boolean);
+    let skipped = 0;
     ids.forEach((id) => {
       const it = itemById(id);
       if (!it) return;
+      if (it.locked) { skipped++; return; } // a lore entry is not a "starting point" to overwrite
       if (kind) it.kind = kind;   // blank = leave every item's own kind alone
       it.note = note;             // the whole point: replace with the shared theme
       it.tags = tags;
     });
     markDirty();
     renderBatchPanel(ids);
-    setStatus(`applied to ${ids.length} items`);
+    setStatus(`applied to ${ids.length - skipped} items`
+      + (skipped ? ` — ${skipped} locked item${skipped === 1 ? "" : "s"} kept` : ""));
+  });
+  $("btn-batch-lock").addEventListener("click", () => {
+    const ids = state.draw.selectedList();
+    if (!ids.length) return;
+    const allLocked = ids.every((id) => { const it = itemById(id); return it && it.locked; });
+    const next = !allLocked; // see renderBatchPanel: the button only offers "unlock" once ALL are locked
+    ids.forEach((id) => {
+      const it = itemById(id);
+      if (!it) return;
+      it.locked = next;
+      state.draw.restyleOne(id);
+    });
+    markDirty();
+    renderBatchPanel(ids);
+    setStatus(`${next ? "locked" : "unlocked"} ${ids.length} item${ids.length === 1 ? "" : "s"}`);
   });
   // Two clicks, not a native confirm dialog: that turned out to be silently
   // unanswerable in this app's own preview environment -- it neither
@@ -993,15 +1041,27 @@ function updatePromoteBox(item) {
 /** Delete any number of items at once — the single-item Delete button, the
  *  batch panel's Delete, and the Delete key all funnel through this, so
  *  "delete what's selected" means the same thing everywhere regardless of
- *  how many that turns out to be. */
+ *  how many that turns out to be. Locked items are skipped, never deleted
+ *  silently alongside unlocked ones in the same batch -- that is the entire
+ *  point of locking one: a note or a click meant for the rest of the
+ *  selection must never also take out something that already has a lore
+ *  entry, just because it happened to be selected too. */
 function deleteItems(ids) {
   if (!ids.length) return;
-  const dropped = new Set(ids);
+  const locked = ids.filter((id) => { const it = itemById(id); return it && it.locked; });
+  const toDrop = ids.filter((id) => !locked.includes(id));
+  if (!toDrop.length) {
+    setStatus(`${locked.length === 1 ? "that item is" : "all of those are"} locked — unlock first`, "warn");
+    return;
+  }
+  const dropped = new Set(toDrop);
   state.items = state.items.filter((it) => !dropped.has(it.localId));
-  ids.forEach((id) => state.draw.removeShape(id));
+  toDrop.forEach((id) => state.draw.removeShape(id));
   state.draw.select(null);
   markDirty();
-  setStatus(ids.length === 1 ? "deleted" : `deleted ${ids.length} items`);
+  const parts = [toDrop.length === 1 ? "deleted" : `deleted ${toDrop.length} items`];
+  if (locked.length) parts.push(`${locked.length} locked item${locked.length === 1 ? "" : "s"} kept`);
+  setStatus(parts.join(" — "), locked.length ? "warn" : undefined);
 }
 
 function deleteSelected() {

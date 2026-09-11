@@ -25,6 +25,10 @@ const TIER_STYLE = {
   point:  { color: "#d1402a", weight: 2, fillOpacity: 0.30, dashArray: null },
 };
 const SELECTED = { color: "#4fc8d8", weight: 3, fillOpacity: 0.25 };
+// A settled colour, distinct from every tier's own -- locked reads as "done,"
+// not as a fourth tier, so it deliberately doesn't reuse region's brass-ish
+// tone or site/point's vermilion.
+const LOCKED = { color: "#3d6b47", weight: 2, fillOpacity: 0.22, dashArray: null };
 const DRAFT_STYLE = { color: "#4fc8d8", weight: 2, dashArray: "6 5", fillOpacity: 0.12 };
 
 export const TIER_COLOUR = {
@@ -186,6 +190,7 @@ export function createDrawController(opts) {
     const entry = shapes.get(id);
     if (!entry || entry.item.geometry.kind !== "polygon") return;
     entry.layer.setStyle(selectedIds.has(id) ? SELECTED
+      : entry.item.locked ? LOCKED
       : (TIER_STYLE[entry.item.tier] || TIER_STYLE.site));
     const el = entry.layer._icon; // pins restyle via their marker element, if any
     if (el) el.classList.toggle("gz-pin--selected", selectedIds.has(id));
@@ -233,6 +238,10 @@ export function createDrawController(opts) {
     // selections are for instead.
     const entry = selected() && shapes.get(selected());
     if (!entry) return;
+    // A locked item has a real lore entry and reads as settled, not a draft
+    // still being nudged into place -- no handles to grab means no accidental
+    // reshape, the same protection Delete gets from the same flag.
+    if (entry.item.locked) return;
     const g = entry.item.geometry;
 
     if (g.kind === "point") {
@@ -307,7 +316,7 @@ export function createDrawController(opts) {
    *  can be nudged without grabbing a vertex and changing its outline. */
   function nudge(dx, dy) {
     const entry = selected() && shapes.get(selected());
-    if (!entry) return;
+    if (!entry || entry.item.locked) return;
     const g = entry.item.geometry;
     if (g.kind === "point") {
       g.pointPx = [g.pointPx[0] + dx, g.pointPx[1] + dy];
@@ -669,7 +678,7 @@ export function createDrawController(opts) {
   return {
     setTool, get tool() { return tool; },
     addShape, removeShape, clearShapes, select, selected, selectMany, selectedList,
-    toggle, drawHandles, nudge,
+    toggle, drawHandles, nudge, restyleOne,
     finishDraft, cancelDraft, undoPoint,
     get drafting() { return !!drafting; },
     shapes,

@@ -195,6 +195,36 @@ test("a drag-box Remove cannot also fire a spurious single-building removal", ()
     "whatever the release point happened to be");
 });
 
+test("a locked item is protected everywhere it could be deleted or overwritten", () => {
+  // Feature test, not a regression guard: `locked` exists so a building with
+  // a real lore entry can be selected, viewed and zoomed to like any other
+  // item, but never mutated or destroyed by accident just because it was
+  // swept up in a later marquee/lasso/batch action alongside things that
+  // still are drafts. Checked at every real destructive/overwriting entry
+  // point rather than just one, since a lock that only holds at the single-
+  // item Delete button is not actually a lock.
+  const app = readFileSync(join(STATIC, "app.js"), "utf8");
+  const draw = readFileSync(join(STATIC, "draw.js"), "utf8");
+
+  assert.ok(/function deleteItems\([^)]*\)\s*\{[\s\S]{0,400}\.locked/.test(app),
+    "deleteItems() no longer checks .locked -- the single-item Delete " +
+    "button, the batch panel's Delete, and the Delete key all funnel " +
+    "through this one function, so a check missing here unprotects all three");
+  assert.ok(/btn-batch-apply[\s\S]{0,400}\.locked/.test(app),
+    "the batch panel's Apply no longer checks .locked -- a shared theme " +
+    "note applied to a selection would overwrite a locked item's real lore " +
+    "with the theme text, exactly the accidental edit locking exists to stop");
+  assert.ok(/"btn-lock"/.test(app), "app.js no longer wires up a #btn-lock control");
+  assert.ok(/"btn-batch-lock"/.test(app), "app.js no longer wires up a #btn-batch-lock control");
+
+  assert.ok(/function drawHandles\(\)\s*\{[\s\S]{0,700}\.locked/.test(draw),
+    "drawHandles() no longer checks .locked -- a locked shape would still " +
+    "grow vertex/midpoint handles and be freely reshaped by dragging them");
+  assert.ok(/function nudge\([^)]*\)\s*\{[\s\S]{0,200}\.locked/.test(draw),
+    "nudge() no longer checks .locked -- a locked shape could still be " +
+    "moved wholesale with the arrow keys");
+});
+
 test("the shared fixture is reachable from both suites' expected paths", () => {
   const fixture = JSON.parse(
     readFileSync(join(here, "fixtures", "gazetteer-grid-cases.json"), "utf8"));

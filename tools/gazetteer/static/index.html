@@ -88,8 +88,12 @@
           <input id="f-tags" type="text" autocomplete="off">
         </label>
         <dl class="gz-facts" id="f-facts"></dl>
+        <p class="gz-hint gz-lock-hint" id="lock-hint" hidden>
+          Locked — this has a lore entry. Unlock to rename, edit or delete it.
+        </p>
         <div class="gz-form__actions">
           <button type="button" class="gz-btn" id="btn-zoom">Zoom to</button>
+          <button type="button" class="gz-btn" id="btn-lock">Lock</button>
           <button type="button" class="gz-btn gz-btn--danger" id="btn-delete">Delete</button>
         </div>
         <div class="gz-promote" id="promote-box">
@@ -121,6 +125,7 @@
         <ul class="gz-batch__list" id="batch-list"></ul>
         <div class="gz-form__actions">
           <button type="button" class="gz-btn gz-btn--promote" id="btn-batch-apply">Apply to selected</button>
+          <button type="button" class="gz-btn" id="btn-batch-lock">Lock selected</button>
           <button type="button" class="gz-btn gz-btn--danger" id="btn-batch-delete">Delete selected</button>
         </div>
       </form>
