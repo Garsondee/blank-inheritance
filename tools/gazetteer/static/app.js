@@ -186,7 +186,7 @@ async function boot() {
     onSelect: handleSelectionChange,
     onGeometryChange: () => { markDirty(); renderList(); renderInspector(state.draw.selected()); },
     onMarquee: onMarquee,
-    onMassAdopt: massAdopt,
+    onAreaSelect,
     onPick: onPick,
     onStatus: (text) => setStatus(text || defaultStatus()),
   });
@@ -237,10 +237,10 @@ async function boot() {
   // surface anyone else can reach.
   window.__gz = {
     state, api, setTool, save, refreshFeatures, refreshPublished,
-    onShapeDrawn, onMarquee, onPick, massAdopt, handleSelectionChange,
+    onShapeDrawn, onMarquee, onPick, onAreaSelect, handleSelectionChange,
   };
   $("status-keys").textContent =
-    "V select · L lasso · R region · S site · P pin · B adopt · M mass-adopt · X remove · "
+    "V select (right-click drag to pan) · L lasso · R region · S site · P pin · B adopt · X remove · "
     + "Shift+click/drag adds to selection · Enter finish · Esc cancel · Del delete · Ctrl+S save";
 }
 
@@ -286,9 +286,9 @@ async function save() {
 }
 
 /** Pure construction: a shape (from a single adopt, a hand-drawn polygon, or
- *  one building inside a mass-adopt lasso) becomes a session item. No
- *  selection, no DOM — callers decide when and how many to select, which is
- *  the difference between adopting one building and adopting fifty. */
+ *  one building inside an area-select) becomes a session item. No selection,
+ *  no DOM — callers decide when and how many to select, which is the
+ *  difference between adopting one building and adopting fifty. */
 function buildItem(shape) {
   const item = {
     localId: "item-" + state.nextLocal++,
@@ -324,48 +324,67 @@ function onShapeDrawn(shape) {
 }
 
 /**
- * A polygon lasso over real buildings, adopted all at once, each keeping its
- * own real footprint (never merged — that is what plain multi-select Adopt
- * is for). Every matched building becomes its own session item, then all of
- * them land in the selection together so the batch panel is right there to
- * take one shared note across the whole group — "note them all together with
- * the same information," as asked for.
+ * One rectangle or polygon area, selecting EVERYTHING inside it in one pass:
+ * drawn/adopted session items already there, AND real, not-yet-adopted
+ * buildings, adopted on the spot, each keeping its own real footprint (never
+ * merged — that is what plain multi-select Adopt already does, deliberately
+ * different). There is no separate "mass adopt" mode for this: one marquee
+ * or one lasso is enough to grab a mixed handful of existing and brand-new
+ * buildings together, landing pre-selected so the batch panel is right there
+ * to take one shared theme across the whole group. The theme is not meant to
+ * become each building's FINAL text verbatim — the shared note is a prompt
+ * for later, when each one gets read and given its own purpose and
+ * description; only Kind and the derived geometry are literally identical
+ * across a batch.
  *
- * Filtered by centroid-inside-the-drawn-ring, client-side, against whatever
- * /api/features already returned for the lasso's bounding box — no new
- * server endpoint needed, since that response already carries full ring
- * geometry per building.
+ * Real buildings already represented by an existing session item (anywhere
+ * in the session, not just inside this area) are never re-adopted — a second
+ * pass over the same ground must not create a duplicate.
  */
-async function massAdopt(ringPx) {
-  const xs = ringPx.map((p) => p[0]);
-  const ys = ringPx.map((p) => p[1]);
+async function onAreaSelect(areaSpec, additive) {
+  const inArea = makeAreaTest(areaSpec);
+  const bbox = bboxOfArea(areaSpec);
+
+  // Session items already inside the area -- instant, no server round trip.
+  const sessionHits = state.items
+    .filter((it) => inArea(...centroidOfGeometry(it.geometry)))
+    .map((it) => it.localId);
+
   let data;
   try {
-    data = await api(`/api/features?x0=${Math.min(...xs)}&y0=${Math.min(...ys)}`
-      + `&x1=${Math.max(...xs)}&y1=${Math.max(...ys)}`);
+    data = await api(`/api/features?x0=${bbox.x0}&y0=${bbox.y0}&x1=${bbox.x1}&y1=${bbox.y1}`);
   } catch (err) {
     setStatus("could not query real buildings: " + err.message, "error");
-    return;
+    data = { features: [], refused: false };
   }
+
+  let refusalNote = "";
   if (data.refused) {
-    setStatus("that lasso covers too wide an area — " + data.reason, "warn");
+    refusalNote = ` (real buildings skipped: ${data.reason})`;
+    data = { features: [] };
+  }
+
+  const alreadyAdopted = new Set(state.items.flatMap((it) => it.sourceFeatureIds || []));
+  const toAdopt = data.features.filter((f) => {
+    if (alreadyAdopted.has(f.id)) return false;
+    const c = polygonCentroidPx(f.ringPx);
+    return inArea(c.x, c.y);
+  });
+
+  if (!sessionHits.length && !toAdopt.length) {
+    setStatus("nothing in that area" + refusalNote, "warn");
     return;
   }
 
-  const inside = data.features.filter((f) => {
-    const c = polygonCentroidPx(f.ringPx);
-    return pointInRing(c.x, c.y, ringPx);
-  });
-  if (!inside.length) { setStatus("no real buildings inside that lasso", "warn"); return; }
-
-  setStatus(`adopting ${inside.length} building${inside.length === 1 ? "" : "s"}…`);
+  if (toAdopt.length) setStatus(`adopting ${toAdopt.length} building${toAdopt.length === 1 ? "" : "s"}…`);
   // Parallel: each adopt is an independent GET-then-write against the
   // building's own id, and the local server is threaded, so there is no
   // reason to make someone wait out a hundred buildings one at a time.
-  const results = await Promise.allSettled(inside.map((f) => api("/api/adopt", { featureIds: [f.id] })));
-
+  const results = toAdopt.length
+    ? await Promise.allSettled(toAdopt.map((f) => api("/api/adopt", { featureIds: [f.id] })))
+    : [];
   const newIds = [];
-  results.forEach((r, i) => {
+  results.forEach((r) => {
     if (r.status !== "fulfilled") return; // one bad row must not abort the batch
     const adopted = r.value;
     const item = buildItem({
@@ -376,13 +395,40 @@ async function massAdopt(ringPx) {
     state.draw.addShape(item);
     newIds.push(item.localId);
   });
-
   const failed = results.length - newIds.length;
-  markDirty();
-  state.draw.selectMany(newIds);
-  setStatus(`adopted ${newIds.length} building${newIds.length === 1 ? "" : "s"}`
-    + (failed ? ` (${failed} failed)` : "") + " — set a shared note below and Apply");
+
+  const combined = [...sessionHits, ...newIds];
+  if (newIds.length) markDirty();
+  state.draw.selectMany(additive ? [...new Set([...state.draw.selectedList(), ...combined])] : combined);
+
+  const parts = [];
+  if (sessionHits.length) parts.push(`${sessionHits.length} already drawn`);
+  if (newIds.length) parts.push(`${newIds.length} adopted`);
+  if (failed) parts.push(`${failed} failed`);
+  setStatus(parts.join(", ") + refusalNote
+    + (newIds.length ? " — set a shared theme below and Apply" : ""));
   if (newIds.length) $("b-note").focus();
+}
+
+function makeAreaTest(areaSpec) {
+  if (areaSpec.kind === "rect") {
+    const { x0, y0, x1, y1 } = areaSpec;
+    return (x, y) => x >= x0 && x <= x1 && y >= y0 && y <= y1;
+  }
+  return (x, y) => pointInRing(x, y, areaSpec.ring);
+}
+
+function bboxOfArea(areaSpec) {
+  if (areaSpec.kind === "rect") return areaSpec;
+  const xs = areaSpec.ring.map((p) => p[0]);
+  const ys = areaSpec.ring.map((p) => p[1]);
+  return { x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys) };
+}
+
+function centroidOfGeometry(g) {
+  if (g.kind === "point") return g.pointPx;
+  const c = polygonCentroidPx(g.ringPx);
+  return [c.x, c.y];
 }
 
 /** Even-odd ray casting. A client-side convenience filter only — never the
@@ -530,7 +576,7 @@ function itemById(localId) { return state.items.find((it) => it.localId === loca
 
 /** The one place selection-count branches: 0 → empty state, 1 → the normal
  *  single-item inspector (unchanged), 2+ → the batch panel. Everything that
- *  changes the selection (a click, a marquee, a mass-adopt, a delete) routes
+ *  changes the selection (a click, a marquee, a lasso, a delete) routes
  *  through here via draw.js's onSelect callback, so the sidebar can never
  *  show a stale count or the wrong panel for what is actually selected. */
 function handleSelectionChange(ids) {
@@ -582,7 +628,7 @@ function renderInspector(localId) {
 }
 
 /**
- * 2+ items selected — from a marquee, a mass-adopt lasso, or Shift-clicking
+ * 2+ items selected — from a marquee, a lasso, or Shift-clicking
  * several. One Kind/Note/Tags form for the whole group instead of the
  * single-item fields: Note and Tags REPLACE each item's own (that is the
  * point — "a single theme I note up"), Kind only touches items when it is
@@ -843,10 +889,9 @@ function defaultStatus() {
     case "site": return "Click to trace a building or block. Enter finishes, Esc cancels.";
     case "point": return "Click to drop a pin.";
     case "adopt": return "Click a real building to take its actual footprint.";
-    case "mass-adopt": return "Draw a lasso around real buildings to adopt them all, each keeping its own footprint. Enter to finish.";
-    case "lasso": return "Draw a polygon around drawn/adopted items to select them all at once. Enter to finish.";
+    case "lasso": return "Draw a polygon around drawn AND real buildings — both get selected (real ones adopted on the spot). Enter to finish.";
     case "remove": return "Click a building to remove it · drag a box for many · Alt+drag removes the whole area.";
-    default: return "Click to select, drag a box to select many, Shift adds to the selection. Drag a shape's handles to edit it; right-click a handle to delete that point.";
+    default: return "Click to select, drag a box to select AND adopt everything inside (real buildings included), Shift adds to the selection. Right-click drag to pan. Drag a shape's handles to edit it; right-click a handle to delete that point.";
   }
 }
 
@@ -869,7 +914,7 @@ function wireKeys() {
     if (e.key === "s" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); save(); return; }
     const tools = {
       v: "pan", l: "lasso", r: "region", s: "site", p: "point",
-      b: "adopt", m: "mass-adopt", x: "remove",
+      b: "adopt", x: "remove",
     };
     if (tools[e.key.toLowerCase()] && !e.ctrlKey && !e.metaKey) {
       setTool(tools[e.key.toLowerCase()]);

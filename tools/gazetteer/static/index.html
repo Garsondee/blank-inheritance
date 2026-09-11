@@ -38,13 +38,12 @@
   </div>
 
   <div class="gz-tools" id="tools" role="toolbar" aria-label="Tools">
-    <button class="gz-tool is-active" data-tool="pan"     data-key="V" title="Click to select, drag a box to select many (V)">Select</button>
-    <button class="gz-tool" data-tool="lasso"   data-key="L" title="Draw a polygon to select many drawn/adopted items at once (L)">Lasso</button>
+    <button class="gz-tool is-active" data-tool="pan"     data-key="V" title="Click to select, drag a box to select + adopt everything inside. Right-click drag to pan. (V)">Select</button>
+    <button class="gz-tool" data-tool="lasso"   data-key="L" title="Draw a polygon to select + adopt everything inside — drawn items and real buildings alike (L)">Lasso</button>
     <button class="gz-tool" data-tool="region"  data-key="R" title="Draw a region — districts tessellate (R)">Region</button>
     <button class="gz-tool" data-tool="site"    data-key="S" title="Draw a site — a building or block (S)">Site</button>
     <button class="gz-tool" data-tool="point"   data-key="P" title="Place a pin (P)">Pin</button>
     <button class="gz-tool" data-tool="adopt"   data-key="B" title="Click a real building to take its footprint (B)">Adopt</button>
-    <button class="gz-tool" data-tool="mass-adopt" data-key="M" title="Draw a lasso around many real buildings to adopt them all at once (M)">Mass Adopt</button>
     <button class="gz-tool" data-tool="remove"  data-key="X" title="Remove real buildings the painted map no longer has (X)">Remove</button>
   </div>
 
@@ -99,19 +98,21 @@
         </div>
       </form>
 
-      <!-- Batch state: 2+ items selected, via a marquee or a mass-adopt
-           lasso. Vertex editing has no meaning for a group, so this replaces
-           the single-item form entirely rather than sitting alongside it. -->
+      <!-- Batch state: 2+ items selected, via a marquee or a lasso (either
+           can mix pre-existing drawn/adopted items with real buildings
+           adopted on the spot). Vertex editing has no meaning for a group,
+           so this replaces the single-item form entirely rather than
+           sitting alongside it. -->
       <form class="gz-form" id="batch-form" hidden>
         <span class="gz-batch__count" id="batch-count">0 selected</span>
-        <p class="gz-batch__hint">Set a shared theme and apply it to every selected item at once — nothing is written until you press Apply.</p>
+        <p class="gz-batch__hint">Set a shared theme for the whole cluster — nothing is written until you press Apply. This is a starting point, not each building's final word: read individually later and given its own purpose and description.</p>
         <label class="gz-field">
           <span class="gz-field__label">Kind</span>
           <select id="b-kind"><option value="">— leave as is —</option></select>
         </label>
         <label class="gz-field">
-          <span class="gz-field__label">Note <em>replaces each item's note</em></span>
-          <textarea id="b-note" rows="4" placeholder="a shared theme — what this whole cluster is"></textarea>
+          <span class="gz-field__label">Shared theme <em>replaces each item's note</em></span>
+          <textarea id="b-note" rows="4" placeholder="what this whole cluster is — worker housing along the pier, a row of dockside warehouses…"></textarea>
         </label>
         <label class="gz-field">
           <span class="gz-field__label">Tags <em>comma separated, replaces existing</em></span>

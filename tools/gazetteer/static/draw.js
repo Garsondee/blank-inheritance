@@ -40,7 +40,7 @@ export function ringToLatLngs(ring) { return ring.map(([x, y]) => ll(x, y)); }
 export function createDrawController(opts) {
   const {
     map, grid, onComplete, onSelect, onGeometryChange, onMarquee, onPick, onStatus,
-    onMassAdopt,
+    onAreaSelect,
   } = opts;
 
   const shapeLayer = L.layerGroup().addTo(map);
@@ -50,7 +50,7 @@ export function createDrawController(opts) {
   const shapes = new Map();     // localId -> { item, layer }
   let tool = "pan";
   let drafting = null;          // { points: [[x,y]], line, poly }
-  // Selection is a SET, not a single id, so a marquee or a mass-adopt can put
+  // Selection is a SET, not a single id, so a marquee or a lasso can put
   // many items in the batch panel at once. Every call site that only ever
   // wanted one item still gets that via selected() below; nothing about the
   // single-item path (vertex handles, the inspector) had to change shape.
@@ -82,13 +82,12 @@ export function createDrawController(opts) {
     });
     if (pts.length >= 3) {
       const refs = refsTouched(pts, grid);
-      const verb = tool === "mass-adopt" ? "adopt everything inside"
-        : tool === "lasso" ? "select everything inside" : "finish";
+      const verb = tool === "lasso" ? "select + adopt everything inside" : "finish";
       report(`${pts.length} points · ${refs.length} cell${refs.length === 1 ? "" : "s"}`
         + ` · ${fmtArea(polygonAreaPx(pts))} — Enter to ${verb}, Esc to cancel, Backspace to undo a point`);
     } else {
-      const hint = tool === "mass-adopt" ? "draw a lasso around the real buildings to adopt"
-        : tool === "lasso" ? "draw a lasso around the items to select" : "need at least 3";
+      const hint = tool === "lasso"
+        ? "draw a lasso around drawn AND real buildings — both get selected" : "need at least 3";
       report(`${pts.length} point${pts.length === 1 ? "" : "s"} — ${hint}`);
     }
   }
@@ -100,17 +99,12 @@ export function createDrawController(opts) {
     }
     const ring = drafting.points.slice();
     cancelDraft();
-    if (tool === "mass-adopt") { onMassAdopt(ring); return; }
     if (tool === "lasso") {
-      // Purely client-side, unlike mass-adopt: every session item's geometry
-      // is already in `shapes`, so there is nothing to ask the server for.
-      const hit = [];
-      for (const [id, entry] of shapes) {
-        const [cx, cy] = centroidPxOf(entry.item.geometry);
-        if (pointInRing(cx, cy, ring)) hit.push(id);
-      }
-      selectMany(hit);
-      report(hit.length ? "" : "nothing inside that lasso");
+      // Both drawn/adopted items already in `shapes` AND real, not-yet-
+      // adopted ground-truth buildings -- one lasso, one selection, no
+      // separate "mass adopt" mode. onAreaSelect owns both halves; draw.js
+      // hands off only the geometry.
+      onAreaSelect({ kind: "polygon", ring }, false);
       return;
     }
     onComplete({ tier: tool === "region" ? "region" : "site", ringPx: ring, source: "drawn" });
@@ -314,16 +308,20 @@ export function createDrawController(opts) {
     drawHandles();
   }
 
-  // --- marquee: bulk-remove real buildings, OR bulk-select session items ---
+  // --- marquee: bulk-remove real buildings, OR bulk-select+adopt everything ---
   //
   // Two different things happen inside the same box, chosen by `kind`:
   // "remove-buildings" (the Remove tool) asks the ground-truth layer what
-  // real buildings fall inside; "select-items" (the Select tool) puts every
-  // drawn/adopted item inside the box into the multi-selection, for the batch
-  // note/delete panel. Shift held down makes select-items ADD to whatever is
-  // already selected rather than replace it -- the same modifier `toggle()`
-  // uses for a single shift-click, so the two compose (marquee a block, then
-  // shift-click one more building the box missed).
+  // real buildings fall inside and removes them. "select-items" (the Select
+  // tool) hands the box straight to onAreaSelect, which puts every drawn/
+  // adopted item AND every real, not-yet-adopted building inside it into the
+  // multi-selection together -- adopting the real ones on the spot -- for the
+  // batch note/delete panel. There is deliberately no separate "mass adopt"
+  // mode: one lasso or one marquee is enough to grab a mixed handful of
+  // existing and brand-new buildings in one action. Shift held down makes
+  // select-items ADD to whatever is already selected rather than replace it
+  // -- the same modifier `toggle()` uses for a single shift-click, so the two
+  // compose (marquee a block, then shift-click one more building it missed).
   //
   // mousedown ALWAYS calls L.DomEvent.stop() before this runs, for both
   // kinds, no exceptions -- found live, the hard way: Select's marquee
@@ -404,16 +402,10 @@ export function createDrawController(opts) {
       }
 
       if (kind === "select-items") {
-        // Centroid computed fresh from the live geometry, not the item's
-        // stored `derived` block -- that is only as current as the last
-        // server round trip, and a shape just dragged by a vertex handle
-        // must marquee-select from where it actually is right now.
-        const hit = [];
-        for (const [id, entry] of shapes) {
-          const [cx, cy] = centroidPxOf(entry.item.geometry);
-          if (cx >= rect.x0 && cx <= rect.x1 && cy >= rect.y0 && cy <= rect.y1) hit.push(id);
-        }
-        selectMany(additive ? [...new Set([...selectedIds, ...hit])] : hit);
+        // Both drawn/adopted items AND real, not-yet-adopted buildings inside
+        // the box -- see the "lasso" branch of finishDraft for why this is
+        // one call rather than a sync session-only pass plus a separate mode.
+        onAreaSelect({ kind: "rect", x0: rect.x0, y0: rect.y0, x1: rect.x1, y1: rect.y1 }, additive);
       } else {
         onMarquee(rect, alt);
       }
@@ -510,6 +502,10 @@ export function createDrawController(opts) {
 
   map.on("mousedown", (e) => {
     if (drafting) return;
+    // Left button only -- the right button is exclusively for panning (see
+    // the contextmenu/pan block below), so it must never also start a
+    // marquee attempt racing the same mousemove/mouseup pair.
+    if (e.originalEvent && e.originalEvent.button !== 0) return;
     // A vertex or midpoint handle has its own drag behaviour (see drawHandles)
     // that must run untouched -- starting a marquee tracker on top of it would
     // fight the handle for the same mousemove/mouseup pair.
@@ -526,15 +522,51 @@ export function createDrawController(opts) {
     }
   });
 
+  // --- right-click-drag to pan ----------------------------------------------
+  //
+  // Left-drag is now exclusively the marquee/vertex-drag/polygon-draft
+  // gesture in every tool that uses it, so panning moves to the right button
+  // instead of competing with it for the same drag -- asked for directly,
+  // and it also settles the one thing map.dragging could never cleanly give
+  // Select mode: a button dedicated to "move the view", never ambiguous with
+  // "draw a selection". Implemented by hand rather than via map.dragging,
+  // which Leaflet wires to the left button only. The browser's own context
+  // menu is suppressed over the whole map so right-click reads as "the pan
+  // button", not "show a menu" -- except on a vertex handle, where it is
+  // still exactly what it already was: delete this point.
+  map.getContainer().addEventListener("contextmenu", (e) => e.preventDefault());
+
+  map.getContainer().addEventListener("mousedown", (e) => {
+    if (e.button !== 2) return;
+    if (e.target && e.target.closest && e.target.closest(".gz-vertex, .gz-vertex--mid")) return;
+    e.preventDefault();
+    const startClient = { x: e.clientX, y: e.clientY };
+    const startCentre = map.latLngToContainerPoint(map.getCenter());
+
+    function move(ev) {
+      const target = L.point(
+        startCentre.x - (ev.clientX - startClient.x),
+        startCentre.y - (ev.clientY - startClient.y),
+      );
+      map.setView(map.containerPointToLatLng(target), map.getZoom(), { animate: false });
+    }
+    function up() {
+      document.removeEventListener("mousemove", move);
+      document.removeEventListener("mouseup", up);
+    }
+    document.addEventListener("mousemove", move);
+    document.addEventListener("mouseup", up);
+  });
+
   // Select/pan gets a plain pointer at rest -- "default", not the browser's
   // bare unstyled cursor and not Leaflet's own grab-hand (which reads as
   // "drag to pan", not "click or marquee to select"). Every drawing/picking
   // tool gets a crosshair, matching the precision-placement feel those need.
   const CURSOR = {
     pan: "default", region: "crosshair", site: "crosshair", point: "crosshair",
-    adopt: "crosshair", remove: "crosshair", "mass-adopt": "crosshair", lasso: "crosshair",
+    adopt: "crosshair", remove: "crosshair", lasso: "crosshair",
   };
-  const POLYGON_DRAFT_TOOLS = new Set(["region", "site", "mass-adopt", "lasso"]);
+  const POLYGON_DRAFT_TOOLS = new Set(["region", "site", "lasso"]);
 
   function setTool(next) {
     if (drafting) cancelDraft();
