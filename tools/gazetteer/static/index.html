@@ -43,6 +43,7 @@
     <button class="gz-tool" data-tool="site"    data-key="S" title="Draw a site — a building or block (S)">Site</button>
     <button class="gz-tool" data-tool="point"   data-key="P" title="Place a pin (P)">Pin</button>
     <button class="gz-tool" data-tool="adopt"   data-key="B" title="Click a real building to take its footprint (B)">Adopt</button>
+    <button class="gz-tool" data-tool="mass-adopt" data-key="M" title="Draw a lasso around many real buildings to adopt them all at once (M)">Mass Adopt</button>
     <button class="gz-tool" data-tool="remove"  data-key="X" title="Remove real buildings the painted map no longer has (X)">Remove</button>
   </div>
 
@@ -94,6 +95,31 @@
         <div class="gz-promote" id="promote-box">
           <p class="gz-hint" id="promote-hint"></p>
           <button type="button" class="gz-btn gz-btn--promote" id="btn-promote">Promote to a real location</button>
+        </div>
+      </form>
+
+      <!-- Batch state: 2+ items selected, via a marquee or a mass-adopt
+           lasso. Vertex editing has no meaning for a group, so this replaces
+           the single-item form entirely rather than sitting alongside it. -->
+      <form class="gz-form" id="batch-form" hidden>
+        <span class="gz-batch__count" id="batch-count">0 selected</span>
+        <p class="gz-batch__hint">Set a shared theme and apply it to every selected item at once — nothing is written until you press Apply.</p>
+        <label class="gz-field">
+          <span class="gz-field__label">Kind</span>
+          <select id="b-kind"><option value="">— leave as is —</option></select>
+        </label>
+        <label class="gz-field">
+          <span class="gz-field__label">Note <em>replaces each item's note</em></span>
+          <textarea id="b-note" rows="4" placeholder="a shared theme — what this whole cluster is"></textarea>
+        </label>
+        <label class="gz-field">
+          <span class="gz-field__label">Tags <em>comma separated, replaces existing</em></span>
+          <input id="b-tags" type="text" autocomplete="off">
+        </label>
+        <ul class="gz-batch__list" id="batch-list"></ul>
+        <div class="gz-form__actions">
+          <button type="button" class="gz-btn gz-btn--promote" id="btn-batch-apply">Apply to selected</button>
+          <button type="button" class="gz-btn gz-btn--danger" id="btn-batch-delete">Delete selected</button>
         </div>
       </form>
     </section>

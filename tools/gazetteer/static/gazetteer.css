@@ -193,6 +193,39 @@ body {
 
 .gz-form__actions { display: flex; gap: 6px; margin-top: 10px; }
 
+/* --- batch panel (2+ items selected) ------------------------------------- */
+
+.gz-batch__count {
+  font-family: var(--bi-font-condensed);
+  font-size: 12px;
+  letter-spacing: .04em;
+  color: var(--bi-paper-ink);
+  margin: 0 0 10px;
+  padding: 4px 8px;
+  background: var(--bi-paper-shade);
+  border-radius: 2px;
+  display: inline-block;
+}
+.gz-batch__hint {
+  font-size: 11px;
+  color: var(--bi-paper-ink-2);
+  margin: -6px 0 10px;
+  line-height: 1.4;
+}
+.gz-batch__list {
+  max-height: 110px;
+  overflow-y: auto;
+  margin: 0 0 10px;
+  padding: 6px 8px;
+  background: #f4eeda;
+  border: 1px solid var(--bi-paper-rule);
+  border-radius: 2px;
+  font-family: var(--bi-font-typewriter-clean);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--bi-paper-ink-2);
+}
+
 .gz-promote {
   margin-top: 12px;
   padding-top: 10px;
@@ -321,6 +354,10 @@ body {
   transform: rotate(-45deg);
   background: var(--bi-brass);
   border-color: var(--bi-brass-lit);
+}
+.gz-pin--selected {
+  background: #4fc8d8;
+  box-shadow: 0 0 0 2px #4fc8d8, 0 0 0 4px rgba(79,200,216,.35);
 }
 
 .gz-tip {

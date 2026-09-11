@@ -183,9 +183,10 @@ async function boot() {
     map,
     grid: state.grid,
     onComplete: onShapeDrawn,
-    onSelect: renderInspector,
+    onSelect: handleSelectionChange,
     onGeometryChange: () => { markDirty(); renderList(); renderInspector(state.draw.selected()); },
     onMarquee: onMarquee,
+    onMassAdopt: massAdopt,
     onPick: onPick,
     onStatus: (text) => setStatus(text || defaultStatus()),
   });
@@ -217,12 +218,10 @@ async function boot() {
 
   map.on("moveend zoomend", refreshFeatures);
 
-  const kinds = $("f-kind");
   cfg.kinds.forEach((k) => {
-    const o = document.createElement("option");
-    o.value = k;
-    o.textContent = k || "—";
-    kinds.appendChild(o);
+    const opt = () => { const o = document.createElement("option"); o.value = k; o.textContent = k || "—"; return o; };
+    $("f-kind").appendChild(opt());
+    if (k) $("b-kind").appendChild(opt()); // "" is already the batch form's own "leave as is"
   });
 
   await loadSession();
@@ -236,9 +235,13 @@ async function boot() {
   // can. Exposing it lets the interactions be driven and read back for real
   // instead of inspected by eye. Local single-user tool; nothing here is a
   // surface anyone else can reach.
-  window.__gz = { state, api, setTool, save, refreshFeatures, refreshPublished, onShapeDrawn, onMarquee, onPick };
+  window.__gz = {
+    state, api, setTool, save, refreshFeatures, refreshPublished,
+    onShapeDrawn, onMarquee, onPick, massAdopt, handleSelectionChange,
+  };
   $("status-keys").textContent =
-    "V select · R region · S site · P pin · B adopt · X remove · Enter finish · Esc cancel · Del delete · Ctrl+S save";
+    "V select · R region · S site · P pin · B adopt · M mass-adopt · X remove · "
+    + "Shift+click/drag adds to selection · Enter finish · Esc cancel · Del delete · Ctrl+S save";
 }
 
 // --- session -----------------------------------------------------------------
@@ -282,7 +285,11 @@ async function save() {
   }
 }
 
-function onShapeDrawn(shape) {
+/** Pure construction: a shape (from a single adopt, a hand-drawn polygon, or
+ *  one building inside a mass-adopt lasso) becomes a session item. No
+ *  selection, no DOM — callers decide when and how many to select, which is
+ *  the difference between adopting one building and adopting fifty. */
+function buildItem(shape) {
   const item = {
     localId: "item-" + state.nextLocal++,
     tier: shape.tier,
@@ -303,12 +310,92 @@ function onShapeDrawn(shape) {
     // becoming it.
     item.note = `[real-world: ${shape.realWorldNames.join(", ")}]\n`;
   }
+  return item;
+}
+
+function onShapeDrawn(shape) {
+  const item = buildItem(shape);
   state.items.push(item);
   state.draw.addShape(item);
   state.draw.select(item.localId);
   markDirty();
   renderList();
   $("f-note").focus();
+}
+
+/**
+ * A polygon lasso over real buildings, adopted all at once, each keeping its
+ * own real footprint (never merged — that is what plain multi-select Adopt
+ * is for). Every matched building becomes its own session item, then all of
+ * them land in the selection together so the batch panel is right there to
+ * take one shared note across the whole group — "note them all together with
+ * the same information," as asked for.
+ *
+ * Filtered by centroid-inside-the-drawn-ring, client-side, against whatever
+ * /api/features already returned for the lasso's bounding box — no new
+ * server endpoint needed, since that response already carries full ring
+ * geometry per building.
+ */
+async function massAdopt(ringPx) {
+  const xs = ringPx.map((p) => p[0]);
+  const ys = ringPx.map((p) => p[1]);
+  let data;
+  try {
+    data = await api(`/api/features?x0=${Math.min(...xs)}&y0=${Math.min(...ys)}`
+      + `&x1=${Math.max(...xs)}&y1=${Math.max(...ys)}`);
+  } catch (err) {
+    setStatus("could not query real buildings: " + err.message, "error");
+    return;
+  }
+  if (data.refused) {
+    setStatus("that lasso covers too wide an area — " + data.reason, "warn");
+    return;
+  }
+
+  const inside = data.features.filter((f) => {
+    const c = polygonCentroidPx(f.ringPx);
+    return pointInRing(c.x, c.y, ringPx);
+  });
+  if (!inside.length) { setStatus("no real buildings inside that lasso", "warn"); return; }
+
+  setStatus(`adopting ${inside.length} building${inside.length === 1 ? "" : "s"}…`);
+  // Parallel: each adopt is an independent GET-then-write against the
+  // building's own id, and the local server is threaded, so there is no
+  // reason to make someone wait out a hundred buildings one at a time.
+  const results = await Promise.allSettled(inside.map((f) => api("/api/adopt", { featureIds: [f.id] })));
+
+  const newIds = [];
+  results.forEach((r, i) => {
+    if (r.status !== "fulfilled") return; // one bad row must not abort the batch
+    const adopted = r.value;
+    const item = buildItem({
+      tier: "site", ringPx: adopted.ringPx, source: adopted.source,
+      featureIds: adopted.featureIds, realWorldNames: adopted.realWorldNames,
+    });
+    state.items.push(item);
+    state.draw.addShape(item);
+    newIds.push(item.localId);
+  });
+
+  const failed = results.length - newIds.length;
+  markDirty();
+  state.draw.selectMany(newIds);
+  setStatus(`adopted ${newIds.length} building${newIds.length === 1 ? "" : "s"}`
+    + (failed ? ` (${failed} failed)` : "") + " — set a shared note below and Apply");
+  if (newIds.length) $("b-note").focus();
+}
+
+/** Even-odd ray casting. A client-side convenience filter only — never the
+ *  authority on a location's own cells (that is core/grid.mjs, server-side,
+ *  used when a shape is actually saved). */
+function pointInRing(x, y, ring) {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
+    if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
 }
 
 // --- ground truth ------------------------------------------------------------
@@ -441,8 +528,19 @@ async function refreshPublished() {
 
 function itemById(localId) { return state.items.find((it) => it.localId === localId); }
 
+/** The one place selection-count branches: 0 → empty state, 1 → the normal
+ *  single-item inspector (unchanged), 2+ → the batch panel. Everything that
+ *  changes the selection (a click, a marquee, a mass-adopt, a delete) routes
+ *  through here via draw.js's onSelect callback, so the sidebar can never
+ *  show a stale count or the wrong panel for what is actually selected. */
+function handleSelectionChange(ids) {
+  if (ids.length <= 1) renderInspector(ids[0] || null);
+  else renderBatchPanel(ids);
+}
+
 function renderInspector(localId) {
   const item = localId && itemById(localId);
+  $("batch-form").hidden = true;
   $("inspector-empty").hidden = !!item;
   $("inspector-form").hidden = !item;
   renderList();
@@ -483,9 +581,33 @@ function renderInspector(localId) {
   updatePromoteBox(item);
 }
 
+/**
+ * 2+ items selected — from a marquee, a mass-adopt lasso, or Shift-clicking
+ * several. One Kind/Note/Tags form for the whole group instead of the
+ * single-item fields: Note and Tags REPLACE each item's own (that is the
+ * point — "a single theme I note up"), Kind only touches items when it is
+ * actually set, so leaving it on "— leave as is —" cannot silently blank
+ * fifty buildings' classifications at once.
+ */
+function renderBatchPanel(ids) {
+  $("inspector-empty").hidden = true;
+  $("inspector-form").hidden = true;
+  $("batch-form").hidden = false;
+  $("batch-count").textContent = `${ids.length} selected`;
+  $("b-kind").value = "";
+  $("b-note").value = "";
+  $("b-tags").value = "";
+  $("batch-list").innerHTML = ids.map((id) => {
+    const it = itemById(id);
+    if (!it) return "";
+    return `<li>${escapeHtml(it.name || `(unnamed ${it.tier})`)} — ${escapeHtml(liveRef(it))}</li>`;
+  }).join("");
+  renderList();
+}
+
 function renderList() {
   const list = $("item-list");
-  const sel = state.draw.selected();
+  const sel = new Set(state.draw.selectedList());
   list.innerHTML = "";
   const q = state.filter.trim().toLowerCase();
   let shown = 0;
@@ -495,7 +617,7 @@ function renderList() {
     if (q && !hay.includes(q)) continue;
     shown += 1;
     const li = document.createElement("li");
-    li.className = "gz-item" + (item.localId === sel ? " is-selected" : "");
+    li.className = "gz-item" + (sel.has(item.localId) ? " is-selected" : "");
     li.innerHTML = `
       <span class="gz-item__dot" style="background:${TIER_COLOUR[item.tier]}"></span>
       <span>
@@ -505,7 +627,10 @@ function renderList() {
         <span class="gz-item__note">${escapeHtml((item.note || "").split("\n")[0] || "no note yet")}</span>
       </span>
       <span class="gz-item__ref">${escapeHtml(liveRef(item))}</span>`;
-    li.addEventListener("click", () => { state.draw.select(item.localId); zoomTo(item); });
+    li.addEventListener("click", (e) => {
+      if (e.shiftKey) state.draw.toggle(item.localId);
+      else { state.draw.select(item.localId); zoomTo(item); }
+    });
     list.appendChild(li);
   }
   $("item-count").textContent = q ? `${shown}/${state.items.length}` : String(state.items.length);
@@ -573,6 +698,30 @@ function wireChrome() {
     if (item) zoomTo(item);
   });
   $("btn-promote").addEventListener("click", promoteSelected);
+
+  $("btn-batch-apply").addEventListener("click", () => {
+    const ids = state.draw.selectedList();
+    if (ids.length < 2) return;
+    const kind = $("b-kind").value;
+    const note = $("b-note").value;
+    const tags = $("b-tags").value.split(",").map((s) => s.trim()).filter(Boolean);
+    ids.forEach((id) => {
+      const it = itemById(id);
+      if (!it) return;
+      if (kind) it.kind = kind;   // blank = leave every item's own kind alone
+      it.note = note;             // the whole point: replace with the shared theme
+      it.tags = tags;
+    });
+    markDirty();
+    renderBatchPanel(ids);
+    setStatus(`applied to ${ids.length} items`);
+  });
+  $("btn-batch-delete").addEventListener("click", () => {
+    const ids = state.draw.selectedList();
+    if (ids.length && window.confirm(`Delete ${ids.length} items? This cannot be undone.`)) {
+      deleteItems(ids);
+    }
+  });
 }
 
 /**
@@ -627,15 +776,22 @@ function updatePromoteBox(item) {
   }
 }
 
-function deleteSelected() {
-  const id = state.draw.selected();
-  if (!id) return;
-  state.items = state.items.filter((it) => it.localId !== id);
-  state.draw.removeShape(id);
+/** Delete any number of items at once — the single-item Delete button, the
+ *  batch panel's Delete, and the Delete key all funnel through this, so
+ *  "delete what's selected" means the same thing everywhere regardless of
+ *  how many that turns out to be. */
+function deleteItems(ids) {
+  if (!ids.length) return;
+  const dropped = new Set(ids);
+  state.items = state.items.filter((it) => !dropped.has(it.localId));
+  ids.forEach((id) => state.draw.removeShape(id));
   state.draw.select(null);
   markDirty();
-  renderList();
-  renderInspector(null);
+  setStatus(ids.length === 1 ? "deleted" : `deleted ${ids.length} items`);
+}
+
+function deleteSelected() {
+  deleteItems(state.draw.selectedList());
 }
 
 function wireLayerToggles(gridLayer) {
@@ -687,8 +843,9 @@ function defaultStatus() {
     case "site": return "Click to trace a building or block. Enter finishes, Esc cancels.";
     case "point": return "Click to drop a pin.";
     case "adopt": return "Click a real building to take its actual footprint.";
+    case "mass-adopt": return "Draw a lasso around real buildings to adopt them all, each keeping its own footprint. Enter to finish.";
     case "remove": return "Click a building to remove it · drag a box for many · Alt+drag removes the whole area.";
-    default: return "Select a shape to edit it. Drag its handles; right-click a handle to delete that point.";
+    default: return "Click to select, drag a box to select many, Shift adds to the selection. Drag a shape's handles to edit it; right-click a handle to delete that point.";
   }
 }
 
@@ -709,7 +866,10 @@ function wireKeys() {
       return;
     }
     if (e.key === "s" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); save(); return; }
-    const tools = { v: "pan", r: "region", s: "site", p: "point", b: "adopt", x: "remove" };
+    const tools = {
+      v: "pan", r: "region", s: "site", p: "point",
+      b: "adopt", m: "mass-adopt", x: "remove",
+    };
     if (tools[e.key.toLowerCase()] && !e.ctrlKey && !e.metaKey) {
       setTool(tools[e.key.toLowerCase()]);
       return;
