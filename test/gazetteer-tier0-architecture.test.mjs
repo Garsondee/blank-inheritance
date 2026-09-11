@@ -128,6 +128,31 @@ test("a drag gesture cannot leak a document-level listener forever", () => {
     "released outside the map");
 });
 
+test("right-click pan moves the view by pixels moved, not by a re-derived absolute target", () => {
+  // Regression guard for a real, live bug, and a more serious one than the
+  // leak above: computing a target container point from the ORIGINAL
+  // mousedown position and converting it with containerPointToLatLng reads
+  // the map's CURRENT view -- which this same gesture has already changed
+  // by the time the next mousemove arrives. Re-applying the FULL cumulative
+  // delta against an already-shifted view compounds every single move
+  // event: two events overshoot by 1.5x, three by 2x, and a real mouse
+  // firing dozens of move events across one smooth drag compounds into
+  // "slides like ice, ends up on the other side of the map" -- confirmed
+  // live: 40 synthetic move events across one drag produced roughly 10x the
+  // correct pan. map.panBy has no such trap, since each call only shifts
+  // the view by the pixels moved since the LAST call, not since mousedown.
+  // containerPointToLatLng itself is not forbidden file-wide -- the marquee
+  // legitimately uses it once, at gesture END, to convert the final
+  // rectangle's corners. The bug was calling it on every move EVENT against
+  // an already-shifted view; panBy's presence is the positive signal that
+  // the pan handler isn't doing that anymore.
+  const src = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(/map\.panBy\(/.test(src),
+    "draw.js's right-click pan no longer calls map.panBy() -- if it went " +
+    "back to computing an absolute target via containerPointToLatLng on " +
+    "every move event, the pan would compound within a single drag again");
+});
+
 test("the shared fixture is reachable from both suites' expected paths", () => {
   const fixture = JSON.parse(
     readFileSync(join(here, "fixtures", "gazetteer-grid-cases.json"), "utf8"));

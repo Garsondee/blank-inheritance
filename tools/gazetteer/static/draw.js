@@ -591,16 +591,27 @@ export function createDrawController(opts) {
     if (e.button !== 2) return;
     if (e.target && e.target.closest && e.target.closest(".gz-vertex, .gz-vertex--mid")) return;
     e.preventDefault();
-    const startClient = { x: e.clientX, y: e.clientY };
-    const startCentre = map.latLngToContainerPoint(map.getCenter());
+    // The increment since the LAST move event, not since mousedown --
+    // updated on every move. Found live, the hard way: computing a target
+    // container point from the ORIGINAL mousedown position and converting
+    // it with containerPointToLatLng looked right (it matches how a vertex
+    // drag works), but that conversion reads the map's CURRENT view, which
+    // this same gesture has already changed by the time the next mousemove
+    // arrives. Re-applying the FULL cumulative delta against an already-
+    // shifted view compounds every event: two move events overshoot by 1.5x,
+    // three by 2x, and a real mouse firing dozens of move events across one
+    // smooth drag compounds into exactly the "slides like ice, ends up on
+    // the other side of the map" bug this replaced. panBy is Leaflet's own
+    // relative-pixel pan and carries no such trap: each call only ever
+    // shifts the view by the pixels moved since the last one.
+    let lastClient = { x: e.clientX, y: e.clientY };
 
     trackDrag(map.getContainer(), {
       onMove(ev) {
-        const target = L.point(
-          startCentre.x - (ev.clientX - startClient.x),
-          startCentre.y - (ev.clientY - startClient.y),
-        );
-        map.setView(map.containerPointToLatLng(target), map.getZoom(), { animate: false });
+        const dx = ev.clientX - lastClient.x;
+        const dy = ev.clientY - lastClient.y;
+        lastClient = { x: ev.clientX, y: ev.clientY };
+        map.panBy([dx, dy], { animate: false });
       },
       onEnd() {},
     });

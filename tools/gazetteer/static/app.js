@@ -893,6 +893,12 @@ function wireChrome() {
   // blocked nor threw, just always resolved as Cancel, so the
   // button looked like it did nothing at all. A same-surface arm/confirm
   // step needs no dialog API to work, so it can't be swallowed the same way.
+  // No auto-revert timer: an earlier one existed "just in case" and only
+  // ever added a way to lose the race between reading the button and
+  // clicking it again, which looked exactly like the button doing nothing.
+  // Changing the selection is what actually has to disarm a stale arm (a
+  // click meant for one set of ids must never delete a different set), and
+  // that already happens elsewhere, unconditionally, with no clock involved.
   $("btn-batch-delete").addEventListener("click", () => {
     const ids = state.draw.selectedList();
     if (!ids.length) return;
@@ -903,21 +909,17 @@ function wireChrome() {
 }
 
 let batchDeleteArmed = false;
-let batchDeleteTimer = null;
 
 function armBatchDelete(count) {
   batchDeleteArmed = true;
   const btn = $("btn-batch-delete");
   btn.textContent = `Click again to delete ${count}`;
   btn.classList.add("is-armed");
-  clearTimeout(batchDeleteTimer);
-  batchDeleteTimer = setTimeout(disarmBatchDelete, 4000);
 }
 
 function disarmBatchDelete() {
   if (!batchDeleteArmed) return;
   batchDeleteArmed = false;
-  clearTimeout(batchDeleteTimer);
   const btn = $("btn-batch-delete");
   if (btn) { btn.textContent = "Delete selected"; btn.classList.remove("is-armed"); }
 }
