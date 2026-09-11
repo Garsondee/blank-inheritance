@@ -161,5 +161,34 @@ class TestPersistence(unittest.TestCase):
         self.assertEqual(doc["suppressedFeatures"], [])
 
 
+class TestDistanceToRing(unittest.TestCase):
+    """The hit-test fallback for a click that landed just outside a
+    building's edge rather than exactly inside it -- found live: a building
+    rendered at 8% fill opacity, one screen pixel wide at a zoomed-out view,
+    is not realistically clickable if "exactly inside the polygon" is the
+    only thing that ever counted as a hit. Distance is to the BOUNDARY, not
+    the interior, on purpose -- see the two interior cases below.
+    """
+
+    def test_a_point_on_the_boundary_is_zero_distance(self):
+        self.assertAlmostEqual(overrides._distance_to_ring(4600, 6400, BLOCK), 0.0)
+
+    def test_a_point_outside_and_perpendicular_to_an_edge(self):
+        # 50px straight above the top edge (y=6400), well within its span.
+        self.assertAlmostEqual(overrides._distance_to_ring(4600, 6350, BLOCK), 50.0)
+
+    def test_a_point_outside_nearest_to_a_corner_not_an_edge(self):
+        # 30px left, 40px above the (4400, 6400) corner -- a 3-4-5 triangle,
+        # and nearest to the VERTEX rather than perpendicular to either edge.
+        self.assertAlmostEqual(overrides._distance_to_ring(4370, 6360, BLOCK), 50.0)
+
+    def test_a_point_deep_inside_the_block_is_not_zero(self):
+        # The block's centre is 200px from every edge -- distance to the
+        # BOUNDARY, not "inside counts as zero". _point_in_ring is what
+        # answers "is this inside" for the exact-hit case; this function
+        # only ever answers "how far to the nearest edge".
+        self.assertAlmostEqual(overrides._distance_to_ring(4600, 6600, BLOCK), 200.0)
+
+
 if __name__ == "__main__":
     unittest.main()

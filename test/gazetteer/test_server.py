@@ -169,6 +169,41 @@ class TestServer(unittest.TestCase):
         hits = post(self.base + "/api/hit-test", {"x": 10200, "y": 9600})["hits"]
         self.assertEqual(hits, [])
 
+    def test_hit_test_finds_a_building_from_just_outside_its_edge(self):
+        """Found live: a real building renders at 8% fill opacity with a 1px
+        outline, and at any zoom below native a screen pixel already spans
+        several image pixels -- landing exactly inside the polygon is not a
+        realistic ask, and a plain miss made single-click adopt/remove nearly
+        unusable except zoomed all the way in. tolerancePx now bounds a
+        nearest-EDGE fallback, not just the query window, so a click just
+        outside a small building's boundary still finds it."""
+        x, y = DENSE_PX
+        data = get(self.base + "/api/features?x0=%d&y0=%d&x1=%d&y1=%d"
+                   % (x - 300, y - 300, x + 300, y + 300))
+        target = data["features"][0]
+        ring = [tuple(p) for p in target["ringPx"]]
+
+        # Midpoint of the first edge, offset a few px perpendicular to it --
+        # tried in both directions and self-verified against _point_in_ring,
+        # so this does not depend on the ring's winding order.
+        (ex0, ey0), (ex1, ey1) = ring[0], ring[1]
+        mx, my = (ex0 + ex1) / 2, (ey0 + ey1) / 2
+        dx, dy = ex1 - ex0, ey1 - ey0
+        length = (dx ** 2 + dy ** 2) ** 0.5
+        nx, ny = -dy / length, dx / length
+        candidates = [(mx + nx * 3, my + ny * 3), (mx - nx * 3, my - ny * 3)]
+        outside = [p for p in candidates if not overrides_mod._point_in_ring(p[0], p[1], ring)]
+        self.assertTrue(outside, "both offset directions landed inside the ring -- degenerate edge")
+        px, py = outside[0]
+
+        # A generous tolerance (matching the client's zoom-scaled one) finds
+        # it; a razor-thin one -- the OLD hard-coded default -- does not.
+        hits = post(self.base + "/api/hit-test", {"x": px, "y": py, "tolerancePx": 8})["hits"]
+        self.assertTrue(any(h["id"] == target["id"] for h in hits))
+
+        tight = post(self.base + "/api/hit-test", {"x": px, "y": py, "tolerancePx": 0.1})["hits"]
+        self.assertFalse(any(h["id"] == target["id"] for h in tight))
+
     # --- adopting ------------------------------------------------------------
 
     def test_adopting_one_building_returns_its_real_footprint(self):

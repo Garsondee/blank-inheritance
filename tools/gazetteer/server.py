@@ -349,16 +349,25 @@ class Handler(BaseHTTPRequestHandler):
         })
 
     def _api_hit_test(self):
-        """Which building is under this pixel. Topmost-smallest wins: in a
-        dense block the small building you clicked is almost always the one you
-        meant, not the large complex whose bounding box also contains it."""
+        """Which building is under this pixel. Topmost-smallest wins for an
+        exact hit: in a dense block the small building you clicked is almost
+        always the one you meant, not the large complex whose bounding box
+        also contains it. If the point is not exactly inside anything, the
+        nearest building whose EDGE is within tolerancePx wins instead --
+        found live: a building rendered at 8% fill opacity, one screen pixel
+        wide at a zoomed-out view, is not realistically clickable if "exactly
+        inside the polygon" is the only thing that counts, and a plain miss
+        made single-click adopt/remove nearly unusable except at native zoom.
+        tolerancePx already had to widen the query window below for this
+        reason; it now does the same job for the hit itself."""
         body = self._body()
         x, y = float(body["x"]), float(body["y"])
         pad = float(body.get("tolerancePx", 2.0))
         rows = groundtruth.features_in_image_rect(
             STATE.conn, STATE.georef, x - pad, y - pad, x + pad, y + pad)
 
-        hits = []
+        from core.grid import polygon_area_px
+        inside_hits, near_hits = [], []
         for row in rows:
             tags = row.get("tags") or {}
             if not tags.get("building"):
@@ -367,16 +376,21 @@ class Handler(BaseHTTPRequestHandler):
             if not rings:
                 continue
             ring = rings[0]
-            if not overrides_mod._point_in_ring(x, y, ring):
+            is_inside = overrides_mod._point_in_ring(x, y, ring)
+            dist = 0.0 if is_inside else overrides_mod._distance_to_ring(x, y, ring)
+            if not is_inside and dist > pad:
                 continue
             cx = sum(p[0] for p in ring) / len(ring)
             cy = sum(p[1] for p in ring) / len(ring)
             if STATE.suppression.hides(row["id"], (cx, cy)):
                 continue
-            from core.grid import polygon_area_px
-            hits.append((polygon_area_px(ring), row["id"], ring, tags, row.get("height_m")))
+            entry = (polygon_area_px(ring), row["id"], ring, tags, row.get("height_m"), dist)
+            (inside_hits if is_inside else near_hits).append(entry)
 
-        hits.sort(key=lambda h: h[0])
+        inside_hits.sort(key=lambda h: h[0])   # smallest area wins among exact hits
+        near_hits.sort(key=lambda h: h[5])     # nearest edge wins among near-misses
+        hits = inside_hits + near_hits
+
         self._send(200, {"hits": [{
             "id": h[1],
             "ringPx": [[round(px, 1), round(py, 1)] for px, py in h[2]],

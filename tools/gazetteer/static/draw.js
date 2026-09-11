@@ -56,6 +56,19 @@ export function createDrawController(opts) {
   // single-item path (vertex handles, the inspector) had to change shape.
   let selectedIds = new Set();
   let marquee = null;
+  // Consumed by the very next "click": Leaflet fires a synthesised click
+  // after a real drag completes (mouseup runs first; the click, if one
+  // follows at all, comes after). select/pan's click handler is already a
+  // permanent no-op for exactly this reason -- but adopt/remove's is NOT,
+  // since a genuine standalone click is its whole point. Found live: a
+  // drag-box Remove correctly suppressed every building inside it, then the
+  // trailing click ALSO ran onPick at the release point, silently removing
+  // one more building the box may never have covered, and overwriting the
+  // correct "removed N buildings" status with a single-building message
+  // that hid the real result. Set true only when up() just finished an
+  // actual drag (never the small-movement click-passthrough case, which
+  // must keep reaching the click handler normally).
+  let suppressNextClick = false;
 
   // --- drawing -------------------------------------------------------------
 
@@ -453,6 +466,9 @@ export function createDrawController(opts) {
         return;
       }
 
+      // A genuine drag, not a click -- see suppressNextClick's own comment
+      // for why the click that may follow this must not also run.
+      suppressNextClick = true;
       if (kind === "select-items") {
         // Both drawn/adopted items AND real, not-yet-adopted buildings inside
         // the box -- see the "lasso" branch of finishDraft for why this is
@@ -523,6 +539,7 @@ export function createDrawController(opts) {
   // --- events --------------------------------------------------------------
 
   map.on("click", (e) => {
+    if (suppressNextClick) { suppressNextClick = false; return; }
     const p = px(e.latlng);
     if (POLYGON_DRAFT_TOOLS.has(tool)) {
       if (!drafting) startDraft([round1(p[0]), round1(p[1])]);
@@ -552,6 +569,12 @@ export function createDrawController(opts) {
   });
 
   map.on("mousedown", (e) => {
+    // A fresh mousedown, of any kind, means whatever gesture set
+    // suppressNextClick is long since over -- if its own trailing click
+    // never actually arrived (the mouseup landed outside the container
+    // entirely, say), this is what stops that stale `true` from silently
+    // eating the NEXT, unrelated click instead.
+    suppressNextClick = false;
     if (drafting) return;
     // Left button only -- the right button is exclusively for panning (see
     // the contextmenu/pan block below), so it must never also start a

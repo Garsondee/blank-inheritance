@@ -30,6 +30,7 @@ bottom, which is the only place that touches disk.
 from __future__ import annotations
 
 import json
+import math
 import os
 
 from . import grid
@@ -192,3 +193,25 @@ def _point_in_ring(x, y, ring):
             if x < x0 + t * (x1 - x0):
                 inside = not inside
     return inside
+
+
+def _distance_to_segment(px, py, x0, y0, x1, y1):
+    dx, dy = x1 - x0, y1 - y0
+    if dx == 0 and dy == 0:
+        return math.hypot(px - x0, py - y0)
+    t = max(0.0, min(1.0, ((px - x0) * dx + (py - y0) * dy) / (dx * dx + dy * dy)))
+    return math.hypot(px - (x0 + t * dx), py - (y0 + t * dy))
+
+
+def _distance_to_ring(x, y, ring):
+    """Shortest distance from a point to the ring's BOUNDARY, not its
+    interior -- the fallback for a click that landed just outside a
+    building's edge rather than exactly inside it. A building rendered at
+    8% fill opacity, one screen pixel wide at a zoomed-out view, is not
+    realistically clickable if "inside the exact polygon" is the only thing
+    that counts as a hit."""
+    n = len(ring)
+    return min(
+        _distance_to_segment(x, y, ring[i][0], ring[i][1], ring[(i + 1) % n][0], ring[(i + 1) % n][1])
+        for i in range(n)
+    )

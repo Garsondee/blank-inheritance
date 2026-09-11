@@ -479,11 +479,25 @@ async function refreshFeatures() {
   $("layer-hint").textContent = parts.join(" · ");
 }
 
+// How much slack a real-building click gets, in SCREEN pixels -- converted
+// to image pixels at the CURRENT zoom before every pick, the same principle
+// draw.js's own PIN_HIT_RADIUS_PX already uses for session-item pins. A
+// fixed image-px tolerance breaks the moment you are not at native zoom:
+// found live at zoom 4, where one screen pixel already spans two image
+// pixels, so the old hard-coded tolerancePx of 2 was under a single real
+// screen pixel of forgiveness -- landing exactly on a building rendered at
+// 8% fill opacity was close to unclickable at any zoom wide enough to
+// survey a scattered mess of them, which is the situation this exists for.
+const PICK_RADIUS_SCREEN_PX = 8;
+
 async function onPick(point, tool) {
   const [x, y] = point;
+  const p1 = state.map.containerPointToLatLng([0, 0]);
+  const p2 = state.map.containerPointToLatLng([1, 0]);
+  const imgPxPerScreenPx = Math.abs(p2.lng - p1.lng) || 1;
   let data;
   try {
-    data = await api("/api/hit-test", { x, y, tolerancePx: 2 });
+    data = await api("/api/hit-test", { x, y, tolerancePx: PICK_RADIUS_SCREEN_PX * imgPxPerScreenPx });
   } catch (err) { setStatus(err.message, "error"); return; }
 
   if (!data.hits.length) {

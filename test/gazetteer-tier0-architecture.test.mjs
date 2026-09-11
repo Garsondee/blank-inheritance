@@ -153,6 +153,48 @@ test("right-click pan moves the view by pixels moved, not by a re-derived absolu
     "every move event, the pan would compound within a single drag again");
 });
 
+test("a real-building click's tolerance scales with zoom, not a fixed image-pixel constant", () => {
+  // Regression guard for a real, live bug: single-click Adopt/Remove sent a
+  // hard-coded tolerancePx of 2 (image pixels) no matter the zoom. At zoom
+  // 4 in this tool's own CRS.Simple setup, one screen pixel already spans
+  // two image pixels, so that constant was under a single real screen
+  // pixel of forgiveness -- clicking a building rendered at 8% fill
+  // opacity was close to unclickable at any zoom wide enough to survey a
+  // scattered mess of them, which is the situation the Remove tool exists
+  // for. onPick now measures the current image-px-per-screen-px ratio via
+  // containerPointToLatLng and scales a fixed SCREEN-pixel radius by it,
+  // the same principle draw.js's own PIN_HIT_RADIUS_PX already uses.
+  const src = readFileSync(join(STATIC, "app.js"), "utf8");
+  assert.ok(!/tolerancePx:\s*2\b/.test(src),
+    "app.js sends a hard-coded tolerancePx: 2 again -- this is under one " +
+    "screen pixel of real forgiveness at any zoom below native");
+  assert.ok(/PICK_RADIUS_SCREEN_PX/.test(src) && /imgPxPerScreenPx/.test(src),
+    "app.js's real-building click tolerance no longer scales with the " +
+    "current zoom -- a fixed image-pixel radius is not the same click " +
+    "target at every zoom level");
+});
+
+test("a drag-box Remove cannot also fire a spurious single-building removal", () => {
+  // Regression guard for a real, live bug: a native "click" DOM event fires
+  // after ANY mousedown+mouseup pair on the same element, regardless of how
+  // far the mouse moved in between -- a genuine drag is not exempt on its
+  // own. The Select tool's click handler was already a permanent no-op for
+  // exactly this reason (see its own comment in draw.js), but Adopt/Remove's
+  // was not, since a genuine standalone click is its whole point there.
+  // Confirmed live: a drag-box Remove correctly suppressed every building
+  // inside the box, then the trailing click ALSO ran onPick at the release
+  // point -- silently removing one more building the box may never have
+  // covered, and overwriting the correct "removed N buildings" status with
+  // a single-building message that hid the real result.
+  const src = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(/suppressNextClick/.test(src),
+    "draw.js no longer has a suppressNextClick guard -- a drag-box Remove " +
+    "(or a drag-box Select, which happens to be immune a different way) " +
+    "can fire the browser's own trailing click on release, and letting " +
+    "that reach onPick again silently removes one extra building at " +
+    "whatever the release point happened to be");
+});
+
 test("the shared fixture is reachable from both suites' expected paths", () => {
   const fixture = JSON.parse(
     readFileSync(join(here, "fixtures", "gazetteer-grid-cases.json"), "utf8"));
