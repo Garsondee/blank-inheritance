@@ -82,12 +82,13 @@ export function createDrawController(opts) {
     });
     if (pts.length >= 3) {
       const refs = refsTouched(pts, grid);
-      const verb = tool === "mass-adopt" ? "adopt everything inside" : "finish";
+      const verb = tool === "mass-adopt" ? "adopt everything inside"
+        : tool === "lasso" ? "select everything inside" : "finish";
       report(`${pts.length} points · ${refs.length} cell${refs.length === 1 ? "" : "s"}`
         + ` · ${fmtArea(polygonAreaPx(pts))} — Enter to ${verb}, Esc to cancel, Backspace to undo a point`);
     } else {
-      const hint = tool === "mass-adopt"
-        ? "draw a lasso around the real buildings to adopt" : "need at least 3";
+      const hint = tool === "mass-adopt" ? "draw a lasso around the real buildings to adopt"
+        : tool === "lasso" ? "draw a lasso around the items to select" : "need at least 3";
       report(`${pts.length} point${pts.length === 1 ? "" : "s"} — ${hint}`);
     }
   }
@@ -100,6 +101,18 @@ export function createDrawController(opts) {
     const ring = drafting.points.slice();
     cancelDraft();
     if (tool === "mass-adopt") { onMassAdopt(ring); return; }
+    if (tool === "lasso") {
+      // Purely client-side, unlike mass-adopt: every session item's geometry
+      // is already in `shapes`, so there is nothing to ask the server for.
+      const hit = [];
+      for (const [id, entry] of shapes) {
+        const [cx, cy] = centroidPxOf(entry.item.geometry);
+        if (pointInRing(cx, cy, ring)) hit.push(id);
+      }
+      selectMany(hit);
+      report(hit.length ? "" : "nothing inside that lasso");
+      return;
+    }
     onComplete({ tier: tool === "region" ? "region" : "site", ringPx: ring, source: "drawn" });
   }
 
@@ -132,15 +145,12 @@ export function createDrawController(opts) {
     } else {
       layer = L.polygon(ringToLatLngs(g.ringPx), TIER_STYLE[item.tier] || TIER_STYLE.site);
     }
-    layer.on("click", (e) => {
-      L.DomEvent.stop(e);
-      // Plain click: select just this one. Shift-click: toggle it into/out of
-      // whatever is already selected, the same modifier every other tool
-      // (Figma, Illustrator, a file manager) uses for "add one more" -- so a
-      // mass-adopt's result can be trimmed by hand without starting over.
-      if (e.originalEvent.shiftKey) toggle(item.localId);
-      else select(item.localId);
-    });
+    // No click handler here on purpose -- see the mousedown/up handlers below
+    // for why. Selection for every shape, clicked or marqueed, is decided in
+    // ONE place (hitTestAt inside the marquee's own up()), not split between
+    // this per-shape listener and a separate map-level one that could
+    // plausibly both fire for the same interaction and double-toggle a shift-
+    // click back off.
     if (item.name) {
       layer.bindTooltip(item.name, { className: "gz-tip", direction: "top", sticky: true });
     }
@@ -314,6 +324,24 @@ export function createDrawController(opts) {
   // already selected rather than replace it -- the same modifier `toggle()`
   // uses for a single shift-click, so the two compose (marquee a block, then
   // shift-click one more building the box missed).
+  //
+  // mousedown ALWAYS calls L.DomEvent.stop() before this runs, for both
+  // kinds, no exceptions -- found live, the hard way: Select's marquee
+  // originally left it out ("a plain click must still reach a shape's own
+  // click handler"), on the theory that not stopping the event was needed to
+  // let that handler fire. It never was, and worse: map.dragging is a
+  // SEPARATE Leaflet Handler subscribed to the SAME "mousedown" map event,
+  // subscribed when the map itself was constructed -- long before this
+  // module's own mousedown listener is added -- and every JS-dispatched
+  // synthetic mousedown/mousemove/mouseup this project's own tests drove
+  // during development skipped whatever native browser behaviour that race
+  // depends on, so the marquee looked correct in every test and still failed
+  // for a real mouse: the map would pan underneath the drag, and `up()`'s own
+  // rect math -- built from containerPointToLatLng calls that are only valid
+  // against a STILL map -- would silently describe the wrong rectangle. The
+  // fix costs nothing a plain click needs: a click no longer depends on some
+  // OTHER layer's own listener firing afterward at all, because the small-
+  // movement branch in up() below now does its own explicit hit-test.
 
   function beginMarquee(startEvent, kind) {
     const container = map.getContainer();
@@ -359,7 +387,22 @@ export function createDrawController(opts) {
         x0: Math.min(a[0], b[0]), y0: Math.min(a[1], b[1]),
         x1: Math.max(a[0], b[0]), y1: Math.max(a[1], b[1]),
       };
-      if (rect.x1 - rect.x0 < 4 && rect.y1 - rect.y0 < 4) return; // a click, not a drag
+
+      if (rect.x1 - rect.x0 < 4 && rect.y1 - rect.y0 < 4) {
+        // A click, not a drag. remove-buildings leaves this to the map's own
+        // "click" handler below (onPick), unchanged from before. select-items
+        // has no other handler to fall back on now -- see this function's own
+        // comment for why relying on one was the actual bug -- so it hit-
+        // tests the release point itself and selects/toggles/clears exactly
+        // as a single click on a shape always has.
+        if (kind === "select-items") {
+          const hitId = hitTestAt(b[0], b[1]);
+          if (hitId && additive) toggle(hitId);
+          else select(hitId); // null hitId -> select(null), the "clear" case
+        }
+        return;
+      }
+
       if (kind === "select-items") {
         // Centroid computed fresh from the live geometry, not the item's
         // stored `derived` block -- that is only as current as the last
@@ -386,11 +429,59 @@ export function createDrawController(opts) {
     return [c.x, c.y];
   }
 
+  //: How close a click needs to land to a PIN to count as hitting it. Pins
+  //: draw at a fixed 14 SCREEN px regardless of zoom, so no single image-px
+  //: radius is exactly right at every zoom -- this is deliberately generous
+  //: rather than zoom-exact, since missing a precise click on a small marker
+  //: is a worse feel than occasionally winning a call that was genuinely close.
+  const PIN_HIT_RADIUS_PX = 15;
+
+  /** Which session item (if any) is at this image-pixel point -- the single
+   *  source of truth for "what did this click land on" in the Select tool,
+   *  now that no per-shape listener answers that question on its own. Pins
+   *  win outright within their radius (they are meant to be precise, small
+   *  targets, and a district drawn underneath one must never steal the
+   *  click); among overlapping polygons, the smallest area wins, the same
+   *  "the building you clicked, not the block it sits in" instinct the
+   *  server's own real-building hit-test already uses. */
+  function hitTestAt(x, y) {
+    let best = null;
+    let bestArea = Infinity;
+    for (const [id, entry] of shapes) {
+      const g = entry.item.geometry;
+      if (g.kind === "point") {
+        const [px_, py_] = g.pointPx;
+        if ((px_ - x) ** 2 + (py_ - y) ** 2 <= PIN_HIT_RADIUS_PX ** 2) return id;
+        continue;
+      }
+      if (pointInRing(x, y, g.ringPx)) {
+        const area = polygonAreaPx(g.ringPx);
+        if (area < bestArea) { bestArea = area; best = id; }
+      }
+    }
+    return best;
+  }
+
+  /** Even-odd ray casting over an image-pixel ring. Kept local rather than
+   *  imported from grid.mjs: this is a UI hit-test convenience, never the
+   *  authority on which cells a shape occupies (that stays server-side, in
+   *  core/grid.py, at save time), and grid.mjs's own point-in-polygon logic
+   *  lives inside its exact-area clipper rather than as a standalone export. */
+  function pointInRing(x, y, ring) {
+    let inside = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [xi, yi] = ring[i];
+      const [xj, yj] = ring[j];
+      if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+    }
+    return inside;
+  }
+
   // --- events --------------------------------------------------------------
 
   map.on("click", (e) => {
     const p = px(e.latlng);
-    if (tool === "region" || tool === "site" || tool === "mass-adopt") {
+    if (POLYGON_DRAFT_TOOLS.has(tool)) {
       if (!drafting) startDraft([round1(p[0]), round1(p[1])]);
       else { drafting.points.push([round1(p[0]), round1(p[1])]); redrawDraft(); }
       return;
@@ -403,12 +494,14 @@ export function createDrawController(opts) {
       onPick(p, tool);
       return;
     }
-    // Pan/select: clicking bare map clears the selection, which is the only
-    // way to get back to "nothing selected" without a keyboard. A marquee
-    // drag never reaches here -- see the small-movement guard in up() above,
-    // and the mousedown handler below never lets a real drag turn into a
-    // Leaflet "click" in the first place.
-    select(null);
+    // Pan/select: deliberately nothing here. Every outcome a click can have in
+    // this tool -- select one, toggle one, or clear the selection on empty
+    // background -- is already decided by hitTestAt() inside the marquee's
+    // own up(), which runs first (mouseup fires before Leaflet's synthesised
+    // click, if one follows at all). If this ALSO called select(null) here
+    // and a trailing click event does still fire, it would silently wipe out
+    // whatever up() just correctly selected one event later -- so this stays
+    // a no-op regardless of which way that turns out.
   });
 
   map.on("dblclick", (e) => {
@@ -426,11 +519,9 @@ export function createDrawController(opts) {
       L.DomEvent.stop(e);
       beginMarquee(e, "remove-buildings");
     } else if (tool === "pan") {
-      // Deliberately NOT stopping propagation: a plain click (small movement)
-      // must still reach a shape's own "click" handler for ordinary single-
-      // select, and reach the map's own "click" handler (above) to clear the
-      // selection on empty background. Only map.dragging.disable() is needed
-      // to stop the map panning underneath a genuine drag.
+      // Stopped unconditionally now, matching "remove" -- see beginMarquee's
+      // own comment for the real-mouse-only bug this fixes.
+      L.DomEvent.stop(e);
       beginMarquee(e, "select-items");
     }
   });
@@ -441,15 +532,16 @@ export function createDrawController(opts) {
   // tool gets a crosshair, matching the precision-placement feel those need.
   const CURSOR = {
     pan: "default", region: "crosshair", site: "crosshair", point: "crosshair",
-    adopt: "crosshair", remove: "crosshair", "mass-adopt": "crosshair",
+    adopt: "crosshair", remove: "crosshair", "mass-adopt": "crosshair", lasso: "crosshair",
   };
+  const POLYGON_DRAFT_TOOLS = new Set(["region", "site", "mass-adopt", "lasso"]);
 
   function setTool(next) {
     if (drafting) cancelDraft();
     tool = next;
     map.getContainer().style.cursor = CURSOR[next] || "default";
     map.doubleClickZoom[
-      next === "region" || next === "site" || next === "mass-adopt" ? "disable" : "enable"
+      POLYGON_DRAFT_TOOLS.has(next) ? "disable" : "enable"
     ]();
   }
 

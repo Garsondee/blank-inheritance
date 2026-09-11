@@ -240,7 +240,7 @@ async function boot() {
     onShapeDrawn, onMarquee, onPick, massAdopt, handleSelectionChange,
   };
   $("status-keys").textContent =
-    "V select · R region · S site · P pin · B adopt · M mass-adopt · X remove · "
+    "V select · L lasso · R region · S site · P pin · B adopt · M mass-adopt · X remove · "
     + "Shift+click/drag adds to selection · Enter finish · Esc cancel · Del delete · Ctrl+S save";
 }
 
@@ -844,6 +844,7 @@ function defaultStatus() {
     case "point": return "Click to drop a pin.";
     case "adopt": return "Click a real building to take its actual footprint.";
     case "mass-adopt": return "Draw a lasso around real buildings to adopt them all, each keeping its own footprint. Enter to finish.";
+    case "lasso": return "Draw a polygon around drawn/adopted items to select them all at once. Enter to finish.";
     case "remove": return "Click a building to remove it · drag a box for many · Alt+drag removes the whole area.";
     default: return "Click to select, drag a box to select many, Shift adds to the selection. Drag a shape's handles to edit it; right-click a handle to delete that point.";
   }
@@ -867,7 +868,7 @@ function wireKeys() {
     }
     if (e.key === "s" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); save(); return; }
     const tools = {
-      v: "pan", r: "region", s: "site", p: "point",
+      v: "pan", l: "lasso", r: "region", s: "site", p: "point",
       b: "adopt", m: "mass-adopt", x: "remove",
     };
     if (tools[e.key.toLowerCase()] && !e.ctrlKey && !e.metaKey) {
