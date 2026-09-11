@@ -34,6 +34,7 @@ const state = {
   featureLayer: null,
   suppressedLayer: null,
   publishedLayer: null,
+  coverageLayer: null,
   published: new Map(),  // location id -> record from /api/locations
   filter: "",
 };
@@ -179,6 +180,7 @@ async function boot() {
   state.featureLayer = L.layerGroup().addTo(map);
   state.suppressedLayer = L.layerGroup();
   state.publishedLayer = L.layerGroup().addTo(map);
+  state.coverageLayer = L.layerGroup().addTo(map);
 
   state.draw = createDrawController({
     map,
@@ -210,6 +212,9 @@ async function boot() {
 
   map.on("mousemove", (e) => {
     const [x, y] = px(e.latlng);
+    // Show where a region vertex would actually land before it is committed:
+    // a snap you only discover after clicking is a snap you cannot trust.
+    if (state.draw) state.draw.showSnapHint([x, y]);
     try {
       $("readout-ref").textContent = imagePxToRef(x, y, state.grid);
       $("readout-px").textContent = `px ${Math.round(x)}, ${Math.round(y)}`;
@@ -241,6 +246,7 @@ async function boot() {
   window.__gz = {
     state, api, setTool, save, refreshFeatures, refreshPublished,
     onShapeDrawn, onMarquee, onPick, onAreaSelect, handleSelectionChange,
+    refreshCoverage,
   };
   $("status-keys").textContent =
     "V select (right-click drag to pan) · L lasso · R region · S site · P pin · B adopt · X remove · "
@@ -280,6 +286,10 @@ async function save() {
     state.dirty = false;
     $("save-state").textContent = "saved " + new Date().toLocaleTimeString();
     $("save-state").classList.remove("is-dirty");
+    // The coverage check runs server-side against the SAVED draft, so this is
+    // the only moment it can be recomputed and still be telling the truth.
+    // Cheap when the layer is off -- refreshCoverage returns immediately.
+    refreshCoverage();
     if (data.problems && data.problems.length) {
       setStatus("saved, but: " + data.problems.join("; "), "warn");
     }
@@ -547,6 +557,65 @@ async function onMarquee(rect, asArea) {
     setStatus(`removed ${ids.length} building${ids.length === 1 ? "" : "s"}`);
   }
   await refreshFeatures();
+}
+
+// --- region coverage ---------------------------------------------------------
+
+/**
+ * The tessellation check, drawn.
+ *
+ * Regions are the one tier with a global invariant — cover the whole sheet,
+ * once each — and a percentage cannot express how it is failing. Two regions
+ * that between them claim the map twice over are "100% claimed". So this
+ * draws the two actual failures instead: ground nobody claims, and ground
+ * two regions both claim.
+ *
+ * Measured against the painted sheet and nothing else. The map has diverged
+ * from the real world under it deliberately (an airport that is no longer
+ * there, a large island redrawn as a small fort), so a check that consulted
+ * the ground truth would invent gaps wherever the picture is different on
+ * purpose. Sea is ground to be claimed like any other: an ocean is a region.
+ */
+async function refreshCoverage() {
+  if (!$("l-coverage").checked) {
+    state.coverageLayer.clearLayers();
+    $("coverage-hint").textContent = "";
+    return;
+  }
+  let data;
+  try {
+    data = await api("/api/coverage");
+  } catch (err) {
+    $("coverage-hint").textContent = "coverage unavailable: " + err.message;
+    return;
+  }
+  state.coverageLayer.clearLayers();
+
+  // Voids first so overlaps draw on top of them: an overlap is the rarer and
+  // more surprising fault, and should never be hidden under a gap's fill.
+  data.voids.forEach((v) => {
+    const poly = L.polygon(v.ringsPx.map(ringToLatLngs), {
+      color: "#d1402a", weight: 1, fillColor: "#d1402a", fillOpacity: 0.30, interactive: true,
+    });
+    poly.bindTooltip(`unclaimed — ${fmtArea(v.areaPx2)} · ${v.refs.slice(0, 4).join(" ")}`
+      + (v.refCount > 4 ? ` +${v.refCount - 4}` : ""), { className: "gz-tip", sticky: true });
+    state.coverageLayer.addLayer(poly);
+  });
+  data.overlaps.forEach((o) => {
+    const poly = L.polygon(o.ringsPx.map(ringToLatLngs), {
+      color: "#ac8a4d", weight: 2, fillColor: "#e6c98d", fillOpacity: 0.45, interactive: true,
+    });
+    poly.bindTooltip(`claimed twice — ${fmtArea(o.areaPx2)} · ${o.a} / ${o.b}`,
+      { className: "gz-tip", sticky: true });
+    state.coverageLayer.addLayer(poly);
+  });
+
+  const bits = [data.summary];
+  if (data.orphanSiteIds.length) {
+    bits.push(`${data.orphanSiteIds.length} item${data.orphanSiteIds.length === 1 ? "" : "s"} in no region`);
+  }
+  $("coverage-hint").textContent = bits.join(" · ");
+  $("coverage-hint").classList.toggle("is-done", !!data.tessellates);
 }
 
 // --- published locations -----------------------------------------------------
@@ -1337,6 +1406,7 @@ function wireLayerToggles(gridLayer) {
   });
   $("l-suppressed").addEventListener("change", showSuppressed);
   $("l-published").addEventListener("change", refreshPublished);
+  $("l-coverage").addEventListener("change", refreshCoverage);
 }
 
 async function showSuppressed(e) {

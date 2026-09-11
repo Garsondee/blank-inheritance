@@ -50,6 +50,8 @@ export function createDrawController(opts) {
   const shapeLayer = L.layerGroup().addTo(map);
   const handleLayer = L.layerGroup().addTo(map);
   const draftLayer = L.layerGroup().addTo(map);
+  // Where the next region vertex would land if placed now.
+  const snapLayer = L.layerGroup().addTo(map);
 
   const shapes = new Map();     // localId -> { item, layer }
   let tool = "pan";
@@ -73,6 +75,111 @@ export function createDrawController(opts) {
   // actual drag (never the small-movement click-passthrough case, which
   // must keep reaching the click handler normally).
   let suppressNextClick = false;
+
+  // --- snapping to existing region borders ---------------------------------
+  //
+  // Regions are the only tier with a global invariant: cover the sheet once
+  // each, no gaps, no overlaps. That is not achievable by eye. Two districts
+  // meant to share a border, drawn freehand, miss each other by a pixel or
+  // three every single time, and the result is a hairline sliver the coverage
+  // check then dutifully reports forever.
+  //
+  // So a new region vertex snaps to the borders already drawn: to an existing
+  // VERTEX first (a corner shared by three districts should be one point, not
+  // three), and failing that to the nearest point on an existing EDGE (a new
+  // district butting against the middle of an old one's side). The shared
+  // border is then genuinely shared -- identical coordinates, not merely
+  // close ones -- and the gap cannot exist.
+  //
+  // Only regions are snap targets, and only while drawing a region: a site
+  // traced inside a district has no reason to weld itself to the district's
+  // outline.
+
+  //: In SCREEN pixels, converted per-call, because a fixed image-px radius is
+  //: a different-sized target at every zoom -- the same lesson the real
+  //: building hit-test learned.
+  const SNAP_RADIUS_SCREEN_PX = 12;
+
+  function imgPxPerScreenPx() {
+    const a = map.containerPointToLatLng([0, 0]);
+    const b = map.containerPointToLatLng([1, 0]);
+    return Math.abs(b.lng - a.lng) || 1;
+  }
+
+  /** Nearest point on segment ab to p, clamped to the segment's ends. */
+  function closestOnSegment(px_, py_, ax, ay, bx, by) {
+    const dx = bx - ax;
+    const dy = by - ay;
+    if (dx === 0 && dy === 0) return [ax, ay];
+    let t = ((px_ - ax) * dx + (py_ - ay) * dy) / (dx * dx + dy * dy);
+    t = Math.max(0, Math.min(1, t));
+    return [ax + t * dx, ay + t * dy];
+  }
+
+  /** Where a region vertex placed at (x, y) should actually land, or null to
+   *  leave it where it was put. Vertices beat edges at equal distance: a
+   *  corner is a stronger statement of intent than a side. */
+  function snapRegionPoint(x, y, { excludeId = null } = {}) {
+    const tolerance = SNAP_RADIUS_SCREEN_PX * imgPxPerScreenPx();
+    let bestVertex = null;
+    let bestVertexDist = Infinity;
+    let bestEdge = null;
+    let bestEdgeDist = Infinity;
+
+    for (const [id, entry] of shapes) {
+      if (id === excludeId) continue;
+      if (entry.item.tier !== "region") continue;
+      const ring = entry.item.geometry && entry.item.geometry.ringPx;
+      if (!ring || ring.length < 3) continue;
+
+      for (let i = 0; i < ring.length; i++) {
+        const [vx, vy] = ring[i];
+        const d = Math.hypot(vx - x, vy - y);
+        if (d < bestVertexDist) { bestVertexDist = d; bestVertex = { x: vx, y: vy, id }; }
+
+        const [nx, ny] = ring[(i + 1) % ring.length];
+        const [cx, cy] = closestOnSegment(x, y, vx, vy, nx, ny);
+        const de = Math.hypot(cx - x, cy - y);
+        if (de < bestEdgeDist) { bestEdgeDist = de; bestEdge = { x: cx, y: cy, id }; }
+      }
+    }
+
+    if (bestVertex && bestVertexDist <= tolerance) {
+      return { x: bestVertex.x, y: bestVertex.y, kind: "vertex", id: bestVertex.id };
+    }
+    if (bestEdge && bestEdgeDist <= tolerance) {
+      return { x: bestEdge.x, y: bestEdge.y, kind: "edge", id: bestEdge.id };
+    }
+    return null;
+  }
+
+  /** The snapped position for a draft click, or the raw one. Rounding happens
+   *  AFTER snapping, and a snapped vertex is copied through unrounded, or
+   *  round1 would reintroduce the very sub-pixel mismatch this prevents. */
+  function placeDraftPoint(p) {
+    if (tool !== "region") return [round1(p[0]), round1(p[1])];
+    const snapped = snapRegionPoint(p[0], p[1]);
+    if (!snapped) return [round1(p[0]), round1(p[1])];
+    report(snapped.kind === "vertex"
+      ? "snapped to an existing corner — the border is now shared exactly"
+      : "snapped onto an existing border");
+    return [snapped.x, snapped.y];
+  }
+
+  function showSnapHint(p) {
+    snapLayer.clearLayers();
+    if (tool !== "region") return;
+    const snapped = snapRegionPoint(p[0], p[1]);
+    if (!snapped) return;
+    snapLayer.addLayer(L.marker(ll(snapped.x, snapped.y), {
+      icon: L.divIcon({
+        className: "gz-snap gz-snap--" + snapped.kind,
+        iconSize: [12, 12],
+      }),
+      interactive: false,
+      zIndexOffset: 1200,
+    }));
+  }
 
   // --- drawing -------------------------------------------------------------
 
@@ -551,8 +658,9 @@ export function createDrawController(opts) {
     if (suppressNextClick) { suppressNextClick = false; return; }
     const p = px(e.latlng);
     if (POLYGON_DRAFT_TOOLS.has(tool)) {
-      if (!drafting) startDraft([round1(p[0]), round1(p[1])]);
-      else { drafting.points.push([round1(p[0]), round1(p[1])]); redrawDraft(); }
+      const placed = placeDraftPoint(p);
+      if (!drafting) startDraft(placed);
+      else { drafting.points.push(placed); redrawDraft(); }
       return;
     }
     if (tool === "point") {
@@ -678,7 +786,7 @@ export function createDrawController(opts) {
   return {
     setTool, get tool() { return tool; },
     addShape, removeShape, clearShapes, select, selected, selectMany, selectedList,
-    toggle, drawHandles, nudge, restyleOne,
+    toggle, drawHandles, nudge, restyleOne, showSnapHint, snapRegionPoint,
     finishDraft, cancelDraft, undoPoint,
     get drafting() { return !!drafting; },
     shapes,

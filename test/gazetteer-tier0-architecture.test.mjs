@@ -274,6 +274,26 @@ test("the session panel itself cannot be collapsed away", () => {
     "list collapsible -- the one panel that must always be visible");
 });
 
+test("region drawing snaps to existing region borders, and only region borders", () => {
+  // Regions carry a global invariant no other tier does: cover the sheet
+  // once each. Freehand drawing cannot meet it -- two districts meant to
+  // share a border miss each other by a few pixels every time, and the
+  // result is a hairline sliver the coverage check then reports forever.
+  // Snapping is what makes a shared border genuinely shared (identical
+  // coordinates, not merely close ones) rather than something to be
+  // repaired afterwards.
+  const src = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(/function snapRegionPoint/.test(src),
+    "draw.js no longer snaps new region vertices to existing borders -- a " +
+    "hand-drawn tessellation will grow a sliver on every shared edge");
+  assert.ok(/tier !== "region"/.test(src),
+    "the snap no longer restricts itself to region targets -- a site traced " +
+    "inside a district has no business welding itself to the district outline");
+  assert.ok(/SNAP_RADIUS_SCREEN_PX/.test(src) && /imgPxPerScreenPx/.test(src),
+    "the snap radius no longer scales with zoom -- a fixed image-pixel " +
+    "radius is a different-sized target at every zoom level");
+});
+
 test("the shared fixture is reachable from both suites' expected paths", () => {
   const fixture = JSON.parse(
     readFileSync(join(here, "fixtures", "gazetteer-grid-cases.json"), "utf8"));

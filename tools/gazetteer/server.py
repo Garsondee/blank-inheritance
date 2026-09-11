@@ -206,6 +206,8 @@ class Handler(BaseHTTPRequestHandler):
                                         "current": STATE.draft["id"]})
             if path == "/api/locations":
                 return self._api_locations()
+            if path == "/api/coverage":
+                return self._api_coverage(parse_qs(parsed.query))
             return self._error(404, "no route for %s" % path)
         except Exception as exc:  # a local tool: show the fault, do not hide it
             import traceback
@@ -480,6 +482,57 @@ class Handler(BaseHTTPRequestHandler):
             overrides_mod.save(STATE.overrides)
             STATE.refresh_suppression()
         self._send(200, {"removed": removed, "total": len(STATE.suppression)})
+
+    def _api_coverage(self, query):
+        """Does the current set of regions tessellate the sheet?
+
+        Draft regions and already-promoted ones are checked together, because
+        a half-promoted tessellation is the normal state and checking either
+        half alone would report the other half's ground as a gap.
+
+        Everything is measured against the painted content rectangle and
+        nothing else. The map has diverged from the ground truth under it on
+        purpose -- an airport that is no longer there, a large island redrawn
+        as a small fort -- so consulting the real world here would invent gaps
+        wherever the picture is deliberately different.
+        """
+        import coverage as coverage_mod
+
+        regions, sites = [], []
+        for item in STATE.draft.get("items", []):
+            if item.get("tier") == "region":
+                regions.append({"id": item.get("localId"),
+                                "geometry": item.get("geometry") or {},
+                                "name": item.get("name") or ""})
+            else:
+                derived = item.get("derived") or {}
+                if derived.get("centroidPx"):
+                    sites.append({"id": item.get("localId"),
+                                  "centroidPx": derived["centroidPx"]})
+
+        promoted = 0
+        for doc in _load_all_locations():
+            if doc.get("tier") != "region":
+                continue
+            rings_px = []
+            for ring in (doc.get("geometry") or {}).get("rings") or []:
+                rings_px.append([list(STATE.georef.lonlat_to_image_px(lon, lat))
+                                 for lon, lat in ring])
+            if rings_px:
+                regions.append({"id": doc["id"], "ringsPx": rings_px,
+                                "name": doc.get("name") or doc["id"]})
+                promoted += 1
+
+        try:
+            min_sliver = float(query.get("minSliver", [coverage_mod.DEFAULT_MIN_SLIVER_PX2])[0])
+        except (TypeError, ValueError):
+            min_sliver = coverage_mod.DEFAULT_MIN_SLIVER_PX2
+
+        result = coverage_mod.analyse(regions, sites=sites, min_sliver_px2=min_sliver)
+        result["promotedRegionCount"] = promoted
+        result["draftRegionCount"] = len(regions) - promoted
+        result["summary"] = coverage_mod.summarise(result)
+        self._send(200, result)
 
     def _api_locations(self):
         """Every promoted location, with geometry converted to image pixels so

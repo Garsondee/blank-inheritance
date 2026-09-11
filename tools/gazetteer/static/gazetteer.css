@@ -611,6 +611,26 @@ body {
 }
 .gz-tip::before { display: none; }
 
+/* Where the next region vertex would land. A ring rather than a filled dot:
+   you need to see the ground underneath the thing you are about to weld to.
+   Vertex snaps read stronger than edge snaps because they are the stronger
+   commitment -- a shared corner, not just a shared line. */
+.gz-snap {
+  border-radius: 50%;
+  margin: -6px 0 0 -6px;
+  width: 12px; height: 12px;
+  pointer-events: none;
+}
+.gz-snap--vertex {
+  border: 2px solid var(--bi-brass-lit);
+  background: rgba(172, 138, 77, .35);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .5);
+}
+.gz-snap--edge {
+  border: 2px dashed var(--bi-brass);
+  background: transparent;
+}
+
 .gz-marquee {
   position: absolute;
   border: 1px dashed var(--bi-vermilion);

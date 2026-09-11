@@ -209,6 +209,10 @@
         <label class="gz-check"><input type="checkbox" id="l-items" checked> Drawn locations</label>
         <label class="gz-check"><input type="checkbox" id="l-published" checked> Published locations</label>
         <label class="gz-check"><input type="checkbox" id="l-suppressed"> Removed buildings</label>
+        <!-- The tessellation check. Shades ground no region claims, and
+             ground two regions both claim -- the two ways a cover fails. -->
+        <label class="gz-check"><input type="checkbox" id="l-coverage"> Region coverage</label>
+        <p class="gz-hint" id="coverage-hint"></p>
         <p class="gz-hint" id="layer-hint"></p>
       </div>
     </section>
