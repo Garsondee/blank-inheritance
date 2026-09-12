@@ -49,6 +49,54 @@ function flatActions(log) {
 const ATTACK_TYPES = new Set(["strike", "spellAttack", "saveAttack"]);
 
 /**
+ * Which roster array + logged name field a given action `type` maps to (design doc §78, GH #57).
+ * Reactions are deliberately NOT here — a fired reaction is logged inside its MOVER's own action
+ * (keyed by the reactor, not the actor) rather than as its own top-level typed action, so it doesn't
+ * fit this type->field table at all. Every caller that wants full "all 7 declared-ability arrays"
+ * coverage adds `"reactions"` back explicitly (see resourceUseStats/abilityCoverageStats below).
+ */
+export const ABILITY_TYPES = [
+  { type: "strike", nameField: "strikeName", rosterKey: "strikes" },
+  { type: "spellAttack", nameField: "spellName", rosterKey: "spells" },
+  { type: "healAbility", nameField: "abilityName", rosterKey: "healAbilities" },
+  { type: "saveAttack", nameField: "saveAttackName", rosterKey: "saveAttacks" },
+  { type: "conditionSave", nameField: "conditionSaveName", rosterKey: "conditionSaves" },
+  { type: "areaAttack", nameField: "areaAttackName", rosterKey: "areaAttacks" }
+];
+const ABILITY_TYPE_BY_ACTION_TYPE = new Map(ABILITY_TYPES.map((t) => [t.type, t]));
+
+/**
+ * Every real (legal) execution of a declared, named ability across the whole log — the six named
+ * action types above, plus both scales' own reaction-fired-strike shape (GH #18 personnel / Frame's
+ * own Claim). One row per execution, not per action.
+ *
+ * Reactions are logged inside the MOVER's action, keyed by the REACTOR, not the actor. Frame's own
+ * entry carries the reaction's own name directly (`reactionName` — a Claimant only ever has the one
+ * hardcoded "Claim"). Personnel's entry carries the WEAPON it struck with (`strikeName`) instead —
+ * the reaction itself has no name field on the log entry — because flanking.mjs's `hasReactiveStrike`
+ * gates firing on an exact `r.name === "Reactive Strike"` match, so that is the only declared ability
+ * a personnel-scale fired-reaction entry can ever mean (confirmed directly against that gate, not
+ * assumed). `action.reactions ?? action.triggeredReactions`: never both on one action — the two
+ * engines never share a log — so this is a safe union, not an ambiguous one.
+ */
+function abilityExecutions(log) {
+  const out = [];
+  for (const { round, actorId, action } of flatActions(log)) {
+    if (action.legal === false) continue;
+    const spec = ABILITY_TYPE_BY_ACTION_TYPE.get(action.type);
+    if (spec) {
+      const name = action[spec.nameField];
+      if (name != null) out.push({ ownerId: actorId, rosterKey: spec.rosterKey, name, round });
+    }
+    for (const reaction of action.reactions ?? action.triggeredReactions ?? []) {
+      const name = reaction.reactionName ?? "Reactive Strike";
+      out.push({ ownerId: reaction.reactorId, rosterKey: "reactions", name, round });
+    }
+  }
+  return out;
+}
+
+/**
  * FOCUS FIRE — does the AI concentrate damage, or smear it across every enemy at once?
  *
  * BROKEN POLE: damage spreading. Splitting attacks across three healthy enemies instead of
@@ -185,20 +233,26 @@ export function oscillationStats(log) {
  * MEASURED AS: for every combatant that started with a limited-use option, whether it was ever
  * spent and in which round. Requires the roster to record usesPerEncounter (data/combatants.mjs
  * sets this alongside usesRemaining on exactly the limited options).
+ *
+ * FIX (design doc §78, GH #57): this used to scan only `strikes`/`spells`/`healAbilities` and match
+ * executions via a bare `strikeName ?? spellName ?? abilityName` chain — silently blind to a limited
+ * `saveAttack`/`conditionSave`/`areaAttack`/`reaction` (never observed in a real fixture yet, but a
+ * real gap). Now sourced from the shared ABILITY_TYPES registry/abilityExecutions helper below,
+ * covering all 7 declared-ability arrays.
  */
 export function resourceUseStats(log) {
-  const limited = new Map(); // "combatantId|optionName" -> { ownerId, name, spentRound }
+  const limited = new Map(); // "combatantId|rosterKey|optionName" -> { ownerId, name, spentRound }
   for (const [id, entry] of Object.entries(log.roster ?? {})) {
-    for (const option of [...(entry.strikes ?? []), ...(entry.spells ?? []), ...(entry.healAbilities ?? [])]) {
-      if (option.usesPerEncounter != null) limited.set(`${id}|${option.name}`, { ownerId: id, name: option.name, spentRound: null });
+    for (const rosterKey of [...ABILITY_TYPES.map((t) => t.rosterKey), "reactions"]) {
+      for (const option of entry[rosterKey] ?? []) {
+        if (option.usesPerEncounter != null) limited.set(`${id}|${rosterKey}|${option.name}`, { ownerId: id, name: option.name, spentRound: null });
+      }
     }
   }
   if (limited.size === 0) return { tracked: 0, spent: 0, spentRate: null, options: [] };
 
-  for (const { round, actorId, action } of flatActions(log)) {
-    if (action.legal === false) continue;
-    const name = action.strikeName ?? action.spellName ?? action.abilityName;
-    const rec = limited.get(`${actorId}|${name}`);
+  for (const { ownerId, rosterKey, name, round } of abilityExecutions(log)) {
+    const rec = limited.get(`${ownerId}|${rosterKey}|${name}`);
     if (rec && rec.spentRound === null) rec.spentRound = round;
   }
 
@@ -303,7 +357,11 @@ export function engagementStats(log) {
       totalDamage += dmg;
       if (firstDamageRound === null) firstDamageRound = round;
     }
-    for (const reaction of action.triggeredReactions ?? []) {
+    // FIX (design doc §78, GH #57): `triggeredReactions` is Frame scale's own field name
+    // (engine/engine.mjs's checkReactionTriggers) — personnel scale logs the identical concept under
+    // `reactions` (personnel-engine/engine.mjs's move branch, GH #18), which this used to miss
+    // entirely, silently undercounting real reaction damage for every personnel-scale battle.
+    for (const reaction of action.reactions ?? action.triggeredReactions ?? []) {
       const rdmg = reaction.damageApplied ?? 0;
       if (rdmg > 0) {
         totalDamage += rdmg;
@@ -531,6 +589,85 @@ export function maneuverConversionStats(log) {
   };
 }
 
+/**
+ * ABILITY COVERAGE (design doc §78, GH #57) — "we may also determine which abilities are never
+ * used (that's a red flag...) and also which are perhaps over used (making sure... AI isn't using
+ * something powerful too much and getting illegal victory points)" (Ingram, quoted in the issue).
+ *
+ * BROKEN POLE: two, not one. A ZERO is either an engine gap (never generated as a candidate) or an
+ * evaluator blind spot (generated, never chosen) — this doesn't distinguish which, it just makes the
+ * zero visible at all. An OVER-USE violation would mean a legality-gate regression let the AI spend
+ * a resource beyond its declared cap — legality.mjs's own hasUses/spendUse already enforce this at
+ * the point of casting, but this is the independent, log-based audit that doesn't just assume that
+ * gate stays bug-free forever (GH #55/#56 were both exactly this failure mode, pre-telemetry).
+ *
+ * MEASURED AS: every declared ability across all 7 roster arrays (strikes/spells/healAbilities/
+ * saveAttacks/conditionSaves/areaAttacks/reactions), diffed against real executions this battle.
+ * Two resource shapes, both real: a simple per-ability `usesPerEncounter` cap (Transfer Vitality),
+ * and GH #60's shared, combatant-level `slotRank`/`spellSlots` pool (Heal's three variants all draw
+ * from the same rank-1 pool) — `roster[id].spellSlots` is already the reliable starting count (built
+ * from the pre-battle combatant, a different, never-mutated object graph than the one the battle
+ * actually simulates against — confirmed directly, not assumed). `unmatched` is a real invariant
+ * check, not defensive dead code: a logged execution's name should always match something declared
+ * (engine.mjs never invents a name), so a nonempty list here is itself exactly the kind of finding
+ * this ticket was filed to surface.
+ */
+export function abilityCoverageStats(log) {
+  const roster = log.roster ?? {};
+  const declared = new Map(); // "ownerId|rosterKey|name" -> record
+  for (const [id, entry] of Object.entries(roster)) {
+    for (const rosterKey of [...ABILITY_TYPES.map((t) => t.rosterKey), "reactions"]) {
+      for (const option of entry[rosterKey] ?? []) {
+        declared.set(`${id}|${rosterKey}|${option.name}`, {
+          ownerId: id, rosterKey, name: option.name,
+          usesPerEncounter: option.usesPerEncounter ?? null,
+          slotRank: option.slotRank ?? null,
+          executions: 0
+        });
+      }
+    }
+  }
+
+  const unmatched = [];
+  for (const { ownerId, rosterKey, name, round } of abilityExecutions(log)) {
+    const rec = declared.get(`${ownerId}|${rosterKey}|${name}`);
+    if (rec) rec.executions += 1;
+    else unmatched.push({ ownerId, rosterKey, name, round });
+  }
+
+  const all = [...declared.values()];
+
+  // Per-ability over-use: usesPerEncounter is the frozen starting cap (never mutated — only its
+  // live sibling usesRemaining decrements).
+  const abilityOverUsed = all
+    .filter((r) => r.usesPerEncounter != null && r.executions > r.usesPerEncounter)
+    .map((r) => ({ kind: "ability", ownerId: r.ownerId, rosterKey: r.rosterKey, name: r.name, executions: r.executions, cap: r.usesPerEncounter }));
+
+  // Shared-slot-pool over-use (GH #60): group every slotRank-bearing declared ability by
+  // (ownerId, slotRank), sum real executions across all of them, compare to the combatant's own
+  // starting spellSlots count for that rank.
+  const slotGroups = new Map(); // "ownerId|slotRank" -> {ownerId, slotRank, names:[], executions}
+  for (const r of all) {
+    if (r.slotRank == null) continue;
+    const key = `${r.ownerId}|${r.slotRank}`;
+    const g = slotGroups.get(key) ?? { ownerId: r.ownerId, slotRank: r.slotRank, names: [], executions: 0 };
+    g.names.push(r.name);
+    g.executions += r.executions;
+    slotGroups.set(key, g);
+  }
+  const slotOverUsed = [...slotGroups.values()]
+    .map((g) => ({ ...g, cap: roster[g.ownerId]?.spellSlots?.[g.slotRank] ?? null }))
+    .filter((g) => g.cap != null && g.executions > g.cap)
+    .map((g) => ({ kind: "sharedSlotPool", ownerId: g.ownerId, slotRank: g.slotRank, names: g.names, executions: g.executions, cap: g.cap }));
+
+  return {
+    abilities: all,
+    zero: all.filter((r) => r.executions === 0),
+    overUsed: [...abilityOverUsed, ...slotOverUsed],
+    unmatched
+  };
+}
+
 /** Everything above, for one battle log. */
 export function collectTacticalMetrics(log, options = {}) {
   return {
@@ -541,7 +678,8 @@ export function collectTacticalMetrics(log, options = {}) {
     threatPriority: threatPriorityStats(log, options),
     engagement: engagementStats(log),
     coverUsage: coverUsageStats(log),
-    maneuverConversion: maneuverConversionStats(log)
+    maneuverConversion: maneuverConversionStats(log),
+    abilityCoverage: abilityCoverageStats(log)
   };
 }
 
@@ -557,6 +695,7 @@ export function formatTacticalMetrics(m) {
     `threatPriority: correlation=${num(m.threatPriority.threatAttackCorrelation)} over ${m.threatPriority.totalAttacks} attacks`,
     `engagement:     firstDamage=round ${m.engagement.firstDamageRound ?? "NEVER"}, totalDamage=${m.engagement.totalDamage}, rounds=${m.engagement.rounds}`,
     `coverUsage:     moveIntoCover=${pct(m.coverUsage.moveIntoCoverRate)} (${m.coverUsage.movesIntoCover}/${m.coverUsage.movesTotal}), attackFromCover=${pct(m.coverUsage.attackFromCoverRate)} (${m.coverUsage.attacksFromCover}/${m.coverUsage.attacksTotal})`,
-    `maneuverConv:   trip=${pct(m.maneuverConversion.trip.conversionRate)} (${m.maneuverConversion.trip.converted}/${m.maneuverConversion.trip.attempts}), grapple=${pct(m.maneuverConversion.grapple.conversionRate)} (${m.maneuverConversion.grapple.converted}/${m.maneuverConversion.grapple.attempts})`
+    `maneuverConv:   trip=${pct(m.maneuverConversion.trip.conversionRate)} (${m.maneuverConversion.trip.converted}/${m.maneuverConversion.trip.attempts}), grapple=${pct(m.maneuverConversion.grapple.conversionRate)} (${m.maneuverConversion.grapple.converted}/${m.maneuverConversion.grapple.attempts})`,
+    `abilityCoverage: ${m.abilityCoverage.abilities.length - m.abilityCoverage.zero.length}/${m.abilityCoverage.abilities.length} declared abilities used${m.abilityCoverage.zero.length ? ", zero: [" + m.abilityCoverage.zero.map((z) => `${z.ownerId}/${z.name}`).join(", ") + "]" : ""}${m.abilityCoverage.overUsed.length ? ", OVER-USE: [" + m.abilityCoverage.overUsed.map((v) => `${v.ownerId}/${v.kind === "sharedSlotPool" ? v.names.join("+") : v.name} (${v.executions}>${v.cap})`).join(", ") + "]" : ""}`
   ].join("\n");
 }

@@ -87,11 +87,23 @@ test("collectTacticalMetrics returns every metric family for a real battle, with
   // The mirror archetype has no limited-use options and no objective, so several metrics have
   // legitimately empty inputs — the exact shape most likely to throw on a null.
   const m = collectTacticalMetrics(runBattle(ARCHETYPES.mirror({ seed: 7004, roundLimit: 4 })));
-  for (const key of ["focusFire", "mapDiscipline", "oscillation", "resourceUse", "threatPriority", "engagement", "coverUsage"]) {
+  for (const key of ["focusFire", "mapDiscipline", "oscillation", "resourceUse", "threatPriority", "engagement", "coverUsage", "abilityCoverage"]) {
     assert.ok(m[key] !== undefined, `missing metric family: ${key}`);
   }
   assert.equal(m.resourceUse.tracked, 0, "mirror units carry no limited-use options");
   assert.ok(m.engagement.totalDamage >= 0);
+});
+
+// GH #57 (design doc §78): abilityCoverageStats is genuinely cross-scale — Frame logs have no
+// saveAttack/conditionSave/areaAttack/healAbility action types and no slotRank concept at all, so
+// every one of its branches must degrade to its own already-established empty/null-safe case rather
+// than assuming personnel-only fields exist.
+test("abilityCoverageStats: runs clean against a real Frame-scale battle — no crash, no false unmatched/over-use on fields Frame never sets", () => {
+  const log = runBattle(ARCHETYPES.mirror({ seed: 7005, roundLimit: 4 }));
+  const cov = collectTacticalMetrics(log).abilityCoverage;
+  assert.equal(cov.unmatched.length, 0, `Frame-scale strikeName/reactionName should always match a declared ability: ${JSON.stringify(cov.unmatched)}`);
+  assert.equal(cov.overUsed.length, 0, "the mirror archetype's own combatants carry no usesPerEncounter/slotRank abilities");
+  assert.ok(cov.abilities.length > 0, "Frame combatants still declare real strikes — the report should not come back empty");
 });
 
 // REGRESSION (design doc §39, found while building coverUsageStats): ATTACK_TYPES predated

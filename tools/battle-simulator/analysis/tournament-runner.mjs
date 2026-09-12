@@ -28,6 +28,7 @@ import { runBattle } from "../personnel-engine/engine.mjs";
 import { buildScenario } from "../scenarios/personnel-mirror.mjs";
 import { parseSeeds } from "../run-personnel-scenario.mjs";
 import { ALL_PROFILES } from "../personnel-engine/archetypes.mjs";
+import { abilityCoverageStats } from "./tactical-metrics.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const workerPath = path.join(here, "tournament-worker.mjs");
@@ -89,7 +90,9 @@ export function runTournamentSequential({ roster, partyProfile, oppositionProfil
     const t0 = Date.now();
     const scenario = buildScenario({ seed, roster, partyProfile, oppositionProfile, roundLimit });
     const log = runBattle(scenario);
-    const result = { seed, outcome: log.outcome.result, rounds: log.rounds.length, elapsedMs: Date.now() - t0 };
+    // GH #57 (design doc §78): same compact summary tournament-worker.mjs's own message handler
+    // computes — this sibling code path (no worker) would otherwise silently diverge from it.
+    const result = { seed, outcome: log.outcome.result, rounds: log.rounds.length, elapsedMs: Date.now() - t0, abilityCoverage: abilityCoverageStats(log) };
     onProgress?.({ type: "seedComplete", seedIndex, seedTotal: seeds.length, ...result });
     return result;
   });
@@ -118,6 +121,51 @@ export function aggregateTournament(results) {
     meanRounds,
     meanElapsedMs
   };
+}
+
+/**
+ * BATCH-LEVEL ABILITY COVERAGE (design doc §78, GH #57) — merges each seed's own compact
+ * `abilityCoverageStats(log)` (computed per-battle by the worker/sequential path above, never the
+ * whole log) into one report across the whole tournament. `neverUsed` is deliberately scoped to
+ * "zero across EVERY seed" — a single seed's own zero is much less informative for a limited-use or
+ * situational ability, since it may simply not have been worth using on that particular battle.
+ * Over-use/unmatched stay per-battle (usesPerEncounter/spellSlots both reset every fresh battle), so
+ * each violation carries the real `seed` it came from rather than being summed away.
+ */
+export function aggregateAbilityCoverage(results) {
+  const merged = new Map(); // "ownerId|rosterKey|name" -> record, summed across every seed
+  const overUseViolations = [];
+  const unmatched = [];
+  for (const r of results) {
+    for (const a of r.abilityCoverage.abilities) {
+      const key = `${a.ownerId}|${a.rosterKey}|${a.name}`;
+      const rec = merged.get(key) ?? { ownerId: a.ownerId, rosterKey: a.rosterKey, name: a.name, executions: 0 };
+      rec.executions += a.executions;
+      merged.set(key, rec);
+    }
+    for (const v of r.abilityCoverage.overUsed) overUseViolations.push({ seed: r.seed, ...v });
+    for (const u of r.abilityCoverage.unmatched) unmatched.push({ seed: r.seed, ...u });
+  }
+  const all = [...merged.values()];
+  return { battles: results.length, abilities: all, neverUsed: all.filter((a) => a.executions === 0), overUseViolations, unmatched };
+}
+
+function formatAbilityCoverage(agg) {
+  const byOwner = new Map();
+  for (const a of agg.abilities) {
+    if (!byOwner.has(a.ownerId)) byOwner.set(a.ownerId, []);
+    byOwner.get(a.ownerId).push(a);
+  }
+  const lines = [`### Ability coverage (design doc §78) — ${agg.battles} battles`, ""];
+  for (const [ownerId, list] of byOwner) {
+    lines.push(`**${ownerId}**: ${list.map((a) => `${a.name}=${a.executions}`).join(", ")}`);
+  }
+  if (agg.neverUsed.length) lines.push("", `⚠ Never used, any seed: ${agg.neverUsed.map((a) => `${a.ownerId}/${a.name}`).join(", ")}`);
+  if (agg.overUseViolations.length) {
+    lines.push("", `⚠ Over-use: ${agg.overUseViolations.map((v) => `seed ${v.seed} ${v.ownerId}/${v.kind === "sharedSlotPool" ? v.names.join("+") : v.name} (${v.executions}>${v.cap})`).join("; ")}`);
+  }
+  if (agg.unmatched.length) lines.push("", `⚠ Unmatched executions (bug — a logged name matched no declared ability): ${JSON.stringify(agg.unmatched)}`);
+  return lines.join("\n");
 }
 
 function pct(x) { return (x * 100).toFixed(1) + "%"; }
@@ -206,7 +254,9 @@ async function main() {
     costGuard = checkCostGuard(agg, aggregateTournament(referenceResults), costGuardMultiple);
   }
 
-  const entryBody = formatTournament({ rosterLabel: roster.join("+"), partyProfile, oppositionProfile, seedSpec, agg, speedup, costGuard });
+  const coverageAgg = aggregateAbilityCoverage(results);
+  const entryBody = formatTournament({ rosterLabel: roster.join("+"), partyProfile, oppositionProfile, seedSpec, agg, speedup, costGuard })
+    + "\n\n" + formatAbilityCoverage(coverageAgg);
   console.log("\n" + entryBody);
   appendToHistory(entryBody);
   console.log(`\nAppended tournament results to ${path.relative(process.cwd(), historyPath)}`);

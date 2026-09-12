@@ -379,6 +379,32 @@ test("healAbility with a healingFormula rolls REAL dice (varies across seeds), a
   assert.ok(seen.size > 1, `expected a real spread of 1d8 rolls across 20 seeds, saw only: ${[...seen].join(", ")}`);
 });
 
+// FIX (design doc §78, GH #57 — found investigating ability telemetry, not this ticket's own scope,
+// but real, confirmed, and small): snapshotState's own `spellSlots: combatant.spellSlots ?? null`
+// stored a bare live reference, not a copy — since snapshotState runs once per turn and spendUse
+// mutates that SAME object in place, every snapshot ever taken for a combatant with spellSlots
+// shared one mutable object, so a LATER cast retroactively corrupted every EARLIER turn's own
+// snapshot too. Proven here the only way that actually catches it: an early, untouched snapshot must
+// still read the true value after a LATER turn spends the pool — round 1's own passing assertion
+// above (roundLimit: 1, nothing happens afterward) could never have caught this.
+test("snapshotState: an EARLIER turn's own spellSlots snapshot is not retroactively corrupted by a LATER cast sharing the same live object", () => {
+  const caster = makeHealCaster();
+  const woundedAlly = makeCaster({ id: "ally", name: "Ally", currentHP: 5, maxHP: 100, spells: [], healAbilities: [] });
+  const harmlessEnemy = makeTarget({ id: "enemy", maxHP: 1000, currentHP: 1000, position: { col: 15, row: 15 } });
+  function ai(state, combatantId, turnState) {
+    if (combatantId !== "caster") return null;
+    if (state.round === 1) return null; // do nothing in round 1 — spellSlots must stay untouched
+    if (turnState.actionsUsed === 0) return { type: "healAbility", targetId: "ally", abilityIndex: 0 };
+    return null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 2, combatants: [caster, woundedAlly, harmlessEnemy], ai });
+  const round1Turn = log.rounds[0].turns.find((t) => t.combatantId === "caster");
+  const round2Turn = log.rounds[1].turns.find((t) => t.combatantId === "caster");
+  assert.equal(round2Turn.actions.find((a) => a.type === "healAbility")?.legal, true, "sanity: the round-2 cast must actually have happened");
+  assert.equal(round2Turn.snapshot.caster.spellSlots?.["1"], 2, "sanity: round 2's own snapshot shows the real post-cast remainder");
+  assert.equal(round1Turn.snapshot.caster.spellSlots?.["1"], 3, "round 1's snapshot — taken BEFORE the round-2 cast — must still show the true starting count, not retroactively decremented by a later cast sharing the same object");
+});
+
 test("healAbility (EXPECTED-VALUE sandbox, via forkTurnSandbox — the exact path decide.mjs's own lookahead uses): a healingFormula resolves to the real PROBABILITY-WEIGHTED average, not a rolled value", () => {
   const caster = makeHealCaster();
   const woundedAlly = makeCaster({ id: "ally", name: "Ally", currentHP: 5, maxHP: 100, spells: [], healAbilities: [] });

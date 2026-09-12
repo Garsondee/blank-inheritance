@@ -519,8 +519,9 @@ export function runBattle(scenario) {
         initiativeModifier: c.initiativeModifier ?? 0,
         ac: c.ac, hardness: c.hardness ?? 0,
         saves: c.saves, speed: c.speed, strikes: c.strikes ?? [],
-        // Real authored data, shown for transcript honesty — NOT fired by anything in this file.
-        // See this file's own header for why reactions are deliberately not wired up in Phase 1.
+        // Real authored data, shown for transcript honesty. GH #18 wires a real, generic Reactive
+        // Strike for any reaction named exactly "Reactive Strike" (see this file's own header) — any
+        // OTHER authored reaction (Security Goon's "Get Back!", etc.) is still real but unwired.
         reactions: c.reactions ?? [],
         spells: c.spells ?? [], healAbilities: c.healAbilities ?? [],
         saveAttacks: c.saveAttacks ?? [], conditionSaves: c.conditionSaves ?? [], areaAttacks: c.areaAttacks ?? [], intimidationModifier: c.intimidationModifier ?? null,
@@ -1508,7 +1509,16 @@ function snapshotState(state) {
       // real PCs start at 1 and drop to 0 the instant one is actually spent to avoid death.
       heroPoints: combatant.heroPoints ?? null,
       // GH #60 — same transcript-honesty reasoning as heroPoints above, for the new shared heal pool.
-      spellSlots: combatant.spellSlots ?? null
+      // FIX (design doc §78, GH #57): was a bare live reference (`combatant.spellSlots ?? null`) —
+      // since spendUse (legality.mjs) mutates this object in place and snapshotState runs many times
+      // per battle, every snapshot ever taken for this combatant shared the SAME object, so a later
+      // cast retroactively corrupted every EARLIER snapshot's own spellSlots too (confirmed live: a
+      // multi-round battle's initialSnapshot read the end-of-battle remainder, not the true starting
+      // count). cloneStateForPlanning already deep-copies this exact field for the identical reason
+      // (this file's own header, "Mutable surface" list) — snapshotState just never got the same
+      // treatment. Every other field here is either a primitive or (grappledBy) only ever wholesale-
+      // reassigned, never mutated in place, so needs no copy — spellSlots was the one real gap.
+      spellSlots: combatant.spellSlots ? { ...combatant.spellSlots } : null
     };
   }
   return snapshot;
