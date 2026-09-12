@@ -65,6 +65,23 @@ function parseSpellRangeFeet(rawRange) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+/**
+ * Shared use-limit derivation for a spell (design doc §76.9, GH #69/#55). A cantrip is castable "at
+ * will, any number of times per day" (Player Core pg. 283, reference/srd/player-core/283-cantrips.json)
+ * — NEVER slot-limited, confirmed by an adversarial review against every real cantrip-trait item this
+ * project has access to (461 checked across every pack): zero carry a real frequency/uses/slots value.
+ * A non-cantrip spell's real limit is its own governing spellcastingEntry's slot count — the field
+ * deriveSaveSpells already read correctly for Thunderstrike before this helper existed. Shared, not
+ * duplicated, specifically because an earlier, unshared version of deriveSpells lacked the cantrip
+ * check entirely and would have capped Eldritch Lance — a cantrip — at 3 casts/encounter (GH #69's own
+ * found regression, caught before shipping): one helper means that mistake can't recur independently a
+ * third time in a fourth copy of this logic.
+ */
+function deriveSpellUsesRemaining(spell, entry) {
+  if ((spell.system.traits?.value ?? []).includes("cantrip")) return { atWill: true };
+  return { usesRemaining: entry.system.slots?.slot1?.max ?? null };
+}
+
 /** Player Core's real save-statistic names ("reflex"/"fortitude"/"will") mapped to this project's
  * own established short-key convention (`combatant.saves` is always `{fort, ref, will}`, matching
  * every real fixture and sf2e-common's own proficiency shape) — a saveType value must use the SAME
@@ -131,7 +148,8 @@ export function deriveSpells(ingredients, spellNames, abilityModifiers) {
       range: parseSpellRangeFeet(spell.system.range.value), // e.g. "30 feet" -> 30; "touch" -> null, not NaN (see parseSpellRangeFeet)
       actions: parseInt(spell.system.time.value, 10),
       traits: spell.system.traits.value,
-      ...(damage ? { damage: [damage] } : {})
+      ...(damage ? { damage: [damage] } : {}),
+      ...deriveSpellUsesRemaining(spell, entry)
     };
   });
 }
@@ -180,8 +198,11 @@ export function deriveSaveSpells(ingredients, spellNames, abilityModifiers) {
       damage,
       // A real spell-slot count (this project's own extension of deriveSaveAttacks' own
       // system.quantity precedent, applied to spells instead of consumable items) — NOT unlimited.
-      // Bennit's real "Arcane Spontaneous Spells" entry carries system.slots.slot1.max: 3.
-      usesRemaining: entry.system.slots?.slot1?.max ?? null
+      // Bennit's real "Arcane Spontaneous Spells" entry carries system.slots.slot1.max: 3. Routed
+      // through the shared deriveSpellUsesRemaining so a cantrip-shaped save-spell (none exists in
+      // any current fixture, but nothing about this shape rules one out) can't independently regress
+      // the same way an earlier, unshared deriveSpells once did (GH #69).
+      ...deriveSpellUsesRemaining(spell, entry)
     };
   });
 }

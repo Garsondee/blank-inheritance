@@ -74,6 +74,23 @@ test("deriveSpells: Eldritch Lance gets attack +7 (trained + Wis), range 30, 2 a
   assert.ok(eldritchLance.traits.includes("attack"));
 });
 
+// GH #69 REGRESSION: an earlier version of deriveSpells lacked a cantrip check entirely and would
+// have derived usesRemaining:3 for Eldritch Lance (her real Occult Spontaneous Spells entry has a
+// genuinely populated slots.slot1.max:3) — capping the AI's signature attack spell at 3 casts per
+// encounter, when the correct SF2E-legal number is unlimited (Eldritch Lance is a real cantrip,
+// castable "at will, any number of times per day", Player Core pg. 283). This is the one test that
+// would have caught it: asserting the WRONG number is exactly as easy to write as the right one, so
+// this checks the cantrip trait is really present on the real data AND that atWill/no-limit is what
+// actually comes out, not just that SOME value comes out.
+test("deriveSpells: Eldritch Lance is a real cantrip and MUST be atWill with no usesRemaining, never a slot-based limit", () => {
+  const ingredients = lunar17Ingredients();
+  const mods = deriveAbilityModifiers(ingredients);
+  const [eldritchLance] = deriveSpells(ingredients, ["Eldritch Lance"], mods);
+  assert.ok(eldritchLance.traits.includes("cantrip"), "sanity: Eldritch Lance must really be a cantrip in the raw data for this test to mean anything");
+  assert.equal(eldritchLance.atWill, true);
+  assert.equal(eldritchLance.usesRemaining, undefined, "a cantrip must never carry a slot-based usesRemaining, regardless of what its own spellcastingEntry's slots happen to contain");
+});
+
 test("deriveSpells: refuses a non-attack-roll spell rather than silently treating it as one (this engine has no save-based spell mechanism)", () => {
   const ingredients = lunar17Ingredients();
   const mods = deriveAbilityModifiers(ingredients);
@@ -174,4 +191,33 @@ test("deriveSaveSpells: throws for a real spell that has no basic save at all (S
   const ingredients = bennitIngredients();
   const mods = deriveAbilityModifiers(ingredients);
   assert.throws(() => deriveSaveSpells(ingredients, ["Sure Strike"], mods), /not a basic-save spell/);
+});
+
+// GH #69: deriveSaveSpells reads real slot data correctly today (the test above), but — before the
+// shared deriveSpellUsesRemaining guard existed — it carried the IDENTICAL latent bug deriveSpells
+// itself shipped for Eldritch Lance (GH #69's own found regression), dormant only because no current
+// fixture has ever pointed it at a cantrip-shaped save-spell. No real one exists in this project's
+// data yet, so this is a synthetic input — deliberately linked to Bennit's own REAL, populated
+// spellcastingEntry (the same one Thunderstrike itself uses, confirmed non-empty by the test above),
+// so this proves the cantrip check actually SKIPS the slot lookup, not that the slots happened to be
+// empty by accident.
+test("deriveSaveSpells: a cantrip-shaped save-spell (synthetic — no real one exists yet) is atWill with no usesRemaining, even when its spellcastingEntry has real, populated slots", () => {
+  const ingredients = bennitIngredients();
+  const mods = deriveAbilityModifiers(ingredients);
+  const realThunderstrike = ingredients.spells.find((s) => s.name === "Thunderstrike");
+  const cantripSaveSpell = {
+    name: "Synthetic Cantrip Blast",
+    system: {
+      traits: { value: ["cantrip"] },
+      defense: { save: { statistic: "reflex", basic: true } },
+      location: { value: realThunderstrike.system.location.value }, // the SAME real, non-empty entry Thunderstrike itself uses
+      range: { value: "30 feet" },
+      time: { value: "2" },
+      damage: { 0: { formula: "1d4", type: "fire" } }
+    }
+  };
+  ingredients.spells = [...ingredients.spells, cantripSaveSpell];
+  const [cantrip] = deriveSaveSpells(ingredients, ["Synthetic Cantrip Blast"], mods);
+  assert.equal(cantrip.atWill, true);
+  assert.equal(cantrip.usesRemaining, undefined, "must not silently pick up the real, populated slots.slot1.max from the entry it shares with Thunderstrike");
 });

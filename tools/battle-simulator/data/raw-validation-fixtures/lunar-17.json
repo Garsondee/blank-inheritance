@@ -85,7 +85,8 @@
           "bonus": 0,
           "damageType": "mental"
         }
-      ]
+      ],
+      "atWill": true
     }
   ],
   "healAbilities": [

@@ -447,6 +447,14 @@ export function checkConditionSaveLegal({ attacker, attackerPos, target, targetP
     return { legal: false, reason: `${target.name} is already immune to ${conditionSave.name} this encounter.` };
   }
 
+  // GH #56/#69: the one sibling action type that was missing this gate — every other legality
+  // function above already refuses a limited-use ability with no uses left (strike :234, spell :282,
+  // heal :320, saveAttack :357, areaAttack :491); this was the sole exception, dormant only because
+  // nothing decremented it either (see engine.mjs's own conditionSave resolution branch).
+  if (conditionSave.usesRemaining != null && conditionSave.usesRemaining <= 0) {
+    return { legal: false, reason: `${conditionSave.name} is out of uses this encounter.` };
+  }
+
   return { legal: true, reason: null };
 }
 

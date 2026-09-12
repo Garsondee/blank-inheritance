@@ -646,6 +646,16 @@ export function accountForActions({ available, spent, heldReason }) {
  * action to the next within a turn lives here and nowhere else: the action budget, movement
  * spent, and the shared multiple-attack-penalty counter. `{ ...turnProgress }` is a complete fork
  * by construction — this is what makes the lookahead sandbox's forking cheap and safe.
+ *
+ * `destCache` (GH #62, design doc §76.4 fix 2) is deliberately an OBJECT wrapping a Map, not a bare
+ * Map or a bare field: `{ ...turnProgress }` (below, and at every call site that spreads turn
+ * progress into a copy) copies the REFERENCE to this one container across every one of a turn's real
+ * decide() calls, so `decide.mjs`'s `planTurn` can mutate `.map`/`.fingerprint` on the SAME shared
+ * object every time — a bare string field would NOT survive this copy the same way (verified the hard
+ * way: an earlier draft of this fix stored the fingerprint directly on `turnProgress` and it silently
+ * never worked, since every `{...turnProgress}` copy left the ORIGINAL untouched). `planTurn` owns
+ * everything about how this cache is used/invalidated; this file only ever constructs the empty
+ * container once per real turn and lets the reference ride along.
  */
 function makeTurnProgress(startEffective) {
   return {
@@ -653,7 +663,8 @@ function makeTurnProgress(startEffective) {
     actionsUsed: 0,
     feetMoved: 0,
     strikesAttempted: 0,
-    decisionIndex: 0 // monotonic per turn; seeds the AI's own per-decision RNG (§15f)
+    decisionIndex: 0, // monotonic per turn; seeds the AI's own per-decision RNG (§15f)
+    destCache: { map: new Map(), fingerprint: null }
   };
 }
 
@@ -921,8 +932,13 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
       && isFlanking(combatant, pos, target, targetPos, alliesWithPositions(state, combatant), state.walls))
       ? OFF_GUARD_AC_PENALTY : 0;
     const baseEffective = resolveEffectiveStats(target);
-    const acBonus = coverBonus + flankBonus;
-    const targetEffective = acBonus ? { ...baseEffective, ac: baseEffective.ac + acBonus } : baseEffective;
+    // ONE signed delta, deliberately: cover RAISES the defender's AC (+2, Player Core pg. 416),
+    // flanking LOWERS it (off-guard, -2, pg. 409). They were previously summed as if both were
+    // bonuses, which made a flanked target HARDER to hit and — because planTurn scores whole turns
+    // by simulating them — taught the AI to actively avoid flanks (GH #54). Keeping them in a
+    // single signed expression is what stops the two signs drifting apart again.
+    const acDelta = coverBonus - flankBonus;
+    const targetEffective = acDelta ? { ...baseEffective, ac: baseEffective.ac + acDelta } : baseEffective;
 
     const hpBefore = target.currentHP;
     const { roll: strikeResult, appliedDamage } = outcomes.strike(rng, {
@@ -1099,10 +1115,14 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     target.conditionSaveImmunities = [...(target.conditionSaveImmunities ?? []), conditionSaveAbility.name];
     turnProgress.actionsUsed += conditionSaveAbility.actions ?? 1;
 
+    // GH #56/#69: the one sibling action type that wasn't decrementing usesRemaining — see
+    // checkConditionSaveLegal's own matching gate for why this was the sole exception.
+    if (conditionSaveAbility.usesRemaining != null) conditionSaveAbility.usesRemaining -= 1;
+
     return {
       type: "conditionSave", conditionSaveName: conditionSaveAbility.name, targetId: proposal.targetId, legal: true, actionsCost: conditionSaveAbility.actions ?? 1,
       roll: saveResult, applied, targetFrightenedAfter: target.frightened, targetStunnedValueAfter: target.stunnedValue ?? 0,
-      decisionReason: proposal.reason ?? null
+      usesRemaining: conditionSaveAbility.usesRemaining ?? null, decisionReason: proposal.reason ?? null
     };
   }
 

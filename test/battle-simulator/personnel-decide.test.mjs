@@ -21,9 +21,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { generateProposals, decide, bestDestinationToward, bestDestinationAway } from "../../tools/battle-simulator/personnel-engine/decide.mjs";
-import { forkTurnSandbox } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
+import { forkTurnSandbox, runBattle } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
 import { evaluateState } from "../../tools/battle-simulator/personnel-engine/evaluate/state-value.mjs";
 import { hasCover, lineOfEffect } from "../../tools/battle-simulator/personnel-engine/terrain.mjs";
+import { resetFloodCount, getFloodCount } from "../../tools/battle-simulator/personnel-engine/world/pathfind.mjs";
 import { GRID_SIZE as FACILITY_GRID_SIZE, WALLS as FACILITY_WALLS, SETUPS as FACILITY_SETUPS } from "../../tools/battle-simulator/data/personnel-test-facility.mjs";
 import { buildScenario as buildComplexBattleScenario } from "../../tools/battle-simulator/scenarios/personnel-complex-battle.mjs";
 
@@ -1056,4 +1057,126 @@ test("PERFORMANCE: a real decide() call on the real 8-combatant walled complex-b
   const elapsedMs = Date.now() - start;
   assert.ok(chosen, "expected a real decision, not null, on a real populated scenario");
   assert.ok(elapsedMs < 10000, `expected a single decide() call to complete in well under 10s (the old, buggy naive implementation averaged ~2.66s and a full battle of these never finished) — took ${elapsedMs}ms`);
+});
+
+// ---------------------------------------------------------------------------------------------
+// GH #62 fix 2 (design doc §76.4): planTurn's persistent, real-occupancy-scoped destination cache
+// (turn.destCache). These three tests target exactly the failure modes an adversarial pre-code
+// review (two rounds) found in earlier drafts of this fix: a fingerprint that never actually
+// updates (would make the cache clear before every call, forever — passing every OTHER test while
+// delivering zero of the intended speedup, silently), and stale occupancy surviving a real mid-turn
+// kill. `turn.destCache` is deliberately a plain, test-readable object (not hidden inside planTurn,
+// which isn't exported) specifically so these tests can inspect it directly rather than infer its
+// behavior indirectly through AI decision quality, which would be weight-dependent and fragile.
+// ---------------------------------------------------------------------------------------------
+
+function makeCacheTestState({ mePos, victimPos, farPos }) {
+  const me = {
+    id: "me", name: "Me", side: "party", currentHP: 20, maxHP: 20,
+    speed: 30, strikes: [{ name: "Big Axe", strikeType: "melee", attackBonus: 20, traits: [], damage: [{ dice: "20d20", bonus: 0 }] }],
+    position: mePos
+  };
+  const victim = { id: "victim", name: "Victim", side: "opposition", currentHP: 1, maxHP: 1, speed: 0, position: victimPos };
+  const farEnemy = { id: "far", name: "Far", side: "opposition", currentHP: 10, maxHP: 10, speed: 0, position: farPos };
+  // bestDestinationToward/Away (decide.mjs) only take the real Dijkstra-flood path
+  // (pathfindingDestinationToward, via reachableCells) when state.walls.length is truthy — on a
+  // wall-free grid they use the cheap stepToward heuristic instead, which never floods at all
+  // (confirmed directly: a wall-free version of this scenario measured floods=0). A single wall
+  // segment, far from every combatant here and never actually blocking any real move in this
+  // scenario, is enough to force the real path this fix's own caching logic needs to exercise.
+  const walls = [{ c: [19, 19, 19, 20], move: 20, sight: 20 }];
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls,
+    combatants: new Map([["me", me], ["victim", victim], ["far", farEnemy]]),
+    positions: new Map([["me", { ...mePos }], ["victim", { ...victimPos }], ["far", { ...farPos }]])
+  };
+  const turn = {
+    actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0,
+    effective: { speed: 30 }, destCache: { map: new Map(), fingerprint: null }
+  };
+  return { state, turn, me, victim, farEnemy };
+}
+
+test("GH #62: turn.destCache.fingerprint is STABLE across two real decide() calls when occupancy hasn't changed, and the second call floods measurably LESS — positive proof of reuse, not just 'nothing broke'", () => {
+  const { state, turn } = makeCacheTestState({ mePos: { col: 0, row: 0 }, victimPos: { col: 5, row: 0 }, farPos: { col: 10, row: 0 } });
+
+  resetFloodCount();
+  const first = decide(state, "me", turn, { competence: 1 });
+  const floodsCall1 = getFloodCount();
+  assert.ok(first, "expected a real first decision");
+  assert.ok(floodsCall1 > 0, "sanity: the first call must actually flood at least once");
+  const fingerprintAfterCall1 = turn.destCache.fingerprint;
+  assert.ok(fingerprintAfterCall1, "expected a real fingerprint to be recorded after the first call");
+  assert.ok(turn.destCache.map.size > 0, "expected the persistent cache to actually hold entries after the first call");
+
+  resetFloodCount();
+  const second = decide(state, "me", turn, { competence: 1 });
+  const floodsCall2 = getFloodCount();
+  assert.ok(second, "expected a real second decision");
+  assert.equal(turn.destCache.fingerprint, fingerprintAfterCall1, "occupancy didn't change — the fingerprint must not change either");
+  assert.ok(floodsCall2 < floodsCall1,
+    `expected the SECOND call (unchanged occupancy) to flood strictly less than the first (cold cache) — first=${floodsCall1}, second=${floodsCall2}. Equal or more would mean the persistent cache is never actually being read from.`);
+});
+
+test("GH #62: a REAL mid-turn kill (currentHP dropped to 0) changes the fingerprint and the persistent cache stops treating the dead combatant's square as occupied — the load-bearing correctness proof", () => {
+  const { state, turn, victim, farEnemy } = makeCacheTestState({ mePos: { col: 0, row: 0 }, victimPos: { col: 5, row: 0 }, farPos: { col: 10, row: 0 } });
+  const victimCellKey = `${victim.position.col},${victim.position.row}`;
+  const farFieldKey = `field|me|${farEnemy.position.col},${farEnemy.position.row}`;
+
+  const first = decide(state, "me", turn, { competence: 1 });
+  assert.ok(first, "expected a real first decision");
+  const fingerprintBeforeKill = turn.destCache.fingerprint;
+  const floodBeforeKill = turn.destCache.map.get(farFieldKey);
+  assert.ok(floodBeforeKill, "expected generateProposals to have flooded toward the far enemy while scoring real-occupancy candidates");
+  assert.equal(floodBeforeKill.has(victimCellKey), false,
+    "victim is ALIVE and occupies this cell — reachableCells must exclude an occupied cell from its own result (pre-existing, unrelated-to-this-fix behavior — sanity check that the scenario is set up correctly)");
+
+  // Kill victim directly, exactly like a real Strike's own engine.mjs resolution does to currentHP —
+  // no attemptAction/runBattle machinery needed here, since otherLivingPositions (what the fingerprint
+  // and every flood's own occupancy list are built from) filters purely on currentHP > 0.
+  victim.currentHP = 0;
+
+  const second = decide(state, "me", turn, { competence: 1 });
+  assert.ok(second, "expected a real second decision");
+  assert.notEqual(turn.destCache.fingerprint, fingerprintBeforeKill,
+    "a real occupancy change (a kill) MUST change the fingerprint, or the persistent cache would silently keep serving pre-kill answers for the rest of the turn");
+
+  const floodAfterKill = turn.destCache.map.get(farFieldKey);
+  assert.ok(floodAfterKill, "expected the far-enemy flood to be recomputed (or re-cached) on the second, post-kill call");
+  assert.equal(floodAfterKill.has(victimCellKey), true,
+    "victim is DEAD — a fresh flood must now treat their former square as freely reachable. Finding this false would mean the persistent cache served a STALE, pre-kill answer — the exact silent-wrong-answer bug this design exists to prevent.");
+});
+
+test("GH #62: a hand-built turn with NO destCache field (matching every non-runTurn test call site in this project) never crashes planTurn — the local fallback behaves exactly as caching did before this fix existed", () => {
+  const { state, turn } = makeCacheTestState({ mePos: { col: 0, row: 0 }, victimPos: { col: 5, row: 0 }, farPos: { col: 10, row: 0 } });
+  delete turn.destCache;
+  assert.doesNotThrow(() => {
+    const chosen = decide(state, "me", turn, { competence: 1 });
+    assert.ok(chosen, "expected a real decision even with no destCache field present");
+  });
+});
+
+test("GH #62 END TO END: a real runBattle turn — Strike kills an adjacent enemy, then a same-turn Move — completes with zero illegal actions and zero crashes", () => {
+  // Not a positive proof of cache reuse (that's the unit-level test above) — this is the review's own
+  // requested belt-and-braces check that the real attemptAction/runTurn path (not a hand-mutated HP
+  // value) interacts safely with a persistent cache spanning real actions within one real turn.
+  const me = {
+    id: "me", name: "Me", side: "party", currentHP: 20, maxHP: 20, speed: 30,
+    strikes: [{ name: "Big Axe", strikeType: "melee", attackBonus: 20, traits: [], damage: [{ dice: "20d20", bonus: 0 }] }],
+    position: { col: 0, row: 0 }
+  };
+  const victim = { id: "victim", name: "Victim", side: "opposition", currentHP: 1, maxHP: 1, speed: 0, position: { col: 0, row: 1 } };
+  const farEnemy = { id: "far", name: "Far", side: "opposition", currentHP: 10, maxHP: 10, speed: 0, position: { col: 0, row: 6 } };
+
+  const log = runBattle({
+    seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1,
+    combatants: [me, victim, farEnemy],
+    ai: (state, id, turn) => (id === "me" ? decide(state, id, turn, { competence: 1 }) : null)
+  });
+
+  const meTurn = log.rounds[0].turns.find((t) => t.combatantId === "me");
+  assert.ok(meTurn.actions.length >= 2, "expected at least a kill and a follow-up action within the 3-action turn");
+  for (const action of meTurn.actions) {
+    assert.equal(action.legal !== false, true, `expected every real action to be legal, got: ${JSON.stringify(action)}`);
+  }
 });

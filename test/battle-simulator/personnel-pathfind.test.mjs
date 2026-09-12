@@ -45,6 +45,35 @@ test("reachableCells: every returned path starts at `from` and ends at the targe
   assert.deepEqual(entry.path[entry.path.length - 1], { col: 7, row: 5 });
 });
 
+// GH #62 (design doc §76.4): a full-grid flood's own path reconstruction was measured at 32-76% of
+// that flood's total cost, and both of its real callers (trueDistanceField, pathCost) only ever
+// read `.cost`. `includePath: false` skips reconstruction. These tests are the load-bearing proof
+// that skipping it changes NOTHING a caller can observe except the discarded field itself.
+test("reachableCells: includePath:false returns null paths but the EXACT SAME reachable set and costs as includePath:true, on a map with real walls", () => {
+  const walls = [];
+  for (let row = 0; row < 8; row++) walls.push({ c: [5, row, 5, row + 1], move: EDGE_SENSE.NORMAL, sight: EDGE_SENSE.NORMAL });
+  const args = { from: { col: 2, row: 5 }, maxFeet: 400, gridSize, occupiedPositions: [{ col: 3, row: 6 }], walls, moverSide: "party" };
+
+  const withPath = reachableCells(args);
+  const withoutPath = reachableCells({ ...args, includePath: false });
+
+  assert.ok(withPath.size > 10, "sanity: this scenario must actually reach a real number of cells");
+  assert.equal(withoutPath.size, withPath.size, "includePath must never change WHICH cells are reachable");
+  for (const [cellKey, { cost }] of withPath) {
+    assert.equal(withoutPath.get(cellKey)?.cost, cost, `cost for ${cellKey} must be identical either way`);
+    assert.equal(withoutPath.get(cellKey).path, null, `path for ${cellKey} must be explicitly null, not a real route, when includePath is false`);
+  }
+});
+
+test("pathCost: always returns the same number regardless of the (irrelevant, since pathCost never returns a route) includePath default — proves the internal includePath:false wiring is behavior-neutral", () => {
+  const walls = [];
+  for (let row = 0; row < 8; row++) walls.push({ c: [5, row, 5, row + 1], move: EDGE_SENSE.NORMAL, sight: EDGE_SENSE.NORMAL });
+  const from = { col: 2, row: 5 }, to = { col: 8, row: 5 };
+  const cost = pathCost({ from, to, maxFeet: 400, gridSize, occupiedPositions: [], walls });
+  const viaExplicitPath = reachableCells({ from, maxFeet: 400, gridSize, occupiedPositions: [], walls }).get("8,5")?.cost;
+  assert.equal(cost, viaExplicitPath, "pathCost's own includePath:false optimization must not change the cost it reports");
+});
+
 test("reachableCells: another combatant's position blocks that cell, exactly like isOccupied elsewhere", () => {
   const cells = reachableCells({ from: { col: 0, row: 0 }, maxFeet: 50, gridSize, occupiedPositions: [{ col: 1, row: 0 }], walls: [] });
   assert.ok(!cells.has("1,0"), "an occupied cell must not appear as reachable");

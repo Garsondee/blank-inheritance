@@ -175,7 +175,13 @@ function cachedReachableCells(cache, key, args) {
 function trueDistanceField(state, moverId, to, others, cache) {
   const span = Math.max(state.gridSize.cols, state.gridSize.rows) * FEET_PER_SQUARE * 4; // generous — covers any plausible detour on this map
   const key = `field|${moverId}|${to.col},${to.row}`;
-  return cachedReachableCells(cache, key, { from: to, maxFeet: span, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls, moverSide: state.combatants.get(moverId).side });
+  // includePath: false (GH #62) — this floods the WHOLE grid (span is 4x the map diagonal), and
+  // every consumer of this field (both call sites below, via `trueDist`) reads only `.cost`, never
+  // `.path` — confirmed directly, not assumed. Profiled: reconstructing a route for every one of
+  // the ~1,300+ cells a full-grid flood reaches is 32-76% of that flood's own cost, thrown away
+  // unread every single time. The Speed-bounded `reach|` flood below (`pathfindingDestinationToward`)
+  // keeps the default and its own `.path` — that one genuinely needs the route.
+  return cachedReachableCells(cache, key, { from: to, maxFeet: span, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls, moverSide: state.combatants.get(moverId).side, includePath: false });
 }
 
 /**
@@ -696,6 +702,22 @@ function proposalKey(proposal) {
 }
 
 /**
+ * GH #62 (design doc §76.4 fix 2): a cheap fingerprint of "everything a `field|` flood's own inputs
+ * could depend on that can actually change mid-battle" — real occupancy — used to decide whether
+ * `turn.destCache`'s persistent map still describes the current battlefield. Deliberately built from
+ * `otherLivingPositions`' OWN return shape (`{col, row, side}` — it does not carry `id` at all, so
+ * this cannot sort by id) rather than re-deriving one: `state.positions` is a Map whose iteration
+ * order is stable across the mutations that happen mid-battle (`.set()` on an already-present key
+ * never reorders a Map — verified directly, not assumed), and `cloneStateForPlanning` preserves that
+ * same order into every sandbox fork, so this string is already deterministic without an explicit
+ * sort. `walls`/`gridSize`/`moverSide` never change mid-battle (confirmed by reading every
+ * `attemptAction` branch) — occupancy is the only real input this needs to track.
+ */
+function occupancyFingerprint(state, combatantId) {
+  return otherLivingPositions(state, combatantId).map((p) => `${p.col},${p.row},${p.side}`).join("|");
+}
+
+/**
  * Design doc §43, Stage 2: search over whole-turn action SEQUENCES instead of one action at a time.
  * Runs every TURN_TEMPLATES entry, scores each COMPLETE plan by the total gain across the whole
  * turn (`evaluateState(finalState) - evaluateState(startState)`, both from `me`'s own side), and
@@ -727,14 +749,38 @@ function planTurn(state, combatantId, turn, weights, templates = TURN_TEMPLATES,
   if (turn.actionsAvailable - turn.actionsUsed <= 0) return null;
   const before = evaluateState(state, me.side, weights, combatantId);
 
+  // GH #62 fix 2: a PERSISTENT cache for candidate generation scored against REAL, current, unmutated
+  // occupancy (plan.length === 0 below — before this call's own hypothetical exploration has applied
+  // anything), so it can safely survive across a turn's real, separate decide() calls, not just within
+  // one. `turn.destCache` (engine.mjs's makeTurnProgress) is absent for the ~30 test call sites that
+  // hand-build a `turn` object rather than going through the real runTurn/makeTurnProgress path — a
+  // local, un-persisted fallback for those is correct and matches this file's own existing convention
+  // for optional turn fields (e.g. `turn.decisionIndex ?? 0` below): it behaves exactly as this cache
+  // did before this fix existed (a fresh Map, thrown away), never a crash, never written back onto a
+  // caller's own object. `.map` and `.fingerprint` live on ONE shared container object specifically so
+  // both survive engine.mjs's own `{...turnProgress, effective}` copy every call — a Map already
+  // survives a shallow copy by reference; wrapping the fingerprint alongside it gives that plain field
+  // the same property, rather than leaving it a doomed-to-reset primitive directly on `turn` itself.
+  const destCacheContainer = turn.destCache ?? { map: new Map(), fingerprint: null };
+  const currentFingerprint = occupancyFingerprint(state, combatantId);
+  if (destCacheContainer.fingerprint !== currentFingerprint) {
+    destCacheContainer.map.clear();
+    destCacheContainer.fingerprint = currentFingerprint;
+  }
+
   const scoredCache = new Map(); // "sequenceKey::includeMovement" -> [{proposal, gain}]
   // Shared pathfinding cache across the WHOLE search (every template, every phase) — see
   // generateProposals' own header for exactly what this does and does not assume safe to reuse.
+  // UNCHANGED by fix 2: still per-call, still thrown away at the end, still mixes real-phase-0 and
+  // hypothetical-phase-1+ computations exactly as before — this is deliberate (design doc §76.4 fix 2,
+  // Finding 3), so nothing computed against a sandboxed, not-yet-real state can ever reach
+  // `destCacheContainer.map`, which persists across real actions and must stay real-occupancy-only.
   const sharedDestCache = new Map();
-  function scoredCandidatesFor(sequenceKey, sandboxState, sandboxTurn, includeMovement) {
+  function scoredCandidatesFor(sequenceKey, sandboxState, sandboxTurn, includeMovement, isRealOccupancy) {
     const cacheKey = `${sequenceKey}::${includeMovement}`;
     if (scoredCache.has(cacheKey)) return scoredCache.get(cacheKey);
-    const rawProposals = generateProposals(sandboxState, combatantId, sandboxTurn, sharedDestCache, includeMovement);
+    const destCache = isRealOccupancy ? destCacheContainer.map : sharedDestCache;
+    const rawProposals = generateProposals(sandboxState, combatantId, sandboxTurn, destCache, includeMovement);
     // §46 (AI profiles): a real CAPABILITY restriction, not a preference — filtered out before
     // scoring even begins, so a disabled action type is never a candidate at all, in either the
     // whole-turn search here or the competence<1 fallback below (both call this same helper).
@@ -769,7 +815,12 @@ function planTurn(state, combatantId, turn, weights, templates = TURN_TEMPLATES,
       // generateProposals, paid for nothing on a phase that would just filter it back out.
       // isMoveType/anyType are the only two filters that can ever match a "move" proposal.
       const includeMovement = filter === anyType || filter === isMoveType;
-      const scored = scoredCandidatesFor(sequenceKey, sandbox.state, sandbox.turn, includeMovement);
+      // plan.length === 0: this template hasn't applied any hypothetical action of its own yet, so
+      // sandbox.state is still a fresh, unmutated fork of the real state (forkTurnSandbox wraps for
+      // potential mutation; it does not itself change positions/HP) — genuinely real-occupancy-safe
+      // to cache into destCacheContainer.map, regardless of which template this is (GH #62 fix 2).
+      const isRealOccupancy = plan.length === 0;
+      const scored = scoredCandidatesFor(sequenceKey, sandbox.state, sandbox.turn, includeMovement, isRealOccupancy);
       const picked = bestMatching(scored, filter);
       if (!picked) break;
       const result = sandbox.apply(combatantId, picked.proposal);

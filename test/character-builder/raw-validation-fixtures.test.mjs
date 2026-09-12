@@ -236,8 +236,10 @@ test("kuriaku.json: checked-in strikes match a fresh live re-extraction exactly 
   assert.equal(fixture.side, "opposition");
 });
 
-test("all ten fixtures are personnel-engine-shape-compatible: every strike/spell/areaAttack has the fields checkStrikeLegal/checkSpellAttackLegal/checkAreaAttackLegal actually read", () => {
-  for (const name of ["lunar-17.json", "security-goon.json", "tapkey.json", "xenowarden-greenhorn.json", "bennit.json", "erabryth.json", "vorza-moonshot.json", "tough.json", "obozaya.json", "kuriaku.json"]) {
+const ALL_FIXTURE_NAMES = ["lunar-17.json", "security-goon.json", "tapkey.json", "xenowarden-greenhorn.json", "bennit.json", "erabryth.json", "vorza-moonshot.json", "tough.json", "obozaya.json", "kuriaku.json"];
+
+test("all ten fixtures are personnel-engine-shape-compatible: every strike/spell/saveAttack/healAbility/areaAttack/conditionSave has the fields its own legality/resolution code actually reads", () => {
+  for (const name of ALL_FIXTURE_NAMES) {
     const fixture = readFixture(name);
     for (const strike of fixture.strikes) {
       assert.ok(strike.name && strike.strikeType && typeof strike.attackBonus === "number", `${name}: malformed strike ${JSON.stringify(strike)}`);
@@ -250,9 +252,58 @@ test("all ten fixtures are personnel-engine-shape-compatible: every strike/spell
       const rangeOk = spell.range === null || typeof spell.range === "number";
       assert.ok(spell.name && typeof spell.attackBonus === "number" && rangeOk && spell.actions, `${name}: malformed spell ${JSON.stringify(spell)}`);
     }
+    // GH #69: the three arrays the original version of this sweep never covered.
+    for (const saveAttack of fixture.saveAttacks ?? []) {
+      assert.ok(saveAttack.name && saveAttack.saveType && typeof saveAttack.dc === "number" && saveAttack.actions, `${name}: malformed saveAttack ${JSON.stringify(saveAttack)}`);
+      assert.ok(Array.isArray(saveAttack.damage) && saveAttack.damage[0]?.dice, `${name}: saveAttack "${saveAttack.name}" has no usable damage`);
+    }
+    for (const heal of fixture.healAbilities ?? []) {
+      assert.ok(heal.name && typeof heal.healingAmount === "number" && heal.actions, `${name}: malformed healAbility ${JSON.stringify(heal)}`);
+    }
+    for (const conditionSave of fixture.conditionSaves ?? []) {
+      assert.ok(conditionSave.name && conditionSave.saveType && typeof conditionSave.dc === "number" && conditionSave.actions, `${name}: malformed conditionSave ${JSON.stringify(conditionSave)}`);
+      assert.ok(conditionSave.outcomes && typeof conditionSave.outcomes === "object", `${name}: conditionSave "${conditionSave.name}" has no outcomes table`);
+    }
     for (const areaAttack of fixture.areaAttacks ?? []) {
       assert.ok(areaAttack.name && areaAttack.saveType && typeof areaAttack.dc === "number" && typeof areaAttack.radius === "number", `${name}: malformed areaAttack ${JSON.stringify(areaAttack)}`);
       assert.ok(Array.isArray(areaAttack.damage) && areaAttack.damage[0]?.dice, `${name}: areaAttack "${areaAttack.name}" has no usable damage`);
     }
   }
+});
+
+/**
+ * Well-formedness (design doc §76.9, GH #69/#55): every limited-resource ability across all six
+ * arrays must EITHER declare a real usesRemaining OR be explicitly marked atWill — never neither.
+ * This is the check that would have caught #55 (Transfer Vitality: no derivable limit, and nothing
+ * marked it at-will either — just silently, structurally absent). Two REAL, CURRENTLY-EXPECTED
+ * failures are named here explicitly, not hidden: both are real Paizo abilities whose true limit (if
+ * any) simply isn't captured anywhere in this project's current data model, confirmed by direct
+ * investigation, not assumed. An unexpected THIRD gap fails loudly, pointing at a real new problem.
+ * A KNOWN gap silently disappearing ALSO fails loudly — the signal that someone fixed it for real
+ * (#55/#60) and this list needs updating, not a reason to quietly stop checking.
+ */
+test("well-formedness (GH #69/#55): every spell/healAbility/saveAttack/areaAttack/conditionSave entry either declares a real usesRemaining or is explicitly atWill — exactly two known, honest exceptions", () => {
+  const KNOWN_GAPS = [
+    { file: "lunar-17.json", array: "healAbilities", name: "Transfer Vitality" },
+    { file: "erabryth.json", array: "conditionSaves", name: "Forced Reflection" }
+  ];
+  const foundGaps = [];
+  for (const name of ALL_FIXTURE_NAMES) {
+    const fixture = readFixture(name);
+    for (const arrayName of ["spells", "healAbilities", "saveAttacks", "areaAttacks", "conditionSaves"]) {
+      for (const entry of fixture[arrayName] ?? []) {
+        const wellFormed = entry.usesRemaining != null || entry.atWill === true;
+        if (!wellFormed) foundGaps.push({ file: name, array: arrayName, name: entry.name });
+      }
+    }
+  }
+  for (const gap of foundGaps) {
+    const isKnown = KNOWN_GAPS.some((k) => k.file === gap.file && k.array === gap.array && k.name === gap.name);
+    assert.ok(isKnown, `UNEXPECTED well-formedness gap: ${gap.file}'s ${gap.array} entry "${gap.name}" has neither usesRemaining nor atWill:true. Either a real new bug (the exact shape #55 was), or a real new honest gap that needs to be named in KNOWN_GAPS explicitly — never silently accepted either way.`);
+  }
+  for (const known of KNOWN_GAPS) {
+    const stillGap = foundGaps.some((g) => g.file === known.file && g.array === known.array && g.name === known.name);
+    assert.ok(stillGap, `${known.file}'s ${known.array} entry "${known.name}" is no longer a well-formedness gap — if #55/#60 (or similar) resolved this for real, remove it from KNOWN_GAPS here; this assertion exists specifically so a real fix can't go unnoticed.`);
+  }
+  assert.equal(foundGaps.length, KNOWN_GAPS.length, `expected exactly ${KNOWN_GAPS.length} known well-formedness gaps (Transfer Vitality, Forced Reflection), found ${foundGaps.length}: ${JSON.stringify(foundGaps)}`);
 });

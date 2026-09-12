@@ -156,6 +156,53 @@ test("deriveConditionSave: throws a clear error for an action name that doesn't 
   assert.throws(() => deriveConditionSave(erabryth, { name: "Not A Real Action", saveType: "will", range: 60, outcomes: {} }), /No action named/);
 });
 
+// GH #69: Forced Reflection's own real raw data has neither system.frequency nor system.uses
+// (confirmed directly, both adversarial review rounds) — this is one of the project's two real,
+// currently-expected well-formedness gaps (raw-validation-fixtures.test.mjs's own KNOWN_GAPS), not a
+// bug. Explicit here so the "no usesRemaining at all" outcome is asserted directly, not just implied
+// by its absence from the tests above.
+test("deriveConditionSave: Forced Reflection has no real frequency/uses data — usesRemaining stays absent, honest, not invented", () => {
+  const erabryth = findNPC(alienCoreDir, "Erabryth");
+  const forcedReflection = deriveConditionSave(erabryth, { name: "Forced Reflection", saveType: "will", range: 60, outcomes: FORCED_REFLECTION_OUTCOMES });
+  assert.equal(forcedReflection.usesRemaining, undefined);
+});
+
+// GH #69: no REAL condition-save action in this project's current data has a frequency field at all
+// (Forced Reflection is the only one that exists, and it has none), so the threshold logic itself
+// needs synthetic input — built on Erabryth's own real npc object (reusing her real spellcastingEntry
+// for the DC) with one extra, synthetic action item pushed on, matching this file's own established
+// "construct the raw shape directly when no real example exists yet" precedent (see deriveAreaAttack's
+// own non-burst-shape test below).
+function erabrythWithSyntheticAction(frequency) {
+  const erabryth = findNPC(alienCoreDir, "Erabryth");
+  const syntheticAction = {
+    type: "action", name: "Synthetic Frequency Test",
+    system: { actions: { value: 1 }, traits: { value: [] }, frequency }
+  };
+  return { ...erabryth, items: [...erabryth.items, syntheticAction] };
+}
+
+test("deriveConditionSave: a safe-scope frequency (PT1H — 600 real rounds, comfortably longer than this project's own 60-round real ceiling) derives a real usesRemaining", () => {
+  const erabryth = erabrythWithSyntheticAction({ max: 2, per: "PT1H" });
+  const result = deriveConditionSave(erabryth, { name: "Synthetic Frequency Test", saveType: "will", range: 60, outcomes: {} });
+  assert.equal(result.usesRemaining, 2);
+});
+
+test("deriveConditionSave: an unsafe-scope frequency (round — would recharge mid-battle) throws rather than silently mismodeling a recurring resource as permanently exhaustible", () => {
+  const erabryth = erabrythWithSyntheticAction({ max: 1, per: "round" });
+  assert.throws(() => deriveConditionSave(erabryth, { name: "Synthetic Frequency Test", saveType: "will", range: 60, outcomes: {} }), /would recharge mid-battle/);
+});
+
+test("deriveConditionSave: PT1M (10 real rounds — shorter than this project's own real scenario lengths) is ALSO unsafe and throws, not just round/turn", () => {
+  const erabryth = erabrythWithSyntheticAction({ max: 1, per: "PT1M" });
+  assert.throws(() => deriveConditionSave(erabryth, { name: "Synthetic Frequency Test", saveType: "will", range: 60, outcomes: {} }), /would recharge mid-battle/);
+});
+
+test("deriveConditionSave: an unrecognized frequency.per value throws a clear, distinct error rather than silently deriving a wrong number", () => {
+  const erabryth = erabrythWithSyntheticAction({ max: 1, per: "not-a-real-scope" });
+  assert.throws(() => deriveConditionSave(erabryth, { name: "Synthetic Frequency Test", saveType: "will", range: 60, outcomes: {} }), /unrecognized frequency\.per/);
+});
+
 test("toCombatant: Erabryth's real Strikes (Ribbon/Fist/Light Ray) derive cleanly through the existing, unmodified lookup — the same real melee items the design doc §22 research verified all carry system.action:\"strike\"", () => {
   const erabryth = findNPC(alienCoreDir, "Erabryth");
   const combatant = toCombatant(erabryth, { strikeNames: ["Ribbon", "Fist", "Light Ray"] });

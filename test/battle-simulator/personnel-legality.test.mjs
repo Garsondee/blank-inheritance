@@ -615,6 +615,24 @@ test("checkConditionSaveLegal: rejects when the action budget doesn't allow it",
   assert.equal(result.legal, false);
 });
 
+// GH #56/#69: conditionSave was the one sibling action type with no usesRemaining gate at all —
+// every other ability type above already has this exact test (checkStrikeLegal line 264,
+// checkSpellAttackLegal line 389, checkHealAbilityLegal line 445, checkSaveAttackLegal line 509).
+test("checkConditionSaveLegal: a spent limited-use conditionSave (usesRemaining 0) is rejected, same mechanism as every sibling ability type", () => {
+  const attacker = { id: "a", name: "Erabryth", currentHP: 20 };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkConditionSaveLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, conditionSave: { ...forcedReflection, usesRemaining: 0 }, turnState: openBudget });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /out of uses/);
+});
+
+test("checkConditionSaveLegal: a conditionSave with no usesRemaining field at all is unlimited — omission means unlimited, matching every sibling ability type", () => {
+  const attacker = { id: "a", name: "Erabryth", currentHP: 20 };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkConditionSaveLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, conditionSave: forcedReflection, turnState: openBudget });
+  assert.equal(result.legal, true);
+});
+
 // ---------------------------------------------------------------------------
 // checkAreaAttackLegal — design doc §38 (a thrown grenade's real burst). Real Tough/Frag Grenade
 // numbers: DC 17 (10 + her real attack-row bonus of 7), 70ft throw range, 5ft burst radius.

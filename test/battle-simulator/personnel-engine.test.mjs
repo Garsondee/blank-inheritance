@@ -516,6 +516,43 @@ test("conditionSave: applies the REAL per-degree table exactly — failure sets 
   assert.equal(action.targetStunnedValueAfter, 1);
 });
 
+// GH #56/#69: conditionSave was the one sibling action type not decrementing usesRemaining at all —
+// every other type above already has this exact test (spellAttack line 237, healAbility line 281,
+// saveAttack line 348, areaAttack line 740).
+test("conditionSave: decrements its own usesRemaining, same mechanism as every sibling ability type", () => {
+  const erabryth = makeErabryth();
+  erabryth.conditionSaves[0].usesRemaining = 1;
+  const target = makeGoon({ id: "target", side: "party", saves: { fort: 5, ref: 5, will: 2 }, position: { col: 5, row: 0 } });
+  function ai(state, id, turn) { return id === "erabryth" && turn.actionsUsed === 0 ? { type: "conditionSave", targetId: "target", conditionSaveIndex: 0 } : null; }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [erabryth, target], ai });
+  const action = log.rounds[0].turns.find((t) => t.combatantId === "erabryth").actions.find((a) => a.type === "conditionSave");
+  assert.equal(action.legal, true);
+  assert.equal(action.usesRemaining, 0);
+});
+
+test("conditionSave: a depleted usesRemaining is rejected on a real second attempt — the full engine-level proof that #56's gate and decrement actually cooperate, not just each in isolation", () => {
+  // A DIFFERENT target for the second attempt, so the real target-side immunity gate (already
+  // covered elsewhere) can't be what's rejecting it — isolating usesRemaining specifically.
+  const erabryth = makeErabryth();
+  erabryth.conditionSaves[0].usesRemaining = 1;
+  const targetA = makeGoon({ id: "targetA", side: "party", saves: { fort: 5, ref: 5, will: 2 }, position: { col: 5, row: 0 } });
+  const targetB = makeGoon({ id: "targetB", side: "party", saves: { fort: 5, ref: 5, will: 2 }, position: { col: 6, row: 0 } });
+  let attemptCount = 0;
+  function ai(state, id, turn) {
+    if (id !== "erabryth" || turn.actionsUsed !== 0) return null;
+    attemptCount += 1;
+    return { type: "conditionSave", targetId: attemptCount === 1 ? "targetA" : "targetB", conditionSaveIndex: 0 };
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 2, combatants: [erabryth, targetA, targetB], ai });
+  const firstReal = log.rounds[0].turns.find((t) => t.combatantId === "erabryth").actions.find((a) => a.type === "conditionSave");
+  assert.equal(firstReal.legal, true);
+  assert.equal(firstReal.usesRemaining, 0);
+  // Round 2: the AI's own proposal against targetB is now illegal (out of uses), so the turn holds —
+  // matching every sibling ability type's own established "no legal action found" shape.
+  const secondTurn = log.rounds[1]?.turns.find((t) => t.combatantId === "erabryth");
+  if (secondTurn) assert.ok(!secondTurn.actions.some((a) => a.type === "conditionSave" && a.legal), "no SECOND conditionSave should ever resolve as legal once usesRemaining is spent");
+});
+
 test("conditionSave: never increments the shared Multiple Attack Penalty counter — no attack roll happens at all, same as saveAttack/demoralize", () => {
   const erabryth = makeErabryth({ strikes: [{ name: "Fallback Strike", strikeType: "melee", attackBonus: 100, traits: [], damage: [{ dice: "1d1", bonus: 0 }] }] });
   const target = makeGoon({ id: "target", side: "party", position: { col: 0, row: 0 } });

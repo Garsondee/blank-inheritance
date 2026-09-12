@@ -89,7 +89,8 @@
           "bonus": 0,
           "damageType": "untyped"
         }
-      ]
+      ],
+      "atWill": true
     }
   ],
   "intimidationModifier": null,

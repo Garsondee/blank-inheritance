@@ -53,6 +53,61 @@ function parseDamageString(formula) {
   return { dice: m[1], bonus: m[2] ? parseInt(m[2], 10) : 0 };
 }
 
+/**
+ * Shared use-limit derivation for an NPC spell (design doc §76.9, GH #69/#55). A DELIBERATELY
+ * SEPARATE copy from build-combat-pregen.mjs's own identically-named helper, not a cross-tool import
+ * — this project's own established convention (personnel-engine/world/pathfind.mjs's duplicated
+ * MinHeap over a cross-tree coupling) keeps tools/pack-extractor and tools/character-builder
+ * independently self-contained. Same rule, same reasoning either side: a cantrip is castable "at
+ * will, any number of times per day" (Player Core pg. 283) — never slot-limited. This file's own only
+ * real spell, Gouging Claw, IS a cantrip — an earlier, unguarded version of this file's own
+ * deriveSpellAttacks would have silently produced no usesRemaining for it only by accident (its own
+ * spellcastingEntry happens to carry empty slots), not because anything checked; a future NPC (#64)
+ * whose cantrip DOES share a populated slots entry with a real leveled spell would have silently
+ * capped an at-will attack, the exact regression GH #69 found and fixed on the PC side.
+ */
+function deriveSpellUsesRemaining(spell, entry) {
+  if ((spell.system.traits?.value ?? []).includes("cantrip")) return { atWill: true };
+  return { usesRemaining: entry.system.slots?.slot1?.max ?? null };
+}
+
+/**
+ * Foundry's real, complete frequency-scope enum (`CONFIG.PF2E.frequencies`, gamesystems/sf2e/sf2e.mjs)
+ * mapped to an approximate real round count — Player Core: 6 seconds per round
+ * (reference/srd/player-core/470-encounter-mode.json). Used to decide whether a `system.frequency`
+ * value is safe to flatten into a single, never-refreshing `usesRemaining` count (design doc §76.9).
+ */
+const FREQUENCY_ROUNDS = {
+  turn: 1, round: 1, PT1M: 10, PT10M: 100, PT1H: 600, PT24H: 8640, day: 8640,
+  P1W: 60480, P1M: 259200, P1Y: 3153600
+};
+
+/**
+ * Safe to derive `usesRemaining = frequency.max` only when the frequency's own real scope is
+ * comfortably longer than this project's own longest real scenario — confirmed 60 rounds (not just
+ * the 30-40 an individual scenario file's own default suggests: run-personnel-scenario.mjs's CLI
+ * layer overrides several entries to 60, and real logged runs in logs/index.json have genuinely
+ * reached it). 100 rounds clears that with real margin. Below it (`turn`/`round`/`PT1M` — 1-10 real
+ * rounds), an ability would recharge mid-battle for real, and flattening it to "N uses, ever, never
+ * refreshing" would be WRONG, not just imprecise — this project's usesRemaining model has no
+ * refresh-on-a-timer mechanism to express the real rule correctly. Throws rather than silently
+ * guessing, matching deriveTransferVitality's own established precedent of refusing to proceed rather
+ * than inventing a number — a real, live case: this project's own packs already contain 64 real
+ * `action`-type items with a round/PT1M-scoped frequency (GH #69's own investigation), any of which
+ * #64's future NPC imports could hit.
+ */
+function deriveUsesFromFrequency(name, frequency) {
+  if (!frequency) return null;
+  const rounds = FREQUENCY_ROUNDS[frequency.per];
+  if (rounds == null) {
+    throw new Error(`"${name}": unrecognized frequency.per "${frequency.per}" — not one of CONFIG.PF2E.frequencies' real values, needs a human look rather than a guess.`);
+  }
+  if (rounds < 100) {
+    throw new Error(`"${name}": frequency "${frequency.max} per ${frequency.per}" (~${rounds} real rounds) would recharge mid-battle — flattening it to a single never-refreshing usesRemaining count would be wrong, not just imprecise. This ability's real limit needs a genuine decision (a refresh mechanism, or accepting the imprecision explicitly), not a silent guess.`);
+  }
+  return frequency.max;
+}
+
 function describeAction(item) {
   return {
     name: item.name,
@@ -161,7 +216,8 @@ export function deriveSpellAttacks(npc, spellNames) {
       range: Number.isFinite(parsedRange) ? parsedRange : null,
       actions: parseInt(spell.system.time.value, 10),
       traits: spell.system.traits.value,
-      ...(damageEntry ? { damage: [{ dice: damageEntry.formula, bonus: 0, damageType: damageEntry.type }] } : {})
+      ...(damageEntry ? { damage: [{ dice: damageEntry.formula, bonus: 0, damageType: damageEntry.type }] } : {}),
+      ...deriveSpellUsesRemaining(spell, entry)
     };
   });
 }
@@ -230,6 +286,12 @@ export function deriveConditionSave(npc, { name, saveType, range, outcomes }) {
   const entry = npc.items.find((i) => i.type === "spellcastingEntry");
   if (!entry) throw new Error(`"${name}" on ${npc.name}: no spellcastingEntry found to source a DC from.`);
 
+  // design doc §76.9 / GH #69: a real, encounter-scoped-or-longer frequency derives a real limit; an
+  // action with no frequency data at all (e.g. Erabryth's own Forced Reflection) stays dormant/
+  // unlimited, same honest "nothing to derive" outcome as every other real gap in this project — not
+  // silently invented, not hidden.
+  const usesRemaining = deriveUsesFromFrequency(name, action.system.frequency);
+
   return {
     name: action.name,
     saveType,
@@ -237,6 +299,7 @@ export function deriveConditionSave(npc, { name, saveType, range, outcomes }) {
     range,
     actions: action.system.actions?.value ?? 1,
     traits: action.system.traits?.value ?? [],
-    outcomes
+    outcomes,
+    ...(usesRemaining != null ? { usesRemaining } : {})
   };
 }
