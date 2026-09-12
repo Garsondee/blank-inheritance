@@ -47,7 +47,7 @@
     {
       "id": "school-name",
       "label": "The school",
-      "description": "Where the kids attend classes. Confirmed as the same combined campus as the Directorate's civil-defense facility (see open-questions.json #school-facility-same-location, resolved) — this and \"the huge facility\" from the design bible are one location, so may end up sharing a single name rather than needing two.",
+      "description": "Where the kids attend classes. Confirmed as the same combined campus as the Directorate's civil-defense facility (see open-questions.json #school-facility-same-location, resolved) -- this and \"the huge facility\" from the design bible are one location, so may end up sharing a single name rather than needing two. REFINED 2026-09-12 (LEDGER #13): one campus, one island, but NOT co-sited. The island's north-west end -- causeway, Roadgate, Frame hangar, workshops, vehicle control point, candidate camp -- is \"pure military and checkpoints\" in Ingram's words; the school is further south-east on the same island. Entry 12's deliberate military/school mix is achieved by walking between the two ends, not by blending them in one place. A single name may therefore still be wrong; check before assuming.",
       "finalName": null
     }
   ]

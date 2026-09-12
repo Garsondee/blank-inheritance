@@ -375,3 +375,31 @@ gradually.
 
 **Filed to:** `design/induction.md` (beat #2 "Arriving," extended with the confirmed genuine/deliberate
 mix of school and military register).
+
+---
+
+### 13 — Where the military end stops and the school begins
+
+**Date:** 2026-09-12
+**Asked because:** twenty-two structures had just been drawn and adopted at the island's north-west
+end and were about to be given lore. `naming-placeholders.json#school-name` says the school and the
+Directorate's civil-defence facility are "one location," and entry 12 above confirms the campus reads
+as a deliberate military/school mix — so the twenty-two were initially being written as a combined
+campus, with classrooms and civic buildings among the hangars. Ingram corrected it mid-write, unasked.
+
+**A (unprompted, in two parts):** *"I have a different place in mind for the school."* … *"This end of
+the island is pure military and checkpoints."* … *"The school is on the island, just further south
+east."*
+
+So the combined campus is **one island with two ends**, not one blended site. The north-west end —
+causeway, Roadgate, Frame hangar, workshops, vehicle control point, candidate camp — is purely
+military and the machinery of getting through a gate. The school is further south-east on the same
+island. Entry 12's "genuine, deliberate mix" is achieved by **adjacency across an island**, not by
+mixing the two registers in one place: a candidate walks from one to the other.
+
+This is a refinement of entry 12, not a contradiction of it, and entry 12 stands.
+
+**Filed to:** `data/campaign/naming-placeholders.json` (`school-name`, note corrected — the two are
+one campus on one island but are NOT co-sited); the 22 lore entries in
+`tools/gazetteer/_base_names.py`, rewritten with every domestic and civic building removed; this
+ledger.
