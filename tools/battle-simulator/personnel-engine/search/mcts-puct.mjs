@@ -159,6 +159,11 @@ function computeCandidates(state, actor, weights, tau, engine, searchDestCache) 
   }
   if (!scored.length) return [];
 
+  // GH #141: this softmax prior is a raw one-ply `gain` with no action-cost adjustment — the same
+  // shape decide.mjs's own bestMatching had before its fix, just softer here: it only biases WHICH
+  // candidate progressive widening explores first/most, never makes a single irreversible commitment
+  // the way bestMatching's old reduce did, and self-corrects as real backed-up Q-values (valueSum/
+  // visits) accrue with more visits. Named, not fixed — a real, separate, smaller finding.
   const maxGain = Math.max(...scored.map((s) => s.gain));
   const expWeights = scored.map((s) => Math.exp((s.gain - maxGain) / tau));
   const sumExp = expWeights.reduce((a, b) => a + b, 0);
