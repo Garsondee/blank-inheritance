@@ -269,9 +269,15 @@ test("runWeightSearch: reproducible — the SAME searchSeed produces the SAME re
   assert.deepEqual(a.history.map((e) => [e.mutatedKey, e.factor, e.verdict.promoted]), b.history.map((e) => [e.mutatedKey, e.factor, e.verdict.promoted]));
 });
 
+// GH #141 (decide.mjs's own bestMatching fix, personnel-engine): re-widened from seedSpec "1-4" to
+// "1-20" — confirmed directly, a LITERAL BASELINE_V1-vs-itself mirror match on this exact roster
+// scores winRate=0 at just 4 seeds but a sane 0.5 at 20 (pure small-sample variance, not a real
+// asymmetry). GH #141's fix legitimately makes decide() play less randomly, which shifted which
+// specific games these 4 particular seeds produce — a pre-existing seed-count fragility this test's
+// own "all-but-guaranteed" premise never actually accounted for, now exposed rather than caused.
 test("runWeightSearch: with a deliberately low promotion bar, a real candidate DOES get promoted — proving the promotion code path itself fires on real data, not just on synthetic shouldPromote input", async () => {
   const result = await runWeightSearch({
-    archetypePool: SMALL_ARCHETYPE_POOL, roster: ["lunar-17.json"], generations: 3, seedSpec: "1-4", searchSeed: 1, frozenAtDate: "2026-08-31",
+    archetypePool: SMALL_ARCHETYPE_POOL, roster: ["lunar-17.json"], generations: 3, seedSpec: "1-20", searchSeed: 1, frozenAtDate: "2026-08-31",
     promotionOptions: { leagueWinRateThreshold: 0.01, archetypeMajorityThreshold: 0 }
   });
   const anyPromoted = result.history.some((e) => e.verdict.promoted);
@@ -290,9 +296,10 @@ test("runWeightSearch: with a deliberately low promotion bar, a real candidate D
 // correct (confirmation runs when and only when it should, and correctly gates promotion), using real
 // battles throughout.
 
+// GH #141: widened seedSpec, same reason as the test just above — see its own comment.
 test("runWeightSearch: confirmSeedSpec omitted (the default) — confirmResults/confirmVerdict stay null on every entry, promotion decided by the cheap pass alone, byte-identical to before this option existed", async () => {
   const result = await runWeightSearch({
-    archetypePool: SMALL_ARCHETYPE_POOL, roster: ["lunar-17.json"], generations: 3, seedSpec: "1-4", searchSeed: 1, frozenAtDate: "2026-08-31",
+    archetypePool: SMALL_ARCHETYPE_POOL, roster: ["lunar-17.json"], generations: 3, seedSpec: "1-20", searchSeed: 1, frozenAtDate: "2026-08-31",
     promotionOptions: { leagueWinRateThreshold: 0.01, archetypeMajorityThreshold: 0 }
   });
   assert.ok(result.history.some((e) => e.promotedId), "sanity check: this bar must still produce a real promotion");
@@ -302,11 +309,13 @@ test("runWeightSearch: confirmSeedSpec omitted (the default) — confirmResults/
   }
 });
 
+// GH #141: widened seedSpec/confirmSeedSpec (non-overlapping ranges preserved), same reason as
+// this file's own first GH #141 comment above.
 test("runWeightSearch: confirmSeedSpec set — a candidate that clears BOTH the cheap and confirm bars is promoted, with a real confirmVerdict recorded", async () => {
   const result = await runWeightSearch({
-    archetypePool: SMALL_ARCHETYPE_POOL, roster: ["lunar-17.json"], generations: 1, seedSpec: "1-4", searchSeed: 1, frozenAtDate: "2026-08-31",
+    archetypePool: SMALL_ARCHETYPE_POOL, roster: ["lunar-17.json"], generations: 1, seedSpec: "1-20", searchSeed: 1, frozenAtDate: "2026-08-31",
     promotionOptions: { leagueWinRateThreshold: 0.01, archetypeMajorityThreshold: 0 },
-    confirmSeedSpec: "5-8"
+    confirmSeedSpec: "21-40"
   });
   const promoted = result.history.find((e) => e.promotedId);
   assert.ok(promoted, "an all-but-guaranteed bar on BOTH stages must still produce a real promotion");
@@ -315,11 +324,12 @@ test("runWeightSearch: confirmSeedSpec set — a candidate that clears BOTH the 
   assert.equal(result.league.at(-1).id, promoted.promotedId, "the confirmed candidate must be the one that actually joined the league");
 });
 
+// GH #141: widened seedSpec/confirmSeedSpec, same reason as this file's own first GH #141 comment above.
 test("runWeightSearch: confirmSeedSpec set — a candidate that clears the cheap bar but FAILS an impossible confirm bar is REJECTED, distinctly from an outright cheap-stage rejection", async () => {
   const result = await runWeightSearch({
-    archetypePool: SMALL_ARCHETYPE_POOL, roster: ["lunar-17.json"], generations: 3, seedSpec: "1-4", searchSeed: 1, frozenAtDate: "2026-08-31",
+    archetypePool: SMALL_ARCHETYPE_POOL, roster: ["lunar-17.json"], generations: 3, seedSpec: "1-20", searchSeed: 1, frozenAtDate: "2026-08-31",
     promotionOptions: { leagueWinRateThreshold: 0.01, archetypeMajorityThreshold: 0 }, // trivially easy — cheap stage should pass
-    confirmSeedSpec: "5-8",
+    confirmSeedSpec: "21-40",
     confirmPromotionOptions: { leagueWinRateThreshold: 1.01, archetypeMajorityThreshold: 0 } // impossible — confirm stage can never pass
   });
   const cheapPassed = result.history.filter((e) => e.verdict.promoted);
@@ -400,16 +410,17 @@ test("runWeightSearch: resuming from a checkpoint produces BYTE-IDENTICAL subseq
   assert.deepEqual(resumed.league.map((p) => p.id), straightThrough.league.map((p) => p.id));
 });
 
+// GH #141: widened seedSpec, same reason as this file's own first GH #141 comment above.
 test("runWeightSearch: resumeState restores the league verbatim — a resumed search is evaluated against the SAME opponents an uninterrupted run would have accumulated", async () => {
   const lowBar = { leagueWinRateThreshold: 0.01, archetypeMajorityThreshold: 0 };
   const firstHalf = await runWeightSearch({
-    archetypePool: SMALL_ARCHETYPE_POOL, roster: ["lunar-17.json"], seedSpec: "1-4", searchSeed: 1, generations: 2,
+    archetypePool: SMALL_ARCHETYPE_POOL, roster: ["lunar-17.json"], seedSpec: "1-20", searchSeed: 1, generations: 2,
     frozenAtDate: "2026-08-31", promotionOptions: lowBar
   });
   assert.ok(firstHalf.league.length > 1, "this low a bar must have promoted something to make the check below meaningful");
 
   const resumed = await runWeightSearch({
-    archetypePool: SMALL_ARCHETYPE_POOL, roster: ["lunar-17.json"], seedSpec: "1-4", searchSeed: 1, generations: 3,
+    archetypePool: SMALL_ARCHETYPE_POOL, roster: ["lunar-17.json"], seedSpec: "1-20", searchSeed: 1, generations: 3,
     frozenAtDate: "2026-08-31", promotionOptions: lowBar,
     resumeState: { league: firstHalf.league, completedGenerations: 2 }
   });

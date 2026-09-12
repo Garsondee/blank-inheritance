@@ -174,26 +174,22 @@ test("GOLDEN SEQUENCE: BASELINE_V1 vs BASELINE_V1, real fixtures, seed 42 — th
   ]);
 });
 
-// Re-derived GH #60 (engineContract bumped 4->5, real fixture change: Lunar-17 gained Heal
-// (touch)/Heal (30ft) alongside Transfer Vitality) — captured directly from a real runBattle call,
-// same re-verify-by-hand-and-update procedure this test's own header comment prescribes.
-//
-// This is NOT a cosmetic re-derivation like GH #58's own — the OUTCOME itself flips, and by hand
-// investigation (comparing this exact scenario/seed against the pre-#60 fixture directly, action by
-// action) the new sequence is demonstrably WORSE, not just different: at 1 HP with 3 actions
-// available, the search picks Heal (30ft) (2 actions, ~12.5 HP expected) over the cheaper Transfer
-// Vitality (1 action, flat 10 HP) purely because `bestMatching` (decide.mjs) ranks phase-0 candidates
-// by raw gain with no action-cost adjustment — the bigger-looking heal wins even though it leaves
-// only 1 action for a weak Semi-Auto Pistol shot, where the pre-#60 plan (Transfer Vitality, then a
-// full 2-action Eldritch Lance) measured a HIGHER total projected gain (18.2 vs 16.9) and actually won
-// the fight. This is a real, understood, separately-tracked search limitation (GH #141) — not
-// specific to healing, and not something to patch inline here. Re-pinned to the new, real behavior
-// because this test's job is to catch UNINTENDED drift, not to gate on solving GH #141: once that
-// issue is fixed, this sequence will very likely change again and should be re-derived at that point.
-test("GOLDEN SEQUENCE: BASELINE_V1 vs NO_MANEUVERS_V1, IDENTICAL seed/fixtures/positions — a genuinely different, longer sequence (goon never trips) — the real, measured proof that a profile change actually changes real behavior, not just a label", () => {
+// Re-derived TWICE in sequence, both times for real, measured reasons, not guessed:
+// GH #60 (Lunar-17 gained Heal (touch)/Heal (30ft) alongside Transfer Vitality) briefly flipped this
+// fight's own outcome to a loss — `bestMatching` (decide.mjs) picked the costlier, lower-total-value
+// Heal (30ft) over the more efficient Transfer Vitality purely by raw one-action gain, a real search
+// limitation tracked as GH #141, not specific to healing. GH #141's own fix (bestContinuation, a
+// bounded top-BEAM_WIDTH continuation search replacing the single-candidate-per-phase commit) closes
+// it — re-run directly, this sequence is now BYTE-IDENTICAL to the pre-GH-#60 sequence (same 12
+// actions, same party-victory/3-rounds outcome, same "unconstrained... projected total gain 18.2"
+// figure for the Transfer-Vitality-then-Eldritch-Lance turn), confirmed by diffing a real runBattle
+// call against both the pre-#60 and post-#60 fixture directly rather than assumed from the fix's own
+// design alone. `engineContract` 5->6 (this bump is a real, intentional behavior CORRECTION, not a
+// no-op — the whole point of GH #141's fix is that this exact sequence changes back).
+test("GOLDEN SEQUENCE: BASELINE_V1 vs NO_MANEUVERS_V1, IDENTICAL seed/fixtures/positions — a genuinely different, longer sequence (goon never trips, the fight even resolves the other way) — the real, measured proof that a profile change actually changes real behavior, not just a label", () => {
   const log = runBattle(makeGoldenScenario(NO_MANEUVERS_V1));
-  assert.equal(log.outcome.result, "party-defeat", "GH #60/#141 — see this test's own comment above: the search now picks a costlier, lower-total-value heal, which loses this specific fight");
-  assert.equal(log.rounds.length, 2);
+  assert.equal(log.outcome.result, "party-victory", "the identical seed resolves DIFFERENTLY once goon can't trip — a real behavioral consequence, not a coincidence");
+  assert.equal(log.rounds.length, 3);
   const seq = actionSequence(log);
   assert.deepEqual(seq, [
     "lunar17:move",
@@ -202,10 +198,12 @@ test("GOLDEN SEQUENCE: BASELINE_V1 vs NO_MANEUVERS_V1, IDENTICAL seed/fixtures/p
     "goon:strike->lunar17",
     "goon:strike->lunar17",
     "lunar17:healAbility->lunar17",
-    "lunar17:strike->goon",
+    "lunar17:spellAttack->goon",
     "goon:strike->lunar17",
-    "goon:move",
-    "goon:move"
+    "goon:strike->lunar17",
+    "goon:strike->lunar17",
+    "lunar17:spellAttack->goon",
+    "lunar17:healAbility->lunar17"
   ]);
   assert.ok(!seq.some((s) => s.startsWith("goon:trip") || s.startsWith("goon:shove") || s.startsWith("goon:grapple")), "goon must NEVER attempt a disabled action type across the whole real battle");
 });

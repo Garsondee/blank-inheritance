@@ -768,11 +768,17 @@ function proposeFlee(state, combatantId, turn) {
  * every proposal at every depth.
  *
  * `unconstrained` is this project's own fifth addition, not one of the report's four — a filter
- * matching every proposal type, phase after phase. It reproduces the OLD single-action-at-a-time
- * decide() exactly, and because `planTurn` always takes the max score across the whole portfolio,
- * its presence is what guarantees the search can never settle on a worse plan than the pre-Stage-2
- * baseline would have played — flagged as an addition, not a citation, same honesty convention §42
- * already used for "mindless."
+ * matching every proposal type, phase after phase. Because `planTurn` always takes the max score
+ * across the whole portfolio, its presence is what guarantees the search can never settle on a worse
+ * plan than the pre-Stage-2 baseline would have played — flagged as an addition, not a citation, same
+ * honesty convention §42 already used for "mindless."
+ *
+ * GH #141: `unconstrained` is no longer a pure greedy floor reproducing old single-action-at-a-time
+ * decide() — since `bestContinuation`'s own bounded lookahead (below) applies at EVERY phase for
+ * every template, and `unconstrained`'s own phases never narrow by type the way the other four
+ * templates' do, it is actually the WIDEST of the five searches now, not the narrowest. It still can
+ * never produce a worse decision than any other template (planTurn's own cross-template max sees to
+ * that), just not necessarily the same one it used to for identical inputs.
  */
 const isControlType = (p) => p.type === "trip" || p.type === "shove" || p.type === "grapple" || p.type === "demoralize" || p.type === "conditionSave";
 const isAttackType = (p) => p.type === "strike" || p.type === "spellAttack" || p.type === "saveAttack" || p.type === "areaAttack";
@@ -841,6 +847,20 @@ export function occupancyFingerprint(state, combatantId) {
  * for another that reaches the same sequence is exact, not an approximation. This captures sharing
  * at EVERY phase depth, not just phase 0, with no hardcoded knowledge of which templates happen to
  * overlap; the win falls out of how much the templates actually converge in a given real situation.
+ *
+ * GH #141 (adversarially reviewed, 2 rounds, before any code): within one template's own walk, each
+ * phase used to commit to whichever single candidate had the highest raw one-action `gain` — with no
+ * regard for how many of the turn's scarce actions that candidate cost. Two candidates of the SAME
+ * type (so no template's own phase-order can separate them — e.g. Lunar-17's own Transfer Vitality,
+ * 1 action, flat 10 HP, vs. Heal (30ft), 2 actions, ~12.5 HP expected) could then have the cheaper,
+ * more efficient one passed over for the pricier one, leaving too little budget for a much better
+ * follow-up action. `bestContinuation` (below) replaces the single-candidate commit with a bounded
+ * top-`BEAM_WIDTH` continuation search: at each phase, the top few candidates are each recursively
+ * completed using their own already-computed post-action state (free — `scoredCandidatesFor`'s own
+ * per-candidate trial already forks and applies every legal candidate to compute `gain`; retaining
+ * the result costs nothing extra), and the COMPLETE plan with the highest total gain wins — the same
+ * "compare whole plans, take the max" principle this function already applies ACROSS templates
+ * (below), now also applied WITHIN one template's own walk.
  */
 function planTurn(state, combatantId, turn, weights, templates = TURN_TEMPLATES, disabledActionTypes) {
   const me = state.combatants.get(combatantId);
@@ -891,42 +911,66 @@ function planTurn(state, combatantId, turn, weights, templates = TURN_TEMPLATES,
       const result = trial.apply(combatantId, proposal);
       if (!result.legal) continue; // the ENGINE decides legality; we never re-derive it
       const gain = evaluateState(trial.state, me.side, weights, combatantId) - localBefore;
-      scored.push({ proposal, gain });
+      // GH #141: retain the trial's own post-action state/turn and full result alongside gain — this
+      // trial was already forked and applied to compute `gain`; keeping these costs nothing extra,
+      // and is what lets bestContinuation below explore more than one candidate per phase for free.
+      scored.push({ proposal, gain, result, resultState: trial.state, resultTurn: trial.turn });
     }
     scoredCache.set(cacheKey, scored);
     return scored;
   }
-  function bestMatching(scored, filter) {
-    if (!scored.length) return null;
+
+  const BEAM_WIDTH = 3; // GH #141 — NOT YET MEASURED, a reasoned starting point: 2 is the minimum
+                         // that closes the known Heal(30ft)-vs-Transfer-Vitality case, 3 gives margin
+                         // for a third competing option without the cost of a much wider search.
+
+  /**
+   * GH #141: at each phase, take the top BEAM_WIDTH legal candidates (by the SAME filter/fallback
+   * logic the old single-candidate `bestMatching` used) and recursively complete EACH one using its
+   * own already-computed post-action state, keeping whichever COMPLETE continuation has the highest
+   * total gain — not just whichever single candidate had the highest gain for that one phase alone.
+   * Always returns {plan, finalState}, plan a FLAT array (never nested), possibly empty if nothing at
+   * all was legal at this phase (matching the old loop's own `break`-on-no-candidate behavior).
+   */
+  function bestContinuation(template, sandboxState, sandboxTurn, planSoFar, sequenceKey) {
+    if (sandboxTurn.actionsAvailable - sandboxTurn.actionsUsed <= 0) return { plan: planSoFar, finalState: sandboxState };
+    const filter = template.phases[Math.min(planSoFar.length, template.phases.length - 1)];
+    // §43 performance: skip real pathfinding entirely for a phase whose filter could never select
+    // "move" anyway (isControlType/isAttackType/isHealType) — the dominant cost in generateProposals,
+    // paid for nothing on a phase that would just filter it back out. isMoveType/anyType are the only
+    // two filters that can ever match a "move" proposal.
+    const includeMovement = filter === anyType || filter === isMoveType;
+    // planSoFar.length === 0: this template hasn't applied any hypothetical action of its own yet, so
+    // sandboxState is still a fresh, unmutated fork of the real state (forkTurnSandbox wraps for
+    // potential mutation; it does not itself change positions/HP) — genuinely real-occupancy-safe to
+    // cache into destCacheContainer.map, regardless of which template or beam branch this is (GH #62
+    // fix 2) — true of every template's own FIRST call here, never true of any recursive child call.
+    const isRealOccupancy = planSoFar.length === 0;
+    const scored = scoredCandidatesFor(sequenceKey, sandboxState, sandboxTurn, includeMovement, isRealOccupancy);
     const matching = filter === anyType ? scored : scored.filter((s) => filter(s.proposal));
     const pool = matching.length ? matching : scored;
-    return pool.reduce((best, cur) => (!best || cur.gain > best.gain ? cur : best), null);
+    if (!pool.length) return { plan: planSoFar, finalState: sandboxState };
+
+    const topK = [...pool].sort((a, b) => b.gain - a.gain).slice(0, BEAM_WIDTH);
+    let best = null;
+    for (const candidate of topK) {
+      const branchPlan = [...planSoFar, { proposal: candidate.proposal, result: candidate.result, gain: candidate.gain }];
+      const branchKey = `${sequenceKey}|${proposalKey(candidate.proposal)}`;
+      const { plan: completedPlan, finalState } = bestContinuation(template, candidate.resultState, candidate.resultTurn, branchPlan, branchKey);
+      // Sum of per-step gains == evaluateState(finalState) - evaluateState(templateStart), exactly,
+      // since evaluateState has no turn/action-economy dependence — avoids a redundant evaluateState
+      // call here just to compare branches (the ONE per-template evaluateState call below, used for
+      // the actual cross-template comparison, is unchanged).
+      const totalGain = completedPlan.reduce((sum, step) => sum + step.gain, 0);
+      if (!best || totalGain > best.totalGain) best = { plan: completedPlan, finalState, totalGain };
+    }
+    return { plan: best.plan, finalState: best.finalState };
   }
 
   const results = templates.map((template) => {
     const sandbox = forkTurnSandbox({ state, turn });
-    const plan = [];
-    let sequenceKey = "";
-    while (sandbox.actionsRemaining() > 0) {
-      const filter = template.phases[Math.min(plan.length, template.phases.length - 1)];
-      // §43 performance: skip real pathfinding entirely for a phase whose filter could never
-      // select "move" anyway (isControlType/isAttackType/isHealType) — the dominant cost in
-      // generateProposals, paid for nothing on a phase that would just filter it back out.
-      // isMoveType/anyType are the only two filters that can ever match a "move" proposal.
-      const includeMovement = filter === anyType || filter === isMoveType;
-      // plan.length === 0: this template hasn't applied any hypothetical action of its own yet, so
-      // sandbox.state is still a fresh, unmutated fork of the real state (forkTurnSandbox wraps for
-      // potential mutation; it does not itself change positions/HP) — genuinely real-occupancy-safe
-      // to cache into destCacheContainer.map, regardless of which template this is (GH #62 fix 2).
-      const isRealOccupancy = plan.length === 0;
-      const scored = scoredCandidatesFor(sequenceKey, sandbox.state, sandbox.turn, includeMovement, isRealOccupancy);
-      const picked = bestMatching(scored, filter);
-      if (!picked) break;
-      const result = sandbox.apply(combatantId, picked.proposal);
-      plan.push({ proposal: picked.proposal, result, gain: picked.gain });
-      sequenceKey += `|${proposalKey(picked.proposal)}`;
-    }
-    return { templateName: template.name, plan, finalState: sandbox.state };
+    const { plan, finalState } = bestContinuation(template, sandbox.state, sandbox.turn, [], "");
+    return { templateName: template.name, plan, finalState };
   }).filter((r) => r.plan.length > 0);
 
   if (!results.length) return null;

@@ -71,7 +71,7 @@ export const ALL_TEMPLATE_NAMES = Object.freeze(["unconstrained", "control-then-
 export const BASELINE_V1 = Object.freeze({
   id: "baseline-v1",
   frozenAt: "2026-08-30",
-  engineContract: 5, // bumped GH #60 Part 1: Lunar-17's own real fixture changed (Heal (touch)/Heal (30ft) added alongside Transfer Vitality) — UNLIKE Part 2's own bump (4) above, this is NOT a no-op: the BASELINE_V1 vs NO_MANEUVERS_V1 golden sequence's own outcome flips (party-victory -> party-defeat), a real, separately-tracked search-quality finding (GH #141), re-derived and re-pinned in ai-profiles.test.mjs with the full explanation there, not hand-patched
+  engineContract: 6, // bumped GH #141: bestMatching's own action-cost blindness fixed (bestContinuation, a bounded top-BEAM_WIDTH continuation search) — the BASELINE_V1 vs NO_MANEUVERS_V1 golden sequence flips BACK to party-victory, byte-identical to its own pre-GH-#60 sequence, confirmed directly rather than assumed. Previous bump (5, GH #60 Part 1) recorded the regression this fix now corrects — see ai-profiles.test.mjs's own comment for the full before/after story
   competence: 1.0,
   templates: ALL_TEMPLATE_NAMES,
   temperament: null, // null = ordinary morale rules apply, not an override

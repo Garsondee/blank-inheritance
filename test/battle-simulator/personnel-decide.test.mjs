@@ -380,10 +380,25 @@ test("lowHpCaution END TO END: at full HP, decide() presses the attack against a
   assert.equal(chosen.type, "strike", `expected a full-HP combatant to press the attack, chose: ${JSON.stringify(chosen)}`);
 });
 
-test("lowHpCaution END TO END: at critically low HP, decide() retreats out of the SAME melee threat's range instead — the identical position and the identical enemy, only currentHP changed", () => {
+// Re-derived GH #141 (bestMatching's own cost-blindness fix — see decide.mjs's own header comment
+// above TURN_TEMPLATES/planTurn) — genuinely, not just differently, better than the old pinned
+// answer. Direct measurement before changing this assertion (a scratch probe, not assumed):
+// "reposition-and-shoot"'s own retreat-immediately plan still projects only 24.7 total gain (its own
+// phase-0 filter is hardcoded to move-type only, so GH #141's widening can't change its own answer);
+// the new winning "unconstrained" plan (Strike, Strike, Move) projects 33.2 — a real, higher total,
+// not noise. This makes sense once traced through: this fixture's enemy carries no `reactions` at
+// all, so leaving its threatened square costs exactly the same whether it happens on action 1 or
+// action 3 of the SAME turn (no Reactive Strike risk either way, per GH #18's own real trigger — it
+// fires off the move itself, not off "time spent adjacent") — so the two free Knife strikes are
+// genuinely free, not traded against any real safety this evaluator can see. lowHpCaution's own real
+// effect is still directly visible here, just expressed differently than the old single-path search
+// could find: retreating is still the LAST action either way (unlike the full-HP sibling test just
+// above, which presses the attack with all 3 actions and never retreats at all).
+test("lowHpCaution END TO END: at critically low HP, decide() still lands two real Strikes before retreating on the SAME turn — GH #141's own widened search finds a strictly better plan than retreating immediately", () => {
   const { state, turn } = makeMeleeThreatState(2);
   const chosen = decide(state, "me", turn, { competence: 1 });
-  assert.equal(chosen.type, "move", `expected a critically hurt combatant to disengage rather than trade blows with a devastating melee attacker, chose: ${JSON.stringify(chosen)}`);
+  assert.equal(chosen.type, "strike", `expected the critically hurt combatant to still open with a free Strike (retreat comes last in the same turn), chose: ${JSON.stringify(chosen)}`);
+  assert.match(chosen.reason, /Strike with Knife.*Strike with Knife.*Move/, `expected the full plan to land two Strikes THEN retreat, got: ${chosen.reason}`);
 });
 
 /**
@@ -1031,6 +1046,61 @@ test("decide() END TO END, whole-turn planning: the flee override (design doc §
   const chosen = decide(state, "me", turn, { competence: 1 });
   assert.match(chosen.reason, /routing/i);
   assert.ok(!/plan \(\d+ actions?,/.test(chosen.reason), `a fleeing combatant must never carry a whole-turn-plan rationale, got: "${chosen.reason}"`);
+});
+
+// --- GH #141: bestMatching's own action-cost blindness (decide.mjs's own header comment above
+// TURN_TEMPLATES/planTurn has the full story) — a phase's winning candidate used to be picked by raw
+// one-action gain alone, with no regard for how many of the turn's scarce actions it cost. Mirrors
+// the exact real shape that exposed this (GH #60's Lunar-17: two heal options of different cost),
+// but built as a minimal, standalone, single-decide()-call unit test rather than depending on a real
+// fixture file or a full multi-round battle.
+test("decide() END TO END: a cheaper, more action-efficient option is chosen over a pricier one with higher RAW gain, because the saved action unlocks a much better follow-up — the exact shape GH #141 exists to fix", () => {
+  const me = {
+    id: "me", name: "Me", side: "party", currentHP: 1, maxHP: 11, ac: 17, saves: { fort: 5, ref: 5, will: 5 }, speed: 25,
+    strikes: [{ name: "Weak Strike", strikeType: "ranged", attackBonus: 6, rangeIncrement: 60, traits: [], damage: [{ dice: "1d4", bonus: 0 }] }],
+    spells: [{ name: "Big Spell", attackBonus: 14, range: 30, actions: 2, traits: ["attack"], damage: [{ dice: "2d6", bonus: 0 }] }],
+    healAbilities: [
+      { name: "Small Heal", healingAmount: 8, actions: 1 }, // cheaper, slightly less raw healing
+      { name: "Big Heal", healingAmount: 10, actions: 2 } // pricier, slightly MORE raw healing — the exact trap
+    ],
+    position: { col: 0, row: 0 }
+  };
+  const enemy = {
+    id: "enemy", name: "Enemy", side: "opposition", currentHP: 30, maxHP: 30, ac: 22, saves: { fort: 5, ref: 5, will: 5 }, speed: 25,
+    strikes: [], position: { col: 1, row: 0 }
+  };
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["me", me], ["enemy", enemy]]),
+    positions: new Map([["me", { ...me.position }], ["enemy", { ...enemy.position }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };
+
+  // Confirm the premise directly, not just assert the conclusion: Big Heal really does have the
+  // higher ISOLATED (one-action) gain, and Big Spell's own isolated gain is lower than EITHER heal
+  // (so it can't just win phase 0 outright regardless of the heal question) — otherwise this
+  // scenario doesn't actually test the trap. maxHP is deliberately tight (11, from 1 currentHP) so
+  // Big Heal (+10) lands at the cap — a hypothetical SECOND heal afterward would be almost entirely
+  // wasted overheal, which is what makes "heal once, cheaply, then attack" the genuinely better plan
+  // rather than just a different one.
+  const before = evaluateState(state, "party", undefined, "me");
+  const isolated = {};
+  for (const [label, proposal] of [
+    ["small", { type: "healAbility", targetId: "me", abilityIndex: 0 }],
+    ["big", { type: "healAbility", targetId: "me", abilityIndex: 1 }],
+    ["spell", { type: "spellAttack", targetId: "enemy", spellIndex: 0 }]
+  ]) {
+    const sandbox = forkTurnSandbox({ state, turn });
+    sandbox.apply("me", proposal);
+    isolated[label] = evaluateState(sandbox.state, "party", undefined, "me") - before;
+  }
+  assert.ok(isolated.big > isolated.small, `expected Big Heal's own isolated gain (${isolated.big.toFixed(2)}) to exceed Small Heal's (${isolated.small.toFixed(2)}) — otherwise this isn't the trap GH #141 describes`);
+  assert.ok(isolated.spell < isolated.small, `expected Big Spell's own isolated gain (${isolated.spell.toFixed(2)}) to be BELOW even Small Heal's (${isolated.small.toFixed(2)}) — otherwise phase 0 is decided by the heal-vs-attack question, not the heal-vs-heal one this test targets`);
+
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.equal(chosen.type, "healAbility");
+  assert.match(chosen.reason, /Small Heal/, `expected the cheaper, more action-efficient Small Heal to be chosen over the pricier Big Heal (higher isolated gain but leaves no room for Big Spell), got: "${chosen.reason}"`);
+  assert.match(chosen.reason, /Big Spell/, `expected the action saved by picking Small Heal to be spent on the real follow-up attack, got: "${chosen.reason}"`);
 });
 
 /**
