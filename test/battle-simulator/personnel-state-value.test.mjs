@@ -1060,3 +1060,114 @@ test("RESOURCE: a limited-use areaAttack with charges left is worth something to
   withResource.combatants.set("ally-0", { ...base.combatants.get("ally-0"), areaAttacks: [{ name: "Frag Grenade", saveType: "ref", dc: 17, range: 70, radius: 5, actions: 1, damage: [{ dice: "1d8", bonus: 0, damageType: "fire" }], usesRemaining: 1 }] });
   assert.ok(evaluateState(withResource, "party") > evaluateState(base, "party"), "an unspent limited-use area attack must be worth something, same as a strike/spell/heal/saveAttack/conditionSave");
 });
+
+// --- GH #60, Part 2: dyingUrgency + downedAllyClosing ---
+//
+// Confirmed directly before either term existed: an ally at dyingValue 1 and the same ally at
+// dyingValue 3 scored byte-identically (this file never read dyingValue at all), even though the
+// real recovery-check DC compounds with it (conditions.mjs's own resolveRecoveryCheck, 10 +
+// dyingValue) — risk gets harder to escape exactly as death gets closer. `downedAllyClosing` is the
+// distance-gradient counterpart: `closing` only ever pulls toward the nearest ENEMY, nothing pulled
+// toward a downed ally needing rescue.
+
+function withUnconscious(ally, dyingValue) {
+  return { ...ally, currentHP: 0, dyingValue };
+}
+
+test("DYING URGENCY: a downed ally at dyingValue 3 scores worse for their own side than the identical ally at dyingValue 1", () => {
+  const base = makeState({ allyCount: 1, enemyCount: 1 });
+  const dying1 = { ...base, combatants: new Map(base.combatants) };
+  dying1.combatants.set("ally-0", withUnconscious(base.combatants.get("ally-0"), 1));
+  const dying3 = { ...base, combatants: new Map(base.combatants) };
+  dying3.combatants.set("ally-0", withUnconscious(base.combatants.get("ally-0"), 3));
+
+  const scoreDying1 = evaluateState(dying1, "party");
+  const scoreDying3 = evaluateState(dying3, "party");
+  assert.ok(scoreDying3 < scoreDying1,
+    `a dyingValue-3 ally (${scoreDying3.toFixed(2)}) must score WORSE for their own side than the identical ally at dyingValue 1 (${scoreDying1.toFixed(2)}) — before this term existed these scored byte-identically.`);
+});
+
+test("DYING URGENCY MONOTONICITY: strictly increasing dyingValue must never increase the score, holding everything else fixed", () => {
+  const base = makeState({ allyCount: 1, enemyCount: 1 });
+  let previous = null;
+  for (let dyingValue = 0; dyingValue <= 3; dyingValue++) {
+    const state = { ...base, combatants: new Map(base.combatants) };
+    // dyingValue 0 with currentHP:0 would read as isDead (usesDyingRules + currentHP<=0 + dyingValue<4
+    // is still alive/unconscious per conditions.mjs) -- use a live ally as the dyingValue:0 baseline
+    // instead, matching how a real combatant reaches dyingValue 1 (from full HP, not from 0 already).
+    const ally = dyingValue === 0 ? base.combatants.get("ally-0") : withUnconscious(base.combatants.get("ally-0"), dyingValue);
+    state.combatants.set("ally-0", ally);
+    const score = evaluateState(state, "party");
+    if (previous !== null) {
+      assert.ok(score <= previous + 1e-9,
+        `dyingValue ${dyingValue - 1} -> ${dyingValue} must never INCREASE the score (${previous.toFixed(2)} -> ${score.toFixed(2)}).`);
+    }
+    previous = score;
+  }
+});
+
+test("DYING URGENCY: an ally merely hurt but still conscious contributes nothing — only isUnconscious triggers this term", () => {
+  const base = makeState({ allyCount: 1, enemyCount: 1 });
+  const hurt = { ...base, combatants: new Map(base.combatants) };
+  hurt.combatants.set("ally-0", { ...base.combatants.get("ally-0"), currentHP: 1 }); // hurt, but not down
+  const zeroDyingUrgency = { ...DEFAULT_WEIGHTS, dyingUrgency: 0 };
+  const isolated = evaluateState(hurt, "party", DEFAULT_WEIGHTS) - evaluateState(hurt, "party", zeroDyingUrgency);
+  assert.ok(Math.abs(isolated) < 1e-9, `a conscious ally at 1 HP must contribute exactly 0 dyingUrgency, got ${isolated}`);
+});
+
+test("DOWNED ALLY CLOSING: a rescuer ending their move closer to (or within reach of) a downed ally scores better than one who doesn't", () => {
+  const sword = { name: "Sword", strikeType: "melee", attackBonus: 8, traits: [], damage: [{ dice: "1d8", bonus: 2, damageType: "slashing" }] };
+  const downed = { id: "downed", name: "downed", side: "party", currentHP: 0, dyingValue: 1, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], healAbilities: [{ name: "Heal (touch)", healingFormula: "1d8", actions: 1 }] };
+  const rescuer = { id: "rescuer", name: "rescuer", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [sword], healAbilities: [{ name: "Heal (touch)", healingFormula: "1d8", actions: 1 }] };
+  const enemy = { id: "enemy", name: "enemy", side: "opposition", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [sword] };
+
+  function stateWithRescuerAt(col) {
+    return {
+      round: 1, seed: 1, gridSize: { cols: 40, rows: 40 },
+      combatants: new Map([["downed", downed], ["rescuer", rescuer], ["enemy", enemy]]),
+      positions: new Map([["downed", { col: 20, row: 20 }], ["rescuer", { col, row: 20 }], ["enemy", { col: 0, row: 0 }]])
+    };
+  }
+  const zeroTerm = { ...DEFAULT_WEIGHTS, downedAllyClosing: 0 };
+  function isolated(state) {
+    return evaluateState(state, "party", DEFAULT_WEIGHTS) - evaluateState(state, "party", zeroTerm);
+  }
+  const far = isolated(stateWithRescuerAt(30));   // 10 squares = 50ft away -- well beyond touch reach
+  const near = isolated(stateWithRescuerAt(21));  // 1 square = 5ft away -- within touch reach (FEET_PER_SQUARE)
+  assert.ok(near > far, `a rescuer within touch reach of a downed ally (${near.toFixed(4)}) must score better than one 50ft away (${far.toFixed(4)})`);
+  assert.ok(Math.abs(near) < 1e-9, `a rescuer already within touch reach must farm zero credit from this term, got ${near}`);
+});
+
+test("DOWNED ALLY CLOSING REGRESSION (round-2 review finding): a real healer already in range must zero out the term, even when a closer non-healer bystander is nearer by raw distance", () => {
+  const sword = { name: "Sword", strikeType: "melee", attackBonus: 8, traits: [], damage: [{ dice: "1d8", bonus: 2, damageType: "slashing" }] };
+  const downed = { id: "downed", name: "downed", side: "party", currentHP: 0, dyingValue: 1, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [] };
+  // "bystander" has NO heal option at all (healReachFeet -> null -> 0 reach) and stands very close --
+  // the exact case a "nearest by raw distance" bug would wrongly select.
+  const bystander = { id: "bystander", name: "bystander", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [sword] };
+  // "healer" has a real 30ft heal and stands FARTHER than the bystander, but still within their own
+  // real reach -- already able to resolve this right now with zero movement.
+  const healer = { id: "healer", name: "healer", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], healAbilities: [{ name: "Heal (30ft)", range: 30, healingFormula: "1d8+8", actions: 2 }] };
+  const enemy = { id: "enemy", name: "enemy", side: "opposition", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [sword] };
+
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 40, rows: 40 },
+    combatants: new Map([["downed", downed], ["bystander", bystander], ["healer", healer], ["enemy", enemy]]),
+    positions: new Map([
+      ["downed", { col: 20, row: 20 }],
+      ["bystander", { col: 20, row: 21 }],  // 1 square = 5ft away, reach 0 -- nearest by raw distance
+      ["healer", { col: 20, row: 25 }],     // 5 squares = 25ft away, reach 30ft -- already in range (shortfall 0)
+      ["enemy", { col: 0, row: 0 }]
+    ])
+  };
+  const zeroTerm = { ...DEFAULT_WEIGHTS, downedAllyClosing: 0 };
+  const isolated = evaluateState(state, "party", DEFAULT_WEIGHTS) - evaluateState(state, "party", zeroTerm);
+  assert.ok(Math.abs(isolated) < 1e-9,
+    `expected exactly 0 (the real healer at 25ft is already within their own 30ft reach) but got ${isolated.toFixed(4)} -- a "nearest rescuer by raw distance" bug would have priced the closer bystander's own 5ft shortfall (reach 0) instead of recognizing the farther healer is already covered.`);
+});
+
+test("DOWNED ALLY CLOSING: with no living rescuer at all, the term contributes nothing and evaluateState does not throw", () => {
+  const downed = { id: "downed", name: "downed", side: "party", currentHP: 0, dyingValue: 1, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [] };
+  const enemy = { id: "enemy", name: "enemy", side: "opposition", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [] };
+  const state = { round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, combatants: new Map([["downed", downed], ["enemy", enemy]]), positions: new Map([["downed", { col: 5, row: 5 }], ["enemy", { col: 0, row: 0 }]]) };
+  assert.doesNotThrow(() => evaluateState(state, "party"));
+});

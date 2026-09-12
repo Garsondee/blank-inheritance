@@ -55,7 +55,7 @@ import { distanceFeet, reachFeetForStrike, FEET_PER_SQUARE } from "../grid.mjs";
 import { lineOfEffect, hasCover, STANDARD_COVER_AC_BONUS } from "../terrain.mjs";
 import { pathCost } from "../world/pathfind.mjs";
 import { splitByRelation } from "../factions.mjs";
-import { isRestrained, isImmobilized, isOffGuardFromConditions, attackerConditionPenalty } from "../conditions.mjs";
+import { isRestrained, isImmobilized, isOffGuardFromConditions, attackerConditionPenalty, isUnconscious } from "../conditions.mjs";
 import { isFlanking } from "../flanking.mjs";
 import { alliesWithPositions, OFF_GUARD_AC_PENALTY } from "../engine.mjs";
 
@@ -119,6 +119,19 @@ export function usefulRangeFeet(item) {
   if (item.range != null) return item.range;
   if (item.strikeType === "melee") return reachFeetForStrike(item);
   return item.rangeIncrement ?? Infinity;
+}
+
+/**
+ * GH #60 — the caster's own longest-range heal option. Mirrors `meleeReachFeet`'s (flanking.mjs)
+ * exact contract: `null` when there's no heal option at all, distinguishing "structurally can't
+ * help" from "must be adjacent." An omitted `range` field on a heal ability reads as touch/adjacent
+ * (FEET_PER_SQUARE), matching `checkHealAbilityLegal`'s own `checkSpellRange` convention
+ * (legality.mjs) — NOT 0, since a touch-only healer still has real, if short, reach.
+ */
+function healReachFeet(combatant) {
+  const healOptions = combatant.healAbilities ?? [];
+  if (!healOptions.length) return null;
+  return Math.max(...healOptions.map((h) => h.range ?? FEET_PER_SQUARE));
 }
 
 /**
@@ -250,6 +263,18 @@ export const DEFAULT_WEIGHTS = {
   // point only, per design doc §19's own explicit plan to re-measure once real fights exist.
   closing: 0.75,
   resource: 3.0,           // HP-equivalent of keeping one limited-use item unspent
+  // NOT YET MEASURED (GH #60 — confirmed by direct measurement: a downed ally at dyingValue 1 and
+  // the same ally at dyingValue 3 scored byte-identically before this term existed). Lands
+  // dyingValue 1/2/3 at 5/10/15 points, comparable to several real HP worth of allyDamage/
+  // enemyDamage credit (1.0/HP each) — deliberately weighted heavily, matching lowHpCaution's own
+  // precedent of being calibrated to reach "just past parity" once a previously-too-weak term proved
+  // unable to compete with a mediocre attack.
+  dyingUrgency: 5.0,
+  // NOT YET MEASURED (GH #60) — deliberately set equal to `closing`'s own value, not an independently
+  // guessed number: both terms price the identical unit (score per square of shortfall against a
+  // distance-and-reach gate), and nothing yet distinguishes how urgently one should be preferred over
+  // the other absent real measurement.
+  downedAllyClosing: 0.75,
   // NOT YET MEASURED (design doc §22) — a reasoned starting point, not a guess pulled from nowhere:
   // roughly the same order of magnitude as `resource` (a comparably "temporary tactical value, not
   // permanent HP" concept), well below what a real kill is worth. Flagged exactly like `closing`
@@ -379,6 +404,21 @@ function maneuverTempoOwed(combatant, combatantsMap) {
 }
 
 /**
+ * GH #60 — how urgently a downed ally needs saving. Confirmed by direct measurement before this term
+ * existed: an ally at dyingValue 1 and the same ally at dyingValue 3 scored byte-identically (this
+ * file never read dyingValue at all), even though the real recovery-check DC compounds with it
+ * (`10 + dyingValue`, conditions.mjs's own resolveRecoveryCheck) — risk gets harder to escape exactly
+ * as death gets closer, and nothing here reflected that. A pure function of ONE combatant's own
+ * state (Idiom B, matching `tempoOwed`'s own one-argument shape above) — no cross-ally aggregation
+ * problem exists, so no cap/Math.min machinery is needed the way the enemy-side Idiom A terms
+ * (offensiveReach/threatReduction/setupValue) require.
+ */
+function dyingUrgency(ally) {
+  if (!isUnconscious(ally)) return 0; // never a dead ally either (isDead) — already gone, nothing left to price
+  return ally.dyingValue ?? 0; // 1-3 (4 would be dead, excluded above); linear, an untuned starting point like every other NOT YET MEASURED term in this file
+}
+
+/**
  * Evaluate `state` from `side`'s point of view, in hit-point-equivalents. Higher is better for
  * that side. Absolute magnitude is meaningless; only DIFFERENCES between two states matter, which
  * is how it is always used.
@@ -409,6 +449,7 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS, actingComb
     score += weights.allyDamage * ally.currentHP;
     score -= weights.tempoDenial * tempoOwed(ally); // Stunned only — a certain, already-resolved lost action
     score -= weights.maneuverTempoDenial * maneuverTempoOwed(ally, state.combatants); // Prone/Grabbed — contested by a real future roll, priced lower (design doc §44)
+    score -= weights.dyingUrgency * dyingUrgency(ally); // GH #60 — a downed ally one bad recovery check from permanent death
     for (const s of [...(ally.strikes ?? []), ...(ally.spells ?? []), ...(ally.healAbilities ?? []), ...(ally.saveAttacks ?? []), ...(ally.conditionSaves ?? []), ...(ally.areaAttacks ?? [])]) {
       if (s.usesRemaining != null) score += weights.resource * s.usesRemaining;
     }
@@ -709,6 +750,33 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS, actingComb
     }
     if (nearest === Infinity || nearest <= reach) continue; // in range already — no credit to farm
     score -= weights.closing * ((nearest - reach) / FEET_PER_SQUARE); // squares still short of a shot
+  }
+
+  // GH #60 — the downed-ally counterpart to `closing` just above. Confirmed by direct read: `closing`
+  // only ever pulls toward the nearest ENEMY, no code path anywhere pulls toward a downed ally who
+  // needs rescuing. Minimizes SHORTFALL across rescuers, not raw distance — `closing` gets away with
+  // "nearest by distance" because it has exactly ONE reach value per computation (the outer-loop
+  // ally's own), but here the inner loop searches RESCUERS, each of which can have a DIFFERENT heal
+  // reach, so "nearest by distance" and "smallest actual shortfall" are no longer the same question
+  // (a non-healer standing close is not more relevant than a real healer standing farther away but
+  // already in range) — an adversarial review round found this exact gap in an earlier draft that
+  // picked the nearest rescuer by raw distance and used only THAT one's reach.
+  for (const ally of allies) {
+    if (!isUnconscious(ally)) continue; // only a downed ally creates this pull — a scratch doesn't
+    const allyPos = state.positions.get(ally.id);
+    if (!allyPos) continue;
+    let minShortfall = Infinity;
+    for (const rescuer of allies) {
+      if (rescuer.id === ally.id || rescuer.currentHP <= 0) continue;
+      const rescuerPos = state.positions.get(rescuer.id);
+      if (!rescuerPos) continue;
+      const dist = effectiveDistance(state, rescuerPos, allyPos);
+      const reach = healReachFeet(rescuer) ?? 0; // null (no heal option at all) reads as 0 reach here
+      const shortfall = Math.max(0, dist - reach);
+      if (shortfall < minShortfall) minShortfall = shortfall;
+    }
+    if (minShortfall === Infinity || minShortfall === 0) continue; // no living rescuer, or someone's already in range — no credit to farm
+    score -= weights.downedAllyClosing * (minShortfall / FEET_PER_SQUARE);
   }
 
   // MOBILITY DENIAL (design doc §42, Stage 1) — see DEFAULT_WEIGHTS' own comment for the full

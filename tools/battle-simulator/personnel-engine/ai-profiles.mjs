@@ -71,7 +71,7 @@ export const ALL_TEMPLATE_NAMES = Object.freeze(["unconstrained", "control-then-
 export const BASELINE_V1 = Object.freeze({
   id: "baseline-v1",
   frozenAt: "2026-08-30",
-  engineContract: 3, // bumped GH #58: threatReduction added to evaluateState — UNLIKE pileOnRisk above, this is NOT a no-op in a 1-enemy-per-side fight (the sole enemy's threatShare is trivially 1.0, so it contributes a real, non-zero term identical in shape to offensiveReach's own) — ai-profiles.test.mjs's own golden sequences were re-derived, not hand-patched, to reflect this real, intended behavior change
+  engineContract: 4, // bumped GH #60 Part 2: dyingUrgency + downedAllyClosing added to evaluateState — like pileOnRisk's own earlier bump, a real no-op for every existing golden fixture (both terms are gated on isUnconscious, and none of this file's pinned scenarios ever has a downed-but-not-dead ally mid-sequence), confirmed by re-running ai-profiles.test.mjs's own golden sequences unchanged rather than assumed
   competence: 1.0,
   templates: ALL_TEMPLATE_NAMES,
   temperament: null, // null = ordinary morale rules apply, not an override
@@ -86,6 +86,8 @@ export const BASELINE_V1 = Object.freeze({
     objective: 2.5,
     closing: 0.75,
     resource: 3.0,
+    dyingUrgency: 5.0,
+    downedAllyClosing: 0.75,
     tempoDenial: 1.0,
     maneuverTempoDenial: 0.3,
     lowHpCaution: 8.0,
