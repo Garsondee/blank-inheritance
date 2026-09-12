@@ -178,6 +178,60 @@ test("generateProposals (design doc §32): healAbility is UNAFFECTED — an ally
   assert.ok(proposals.some((p) => p.type === "healAbility" && p.targetId === "target"), "an unconscious ally must still be a legal, proposed heal target");
 });
 
+// GH #60, design doc §60 Part 1b — the self-centered emanation's own candidate generation. Round-2
+// adversarial review's own finding: the OLD per-ally loop must be gated to skip an areaOrigin:"self"
+// ability, or it keeps emitting one misleading, target-named duplicate per hurt ally for the exact
+// same ability the new single-candidate branch already handles correctly.
+test("generateProposals (design doc §60 Part 1b): a self-centered emanation heal ability produces EXACTLY ONE candidate, regardless of ally count — never one duplicate per hurt ally", () => {
+  const me = { id: "me", name: "Me", side: "party", currentHP: 16, maxHP: 16, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], healAbilities: [{ name: "Heal (emanation)", healingFormula: "1d8", actions: 3, areaOrigin: "self", radius: 30 }], position: { col: 0, row: 0 } };
+  const ally1 = { id: "a1", name: "A1", side: "party", currentHP: 5, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], position: { col: 1, row: 0 } };
+  const ally2 = { id: "a2", name: "A2", side: "party", currentHP: 5, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], position: { col: 0, row: 1 } };
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["me", me], ["a1", ally1], ["a2", ally2]]),
+    positions: new Map([["me", { ...me.position }], ["a1", { ...ally1.position }], ["a2", { ...ally2.position }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };
+  const proposals = generateProposals(state, "me", turn);
+  const healProposals = proposals.filter((p) => p.type === "healAbility");
+  assert.equal(healProposals.length, 1, `expected exactly one candidate for the self-centered ability regardless of 2 hurt allies, got ${healProposals.length}: ${JSON.stringify(healProposals)}`);
+  assert.equal(healProposals[0].targetId, null);
+  assert.equal(healProposals[0].areaOrigin, "self");
+});
+
+test("generateProposals (design doc §60 Part 1b): a self-centered emanation ability is proposed EVEN with zero hurt allies present (self is always a valid target, standing at the emanation's own center) — no ally-scanning gate blocks it", () => {
+  const me = { id: "me", name: "Me", side: "party", currentHP: 5, maxHP: 16, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], healAbilities: [{ name: "Heal (emanation)", healingFormula: "1d8", actions: 3, areaOrigin: "self", radius: 30 }], position: { col: 0, row: 0 } };
+  const state = { round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [], combatants: new Map([["me", me]]), positions: new Map([["me", { ...me.position }]]) };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };
+  const proposals = generateProposals(state, "me", turn);
+  assert.equal(proposals.filter((p) => p.type === "healAbility").length, 1, "the candidate itself doesn't gate on anyone's HP — legality (anyTargetBelowFull) is what actually filters this, not candidate generation");
+});
+
+test("decide() END TO END: with THREE hurt allies in range, whole-turn planning prefers the self-centered emanation (heals all three at once) over repeatedly casting the cheaper single-target variant, AND the rationale renders a real, non-null-looking string", () => {
+  const me = {
+    id: "me", name: "Me", side: "party", currentHP: 16, maxHP: 16, ac: 17, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [],
+    healAbilities: [
+      { name: "Heal (touch)", healingFormula: "1d8", actions: 1, slotRank: 1 },
+      { name: "Heal (emanation)", healingFormula: "1d8", actions: 3, areaOrigin: "self", radius: 30, slotRank: 1 }
+    ],
+    spellSlots: { 1: 5 }, position: { col: 0, row: 0 }
+  };
+  const a1 = { id: "a1", name: "A1", side: "party", currentHP: 5, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], position: { col: 1, row: 0 } };
+  const a2 = { id: "a2", name: "A2", side: "party", currentHP: 5, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], position: { col: 0, row: 1 } };
+  const a3 = { id: "a3", name: "A3", side: "party", currentHP: 5, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], position: { col: 1, row: 1 } };
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["me", me], ["a1", a1], ["a2", a2], ["a3", a3]]),
+    positions: new Map([["me", { ...me.position }], ["a1", { ...a1.position }], ["a2", { ...a2.position }], ["a3", { ...a3.position }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.equal(chosen.type, "healAbility");
+  assert.equal(chosen.areaOrigin, "self");
+  assert.match(chosen.reason, /Cast Heal \(emanation\) \(centered on self\)/, `expected the fixed describe() ternary to render a real, non-"null" rationale, got: "${chosen.reason}"`);
+  assert.ok(!chosen.reason.includes("null"), `rationale must never literally say "null" — got: "${chosen.reason}"`);
+});
+
 // design doc §34 — a direct user report: Forced Reflection's real text makes the TARGET immune
 // ("the target is then temporarily immune to Forced Reflection"), not just the one attacker who
 // tried it — checked here at the proposal-generation layer, mirroring legality.mjs's own coverage.

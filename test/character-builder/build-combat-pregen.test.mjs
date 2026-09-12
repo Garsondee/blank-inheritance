@@ -150,6 +150,39 @@ test("deriveHealSpellVariants: both variants carry the SAME slotRank — the who
   assert.equal(touch.slotRank, ranged.slotRank);
 });
 
+// GH #60, design doc §60 Part 1b — Heal's real 3-action self-centered emanation.
+test("deriveHealSpellVariants: Heal's real emanation variant — 3 actions, plain 1d8 (NOT the 30ft variant's +8 bonus — this overlay never overrides damage), self-centered, 30ft radius, SAME shared slot", () => {
+  const ingredients = lunar17Ingredients();
+  const [touch, , emanation] = deriveHealSpellVariants(ingredients, "Heal");
+  assert.equal(emanation.name, "Heal (emanation)");
+  assert.equal(emanation.actions, 3);
+  assert.equal(emanation.healingFormula, "1d8", "must inherit the BASE spell's own formula, not the 2-action overlay's +8 bonus");
+  assert.equal(emanation.areaOrigin, "self");
+  assert.equal(emanation.radius, 30);
+  assert.equal(emanation.range, undefined, "a self-centered origin has no range field at all — it always targets the caster's own square");
+  assert.equal(emanation.slotRank, touch.slotRank, "all three variants share the same pool");
+});
+
+test("deriveHealSpellVariants: throws a clear error if the spell doesn't have the expected 3-action self-centered emanation overlay", () => {
+  const ingredients = lunar17Ingredients();
+  const realHeal = ingredients.spells.find((s) => s.name === "Heal");
+  const missingEmanation = {
+    name: "Fake Heal No Emanation",
+    system: {
+      damage: { 0: { formula: "1d8" } },
+      location: { value: realHeal.system.location.value },
+      level: { value: 1 },
+      overlays: {
+        touch: { system: { time: { value: "1" } } },
+        ranged: { system: { time: { value: "2" }, damage: { 0: { formula: "1d8+8", kinds: ["healing"] } } } }
+        // no 3-action emanation overlay at all
+      }
+    }
+  };
+  ingredients.spells = [...ingredients.spells, missingEmanation];
+  assert.throws(() => deriveHealSpellVariants(ingredients, "Fake Heal No Emanation"), /expected a 3-action self-centered emanation overlay/);
+});
+
 test("deriveHealSpellVariants: throws a clear error for a spell name that doesn't exist", () => {
   const ingredients = lunar17Ingredients();
   assert.throws(() => deriveHealSpellVariants(ingredients, "Not A Real Spell"), /No spell named/);

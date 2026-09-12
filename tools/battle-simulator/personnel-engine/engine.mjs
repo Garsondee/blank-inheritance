@@ -128,7 +128,7 @@ import {
   applyGrapple, releaseGrapple, releaseGrapplesHeldBy, usesDyingRules
 } from "./conditions.mjs";
 import { isFlanking, hasReactiveStrike, threatensSquare, longestMeleeStrike } from "./flanking.mjs";
-import { isHostileTo } from "./factions.mjs";
+import { isHostileTo, isAlliedWith } from "./factions.mjs";
 
 /** Off-Guard's -2 to AC (condition-28-off-guard.json) — the melee-flanking-scoped bonus applied
  * per-attack, alongside the persistent (Prone/Unconscious) one resolveEffectiveStats already folds
@@ -1132,6 +1132,46 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     const targetPos = state.positions.get(proposal.targetId);
     const ability = (combatant.healAbilities ?? [])[proposal.abilityIndex ?? 0];
     if (!ability) return { type: "healAbility", targetId: proposal.targetId, legal: false, reason: `No heal ability at index ${proposal.abilityIndex ?? 0} — ${combatant.name} has ${(combatant.healAbilities ?? []).length}.` };
+
+    // GH #60 Part 1b — a self-centered emanation (Heal's own 3-action variant): every living ally
+    // within radius, centered on the caster's OWN current square, always. A real, separate resolution
+    // shape from the single-target code below — never falls through into it (every exit here returns).
+    if (ability.areaOrigin === "self") {
+      const affectedIds = [...state.combatants.keys()].filter((id) => {
+        const c = state.combatants.get(id);
+        if (isDead(c)) return false;
+        if (!isAlliedWith(combatant, c)) return false; // living-target, allies-only scope (Part 1c defers vs.-undead) — isAlliedWith, not raw `side`, so a neutral in the blast still counts
+        const cPos = state.positions.get(id);
+        return cPos && distanceFeet(cPos, pos) <= ability.radius;
+      });
+      const anyTargetBelowFull = affectedIds.some((id) => {
+        const c = state.combatants.get(id);
+        return c.currentHP < c.maxHP;
+      });
+      const areaCheck = checkHealAbilityLegal({ healer: combatant, healerPos: pos, ability, turnState: turnProgress, anyTargetBelowFull });
+      if (!areaCheck.legal) return { type: "healAbility", targetId: null, areaOrigin: "self", legal: false, reason: areaCheck.reason };
+
+      // ONE real roll for the whole burst, applied per-target with per-target capping — matching
+      // outcomes.areaAttack's own real precedent (rolled once, applied per affected creature), NOT one
+      // independent roll per target.
+      const { healingAmount } = outcomes.healAbility(rng, { ability });
+      const affected = affectedIds.map((id) => {
+        const target = state.combatants.get(id);
+        const hpBefore = target.currentHP;
+        const wasDownBeforeHealing = hpBefore <= 0;
+        target.currentHP = Math.min(target.maxHP, hpBefore + healingAmount);
+        if (wasDownBeforeHealing && target.currentHP > 0) applyRevival(target);
+        return { targetId: id, healing: target.currentHP - hpBefore, targetHPAfter: target.currentHP, ...targetConditionAfter(target) };
+      });
+      turnProgress.actionsUsed += ability.actions ?? 1;
+      spendUse(ability, combatant); // ONCE per cast, outside the per-target loop — one emanation spends exactly one shared slot, regardless of how many allies it catches
+
+      return {
+        type: "healAbility", abilityName: ability.name, targetId: null, areaOrigin: "self", legal: true,
+        actionsCost: ability.actions ?? 1, radius: ability.radius, healing: healingAmount, affected,
+        usesRemaining: ability.usesRemaining ?? null, decisionReason: proposal.reason ?? null
+      };
+    }
 
     const check = checkHealAbilityLegal({ healer: combatant, healerPos: pos, target, targetPos, ability, turnState: turnProgress, walls: state.walls });
     if (!check.legal) return { type: "healAbility", targetId: proposal.targetId, legal: false, reason: check.reason };

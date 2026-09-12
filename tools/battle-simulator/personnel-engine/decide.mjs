@@ -511,8 +511,20 @@ export function generateProposals(state, combatantId, turn, externalDestCache, i
   });
 
   // --- Support ---
-  (me.healAbilities ?? []).forEach((_, i) => {
+  (me.healAbilities ?? []).forEach((ability, i) => {
+    // GH #60 Part 1b: a self-centered emanation has no per-target enumeration at all — it always
+    // targets "here." Handled by its own single-candidate branch below; skipped here so this loop
+    // never emits N misleading, target-named duplicates of the exact same self-centered cast (round-2
+    // adversarial review's own finding — the old unconditional loop would otherwise still propose one
+    // per hurt ally, each carrying a real but meaningless targetId for an ability that ignores it).
+    if (ability.areaOrigin === "self") return;
     for (const t of [me, ...allies]) if (t.currentHP < t.maxHP) proposals.push({ type: "healAbility", targetId: t.id, abilityIndex: i });
+  });
+  // GH #60 Part 1b: exactly one candidate per self-centered heal ability — the origin is always and
+  // only the caster's own current square, so no target/origin search is needed at all (unlike
+  // areaAttack's own enemy-targeted free-point candidates, just above).
+  (me.healAbilities ?? []).forEach((ability, i) => {
+    if (ability.areaOrigin === "self") proposals.push({ type: "healAbility", targetId: null, abilityIndex: i, areaOrigin: "self" });
   });
 
   // --- Movement: ALWAYS offered (unless the caller already knows a "move" could never be picked
@@ -1095,7 +1107,9 @@ function describe(proposal, result) {
     case "demoralize": return `Demoralize ${proposal.targetId}`;
     case "conditionSave": return `Use ${result?.conditionSaveName ?? "ability " + (proposal.conditionSaveIndex ?? 0)} against ${proposal.targetId}`;
     case "areaAttack": return `Throw ${result?.areaAttackName ?? "ability " + (proposal.areaAttackIndex ?? 0)} at ${proposal.originId ? `${proposal.originId}'s position` : `(${proposal.originPoint.col},${proposal.originPoint.row})`}`;
-    case "healAbility": return `Heal ${proposal.targetId} with ${result?.abilityName ?? "ability"}`;
+    case "healAbility": return proposal.targetId
+      ? `Heal ${proposal.targetId} with ${result?.abilityName ?? "ability"}`
+      : `Cast ${result?.abilityName ?? "ability"} (centered on self)`;
     case "trip": return `Trip ${proposal.targetId}`;
     case "shove": return `Shove ${proposal.targetId}`;
     case "grapple": return `Grapple ${proposal.targetId}`;

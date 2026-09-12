@@ -428,6 +428,114 @@ test("cloneStateForPlanning: a SANDBOXED heal cast spends the sandbox's own spel
   assert.equal(state.combatants.get("caster").spellSlots[1], 1, "...while the ORIGINAL, live state's pool must remain completely untouched — a lookahead branch that's merely considered must never spend a real resource");
 });
 
+// --- GH #60, design doc §60 Part 1b — the self-centered emanation ---
+function makeEmanationCaster(overrides = {}) {
+  return makeCaster({
+    spells: [], healAbilities: [{ name: "Heal (emanation)", healingFormula: "1d8", actions: 3, areaOrigin: "self", radius: 30, slotRank: 1 }],
+    spellSlots: { 1: 3 }, ...overrides
+  });
+}
+
+test("healAbility (self-centered emanation): heals every living ALLY within radius with the SAME single roll, revives a downed one, and leaves an out-of-range/enemy/dead combatant untouched", () => {
+  const caster = makeEmanationCaster();
+  const nearAlly = makeCaster({ id: "near", name: "Near", currentHP: 5, maxHP: 20, spells: [], healAbilities: [], position: { col: 1, row: 0 } });
+  const downedAlly = makeCaster({ id: "downed", name: "Downed", currentHP: 0, dyingValue: 1, maxHP: 20, spells: [], healAbilities: [], position: { col: 2, row: 0 } });
+  const farAlly = makeCaster({ id: "far", name: "Far", currentHP: 5, maxHP: 20, spells: [], healAbilities: [], position: { col: 200, row: 0 } }); // 200 squares = 1000ft, well outside a 30ft radius
+  const enemy = makeCaster({ id: "enemy", name: "Enemy", side: "opposition", currentHP: 5, maxHP: 20, spells: [], healAbilities: [], position: { col: 1, row: 1 } });
+  const deadAlly = makeCaster({ id: "dead", name: "Dead", currentHP: 0, dyingValue: 4, maxHP: 20, spells: [], healAbilities: [], position: { col: 0, row: 1 } }); // real dead (dyingValue 4), not just downed
+
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 210, rows: 20 }, walls: [],
+    combatants: new Map([["caster", caster], ["near", nearAlly], ["downed", downedAlly], ["far", farAlly], ["enemy", enemy], ["dead", deadAlly]]),
+    positions: new Map([["caster", { ...caster.position }], ["near", { ...nearAlly.position }], ["downed", { ...downedAlly.position }], ["far", { ...farAlly.position }], ["enemy", { ...enemy.position }], ["dead", { ...deadAlly.position }]])
+  };
+  function ai(s, combatantId, turnState) {
+    if (combatantId === "caster" && turnState.actionsUsed === 0) return { type: "healAbility", targetId: null, abilityIndex: 0, areaOrigin: "self" };
+    return null;
+  }
+  const log = runBattle({ seed: 1, gridSize: state.gridSize, roundLimit: 1, combatants: [caster, nearAlly, downedAlly, farAlly, enemy, deadAlly], ai });
+  const action = log.rounds[0].turns.find((t) => t.combatantId === "caster").actions.find((a) => a.type === "healAbility");
+
+  assert.equal(action.legal, true, JSON.stringify(action));
+  assert.equal(action.targetId, null);
+  assert.equal(action.areaOrigin, "self");
+  const affectedIds = action.affected.map((a) => a.targetId).sort();
+  assert.deepEqual(affectedIds, ["caster", "downed", "near"], `expected the two in-range LIVING allies PLUS the caster's own self (standing at the emanation's own center, trivially in range and allied with themselves), got: ${JSON.stringify(affectedIds)}`);
+  const nearEntry = action.affected.find((a) => a.targetId === "near");
+  const downedEntry = action.affected.find((a) => a.targetId === "downed");
+  const casterEntry = action.affected.find((a) => a.targetId === "caster");
+  assert.equal(nearEntry.healing, action.healing, "each affected ally's own healing must equal the ONE shared roll (capped individually at their own maxHP)");
+  assert.equal(downedEntry.targetHPAfter > 0, true, "the downed ally must actually be revived, not just topped up past 0 in name only");
+  assert.equal(casterEntry.healing, 0, "the caster starts at full HP — their own share of the shared roll caps at 0 real gain, but they're still a real affected entry");
+
+  const turn = log.rounds[0].turns.find((t) => t.combatantId === "caster");
+  assert.equal(turn.snapshot.far.currentHP, 5, "an ally 1000ft away must be completely untouched");
+  assert.equal(turn.snapshot.enemy.currentHP, 5, "an enemy inside the radius must NEVER be healed — living-target, allies-only scope");
+  assert.equal(turn.snapshot.dead.currentHP, 0, "a genuinely dead (dyingValue 4) combatant must never be revived by this");
+});
+
+test("healAbility (self-centered emanation): spends the shared spellSlots pool EXACTLY ONCE per cast, regardless of how many allies are affected", () => {
+  const caster = makeEmanationCaster({ spellSlots: { 1: 1 } });
+  const ally1 = makeCaster({ id: "a1", name: "A1", currentHP: 5, maxHP: 20, spells: [], healAbilities: [], position: { col: 1, row: 0 } });
+  const ally2 = makeCaster({ id: "a2", name: "A2", currentHP: 5, maxHP: 20, spells: [], healAbilities: [], position: { col: 0, row: 1 } });
+  const ally3 = makeCaster({ id: "a3", name: "A3", currentHP: 5, maxHP: 20, spells: [], healAbilities: [], position: { col: 1, row: 1 } });
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["caster", { ...caster }], ["a1", { ...ally1 }], ["a2", { ...ally2 }], ["a3", { ...ally3 }]]),
+    positions: new Map([["caster", { ...caster.position }], ["a1", { ...ally1.position }], ["a2", { ...ally2.position }], ["a3", { ...ally3.position }]])
+  };
+  const sandbox = forkTurnSandbox({ state, turn: { actionsAvailable: 3, actionsUsed: 0 } });
+  const result = sandbox.apply("caster", { type: "healAbility", targetId: null, abilityIndex: 0, areaOrigin: "self" });
+  assert.equal(result.legal, true, JSON.stringify(result));
+  assert.equal(result.affected.length, 4, "sanity: all three allies PLUS the caster's own self must actually be in range and affected");
+  assert.equal(sandbox.state.combatants.get("caster").spellSlots[1], 0, "spent by exactly 1, not by 4 (once per affected combatant would be a real bug)");
+});
+
+test("healAbility (self-centered emanation): illegal when nobody in range needs it, even with a real slot available", () => {
+  const caster = makeEmanationCaster();
+  const fullAlly = makeCaster({ id: "full", name: "Full", currentHP: 20, maxHP: 20, spells: [], healAbilities: [], position: { col: 1, row: 0 } });
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["caster", { ...caster }], ["full", { ...fullAlly }]]),
+    positions: new Map([["caster", { ...caster.position }], ["full", { ...fullAlly.position }]])
+  };
+  const sandbox = forkTurnSandbox({ state, turn: { actionsAvailable: 3, actionsUsed: 0 } });
+  const result = sandbox.apply("caster", { type: "healAbility", targetId: null, abilityIndex: 0, areaOrigin: "self" });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /needs/);
+});
+
+test("healAbility (self-centered emanation): a REJECTED (illegal) cast never mutates anyone's HP or the shared pool — no partial application, no fall-through into the single-target code path", () => {
+  const caster = makeEmanationCaster({ spellSlots: { 1: 1 } });
+  const fullAlly = makeCaster({ id: "full", name: "Full", currentHP: 20, maxHP: 20, spells: [], healAbilities: [], position: { col: 1, row: 0 } });
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["caster", { ...caster }], ["full", { ...fullAlly }]]),
+    positions: new Map([["caster", { ...caster.position }], ["full", { ...fullAlly.position }]])
+  };
+  const sandbox = forkTurnSandbox({ state, turn: { actionsAvailable: 3, actionsUsed: 0 } });
+  const result = sandbox.apply("caster", { type: "healAbility", targetId: null, abilityIndex: 0, areaOrigin: "self" });
+  assert.equal(result.legal, false, "sanity: nobody needs healing, so this must be illegal");
+  assert.equal(sandbox.state.combatants.get("full").currentHP, 20, "an illegal cast must never mutate any ally's HP");
+  assert.equal(sandbox.state.combatants.get("caster").spellSlots[1], 1, "an illegal cast must never spend the pool");
+});
+
+test("healAbility (self-centered emanation, EXPECTED-VALUE sandbox): resolves to the real probability-weighted average, shared across every affected ally (including the caster's own self, also hurt here), same as the single-target variants", () => {
+  const caster = makeEmanationCaster({ currentHP: 5 }); // also hurt, so the "every entry gets 4.5" assertion below is meaningful for the caster's own entry too, not just capped-at-0
+  const ally1 = makeCaster({ id: "a1", name: "A1", currentHP: 5, maxHP: 20, spells: [], healAbilities: [], position: { col: 1, row: 0 } });
+  const ally2 = makeCaster({ id: "a2", name: "A2", currentHP: 5, maxHP: 20, spells: [], healAbilities: [], position: { col: 0, row: 1 } });
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["caster", { ...caster }], ["a1", { ...ally1 }], ["a2", { ...ally2 }]]),
+    positions: new Map([["caster", { ...caster.position }], ["a1", { ...ally1.position }], ["a2", { ...ally2.position }]])
+  };
+  const sandbox = forkTurnSandbox({ state, turn: { actionsAvailable: 3, actionsUsed: 0 } });
+  const result = sandbox.apply("caster", { type: "healAbility", targetId: null, abilityIndex: 0, areaOrigin: "self" });
+  assert.equal(result.legal, true, JSON.stringify(result));
+  assert.equal(result.healing, 4.5, "1d8's real average is 4.5 — the EXPECTED-value path must average, never roll, and must be the SAME shared value for every affected ally");
+  for (const a of result.affected) assert.equal(a.healing, 4.5);
+});
+
 test("every legal action's result carries an actionsCost field matching what was actually spent", () => {
   const caster = makeCaster();
   caster.strikes = [{ name: "Backup Strike", strikeType: "melee", attackBonus: 100, traits: [], damage: [{ dice: "1d1", bonus: 5 }] }];

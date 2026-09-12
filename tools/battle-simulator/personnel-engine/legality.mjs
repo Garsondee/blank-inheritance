@@ -313,12 +313,23 @@ export function checkSpellAttackLegal({ caster, casterPos, target, targetPos, sp
  * received the `walls` parameter to do the same. Healing at range still needs a real line to the
  * target — nothing in Player Core exempts it from Line of Effect.
  */
-export function checkHealAbilityLegal({ healer, healerPos, target, targetPos, ability, turnState, walls }) {
+export function checkHealAbilityLegal({ healer, healerPos, target, targetPos, ability, turnState, walls, anyTargetBelowFull }) {
   const actorAlive = checkActorAlive(healer);
   if (!actorAlive.legal) return actorAlive;
 
   const budget = checkActionBudget(turnState, ability.actions ?? 1);
   if (!budget.legal) return budget;
+
+  // GH #60 Part 1b — a self-centered emanation has no single `target` at all (engine.mjs computes
+  // `anyTargetBelowFull` from the real affected set BEFORE calling this, the same "caller computes,
+  // this file only checks" convention checkAreaAttackLegal's own `affectedCount` already established).
+  // No range/LOS/dead checks make sense against a whole group centered on the caster's own square —
+  // distance-to-self is always 0, trivially in range and never wall-blocked.
+  if (ability.areaOrigin === "self") {
+    if (!anyTargetBelowFull) return { legal: false, reason: `Nobody within ${ability.radius}ft of ${healer.name} needs ${ability.name}.` };
+    if (!hasUses(ability, healer)) return { legal: false, reason: `${ability.name} has no uses remaining this encounter.` };
+    return { legal: true, reason: null };
+  }
 
   if (!target) return { legal: false, reason: "No such combatant — the target id does not exist." };
   // Design doc §25: healing a downed-but-not-dead PC back to 1+ HP is the whole point of the real

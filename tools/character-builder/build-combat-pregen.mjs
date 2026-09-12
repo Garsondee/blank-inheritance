@@ -305,17 +305,17 @@ export function deriveTransferVitality(ingredients) {
 }
 
 /**
- * GH #60, design doc §60 Part 1 — Heal's own two single-target, LIVING-target variants (the
- * 3-action emanation and the vs.-Undead 2-action variant are Part 1b, a separate, deferred
- * follow-on — see the design's own "Explicitly deferred" section), read directly off Foundry's real
- * OVERLAY mechanism. Confirmed via direct LevelDB read: Heal carries FOUR overlays on its base
+ * GH #60, design doc §60 Part 1/1b — Heal's THREE living-target variants (the vs.-Undead 2-action
+ * variant is Part 1c, a separate, deferred follow-on — see the design's own "Explicitly deferred"
+ * section: no creature-type concept exists anywhere in this codebase), read directly off Foundry's
+ * real OVERLAY mechanism. Confirmed via direct LevelDB read: Heal carries FOUR overlays on its base
  * spell document, one per action-cost tier (`spell.system.overlays`, each `overlayType: "override"`,
- * patching a subset of the base spell's own fields). The two in-scope overlays are selected by their
- * own real structural signature — `time.value`/`damage.0.kinds` — not a hardcoded overlay `_id`,
- * because the 1-action touch overlay carries no `name` field at all (only the two 2-action variants
- * are individually named "Heal (vs. Living)"/"Heal (vs. Undead)" in the real data); an overlay that
- * doesn't patch `damage` (the touch overlay) inherits the base spell's own formula, matching
- * Foundry's own real override-merge semantics.
+ * patching a subset of the base spell's own fields). The three in-scope overlays are selected by
+ * their own real structural signature — `time.value`/`damage.0.kinds`/`area.type` — not a hardcoded
+ * overlay `_id`, because the 1-action touch overlay carries no `name` field at all (only the two
+ * 2-action variants are individually named "Heal (vs. Living)"/"Heal (vs. Undead)" in the real
+ * data); an overlay that doesn't patch `damage` (the touch AND the emanation overlays) inherits the
+ * base spell's own formula, matching Foundry's own real override-merge semantics.
  */
 export function deriveHealSpellVariants(ingredients, spellName) {
   const { spells, spellcastingEntries } = ingredients;
@@ -333,6 +333,10 @@ export function deriveHealSpellVariants(ingredients, spellName) {
   if (!touch || !ranged) {
     throw new Error(`"${spellName}": expected a 1-action touch overlay and a 2-action living-heal overlay among its ${overlays.length} real overlays — Paizo may have restructured this spell.`);
   }
+  const emanation = overlays.find((o) => o.system.time?.value === "3" && o.system.area?.type === "emanation");
+  if (!emanation) {
+    throw new Error(`"${spellName}": expected a 3-action self-centered emanation overlay among its ${overlays.length} real overlays — Paizo may have restructured this spell.`);
+  }
 
   function toVariant(overlay, label) {
     const actions = parseInt(overlay.system.time.value, 10);
@@ -343,8 +347,12 @@ export function deriveHealSpellVariants(ingredients, spellName) {
       healingFormula: overlay.system.damage?.["0"]?.formula ?? baseFormula,
       actions,
       ...(rangeFeet != null ? { range: rangeFeet } : {}),
+      // GH #60 Part 1b — a self-centered area origin (Foundry's own real emanation shape). Only ever
+      // set for the emanation overlay (the touch/30ft overlays have no `area` field at all, so this
+      // degrades safely to false/no-op for them).
+      ...(overlay.system.area?.type === "emanation" ? { areaOrigin: "self", radius: overlay.system.area.value } : {}),
       slotRank: spell.system.level.value // real spell rank (1) — keys the shared pool (design doc §60 Decision 3), not hardcoded
     };
   }
-  return [toVariant(touch, "touch"), toVariant(ranged, "30ft")];
+  return [toVariant(touch, "touch"), toVariant(ranged, "30ft"), toVariant(emanation, "emanation")];
 }

@@ -110,6 +110,14 @@
       "actions": 2,
       "range": 30,
       "slotRank": 1
+    },
+    {
+      "name": "Heal (emanation)",
+      "healingFormula": "1d8",
+      "actions": 3,
+      "areaOrigin": "self",
+      "radius": 30,
+      "slotRank": 1
     }
   ],
   "spellSlots": {

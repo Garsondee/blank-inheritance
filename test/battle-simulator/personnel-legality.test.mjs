@@ -489,6 +489,45 @@ test("checkHealAbilityLegal: TWO DIFFERENT slotRank abilities sharing the SAME h
   assert.equal(nowIllegal30ft.legal, false, "the 30ft variant reads the SAME spellSlots.1 pool — it must be illegal too, not independently tracked");
 });
 
+// GH #60, design doc §60 Part 1b — the self-centered emanation's own area-mode branch. No `target`
+// at all — legality is driven entirely by the pre-computed `anyTargetBelowFull` (engine.mjs's own
+// job to compute from the real affected set, mirroring checkAreaAttackLegal's own `affectedCount`
+// convention) and the SAME shared spellSlots pool the other two variants already use.
+const healEmanation = { name: "Heal (emanation)", healingFormula: "1d8", actions: 3, areaOrigin: "self", radius: 30, slotRank: 1 };
+
+test("checkHealAbilityLegal: area mode — legal when someone in range is below full HP and a real slot exists", () => {
+  const healer = { ...aliveCaster, spellSlots: { 1: 1 } };
+  const result = checkHealAbilityLegal({ healer, healerPos: { col: 0, row: 0 }, ability: healEmanation, turnState: openBudget, anyTargetBelowFull: true });
+  assert.equal(result.legal, true);
+});
+
+test("checkHealAbilityLegal: area mode — illegal when nobody in range needs it, even with a real slot available", () => {
+  const healer = { ...aliveCaster, spellSlots: { 1: 1 } };
+  const result = checkHealAbilityLegal({ healer, healerPos: { col: 0, row: 0 }, ability: healEmanation, turnState: openBudget, anyTargetBelowFull: false });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /needs/);
+});
+
+test("checkHealAbilityLegal: area mode — illegal once the SHARED pool is spent, same as the single-target variants (shared, not independently tracked)", () => {
+  const healer = { ...aliveCaster, spellSlots: { 1: 0 } };
+  const result = checkHealAbilityLegal({ healer, healerPos: { col: 0, row: 0 }, ability: healEmanation, turnState: openBudget, anyTargetBelowFull: true });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /no uses remaining/);
+});
+
+test("checkHealAbilityLegal: area mode — spending the pool via the emanation makes the single-target variants illegal too, and vice versa (one real shared pool, three variants)", () => {
+  const healer = { ...aliveCaster, spellSlots: { 1: 0 } }; // as if the emanation already spent the shared slot
+  const target = { id: "ally", name: "Ally", currentHP: 10, maxHP: 16 };
+  const stillIllegalTouch = checkHealAbilityLegal({ healer, healerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, ability: healTouch, turnState: openBudget });
+  assert.equal(stillIllegalTouch.legal, false);
+});
+
+test("checkHealAbilityLegal: area mode never touches action budget differently — a real budget check still applies (3 actions needed, none available)", () => {
+  const healer = { ...aliveCaster, spellSlots: { 1: 1 } };
+  const result = checkHealAbilityLegal({ healer, healerPos: { col: 0, row: 0 }, ability: healEmanation, turnState: { actionsAvailable: 3, actionsUsed: 1 }, anyTargetBelowFull: true });
+  assert.equal(result.legal, false, "only 2 actions remain, the emanation costs 3 — must be rejected on budget alone, before ever reaching anyTargetBelowFull");
+});
+
 // hasUses/spendUse — the shared helper pair itself, in isolation.
 test("hasUses: a slotRank ability reads healer.spellSlots, completely ignoring any usesRemaining field it might also carry", () => {
   assert.equal(hasUses({ slotRank: 1 }, { spellSlots: { 1: 2 } }), true);
