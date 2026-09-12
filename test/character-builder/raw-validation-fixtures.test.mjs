@@ -242,6 +242,78 @@ test("kuriaku.json: checked-in strikes match a fresh live re-extraction exactly 
 
 const ALL_FIXTURE_NAMES = ["lunar-17.json", "security-goon.json", "tapkey.json", "xenowarden-greenhorn.json", "bennit.json", "erabryth.json", "vorza-moonshot.json", "tough.json", "obozaya.json", "kuriaku.json"];
 
+/**
+ * CONFORMANCE (GH #69's own remaining scope, design doc §76.9: "Do the numbers match the cited
+ * pack/SRD source?"). Investigated directly before writing this: per-instance conformance already
+ * exists for every currently-populated non-strike-array entry above — each bespoke test already
+ * deep-equals its own array against a fresh call into the real, pure, already-exported deriver. What
+ * doesn't exist is a SYSTEMATIC sweep — exactly the gap the well-formedness sweep above already
+ * closed for a different question (declares-a-limit vs. matches-its-source), and exactly the shape
+ * of gap #55 itself was (a real divergence nobody had a check positioned to catch). #64's own plan to
+ * import 8-10 more NPC enemies is precisely "every conversion is an opportunity for exactly this
+ * class of divergence, at ten times the volume" (#69's own issue text) — this table is the safety net
+ * for that work, not a replacement for the bespoke tests above (which carry real historical/narrative
+ * value — regression guards like "must never be wired as a single-target saveAttack again" — this
+ * sweep exists purely so a FUTURE fixture/entry is covered automatically, without anyone needing to
+ * remember to hand-write a new bespoke assertion, the same failure mode #55/#69 were about).
+ *
+ * Deliberately NOT a fully data-only table: the five deriver functions have genuinely different real
+ * signatures (PC-side spell/saveAttack derivers need `ingredients`+ability modifiers; NPC-side
+ * spell/conditionSave/areaAttack derivers take the raw NPC plus a hand-supplied config object whose
+ * `saveType`/`range`/`outcomes`/`actions` are NOT read from any structured pack field — confirmed by
+ * direct investigation, `extract-npc.mjs`'s own `deriveConditionSave`/`deriveAreaAttack` docstrings —
+ * so a conformance sweep can verify the derivation is STILL what it always was, but can never catch a
+ * transcription error in one of these hand-supplied values; only re-reading the source prose by hand
+ * can). Each entry below is a thunk closing over its own already-loaded ingredients/NPC, reusing the
+ * EXACT same function + arguments its own sibling bespoke test above already calls — this is a
+ * promotion of six already-proven-correct comparisons into one reusable, extensible table, not new
+ * derivation logic.
+ */
+function loadPregenIngredients(packSubdir, pregenName) {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", packSubdir);
+  const pregen = listLevel1Pregens(packDir).find((p) => p.name === pregenName);
+  const ingredients = toIngredients(pregen);
+  return { ingredients, mods: deriveAbilityModifiers(ingredients) };
+}
+function loadNPC(packSubdir, npcName) {
+  return findNPC(path.join(repoRoot, "gamesystems", "sf2e", "packs", packSubdir), npcName);
+}
+
+const { ingredients: lunar17Ingredients, mods: lunar17Mods } = loadPregenIngredients("paizo-pregens", "Lunar-17");
+const { ingredients: bennitIngredients, mods: bennitMods } = loadPregenIngredients("paizo-pregens", "“Nitpick” Bennit");
+const xenowardenNPC = loadNPC("alien-core-bestiary", "Xenowarden Greenhorn");
+const erabrythNPC = loadNPC("alien-core-bestiary", "Erabryth");
+const toughNPC = loadNPC("rulebook-bestiaries", "Tough");
+
+const CONFORMANCE_CASES = [
+  { file: "lunar-17.json", array: "spells", derive: () => deriveSpells(lunar17Ingredients, ["Eldritch Lance"], lunar17Mods) },
+  {
+    file: "lunar-17.json", array: "healAbilities",
+    derive: () => [{ ...deriveTransferVitality(lunar17Ingredients), usesRemaining: 2, usesPerEncounter: 2 }],
+    note: "usesRemaining/usesPerEncounter are hand-authored on top of the pure derivation (GH #55) — see lunar-17.json's own notes field"
+  },
+  { file: "xenowarden-greenhorn.json", array: "spells", derive: () => deriveSpellAttacks(xenowardenNPC, ["Gouging Claw"]) },
+  { file: "bennit.json", array: "saveAttacks", derive: () => deriveSaveSpells(bennitIngredients, ["Thunderstrike"], bennitMods) },
+  {
+    file: "erabryth.json", array: "conditionSaves",
+    derive: () => [deriveConditionSave(erabrythNPC, {
+      name: "Forced Reflection", saveType: "will", range: 60,
+      outcomes: {
+        criticalSuccess: {}, success: { frightened: 1 },
+        failure: { stunnedValue: 1, frightened: 1 }, criticalFailure: { stunnedValue: 2, frightened: 2 }
+      }
+    })]
+  },
+  { file: "tough.json", array: "areaAttacks", derive: () => [deriveAreaAttack(toughNPC, { name: "Frag Grenade (Commercial)", saveType: "ref", actions: 1 })] }
+];
+
+test("CONFORMANCE (GH #69): every currently-populated non-strike ability array matches a fresh live re-derivation exactly, via one systematic table instead of scattered bespoke assertions — the safety net for #64's own future NPC imports", () => {
+  for (const { file, array, derive, note } of CONFORMANCE_CASES) {
+    const fixture = readFixture(file);
+    assert.deepEqual(fixture[array], derive(), note ? `${file}'s ${array}: ${note}` : `${file}'s ${array} no longer matches a fresh re-derivation`);
+  }
+});
+
 test("all ten fixtures are personnel-engine-shape-compatible: every strike/spell/saveAttack/healAbility/areaAttack/conditionSave has the fields its own legality/resolution code actually reads", () => {
   for (const name of ALL_FIXTURE_NAMES) {
     const fixture = readFixture(name);
