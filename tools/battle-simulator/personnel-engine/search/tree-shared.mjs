@@ -128,6 +128,41 @@ export function proposalKey(proposal) {
  * still needs this exact mechanism, so it gets its own copy here — the shared file every search
  * algorithm in this directory already reuses for identically-behaving mechanics, not a new pattern.
  */
+/**
+ * GH #62's own remaining scope: MCTS tree search calls `generateProposals` with no destination
+ * cache at all, so every tree node independently re-floods from scratch — measured directly (real
+ * 8-combatant, 247-wall `mcts-puct-v1` decision, 500 iterations): 232 floods, zero reuse, ~83% of
+ * total decision wall-clock time (`battle-history.md`, 2026-09-12). `decide()`'s own real-turn
+ * `destCache` (persisted on `turnProgress`, gated by `occupancyFingerprint`) solves this within one
+ * turn's 3 real actions, but holds only ONE fingerprint "current" at a time — wrong for a tree
+ * search, which holds MANY different hypothetical occupancies alive simultaneously across sibling/
+ * cousin nodes (one branch Tripped an enemy, another didn't; an enemy died in one branch, not
+ * another). Sharing a single-fingerprint cache naively across nodes would silently serve one
+ * branch's reachable-cells answer to a different branch with different occupancy.
+ *
+ * `scopedDestCache` fixes this the cheap way, touching nothing inside `decide.mjs`'s own key-
+ * building logic: `searchDestCache` (a `Map<fingerprint, Map>`, instantiated fresh once per real
+ * `search()`/`continueSearch()` call — see mcts.mjs/mcts-puct.mjs's own entry points) buckets by
+ * occupancy fingerprint; each bucket is a PLAIN `Map`, indistinguishable from the one `planTurn`
+ * already hands `generateProposals` today via its own `externalDestCache` parameter — `decide.mjs`'s
+ * own `cachedReachableCells`/`trueDistanceField`/etc. need no changes at all, they just get handed a
+ * bucket already scoped to the right occupancy.
+ *
+ * `engine.occupancyFingerprint` is OPTIONAL (`ai-common/adapters/personnel-adapter.mjs`'s own
+ * "profiling aid, never required" precedent, matching `resetSandboxForkCount` — NOT `isDead`'s
+ * required-capability precedent): its absence is never a correctness risk, only a missed cache-reuse
+ * opportunity, so this degrades gracefully to `undefined`, which `generateProposals` already treats
+ * exactly like "no cache provided" (falls back to its own fresh, per-call `new Map()`) — byte-
+ * identical to today's behavior for any adapter that doesn't implement this field.
+ */
+export function scopedDestCache(searchDestCache, engine, state, combatantId) {
+  if (!engine.occupancyFingerprint || !searchDestCache) return undefined;
+  const fingerprint = engine.occupancyFingerprint(state, combatantId);
+  let scoped = searchDestCache.get(fingerprint);
+  if (!scoped) { scoped = new Map(); searchDestCache.set(fingerprint, scoped); }
+  return scoped;
+}
+
 export function createBudgetTracker(budget = {}) {
   const { maxIterations = Infinity, maxMs = Infinity } = budget ?? {};
   const startedAt = Date.now();

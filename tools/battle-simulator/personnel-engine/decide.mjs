@@ -805,8 +805,14 @@ function proposalKey(proposal) {
  * same order into every sandbox fork, so this string is already deterministic without an explicit
  * sort. `walls`/`gridSize`/`moverSide` never change mid-battle (confirmed by reading every
  * `attemptAction` branch) — occupancy is the only real input this needs to track.
+ *
+ * EXPORTED (GH #62's own remaining scope — MCTS tree-node cache reuse): the same real occupancy
+ * question applies identically to a hypothetical sandboxed tree-node state, not just the real
+ * battle's own `turn.destCache` — this function reads only `state.positions`/`state.combatants`,
+ * present identically on every `cloneStateForPlanning`-produced fork. `search/tree-shared.mjs`'s own
+ * `scopedDestCache` reuses it directly rather than re-deriving an equivalent hash a second way.
  */
-function occupancyFingerprint(state, combatantId) {
+export function occupancyFingerprint(state, combatantId) {
   return otherLivingPositions(state, combatantId).map((p) => `${p.col},${p.row},${p.side}`).join("|");
 }
 

@@ -86,10 +86,10 @@
  * separate, larger, still-blocked problem.
  */
 import { isDeepStrictEqual } from "node:util";
-import { generateProposals } from "../decide.mjs";
+import { generateProposals, occupancyFingerprint } from "../decide.mjs";
 import { forkTurnSandbox, checkOutcome } from "../engine.mjs";
 import { evaluateState, DEFAULT_WEIGHTS } from "../evaluate/state-value.mjs";
-import { outcomeValue, nextActorAfterAction, WIN_VALUE, LOSS_VALUE, createBudgetTracker } from "./tree-shared.mjs";
+import { outcomeValue, nextActorAfterAction, WIN_VALUE, LOSS_VALUE, createBudgetTracker, scopedDestCache } from "./tree-shared.mjs";
 
 const DEFAULT_C_PUCT = 1.5; // real, reasonable, UNTUNED — issue #12 owns tuning this
 const DEFAULT_TAU = 10; // softmax temperature over real evaluateState gains — also untuned
@@ -114,9 +114,12 @@ function resolveEngine(adapter) {
         generateProposals: adapter.generateProposals, forkTurnSandbox: adapter.forkTurnSandbox,
         checkOutcome: adapter.checkOutcome, evaluateState: adapter.evaluateState,
         conditions: { isDead: adapter.isDead, isUnconscious: adapter.isUnconscious, resolveEffectiveStats: adapter.resolveEffectiveStats },
-        adapterId: adapter.id
+        adapterId: adapter.id,
+        // OPTIONAL (GH #62) — see tree-shared.mjs's own scopedDestCache header. Absence degrades
+        // gracefully to today's exact behavior; never gated by the throw above, unlike isDead/etc.
+        occupancyFingerprint: adapter.occupancyFingerprint
       }
-    : { generateProposals, forkTurnSandbox, checkOutcome, evaluateState, conditions: undefined, adapterId: "personnel" };
+    : { generateProposals, forkTurnSandbox, checkOutcome, evaluateState, conditions: undefined, adapterId: "personnel", occupancyFingerprint };
 }
 
 /** The `builtWeights`/`builtTau`/`builtAdapterId` triple every real node in this tree carries (design
@@ -141,10 +144,10 @@ function nodeBuildMeta(weights, tau, engine) {
  * Each candidate carries its own already-forked `sandboxState`/`sandboxTurn` so a later expansion
  * never re-forks the same proposal twice.
  */
-function computeCandidates(state, actor, weights, tau, engine) {
+function computeCandidates(state, actor, weights, tau, engine, searchDestCache) {
   const me = state.combatants.get(actor.actingId);
   const before = engine.evaluateState(state, me.side, weights, actor.actingId);
-  const proposals = engine.generateProposals(state, actor.actingId, actor.turn);
+  const proposals = engine.generateProposals(state, actor.actingId, actor.turn, scopedDestCache(searchDestCache, engine, state, actor.actingId));
 
   const scored = [];
   for (const proposal of proposals) {
@@ -164,14 +167,14 @@ function computeCandidates(state, actor, weights, tau, engine) {
     .sort((a, b) => b.prior - a.prior);
 }
 
-function makeNode(state, actor, rootSide, weights, maxDepth, depth, tau, engine) {
+function makeNode(state, actor, rootSide, weights, maxDepth, depth, tau, engine, searchDestCache) {
   const outcome = engine.checkOutcome(state);
   if (outcome) {
     const terminalValue = outcomeValue(outcome, rootSide);
     return { state, actor, depth, terminal: true, terminalValue, proven: terminalValue === WIN_VALUE ? "win" : "loss", candidates: [], ...nodeBuildMeta(weights, tau, engine) };
   }
   const horizon = depth >= maxDepth;
-  return { state, actor, depth, terminal: false, horizon, proven: null, candidates: horizon ? [] : computeCandidates(state, actor, weights, tau, engine), ...nodeBuildMeta(weights, tau, engine) };
+  return { state, actor, depth, terminal: false, horizon, proven: null, candidates: horizon ? [] : computeCandidates(state, actor, weights, tau, engine, searchDestCache), ...nodeBuildMeta(weights, tau, engine) };
 }
 
 /** MCTS-Solver (design doc §67): `node` becomes PROVEN either directly (it's a real `checkOutcome`
@@ -233,7 +236,7 @@ function selectCandidate(node, rootSide, cPuct, wideningK, wideningAlpha, useSol
   return best;
 }
 
-function runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, engine) {
+function runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, engine, searchDestCache) {
   let node = root;
   const path = []; // { parentNode, candidate } pairs, shallowest first — MCTS-Solver walks this back to front
 
@@ -244,7 +247,7 @@ function runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct,
       const nextActor = nextActorAfterAction({ childState: candidate.sandboxState, childTurn: candidate.sandboxTurn, actor: node.actor, initiativeOrder, conditions: engine.conditions });
       candidate.child = (nextActor.stochasticGap || nextActor.noActor)
         ? { state: candidate.sandboxState, actor: node.actor, depth: node.depth + 1, terminal: false, horizon: true, forcedHorizon: true, proven: null, candidates: [], ...nodeBuildMeta(weights, tau, engine) }
-        : makeNode(candidate.sandboxState, nextActor, rootSide, weights, maxDepth, node.depth + 1, tau, engine);
+        : makeNode(candidate.sandboxState, nextActor, rootSide, weights, maxDepth, node.depth + 1, tau, engine, searchDestCache);
       node = candidate.child;
       break; // "leaf = evaluateState": a freshly-expanded node is this iteration's own leaf, no further descent
     }
@@ -275,7 +278,7 @@ function runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct,
   // a genuine depth-cap horizon reached via `continueSearch`'s own depth-offset.
   if (!node.terminal && node.horizon && !node.forcedHorizon && node.depth < maxDepth) {
     node.horizon = false;
-    node.candidates = computeCandidates(node.state, node.actor, weights, tau, engine);
+    node.candidates = computeCandidates(node.state, node.actor, weights, tau, engine, searchDestCache);
   }
 
   const leafValue = node.terminal ? node.terminalValue : engine.evaluateState(node.state, rootSide, weights);
@@ -336,8 +339,13 @@ export function search({
     turn
   };
   const initiativeOrder = state.initiativeOrder ?? [combatantId];
-  const root = makeNode(state, actor, rootSide, weights, maxDepth, 0, tau, engine);
-  return runSearchToCompletion({ root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, budget, iterations, engine });
+  // GH #62 — ONE shared cache for this ENTIRE search() call, bucketed by occupancy fingerprint
+  // (scopedDestCache, tree-shared.mjs) so sibling/cousin tree nodes with matching occupancy reuse
+  // real pathfinding-flood results, never a different branch's. Freshly instantiated per call —
+  // never persists into a different search() or continueSearch() invocation.
+  const searchDestCache = new Map();
+  const root = makeNode(state, actor, rootSide, weights, maxDepth, 0, tau, engine, searchDestCache);
+  return runSearchToCompletion({ root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, budget, iterations, engine, searchDestCache });
 }
 
 /**
@@ -357,14 +365,14 @@ export function search({
  * real "pick best" selection below using the root's own already-accumulated statistics, rather than
  * discarding a subtree that already contains the certified-correct answer).
  */
-function runSearchToCompletion({ root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, budget, iterations, engine }) {
+function runSearchToCompletion({ root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, budget, iterations, engine, searchDestCache }) {
   // Same `forcedHorizon` guard as runIteration's own reopen-check, and the same real bug it fixes
   // (design doc §74) — a REUSED root (via `continueSearch`) can itself be a forced node (`hop.node`
   // from `findReusableNode`/`advanceRoot` is whatever `candidate.child` actually was, forced shape
   // included), so this root-level reopen needed the identical fix, not just runIteration's own.
   if (!root.terminal && root.horizon && !root.forcedHorizon && root.depth < maxDepth) {
     root.horizon = false;
-    root.candidates = computeCandidates(root.state, root.actor, weights, tau, engine);
+    root.candidates = computeCandidates(root.state, root.actor, weights, tau, engine, searchDestCache);
   }
 
   if (root.candidates.length === 0) {
@@ -374,7 +382,7 @@ function runSearchToCompletion({ root, rootSide, weights, maxDepth, initiativeOr
   const tracker = createBudgetTracker({ maxIterations: Math.min(iterations, budget?.maxIterations ?? Infinity), maxMs: budget?.maxMs ?? Infinity });
   if (!root.terminal) { // an already-proven root (reused, MCTS-Solver) has nothing left to learn — skip straight to selection
     while (!tracker.exhausted()) {
-      runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, engine);
+      runIteration(root, rootSide, weights, maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, engine, searchDestCache);
       tracker.tick();
       if (useSolver && root.terminal) break; // proven — no further iteration can change the real answer
     }
@@ -450,5 +458,8 @@ export function continueSearch({
   }
   const rootSide = root.state.combatants.get(combatantId).side;
   const initiativeOrder = root.state.initiativeOrder ?? [combatantId];
-  return runSearchToCompletion({ root, rootSide, weights, maxDepth: root.depth + maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, budget, iterations, engine });
+  // GH #62 — a FRESH cache for this resumed call, never the original search's now-stale one: a
+  // real action has happened since that tree was built, so occupancy has genuinely moved on.
+  const searchDestCache = new Map();
+  return runSearchToCompletion({ root, rootSide, weights, maxDepth: root.depth + maxDepth, initiativeOrder, cPuct, tau, wideningK, wideningAlpha, useSolver, budget, iterations, engine, searchDestCache });
 }

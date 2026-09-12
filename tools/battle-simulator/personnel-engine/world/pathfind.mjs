@@ -107,7 +107,7 @@ function key(col, row, parity) { return `${col},${row},${parity}`; }
 let floodCount = 0, floodTimeMs = 0;
 export function resetFloodCount() { floodCount = 0; floodTimeMs = 0; }
 export function getFloodCount() { return floodCount; }
-export function getFloodTimeMs() { return floodTimeMs; } // GH #62 investigation — temporary, see terrain.mjs's own cache header
+export function getFloodTimeMs() { return floodTimeMs; } // GH #62 investigation — see evaluate/state-value.mjs's own distanceCache header for the sibling, already-solved occupancy-independent caching problem this one is NOT (occupancy varies; see search/tree-shared.mjs's own scopedDestCache)
 
 export function reachableCells({ from, maxFeet, gridSize, occupiedPositions = [], walls = [], moverSide = null, includePath = true }) {
   floodCount++;
