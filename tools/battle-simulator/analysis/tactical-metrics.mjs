@@ -397,7 +397,7 @@ export function sideOutcomeStats(log, side) {
   let damageTaken = 0;
   let healingReceived = 0;
 
-  for (const { action } of flatActions(log)) {
+  for (const { actorId, action } of flatActions(log)) {
     if (action.legal === false) continue;
     if (action.targetId && ids.has(action.targetId)) {
       if (typeof action.damageApplied === "number") damageTaken += action.damageApplied;
@@ -410,6 +410,18 @@ export function sideOutcomeStats(log, side) {
       if (!ids.has(affected.targetId)) continue;
       if (typeof affected.appliedDamage === "number") damageTaken += affected.appliedDamage;
       if (typeof affected.targetHPAfter === "number") finalHP.set(affected.targetId, affected.targetHPAfter);
+    }
+    // FIX (design doc §78-adjacent, GH #57/#69 investigation): a fired reaction (GH #18 personnel /
+    // Frame's own Claim) is logged inside the MOVER's own action (`reactions`/`triggeredReactions`),
+    // with no targetId field at all on the reaction entry — the implicit target is always the mover
+    // (`actorId` here). engagementStats/resourceUseStats/abilityExecutions already got this exact
+    // fix; this function never did, so a real Reactive Strike's damage was silently invisible here,
+    // diverging from the live simulation's own turn.snapshot HP.
+    if (ids.has(actorId)) {
+      for (const reaction of action.reactions ?? action.triggeredReactions ?? []) {
+        if (typeof reaction.damageApplied === "number") damageTaken += reaction.damageApplied;
+        if (typeof reaction.targetHPAfter === "number") finalHP.set(actorId, reaction.targetHPAfter);
+      }
     }
   }
 

@@ -171,6 +171,36 @@ test("METRIC VALIDATION — sideOutcomeStats: a real areaAttack's multi-target `
   assert.equal(party.finalHP, 15 + 18);
 });
 
+// FIX (found investigating GH #69's HP-conservation invariant): engagementStats/resourceUseStats/
+// abilityExecutions all already got the reactions-vs-triggeredReactions fix (GH #57) — this sibling
+// function, three functions later in the same file, never did. A real Reactive Strike's damage was
+// silently invisible to sideOutcomeStats, diverging from the live simulation's own turn.snapshot HP.
+test("METRIC VALIDATION — sideOutcomeStats: a fired reaction's damage (logged inside the MOVER's own action, no targetId of its own) is attributed to the mover, not silently dropped", () => {
+  const roster = { "p-1": { side: "party", maxHP: 20 } };
+  const log = {
+    roster,
+    rounds: [{ round: 1, turns: [{ combatantId: "p-1", actions: [
+      { type: "move", legal: true, reactions: [{ reactorId: "enemy", strikeName: "Warhammer", damageApplied: 6, targetHPAfter: 14 }] }
+    ] }] }]
+  };
+  const party = sideOutcomeStats(log, "party");
+  assert.equal(party.damageTaken, 6, "the reaction's damage must count against the mover's own side");
+  assert.equal(party.finalHP, 14);
+});
+
+test("METRIC VALIDATION — sideOutcomeStats: Frame-scale's own `triggeredReactions[]` shape is unchanged by the fix above", () => {
+  const roster = { "p-1": { side: "party", maxHP: 20 } };
+  const log = {
+    roster,
+    rounds: [{ round: 1, turns: [{ combatantId: "p-1", actions: [
+      { type: "move", legal: true, triggeredReactions: [{ reactorId: "claimant", reactionName: "Claim", damageApplied: 9, targetHPAfter: 11 }] }
+    ] }] }]
+  };
+  const party = sideOutcomeStats(log, "party");
+  assert.equal(party.damageTaken, 9);
+  assert.equal(party.finalHP, 11);
+});
+
 // --- coverUsageStats (design doc §39 — Ingram's own question: "Does the cover mechanic actually
 // work rules as written? Are the participants actually using it?") ---
 
