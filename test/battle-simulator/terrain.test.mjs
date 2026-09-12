@@ -12,7 +12,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { EDGE_SENSE, wallBlocksMove, wallBlocksSight, edgesBetween, moveBlockedBetween, segmentsIntersect, lineOfEffect } from "../../tools/battle-simulator/engine/terrain.mjs";
+import { EDGE_SENSE, wallBlocksMove, wallBlocksSight, edgesBetween, moveBlockedBetween, segmentsIntersect, lineOfEffect, hasCover, resetGeometryQueryStats, getGeometryQueryStats } from "../../tools/battle-simulator/engine/terrain.mjs";
 
 test("wallBlocksMove/wallBlocksSight: NONE and LIMITED do not block, NORMAL and above do", () => {
   assert.equal(wallBlocksMove({ move: EDGE_SENSE.NONE }), false);
@@ -112,6 +112,72 @@ test("REGRESSION: lineOfEffect is symmetric — order of the two cells must not 
   const walls = [{ c: [4, 4, 4, 6], move: EDGE_SENSE.NORMAL, sight: EDGE_SENSE.NORMAL }];
   const a = { col: 2, row: 5 }, b = { col: 7, row: 5 };
   assert.equal(lineOfEffect(a, b, walls), lineOfEffect(b, a, walls));
+});
+
+// --- lineOfEffect/hasCover result cache (GH #62) — measured directly on a real 8-combatant,
+// 247-wall MCTS decision: 47,201 total calls resolved to only 668 distinct results, a 70x repeat
+// ratio, overwhelmingly from evaluateState's own per-(ally,enemy)-pair loop re-querying the same
+// small position space across ~580 tree-node expansions in one search. Caching is safe because
+// walls are static terrain (confirmed: zero mutating assignments to any `.walls` property anywhere
+// in this codebase) and both functions are proven pure functions of the unordered point pair.
+test("cache: a repeated identical lineOfEffect query is a real cache hit, not just an equal result", () => {
+  resetGeometryQueryStats();
+  const walls = [{ c: [4, 4, 4, 6], move: EDGE_SENSE.NORMAL, sight: EDGE_SENSE.NORMAL }];
+  const a = { col: 2, row: 5 }, b = { col: 7, row: 5 };
+  lineOfEffect(a, b, walls);
+  lineOfEffect(a, b, walls);
+  lineOfEffect(a, b, walls);
+  const stats = getGeometryQueryStats(walls);
+  assert.equal(stats.total, 3, "all three calls must be counted");
+  assert.equal(stats.hits, 2, "the second and third calls must hit the cache, only the first computes");
+  assert.equal(stats.distinct, 1, "one distinct (predicate, pair) combination");
+});
+
+test("cache: reversed point order shares ONE cache entry — a hit, not a separate miss (relies on the proven symmetry above)", () => {
+  resetGeometryQueryStats();
+  const walls = [{ c: [4, 4, 4, 6], move: EDGE_SENSE.NORMAL, sight: EDGE_SENSE.NORMAL }];
+  const a = { col: 2, row: 5 }, b = { col: 7, row: 5 };
+  lineOfEffect(a, b, walls);
+  lineOfEffect(b, a, walls);
+  const stats = getGeometryQueryStats(walls);
+  assert.equal(stats.hits, 1, "the reversed-order call must hit the SAME cache entry");
+  assert.equal(stats.distinct, 1);
+});
+
+test("cache: lineOfEffect and hasCover never share a cache entry, even for the identical point pair and walls — different predicates, real answers can differ", () => {
+  resetGeometryQueryStats();
+  const walls = [{ c: [4, 4, 4, 6], move: EDGE_SENSE.NORMAL, sight: EDGE_SENSE.NONE, cover: true }]; // blocks nothing for sight, grants cover
+  const a = { col: 2, row: 5 }, b = { col: 7, row: 5 };
+  const los = lineOfEffect(a, b, walls);
+  const cover = hasCover(a, b, walls);
+  assert.equal(los, true, "precondition: this wall must not block sight");
+  assert.equal(cover, true, "precondition: this wall must grant cover");
+  const stats = getGeometryQueryStats(walls);
+  assert.equal(stats.distinct, 2, "lineOfEffect and hasCover must be two separate cache entries, not one shared miss/hit");
+});
+
+test("cache: two DIFFERENT walls array references never share cache entries, even with identical content", () => {
+  const wallsA = [{ c: [4, 4, 4, 6], move: EDGE_SENSE.NORMAL, sight: EDGE_SENSE.NORMAL }];
+  const wallsB = [{ c: [4, 4, 4, 6], move: EDGE_SENSE.NORMAL, sight: EDGE_SENSE.NORMAL }]; // same content, different array
+  const a = { col: 2, row: 5 }, b = { col: 7, row: 5 };
+  resetGeometryQueryStats();
+  lineOfEffect(a, b, wallsA);
+  lineOfEffect(a, b, wallsB);
+  // Each walls reference gets its own WeakMap entry — querying a NEW reference is never a hit
+  // against a DIFFERENT reference's cache, confirmed via each one's own distinct count being 1.
+  assert.equal(getGeometryQueryStats(wallsA).distinct, 1);
+  assert.equal(getGeometryQueryStats(wallsB).distinct, 1);
+});
+
+test("cache: resetGeometryQueryStats clears total/hit counters but not the underlying cached results (a fresh count, not a fresh cache)", () => {
+  const walls = [{ c: [4, 4, 4, 6], move: EDGE_SENSE.NORMAL, sight: EDGE_SENSE.NORMAL }];
+  const a = { col: 2, row: 5 }, b = { col: 7, row: 5 };
+  lineOfEffect(a, b, walls); // warms the cache
+  resetGeometryQueryStats();
+  lineOfEffect(a, b, walls); // this call should still hit the (unreset) cache
+  const stats = getGeometryQueryStats(walls);
+  assert.equal(stats.total, 1, "reset zeroes the counters");
+  assert.equal(stats.hits, 1, "but the cache itself, being per-walls-reference, survives a stats reset");
 });
 
 test("DOCUMENTATION TRAP: a single long multi-cell wall segment blocks Line of Effect across its whole span but blocks movement at ZERO edges along that span (not 'everywhere except one edge' — moveBlockedBetween's exact-endpoint match can never equal a longer segment's endpoints, no matter where along it you step)", () => {

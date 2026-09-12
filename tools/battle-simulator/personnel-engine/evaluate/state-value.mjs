@@ -387,7 +387,18 @@ function maneuverTempoOwed(combatant, combatantsMap) {
  * caller that omits it (every test, decide.mjs's own callers before this change) gets exactly the
  * same score as before this parameter existed; only the new setupValue term below ever reads it.
  */
+// EVALUATE-CALL COUNTER (GH #62 investigation) — the one true seam every real decision AND every
+// MCTS tree-node expansion passes through, mirroring engine.mjs's own sandboxForkCount/pathfind.mjs's
+// own floodCount pattern exactly: a plain increment that never touches this function's own control
+// flow or return value, only meaningful to a caller that explicitly resets and reads it. Exists to
+// measure, not assume, how many times a single real MCTS search() call invokes this function — the
+// open question behind #62's own remaining "zero cache reuse per tree node" scope.
+let evaluateStateCallCount = 0;
+export function resetEvaluateStateCallCount() { evaluateStateCallCount = 0; }
+export function getEvaluateStateCallCount() { return evaluateStateCallCount; }
+
 export function evaluateState(state, side, weights = DEFAULT_WEIGHTS, actingCombatantId = null) {
+  evaluateStateCallCount += 1;
   const all = [...state.combatants.values()];
   // Faction-aware (factions.mjs), not a raw side filter — see that file's own header.
   const { allies, enemies } = splitByRelation({ id: null, side }, all);

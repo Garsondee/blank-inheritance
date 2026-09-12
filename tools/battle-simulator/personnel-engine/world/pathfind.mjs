@@ -104,12 +104,14 @@ function key(col, row, parity) { return `${col},${row},${parity}`; }
 // this seam, not derived from a call site, is what can actually prove a cache is being reused rather
 // than merely "not wrong." Inert for every existing caller: a plain increment, no control-flow/return
 // effect, only meaningful to a caller that explicitly resets and reads it.
-let floodCount = 0;
-export function resetFloodCount() { floodCount = 0; }
+let floodCount = 0, floodTimeMs = 0;
+export function resetFloodCount() { floodCount = 0; floodTimeMs = 0; }
 export function getFloodCount() { return floodCount; }
+export function getFloodTimeMs() { return floodTimeMs; } // GH #62 investigation — temporary, see terrain.mjs's own cache header
 
 export function reachableCells({ from, maxFeet, gridSize, occupiedPositions = [], walls = [], moverSide = null, includePath = true }) {
   floodCount++;
+  const __floodStart = performance.now();
   const heap = new MinHeap();
   const best = new Map(); // key(col,row,parity) -> cost
   const cameFrom = new Map(); // key -> {col,row,parity} of the predecessor
@@ -173,6 +175,7 @@ export function reachableCells({ from, maxFeet, gridSize, occupiedPositions = []
     }
     result.set(cellKey, { cost, path });
   }
+  floodTimeMs += performance.now() - __floodStart;
   return result;
 }
 
