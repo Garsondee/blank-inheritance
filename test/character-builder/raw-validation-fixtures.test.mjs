@@ -11,7 +11,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { listLevel1Pregens, toIngredients, findEquipmentItem } from "../../tools/character-builder/extract-pregen.mjs";
 import { deriveAbilityModifiers, deriveHP, deriveArmorClass } from "../../tools/character-builder/derive.mjs";
-import { deriveStrikes, deriveSpells, deriveSaveSpells, deriveTransferVitality, deriveSkillModifier } from "../../tools/character-builder/build-combat-pregen.mjs";
+import { deriveStrikes, deriveSpells, deriveSaveSpells, deriveTransferVitality, deriveHealSpellVariants, deriveSkillModifier } from "../../tools/character-builder/build-combat-pregen.mjs";
 import { findNPC, toCombatant, deriveSpellAttacks, deriveConditionSave, deriveAreaAttack } from "../../tools/pack-extractor/extract-npc.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -38,9 +38,11 @@ test("lunar-17.json: checked-in strikes/spell/heal-ability match a fresh live re
   assert.deepEqual(fixture.spells, deriveSpells(ingredients, ["Eldritch Lance"], mods));
   assert.deepEqual(
     fixture.healAbilities,
-    [{ ...deriveTransferVitality(ingredients), usesRemaining: 2, usesPerEncounter: 2 }],
-    "usesRemaining/usesPerEncounter are hand-authored on top of the pure derivation (GH #55) — the real limit is the Vitality Network feat's own regenerating resource pool, not a derivable per-day count; see lunar-17.json's own notes field and deriveTransferVitality's docstring for why"
+    [{ ...deriveTransferVitality(ingredients), usesRemaining: 2, usesPerEncounter: 2 }, ...deriveHealSpellVariants(ingredients, "Heal")],
+    "usesRemaining/usesPerEncounter are hand-authored on top of the pure derivation (GH #55) — the real limit is the Vitality Network feat's own regenerating resource pool, not a derivable per-day count; see lunar-17.json's own notes field and deriveTransferVitality's docstring for why. Heal (touch)/Heal (30ft) are GH #60's own real, fully-derived addition — no hand-authoring involved."
   );
+  const occultEntry = ingredients.spellcastingEntries.find((e) => e.name === "Occult Spontaneous Spells");
+  assert.deepEqual(fixture.spellSlots, { 1: occultEntry.system.slots.slot1.max }, "GH #60 — the shared Heal slot pool, keyed by her real rank-1 slot count");
   assert.equal(fixture.saveAttacks, undefined, "her Incendiary Grenade is real but a burst-AREA effect (see design doc §21) — must never be wired as a single-target saveAttack again");
   assert.equal(fixture.intimidationModifier, deriveSkillModifier(ingredients, "intimidation", mods));
   assert.equal(fixture.side, "party");
@@ -289,9 +291,10 @@ const CONFORMANCE_CASES = [
   { file: "lunar-17.json", array: "spells", derive: () => deriveSpells(lunar17Ingredients, ["Eldritch Lance"], lunar17Mods) },
   {
     file: "lunar-17.json", array: "healAbilities",
-    derive: () => [{ ...deriveTransferVitality(lunar17Ingredients), usesRemaining: 2, usesPerEncounter: 2 }],
-    note: "usesRemaining/usesPerEncounter are hand-authored on top of the pure derivation (GH #55) — see lunar-17.json's own notes field"
+    derive: () => [{ ...deriveTransferVitality(lunar17Ingredients), usesRemaining: 2, usesPerEncounter: 2 }, ...deriveHealSpellVariants(lunar17Ingredients, "Heal")],
+    note: "usesRemaining/usesPerEncounter are hand-authored on top of the pure derivation (GH #55) — see lunar-17.json's own notes field. Heal (touch)/Heal (30ft) are GH #60's own fully-derived addition."
   },
+  { file: "lunar-17.json", array: "spellSlots", derive: () => ({ 1: lunar17Ingredients.spellcastingEntries.find((e) => e.name === "Occult Spontaneous Spells").system.slots.slot1.max }) },
   { file: "xenowarden-greenhorn.json", array: "spells", derive: () => deriveSpellAttacks(xenowardenNPC, ["Gouging Claw"]) },
   { file: "bennit.json", array: "saveAttacks", derive: () => deriveSaveSpells(bennitIngredients, ["Thunderstrike"], bennitMods) },
   {
@@ -334,7 +337,10 @@ test("all ten fixtures are personnel-engine-shape-compatible: every strike/spell
       assert.ok(Array.isArray(saveAttack.damage) && saveAttack.damage[0]?.dice, `${name}: saveAttack "${saveAttack.name}" has no usable damage`);
     }
     for (const heal of fixture.healAbilities ?? []) {
-      assert.ok(heal.name && typeof heal.healingAmount === "number" && heal.actions, `${name}: malformed healAbility ${JSON.stringify(heal)}`);
+      // GH #60: a heal ability now carries EITHER a flat healingAmount (Transfer Vitality) OR a real
+      // dice healingFormula (Heal's own two variants) — never both, always at least one.
+      const healingOk = typeof heal.healingAmount === "number" || typeof heal.healingFormula === "string";
+      assert.ok(heal.name && healingOk && heal.actions, `${name}: malformed healAbility ${JSON.stringify(heal)}`);
     }
     for (const conditionSave of fixture.conditionSaves ?? []) {
       assert.ok(conditionSave.name && conditionSave.saveType && typeof conditionSave.dc === "number" && conditionSave.actions, `${name}: malformed conditionSave ${JSON.stringify(conditionSave)}`);
@@ -369,7 +375,9 @@ test("well-formedness (GH #69/#55): every spell/healAbility/saveAttack/areaAttac
     const fixture = readFixture(name);
     for (const arrayName of ["spells", "healAbilities", "saveAttacks", "areaAttacks", "conditionSaves"]) {
       for (const entry of fixture[arrayName] ?? []) {
-        const wellFormed = entry.usesRemaining != null || entry.atWill === true;
+        // GH #60: slotRank is a THIRD well-formed shape — the limit is real and tracked, just at the
+        // combatant's own shared spellSlots pool rather than per-ability usesRemaining (Decision 3).
+        const wellFormed = entry.usesRemaining != null || entry.atWill === true || entry.slotRank != null;
         if (!wellFormed) foundGaps.push({ file: name, array: arrayName, name: entry.name });
       }
     }

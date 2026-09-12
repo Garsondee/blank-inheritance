@@ -12,7 +12,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { listLevel1Pregens, toIngredients } from "../../tools/character-builder/extract-pregen.mjs";
 import { deriveAbilityModifiers } from "../../tools/character-builder/derive.mjs";
-import { deriveStrikes, deriveSpells, deriveTransferVitality, deriveSaveAttacks, deriveSaveSpells, deriveSkillModifier } from "../../tools/character-builder/build-combat-pregen.mjs";
+import { deriveStrikes, deriveSpells, deriveTransferVitality, deriveHealSpellVariants, deriveSaveAttacks, deriveSaveSpells, deriveSkillModifier } from "../../tools/character-builder/build-combat-pregen.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..", "..");
@@ -119,6 +119,58 @@ test("deriveTransferVitality: never invents a usesRemaining — the real limit i
   const ingredients = lunar17Ingredients();
   const heal = deriveTransferVitality(ingredients);
   assert.equal(heal.usesRemaining, undefined, "no real structured field for Transfer Vitality's limit exists in the raw data — this function must not guess one");
+});
+
+// GH #60, design doc §60 Part 1 — Heal really is on Lunar-17's own real raw spell list (confirmed
+// directly via a LevelDB read before this code was written, same discipline as every other real
+// number in this file), governed by the SAME "Occult Spontaneous Spells" entry as Eldritch Lance.
+test("deriveHealSpellVariants: Heal's real touch variant — 1 action, 1d8, no range field at all (touch/adjacent per checkSpellRange's own default), rank-1 slot", () => {
+  const ingredients = lunar17Ingredients();
+  const [touch] = deriveHealSpellVariants(ingredients, "Heal");
+  assert.equal(touch.name, "Heal (touch)");
+  assert.equal(touch.actions, 1);
+  assert.equal(touch.healingFormula, "1d8");
+  assert.equal(touch.range, undefined, "a touch-range variant must omit range entirely, not set it to 0 — see design doc §60's own Part 1 Decision 2 note");
+  assert.equal(touch.slotRank, 1);
+});
+
+test("deriveHealSpellVariants: Heal's real 30ft variant — 2 actions, 1d8+8 (the living-target bonus, NOT the plain 1d8 the vs.-Undead overlay gets), rank-1 slot", () => {
+  const ingredients = lunar17Ingredients();
+  const [, ranged] = deriveHealSpellVariants(ingredients, "Heal");
+  assert.equal(ranged.name, "Heal (30ft)");
+  assert.equal(ranged.actions, 2);
+  assert.equal(ranged.healingFormula, "1d8+8");
+  assert.equal(ranged.range, 30);
+  assert.equal(ranged.slotRank, 1);
+});
+
+test("deriveHealSpellVariants: both variants carry the SAME slotRank — the whole point of Decision 3's shared pool", () => {
+  const ingredients = lunar17Ingredients();
+  const [touch, ranged] = deriveHealSpellVariants(ingredients, "Heal");
+  assert.equal(touch.slotRank, ranged.slotRank);
+});
+
+test("deriveHealSpellVariants: throws a clear error for a spell name that doesn't exist", () => {
+  const ingredients = lunar17Ingredients();
+  assert.throws(() => deriveHealSpellVariants(ingredients, "Not A Real Spell"), /No spell named/);
+});
+
+// Defensive throw, mirroring deriveSaveSpells' own "throws rather than silently misreading" tests
+// above — a synthetic spell missing the two real overlays this function depends on (rather than
+// Heal's own real 4-overlay shape) must fail loudly, not silently return wrong/partial variants.
+test("deriveHealSpellVariants: throws a clear error if the spell doesn't have the expected touch + living-heal overlay shape", () => {
+  const ingredients = lunar17Ingredients();
+  const realHeal = ingredients.spells.find((s) => s.name === "Heal");
+  const malformed = {
+    name: "Fake Heal",
+    system: {
+      damage: { 0: { formula: "1d8" } },
+      location: { value: realHeal.system.location.value },
+      overlays: {} // no overlays at all — a restructured/differently-modeled spell
+    }
+  };
+  ingredients.spells = [...ingredients.spells, malformed];
+  assert.throws(() => deriveHealSpellVariants(ingredients, "Fake Heal"), /expected a 1-action touch overlay/);
 });
 
 test("all three weapons' category (simple) is trained per the Mystic class's real system.attacks table — proficiency isn't a guess", () => {

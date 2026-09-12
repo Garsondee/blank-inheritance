@@ -71,7 +71,7 @@ export const ALL_TEMPLATE_NAMES = Object.freeze(["unconstrained", "control-then-
 export const BASELINE_V1 = Object.freeze({
   id: "baseline-v1",
   frozenAt: "2026-08-30",
-  engineContract: 4, // bumped GH #60 Part 2: dyingUrgency + downedAllyClosing added to evaluateState — like pileOnRisk's own earlier bump, a real no-op for every existing golden fixture (both terms are gated on isUnconscious, and none of this file's pinned scenarios ever has a downed-but-not-dead ally mid-sequence), confirmed by re-running ai-profiles.test.mjs's own golden sequences unchanged rather than assumed
+  engineContract: 5, // bumped GH #60 Part 1: Lunar-17's own real fixture changed (Heal (touch)/Heal (30ft) added alongside Transfer Vitality) — UNLIKE Part 2's own bump (4) above, this is NOT a no-op: the BASELINE_V1 vs NO_MANEUVERS_V1 golden sequence's own outcome flips (party-victory -> party-defeat), a real, separately-tracked search-quality finding (GH #141), re-derived and re-pinned in ai-profiles.test.mjs with the full explanation there, not hand-patched
   competence: 1.0,
   templates: ALL_TEMPLATE_NAMES,
   temperament: null, // null = ordinary morale rules apply, not an override

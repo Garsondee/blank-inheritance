@@ -344,6 +344,90 @@ test("Transfer Vitality: the caster's own HP is never touched — it heals from 
   assert.equal(turn.snapshot.caster.currentHP, 16, "casting Transfer Vitality must never reduce the caster's own currentHP");
 });
 
+// GH #60, design doc §60 Part 1 — the real Heal spell: a genuine dice roll, not a flat amount, and a
+// spellSlots pool spent alongside the roll (not usesRemaining, which Heal's own entries never set).
+function makeHealCaster(overrides = {}) {
+  return makeCaster({
+    spells: [], healAbilities: [{ name: "Heal (touch)", healingFormula: "1d8", actions: 1, slotRank: 1 }],
+    spellSlots: { 1: 3 }, ...overrides
+  });
+}
+
+test("healAbility with a healingFormula rolls REAL dice (varies across seeds), always within the formula's own real range, and spends the shared spellSlots pool, not usesRemaining", () => {
+  const seen = new Set();
+  for (let seed = 1; seed <= 20; seed++) {
+    const caster = makeHealCaster();
+    const woundedAlly = makeCaster({ id: "ally", name: "Ally", currentHP: 5, maxHP: 100, spells: [], healAbilities: [] });
+    // A real, harmless opposition combatant (high HP, no strikes) — WITHOUT one, the battle is
+    // already "party-victory" (vacuously, no opposition exists) the instant whoever wins initiative
+    // takes their first turn, which sometimes denies "caster" a turn at all before this fix (a
+    // self-authored test-construction gap, not a real engine bug — confirmed directly by seed).
+    const harmlessEnemy = makeTarget({ id: "enemy", maxHP: 1000, currentHP: 1000, position: { col: 15, row: 15 } });
+    function ai(state, combatantId, turnState) {
+      if (combatantId === "caster" && turnState.actionsUsed === 0) return { type: "healAbility", targetId: "ally", abilityIndex: 0 };
+      return null;
+    }
+    const log = runBattle({ seed, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [caster, woundedAlly, harmlessEnemy], ai });
+    const action = log.rounds[0].turns.find((t) => t.combatantId === "caster").actions.find((a) => a.type === "healAbility");
+    assert.equal(action.legal, true);
+    assert.ok(Number.isInteger(action.healing) && action.healing >= 1 && action.healing <= 8, `seed ${seed}: expected an integer 1d8 roll in [1,8], got ${action.healing}`);
+    assert.equal(action.usesRemaining, null, "Heal's own entry never sets usesRemaining — the real limit is the shared spellSlots pool");
+    const turn = log.rounds[0].turns.find((t) => t.combatantId === "caster");
+    assert.equal(turn.snapshot.caster.spellSlots?.["1"], 2, "casting Heal must spend the SHARED pool (3 -> 2), not a per-ability usesRemaining");
+    seen.add(action.healing);
+  }
+  assert.ok(seen.size > 1, `expected a real spread of 1d8 rolls across 20 seeds, saw only: ${[...seen].join(", ")}`);
+});
+
+test("healAbility (EXPECTED-VALUE sandbox, via forkTurnSandbox — the exact path decide.mjs's own lookahead uses): a healingFormula resolves to the real PROBABILITY-WEIGHTED average, not a rolled value", () => {
+  const caster = makeHealCaster();
+  const woundedAlly = makeCaster({ id: "ally", name: "Ally", currentHP: 5, maxHP: 100, spells: [], healAbilities: [] });
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["caster", { ...caster }], ["ally", { ...woundedAlly }]]),
+    positions: new Map([["caster", { col: 0, row: 0 }], ["ally", { col: 0, row: 0 }]])
+  };
+  const sandbox = forkTurnSandbox({ state, turn: { actionsAvailable: 3, actionsUsed: 0 } });
+  const result = sandbox.apply("caster", { type: "healAbility", targetId: "ally", abilityIndex: 0 });
+  assert.equal(result.legal, true, JSON.stringify(result));
+  assert.equal(result.healing, 4.5, "1d8's real average is 4.5 — the EXPECTED-value path must average, never roll");
+});
+
+test("healAbility with NO healingFormula (Transfer Vitality's own flat shape) is COMPLETELY unaffected by the new dice-based outcome functions — the round-2 review's own CRITICAL regression, checked directly", () => {
+  const caster = makeCaster(); // real Transfer Vitality, healingAmount:5, no healingFormula
+  const woundedAlly = makeCaster({ id: "ally", name: "Ally", currentHP: 5, maxHP: 100, spells: [], healAbilities: [] });
+  function ai(state, combatantId, turnState) {
+    if (combatantId === "caster" && turnState.actionsUsed === 0) return { type: "healAbility", targetId: "ally", abilityIndex: 0 };
+    return null;
+  }
+  assert.doesNotThrow(() => runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [caster, woundedAlly], ai }));
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [caster, woundedAlly], ai });
+  const action = log.rounds[0].turns.find((t) => t.combatantId === "caster").actions.find((a) => a.type === "healAbility");
+  assert.equal(action.legal, true);
+  assert.equal(action.healing, 5, "a flat healingAmount ability must produce its exact flat value, never a dice roll or NaN");
+});
+
+// THE CRITICAL REGRESSION (round-2 adversarial review): cloneStateForPlanning's own header already
+// warns that the ability arrays must be copied element-wise, not shared, or "merely planning a shot"
+// could spend a real limited use from the live battle. combatant.spellSlots is a new, nested, mutable
+// object of exactly that shape — this proves the sandboxed fix actually holds, not just that it's
+// present in the diff.
+test("cloneStateForPlanning: a SANDBOXED heal cast spends the sandbox's own spellSlots copy, and the ORIGINAL live state's pool is completely untouched", () => {
+  const caster = makeHealCaster({ spellSlots: { 1: 1 } });
+  const woundedAlly = makeCaster({ id: "ally", name: "Ally", currentHP: 5, maxHP: 100, spells: [], healAbilities: [] });
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["caster", { ...caster }], ["ally", { ...woundedAlly }]]),
+    positions: new Map([["caster", { col: 0, row: 0 }], ["ally", { col: 0, row: 0 }]])
+  };
+  const sandbox = forkTurnSandbox({ state, turn: { actionsAvailable: 3, actionsUsed: 0 } });
+  const result = sandbox.apply("caster", { type: "healAbility", targetId: "ally", abilityIndex: 0 });
+
+  assert.equal(result.legal, true, JSON.stringify(result)); // the sandboxed cast must actually have happened...
+  assert.equal(sandbox.state.combatants.get("caster").spellSlots[1], 0, "...and really spent the SANDBOX's own copy of the pool...");
+  assert.equal(state.combatants.get("caster").spellSlots[1], 1, "...while the ORIGINAL, live state's pool must remain completely untouched — a lookahead branch that's merely considered must never spend a real resource");
+});
+
 test("every legal action's result carries an actionsCost field matching what was actually spent", () => {
   const caster = makeCaster();
   caster.strikes = [{ name: "Backup Strike", strikeType: "melee", attackBonus: 100, traits: [], damage: [{ dice: "1d1", bonus: 5 }] }];

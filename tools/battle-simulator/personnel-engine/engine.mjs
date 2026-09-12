@@ -117,9 +117,9 @@ import {
   checkMoveLegality, checkStepLegality, checkStrikeLegal, checkSpellAttackLegal, checkHealAbilityLegal,
   checkSaveAttackLegal, checkDemoralizeLegal, checkConditionSaveLegal, checkAreaAttackLegal,
   checkTripLegal, checkShoveLegal, checkGrappleLegal, checkEscapeLegal, checkStandLegal, checkCrawlLegal,
-  multipleAttackPenalty, rangeIncrementPenalty
+  multipleAttackPenalty, rangeIncrementPenalty, spendUse
 } from "./legality.mjs";
-import { resolveStrike, mitigateDamage, expectedStrikeDamage, resolveSave, basicSaveDamage, expectedSaveDamage, degreeProbabilities, degreeOfSuccess, averageDamage } from "../engine/resolve.mjs";
+import { resolveStrike, mitigateDamage, expectedStrikeDamage, resolveSave, basicSaveDamage, expectedSaveDamage, degreeProbabilities, degreeOfSuccess, averageDamage, averageFormula } from "../engine/resolve.mjs";
 import { distanceFeet, isInBounds, isOccupied, FEET_PER_SQUARE } from "./grid.mjs";
 import { hasCover, STANDARD_COVER_AC_BONUS, moveBlockedBetween } from "./terrain.mjs";
 import {
@@ -300,6 +300,17 @@ const REAL_OUTCOMES = {
     const degree = degreeOfSuccess(d20, total, dc);
     const freed = degree === "criticalSuccess" || degree === "success";
     return { roll: { d20, modifier, total, dc, degree }, freed };
+  },
+  /**
+   * GH #60 — Heal's own real 1d8/1d8+8 dice roll. Branches on `healingFormula` so every EXISTING
+   * flat-`healingAmount` heal ability (Transfer Vitality, Field Repair Kit) is completely untouched —
+   * an earlier draft called rollFormula unconditionally, which would have thrown on the very first
+   * cast of any flat-amount ability (rollFormula(rng, undefined) reads undefined.trim()).
+   */
+  healAbility(rng, { ability }) {
+    if (ability.healingFormula == null) return { healingAmount: ability.healingAmount ?? 0 };
+    const { total } = rollFormula(rng, ability.healingFormula);
+    return { roll: { healingFormula: ability.healingFormula, total }, healingAmount: total };
   }
 };
 
@@ -433,6 +444,13 @@ const EXPECTED_OUTCOMES = {
     const mostLikely = Object.entries(probs).sort((a, b) => b[1] - a[1])[0][0];
     const freed = mostLikely === "criticalSuccess" || mostLikely === "success";
     return { roll: { expected: true, d20: null, modifier, total: null, dc, degree: mostLikely }, freed };
+  },
+  /** Deterministic twin of REAL_OUTCOMES.healAbility — same flat-amount branch, no averaging needed
+   * there since a flat amount has no variance to average over. */
+  healAbility(_rng, { ability }) {
+    if (ability.healingFormula == null) return { healingAmount: ability.healingAmount ?? 0 };
+    const expected = averageFormula(ability.healingFormula);
+    return { roll: { expected: true, healingFormula: ability.healingFormula, total: expected }, healingAmount: expected };
   }
 };
 
@@ -506,7 +524,8 @@ export function runBattle(scenario) {
         reactions: c.reactions ?? [],
         spells: c.spells ?? [], healAbilities: c.healAbilities ?? [],
         saveAttacks: c.saveAttacks ?? [], conditionSaves: c.conditionSaves ?? [], areaAttacks: c.areaAttacks ?? [], intimidationModifier: c.intimidationModifier ?? null,
-        heroPoints: c.heroPoints ?? null // design doc §42 — real, shown for transcript honesty; null (not 0) for anyone this rule doesn't apply to at all (every NPC)
+        heroPoints: c.heroPoints ?? null, // design doc §42 — real, shown for transcript honesty; null (not 0) for anyone this rule doesn't apply to at all (every NPC)
+        spellSlots: c.spellSlots ?? null // GH #60 — same transcript-honesty treatment as heroPoints, the one other combatant-level (not per-ability) resource
       }];
     })
   );
@@ -1117,7 +1136,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     const check = checkHealAbilityLegal({ healer: combatant, healerPos: pos, target, targetPos, ability, turnState: turnProgress, walls: state.walls });
     if (!check.legal) return { type: "healAbility", targetId: proposal.targetId, legal: false, reason: check.reason };
 
-    const healing = ability.healingAmount ?? 0;
+    const { healingAmount: healing } = outcomes.healAbility(rng, { ability, target });
     const wasDownBeforeHealing = target.currentHP <= 0;
     target.currentHP = Math.min(target.maxHP, target.currentHP + healing);
     // Player Core pg. 403: "restored to 1 Hit Point or more via healing, you lose the dying and
@@ -1125,7 +1144,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     if (wasDownBeforeHealing && target.currentHP > 0) applyRevival(target);
     turnProgress.actionsUsed += ability.actions ?? 1;
 
-    if (ability.usesRemaining != null) ability.usesRemaining -= 1;
+    spendUse(ability, combatant);
 
     return {
       type: "healAbility", abilityName: ability.name, targetId: proposal.targetId, legal: true, actionsCost: ability.actions ?? 1,
@@ -1447,7 +1466,9 @@ function snapshotState(state) {
       grappledBy: combatant.grappledBy ?? null,
       // design doc §42 — null for anyone this rule doesn't apply to at all (every NPC), not 0;
       // real PCs start at 1 and drop to 0 the instant one is actually spent to avoid death.
-      heroPoints: combatant.heroPoints ?? null
+      heroPoints: combatant.heroPoints ?? null,
+      // GH #60 — same transcript-honesty reasoning as heroPoints above, for the new shared heal pool.
+      spellSlots: combatant.spellSlots ?? null
     };
   }
   return snapshot;
@@ -1493,7 +1514,7 @@ export function checkOutcome(state) {
  *
  * Mutable surface at personnel scale: state.round; state.combatants.<id>.{currentHP,
  * stunnedValue, frightened, dyingValue, woundedValue, prone, demoralizedTargets,
- * conditionSaveImmunities, grappledBy, heroPoints}; state.combatants.<id>.{strikes,spells,
+ * conditionSaveImmunities, grappledBy, heroPoints, spellSlots}; state.combatants.<id>.{strikes,spells,
  * healAbilities, saveAttacks, conditionSaves}[i].usesRemaining; state.positions.<id>.{col,row};
  * state.reactionAvailable.<id> (GH #18 — a `Map<id,boolean>` of plain booleans, so `new Map(...)`
  * below allocates fully independent storage; a sandbox firing a reaction can never alias back to
@@ -1515,6 +1536,11 @@ export function cloneStateForPlanning(state) {
     if (c.saveAttacks) copy.saveAttacks = c.saveAttacks.map((s) => ({ ...s }));
     if (c.conditionSaves) copy.conditionSaves = c.conditionSaves.map((s) => ({ ...s }));
     if (c.areaAttacks) copy.areaAttacks = c.areaAttacks.map((a) => ({ ...a }));
+    // GH #60 — combatant.spellSlots is a new, nested, mutable object of exactly the shape this
+    // function's own header warns about: a shallow {...c} would alias copy.spellSlots to the SAME
+    // object the live battle uses, letting a sandboxed lookahead branch that merely CONSIDERS
+    // casting Heal permanently spend a real slot from the live battle, even on a branch never chosen.
+    if (c.spellSlots) copy.spellSlots = { ...c.spellSlots };
     if (c.demoralizedTargets) copy.demoralizedTargets = [...c.demoralizedTargets];
     if (c.conditionSaveImmunities) copy.conditionSaveImmunities = [...c.conditionSaveImmunities];
     combatants.set(id, copy);

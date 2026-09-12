@@ -453,6 +453,11 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS, actingComb
     for (const s of [...(ally.strikes ?? []), ...(ally.spells ?? []), ...(ally.healAbilities ?? []), ...(ally.saveAttacks ?? []), ...(ally.conditionSaves ?? []), ...(ally.areaAttacks ?? [])]) {
       if (s.usesRemaining != null) score += weights.resource * s.usesRemaining;
     }
+    // GH #60 — a shared, per-CASTER resource pool (Heal's own spellSlots) priced ONCE here rather
+    // than per-ability above: Heal's own entries carry `slotRank` INSTEAD of `usesRemaining` (the
+    // whole point of sharing one pool), so the per-ability loop above never sees them at all — without
+    // this, the shared pool would look "free" to conserve, unlike every other limited-use ability.
+    for (const remaining of Object.values(ally.spellSlots ?? {})) score += weights.resource * remaining;
   }
   for (const enemy of enemies) {
     score -= weights.enemyDamage * enemy.currentHP;

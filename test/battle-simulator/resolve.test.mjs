@@ -3,8 +3,9 @@ import assert from "node:assert/strict";
 import { makeRng } from "../../tools/battle-simulator/engine/rng.mjs";
 import {
   degreeOfSuccess, resolveStrike, applyHardness, mitigateDamage, resolveSave, basicSaveDamage, resolveFieldRepair, resolveEvacuation,
-  averageDamage, averageStrikeDamage, degreeProbabilities, expectedStrikeDamage, expectedSaveDamage, hitProbability, expectedRepairHealing, expectedEvacuationCivilians
+  averageDamage, averageFormula, averageStrikeDamage, degreeProbabilities, expectedStrikeDamage, expectedSaveDamage, hitProbability, expectedRepairHealing, expectedEvacuationCivilians
 } from "../../tools/battle-simulator/engine/resolve.mjs";
+import { rollFormula } from "../../tools/battle-simulator/engine/rng.mjs";
 
 test("degreeOfSuccess: the four bands, no natural-roll shift", () => {
   assert.equal(degreeOfSuccess(10, 30, 20), "criticalSuccess"); // >= DC+10
@@ -215,6 +216,35 @@ test("averageDamage: NdX+B is N*(X+1)/2 + B", () => {
 
 test("averageDamage: throws on a malformed formula rather than silently returning NaN", () => {
   assert.throws(() => averageDamage("not-a-formula", 0));
+});
+
+// GH #60 — averageFormula, the combined-string sibling: mirrors rollFormula's own regex exactly,
+// unlike averageDamage above (two SEPARATE arguments, no bonus-suffix support at all).
+test("averageFormula: a REAL bug this fixes, checked directly — averageDamage throws on a combined string, averageFormula does not", () => {
+  assert.throws(() => averageDamage("1d8+8", 0), /Not a dice formula/, "sanity: confirms the bug averageFormula exists to fix is real, not hypothetical");
+  assert.doesNotThrow(() => averageFormula("1d8+8"));
+});
+
+test("averageFormula: a REAL bug this fixes, checked directly — averageDamage(dice) with no bonus argument silently returns NaN, averageFormula does not", () => {
+  assert.ok(Number.isNaN(averageDamage("1d8")), "sanity: confirms averageDamage(dice) alone really is NaN, not just theoretically so");
+  assert.equal(averageFormula("1d8"), 4.5);
+});
+
+test("averageFormula: NdX+B and NdX-B combined strings, matching averageDamage's own NdX+B math for the equivalent split arguments", () => {
+  assert.equal(averageFormula("3d6+10"), 20.5); // 3*3.5+10, matching averageDamage("3d6", 10) above
+  assert.equal(averageFormula("2d12+17"), 30);
+  assert.equal(averageFormula("1d8-2"), 2.5); // 4.5 - 2
+});
+
+test("averageFormula: throws a clear error on a malformed formula, same discipline as averageDamage", () => {
+  assert.throws(() => averageFormula("not-a-formula"), /Not a dice formula/);
+});
+
+test("averageFormula: mirrors rollFormula's own regex exactly — every formula rollFormula accepts, averageFormula accepts too (including whitespace, via the same .trim())", () => {
+  for (const formula of ["1d8", "1d8+8", "1d8-2", "  1d8+8  ", "10d4+3"]) {
+    assert.doesNotThrow(() => averageFormula(formula), `averageFormula must accept "${formula}", the same as rollFormula does`);
+    assert.doesNotThrow(() => rollFormula(() => 0.5, formula), `sanity: rollFormula must also accept "${formula}"`);
+  }
 });
 
 test("averageStrikeDamage: sums every damage entry on a strike", () => {

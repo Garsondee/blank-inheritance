@@ -1171,3 +1171,43 @@ test("DOWNED ALLY CLOSING: with no living rescuer at all, the term contributes n
   const state = { round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, combatants: new Map([["downed", downed], ["enemy", enemy]]), positions: new Map([["downed", { col: 5, row: 5 }], ["enemy", { col: 0, row: 0 }]]) };
   assert.doesNotThrow(() => evaluateState(state, "party"));
 });
+
+// --- GH #60, Part 1: the `resource` term's spellSlots fix ---
+//
+// Heal's own entries carry `slotRank` INSTEAD of `usesRemaining` (the whole point of Decision 3's
+// shared pool) — the pre-existing per-ability loop above only ever checks `usesRemaining != null`,
+// so without this fix the shared pool would never contribute to `resource` at all, making it look
+// "free" to conserve unlike every other limited-use ability in the roster.
+
+test("RESOURCE: a caster's spellSlots pool is worth something, same per-unit value as an equivalent usesRemaining would be", () => {
+  const base = makeState({ allyCount: 1, enemyCount: 1 });
+  const withSlots = { ...base, combatants: new Map(base.combatants) };
+  withSlots.combatants.set("ally-0", { ...base.combatants.get("ally-0"), spellSlots: { 1: 2 } });
+  const withEquivalentUses = { ...base, combatants: new Map(base.combatants) };
+  withEquivalentUses.combatants.set("ally-0", { ...base.combatants.get("ally-0"), healAbilities: [{ name: "X", usesRemaining: 2 }] });
+
+  const zeroResource = { ...DEFAULT_WEIGHTS, resource: 0 };
+  const isolatedSlots = evaluateState(withSlots, "party", DEFAULT_WEIGHTS) - evaluateState(withSlots, "party", zeroResource);
+  const isolatedUses = evaluateState(withEquivalentUses, "party", DEFAULT_WEIGHTS) - evaluateState(withEquivalentUses, "party", zeroResource);
+  assert.ok(isolatedSlots > 0, `expected a real, positive resource credit from spellSlots, got ${isolatedSlots}`);
+  assert.ok(Math.abs(isolatedSlots - isolatedUses) < 1e-9, `spellSlots{1:2} must be worth exactly the same as usesRemaining:2 (same weight, same per-unit value) — got ${isolatedSlots} vs ${isolatedUses}`);
+});
+
+test("RESOURCE: a caster with TWO abilities sharing the SAME spellSlots pool is credited ONCE per rank, not once per ability — no triple-counting", () => {
+  const base = makeState({ allyCount: 1, enemyCount: 1 });
+  const oneAbility = { ...base, combatants: new Map(base.combatants) };
+  oneAbility.combatants.set("ally-0", { ...base.combatants.get("ally-0"), healAbilities: [{ name: "Heal (touch)", slotRank: 1 }], spellSlots: { 1: 2 } });
+  const twoAbilities = { ...base, combatants: new Map(base.combatants) };
+  twoAbilities.combatants.set("ally-0", { ...base.combatants.get("ally-0"), healAbilities: [{ name: "Heal (touch)", slotRank: 1 }, { name: "Heal (30ft)", slotRank: 1 }], spellSlots: { 1: 2 } });
+  assert.equal(evaluateState(oneAbility, "party"), evaluateState(twoAbilities, "party"),
+    "the SAME spellSlots object referenced by a second ability entry must not double the resource credit");
+});
+
+test("RESOURCE: an ordinary healAbility with usesRemaining (Transfer Vitality's own shape) is COMPLETELY unaffected by the new spellSlots loop", () => {
+  const base = makeState({ allyCount: 1, enemyCount: 1 });
+  const withUses = { ...base, combatants: new Map(base.combatants) };
+  withUses.combatants.set("ally-0", { ...base.combatants.get("ally-0"), healAbilities: [{ name: "Transfer Vitality", usesRemaining: 2 }] });
+  const zeroResource = { ...DEFAULT_WEIGHTS, resource: 0 };
+  const isolated = evaluateState(withUses, "party", DEFAULT_WEIGHTS) - evaluateState(withUses, "party", zeroResource);
+  assert.ok(isolated > 0, "a flat usesRemaining ability must still contribute via the pre-existing per-ability loop, unchanged");
+});

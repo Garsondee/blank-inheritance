@@ -183,6 +183,21 @@ export function averageDamage(dice, bonus) {
   return count * ((sides + 1) / 2) + bonus;
 }
 
+/**
+ * GH #60 — average result of a COMBINED "NdX+B" formula string (e.g. "1d8+8"), mirroring
+ * rollFormula's own regex exactly (engine/rng.mjs) rather than reusing averageDamage above:
+ * averageDamage takes dice/bonus as two SEPARATE arguments and its own anchored regex has no bonus
+ * suffix at all, so it throws on a combined string like "1d8+8" and silently returns NaN on a bare
+ * "1d8" (no second argument supplied) — confirmed the real failure mode, not a hypothetical one,
+ * before this function existed.
+ */
+export function averageFormula(formula) {
+  const match = /^(\d+)d(\d+)([+-]\d+)?$/.exec(formula.trim());
+  if (!match) throw new Error(`Not a dice formula: "${formula}"`);
+  const [, count, sides, bonus] = match;
+  return Number(count) * ((Number(sides) + 1) / 2) + (bonus ? Number(bonus) : 0);
+}
+
 export function averageStrikeDamage(strike) {
   return (strike.damage ?? []).reduce((sum, d) => sum + averageDamage(d.dice, d.bonus), 0);
 }

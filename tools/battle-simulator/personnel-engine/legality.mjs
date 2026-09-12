@@ -245,6 +245,24 @@ export function multipleAttackPenalty(strikeNumber, hasAgile) {
   return hasAgile ? -8 : -10;
 }
 
+/**
+ * GH #60 — a resource check/spend that works for EITHER shape a limited-use ability can carry: the
+ * ordinary flat per-ability `usesRemaining` every other ability type already uses, or a shared,
+ * per-caster `spellSlots` pool keyed by rank (design doc §60 Part 1 Decision 3 — Heal's own two
+ * single-target variants both carry `slotRank` INSTEAD of `usesRemaining`, so casting either one
+ * spends the SAME pool). Used at the two real call sites Heal needs (this file's own
+ * checkHealAbilityLegal, engine.mjs's healAbility resolution branch) — not a blanket replacement for
+ * every existing bare `usesRemaining` check elsewhere, since nothing else sets `slotRank` today.
+ */
+export function hasUses(ability, healer) {
+  if (ability.slotRank != null) return (healer.spellSlots?.[ability.slotRank] ?? 0) > 0;
+  return ability.usesRemaining == null || ability.usesRemaining > 0;
+}
+export function spendUse(ability, healer) {
+  if (ability.slotRank != null) { healer.spellSlots[ability.slotRank] -= 1; return; }
+  if (ability.usesRemaining != null) ability.usesRemaining -= 1;
+}
+
 /** A spell's flat range — no range field means touch/adjacent-only. */
 export function checkSpellRange({ casterPos, targetPos, spell }) {
   const dist = distanceFeet(casterPos, targetPos);
@@ -317,7 +335,7 @@ export function checkHealAbilityLegal({ healer, healerPos, target, targetPos, ab
     return { legal: false, reason: `No line of effect to ${target.name} — a wall entirely blocks ${ability.name}.` };
   }
 
-  if (ability.usesRemaining != null && ability.usesRemaining <= 0) {
+  if (!hasUses(ability, healer)) {
     return { legal: false, reason: `${ability.name} has no uses remaining this encounter.` };
   }
 

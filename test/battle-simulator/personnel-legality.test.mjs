@@ -30,7 +30,9 @@ import {
   checkStandLegal,
   checkCrawlLegal,
   multipleAttackPenalty,
-  rangeIncrementPenalty
+  rangeIncrementPenalty,
+  hasUses,
+  spendUse
 } from "../../tools/battle-simulator/personnel-engine/legality.mjs";
 
 const gridSize = { cols: 20, rows: 20 };
@@ -449,6 +451,77 @@ test("checkHealAbilityLegal: a depleted ability (usesRemaining 0) is rejected", 
     ability: { ...transferVitality, usesRemaining: 0 }, turnState: openBudget
   });
   assert.equal(result.legal, false);
+});
+
+// GH #60, design doc §60 Part 1 — Heal's shared spellSlots pool. checkHealAbilityLegal reads it via
+// the new shared hasUses helper instead of a bare usesRemaining check, since Heal's own entries
+// carry slotRank INSTEAD of usesRemaining.
+const healTouch = { name: "Heal (touch)", healingFormula: "1d8", actions: 1, slotRank: 1 };
+const heal30ft = { name: "Heal (30ft)", healingFormula: "1d8+8", actions: 2, range: 30, slotRank: 1 };
+
+test("checkHealAbilityLegal: a slotRank ability with a real slot available is legal", () => {
+  const target = { id: "ally", name: "Ally", currentHP: 10, maxHP: 16 };
+  const healer = { ...aliveCaster, spellSlots: { 1: 1 } };
+  const result = checkHealAbilityLegal({ healer, healerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, ability: healTouch, turnState: openBudget });
+  assert.equal(result.legal, true);
+});
+
+test("checkHealAbilityLegal: a slotRank ability is rejected once its own rank's pool hits 0, same reason message shape as a depleted usesRemaining ability", () => {
+  const target = { id: "ally", name: "Ally", currentHP: 10, maxHP: 16 };
+  const healer = { ...aliveCaster, spellSlots: { 1: 0 } };
+  const result = checkHealAbilityLegal({ healer, healerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, ability: healTouch, turnState: openBudget });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /no uses remaining/);
+});
+
+test("checkHealAbilityLegal: a healer with NO spellSlots object at all (never cast a slot-based ability) is rejected for a slotRank ability, not crashed", () => {
+  const target = { id: "ally", name: "Ally", currentHP: 10, maxHP: 16 };
+  const result = checkHealAbilityLegal({ healer: aliveCaster, healerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, ability: healTouch, turnState: openBudget });
+  assert.equal(result.legal, false);
+});
+
+test("checkHealAbilityLegal: TWO DIFFERENT slotRank abilities sharing the SAME healer's pool — once rank 1 is spent, BOTH become illegal, not just the one cast", () => {
+  const target = { id: "ally", name: "Ally", currentHP: 10, maxHP: 16 };
+  const healer = { ...aliveCaster, spellSlots: { 1: 0 } }; // as if the touch variant already spent the shared slot
+  const stillIllegalTouch = checkHealAbilityLegal({ healer, healerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, ability: healTouch, turnState: openBudget });
+  const nowIllegal30ft = checkHealAbilityLegal({ healer, healerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, ability: heal30ft, turnState: openBudget });
+  assert.equal(stillIllegalTouch.legal, false);
+  assert.equal(nowIllegal30ft.legal, false, "the 30ft variant reads the SAME spellSlots.1 pool — it must be illegal too, not independently tracked");
+});
+
+// hasUses/spendUse — the shared helper pair itself, in isolation.
+test("hasUses: a slotRank ability reads healer.spellSlots, completely ignoring any usesRemaining field it might also carry", () => {
+  assert.equal(hasUses({ slotRank: 1 }, { spellSlots: { 1: 2 } }), true);
+  assert.equal(hasUses({ slotRank: 1 }, { spellSlots: { 1: 0 } }), false);
+  assert.equal(hasUses({ slotRank: 1 }, { spellSlots: {} }), false, "an absent rank in the pool reads as 0 uses, not unlimited");
+});
+
+test("hasUses: an ordinary usesRemaining-bearing ability (no slotRank) is COMPLETELY unaffected — same behavior as before this helper existed", () => {
+  assert.equal(hasUses({ usesRemaining: 1 }, { spellSlots: { 1: 0 } }), true, "a flat usesRemaining ability must never consult spellSlots, even on a healer who has one");
+  assert.equal(hasUses({ usesRemaining: 0 }, {}), false);
+  assert.equal(hasUses({}, {}), true, "no slotRank and no usesRemaining at all means unlimited, matching every sibling ability type's own convention");
+});
+
+test("spendUse: decrements the shared pool for a slotRank ability, and leaves usesRemaining fields on OTHER abilities in the same array untouched", () => {
+  const healer = { spellSlots: { 1: 2 } };
+  spendUse(healTouch, healer);
+  assert.equal(healer.spellSlots[1], 1);
+  spendUse(heal30ft, healer); // a DIFFERENT ability object, SAME rank — must hit the same counter
+  assert.equal(healer.spellSlots[1], 0);
+});
+
+test("spendUse: an ordinary usesRemaining-bearing ability decrements ITSELF, not any healer-level pool — unchanged from before this helper existed", () => {
+  const ability = { usesRemaining: 2 };
+  const healer = {};
+  spendUse(ability, healer);
+  assert.equal(ability.usesRemaining, 1);
+  assert.equal(healer.spellSlots, undefined, "must never invent a spellSlots object on a healer that never had one");
+});
+
+test("spendUse: an unlimited ability (no slotRank, no usesRemaining) is a real no-op", () => {
+  const ability = {};
+  assert.doesNotThrow(() => spendUse(ability, {}));
+  assert.deepEqual(ability, {});
 });
 
 // REGRESSION (design doc §32 — a direct user report: "I noticed a heal being cast through a

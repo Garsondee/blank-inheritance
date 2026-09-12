@@ -19,7 +19,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { listLevel1Pregens, toIngredients, findEquipmentItem } from "./extract-pregen.mjs";
 import { deriveAbilityModifiers, deriveHP, derivePerception, deriveSavingThrows, deriveArmorClass } from "./derive.mjs";
-import { deriveStrikes, deriveSpells, deriveSaveSpells, deriveTransferVitality, deriveSkillModifier } from "./build-combat-pregen.mjs";
+import { deriveStrikes, deriveSpells, deriveSaveSpells, deriveTransferVitality, deriveHealSpellVariants, deriveSkillModifier } from "./build-combat-pregen.mjs";
 import { findNPC, toCombatant, deriveSpellAttacks, deriveConditionSave, deriveAreaAttack } from "../pack-extractor/extract-npc.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -46,7 +46,19 @@ function buildLunar17() {
 
   const strikes = deriveStrikes(ingredients, ["Zero Knife", "Arc Pistol", "Semi-Auto Pistol"], mods);
   const spells = deriveSpells(ingredients, ["Eldritch Lance"], mods);
-  const healAbilities = [deriveTransferVitality(ingredients)];
+  // GH #60, design doc §60 Part 1 — the real Heal spell's two single-target, living-target variants,
+  // COEXISTING with Transfer Vitality (a real class feature, drawing from a separate Vitality Network
+  // resource pool — GH #55's own confirmed finding), not replacing it. Both Heal entries share ONE
+  // real spellSlots pool, keyed by rank — her real rank-1 slot count (entry.system.slots.slot1.max),
+  // the same structured field deriveSpellUsesRemaining already reads for every other non-cantrip spell.
+  // GH #55: deriveTransferVitality deliberately never returns usesRemaining/usesPerEncounter — the
+  // real limit is the Vitality Network feat's own regenerating resource pool, not a derivable per-day
+  // slot count (see that function's own header). The hand-authored approximation (2 uses/encounter)
+  // belongs here, at the fixture-construction site, per that same header's own citation.
+  const transferVitality = { ...deriveTransferVitality(ingredients), usesRemaining: 2, usesPerEncounter: 2 };
+  const healAbilities = [transferVitality, ...deriveHealSpellVariants(ingredients, "Heal")];
+  const occultEntry = ingredients.spellcastingEntries.find((e) => e.name === "Occult Spontaneous Spells");
+  const spellSlots = { 1: occultEntry.system.slots.slot1.max };
   const intimidationModifier = deriveSkillModifier(ingredients, "intimidation", mods);
   const athleticsModifier = deriveSkillModifier(ingredients, "athletics", mods);
 
@@ -63,10 +75,11 @@ function buildLunar17() {
     strikes,
     spells,
     healAbilities,
+    spellSlots,
     intimidationModifier, // real, untrained (+0) — her cha modifier is +0 and Intimidation isn't one of her trained skills
     athleticsModifier, // real, derived the same way (design doc §31's Trip/Shove/Grapple gap-fill) — untrained, her Str modifier
     heroPoints: 1, // Player Core pg. 405 — "each character gets 1 Hero Point at the start of a session" (design doc §42)
-    notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §19/§21. Transfer Vitality's healing amount (10, minimum 1) is hand-transcribed from real rule prose since no structured field exists for it — see build-combat-pregen.mjs's own citation. Her Incendiary Grenade (Commercial) is real but NOT wired as a usable action: its raw description reads \"Activate 1 Area Fire ... (@Template[burst|distance:5])\" — a 5ft-burst AREA effect, not a single-target attack, structurally identical to Frag Grenade/Electromag Grenade (already excluded for other pregens for the same reason). personnel-engine's saveAttack action is single-target only; wiring a burst weapon through it would have hit exactly one creature with none of the real friendly-fire risk an area weapon actually carries, and was in fact caught doing exactly that (see design doc §21's grenade-modeling correction)."
+    notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §19/§21. Transfer Vitality's healing amount (10, minimum 1) is hand-transcribed from real rule prose since no structured field exists for it — see build-combat-pregen.mjs's own citation. GH #55: usesRemaining/usesPerEncounter (2) are hand-authored here, NOT derived — the real limit isn't a per-day slot count but the Mystic's own 'vitality network' resource pool (Vitality Network feat, Player Core: capacity 6+4/level = 10 at level 1, regenerating 4 HP at the start of each of the caster's turns in combat — more if master/legendary in spell DC, refilling fully on Refocus), a mechanic this single-encounter simulator doesn't simulate HP-for-HP. At level 1 the pool's capacity exactly equals one use's cost (10=10), so a flat 2-per-encounter cap ('usable once at full charge, once more after a few turns' partial regen') is the same approximation already shipped for the level-12 Frame-scale Mystic (data/combatants.mjs's makeMysticFrame, pool 54 / cost 30 / same regen rate — also capped at 2 for the identical reason). The caster's own currentHP is correctly UNTOUCHED by this ability — Transfer Vitality draws from the network, never the caster's own HP total, confirmed directly against the real extracted rule text (not assumed from the ability's name). Her Incendiary Grenade (Commercial) is real but NOT wired as a usable action: its raw description reads \"Activate 1 Area Fire ... (@Template[burst|distance:5])\" — a 5ft-burst AREA effect, not a single-target attack, structurally identical to Frag Grenade/Electromag Grenade (already excluded for other pregens for the same reason). personnel-engine's saveAttack action is single-target only; wiring a burst weapon through it would have hit exactly one creature with none of the real friendly-fire risk an area weapon actually carries, and was in fact caught doing exactly that (see design doc §21's grenade-modeling correction). GH #60 (design doc §60 Part 1): Heal (touch)/Heal (30ft) are her real rank-1 spell, confirmed on her own raw spell list (gamesystems/sf2e/packs/spells) — both entries share one real spellSlots pool (spellSlots.1, her actual rank-1 slot count from Occult Spontaneous Spells' own system.slots.slot1.max), separate from Transfer Vitality's own network-pool uses. Only the two single-target, living-target variants are wired — the 3-action emanation and the vs.-Undead variant are Part 1b, a deferred follow-on (see the design's own \"Explicitly deferred\" section)."
   };
 }
 
@@ -444,7 +457,7 @@ writeFileSync(path.join(outDir, "tough.json"), JSON.stringify(tough, null, 2) + 
 writeFileSync(path.join(outDir, "obozaya.json"), JSON.stringify(obozaya, null, 2) + "\n");
 writeFileSync(path.join(outDir, "kuriaku.json"), JSON.stringify(kuriaku, null, 2) + "\n");
 
-console.log(`wrote lunar-17.json (AC ${lunar17.ac}, HP ${lunar17.maxHP}, ${lunar17.strikes.length} strikes, ${lunar17.spells.length} spell, ${lunar17.healAbilities.length} heal ability, intimidation +${lunar17.intimidationModifier})`);
+console.log(`wrote lunar-17.json (AC ${lunar17.ac}, HP ${lunar17.maxHP}, ${lunar17.strikes.length} strikes, ${lunar17.spells.length} spell, ${lunar17.healAbilities.length} heal abilities, spellSlots ${JSON.stringify(lunar17.spellSlots)}, intimidation +${lunar17.intimidationModifier})`);
 console.log(`wrote security-goon.json (AC ${securityGoon.ac}, HP ${securityGoon.maxHP}, ${securityGoon.strikes.length} strikes, ${securityGoon.reactions.length} reaction, ${securityGoon.actions.length} other action, intimidation +${securityGoon.intimidationModifier})`);
 console.log(`wrote tapkey.json (AC ${tapkey.ac}, HP ${tapkey.maxHP}, ${tapkey.strikes.length} strikes, intimidation +${tapkey.intimidationModifier})`);
 console.log(`wrote xenowarden-greenhorn.json (AC ${xenowardenGreenhorn.ac}, HP ${xenowardenGreenhorn.maxHP}, ${xenowardenGreenhorn.strikes.length} strikes, ${xenowardenGreenhorn.spells.length} spell, intimidation ${xenowardenGreenhorn.intimidationModifier})`);

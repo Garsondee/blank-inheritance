@@ -174,10 +174,26 @@ test("GOLDEN SEQUENCE: BASELINE_V1 vs BASELINE_V1, real fixtures, seed 42 — th
   ]);
 });
 
-test("GOLDEN SEQUENCE: BASELINE_V1 vs NO_MANEUVERS_V1, IDENTICAL seed/fixtures/positions — a genuinely different, longer sequence (goon never trips, the fight even resolves the other way) — the real, measured proof that a profile change actually changes real behavior, not just a label", () => {
+// Re-derived GH #60 (engineContract bumped 4->5, real fixture change: Lunar-17 gained Heal
+// (touch)/Heal (30ft) alongside Transfer Vitality) — captured directly from a real runBattle call,
+// same re-verify-by-hand-and-update procedure this test's own header comment prescribes.
+//
+// This is NOT a cosmetic re-derivation like GH #58's own — the OUTCOME itself flips, and by hand
+// investigation (comparing this exact scenario/seed against the pre-#60 fixture directly, action by
+// action) the new sequence is demonstrably WORSE, not just different: at 1 HP with 3 actions
+// available, the search picks Heal (30ft) (2 actions, ~12.5 HP expected) over the cheaper Transfer
+// Vitality (1 action, flat 10 HP) purely because `bestMatching` (decide.mjs) ranks phase-0 candidates
+// by raw gain with no action-cost adjustment — the bigger-looking heal wins even though it leaves
+// only 1 action for a weak Semi-Auto Pistol shot, where the pre-#60 plan (Transfer Vitality, then a
+// full 2-action Eldritch Lance) measured a HIGHER total projected gain (18.2 vs 16.9) and actually won
+// the fight. This is a real, understood, separately-tracked search limitation (GH #141) — not
+// specific to healing, and not something to patch inline here. Re-pinned to the new, real behavior
+// because this test's job is to catch UNINTENDED drift, not to gate on solving GH #141: once that
+// issue is fixed, this sequence will very likely change again and should be re-derived at that point.
+test("GOLDEN SEQUENCE: BASELINE_V1 vs NO_MANEUVERS_V1, IDENTICAL seed/fixtures/positions — a genuinely different, longer sequence (goon never trips) — the real, measured proof that a profile change actually changes real behavior, not just a label", () => {
   const log = runBattle(makeGoldenScenario(NO_MANEUVERS_V1));
-  assert.equal(log.outcome.result, "party-victory", "the identical seed resolves DIFFERENTLY once goon can't trip — a real behavioral consequence, not a coincidence");
-  assert.equal(log.rounds.length, 3);
+  assert.equal(log.outcome.result, "party-defeat", "GH #60/#141 — see this test's own comment above: the search now picks a costlier, lower-total-value heal, which loses this specific fight");
+  assert.equal(log.rounds.length, 2);
   const seq = actionSequence(log);
   assert.deepEqual(seq, [
     "lunar17:move",
@@ -186,12 +202,10 @@ test("GOLDEN SEQUENCE: BASELINE_V1 vs NO_MANEUVERS_V1, IDENTICAL seed/fixtures/p
     "goon:strike->lunar17",
     "goon:strike->lunar17",
     "lunar17:healAbility->lunar17",
-    "lunar17:spellAttack->goon",
+    "lunar17:strike->goon",
     "goon:strike->lunar17",
-    "goon:strike->lunar17",
-    "goon:strike->lunar17",
-    "lunar17:spellAttack->goon",
-    "lunar17:healAbility->lunar17"
+    "goon:move",
+    "goon:move"
   ]);
   assert.ok(!seq.some((s) => s.startsWith("goon:trip") || s.startsWith("goon:shove") || s.startsWith("goon:grapple")), "goon must NEVER attempt a disabled action type across the whole real battle");
 });

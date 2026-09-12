@@ -303,3 +303,48 @@ export function deriveTransferVitality(ingredients) {
     actions: action.system.actions.value
   };
 }
+
+/**
+ * GH #60, design doc §60 Part 1 — Heal's own two single-target, LIVING-target variants (the
+ * 3-action emanation and the vs.-Undead 2-action variant are Part 1b, a separate, deferred
+ * follow-on — see the design's own "Explicitly deferred" section), read directly off Foundry's real
+ * OVERLAY mechanism. Confirmed via direct LevelDB read: Heal carries FOUR overlays on its base
+ * spell document, one per action-cost tier (`spell.system.overlays`, each `overlayType: "override"`,
+ * patching a subset of the base spell's own fields). The two in-scope overlays are selected by their
+ * own real structural signature — `time.value`/`damage.0.kinds` — not a hardcoded overlay `_id`,
+ * because the 1-action touch overlay carries no `name` field at all (only the two 2-action variants
+ * are individually named "Heal (vs. Living)"/"Heal (vs. Undead)" in the real data); an overlay that
+ * doesn't patch `damage` (the touch overlay) inherits the base spell's own formula, matching
+ * Foundry's own real override-merge semantics.
+ */
+export function deriveHealSpellVariants(ingredients, spellName) {
+  const { spells, spellcastingEntries } = ingredients;
+  const spell = spells.find((s) => s.name === spellName);
+  if (!spell) throw new Error(`No spell named "${spellName}" in this pregen's raw spell list.`);
+  if (!spellcastingEntries.find((e) => e._id === spell.system.location.value)) {
+    throw new Error(`"${spellName}": no spellcastingEntry found matching its own system.location.value.`);
+  }
+  const baseFormula = spell.system.damage?.["0"]?.formula;
+  if (!baseFormula) throw new Error(`"${spellName}": no base damage.0.formula to derive a healing formula from.`);
+
+  const overlays = Object.values(spell.system.overlays ?? {});
+  const touch = overlays.find((o) => o.system.time?.value === "1");
+  const ranged = overlays.find((o) => o.system.time?.value === "2" && (o.system.damage?.["0"]?.kinds ?? []).includes("healing"));
+  if (!touch || !ranged) {
+    throw new Error(`"${spellName}": expected a 1-action touch overlay and a 2-action living-heal overlay among its ${overlays.length} real overlays — Paizo may have restructured this spell.`);
+  }
+
+  function toVariant(overlay, label) {
+    const actions = parseInt(overlay.system.time.value, 10);
+    if (!Number.isInteger(actions)) throw new Error(`"${spellName}" (${label}): non-numeric time.value "${overlay.system.time.value}".`);
+    const rangeFeet = overlay.system.range ? parseSpellRangeFeet(overlay.system.range.value) : null; // "touch" -> null (omitted -> checkSpellRange's own touch/adjacent default), "30 feet" -> 30
+    return {
+      name: `${spellName} (${label})`,
+      healingFormula: overlay.system.damage?.["0"]?.formula ?? baseFormula,
+      actions,
+      ...(rangeFeet != null ? { range: rangeFeet } : {}),
+      slotRank: spell.system.level.value // real spell rank (1) — keys the shared pool (design doc §60 Decision 3), not hardcoded
+    };
+  }
+  return [toVariant(touch, "touch"), toVariant(ranged, "30ft")];
+}
