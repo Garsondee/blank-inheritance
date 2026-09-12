@@ -2,6 +2,8 @@
   "id": "raw-validation-xenowarden-greenhorn",
   "name": "Xenowarden Greenhorn",
   "side": "opposition",
+  "level": 1,
+  "initiativeModifier": 4,
   "maxHP": 20,
   "currentHP": 20,
   "ac": 15,

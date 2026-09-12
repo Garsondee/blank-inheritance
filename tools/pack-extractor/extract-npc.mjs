@@ -34,8 +34,29 @@
  */
 import { readPackDocuments } from "./read-pack.mjs";
 
+/**
+ * An actor's own embedded items, in Foundry's real authored display order — never the order they
+ * happened to come out of the pack read. `documents` (read-pack.mjs) comes back in raw LevelDB
+ * storage order: ascending internal-key order once a pack is compacted into an SSTable (which sorts
+ * by embedded-item `_id`, an opaque random string with no relationship to authoring order), or
+ * write order while entries still live in the write-ahead log — two DIFFERENT orderings with nothing
+ * to do with each other, and which one applies to a given item is a fact about when Foundry last
+ * compacted, not about the item itself. Confirmed live: re-running this project's own fixture
+ * generator after gamesystems/sf2e's packs had compacted from WAL to a single SSTable silently
+ * reordered erabryth.json's actions/lore and kuriaku.json's actions arrays — every item byte-
+ * identical, only array order changed — even though nothing about the campaign data had changed.
+ * Foundry itself never relies on storage order for this: every embedded Item document carries its
+ * own real `sort` field (confirmed present on every item in every pack checked), the exact number
+ * Foundry's own sheet UI persists and reads back to keep an actor's item list stable regardless of
+ * how the database happens to store it. Sorting by it here reproduces the pre-compaction order
+ * exactly (cross-checked against the committed fixtures). The idPart tiebreak only matters if two
+ * items ever shared a `sort` value; it exists so the order stays a pure function of document content
+ * even then, never of storage layout.
+ */
 function itemsFor(documents, actorIdPart) {
-  return documents.filter((e) => e.embedded && e.collection === "actors.items" && e.idPart.startsWith(actorIdPart + "."));
+  return documents
+    .filter((e) => e.embedded && e.collection === "actors.items" && e.idPart.startsWith(actorIdPart + "."))
+    .sort((a, b) => (a.doc.sort ?? 0) - (b.doc.sort ?? 0) || (a.idPart < b.idPart ? -1 : a.idPart > b.idPart ? 1 : 0));
 }
 
 /** Find one `npc`-type actor by exact name in a pack, with every embedded item attached. */
@@ -128,6 +149,17 @@ export function toCombatant(npc, { strikeNames, side = "opposition" } = {}) {
   const actionItems = npc.items.filter((i) => i.type === "action");
   const loreItems = npc.items.filter((i) => i.type === "lore");
 
+  // GH #63: initiative is Player Core pg. 427's "roll a Perception check," and every real NPC's own
+  // raw data confirms this explicitly rather than assuming it — system.initiative.statistic names
+  // the actual statistic this creature uses (checked directly across every current fixture: always
+  // "perception", but the field exists precisely because it need not be). Throwing on anything else
+  // matches this project's own established "safe cases derive a real number, unsafe ones throw
+  // rather than silently mismodel" discipline (GH #69's own conditionSave frequency gate) — better
+  // to notice a future NPC with a different initiative statistic than to silently derive it wrong.
+  if (npc.actor.system.initiative.statistic !== "perception") {
+    throw new Error(`${npc.name}: initiative uses "${npc.actor.system.initiative.statistic}", not Perception — toCombatant only knows how to derive initiativeModifier from Perception today.`);
+  }
+
   const strikes = strikeNames.map((wantedName) => {
     const melee = meleeItems.find((m) => m.name === wantedName);
     if (!melee) throw new Error(`No melee/strike item named "${wantedName}" on ${npc.name}.`);
@@ -149,6 +181,8 @@ export function toCombatant(npc, { strikeNames, side = "opposition" } = {}) {
   return {
     name: npc.name,
     side,
+    level: npc.actor.system.details.level.value, // GH #63 — real, final; NPCs store this directly, no derivation needed
+    initiativeModifier: npc.actor.system.perception.mod, // GH #63 — real, final Perception modifier (see the statistic guard above)
     maxHP: npc.actor.system.attributes.hp.max,
     currentHP: npc.actor.system.attributes.hp.value,
     ac: npc.actor.system.attributes.ac.value,

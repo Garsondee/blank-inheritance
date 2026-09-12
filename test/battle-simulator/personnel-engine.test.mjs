@@ -10,6 +10,9 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { runBattle, accountForActions, forkTurnSandbox, resetSandboxForkCount, getSandboxForkCount } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
 import { decide } from "../../tools/battle-simulator/personnel-engine/decide.mjs";
 import { resolveEffectiveStats } from "../../tools/battle-simulator/personnel-engine/combatant.mjs";
@@ -197,6 +200,31 @@ test("Real initiative: initiativeOrder is a real d20+modifier roll, deterministi
   }
   const totalsInOrder = logA.initiativeOrder.map((id) => logA.initiativeRolls.find((r) => r.id === id).total);
   for (let i = 1; i < totalsInOrder.length; i++) assert.ok(totalsInOrder[i - 1] >= totalsInOrder[i]);
+});
+
+// GH #63: proves the whole real pipeline end to end, not just the engine mechanism above (which
+// already had full coverage with hand-set modifiers) — real Foundry Perception data, derived/
+// extracted into a checked-in fixture's own initiativeModifier, actually shifts who acts first.
+// Erabryth (initiativeModifier 10) vs. Obozaya (initiativeModifier 3), a real 7-point gap: for two
+// independent d20 rolls, P(10+d20a > 3+d20b) = 309/400 = 77.25% (hand-enumerated over all 400 (a,b)
+// pairs) — n=50 seeds, asserting a 65% floor, leaves a comfortable ~3 SD safety margin against
+// flakiness while still requiring a real, meaningfully-above-50% effect, not a coin flip.
+test("Real initiative, end to end: a real fixture's own derived/extracted initiativeModifier actually shifts who acts first, not just the engine mechanism in isolation", () => {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const fixturesDir = path.join(here, "..", "..", "tools", "battle-simulator", "data", "raw-validation-fixtures");
+  const loadFixture = (file) => JSON.parse(readFileSync(path.join(fixturesDir, file), "utf8"));
+  const erabryth = { ...loadFixture("erabryth.json"), side: "party", position: { col: 0, row: 0 } };
+  const obozaya = { ...loadFixture("obozaya.json"), side: "opposition", position: { col: 5, row: 5 } };
+  assert.equal(erabryth.initiativeModifier, 10, "sanity: this test's own math assumes these two real fixtures' current values");
+  assert.equal(obozaya.initiativeModifier, 3, "sanity: this test's own math assumes these two real fixtures' current values");
+
+  let erabrythFirst = 0;
+  const seeds = 50;
+  for (let seed = 1; seed <= seeds; seed++) {
+    const log = runBattle({ seed, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [erabryth, obozaya], ai: () => null });
+    if (log.initiativeOrder[0] === erabryth.id) erabrythFirst++;
+  }
+  assert.ok(erabrythFirst / seeds >= 0.65, `expected Erabryth (initiativeModifier 10) to act first well over half the time against Obozaya (initiativeModifier 3), got ${erabrythFirst}/${seeds}`);
 });
 
 test("outcome detection: party-victory when all opposition are reduced to 0 HP", () => {

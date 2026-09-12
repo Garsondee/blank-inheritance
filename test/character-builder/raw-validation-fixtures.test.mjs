@@ -286,6 +286,8 @@ const { ingredients: bennitIngredients, mods: bennitMods } = loadPregenIngredien
 const xenowardenNPC = loadNPC("alien-core-bestiary", "Xenowarden Greenhorn");
 const erabrythNPC = loadNPC("alien-core-bestiary", "Erabryth");
 const toughNPC = loadNPC("rulebook-bestiaries", "Tough");
+const securityGoonNPC = loadNPC("rulebook-bestiaries", "Security Goon");
+const kuriakuNPC = loadNPC("starfinder-society-bestiary", "Kuriaku");
 
 const CONFORMANCE_CASES = [
   { file: "lunar-17.json", array: "spells", derive: () => deriveSpells(lunar17Ingredients, ["Eldritch Lance"], lunar17Mods) },
@@ -314,6 +316,38 @@ test("CONFORMANCE (GH #69): every currently-populated non-strike ability array m
   for (const { file, array, derive, note } of CONFORMANCE_CASES) {
     const fixture = readFixture(file);
     assert.deepEqual(fixture[array], derive(), note ? `${file}'s ${array}: ${note}` : `${file}'s ${array} no longer matches a fresh re-derivation`);
+  }
+});
+
+// GH #63: level/initiativeModifier, added to every fixture. All ten are level 1 by design — a plain
+// sanity check, not a re-derivation, matching the issue's own text ("the value is known, it simply
+// is not recorded"). PCs get a genuine self-consistency check (initiativeModifier must equal the
+// same combatant's own perception field, since Player Core pg. 427 initiative IS a Perception check
+// — confirmed directly against every current fixture's own raw system.initiative.statistic). NPCs
+// get a real conformance check against fresh raw pack data, the same discipline as CONFORMANCE_CASES
+// above, since an NPC fixture carries no separate `perception` field to self-compare against.
+test("CONFORMANCE (GH #63): every fixture is level 1, and initiativeModifier matches a fresh re-derivation/re-check exactly", () => {
+  for (const name of ALL_FIXTURE_NAMES) {
+    assert.equal(readFixture(name).level, 1, `${name}: expected level 1 — every current fixture is a level-1 pregen or NPC`);
+  }
+
+  for (const name of ["lunar-17.json", "tapkey.json", "bennit.json", "vorza-moonshot.json", "obozaya.json"]) {
+    const fixture = readFixture(name);
+    assert.equal(fixture.initiativeModifier, fixture.perception, `${name}: initiativeModifier must equal this PC's own perception field — Player Core pg. 427, initiative is a Perception check`);
+  }
+
+  const npcCases = [
+    { file: "security-goon.json", npc: securityGoonNPC },
+    { file: "xenowarden-greenhorn.json", npc: xenowardenNPC },
+    { file: "erabryth.json", npc: erabrythNPC },
+    { file: "tough.json", npc: toughNPC },
+    { file: "kuriaku.json", npc: kuriakuNPC }
+  ];
+  for (const { file, npc } of npcCases) {
+    const fixture = readFixture(file);
+    assert.equal(fixture.level, npc.actor.system.details.level.value, `${file}: level no longer matches a fresh raw-data re-check`);
+    assert.equal(fixture.initiativeModifier, npc.actor.system.perception.mod, `${file}: initiativeModifier no longer matches a fresh raw-data re-check`);
+    assert.equal(npc.actor.system.initiative.statistic, "perception", `${file}: this NPC's own real data no longer confirms initiative is Perception-based — toCombatant's own guard should have thrown before this fixture could even be regenerated`);
   }
 });
 

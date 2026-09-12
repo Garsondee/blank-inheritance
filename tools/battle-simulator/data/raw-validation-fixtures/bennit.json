@@ -2,6 +2,8 @@
   "id": "raw-validation-bennit",
   "name": "“Nitpick” Bennit (level-1 Witchwarper pregen, design doc §22 — real Paizo Adventure Pregen, NOT one of the six real campaign kids)",
   "side": "party",
+  "level": 1,
+  "initiativeModifier": 4,
   "maxHP": 15,
   "currentHP": 15,
   "ac": 17,

@@ -39,6 +39,24 @@ test("toCombatant: defenses transcribed exactly — AC 14, HP 25/25, Fort 9 / Re
   assert.equal(combatant.side, "opposition");
 });
 
+// GH #63: level/initiativeModifier are real, final NPC data (system.details.level.value,
+// system.perception.mod) — no derivation needed, same "NPCs store final numbers" shape as AC/saves.
+test("toCombatant: level and initiativeModifier transcribed exactly — level 1, Perception mod +4", () => {
+  const goon = findNPC(bestiaryDir, "Security Goon");
+  const combatant = toCombatant(goon, { strikeNames: ["Arc Pistol", "Baton"] });
+  assert.equal(combatant.level, 1);
+  assert.equal(combatant.initiativeModifier, 4);
+});
+
+test("toCombatant: throws a clear error rather than silently deriving initiativeModifier from the wrong statistic, for an NPC whose initiative isn't Perception-based", () => {
+  const goon = findNPC(bestiaryDir, "Security Goon");
+  const stealthInitiativeNPC = {
+    ...goon,
+    actor: { ...goon.actor, system: { ...goon.actor.system, initiative: { statistic: "stealth" } } }
+  };
+  assert.throws(() => toCombatant(stealthInitiativeNPC, { strikeNames: ["Arc Pistol", "Baton"] }), /initiative uses "stealth", not Perception/);
+});
+
 test("toCombatant: Arc Pistol strike (ranged) — attack +9, damage 1d4+2 electricity, range increment 30, real traits", () => {
   const goon = findNPC(bestiaryDir, "Security Goon");
   const [arcPistol] = toCombatant(goon, { strikeNames: ["Arc Pistol"] }).strikes;
@@ -94,6 +112,58 @@ test("toCombatant: skills carries the real, final modifiers actually listed on t
   const goon = findNPC(bestiaryDir, "Security Goon");
   const combatant = toCombatant(goon, { strikeNames: [] });
   assert.deepEqual(combatant.skills, { athletics: 8, intimidation: 6 });
+});
+
+// --- item ordering (regression: raw pack-storage order silently leaking into actions/reactions/lore) ---
+//
+// Real, live bug (2026-09-12): itemsFor() (this file's own private helper) used to return an actor's
+// embedded items in whatever order they happened to come out of the pack read — ascending LevelDB
+// internal-key order once gamesystems/sf2e's packs compacted into a single SSTable (which sorts by
+// embedded-item `_id`, an opaque random string), write order while still in the write-ahead log. Both
+// are accidents of on-disk storage layout, not authored order, and are unrelated to each other — so
+// when a pack recompacts, actions/lore array order can silently reshuffle with zero content change.
+// Confirmed against this project's own real erabryth.json/kuriaku.json fixtures: re-running the
+// extractor after gamesystems/sf2e's packs compacted reordered both, every item byte-identical, only
+// array position changed. Fixed by sorting on each item's own real Foundry `sort` field — the exact
+// field Foundry's own sheet UI persists for this purpose, confirmed present on every embedded item in
+// every pack checked. These two tests guard both halves: repeated extraction stays self-consistent,
+// AND the order it settles on is the real, Foundry-authored one — deepEqual on the raw array, never on
+// a sorted copy, since sorting both sides first would hide the exact bug that shipped.
+test("toCombatant: actions/reactions/lore order is stable across two independent, from-disk extractions of the same unchanged pack — regression for the WAL/SSTable storage-order leak", () => {
+  const alienCoreDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "alien-core-bestiary");
+  const bestiaryDir2 = path.join(repoRoot, "gamesystems", "sf2e", "packs", "starfinder-society-bestiary");
+
+  const erabryth1 = toCombatant(findNPC(alienCoreDir, "Erabryth"), { strikeNames: ["Ribbon", "Fist", "Light Ray"] });
+  const erabryth2 = toCombatant(findNPC(alienCoreDir, "Erabryth"), { strikeNames: ["Ribbon", "Fist", "Light Ray"] });
+  assert.deepEqual(erabryth1.actions, erabryth2.actions, "two independent reads of the same pack must return actions in the same order, not just the same set");
+  assert.deepEqual(erabryth1.reactions, erabryth2.reactions);
+  assert.deepEqual(erabryth1.lore, erabryth2.lore);
+
+  const kuriaku1 = toCombatant(findNPC(bestiaryDir2, "Kuriaku"), { strikeNames: ["Shobhad Longrifle", "Antlers"] });
+  const kuriaku2 = toCombatant(findNPC(bestiaryDir2, "Kuriaku"), { strikeNames: ["Shobhad Longrifle", "Antlers"] });
+  assert.deepEqual(kuriaku1.actions, kuriaku2.actions);
+});
+
+test("toCombatant: Erabryth's actions/reactions/lore follow her real Foundry `sort` field, not raw pack-storage order — the two provably disagree for her real data", () => {
+  const alienCoreDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "alien-core-bestiary");
+  const erabryth = findNPC(alienCoreDir, "Erabryth");
+  const combatant = toCombatant(erabryth, { strikeNames: ["Ribbon", "Fist", "Light Ray"] });
+
+  // Real sort values (confirmed directly against her raw item data): Buffering Zone 1100000,
+  // Reflect Aggression 1200000, Forced Reflection 1300000, Shepherd's Touch 1400000. Ascending-`_id`
+  // storage order puts Forced Reflection first and Buffering Zone last instead — the exact reordering
+  // this project's own committed fixture was found to have silently taken on.
+  assert.deepEqual(combatant.actions.map((a) => a.name), ["Buffering Zone", "Forced Reflection", "Shepherd's Touch"]);
+  assert.deepEqual(combatant.reactions.map((r) => r.name), ["Reflect Aggression"]);
+  // Real sort values: Android Lore 1500000, Boneyard Lore 1600000.
+  assert.deepEqual(combatant.lore.map((l) => l.name), ["Android Lore", "Boneyard Lore"]);
+});
+
+test("toCombatant: Kuriaku's actions follow her real Foundry `sort` field (Reverberant Antlers 600000, Grab 700000, Knockdown 800000) — Grab/Knockdown is the exact pair this project's own committed fixture was found reordered", () => {
+  const bestiaryDir2 = path.join(repoRoot, "gamesystems", "sf2e", "packs", "starfinder-society-bestiary");
+  const kuriaku = findNPC(bestiaryDir2, "Kuriaku");
+  const combatant = toCombatant(kuriaku, { strikeNames: ["Shobhad Longrifle", "Antlers"] });
+  assert.deepEqual(combatant.actions.map((a) => a.name), ["Reverberant Antlers", "Grab", "Knockdown"]);
 });
 
 // --- deriveSpellAttacks (design doc §21's "bigger battlefield" follow-up — first NPC spellcaster) ---

@@ -2,6 +2,8 @@
   "id": "raw-validation-lunar-17",
   "name": "Lunar-17 (level-1 Mystic pregen, design doc §19 Pure RAW SF2E Validation — real Paizo Adventure Pregen, NOT one of the six real campaign kids)",
   "side": "party",
+  "level": 1,
+  "initiativeModifier": 7,
   "maxHP": 15,
   "currentHP": 15,
   "ac": 17,

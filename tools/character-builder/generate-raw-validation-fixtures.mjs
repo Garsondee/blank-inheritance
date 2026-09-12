@@ -66,6 +66,8 @@ function buildLunar17() {
     id: "raw-validation-lunar-17",
     name: "Lunar-17 (level-1 Mystic pregen, design doc §19 Pure RAW SF2E Validation — real Paizo Adventure Pregen, NOT one of the six real campaign kids)",
     side: "party",
+    level: 1, // GH #63 — real; every pregen this project uses is explicitly level 1 by design
+    initiativeModifier: perception.proficiency.modifier, // GH #63 — Player Core pg. 427: initiative is a Perception check
     maxHP: hp.max,
     currentHP: hp.max,
     ac: ac.value,
@@ -131,6 +133,8 @@ function buildTapkey() {
     id: "raw-validation-tapkey",
     name: "Tapkey (level-1 Envoy pregen, design doc §21 — real Paizo Adventure Pregen, NOT one of the six real campaign kids)",
     side: "party",
+    level: 1, // GH #63 — real; every pregen this project uses is explicitly level 1 by design
+    initiativeModifier: perception.proficiency.modifier, // GH #63 — Player Core pg. 427: initiative is a Perception check
     maxHP: hp.max,
     currentHP: hp.max,
     ac: ac.value,
@@ -218,6 +222,8 @@ function buildBennit() {
     id: "raw-validation-bennit",
     name: "“Nitpick” Bennit (level-1 Witchwarper pregen, design doc §22 — real Paizo Adventure Pregen, NOT one of the six real campaign kids)",
     side: "party",
+    level: 1, // GH #63 — real; every pregen this project uses is explicitly level 1 by design
+    initiativeModifier: perception.proficiency.modifier, // GH #63 — Player Core pg. 427: initiative is a Perception check
     maxHP: hp.max,
     currentHP: hp.max,
     ac: ac.value,
@@ -311,6 +317,8 @@ function buildVorzaMoonshot() {
     id: "raw-validation-vorza-moonshot",
     name: "Vorza Moonshot (level-1 Solarian pregen, design doc §38 — real Paizo Adventure Pregen, NOT one of the six real campaign kids)",
     side: "party",
+    level: 1, // GH #63 — real; every pregen this project uses is explicitly level 1 by design
+    initiativeModifier: perception.proficiency.modifier, // GH #63 — Player Core pg. 427: initiative is a Perception check
     maxHP: hp.max,
     currentHP: hp.max,
     ac: ac.value,
@@ -397,6 +405,8 @@ function buildObozaya() {
     id: "raw-validation-obozaya",
     name: "Obozaya (level-1 Soldier iconic, design doc §39 — real Paizo iconic pregen, NOT one of the six real campaign kids)",
     side: "party",
+    level: 1, // GH #63 — real; every pregen this project uses is explicitly level 1 by design
+    initiativeModifier: perception.proficiency.modifier, // GH #63 — Player Core pg. 427: initiative is a Perception check
     maxHP: hp.max,
     currentHP: hp.max,
     ac: ac.value,

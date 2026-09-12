@@ -2,6 +2,8 @@
   "id": "raw-validation-vorza-moonshot",
   "name": "Vorza Moonshot (level-1 Solarian pregen, design doc §38 — real Paizo Adventure Pregen, NOT one of the six real campaign kids)",
   "side": "party",
+  "level": 1,
+  "initiativeModifier": 5,
   "maxHP": 23,
   "currentHP": 23,
   "ac": 18,

@@ -2,6 +2,8 @@
   "id": "raw-validation-tapkey",
   "name": "Tapkey (level-1 Envoy pregen, design doc §21 — real Paizo Adventure Pregen, NOT one of the six real campaign kids)",
   "side": "party",
+  "level": 1,
+  "initiativeModifier": 3,
   "maxHP": 14,
   "currentHP": 14,
   "ac": 17,
