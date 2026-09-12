@@ -1,11 +1,11 @@
 /**
- * Direct tests for personnel-engine/decide.mjs's candidate generation (design doc §19). No Step-
- * candidate coverage here — this tree's generateProposals never manufactures one on its own (see
- * decide.mjs's own header: with zero reactions firing, Step and Move are currently indistinguishable,
- * so generating both would only double sandbox forks for no behavioral difference). What's covered
- * instead: the two genuinely general mechanisms that DID carry over (reactionOnly filtering,
- * faction-aware targeting), and — the one design doc §19 calls out by name — that an enemy nobody
- * can currently perceive is never actually attacked.
+ * Direct tests for personnel-engine/decide.mjs's candidate generation (design doc §19). Step-
+ * candidate coverage now lives in test/battle-simulator/personnel-reactions.test.mjs (GH #18) —
+ * Step is generated again now that a real Reactive Strike exists to avoid, alongside every other
+ * Reactive-Strike-specific test. What's covered here instead: the two genuinely general mechanisms
+ * that carried over from the Frame-scale original (reactionOnly filtering, faction-aware targeting),
+ * and — the one design doc §19 calls out by name — that an enemy nobody can currently perceive is
+ * never actually attacked.
  *
  * IMPORTANT ARCHITECTURE NOTE, confirmed by reading generateProposals itself (inherited unchanged
  * from the Frame-scale original): attack candidates are generated UNCONDITIONALLY against every

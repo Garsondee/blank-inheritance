@@ -11,17 +11,12 @@
  * action types exist in this tree's engine.mjs at all (Ladle/vehicle/Day-1/Claimant-specific — see
  * that file's own header), so nothing here can legally propose them either.
  *
- * The Large+-only `stepCandidates` special case (offering Step specifically to close the last
- * square onto a reaction-capable enemy) is ALSO dropped, for a different reason: it existed
- * entirely to let the AI discover "close via Step instead of Move" as the way to avoid provoking
- * the Claimant's Claim reaction. This tree's engine.mjs fires NO reactions at all right now (see
- * its header — a real NPC reaction needs its own real trigger condition, not yet extracted), so
- * Step and Move currently produce IDENTICAL sandbox outcomes; generating both would only double
- * the sandbox forks per decision for zero behavioral difference. checkStepLegality/the "step"
- * action type both still exist in legality.mjs/engine.mjs — an AI or a future extension can still
- * propose one directly — this is only about what generateProposals bothers to manufacture on its
- * own. Revisit once a real reaction with a real trigger condition is wired up (design doc §19
- * Phase 2/3).
+ * REVIVED (GH #18): `stepCandidates`, offering Step specifically to close the last square onto a
+ * Reactive-Strike holder without provoking it. Originally dropped here because this tree's
+ * engine.mjs fired no reactions at all, making Step and Move produce identical sandbox outcomes —
+ * now that a real, generic Reactive Strike exists (engine.mjs's own "move" branch, gated on the
+ * combatant's own authored `reactions[]`, not the Frame-scale original's Claimant-specific Large+
+ * size check), this is a real, distinct choice again and generateProposals offers it.
  *
  * KEPT as a genuinely general mechanism, unlike the above: objective-directed movement
  * (`me.objective` — "move toward this point," with no dedicated action type spending a point on
@@ -42,13 +37,13 @@
 import { forkTurnSandbox } from "./engine.mjs";
 import { makeRng } from "../engine/rng.mjs";
 import { distanceFeet, isInBounds, isOccupied, blocksPassage, FEET_PER_SQUARE } from "./grid.mjs";
-import { splitByRelation } from "./factions.mjs";
+import { splitByRelation, isHostileTo } from "./factions.mjs";
 import { evaluateState, attackOptions, proactiveAttackOptions, usefulRangeFeet, maxLegalRangeFeet } from "./evaluate/state-value.mjs";
 import { reachableCells } from "./world/pathfind.mjs";
 import { refreshBelief, believedEnemies } from "./knowledge/belief.mjs";
 import { isDead, isUnconscious } from "./conditions.mjs";
 import { hasCover, lineOfEffect } from "./terrain.mjs";
-import { isFlanking, meleeReachFeet } from "./flanking.mjs";
+import { isFlanking, meleeReachFeet, hasReactiveStrike } from "./flanking.mjs";
 
 /**
  * A per-decision RNG derived from (battle seed, round, combatant, decision index). Must NOT be the
@@ -543,6 +538,17 @@ export function generateProposals(state, combatantId, turn, externalDestCache, i
   // occupancy are all constant for the whole burst. Reuses the caller's own cache when one is
   // threaded in (see this function's own header) rather than always starting fresh.
   const destCache = externalDestCache ?? new Map();
+  // GH #18 — Step (design doc §15o precedent, revived): a one-square hop that never triggers a
+  // reaction. Offered ONLY for the specific case Step actually exists for: closing the last square
+  // onto a Reactive-Strike holder. The sandbox evaluator prices the alternative honestly — a plain
+  // "move" candidate that ends adjacent already fires the real reaction inside the sandbox, so its
+  // evaluated score already reflects that risk; offering Step alongside it is what lets the AI
+  // discover "close via Step instead" as the better play, rather than something hardcoded to always
+  // prefer one over the other. Ported from the Frame-scale original (ai/decide.mjs), with its own
+  // Claimant-specific `["large","huge","gargantuan"].includes(e.size)` gate replaced by the actual,
+  // generic SF2E condition — real Reactive Strike has nothing to do with size (GM Core: "oozes,
+  // constructs, and unintelligent creatures" lack it, not a size rule).
+  const stepCandidates = [];
   for (const e of enemies) {
     // Believed position, not ground truth (design doc §15s) — an enemy with no belief entry at
     // all has never been perceived by anyone on this side; proposing a move toward its true secret
@@ -558,6 +564,11 @@ export function generateProposals(state, combatantId, turn, externalDestCache, i
     // real ranged option to protect; "still allow them to be involved in the fight" is enforced
     // inside bestCoverDestination itself (myRangedRange + a real line of effect requirement).
     if (state.walls?.length && myRangedRange > 0) addDest(bestCoverDestination(state, combatantId, myPos, ePos, speed, myRangedRange, destCache));
+
+    if (hasReactiveStrike(e) && !isDead(e) && !isUnconscious(e) && isHostileTo(e, me) && (state.reactionAvailable?.get(e.id) ?? true)) {
+      const hop = bestDestinationToward(state, combatantId, myPos, ePos, FEET_PER_SQUARE, 0, destCache);
+      if (hop) stepCandidates.push(hop);
+    }
   }
   for (const a of allies) {
     const aPos = state.positions.get(a.id);
@@ -644,6 +655,7 @@ export function generateProposals(state, combatantId, turn, externalDestCache, i
   }
 
   for (const d of destinations.values()) proposals.push({ type: "move", to: d });
+  for (const d of stepCandidates) proposals.push({ type: "step", to: d });
   } // includeMovement
 
   return proposals;
