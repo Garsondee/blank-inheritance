@@ -162,14 +162,17 @@ function actionSequence(log) {
   return seq;
 }
 
+// GH #58: re-derived alongside ai-profiles.test.mjs's own identical pinned array — see that file's
+// own comment for why (threatReduction added to evaluateState; the goon carries a bit more value to
+// keep pressuring once already hurt, so lunar17 now attacks before healing rather than after).
 const PINNED_GOLDEN_SEQUENCE = [
   "lunar17:move",
   "lunar17:spellAttack->goon",
   "goon:move",
   "goon:trip->lunar17",
   "goon:strike->lunar17",
-  "lunar17:healAbility->lunar17",
   "lunar17:spellAttack->goon",
+  "lunar17:healAbility->lunar17",
   "goon:strike->lunar17",
   "goon:move",
   "goon:move"

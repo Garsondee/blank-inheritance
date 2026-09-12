@@ -968,12 +968,19 @@ function makeWholeTurnScenario({ athleticsModifier = 8, enemyAc = 18, enemyFort 
   return { state, turn };
 }
 
-test("decide() END TO END, whole-turn planning: chooses Grapple first even though a single Strike's own ISOLATED gain is higher — the report's own 'greedy misses Trip/Grapple, then capitalise' case", () => {
+// GH #58: re-verified by hand and updated (Trip now wins over Grapple, not the reverse) —
+// threatReduction added a new, small (weight 0.2) term to evaluateState, close enough to flip which
+// of these two SIMILAR maneuvers (both grant off-guard, both were already worse than Strike in
+// isolation per the premise check below) narrowly wins the whole-turn comparison. This test's own
+// actual point — whole-turn planning finds and prefers a real maneuver-then-strike combo over the
+// greedier isolated Strike, the "report's own 'greedy misses Trip/Grapple, then capitalise' case" —
+// still holds exactly as before; only which of the two similarly-scored maneuvers wins changed.
+test("decide() END TO END, whole-turn planning: chooses a maneuver-then-strike combo (Trip) even though a single Strike's own ISOLATED gain is higher — the report's own 'greedy misses Trip/Grapple, then capitalise' case", () => {
   const { state, turn } = makeWholeTurnScenario();
 
   // Confirm the premise directly, not just assert the conclusion: a purely greedy, single-action
   // chooser (score each real proposal in isolation, take the max) would pick Strike here, NOT
-  // Grapple — Strike's own isolated gain is the largest of the three.
+  // a maneuver — Strike's own isolated gain is the largest of the three.
   const before = evaluateState(state, "party", undefined, "me");
   const isolated = {};
   for (const proposal of [{ type: "strike", targetId: "enemy", strikeIndex: 0 }, { type: "grapple", targetId: "enemy" }, { type: "trip", targetId: "enemy" }]) {
@@ -985,10 +992,10 @@ test("decide() END TO END, whole-turn planning: chooses Grapple first even thoug
     `expected Strike to have the highest ISOLATED gain (strike ${isolated.strike.toFixed(2)}, grapple ${isolated.grapple.toFixed(2)}, trip ${isolated.trip.toFixed(2)}) — otherwise this scenario doesn't actually test the greedy trap`);
 
   const chosen = decide(state, "me", turn, { competence: 1 });
-  assert.equal(chosen.type, "grapple", `expected whole-turn planning to choose Grapple (setting up two real Strikes) over the greedier single Strike, chose: ${JSON.stringify(chosen)}`);
+  assert.equal(chosen.type, "trip", `expected whole-turn planning to choose a maneuver (setting up two real Strikes) over the greedier single Strike, chose: ${JSON.stringify(chosen)}`);
   assert.match(chosen.reason, /control-then-attack/, `expected the reason to name the winning template, got: "${chosen.reason}"`);
-  assert.match(chosen.reason, /Strike with Sword.*Strike with Sword/, `expected the reason to show BOTH follow-up strikes queued behind Grapple, got: "${chosen.reason}"`);
-  assert.ok(Math.abs(chosen.score - isolated.grapple) < 1e-9, "the returned score must be Grapple's own local (first-action) gain, not the whole plan's total — matching the pre-Stage-2 score contract exactly");
+  assert.match(chosen.reason, /Strike with Sword.*Strike with Sword/, `expected the reason to show BOTH follow-up strikes queued behind the maneuver, got: "${chosen.reason}"`);
+  assert.ok(Math.abs(chosen.score - isolated.trip) < 1e-9, "the returned score must be the winning maneuver's own local (first-action) gain, not the whole plan's total — matching the pre-Stage-2 score contract exactly");
 });
 
 test("decide() END TO END, whole-turn planning: with only ONE action left this call, the plan degenerates EXACTLY to the pre-Stage-2 single-action choice", () => {

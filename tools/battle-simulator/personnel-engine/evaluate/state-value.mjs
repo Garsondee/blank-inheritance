@@ -296,7 +296,16 @@ export const DEFAULT_WEIGHTS = {
   // threatExposure's own order of magnitude (both are "real expected damage, discounted for being
   // about a hypothetical future attack rather than the current turn") — a reasoned starting point
   // for the search to correct, exactly the role closing/setupValue/mobilityDenial already play.
-  pileOnRisk: 0.25
+  pileOnRisk: 0.25,
+  // NOT YET MEASURED (GH #58 — the sniper-vs-caster gap: measured, the AI scored a HIGH-damage
+  // enemy LOWER than a low-damage one, purely because the high-damage one had better AC — nothing
+  // priced "how dangerous is this specific enemy" at all). Same order of magnitude as
+  // offensiveReach on purpose — see evaluateState's own comment at the point of use for the real
+  // mechanism (rewards damage already dealt, weighted by a structurally-[0,1]-bounded threatShare
+  // of total party-wide incoming threat — NOT offensiveReach's own "reach against a live enemy"
+  // shape, which a reviewed first draft copied and which turned out to reward the WRONG enemy once
+  // checked against this issue's own literal acceptance test, not just against monotonicity safety).
+  threatReduction: 0.2
 };
 
 /**
@@ -386,6 +395,12 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS, actingComb
   // four times as dangerous as one, and that term shrinking when an enemy dies is a *gain*, so it
   // cannot violate the requirement above.
   const reachByEnemy = new Map();
+  // GH #58 — each enemy's own INTRINSIC attack potential against every living ally, summed.
+  // Deliberately computed for EVERY enemy with a tracked position — dead or alive, in LOS or not,
+  // and with their own momentary conditions (prone/frightened) and terrain (cover) neutralized —
+  // unlike every other accumulator in this loop: see the point of use below for why anything less
+  // than fully unconditional breaks monotonicity at exactly the moment (a kill) it must not.
+  const enemyThreatTotal = new Map();
   for (const ally of allies) {
     if (ally.currentHP <= 0) continue;
     const allyPos = state.positions.get(ally.id);
@@ -398,12 +413,32 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS, actingComb
     // separate "the one who might trip me" from "everyone else who'd cash in on it".
     const visibleEnemies = [];
     for (const enemy of enemies) {
-      if (enemy.currentHP <= 0) continue;
       const enemyPos = state.positions.get(enemy.id);
-      if (!enemyPos) continue;
+      if (!enemyPos) continue; // never tracked at all — distinct from merely dead or out of LOS below
+
+      // GH #58 — computed from a CONDITION- AND TERRAIN-NEUTRAL copy of the enemy, UNCONDITIONALLY,
+      // before the aliveness/LOS gates below: this term prices INTRINSIC threat capability (kit,
+      // attack bonus, damage dice), never momentary battlefield state. Aliveness/LOS independence
+      // alone turned out NOT to be enough — a real, adversarially-found bug: bestExpectedDamage
+      // reads the ATTACKER's own attackerConditionPenalty (frightened/prone), and applyKnockout
+      // (conditions.mjs) sets `prone: true` UNCONDITIONALLY the instant a dying-rules combatant
+      // hits 0 HP — exactly the same moment (enemy.maxHP - enemy.currentHP) below reaches its
+      // maximum. That let the enemy's own currentHP leak back into threatShare through a second,
+      // indirect path, reproduced with real fixture-scale numbers (a 100-300 maxHP dying-rules
+      // combatant scored WORSE dropping from 1 HP to 0 than staying at 1 HP — the exact
+      // monotonicity bug class this file exists to prevent). Neutralizing prone/frightened AND
+      // passing no walls (so hasCover — documented as only ever reached after a real lineOfEffect
+      // check — is never consulted here either) closes both that leak and a related, currently-
+      // dormant one: a real map's cover geometry could otherwise shade this "should be terrain-
+      // independent" hypothetical. A SEPARATE bestExpectedDamage call from the one below — real,
+      // honest cost for every alive+visible enemy, no longer shareable now that the two calls
+      // deliberately compute different things.
+      enemyThreatTotal.set(enemy.id, (enemyThreatTotal.get(enemy.id) ?? 0) + bestExpectedDamage({ ...enemy, prone: false, frightened: 0 }, enemyPos, ally, allyPos, []));
+
+      if (enemy.currentHP <= 0) continue;
       if (state.walls?.length && !lineOfEffect(allyPos, enemyPos, state.walls)) continue; // no real shot exists from here
       reachByEnemy.set(enemy.id, (reachByEnemy.get(enemy.id) ?? 0) + bestExpectedDamage(ally, allyPos, enemy, enemyPos, state.walls));
-      visibleEnemies.push({ enemy, enemyPos, damage: bestExpectedDamage(enemy, enemyPos, ally, allyPos, state.walls) });
+      visibleEnemies.push({ enemy, enemyPos, damage: bestExpectedDamage(enemy, enemyPos, ally, allyPos, state.walls) }); // REAL, current-condition damage — threatExposure/pileOnRisk correctly want this, unlike threatReduction above
     }
 
     // LOW-HP CAUTION (design doc §22 — "give PCs a greater reason to get out of line of sight of
@@ -503,6 +538,48 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS, actingComb
     const raw = reachByEnemy.get(enemy.id);
     if (!raw) continue;
     score += weights.offensiveReach * Math.min(raw, enemy.currentHP);
+  }
+
+  // THREAT-BASED TARGET PRIORITIZATION (GH #58) — issue's own words: prices "expected enemy damage
+  // output removed PER POINT OF DAMAGE DEALT", so a fragile high-damage caster outranks a durable
+  // low-damage brute at equal hit chance. threatShare = this enemy's share of total party-wide
+  // incoming threat (0 when nobody threatens anybody) — structurally in [0,1] regardless of party
+  // size or absolute damage magnitude, a share of a sum that includes its own numerator.
+  //
+  // DELIBERATELY (enemy.maxHP - enemy.currentHP), NOT Math.min(raw, enemy.currentHP) —
+  // offensiveReach's own shape rewards HAVING REACH AGAINST A LIVE ENEMY, so it shrinks as that
+  // enemy is damaged (compensated only because enemyDamage's own +1.0/HP gain always wins — see
+  // offensiveReach's own comment above). Copying that shape here was this feature's actual first
+  // draft, adversarially reviewed and confirmed monotonicity-safe — and then, when checked directly
+  // against #58's own stated acceptance test (equal-AC-hit-chance, which enemy is more valuable to
+  // ATTACK), found to reward the WRONG enemy: the higher-threat target's own credit shrinks FASTER
+  // per point of damage dealt (it has a bigger threatShare, hence more to lose from offensiveReach's
+  // "reach" shape), the opposite of what "prioritize the dangerous one" needs. Reward DAMAGE DEALT
+  // instead: this term is monotonically NON-DECREASING as any enemy's own HP drops, on its own,
+  // with NO help needed from enemyDamage's own gradient — gradient is a CONSTANT
+  // `weights.threatReduction * threatShare` per HP point removed, everywhere in [0, maxHP], bounded
+  // above by `weights.threatReduction` since threatShare <= 1 always. Reaches its correctly-bounded
+  // maximum smoothly AT death (maxHP - 0 = maxHP) with no discontinuity, because threatShare itself
+  // (built from enemyThreatTotal above) doesn't depend on this enemy's own currentHP AT ALL —
+  // not on whether they're alive, in LOS, or in any momentary condition their own dying/knockout
+  // sequence would otherwise correlate with the very HP change this term is pricing. Getting that
+  // last part right took a real, adversarially-found bug (see enemyThreatTotal's own point of
+  // computation above): aliveness/LOS-independence alone still let currentHP leak back in through
+  // applyKnockout's own `prone: true` side effect at 0 HP.
+  let totalThreat = 0;
+  for (const enemy of enemies) totalThreat += enemyThreatTotal.get(enemy.id) ?? 0;
+  for (const enemy of enemies) {
+    const threatShare = totalThreat > 0 ? (enemyThreatTotal.get(enemy.id) ?? 0) / totalThreat : 0;
+    // enemyDamage/allyDamage are this evaluator's only other terms old enough to predate maxHP
+    // being a assumed-present field, and they only ever read currentHP — so plenty of real,
+    // otherwise-unrelated fixtures across this project's own test suite never set maxHP at all
+    // (confirmed live: a determinization test with bare {currentHP:30, ac:17,...} combatants,
+    // maxHP omitted entirely, turned `undefined - 30` into a real NaN here, propagating into a
+    // search-crashing prior). Same safe fallback lowHpFactor already uses just above for the
+    // identical undefined/zero-maxHP case — an untracked max HP earns no threatReduction credit,
+    // rather than crashing or fabricating one.
+    const maxHP = enemy.maxHP > 0 ? enemy.maxHP : enemy.currentHP;
+    score += weights.threatReduction * threatShare * (maxHP - enemy.currentHP);
   }
 
   // SETUP VALUE (design doc §42, Stage 1) — see DEFAULT_WEIGHTS' own comment for the full

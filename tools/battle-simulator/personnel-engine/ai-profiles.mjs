@@ -71,7 +71,7 @@ export const ALL_TEMPLATE_NAMES = Object.freeze(["unconstrained", "control-then-
 export const BASELINE_V1 = Object.freeze({
   id: "baseline-v1",
   frozenAt: "2026-08-30",
-  engineContract: 2, // bumped design doc §55: pileOnRisk added to evaluateState — re-verified against ai-profiles.test.mjs's own golden sequences (both still byte-identical: pileOnRisk is a real no-op in a 1-enemy-per-side fight, since there's no second attacker left to price a pile-on from)
+  engineContract: 3, // bumped GH #58: threatReduction added to evaluateState — UNLIKE pileOnRisk above, this is NOT a no-op in a 1-enemy-per-side fight (the sole enemy's threatShare is trivially 1.0, so it contributes a real, non-zero term identical in shape to offensiveReach's own) — ai-profiles.test.mjs's own golden sequences were re-derived, not hand-patched, to reflect this real, intended behavior change
   competence: 1.0,
   templates: ALL_TEMPLATE_NAMES,
   temperament: null, // null = ordinary morale rules apply, not an override
@@ -92,7 +92,8 @@ export const BASELINE_V1 = Object.freeze({
     outnumberedCaution: 1.0,
     setupValue: 0.3,
     mobilityDenial: 0.75,
-    pileOnRisk: 0.25
+    pileOnRisk: 0.25,
+    threatReduction: 0.2
   })
 });
 assertCompleteWeights(BASELINE_V1.weights); // real, immediate self-check — a typo here fails at import time, not mid-battle

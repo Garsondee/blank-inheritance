@@ -14,6 +14,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { evaluateState, DEFAULT_WEIGHTS, bestExpectedDamage } from "../../tools/battle-simulator/personnel-engine/evaluate/state-value.mjs";
 import { degreeProbabilities } from "../../tools/battle-simulator/engine/resolve.mjs";
+import { lineOfEffect } from "../../tools/battle-simulator/personnel-engine/terrain.mjs";
 
 function makeState({ allyCount = 1, enemyCount = 1, enemyHP = 20, allyHP = 20 } = {}) {
   const combatants = new Map();
@@ -642,4 +643,232 @@ test("PILE-ON RISK MONOTONICITY: holds across the FULL HP range of the capitaliz
     if (previous !== null) assert.ok(score >= previous - 1e-9, `dropping the capitalizing enemy from ${hp + 1} to ${hp} HP LOWERED the score (${previous.toFixed(3)} -> ${score.toFixed(3)})`);
     previous = score;
   }
+});
+
+// --- threatReduction (GH #58 — threat-based target prioritization) ---
+//
+// Adversarially reviewed across TWO rounds before this code existed. Round 1's first draft
+// (`weight * hpFractionRemovable * enemyThreatTotal`, an UNCAPPED per-enemy accumulator) failed
+// concretely: the reviewer proved that in a 4-ally party vs. one dangerous "glass cannon" enemy,
+// killing the single most dangerous enemy on the field scored WORSE, step by step, than leaving it
+// at 1 HP — the same monotonicity bug class §17 already fixed for offensiveReach, and NOT fixable
+// by any weight choice, since enemyThreatTotal has no ceiling. It also produced NaN whenever
+// reachByEnemy had no entry for an enemy (every dead or unreached-by-any-ally enemy — the COMMON
+// case, not an edge case), traced concretely into silent decision-selection degradation in
+// decide.mjs and permanent value-poisoning in mcts-puct.mjs's backup step. The shipped formula
+// instead normalizes threat into a SHARE (threatShare = enemyThreatTotal[enemy] / totalThreat,
+// structurally in [0,1] regardless of party size or damage magnitude) multiplied by offensiveReach's
+// own already-proven-safe Math.min(raw, currentHP) shape, reusing its identical `if (!raw) continue`
+// guard — verified by round 2's own independent re-implementation against the real evaluator,
+// including adversarial cases round 1 didn't try (12 enemies with wildly different maxHP, a single
+// dominant threat plus 300 tiny ones, heavy-overkill combined with high share): worst-case per-HP
+// delta measured at exactly 0.0000e+0 in every configuration.
+
+function makeGlassCannonScenario({ allyCount = 4, enemyHP = 30 } = {}) {
+  const pistol = { name: "Pistol", strikeType: "ranged", attackBonus: 6, rangeIncrement: 50, traits: [], damage: [{ dice: "1d6", bonus: 2, damageType: "piercing" }] };
+  const glassCannonStrike = { name: "Overwhelming Blast", strikeType: "ranged", attackBonus: 10, rangeIncrement: 50, traits: [], damage: [{ dice: "3d12", bonus: 10, damageType: "fire" }] };
+  const combatants = new Map();
+  const positions = new Map();
+  for (let i = 0; i < allyCount; i++) {
+    const id = `ally-${i}`;
+    combatants.set(id, { id, name: id, side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [pistol] });
+    positions.set(id, { col: 5, row: 5 + i });
+  }
+  combatants.set("cannon", { id: "cannon", name: "cannon", side: "opposition", currentHP: enemyHP, maxHP: enemyHP, ac: 18, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [glassCannonStrike] });
+  positions.set("cannon", { col: 7, row: 5 });
+  return { round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, combatants, positions };
+}
+
+test("threatReduction MONOTONICITY: a dangerous 'glass cannon' enemy — the exact shape round 1's broken formula failed on — never scores worse to kill than to leave nearly dead, at party sizes 1 through 8", () => {
+  for (const allyCount of [1, 2, 4, 8]) {
+    const base = makeGlassCannonScenario({ allyCount, enemyHP: 30 });
+    let previous = null;
+    for (let hp = 30; hp >= 0; hp -= 1) {
+      const clone = { ...base, combatants: new Map(base.combatants) };
+      clone.combatants.set("cannon", { ...base.combatants.get("cannon"), currentHP: hp });
+      const score = evaluateState(clone, "party");
+      if (previous !== null) {
+        assert.ok(score >= previous - 1e-9,
+          `allyCount=${allyCount}: dropping the glass cannon from ${hp + 1} HP to ${hp} HP LOWERED the party's score (${previous.toFixed(4)} -> ${score.toFixed(4)})`);
+      }
+      previous = score;
+    }
+  }
+});
+
+// GH #58 — an adversarial review round found a real, would-ship monotonicity violation this file's
+// OTHER monotonicity tests structurally could not catch: they only ever mutate currentHP, holding
+// every other field fixed, but a REAL knockout also flips a correlated field (prone) at the exact
+// same instant — applyKnockout (conditions.mjs) sets it unconditionally the moment a dying-rules
+// combatant (usesDyingRules: any party-side PC by default, or an opposition NPC/boss with the real,
+// documented pcDeathRules:true override) hits 0 HP. bestExpectedDamage reads that combatant's own
+// prone via attackerConditionPenalty when THEY'RE the attacker — so before the fix at
+// enemyThreatTotal's own point of computation, threatShare (and hence threatReduction, whose own
+// ceiling is exactly (maxHP - currentHP), largest at 0 HP) genuinely dipped right at the knockout
+// moment, for realistic maxHP values already present in this repo's own fixtures (100-300+).
+function makeDyingRulesKnockoutScenario(dyingMaxHP) {
+  const pistol = { name: "Pistol", strikeType: "ranged", attackBonus: 8, rangeIncrement: 50, traits: [], damage: [{ dice: "1d6", bonus: 2, damageType: "piercing" }] };
+  const combatants = new Map([
+    ["ally-0", { id: "ally-0", name: "ally-0", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [pistol] }],
+    // A second, ordinary real threat with damage MATCHING the boss's own (needed to actually
+    // reproduce the violation, not just gesture at the mechanism — with a much weaker rival, the
+    // boss's threatShare stays close to 1 regardless of prone, and the dip is too small relative to
+    // enemyDamage's own flat +1.0/HP buffer to ever go negative within a realistic maxHP range;
+    // verified directly against this exact fixture before picking the maxHP values below).
+    ["rival", { id: "rival", name: "rival", side: "opposition", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [{ name: "Blast", strikeType: "ranged", attackBonus: 8, rangeIncrement: 50, traits: [], damage: [{ dice: "1d6", bonus: 10, damageType: "fire" }] }] }],
+    // Opposition-side but real, documented pcDeathRules:true (design doc §49) — a genuine "boss"
+    // configuration this engine supports, not a contrived fixture; maxHP matches real values
+    // already present in this repo's own fixtures (grep data/*.mjs for maxHP:100-300+).
+    ["boss", { id: "boss", name: "boss", side: "opposition", pcDeathRules: true, currentHP: 1, maxHP: dyingMaxHP, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [{ name: "Cannon", strikeType: "ranged", attackBonus: 8, rangeIncrement: 50, traits: [], damage: [{ dice: "1d6", bonus: 10, damageType: "force" }] }] }]
+  ]);
+  const positions = new Map([["ally-0", { col: 5, row: 5 }], ["rival", { col: 7, row: 5 }], ["boss", { col: 7, row: 6 }]]);
+  return { round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, combatants, positions };
+}
+
+// maxHP values deliberately span both sides of this exact fixture's real, verified crossover point
+// (~450, where the violation first turns negative) — 300 stays (barely) positive even with the bug
+// present, so it alone would NOT have caught this; 600 and 900 are solidly, unambiguously negative
+// with the bug present, confirmed by direct measurement before picking these numbers.
+test("threatReduction MONOTONICITY: a dying-rules combatant's own real knockout transition (prone flips true at 0 HP, matching the real engine's applyKnockout) never scores worse than staying at 1 HP, at realistic maxHP values", () => {
+  for (const dyingMaxHP of [300, 600, 900]) {
+    const nearlyDead = makeDyingRulesKnockoutScenario(dyingMaxHP);
+    nearlyDead.combatants.set("boss", { ...nearlyDead.combatants.get("boss"), currentHP: 1, prone: false });
+    const knockedOut = makeDyingRulesKnockoutScenario(dyingMaxHP);
+    knockedOut.combatants.set("boss", { ...knockedOut.combatants.get("boss"), currentHP: 0, prone: true }); // the REAL applyKnockout state, not just an hp change
+
+    const scoreNearlyDead = evaluateState(nearlyDead, "party"); // party evaluating the opposition-side "boss" as one of its own threatReduction-tracked enemies
+    const scoreKnockedOut = evaluateState(knockedOut, "party");
+    assert.ok(scoreKnockedOut >= scoreNearlyDead - 1e-9,
+      `maxHP=${dyingMaxHP}: knocking the boss out (prone:true at 0 HP, the real engine's own applyKnockout state) scored WORSE (${scoreKnockedOut.toFixed(4)}) than leaving it at 1 HP, not yet knocked out (${scoreNearlyDead.toFixed(4)})`);
+  }
+});
+
+function makeThreatShareScenario(ownDamages) {
+  const pistol = { name: "Pistol", strikeType: "ranged", attackBonus: 8, rangeIncrement: 50, traits: [], damage: [{ dice: "1d6", bonus: 2, damageType: "piercing" }] };
+  const combatants = new Map([["ally-0", { id: "ally-0", name: "ally-0", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [pistol] }]]);
+  const positions = new Map([["ally-0", { col: 5, row: 5 }]]);
+  ownDamages.forEach((bonus, i) => {
+    const id = `enemy-${i}`;
+    // IDENTICAL AC/position/range for every enemy — the only thing that differs is each enemy's own
+    // outgoing damage, so any ordering in the result is attributable to threatReduction alone, not
+    // to AC/positioning differences (the exact confound round 1's own isolation test fell into).
+    combatants.set(id, {
+      id, name: id, side: "opposition", currentHP: 20, maxHP: 20, ac: 15,
+      saves: { fort: 5, ref: 5, will: 5 }, speed: 25,
+      strikes: [{ name: "Blast", strikeType: "ranged", attackBonus: 8, rangeIncrement: 50, traits: [], damage: [{ dice: "1d1", bonus, damageType: "fire" }] }]
+    });
+    positions.set(id, { col: 7, row: 5 });
+  });
+  return { round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, combatants, positions };
+}
+
+test("threatReduction: a dead enemy's threat credit does NOT vanish at death — the score stays finite, and a real threat that just died still holds real, positive credit", () => {
+  const state = makeThreatShareScenario([0, 30]); // enemy-0 harmless, enemy-1 the real threat
+  const zeroWeight = { ...DEFAULT_WEIGHTS, threatReduction: 0 };
+  state.combatants.set("enemy-1", { ...state.combatants.get("enemy-1"), currentHP: 0 }); // kill it outright
+
+  const full = evaluateState(state, "party", DEFAULT_WEIGHTS);
+  const zeroed = evaluateState(state, "party", zeroWeight);
+  assert.ok(Number.isFinite(full), `evaluateState must stay finite with a dead enemy present, got ${full}`);
+  assert.ok(Number.isFinite(zeroed), `evaluateState must stay finite with threatReduction zeroed, got ${zeroed}`);
+
+  // enemy-1 was the only real threat on the field (enemy-0's own damage bonus is 0) — gating
+  // enemyThreatTotal on aliveness the way reachByEnemy/visibleEnemies correctly do would make its
+  // own threatShare collapse to 0 at the exact instant it died, losing the credit for the kill
+  // itself. It must not: the credit is computed from its own (unchanged-by-death) attack stats.
+  assert.ok(full - zeroed > 0, `a dead enemy who was a real threat must still contribute real, positive threatReduction credit (got ${(full - zeroed).toFixed(4)})`);
+});
+
+test("threatReduction: deliberately LOS-independent — a walled-off but ALIVE dangerous enemy still holds real threat credit, unlike offensiveReach/threatExposure which correctly zero out behind a wall", () => {
+  const state = makeThreatShareScenario([0, 30]);
+  // At full HP, (maxHP - currentHP) is trivially 0 for every enemy regardless of walls — damage
+  // one enemy first so there's a real, nonzero baseline whose LOS-persistence is worth checking.
+  state.combatants.set("enemy-1", { ...state.combatants.get("enemy-1"), currentHP: 10 });
+  const zeroWeight = { ...DEFAULT_WEIGHTS, threatReduction: 0 };
+  const walled = { ...state, walls: [{ c: [6, 0, 6, 20], move: 20, sight: 20 }] }; // splits column 5 (ally) from column 7 (both enemies)
+
+  const full = evaluateState(walled, "party", DEFAULT_WEIGHTS);
+  const zeroed = evaluateState(walled, "party", zeroWeight);
+  assert.ok(Number.isFinite(full) && Number.isFinite(zeroed), "evaluateState must stay finite with every enemy behind a wall");
+  assert.ok(full - zeroed > 0,
+    `threatReduction is a lasting-threat measure, not a current-exposure one — a wall blocking LOS must NOT zero out a genuinely dangerous, still-alive enemy's credit (got ${(full - zeroed).toFixed(4)})`);
+
+  // Sanity check this is exercising a REAL wall, not a no-op — checked DIRECTLY against the same
+  // lineOfEffect function evaluateState itself uses, not indirectly via a score comparison: this
+  // fixture's dangerous enemy-1 (bonus:30) makes threatExposure's own LOS-gated drop big enough to
+  // outweigh offensiveReach's, so the walled/open TOTAL score can move either direction depending
+  // on the mix — a real, confounding effect, not a reason to trust an indirect comparison here.
+  assert.equal(lineOfEffect({ col: 5, row: 5 }, { col: 7, row: 5 }, walled.walls), false,
+    "sanity check: this wall must genuinely block line of effect between the ally and the enemies, or this test isn't exercising a real wall");
+});
+
+// Isolates threatReduction's own contribution to the GAIN from a real hit on a SPECIFIC enemy
+// (reducing their hp from hpBefore to hpAfter) via a difference-in-differences:
+// evaluateState(default) - evaluateState(threatReduction:0), computed at each hp value, then
+// subtracted. Every OTHER term is identical in both halves of each subtraction and cancels out
+// exactly, so the result is threatReduction's own contribution to the attack's gain, alone — round
+// 2's own confirmed-working "shared state" construction, NOT the "two separate single-enemy
+// states" reading round 2 proved measures pure floating-point noise (in a genuinely isolated
+// single-enemy state, threatShare is ALWAYS exactly 1 regardless of that enemy's own damage, so
+// the two states are structurally indistinguishable to this term).
+function threatReductionGainFromHitting(state, enemyId, hpBefore, hpAfter) {
+  const zeroWeight = { ...DEFAULT_WEIGHTS, threatReduction: 0 };
+  function isolatedValueAt(hp) {
+    const clone = { ...state, combatants: new Map(state.combatants) };
+    clone.combatants.set(enemyId, { ...state.combatants.get(enemyId), currentHP: hp });
+    return evaluateState(clone, "party", DEFAULT_WEIGHTS) - evaluateState(clone, "party", zeroWeight);
+  }
+  return isolatedValueAt(hpAfter) - isolatedValueAt(hpBefore);
+}
+
+test("threatReduction ISOLATION: two same-AC, same-position enemies sharing one state, differing only in own damage — the harder hitter's own gain-from-being-hit is strictly larger", () => {
+  const state = makeThreatShareScenario([0, 30]); // enemy-0 weak, enemy-1 hard-hitting
+  const weakGain = threatReductionGainFromHitting(state, "enemy-0", 20, 19);
+  const hardGain = threatReductionGainFromHitting(state, "enemy-1", 20, 19);
+  assert.ok(hardGain > weakGain,
+    `hitting the harder-hitting enemy must earn a strictly larger threatReduction gain (${hardGain.toFixed(4)}) than hitting the weak one (${weakGain.toFixed(4)}) — this is the actual #58 signal, isolated from every other term`);
+  assert.ok(weakGain > 0, "even hitting the weaker enemy still earns SOME threatReduction credit, proportional to its own real share");
+});
+
+test("threatReduction ISOLATION: three enemies sharing one state (low/mid/high own damage) — gain-from-being-hit is strictly ordered low < mid < high, proving threatShare's proportional split, not just a binary check", () => {
+  const state = makeThreatShareScenario([0, 15, 30]);
+  const lowGain = threatReductionGainFromHitting(state, "enemy-0", 20, 19);
+  const midGain = threatReductionGainFromHitting(state, "enemy-1", 20, 19);
+  const highGain = threatReductionGainFromHitting(state, "enemy-2", 20, 19);
+  assert.ok(lowGain < midGain, `low (${lowGain.toFixed(4)}) must be less than mid (${midGain.toFixed(4)})`);
+  assert.ok(midGain < highGain, `mid (${midGain.toFixed(4)}) must be less than high (${highGain.toFixed(4)})`);
+});
+
+// Directly encodes GH #58's own literal acceptance criterion: "the high-damage-enemy case ...
+// scores ABOVE the low-damage one at equal AC-adjusted hit chance, with a unit test pinning the
+// ordering." Same equal-AC construction as the isolation tests above (the issue's own original
+// measurement was actually AC-confounded — the high-damage enemy in that repro had HIGHER AC,
+// hence harder to hit, which is exactly the confound "equal AC-adjusted hit chance" asks to
+// control for); unlike the isolation tests, this compares the FULL, real gain-from-attacking
+// (evaluateState(after) - evaluateState(before)) at DEFAULT_WEIGHTS with nothing zeroed out — the
+// actual quantity decide() itself compares between candidate actions — proving the shipped weight
+// (0.2) is large enough to matter for real target selection, not just correctly-signed in isolation.
+test("threatReduction closes GH #58's own literal acceptance test: at equal AC-adjusted hit chance, striking the higher-damage enemy now scores a strictly larger gain than striking the lower-damage one", () => {
+  const state = makeThreatShareScenario([0, 30]);
+  // The shipped formula's gradient is a constant weight*threatShare everywhere in [0, maxHP] (no
+  // "low HP" region needed the way an earlier, superseded Math.min(raw, currentHP) draft required) —
+  // starting HP here is arbitrary, kept low only to match the other tests in this section.
+  state.combatants.set("enemy-0", { ...state.combatants.get("enemy-0"), currentHP: 3, maxHP: 20 });
+  state.combatants.set("enemy-1", { ...state.combatants.get("enemy-1"), currentHP: 3, maxHP: 20 });
+
+  const before = evaluateState(state, "party");
+  function gainFromHitting(enemyId) {
+    const after = { ...state, combatants: new Map(state.combatants) };
+    after.combatants.set(enemyId, { ...state.combatants.get(enemyId), currentHP: 2 });
+    return evaluateState(after, "party") - before;
+  }
+  const gainLow = gainFromHitting("enemy-0");
+  const gainHigh = gainFromHitting("enemy-1");
+  assert.ok(gainHigh > gainLow,
+    `at equal AC-adjusted hit chance, hitting the high-damage enemy (gain ${gainHigh.toFixed(4)}) must now score strictly above hitting the low-damage one (gain ${gainLow.toFixed(4)}) — this is GH #58's own literal "Done when" criterion`);
+});
+
+test("WEIGHTS: threatReduction is strictly below enemyDamage — the same structural condition offensiveReach's own monotonicity proof depends on", () => {
+  assert.ok(DEFAULT_WEIGHTS.threatReduction < DEFAULT_WEIGHTS.enemyDamage,
+    `threatReduction (${DEFAULT_WEIGHTS.threatReduction}) must stay below enemyDamage (${DEFAULT_WEIGHTS.enemyDamage})`);
 });

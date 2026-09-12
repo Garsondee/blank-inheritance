@@ -146,6 +146,16 @@ function actionSequence(log) {
   return seq;
 }
 
+// Re-derived GH #58 (engineContract bumped 2->3, threatReduction added to evaluateState) — the SAME
+// re-verify-by-hand-and-update procedure this test's own header comment prescribes, not a hand
+// guess: captured directly from a real runBattle call with the new weight active. Re-derived TWICE
+// during development: a first, structurally-wrong formula (offensiveReach's own "reach against a
+// live enemy" shape, monotonicity-safe but rewarding the wrong thing once checked against #58's own
+// acceptance test) produced a much longer, 4-round battle; the corrected formula (rewards damage
+// ALREADY dealt, weighted by threat share) produces this much smaller, more sensible change from the
+// pre-#58 baseline — same outcome, same round count, exactly one adjacent pair of actions swapped
+// (lunar17 now presses the attack before healing, rather than healing first, since the goon carries
+// a bit more value to keep pressuring once it's already taken some damage).
 test("GOLDEN SEQUENCE: BASELINE_V1 vs BASELINE_V1, real fixtures, seed 42 — the exact real action sequence, pinned", () => {
   const log = runBattle(makeGoldenScenario(BASELINE_V1));
   assert.equal(log.outcome.result, "party-defeat");
@@ -156,8 +166,8 @@ test("GOLDEN SEQUENCE: BASELINE_V1 vs BASELINE_V1, real fixtures, seed 42 — th
     "goon:move",
     "goon:trip->lunar17",
     "goon:strike->lunar17",
-    "lunar17:healAbility->lunar17",
     "lunar17:spellAttack->goon",
+    "lunar17:healAbility->lunar17",
     "goon:strike->lunar17",
     "goon:move",
     "goon:move"
