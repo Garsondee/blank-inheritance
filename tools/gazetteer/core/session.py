@@ -39,7 +39,7 @@ import json
 import os
 import re
 
-from . import grid
+from . import containment, grid
 
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 DRAFT_DIR = os.path.join(_REPO_ROOT, "data", "map", "gazetteer-drafts")
@@ -89,13 +89,33 @@ def draft_path(draft_id, directory=None):
 
 
 def make_item(local_id, tier, geometry, note="", name="", kind="", tags=None,
-              source="drawn", source_feature_ids=None, depth="named"):
+              source="drawn", source_feature_ids=None, depth="named",
+              brief="", constraints=None):
     """One drawn thing, validated.
 
     Validation is strict and immediate rather than deferred to a later
     promotion step: a session can hold dozens of items and the person drawing
     them has moved on. An error caught at the moment of drawing is a nudge; the
     same error caught a week later is archaeology.
+
+    `brief` and `constraints` are the fix for a real, measured failure
+    (Gazetteer V2, 2026-09-12): twenty-two military buildings were drawn and
+    named, and three separate corrections arrived in conversation only AFTER
+    lore had started -- "the school is elsewhere," "this end of the island is
+    pure military and checkpoints" -- because nothing in the tool held the
+    constraint before the writing began. `brief` is one line of standing
+    context a REGION carries ("pure military and checkpoints"); `constraints`
+    are short hard facts as data rather than prose ("no civilians", "1950s
+    register") -- checkable, unlike a sentence someone might skim.
+    Meaningful on any tier, but overwhelmingly a REGION field in practice: a
+    district's brief is what every building inside it should already know
+    before a word of lore is written about them. Deliberately draft-only for
+    now, not carried into data/locations/*.json's schema -- see
+    design/location-depth.md's own note on retuning against real content
+    before locking a shape in; the same discipline applies to a brand new
+    field. `derived.inheritedBrief`/`inheritedConstraints` (see derive_draft)
+    is how a site or point actually SEES its region's brief without it being
+    copied and duplicated onto every building inside the district.
     """
     if tier not in TIERS:
         raise ValueError("tier must be one of %s, got %r" % (TIERS, tier))
@@ -141,6 +161,11 @@ def make_item(local_id, tier, geometry, note="", name="", kind="", tags=None,
         "tags": list(tags or []),
         "source": source,
         "sourceFeatureIds": list(source_feature_ids or []),
+        # See this function's own docstring. `brief` is one line; `constraints`
+        # is short hard facts, not prose -- each entry should read like a
+        # label, not a sentence.
+        "brief": brief or "",
+        "constraints": list(constraints or []),
         "geometry": geometry,
         "derived": {},
     }
@@ -194,6 +219,56 @@ def derive_item(item, georef=None):
     d["ref"] = d["refs"][0] if d["refs"] else None
     item["derived"] = d
     return item
+
+
+def derive_draft(draft, georef=None):
+    """Everything derivable across a WHOLE draft, not just one item.
+
+    Cell references, area and lon/lat are per-item facts and `derive_item`
+    already owns them. Containment and adjacency are not: which region a
+    building stands in depends on every region drawn, so they are computed
+    once here, over the finished set, after every item's own geometry-derived
+    fields are already in place.
+
+    One malformed shape must not cost the containment pass for the other
+    hundred: `derive_item` already tolerates a shape it cannot derive (see
+    State.save_draft's own comment on the same principle), and this wraps the
+    containment pass in the same spirit -- a single bad geometry drops that
+    one item from the containment computation rather than aborting the whole
+    thing.
+
+    `derived.inheritedBrief` / `derived.inheritedConstraints` are how a site
+    or point actually reads its containing region's `brief`/`constraints`
+    without those being copied verbatim onto every building in the district
+    (which would silently go stale the moment the region's brief changed).
+    Computed here, alongside containment, because that is the one place both
+    a building and its region are in hand at once.
+    """
+    for item in draft.get("items", []):
+        try:
+            derive_item(item, georef)
+        except Exception:
+            item["derived"] = {}
+
+    try:
+        contained = containment.compute(draft.get("items", []))
+    except Exception:
+        contained = {}
+
+    by_id = {item["localId"]: item for item in draft.get("items", [])}
+    for local_id, fields in contained.items():
+        item = by_id.get(local_id)
+        if item is not None:
+            item["derived"].update(fields)
+
+    for item in draft.get("items", []):
+        item["derived"].setdefault("withinRegionRef", None)
+        within = item["derived"].get("withinRegionRef")
+        region = by_id.get(within) if within else None
+        item["derived"]["inheritedBrief"] = (region or {}).get("brief") or ""
+        item["derived"]["inheritedConstraints"] = list((region or {}).get("constraints") or [])
+
+    return draft
 
 
 def suggest_id(name, tier, taken=()):

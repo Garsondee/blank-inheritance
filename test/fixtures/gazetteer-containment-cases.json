@@ -1,0 +1,776 @@
+{
+  "note": "Shared fixture for tools/gazetteer/core/containment.py and core/containment.mjs. Both test suites assert every case. Regenerate with tools/gazetteer/_make_containment_fixture.py and read the diff -- see that file's docstring.",
+  "generatedBy": "tools/gazetteer/_make_containment_fixture.py",
+  "tolerance": 6.0,
+  "cases": [
+    {
+      "name": "two adjacent unit squares share a border",
+      "why": "The baseline: A and B share the whole edge x=10, and each contains the site drawn inside it.",
+      "items": [
+        {
+          "localId": "a",
+          "tier": "region",
+          "name": "",
+          "geometry": {
+            "kind": "polygon",
+            "ringPx": [
+              [
+                0,
+                0
+              ],
+              [
+                10,
+                0
+              ],
+              [
+                10,
+                10
+              ],
+              [
+                0,
+                10
+              ]
+            ]
+          }
+        },
+        {
+          "localId": "b",
+          "tier": "region",
+          "name": "",
+          "geometry": {
+            "kind": "polygon",
+            "ringPx": [
+              [
+                10,
+                0
+              ],
+              [
+                20,
+                0
+              ],
+              [
+                20,
+                10
+              ],
+              [
+                10,
+                10
+              ]
+            ]
+          }
+        },
+        {
+          "localId": "s-in-a",
+          "tier": "site",
+          "name": "",
+          "geometry": {
+            "kind": "polygon",
+            "ringPx": [
+              [
+                2,
+                2
+              ],
+              [
+                4,
+                2
+              ],
+              [
+                4,
+                4
+              ],
+              [
+                2,
+                4
+              ]
+            ]
+          }
+        },
+        {
+          "localId": "s-in-b",
+          "tier": "site",
+          "name": "",
+          "geometry": {
+            "kind": "polygon",
+            "ringPx": [
+              [
+                12,
+                2
+              ],
+              [
+                14,
+                2
+              ],
+              [
+                14,
+                4
+              ],
+              [
+                12,
+                4
+              ]
+            ]
+          }
+        }
+      ],
+      "result": {
+        "a": {
+          "containsRefs": [
+            "s-in-a"
+          ],
+          "neighbourRefs": [
+            "b"
+          ]
+        },
+        "b": {
+          "containsRefs": [
+            "s-in-b"
+          ],
+          "neighbourRefs": [
+            "a"
+          ]
+        },
+        "s-in-a": {
+          "withinRegionRef": "a"
+        },
+        "s-in-b": {
+          "withinRegionRef": "b"
+        }
+      }
+    },
+    {
+      "name": "two distant squares are not neighbours",
+      "why": "A and C do not touch; nothing should link them.",
+      "items": [
+        {
+          "localId": "a",
+          "tier": "region",
+          "name": "",
+          "geometry": {
+            "kind": "polygon",
+            "ringPx": [
+              [
+                0,
+                0
+              ],
+              [
+                10,
+                0
+              ],
+              [
+                10,
+                10
+              ],
+              [
+                0,
+                10
+              ]
+            ]
+          }
+        },
+        {
+          "localId": "c",
+          "tier": "region",
+          "name": "",
+          "geometry": {
+            "kind": "polygon",
+            "ringPx": [
+              [
+                100,
+                100
+              ],
+              [
+                110,
+                100
+              ],
+              [
+                110,
+                110
+              ],
+              [
+                100,
+                110
+              ]
+            ]
+          }
+        }
+      ],
+      "result": {
+        "a": {
+          "containsRefs": [],
+          "neighbourRefs": []
+        },
+        "c": {
+          "containsRefs": [],
+          "neighbourRefs": []
+        }
+      }
+    },
+    {
+      "name": "an unclaimed point has no containing region",
+      "why": "A point far from every region comes back with withinRegionRef null, not an error and not a guess.",
+      "items": [
+        {
+          "localId": "a",
+          "tier": "region",
+          "name": "",
+          "geometry": {
+            "kind": "polygon",
+            "ringPx": [
+              [
+                0,
+                0
+              ],
+              [
+                10,
+                0
+              ],
+              [
+                10,
+                10
+              ],
+              [
+                0,
+                10
+              ]
+            ]
+          }
+        },
+        {
+          "localId": "p-outside",
+          "tier": "point",
+          "name": "",
+          "geometry": {
+            "kind": "point",
+            "pointPx": [
+              500,
+              500
+            ]
+          }
+        }
+      ],
+      "result": {
+        "a": {
+          "containsRefs": [],
+          "neighbourRefs": []
+        },
+        "p-outside": {
+          "withinRegionRef": null
+        }
+      }
+    },
+    {
+      "name": "an overlap is won by the smaller region",
+      "why": "A mid-session tessellation is not always clean yet. Where two regions genuinely overlap, the smaller is the more specific answer -- the same rule core/location.py already uses for promoted locations.",
+      "items": [
+        {
+          "localId": "big",
+          "tier": "region",
+          "name": "",
+          "geometry": {
+            "kind": "polygon",
+            "ringPx": [
+              [
+                0,
+                0
+              ],
+              [
+                100,
+                0
+              ],
+              [
+                100,
+                100
+              ],
+              [
+                0,
+                100
+              ]
+            ]
+          }
+        },
+        {
+          "localId": "small",
+          "tier": "region",
+          "name": "",
+          "geometry": {
+            "kind": "polygon",
+            "ringPx": [
+              [
+                40,
+                40
+              ],
+              [
+                60,
+                40
+              ],
+              [
+                60,
+                60
+              ],
+              [
+                40,
+                60
+              ]
+            ]
+          }
+        },
+        {
+          "localId": "s-mid",
+          "tier": "site",
+          "name": "",
+          "geometry": {
+            "kind": "polygon",
+            "ringPx": [
+              [
+                48,
+                48
+              ],
+              [
+                52,
+                48
+              ],
+              [
+                52,
+                52
+              ],
+              [
+                48,
+                52
+              ]
+            ]
+          }
+        }
+      ],
+      "result": {
+        "big": {
+          "containsRefs": [],
+          "neighbourRefs": []
+        },
+        "small": {
+          "containsRefs": [
+            "s-mid"
+          ],
+          "neighbourRefs": []
+        },
+        "s-mid": {
+          "withinRegionRef": "small"
+        }
+      }
+    },
+    {
+      "name": "a hole excludes the building sitting in it",
+      "why": "A donut region with a site in its hole must not claim that site -- the hole is the whole point of drawing one.",
+      "items": [
+        {
+          "localId": "donut",
+          "tier": "region",
+          "name": "",
+          "geometry": {
+            "kind": "polygon",
+            "ringPx": [
+              [
+                0,
+                0
+              ],
+              [
+                100,
+                0
+              ],
+              [
+                100,
+                100
+              ],
+              [
+                0,
+                100
+              ]
+            ],
+            "holesPx": [
+              [
+                [
+                  40,
+                  40
+                ],
+                [
+                  60,
+                  40
+                ],
+                [
+                  60,
+                  60
+                ],
+                [
+                  40,
+                  60
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "localId": "s-in-hole",
+          "tier": "site",
+          "name": "",
+          "geometry": {
+            "kind": "polygon",
+            "ringPx": [
+              [
+                48,
+                48
+              ],
+              [
+                52,
+                48
+              ],
+              [
+                52,
+                52
+              ],
+              [
+                48,
+                52
+              ]
+            ]
+          }
+        }
+      ],
+      "result": {
+        "donut": {
+          "containsRefs": [],
+          "neighbourRefs": []
+        },
+        "s-in-hole": {
+          "withinRegionRef": null
+        }
+      }
+    },
+    {
+      "name": "real: an island sitting in another region's hole",
+      "why": "The bug this module was written to catch. A first version tested only exterior-to-exterior pairs and reported The River Island (a real 13-vertex land region) as having ZERO neighbours, despite sharing its entire outline with The Open Sea's hole. Fixed by testing every boundary ring -- exterior AND holes -- on both sides.",
+      "items": [
+        {
+          "localId": "sea",
+          "tier": "region",
+          "name": "The Open Sea",
+          "geometry": {
+            "kind": "polygon",
+            "ringPx": [
+              [
+                7475,
+                8150
+              ],
+              [
+                7400,
+                8200
+              ],
+              [
+                7400,
+                8311.771282
+              ],
+              [
+                7400,
+                8325
+              ],
+              [
+                7377.087189,
+                8325
+              ],
+              [
+                5766.052142,
+                9255.131518
+              ],
+              [
+                5925,
+                9275
+              ],
+              [
+                5925,
+                9450
+              ],
+              [
+                6100,
+                9400
+              ],
+              [
+                6200,
+                9425
+              ],
+              [
+                6225,
+                9500
+              ],
+              [
+                6125,
+                9925
+              ],
+              [
+                5250,
+                10575
+              ],
+              [
+                5150,
+                10725
+              ],
+              [
+                4925,
+                10800
+              ],
+              [
+                4775,
+                10600
+              ],
+              [
+                4800,
+                10475
+              ],
+              [
+                5175,
+                10275
+              ],
+              [
+                5100,
+                10200
+              ],
+              [
+                4875,
+                10300
+              ],
+              [
+                4750,
+                10425
+              ],
+              [
+                4425,
+                10525
+              ],
+              [
+                4400,
+                10625
+              ],
+              [
+                4350,
+                10600
+              ],
+              [
+                4150,
+                10825
+              ],
+              [
+                4100,
+                10825
+              ],
+              [
+                4000,
+                10600
+              ],
+              [
+                3950,
+                10600
+              ],
+              [
+                4100,
+                11000
+              ],
+              [
+                3850,
+                11200
+              ],
+              [
+                3775,
+                11150
+              ],
+              [
+                3750,
+                11250
+              ],
+              [
+                3875,
+                11400
+              ],
+              [
+                4100,
+                11525
+              ],
+              [
+                4000,
+                11550
+              ],
+              [
+                3750,
+                11775
+              ],
+              [
+                3675,
+                11775
+              ],
+              [
+                3675,
+                11850
+              ],
+              [
+                3450,
+                12000
+              ],
+              [
+                3350,
+                12200
+              ],
+              [
+                12200,
+                12200
+              ],
+              [
+                12200,
+                6743.944779
+              ],
+              [
+                10206.326068,
+                7360.434795
+              ],
+              [
+                8750,
+                8300
+              ],
+              [
+                7645.461104,
+                8170.054248
+              ]
+            ],
+            "holesPx": [
+              [
+                [
+                  4450,
+                  10700
+                ],
+                [
+                  4500,
+                  10700
+                ],
+                [
+                  4550,
+                  10850
+                ],
+                [
+                  4725,
+                  10700
+                ],
+                [
+                  4875,
+                  10850
+                ],
+                [
+                  4825,
+                  10950
+                ],
+                [
+                  4200,
+                  11425
+                ],
+                [
+                  4050,
+                  11300
+                ],
+                [
+                  3975,
+                  11350
+                ],
+                [
+                  3875,
+                  11300
+                ],
+                [
+                  3875,
+                  11225
+                ],
+                [
+                  4175,
+                  11000
+                ],
+                [
+                  4225,
+                  10850
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "localId": "river-island",
+          "tier": "region",
+          "name": "The River Island",
+          "geometry": {
+            "kind": "polygon",
+            "ringPx": [
+              [
+                3875,
+                11300
+              ],
+              [
+                3975,
+                11350
+              ],
+              [
+                4050,
+                11300
+              ],
+              [
+                4200,
+                11425
+              ],
+              [
+                4825,
+                10950
+              ],
+              [
+                4875,
+                10850
+              ],
+              [
+                4725,
+                10700
+              ],
+              [
+                4550,
+                10850
+              ],
+              [
+                4500,
+                10700
+              ],
+              [
+                4450,
+                10700
+              ],
+              [
+                4225,
+                10850
+              ],
+              [
+                4175,
+                11000
+              ],
+              [
+                3875,
+                11225
+              ]
+            ]
+          }
+        }
+      ],
+      "result": {
+        "sea": {
+          "containsRefs": [],
+          "neighbourRefs": [
+            "river-island"
+          ]
+        },
+        "river-island": {
+          "containsRefs": [],
+          "neighbourRefs": [
+            "sea"
+          ]
+        }
+      }
+    }
+  ]
+}

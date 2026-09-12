@@ -16,6 +16,7 @@ import {
 } from "/core/grid.mjs";
 import { check as checkDepth, suggestDepth, DEPTHS } from "/core/depth.mjs";
 import { metrics as shapeMetrics, capacity as shapeCapacity } from "/core/shape.mjs";
+import { compute as computeContainment, centroidOf as containmentCentroidOf } from "/core/containment.mjs";
 
 /** This map is rendered at exactly one metre to the pixel -- 12,000 m of
  *  ground over 12,000 px of content area, per data/map/campaign-map.json's
@@ -52,6 +53,14 @@ const state = {
   coverageLayer: null,
   published: new Map(),  // location id -> record from /api/locations
   filter: "",
+  // Which district a building stands in, recomputed CLIENT-SIDE on every
+  // edit rather than read from the server's own `derived` fields (which lag
+  // one save behind) -- see recomputeContainment(). {localId: {withinRegionRef}
+  // | {containsRefs, neighbourRefs}}, exactly containment.mjs's own shape.
+  containment: {},
+  // The region a session list / map view is narrowed to, or null for
+  // everything. Set by clicking a district header in the tree list.
+  focusRegionId: null,
 };
 
 // --- api --------------------------------------------------------------------
@@ -252,9 +261,17 @@ async function boot() {
     if (k) $("b-kind").appendChild(opt()); // "" is already the batch form's own "leave as is"
   });
 
+  state.listView = readStore(LIST_VIEW_KEY, "tree");
+  $("f-view").value = state.listView;
+
   await loadSession();
   await refreshFeatures();
   await refreshPublished();
+  // Unconditional, not gated behind the coverage checkbox: the pill answers
+  // "does this still tessellate" before anyone has drawn or saved anything
+  // this session, which is exactly when a stale assumption is most likely.
+  await refreshCoverage();
+  await refreshOverview();
   setStatus(defaultStatus());
 
   // A deliberate testing seam. Drawing, vertex dragging and marquee selection
@@ -266,7 +283,8 @@ async function boot() {
   window.__gz = {
     state, api, setTool, save, refreshFeatures, refreshPublished,
     onShapeDrawn, onMarquee, onPick, onAreaSelect, handleSelectionChange,
-    refreshCoverage,
+    refreshCoverage, refreshOverview, setFocusRegion, recomputeContainment,
+    copyForClaude,
   };
   $("status-keys").textContent =
     "V select (right-click drag to pan) · L lasso · R region · S site · P pin · B adopt · X remove · "
@@ -283,6 +301,149 @@ async function loadSession() {
   state.draw.clearShapes();
   state.items.forEach((it) => state.draw.addShape(it));
   renderList();
+}
+
+/**
+ * Which district every building stands in, recomputed on the CLIENT after
+ * every edit rather than trusted from the server's own `derived` fields.
+ *
+ * The server computes and persists the same thing (session.derive_draft, on
+ * every save and every GET) so the two never disagree for long -- but a save
+ * is debounced a full second behind typing, and a vertex drag fires many
+ * times before it ever reaches the server at all. Recomputing here means the
+ * tree list and the breadcrumb are never one edit behind what is actually on
+ * screen. Cheap: forty regions and a hundred-odd buildings compute in well
+ * under the width of one animation frame (see test_containment.py's own
+ * timing note for the server-side figure this mirrors).
+ *
+ * A malformed shape mid-drag must not blank out every OTHER item's district
+ * -- computeContainment already tolerates a degenerate geometry per item
+ * (see containment.mjs), so nothing extra is needed here.
+ */
+function recomputeContainment() {
+  try {
+    state.containment = computeContainment(state.items);
+  } catch (err) {
+    // Never let a containment failure take the list down with it -- the
+    // worst case is stale grouping for one render, not a blank sidebar.
+    console.error("containment recompute failed:", err);
+  }
+}
+
+/** The region (item) a site/point stands in, or null. Reads the freshly
+ *  recomputed client-side containment, not the server's own `derived`. */
+function regionOf(item) {
+  const within = state.containment[item.localId] && state.containment[item.localId].withinRegionRef;
+  return within ? itemById(within) : null;
+}
+
+/** A region's own computed facts: how many items it holds, and which
+ *  regions it borders (as items, for display). Empty shape for anything
+ *  that is not a region or has not been computed yet. */
+function regionFacts(item) {
+  const c = state.containment[item.localId];
+  if (!c || !("containsRefs" in c)) return { contains: [], neighbours: [] };
+  return {
+    contains: c.containsRefs || [],
+    neighbours: (c.neighbourRefs || []).map((id) => itemById(id)).filter(Boolean),
+  };
+}
+
+/** Distance in metres and an 8-point compass bearing from a to b, in image
+ *  pixels (= metres on this sheet). Bearing is PAGE-relative, not true
+ *  north -- the sheet is rotated 31 degrees, and "which way to walk on the
+ *  map you are looking at" is the question a breadcrumb answers, the same
+ *  choice core/shape.py's own bearingDeg already makes for a footprint's
+ *  long axis. Image y increases downward, so "south" is +y. */
+function distanceAndBearing(a, b) {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const distance = Math.hypot(dx, dy);
+  const angle = (Math.atan2(dy, dx) * 180) / Math.PI; // -180..180, 0 = east, +90 = south
+  const index = Math.round(((angle + 360) % 360) / 45) % 8;
+  // atan2 gives 0=east; rotate the compass table so index 0 lands on E.
+  const compass = ["E", "SE", "S", "SW", "W", "NW", "N", "NE"];
+  return { distanceM: distance, bearing: compass[index] };
+}
+
+/**
+ * "in <District> (<ref>) · <dist> m <bearing> of <Landmark>" -- everything a
+ * person used to have to compute by hand (or ask Claude to) from the raw
+ * coordinates. The landmark is the nearest OTHER locked item on the whole
+ * sheet within a sane radius: locked because an unlocked, still-blank
+ * building is not yet a landmark anyone would navigate by, and a radius cap
+ * so a lone building on an empty part of the map does not get anchored to
+ * something three kilometres away that happens to be the closest thing that
+ * exists.
+ */
+const LANDMARK_MAX_DISTANCE_PX = 1500;
+
+function nearestLandmark(item) {
+  let centroid;
+  try {
+    centroid = containmentCentroidOf(item.geometry);
+  } catch (err) {
+    return null;
+  }
+  let best = null;
+  let bestDist = Infinity;
+  for (const other of state.items) {
+    if (other.localId === item.localId || !other.locked) continue;
+    let oc;
+    try {
+      oc = containmentCentroidOf(other.geometry);
+    } catch (err) {
+      continue;
+    }
+    const d = Math.hypot(oc[0] - centroid[0], oc[1] - centroid[1]);
+    if (d < bestDist) { bestDist = d; best = other; }
+  }
+  if (!best || bestDist > LANDMARK_MAX_DISTANCE_PX) return null;
+  const { distanceM, bearing } = distanceAndBearing(centroid, containmentCentroidOf(best.geometry));
+  return { item: best, distanceM, bearing };
+}
+
+function renderBreadcrumb(item) {
+  const el = $("breadcrumb");
+  if (!el) return;
+  if (item.tier === "region") { el.hidden = true; return; }
+
+  const region = regionOf(item);
+  const parts = [];
+  parts.push(region
+    ? `in <strong>${escapeHtml(region.name || "unnamed district")}</strong> (${escapeHtml(liveRef(region))})`
+    : "in no drawn district yet");
+
+  const landmark = nearestLandmark(item);
+  if (landmark) {
+    parts.push(`${Math.round(landmark.distanceM)} m ${landmark.bearing} of `
+      + `<strong>${escapeHtml(landmark.item.name || "unnamed " + landmark.item.tier)}</strong>`);
+  }
+  el.innerHTML = parts.join(" · ");
+  el.hidden = false;
+}
+
+/** Region-only fields: the brief/constraints editor for a district itself,
+ *  and the read-only "inherited from" block for anything standing inside a
+ *  briefed one. Exactly one of the two ever shows -- a region cannot be
+ *  inside another region in this tool's model, and a site/point has no
+ *  brief of its own to edit. */
+function renderRegionFields(item) {
+  const isRegion = item.tier === "region";
+  $("region-brief-fields").hidden = !isRegion;
+  if (isRegion) {
+    $("f-brief").value = item.brief || "";
+    $("f-constraints").value = (item.constraints || []).join(", ");
+  }
+
+  const inherited = $("inherited-brief");
+  if (isRegion) { inherited.hidden = true; return; }
+  const region = regionOf(item);
+  const brief = region && (region.brief || "").trim();
+  if (!region || !brief) { inherited.hidden = true; return; }
+  inherited.hidden = false;
+  $("inherited-region-name").textContent = region.name || "unnamed district";
+  $("inherited-brief-text").textContent = brief;
 }
 
 function markDirty() {
@@ -310,8 +471,8 @@ async function save() {
     $("save-state").classList.remove("is-dirty");
     // The coverage check runs server-side against the SAVED draft, so this is
     // the only moment it can be recomputed and still be telling the truth.
-    // Cheap when the layer is off -- refreshCoverage returns immediately.
     refreshCoverage();
+    refreshOverview();
     if (data.problems && data.problems.length) {
       setStatus("saved, but: " + data.problems.join("; "), "warn");
     }
@@ -353,6 +514,13 @@ function buildItem(shape) {
     // cannot be estimated without it, and a defaulted height has to be able
     // to say that it is one.
     build: shape.build || null,
+    // One line of standing context a REGION carries, and short hard facts as
+    // data rather than prose -- see index.html's own field labels and
+    // core/session.py's make_item docstring for the exact bug this fixes.
+    // Present on every tier for a uniform item shape; only shown in the
+    // inspector for a region.
+    brief: "",
+    constraints: [],
     geometry: shape.pointPx
       ? { kind: "point", pointPx: shape.pointPx }
       : { kind: "polygon", ringPx: shape.ringPx },
@@ -374,6 +542,14 @@ function onShapeDrawn(shape) {
   state.draw.select(item.localId);
   markDirty();
   renderList();
+  // Region only, and specifically because a region is drawn once and then
+  // moved on from -- unlike Site/Pin/Adopt, which are used again and again
+  // in a row on purpose. The actual, measured mistake: the Region tool
+  // stayed armed after drawing a real district, and the next two clicks on
+  // ordinary buildings filed each of them as its own district, corrupting
+  // the tessellation twice before anyone noticed. A tool that reverts after
+  // its one-shot use cannot repeat that.
+  if (item.tier === "region") setTool("pan");
   $("f-note").focus();
 }
 
@@ -619,17 +795,38 @@ async function onMarquee(rect, asArea) {
  * the ground truth would invent gaps wherever the picture is different on
  * purpose. Sea is ground to be claimed like any other: an ocean is a region.
  */
+/** The always-on header pill, independent of whether the heavy visual layer
+ *  below is switched on. Coverage is the one invariant this whole tool
+ *  exists to protect, and it must never require opting into a layer to find
+ *  out it has stopped holding -- see index.html's own comment on
+ *  #coverage-pill for the real session this fixes. */
+function updateCoveragePill(data) {
+  const pill = $("coverage-pill");
+  const text = $("coverage-pill-text");
+  if (!pill || !text) return;
+  if (!data) { text.textContent = "coverage: unavailable"; pill.dataset.state = "unknown"; return; }
+  const pct = (data.claimedFraction * 100).toFixed(data.tessellates ? 0 : 2);
+  text.textContent = data.tessellates
+    ? `${pct}% · tessellates`
+    : `${pct}% · ${data.voids.length + data.overlaps.length} problem${
+        data.voids.length + data.overlaps.length === 1 ? "" : "s"}`;
+  pill.dataset.state = data.tessellates ? "ok" : "problem";
+}
+
 async function refreshCoverage() {
-  if (!$("l-coverage").checked) {
-    state.coverageLayer.clearLayers();
-    $("coverage-hint").textContent = "";
-    return;
-  }
   let data;
   try {
     data = await api("/api/coverage");
   } catch (err) {
+    updateCoveragePill(null);
     $("coverage-hint").textContent = "coverage unavailable: " + err.message;
+    return;
+  }
+  updateCoveragePill(data);
+
+  if (!$("l-coverage").checked) {
+    state.coverageLayer.clearLayers();
+    $("coverage-hint").textContent = "";
     return;
   }
   state.coverageLayer.clearLayers();
@@ -659,6 +856,52 @@ async function refreshCoverage() {
   }
   $("coverage-hint").textContent = bits.join(" · ");
   $("coverage-hint").classList.toggle("is-done", !!data.tessellates);
+}
+
+// --- overview / queue ---------------------------------------------------------
+
+/**
+ * "What should I work on tonight" in one glance, before scrolling into a
+ * hundred-plus-row list to go find out. Backed by /api/queue -- see
+ * core/queue.py's own docstring for the reasoning (biggest backlog first,
+ * a missing brief always flagged even on an otherwise-finished district).
+ */
+async function refreshOverview() {
+  let data;
+  try {
+    data = await api("/api/queue");
+  } catch (err) {
+    return; // the overview is a convenience; a session must still work without it
+  }
+  const stats = $("overview-stats");
+  if (stats) {
+    stats.innerHTML = `
+      <span><strong>${data.regionCount}</strong> districts</span>
+      <span><strong>${data.siteCount + data.pointCount}</strong> buildings</span>
+      <span><strong>${data.totalNeedsNote}</strong> need a note</span>
+      <span><strong>${data.regionsWithNoBrief}</strong> without a brief</span>`;
+  }
+  const list = $("overview-needs");
+  if (!list) return;
+  list.innerHTML = "";
+  if (!data.needsAttention.length) {
+    const li = document.createElement("li");
+    li.className = "gz-overview__empty";
+    li.textContent = "Nothing flagged — every district has a brief and every building has a note.";
+    list.appendChild(li);
+    return;
+  }
+  data.needsAttention.forEach((r) => {
+    const li = document.createElement("li");
+    const bits = [];
+    if (!r.hasBrief) bits.push("no brief");
+    if (r.needsNoteCount) bits.push(`${r.needsNoteCount} need a note`);
+    if (r.needsNameCount) bits.push(`${r.needsNameCount} unnamed`);
+    li.innerHTML = `<span class="gz-overview__name">${escapeHtml(r.name || "unnamed district")}</span>`
+      + `<span class="gz-overview__why">${escapeHtml(bits.join(" · "))}</span>`;
+    li.addEventListener("click", () => setFocusRegion(r.localId));
+    list.appendChild(li);
+  });
 }
 
 // --- published locations -----------------------------------------------------
@@ -713,8 +956,23 @@ function handleSelectionChange(ids) {
   else renderBatchPanel(ids);
 }
 
+let confirmTierChangeArmed = null; // { localId } | null while a tier-change confirm is pending
+
+function armTierChangeConfirm(item) {
+  confirmTierChangeArmed = { localId: item.localId };
+  const area = (item.derived && item.derived.areaM2) || 0;
+  setStatus(`Changing tier removes "${item.name || item.localId}" from the region `
+    + `tessellation and opens a gap of about ${Math.round(area).toLocaleString()} m² `
+    + `where it stood. Pick a tier again to confirm, or leave it as Region to cancel.`, "warn");
+}
+
+function disarmTierChangeConfirm() {
+  confirmTierChangeArmed = null;
+}
+
 function renderInspector(localId) {
   disarmBatchDelete();
+  disarmTierChangeConfirm();
   const item = localId && itemById(localId);
   $("batch-form").hidden = true;
   $("inspector-empty").hidden = !!item;
@@ -732,6 +990,9 @@ function renderInspector(localId) {
   // cannot exist.
   $("f-tier").disabled = item.geometry.kind === "point";
 
+  renderBreadcrumb(item);
+  renderRegionFields(item);
+
   // A locked item has a real lore entry and reads as settled -- every field
   // that could change or destroy it is disabled until it is unlocked again,
   // the vertex handles it would otherwise grow are skipped entirely (see
@@ -743,7 +1004,8 @@ function renderInspector(localId) {
   renderShapeReport(item);
 
   const locked = !!item.locked;
-  ["f-name", "f-kind", "f-note", "f-tags", "f-depth"].forEach((id) => { $(id).disabled = locked; });
+  ["f-name", "f-kind", "f-note", "f-tags", "f-depth", "f-brief", "f-constraints"]
+    .forEach((id) => { $(id).disabled = locked; });
   $("f-tier").disabled = locked || item.geometry.kind === "point";
   $("btn-lock").textContent = locked ? "Unlock" : "Lock";
   $("btn-delete").disabled = locked;
@@ -766,6 +1028,13 @@ function renderInspector(localId) {
   if (item.sourceFeatureIds && item.sourceFeatureIds.length) {
     rows.push(["Real ids", String(item.sourceFeatureIds.length)]);
   }
+  if (item.tier === "region") {
+    const rf = regionFacts(item);
+    rows.push(["Contains", String(rf.contains.length)]);
+    if (rf.neighbours.length) {
+      rows.push(["Borders", rf.neighbours.map((n) => n.name || n.localId).join(", ")]);
+    }
+  }
   rows.forEach(([k, v]) => {
     const dt = document.createElement("dt"); dt.textContent = k;
     const dd = document.createElement("dd"); dd.textContent = v;
@@ -784,6 +1053,7 @@ function renderInspector(localId) {
  */
 function renderBatchPanel(ids) {
   disarmBatchDelete(); // the armed count is for a specific id list -- a changed selection must re-arm
+  disarmTierChangeConfirm();
   $("inspector-empty").hidden = true;
   $("inspector-form").hidden = true;
   $("batch-form").hidden = false;
@@ -822,23 +1092,27 @@ let lastClickedId = null;
 let statusFilter = "all";   // all | todo | locked
 let sortMode = "ref";       // ref | name | added
 
-/** The rows the list should show right now: text filter, status filter and
- *  sort, in that order. Sorting by REFERENCE is the default because this is
- *  a gazetteer -- things near each other on the map belong near each other
- *  in the list, and a session is worked through a district at a time. */
-function itemsForList() {
+/** Does this item pass the current text filter and status chip? Split out
+ *  of itemsForList() so tree mode can apply the exact same rule to decide
+ *  which BUILDINGS show, independently of which DISTRICTS show (a district
+ *  shows if it matches directly OR if anything inside it does -- the usual
+ *  "search reveals the folder containing a match" behaviour). */
+function passesFilter(item) {
   const q = state.filter.trim().toLowerCase();
-  const rows = state.items.filter((item) => {
-    if (statusFilter === "todo" && item.locked) return false;
-    if (statusFilter === "locked" && !item.locked) return false;
-    if (!q) return true;
-    const refs = (item.derived && item.derived.refs) || [];
-    return `${item.name} ${item.note} ${item.kind} ${refs.join(" ")}`
-      .toLowerCase().includes(q);
-  });
-  // "￿" sorts unnamed items last rather than first: a list of blanks
-  // above everything named is the opposite of useful when the point is to
-  // read what is already written.
+  if (statusFilter === "todo" && item.locked) return false;
+  if (statusFilter === "locked" && !item.locked) return false;
+  if (!q) return true;
+  const refs = (item.derived && item.derived.refs) || [];
+  return `${item.name} ${item.note} ${item.kind} ${refs.join(" ")}`
+    .toLowerCase().includes(q);
+}
+
+/** The chosen sort, applied in place and also returned. "￿" sorts unnamed
+ *  items last rather than first: a list of blanks above everything named is
+ *  the opposite of useful when the point is to read what is already
+ *  written. Shared between the flat list and every district's member list
+ *  in tree mode, so "sort by depth" means the same thing in both views. */
+function sortItems(rows) {
   if (sortMode === "ref") {
     return rows.sort((a, b) => (liveRef(a) || "￿").localeCompare(liveRef(b) || "￿"));
   }
@@ -854,6 +1128,54 @@ function itemsForList() {
       || (liveRef(a) || "￿").localeCompare(liveRef(b) || "￿"));
   }
   return rows; // "added" -- state.items order, untouched
+}
+
+/** The rows the FLAT list should show right now: text filter, status filter
+ *  and sort, in that order. Sorting by REFERENCE is the default because this
+ *  is a gazetteer -- things near each other on the map belong near each
+ *  other in the list, and a session is worked through a district at a time
+ *  (tree mode, the default view, makes that literal). */
+function itemsForList() {
+  return sortItems(state.items.filter(passesFilter));
+}
+
+/**
+ * Every site/point grouped under the district it stands in, per the CLIENT-
+ * SIDE containment in state.containment (see recomputeContainment). Regions
+ * with nothing to show (they do not match the filter themselves AND nothing
+ * inside them does) are omitted entirely -- a session with forty districts
+ * and one active search should show the handful that are actually relevant,
+ * not thirty-nine empty headers.
+ *
+ * `focusRegionId`, when set, narrows to exactly one district and drops the
+ * unassigned bucket -- focus means "only this," not "this, plus whatever
+ * else also happens to survive."
+ */
+function buildTree() {
+  const regions = sortItems(state.items.filter((it) => it.tier === "region"));
+  const members = new Map();
+  const unassigned = [];
+
+  const eligible = sortItems(state.items.filter(
+    (it) => (it.tier === "site" || it.tier === "point") && passesFilter(it)));
+  for (const item of eligible) {
+    const region = regionOf(item);
+    if (region) {
+      if (!members.has(region.localId)) members.set(region.localId, []);
+      members.get(region.localId).push(item);
+    } else {
+      unassigned.push(item);
+    }
+  }
+
+  const groups = [];
+  for (const region of regions) {
+    if (state.focusRegionId && state.focusRegionId !== region.localId) continue;
+    const mine = members.get(region.localId) || [];
+    if (!passesFilter(region) && mine.length === 0) continue;
+    groups.push({ region, members: mine });
+  }
+  return { groups, unassigned: state.focusRegionId ? [] : unassigned };
 }
 
 function updateStatusChips() {
@@ -995,73 +1317,230 @@ function depthBadge(item) {
     + `${escapeHtml(depth)}</span> `;
 }
 
+/** One item row -- the exact markup and handlers every row has always had,
+ *  factored out so the flat list and every district's member list in tree
+ *  mode build IDENTICAL rows. `nested` only adds a class for indentation;
+ *  it changes nothing about behaviour. */
+function buildItemRow(item, sel, nested) {
+  const li = document.createElement("li");
+  li.className = "gz-item" + (sel.has(item.localId) ? " is-selected" : "")
+    + (item.locked ? " is-locked" : "")
+    + (nested ? " gz-item--nested" : "");
+  li.innerHTML = `
+    <input type="checkbox" class="gz-item__check" ${sel.has(item.localId) ? "checked" : ""}
+           aria-label="select ${escapeHtml(item.name || `unnamed ${item.tier}`)}">
+    <span class="gz-item__dot" style="background:${TIER_COLOUR[item.tier]}"></span>
+    <span class="gz-item__text">
+      <span class="gz-item__name" title="${item.locked ? "locked — unlock to rename" : "click to rename"}">${item.name
+        ? escapeHtml(item.name)
+        : `<em>unnamed ${item.tier}</em>`}${writtenDot(item)}</span>
+      <span class="gz-item__note" title="${item.locked ? "locked — unlock to edit" : "click to edit"}">${escapeHtml((item.note || "").split("\n")[0] || "no note yet")}</span>
+    </span>
+    <span class="gz-item__ref">${depthBadge(item)}${item.locked ? '<span class="gz-item__lock">locked</span> ' : ""}${escapeHtml(liveRef(item))}</span>`;
+
+  li.querySelector(".gz-item__check").addEventListener("click", (e) => {
+    e.stopPropagation();
+    state.draw.toggle(item.localId);
+    lastClickedId = item.localId;
+  });
+  li.querySelector(".gz-item__name").addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (item.locked) { setStatus("locked — unlock it to rename", "warn"); return; }
+    editItemField(item, "name", e.currentTarget, { multiline: false });
+  });
+  li.querySelector(".gz-item__note").addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (item.locked) { setStatus("locked — unlock it to edit", "warn"); return; }
+    editItemField(item, "note", e.currentTarget, { multiline: true });
+  });
+  // Plain click: the original "look at this one" gesture -- select and
+  // zoom. Ctrl/Cmd-click: toggle just this one in or out, no zoom (what
+  // Shift-click used to do, freed up below). Shift-click: range-select
+  // from the last plain/Ctrl click to here -- the actual ask, since
+  // toggling one at a time was the slow part of selecting "a bunch."
+  li.addEventListener("click", (e) => {
+    if (e.shiftKey) { rangeSelect(item.localId); return; }
+    if (e.ctrlKey || e.metaKey) { state.draw.toggle(item.localId); lastClickedId = item.localId; return; }
+    state.draw.select(item.localId);
+    zoomTo(item);
+    lastClickedId = item.localId;
+  });
+  return li;
+}
+
+/**
+ * A named-depth item with a real note is FINISHED, not merely "not flagged
+ * red" -- most of any session stays at `named` forever by design (see
+ * design/location-depth.md), so a one-line entry has to visibly read as
+ * done, or a session of ninety done-and-dusted buildings still looks like
+ * ninety open tasks. depthBadge already covers everything ABOVE named; this
+ * is its counterpart at the floor of the ladder, and only shows there --
+ * once a badge is already doing the job for deeper items, a second dot
+ * would be noise.
+ */
+function writtenDot(item) {
+  const depth = item.depth || "named";
+  if (depth !== "named") return "";
+  const hasNote = !!(item.note || "").trim();
+  return hasNote
+    ? '<span class="gz-item__written" title="named, and written">✓</span>'
+    : "";
+}
+
+const COLLAPSED_DISTRICTS_KEY = "gz.collapsedDistricts";
+const LIST_VIEW_KEY = "gz.listView";
+const UNASSIGNED_KEY = "__unassigned__";
+
+/** One district's header row: expand/collapse, select-the-region, its brief
+ *  at a glance, and how much of what it contains is actually done. Clicking
+ *  the row body (not the caret, not the checkbox) toggles FOCUS -- the
+ *  single control that narrows the whole session down to one district and
+ *  flies the map there, which is the actual payoff of computing containment
+ *  at all. */
+function buildRegionHeaderRow(region, members, sel, collapsed) {
+  const li = document.createElement("li");
+  const focused = state.focusRegionId === region.localId;
+  li.className = "gz-district" + (sel.has(region.localId) ? " is-selected" : "")
+    + (focused ? " is-focused" : "");
+  const locked = members.filter((m) => m.locked).length;
+  const brief = (region.brief || "").trim();
+  li.innerHTML = `
+    <button type="button" class="gz-district__caret" aria-label="${collapsed ? "expand" : "collapse"}">${collapsed ? "▸" : "▾"}</button>
+    <input type="checkbox" class="gz-item__check" ${sel.has(region.localId) ? "checked" : ""}
+           aria-label="select ${escapeHtml(region.name || "unnamed district")}">
+    <span class="gz-district__text">
+      <span class="gz-district__name">${region.name ? escapeHtml(region.name) : "<em>unnamed district</em>"}</span>
+      ${brief ? `<span class="gz-district__brief">${escapeHtml(brief)}</span>` : ""}
+    </span>
+    <span class="gz-district__progress" title="${locked} of ${members.length} locked">${members.length ? `${locked}/${members.length}` : "empty"}</span>
+    <span class="gz-district__ref">${escapeHtml(liveRef(region))}</span>`;
+
+  li.querySelector(".gz-district__caret").addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleDistrictCollapsed(region.localId);
+  });
+  li.querySelector(".gz-item__check").addEventListener("click", (e) => {
+    e.stopPropagation();
+    state.draw.toggle(region.localId);
+    lastClickedId = region.localId;
+  });
+  li.addEventListener("click", (e) => {
+    if (e.shiftKey || e.ctrlKey || e.metaKey) {
+      state.draw.toggle(region.localId);
+      lastClickedId = region.localId;
+      return;
+    }
+    setFocusRegion(focused ? null : region.localId);
+  });
+  return li;
+}
+
+function buildBucketHeaderRow(label, count, key, collapsed) {
+  const li = document.createElement("li");
+  li.className = "gz-district gz-district--bucket";
+  li.innerHTML = `
+    <button type="button" class="gz-district__caret" aria-label="${collapsed ? "expand" : "collapse"}">${collapsed ? "▸" : "▾"}</button>
+    <span class="gz-district__text"><span class="gz-district__name">${escapeHtml(label)}</span></span>
+    <span class="gz-district__progress">${count}</span>`;
+  li.querySelector(".gz-district__caret").addEventListener("click", () => toggleDistrictCollapsed(key));
+  li.addEventListener("click", () => toggleDistrictCollapsed(key));
+  return li;
+}
+
+function toggleDistrictCollapsed(localId) {
+  const collapsed = readStore(COLLAPSED_DISTRICTS_KEY, {}) || {};
+  collapsed[localId] = !collapsed[localId];
+  writeStore(COLLAPSED_DISTRICTS_KEY, collapsed);
+  renderList();
+}
+
+/** Set or clear district focus mode: narrows the session list to one
+ *  district, dims every other shape on the map, and flies there. Passing
+ *  the same id twice clears focus -- the header's own click handler relies
+ *  on this to make "click a focused district" toggle it back off. */
+function setFocusRegion(localId) {
+  state.focusRegionId = localId;
+  if (localId) {
+    const region = itemById(localId);
+    if (region) {
+      const facts = regionFacts(region);
+      state.draw.setFocus([localId, ...facts.contains]);
+      zoomTo(region);
+    }
+  } else {
+    state.draw.setFocus(null);
+  }
+  renderList();
+}
+
+function updateFocusBar() {
+  const bar = $("focus-bar");
+  if (!bar) return;
+  if (!state.focusRegionId) { bar.hidden = true; return; }
+  const region = itemById(state.focusRegionId);
+  bar.hidden = false;
+  $("focus-bar-name").textContent = region ? (region.name || "unnamed district") : "(deleted)";
+}
+
 function renderList() {
+  recomputeContainment();
   const list = $("item-list");
   const sel = new Set(state.draw.selectedList());
   list.innerHTML = "";
-  const q = state.filter.trim().toLowerCase();
-  let shown = 0;
   visibleIds = [];
-  for (const item of itemsForList()) {
-    shown += 1;
-    visibleIds.push(item.localId);
-    const li = document.createElement("li");
-    li.className = "gz-item" + (sel.has(item.localId) ? " is-selected" : "")
-      + (item.locked ? " is-locked" : "");
-    li.innerHTML = `
-      <input type="checkbox" class="gz-item__check" ${sel.has(item.localId) ? "checked" : ""}
-             aria-label="select ${escapeHtml(item.name || `unnamed ${item.tier}`)}">
-      <span class="gz-item__dot" style="background:${TIER_COLOUR[item.tier]}"></span>
-      <span class="gz-item__text">
-        <span class="gz-item__name" title="${item.locked ? "locked — unlock to rename" : "click to rename"}">${item.name
-          ? escapeHtml(item.name)
-          : `<em>unnamed ${item.tier}</em>`}</span>
-        <span class="gz-item__note" title="${item.locked ? "locked — unlock to edit" : "click to edit"}">${escapeHtml((item.note || "").split("\n")[0] || "no note yet")}</span>
-      </span>
-      <span class="gz-item__ref">${depthBadge(item)}${item.locked ? '<span class="gz-item__lock">locked</span> ' : ""}${escapeHtml(liveRef(item))}</span>`;
+  let shown = 0;
+  const collapsedDistricts = readStore(COLLAPSED_DISTRICTS_KEY, {}) || {};
 
-    li.querySelector(".gz-item__check").addEventListener("click", (e) => {
-      e.stopPropagation();
-      state.draw.toggle(item.localId);
-      lastClickedId = item.localId;
-    });
-    li.querySelector(".gz-item__name").addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (item.locked) { setStatus("locked — unlock it to rename", "warn"); return; }
-      editItemField(item, "name", e.currentTarget, { multiline: false });
-    });
-    li.querySelector(".gz-item__note").addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (item.locked) { setStatus("locked — unlock it to edit", "warn"); return; }
-      editItemField(item, "note", e.currentTarget, { multiline: true });
-    });
-    // Plain click: the original "look at this one" gesture -- select and
-    // zoom. Ctrl/Cmd-click: toggle just this one in or out, no zoom (what
-    // Shift-click used to do, freed up below). Shift-click: range-select
-    // from the last plain/Ctrl click to here -- the actual ask, since
-    // toggling one at a time was the slow part of selecting "a bunch."
-    li.addEventListener("click", (e) => {
-      if (e.shiftKey) { rangeSelect(item.localId); return; }
-      if (e.ctrlKey || e.metaKey) { state.draw.toggle(item.localId); lastClickedId = item.localId; return; }
-      state.draw.select(item.localId);
-      zoomTo(item);
-      lastClickedId = item.localId;
-    });
-    list.appendChild(li);
+  if (state.listView === "flat") {
+    for (const item of itemsForList()) {
+      if (state.focusRegionId) {
+        const owner = item.tier === "region" ? item : regionOf(item);
+        if (!owner || owner.localId !== state.focusRegionId) continue;
+      }
+      list.appendChild(buildItemRow(item, sel, false));
+      visibleIds.push(item.localId);
+      shown += 1;
+    }
+  } else {
+    const { groups, unassigned } = buildTree();
+    for (const { region, members } of groups) {
+      const collapsed = !!collapsedDistricts[region.localId];
+      list.appendChild(buildRegionHeaderRow(region, members, sel, collapsed));
+      if (collapsed) continue;
+      for (const item of members) {
+        list.appendChild(buildItemRow(item, sel, true));
+        visibleIds.push(item.localId);
+        shown += 1;
+      }
+    }
+    if (unassigned.length) {
+      const collapsed = !!collapsedDistricts[UNASSIGNED_KEY];
+      list.appendChild(buildBucketHeaderRow("Unassigned — no district drawn here yet",
+        unassigned.length, UNASSIGNED_KEY, collapsed));
+      if (!collapsed) {
+        for (const item of unassigned) {
+          list.appendChild(buildItemRow(item, sel, true));
+          visibleIds.push(item.localId);
+          shown += 1;
+        }
+      }
+    }
   }
-  const filtered = q || statusFilter !== "all";
+
+  const filtered = state.filter.trim() || statusFilter !== "all" || !!state.focusRegionId;
   $("item-count").textContent = filtered
     ? `${shown}/${state.items.length}` : String(state.items.length);
   if (!shown) {
     const li = document.createElement("li");
     li.className = "gz-list__empty";
-    li.textContent = statusFilter === "todo" && !q
+    li.textContent = statusFilter === "todo" && !state.filter.trim()
       ? "Nothing left to write here — every item in this session is locked."
       : "Nothing matches that filter.";
     list.appendChild(li);
   }
   updateSelectAllControl(sel);
   updateStatusChips();
+  updateFocusBar();
 }
 
 function rangeSelect(toId) {
@@ -1207,10 +1686,32 @@ function wireChrome() {
   bind("f-tags", (it) => {
     it.tags = $("f-tags").value.split(",").map((s) => s.trim()).filter(Boolean);
   });
+  bind("f-brief", (it) => { it.brief = $("f-brief").value; });
+  bind("f-constraints", (it) => {
+    it.constraints = $("f-constraints").value.split(",").map((s) => s.trim()).filter(Boolean);
+  });
+
   $("f-tier").addEventListener("change", () => {
     const item = itemById(state.draw.selected());
     if (!item) return;
-    item.tier = $("f-tier").value;
+    const nextTier = $("f-tier").value;
+    // Moving a GENERATED district out of "region" is uniquely destructive:
+    // it is not just relabelling one shape, it opens a hole in the
+    // tessellation exactly where that shape used to be, and nothing else on
+    // screen says so at the moment of the click. Found live: two buildings
+    // were filed the other way (site -> region, harmless) while a real
+    // district was flipped the dangerous way, and coverage silently dropped
+    // to 98.96% with no warning at all.
+    const isAutoRegion = item.tier === "region" && nextTier !== "region"
+      && (item.tags || []).includes("auto-tessellated");
+    const armedForThis = confirmTierChangeArmed && confirmTierChangeArmed.localId === item.localId;
+    if (isAutoRegion && !armedForThis) {
+      armTierChangeConfirm(item);
+      $("f-tier").value = "region"; // visually refuse until confirmed
+      return;
+    }
+    disarmTierChangeConfirm();
+    item.tier = nextTier;
     state.draw.addShape(item);
     state.draw.select(item.localId);
     markDirty();
@@ -1231,6 +1732,10 @@ function wireChrome() {
     if (item) zoomTo(item);
   });
   $("btn-promote").addEventListener("click", promoteSelected);
+  $("btn-handoff").addEventListener("click", () => {
+    const id = state.draw.selected();
+    if (id) copyForClaude([id]);
+  });
 
   $("btn-batch-apply").addEventListener("click", () => {
     const ids = state.draw.selectedList();
@@ -1285,6 +1790,39 @@ function wireChrome() {
     disarmBatchDelete();
     deleteItems(ids);
   });
+  $("btn-batch-handoff").addEventListener("click", () => copyForClaude(state.draw.selectedList()));
+
+  // A bulk-rename pattern. "Row A, Block {n}" typed by hand across nine
+  // separate rows is real, measured cost from a real session -- this is the
+  // field that would have written it in one action instead.
+  $("btn-batch-rename").addEventListener("click", () => {
+    const ids = state.draw.selectedList();
+    const pattern = $("b-name-pattern").value;
+    if (!pattern.includes("{n}")) {
+      setStatus('name pattern needs a {n} — e.g. "Row A, Block {n}"', "warn");
+      return;
+    }
+    let n = 1;
+    let skipped = 0;
+    ids.forEach((id) => {
+      const it = itemById(id);
+      if (!it) return;
+      if (it.locked) { skipped += 1; return; }
+      it.name = pattern.replace(/\{n\}/g, String(n));
+      n += 1;
+    });
+    markDirty();
+    renderBatchPanel(ids);
+    setStatus(`named ${n - 1} item${n - 1 === 1 ? "" : "s"}`
+      + (skipped ? ` — ${skipped} locked item${skipped === 1 ? "" : "s"} kept` : ""));
+  });
+
+  $("f-view").addEventListener("change", () => {
+    state.listView = $("f-view").value;
+    writeStore(LIST_VIEW_KEY, state.listView);
+    renderList();
+  });
+  $("btn-focus-clear").addEventListener("click", () => setFocusRegion(null));
 }
 
 let batchDeleteArmed = false;
@@ -1353,6 +1891,87 @@ function updatePromoteBox(item) {
     hint.className = "gz-hint is-done";
     btn.disabled = false;
   }
+}
+
+// --- copy for Claude ----------------------------------------------------------
+//
+// Replaces a typed handover sentence ("I've saved some more structures for
+// you to create") with one click: name, district, brief, constraints,
+// footprint reading and depth status, for every selected item, onto the
+// clipboard as Markdown. Built server-side (/api/handoff, core/handoff.py)
+// so the document is self-contained -- pasting it into a fresh conversation
+// carries everything Claude would otherwise have to ask for or compute.
+
+async function copyForClaude(ids) {
+  if (!ids || !ids.length) { setStatus("nothing selected to copy", "warn"); return; }
+  let data;
+  try {
+    data = await api("/api/handoff", { localIds: ids });
+  } catch (err) {
+    setStatus("could not build the handoff: " + err.message, "error");
+    return;
+  }
+  const ok = await copyTextToClipboard(data.markdown);
+  if (ok) {
+    setStatus(`copied ${ids.length} item${ids.length === 1 ? "" : "s"} for Claude — paste it into the conversation`);
+  } else {
+    // The Clipboard API has a documented history of being silently blocked
+    // in this project's own preview harness (a native confirmation dialog
+    // was found to behave the same way -- see draw.js's batch-delete
+    // arm/confirm comment for that story), so this path is not a
+    // hypothetical: a visible, selectable fallback is
+    // required, not optional.
+    showHandoffFallback(data.markdown);
+    setStatus("could not copy automatically — select the text shown and copy it by hand", "warn");
+  }
+}
+
+async function copyTextToClipboard(text) {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (err) { /* fall through to the legacy path below */ }
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    if (ok) return true;
+  } catch (err) { /* both paths failed -- caller shows the visible fallback */ }
+  return false;
+}
+
+let handoffFallbackEl = null;
+
+function showHandoffFallback(text) {
+  hideHandoffFallback();
+  const wrap = document.createElement("div");
+  wrap.className = "gz-handoff-fallback";
+  wrap.innerHTML = `
+    <div class="gz-handoff-fallback__panel">
+      <p>Automatic copy did not work here. Select the text below and copy it by hand (Ctrl/Cmd+C), then Close.</p>
+      <textarea readonly></textarea>
+      <button type="button" class="gz-btn">Close</button>
+    </div>`;
+  const textarea = wrap.querySelector("textarea");
+  textarea.value = text;
+  wrap.querySelector("button").addEventListener("click", hideHandoffFallback);
+  wrap.addEventListener("click", (e) => { if (e.target === wrap) hideHandoffFallback(); });
+  document.body.appendChild(wrap);
+  textarea.focus();
+  textarea.select();
+  handoffFallbackEl = wrap;
+}
+
+function hideHandoffFallback() {
+  if (handoffFallbackEl) { handoffFallbackEl.remove(); handoffFallbackEl = null; }
 }
 
 /** Delete any number of items at once — the single-item Delete button, the
@@ -1550,10 +2169,29 @@ async function showSuppressed(e) {
     + `${(doc.suppressedAreas || []).length} areas removed from the campaign map`);
 }
 
+const TOOL_LABEL = {
+  pan: "Select", lasso: "Lasso", region: "Region", site: "Site",
+  point: "Pin", adopt: "Adopt", remove: "Remove",
+};
+
 function setTool(tool) {
   state.draw.setTool(tool);
   document.querySelectorAll(".gz-tool").forEach((b) =>
     b.classList.toggle("is-active", b.dataset.tool === tool));
+  // The armed tool, unmissable: a persistent, colour-matched chip in the
+  // header rather than only the toolbar button's own highlight, which two
+  // real mistakes in one session proved is too easy to stop looking at once
+  // attention moves to the map. See index.html's own comment on #tool-armed.
+  const armed = $("tool-armed");
+  if (armed) {
+    armed.dataset.tool = tool;
+    $("tool-armed-text").textContent = TOOL_LABEL[tool] || tool;
+  }
+  // The map's own edge picks up the same colour (see gazetteer.css's
+  // .gz-main[data-tool] rules) so the cue is visible while looking at the
+  // map itself, not only at the header chip above it.
+  const mainEl = document.querySelector(".gz-main");
+  if (mainEl) mainEl.dataset.tool = tool;
   setStatus(defaultStatus());
 }
 

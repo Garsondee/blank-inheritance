@@ -37,6 +37,7 @@ from http.server import ThreadingHTTPServer
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..",
                                 "tools", "gazetteer"))
 
+import crop as crop_mod  # noqa: E402
 import server as gz  # noqa: E402
 from core import groundtruth, overrides as overrides_mod, session as session_mod  # noqa: E402
 from core import location as location_mod  # noqa: E402
@@ -298,6 +299,121 @@ class TestServer(unittest.TestCase):
                   encoding="utf-8") as fh:
             on_disk = json.load(fh)
         self.assertEqual(on_disk["items"][0]["name"], "Test District")
+
+    def test_saving_computes_containment_and_inherits_the_regions_brief(self):
+        """Gazetteer V2's whole reason for existing: a building already knows
+        which district it stands in, and that district's brief, by geometry
+        alone -- nothing typed twice, nothing that can silently go stale."""
+        region = {
+            "localId": "item-1", "tier": "region", "name": "The Yards",
+            "kind": "military", "note": "", "tags": [], "source": "drawn",
+            "sourceFeatureIds": [],
+            "brief": "Pure military and checkpoints. No civilians.",
+            "constraints": ["no-civilians", "1950s-register"],
+            "geometry": {"kind": "polygon",
+                        "ringPx": [[4400, 6400], [4800, 6400], [4800, 6800], [4400, 6800]]},
+            "derived": {},
+        }
+        site = {
+            "localId": "item-2", "tier": "site", "name": "", "kind": "",
+            "note": "a shed", "tags": [], "source": "drawn", "sourceFeatureIds": [],
+            "geometry": {"kind": "polygon",
+                        "ringPx": [[4500, 6500], [4550, 6500], [4550, 6550], [4500, 6550]]},
+            "derived": {},
+        }
+        res = post(self.base + "/api/session", {"items": [region, site]})
+        by_id = {i["localId"]: i for i in res["draft"]["items"]}
+
+        self.assertEqual(by_id["item-2"]["derived"]["withinRegionRef"], "item-1")
+        self.assertIn("item-2", by_id["item-1"]["derived"]["containsRefs"])
+        self.assertEqual(by_id["item-2"]["derived"]["inheritedBrief"],
+                         "Pure military and checkpoints. No civilians.")
+        self.assertEqual(by_id["item-2"]["derived"]["inheritedConstraints"],
+                         ["no-civilians", "1950s-register"])
+        # The region itself inherits nothing -- it is not standing inside
+        # anything.
+        self.assertEqual(by_id["item-1"]["derived"]["inheritedBrief"], "")
+
+    def test_a_plain_get_also_returns_fresh_containment(self):
+        """Not only at save time -- a page that only just loaded, before
+        anyone has saved again, must still show the right district for
+        something adopted a minute ago by someone else."""
+        region = {
+            "localId": "item-1", "tier": "region", "name": "The Yards",
+            "kind": "", "note": "", "tags": [], "source": "drawn",
+            "sourceFeatureIds": [],
+            "geometry": {"kind": "polygon",
+                        "ringPx": [[4400, 6400], [4800, 6400], [4800, 6800], [4400, 6800]]},
+            "derived": {},
+        }
+        post(self.base + "/api/session", {"items": [region]})
+        fresh = get(self.base + "/api/session")
+        self.assertEqual(fresh["draft"]["items"][0]["derived"]["containsRefs"], [])
+
+    def test_queue_groups_by_district_and_flags_a_missing_brief(self):
+        items = [
+            {"localId": "r1", "tier": "region", "name": "The Yards",
+            "kind": "", "note": "", "tags": [], "source": "drawn", "sourceFeatureIds": [],
+            "geometry": {"kind": "polygon",
+                        "ringPx": [[4400, 6400], [4800, 6400], [4800, 6800], [4400, 6800]]},
+            "derived": {}},
+            {"localId": "s1", "tier": "site", "name": "", "kind": "", "note": "",
+            "tags": [], "source": "drawn", "sourceFeatureIds": [],
+            "geometry": {"kind": "polygon",
+                        "ringPx": [[4500, 6500], [4550, 6500], [4550, 6550], [4500, 6550]]},
+            "derived": {}},
+        ]
+        post(self.base + "/api/session", {"items": items})
+        result = get(self.base + "/api/queue")
+        self.assertEqual(result["regionCount"], 1)
+        by_id = {r["localId"]: r for r in result["regions"]}
+        self.assertEqual(by_id["r1"]["total"], 1)
+        self.assertFalse(by_id["r1"]["hasBrief"])
+        self.assertEqual(result["regionsWithNoBrief"], 1)
+        self.assertIn("r1", [r["localId"] for r in result["needsAttention"]])
+
+    def test_handoff_carries_the_regions_brief_and_the_shape_report(self):
+        items = [
+            {"localId": "r1", "tier": "region", "name": "The Yards",
+            "kind": "", "note": "", "tags": [], "source": "drawn", "sourceFeatureIds": [],
+            "brief": "Pure military and checkpoints.",
+            "geometry": {"kind": "polygon",
+                        "ringPx": [[4400, 6400], [4800, 6400], [4800, 6800], [4400, 6800]]},
+            "derived": {}},
+            {"localId": "s1", "tier": "site", "name": "Shed", "kind": "", "note": "a shed",
+            "tags": [], "source": "drawn", "sourceFeatureIds": [],
+            "geometry": {"kind": "polygon",
+                        "ringPx": [[4500, 6500], [4550, 6500], [4550, 6550], [4500, 6550]]},
+            "derived": {}},
+        ]
+        post(self.base + "/api/session", {"items": items})
+        result = post(self.base + "/api/handoff", {"localIds": ["s1"]})
+        self.assertIn("Pure military and checkpoints.", result["markdown"])
+        self.assertIn("Shed", result["markdown"])
+        self.assertIn("a shed", result["markdown"])
+        # A 50x50 footprint (2,500 m2) with no tagged height -- shape.py must
+        # have actually run, not just been imported.
+        self.assertIn("Footprint", result["markdown"])
+
+    def test_handoff_refuses_with_no_ids(self):
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            post(self.base + "/api/handoff", {"localIds": []})
+        self.assertEqual(cm.exception.code, 400)
+
+    @unittest.skipUnless(os.path.exists(crop_mod.DEFAULT_IMAGE),
+                         "the painted map is gitignored and not present")
+    def test_crop_returns_a_real_png_for_a_real_item(self):
+        seeded = self._seed_item(ring=[[6800, 5400], [6900, 5400], [6900, 5500], [6800, 5500]])
+        with urllib.request.urlopen(
+                self.base + "/api/crop/%s.png" % seeded["localId"]) as res:
+            self.assertEqual(res.headers.get("Content-Type"), "image/png")
+            data = res.read()
+        self.assertTrue(data.startswith(b"\x89PNG"))
+
+    def test_crop_404s_for_an_unknown_item(self):
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            urllib.request.urlopen(self.base + "/api/crop/no-such-item.png")
+        self.assertEqual(cm.exception.code, 404)
 
     def test_an_edit_made_on_disk_is_not_silently_overwritten(self):
         """The server holds the whole draft in memory and writes it out whole.

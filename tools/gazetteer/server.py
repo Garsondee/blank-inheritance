@@ -154,12 +154,13 @@ class State:
         A shape that cannot be derived keeps an empty derived block and is
         reported through validate(), so it shows in the UI as a problem instead
         of silently looking finished.
+
+        Containment and adjacency (which region a building stands in, which
+        regions border each other) are computed here too, over the WHOLE
+        draft rather than one item at a time -- see session_mod.derive_draft
+        for why that has to be a separate pass.
         """
-        for item in self.draft["items"]:
-            try:
-                session_mod.derive_item(item, self.georef)
-            except Exception:
-                item["derived"] = {}
+        session_mod.derive_draft(self.draft, self.georef)
         path = session_mod.save(self.draft, session_mod.draft_path(self.draft["id"]))
         self._draft_mtime = self._on_disk_mtime()
         return path
@@ -240,6 +241,10 @@ class Handler(BaseHTTPRequestHandler):
                 return self._api_locations()
             if path == "/api/coverage":
                 return self._api_coverage(parse_qs(parsed.query))
+            if path == "/api/queue":
+                return self._api_queue()
+            if path.startswith("/api/crop/"):
+                return self._api_crop(path[len("/api/crop/"):])
             return self._error(404, "no route for %s" % path)
         except Exception as exc:  # a local tool: show the fault, do not hide it
             import traceback
@@ -264,6 +269,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._api_unsuppress()
             if path == "/api/promote":
                 return self._api_promote()
+            if path == "/api/handoff":
+                return self._api_handoff()
             return self._error(404, "no route for %s" % path)
         except Exception as exc:
             import traceback
@@ -654,7 +661,93 @@ class Handler(BaseHTTPRequestHandler):
 
         self._send(200, {"saved": _repo_relative(dest), "location": doc})
 
+    def _api_crop(self, rel):
+        """A labelled PNG of the painted map around one item -- see crop.py's
+        own docstring. `rel` is `<localId>.png`; the extension is required in
+        the URL so the browser's own <img src> can be pointed at this route
+        directly without a content-type mismatch."""
+        import crop as crop_mod
+
+        if not rel.endswith(".png"):
+            return self._error(400, "expected <localId>.png")
+        local_id = rel[: -len(".png")]
+        item = next((it for it in STATE.draft["items"] if it["localId"] == local_id), None)
+        if item is None:
+            return self._error(404, "no item %r in the current session" % local_id)
+        try:
+            data = crop_mod.render_to_bytes(item)
+        except crop_mod.CropError as exc:
+            return self._error(409, str(exc))
+        self._send(200, data, content_type="image/png")
+
+    def _api_queue(self):
+        """What in this session needs attention, grouped by district. See
+        core/queue.py's own docstring for why this exists at all."""
+        from core import queue as queue_mod
+
+        with STATE.lock:
+            session_mod.derive_draft(STATE.draft, STATE.georef)
+            result = queue_mod.build(STATE.draft["items"])
+        self._send(200, result)
+
+    def _api_handoff(self):
+        """The "Copy for Claude" document for a set of selected items.
+
+        Builds each item's shape/depth report fresh (the same modules the
+        inspector already calls client-side, run here so the document is
+        self-contained and does not depend on the browser having looked at
+        every item first) and hands the whole thing to core/handoff.py for
+        formatting.
+        """
+        from core import handoff as handoff_mod
+
+        body = self._body()
+        ids = body.get("localIds") or []
+        if not ids:
+            return self._error(400, "need localIds")
+
+        with STATE.lock:
+            session_mod.derive_draft(STATE.draft, STATE.georef)
+            items = STATE.draft["items"]
+
+            from core import depth as depth_mod, shape as shape_mod
+
+            shape_reports = {}
+            depth_reports = {}
+            for item in items:
+                if item["localId"] not in ids:
+                    continue
+                try:
+                    depth_reports[item["localId"]] = depth_mod.check(item)
+                except Exception:
+                    pass
+                geom = item.get("geometry") or {}
+                if (item.get("tier") == "site" and geom.get("kind") == "polygon"
+                        and len(geom.get("ringPx") or []) >= 3):
+                    try:
+                        build = item.get("build") or {}
+                        metrics = shape_mod.metrics(
+                            geom["ringPx"], metres_per_px=STATE.georef.metres_per_px,
+                            height_m=build.get("heightM"), levels=build.get("levels"),
+                            height_source=build.get("heightSource"))
+                        shape_reports[item["localId"]] = shape_mod.capacity(metrics)
+                    except Exception:
+                        pass
+
+            doc = handoff_mod.build(
+                items, ids, shape_reports=shape_reports, depth_reports=depth_reports,
+                session_note=body.get("sessionNote") or "")
+
+        self._send(200, {"markdown": doc})
+
     def _api_session(self):
+        # Containment/adjacency are cheap (tens of milliseconds at this
+        # session's size -- see test_containment.py's own timing note) and
+        # recomputing them on every GET, not only on save, means a page that
+        # only just loaded still shows the right district for a building
+        # someone else adopted a minute ago, before anyone has saved again.
+        with STATE.lock:
+            session_mod.derive_draft(STATE.draft, STATE.georef)
         self._send(200, {"draft": STATE.draft,
                          "summary": session_mod.summarise(STATE.draft)})
 

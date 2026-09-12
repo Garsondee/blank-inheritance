@@ -30,6 +30,11 @@ const SELECTED = { color: "#4fc8d8", weight: 3, fillOpacity: 0.25 };
 // tone or site/point's vermilion.
 const LOCKED = { color: "#3d6b47", weight: 2, fillOpacity: 0.22, dashArray: null };
 const DRAFT_STYLE = { color: "#4fc8d8", weight: 2, dashArray: "6 5", fillOpacity: 0.12 };
+// District focus mode: everything outside the focused district fades toward
+// the map itself rather than disappearing outright -- disappearing would
+// lose the "where am I relative to everything else" context focus mode is
+// supposed to add, not take away.
+const DIMMED = { color: "#8a7c61", weight: 1, fillOpacity: 0.04, opacity: 0.35 };
 
 export const TIER_COLOUR = {
   region: TIER_STYLE.region.color,
@@ -71,6 +76,11 @@ export function createDrawController(opts) {
   // single-item path (vertex handles, the inspector) had to change shape.
   let selectedIds = new Set();
   let marquee = null;
+  // The set of localIds to render dimmed rather than at full strength --
+  // "district focus" mode. null means no focus is active (everything at
+  // normal strength); an empty Set would ambiguously mean "focus on nothing
+  // in particular, dim everything," which is never what a caller means.
+  let dimmedIds = null;
   // Consumed by the very next "click": Leaflet fires a synthesised click
   // after a real drag completes (mouseup runs first; the click, if one
   // follows at all, comes after). select/pan's click handler is already a
@@ -308,12 +318,37 @@ export function createDrawController(opts) {
 
   function restyleOne(id) {
     const entry = shapes.get(id);
-    if (!entry || entry.item.geometry.kind !== "polygon") return;
-    entry.layer.setStyle(selectedIds.has(id) ? SELECTED
-      : entry.item.locked ? LOCKED
-      : (TIER_STYLE[entry.item.tier] || TIER_STYLE.site));
+    if (!entry) return;
+    // Dimming loses to selection, never the other way round: a shape you
+    // have deliberately clicked on must read as selected even if it happens
+    // to sit outside whatever district is currently focused (picking one
+    // building from elsewhere to compare against the focused district is a
+    // real, ordinary thing to want to do).
+    const dimmed = dimmedIds && dimmedIds.has(id) && !selectedIds.has(id);
+    if (entry.item.geometry.kind === "polygon") {
+      entry.layer.setStyle(selectedIds.has(id) ? SELECTED
+        : dimmed ? DIMMED
+        : entry.item.locked ? LOCKED
+        : (TIER_STYLE[entry.item.tier] || TIER_STYLE.site));
+    }
     const el = entry.layer._icon; // pins restyle via their marker element, if any
-    if (el) el.classList.toggle("gz-pin--selected", selectedIds.has(id));
+    if (el) {
+      el.classList.toggle("gz-pin--selected", selectedIds.has(id));
+      el.classList.toggle("gz-pin--dimmed", dimmed);
+    }
+  }
+
+  /** District focus mode: dim every shape whose id is NOT in `keepIds`.
+   *  `null` clears focus entirely -- see `dimmedIds`'s own comment for why
+   *  that is not the same thing as an empty set. */
+  function setFocus(keepIds) {
+    if (keepIds === null) {
+      dimmedIds = null;
+    } else {
+      const keep = new Set(keepIds);
+      dimmedIds = new Set([...shapes.keys()].filter((id) => !keep.has(id)));
+    }
+    restyleAll();
   }
 
   function restyleAll() {
@@ -801,8 +836,8 @@ export function createDrawController(opts) {
   return {
     setTool, get tool() { return tool; },
     addShape, removeShape, clearShapes, select, selected, selectMany, selectedList,
-    toggle, drawHandles, nudge, restyleOne, showSnapHint, snapRegionPoint,
-    finishDraft, cancelDraft, undoPoint,
+    toggle, drawHandles, nudge, restyleOne, restyleAll, showSnapHint, snapRegionPoint,
+    finishDraft, cancelDraft, undoPoint, setFocus,
     get drafting() { return !!drafting; },
     shapes,
   };

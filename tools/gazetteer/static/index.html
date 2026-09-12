@@ -37,14 +37,35 @@
     <span class="gz-readout__px" id="readout-px"></span>
   </div>
 
+  <!-- Always visible, never gated behind the optional coverage LAYER
+       checkbox — a tessellation that has stopped tessellating is exactly
+       the kind of fact that must not require opting in to see. Found live:
+       a Tier-dropdown mistake dropped coverage to 98.96% and nothing said
+       so until the layer was switched on by hand to go looking for it. -->
+  <div class="gz-coverage-pill" id="coverage-pill" title="Region coverage — always on, independent of the Layers panel's coverage overlay">
+    <span class="gz-coverage-pill__dot" id="coverage-pill-dot"></span>
+    <span id="coverage-pill-text">—</span>
+  </div>
+
   <div class="gz-tools" id="tools" role="toolbar" aria-label="Tools">
     <button class="gz-tool is-active" data-tool="pan"     data-key="V" title="Click to select, drag a box to select + adopt everything inside. Right-click drag to pan. (V)">Select</button>
     <button class="gz-tool" data-tool="lasso"   data-key="L" title="Draw a polygon to select + adopt everything inside — drawn items and real buildings alike (L)">Lasso</button>
-    <button class="gz-tool" data-tool="region"  data-key="R" title="Draw a region — districts tessellate (R)">Region</button>
+    <button class="gz-tool" data-tool="region"  data-key="R" title="Draw a region — districts tessellate. Reverts to Select after one shape (R)">Region</button>
     <button class="gz-tool" data-tool="site"    data-key="S" title="Draw a site — a building or block (S)">Site</button>
     <button class="gz-tool" data-tool="point"   data-key="P" title="Place a pin (P)">Pin</button>
     <button class="gz-tool" data-tool="adopt"   data-key="B" title="Click a real building to take its footprint (B)">Adopt</button>
     <button class="gz-tool" data-tool="remove"  data-key="X" title="Remove real buildings the painted map no longer has (X)">Remove</button>
+  </div>
+
+  <!-- The armed tool, unmissable rather than inferred from which toolbar
+       button happens to look pressed. Two buildings were filed as districts
+       in one real session because Region stayed armed after a click
+       elsewhere drew attention away from the toolbar — this is on-screen
+       everywhere the map itself is, and colour-matches the shape that tool
+       draws (see TIER_COLOUR / the tool-armed CSS). -->
+  <div class="gz-armed" id="tool-armed" data-tool="pan">
+    <span class="gz-armed__dot"></span>
+    <span id="tool-armed-text">Select</span>
   </div>
 
   <div class="gz-bar__right">
@@ -83,10 +104,44 @@
           <span class="gz-field__label">Name <em>optional</em></span>
           <input id="f-name" type="text" autocomplete="off" placeholder="leave blank and we'll name it together">
         </label>
+
+        <!-- Where this thing actually IS, computed from geometry, never
+             typed. The finding that started Gazetteer V2: forty regions
+             already tessellate the map exactly, so every site already
+             knows its own district — nothing showed it anywhere. -->
+        <p class="gz-breadcrumb" id="breadcrumb" hidden></p>
+
         <label class="gz-field">
           <span class="gz-field__label">Kind</span>
           <select id="f-kind"></select>
         </label>
+
+        <!-- Region-only. One line of standing context every building inside
+             the district should already know before a word of lore is
+             written about them — the direct fix for three corrections that
+             arrived mid-session ("this end of the island is pure military
+             and checkpoints") only AFTER lore had already gone the wrong
+             way. Constraints are short hard facts as data, not prose, so
+             they can be scanned rather than read. -->
+        <div id="region-brief-fields">
+          <label class="gz-field">
+            <span class="gz-field__label">District brief <em>one line, read before writing lore inside it</em></span>
+            <input id="f-brief" type="text" autocomplete="off" placeholder="e.g. pure military and checkpoints — no civilians">
+          </label>
+          <label class="gz-field">
+            <span class="gz-field__label">Constraints <em>comma separated, short facts not sentences</em></span>
+            <input id="f-constraints" type="text" autocomplete="off" placeholder="no-civilians, 1950s-register">
+          </label>
+        </div>
+
+        <!-- Site/point only, when it stands inside a briefed region: the
+             brief READ, never edited here — editing it means going to the
+             region itself, so it can never drift out of sync with the ten
+             other buildings that also inherit it. -->
+        <div class="gz-inherited" id="inherited-brief" hidden>
+          <span class="gz-inherited__label">From <span id="inherited-region-name"></span></span>
+          <p id="inherited-brief-text"></p>
+        </div>
         <!-- Declared, never inferred: saying how much a place is going to
              matter is a commission, and the obligations panel below then
              reports whether the content has caught up. See
@@ -127,6 +182,11 @@
           <button type="button" class="gz-btn" id="btn-lock">Lock</button>
           <button type="button" class="gz-btn gz-btn--danger" id="btn-delete">Delete</button>
         </div>
+        <!-- Everything a person would otherwise have to type into chat by
+             hand: name, district, brief, constraints, footprint reading,
+             depth status, note — one click, onto the clipboard, ready to
+             paste. Replaces a typed handover sentence entirely. -->
+        <button type="button" class="gz-btn gz-btn--handoff" id="btn-handoff">Copy for Claude</button>
         <div class="gz-promote" id="promote-box">
           <p class="gz-hint" id="promote-hint"></p>
           <button type="button" class="gz-btn gz-btn--promote" id="btn-promote">Promote to a real location</button>
@@ -153,13 +213,32 @@
           <span class="gz-field__label">Tags <em>comma separated, replaces existing</em></span>
           <input id="b-tags" type="text" autocomplete="off">
         </label>
+        <label class="gz-field">
+          <span class="gz-field__label">Name pattern <em>{n} counts from 1, in the order below</em></span>
+          <div class="gz-pattern-row">
+            <input id="b-name-pattern" type="text" autocomplete="off" placeholder="Row A, Block {n}">
+            <button type="button" class="gz-btn" id="btn-batch-rename">Fill names</button>
+          </div>
+        </label>
         <ul class="gz-batch__list" id="batch-list"></ul>
         <div class="gz-form__actions">
           <button type="button" class="gz-btn gz-btn--promote" id="btn-batch-apply">Apply to selected</button>
           <button type="button" class="gz-btn" id="btn-batch-lock">Lock selected</button>
           <button type="button" class="gz-btn gz-btn--danger" id="btn-batch-delete">Delete selected</button>
         </div>
+        <button type="button" class="gz-btn gz-btn--handoff" id="btn-batch-handoff">Copy for Claude</button>
       </form>
+      </div>
+    </section>
+
+    <!-- The state of the whole map in one glance, before scrolling into the
+         hundred-plus-row list below. Answers "what should I work on
+         tonight" without having to already know the answer. -->
+    <section class="gz-panel gz-panel--capped gz-panel--overview" id="overview-panel">
+      <h2 class="gz-panel__head">Overview</h2>
+      <div class="gz-panel__body">
+        <div class="gz-overview__stats" id="overview-stats"></div>
+        <ul class="gz-overview__list" id="overview-needs"></ul>
       </div>
     </section>
 
@@ -192,6 +271,13 @@
             <span id="select-all-label">select all</span>
           </label>
           <label class="gz-sort">
+            view
+            <select id="f-view">
+              <option value="tree">by district</option>
+              <option value="flat">flat list</option>
+            </select>
+          </label>
+          <label class="gz-sort">
             sort
             <select id="f-sort">
               <option value="ref">by reference</option>
@@ -201,10 +287,18 @@
             </select>
           </label>
         </div>
+        <!-- Only shown while a district is focused: click a region's header
+             in the tree below to fly the map to it and narrow the list to
+             just its contents — the single biggest change to how a session
+             this size actually feels to work through. -->
+        <div class="gz-focus-bar" id="focus-bar" hidden>
+          <span>Focused: <strong id="focus-bar-name"></strong></span>
+          <button type="button" class="gz-btn" id="btn-focus-clear">Show everything</button>
+        </div>
       </div>
       <ul class="gz-list" id="item-list"
           title="Click a row to view it · Shift-click for a range · Ctrl-click to add one · click a name or note to edit it in place"></ul>
-      <p class="gz-hint gz-list-hint">Shift-click a range · Ctrl-click to add · click a name or note to edit</p>
+      <p class="gz-hint gz-list-hint">Shift-click a range · Ctrl-click to add · click a name or note to edit · click a district to focus it</p>
     </section>
 
     <section class="gz-panel" id="layers-panel">
