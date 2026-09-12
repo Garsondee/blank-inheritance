@@ -4468,3 +4468,25 @@ Two larger fixes remain queued under #62: `trueDistanceField` still floods the w
 **One fix remains queued under #62**: every MCTS/search policy still calls `generateProposals` with no destination cache at all, paying a fresh full-grid flood per tree node with zero reuse — `decide()`'s own real-turn path now benefits from both fixes above, search does not. Deliberately out of scope for fix 2 (design doc §76.4 Decision 4): sharing a cache safely across distinct MCTS sandbox `state` objects is a harder, separately-scoped problem (a content-addressed cache keyed by the occupancy fingerprint itself, not by turn-lifetime object identity), likely to need its own adversarial review pass before code, matching how fix 2 itself was developed.
 
 ---
+## 2026-09-12 — Terrain performance, fix 3: lineOfEffect/hasCover result cache — real, safe, and MEASURED to have no effect on wall-clock time (GH #62)
+
+### The first real MCTS-specific measurement logged in this file. `lineOfEffect`/`hasCover` cache their result per `(predicate, unordered point-pair, walls-reference)`, mirroring `moveBlockedBetween`'s own existing WeakMap-keyed-on-walls index. Before writing a design around it, the actual redundancy was measured directly rather than assumed — and the result corrected the direction of the investigation before any further design effort went into the wrong target.
+
+Measured on `personnel-complex-battle.mjs` (44x30, 247 walls), party `lunar-17+tapkey+bennit+vorza-moonshot` vs. opposition `security-goon+xenowarden-greenhorn+erabryth+tough`, `RANDOM_ARCS`, a single real `mcts-puct-v1` decision (500 iterations, maxDepth 4, seed 1):
+
+| | Before cache | After cache |
+|---|---|---|
+| Total decide() wall time | ~3,300 ms | ~3,300 ms — **no measurable change** |
+| `lineOfEffect`/`hasCover` calls | 47,201 total | 47,201 total, 46,549 cache hits (668 distinct results — **a 70x repeat ratio**) |
+
+**The 70x repeat ratio is real** (overwhelmingly from `evaluateState`'s own per-(ally,enemy)-pair loop re-querying the same small position space across ~580 tree-node expansions in one search — see the new `resetEvaluateStateCallCount`/`getEvaluateStateCallCount` instrumentation, `state-value.mjs`), **but eliminating 98.6% of these calls did not move total wall-clock time at all.** Each individual geometry query is cheap enough in absolute terms, even at 247 walls, that caching it doesn't matter — directly confirming, now for the MCTS path specifically and not just `decide()`, the profiling finding that originally corrected this issue's own Cause-1/Cause-2 priority back on 2026-09-04.
+
+**Where the time actually goes, measured directly** (new `getFloodTimeMs()` instrumentation, `pathfind.mjs`, cumulative time inside `reachableCells`): **~2,780 ms of the ~3,300 ms total — ~83% — is spent inside pathfinding floods.** 232 floods for this one decision, zero reuse across any of them, exactly matching fix 2's own already-logged remaining gap above: every MCTS tree node still calls `generateProposals` with no destination cache at all.
+
+**Kept anyway**: the cache is a genuine, zero-risk, permanent improvement (proven-pure functions, static terrain, no occupancy hazard whatsoever — unlike the pathfinding cache below) and directly informs future measurement (a query-heavy future evaluator term would benefit automatically). It just isn't the fix #62 still needs.
+
+**Real next step, now precisely scoped instead of guessed at**: a content-addressed, occupancy-fingerprint-keyed pathfinding cache threaded through `mcts-puct.mjs`/`mcts.mjs`'s own tree expansion. If MCTS could achieve even a fraction of `decide()`'s own already-measured 92.5% flood-reuse rate (fix 2 above), the arithmetic on this same benchmark projects total decide() time dropping from ~3.3s toward the ~0.5-0.8s range — a projection, not a promise, and the real design work (occupancy-safety across branches with different combatants alive/dead/repositioned) is the hard, correctness-sensitive part, not yet attempted.
+
+Also newly established here: the "150-185s walled-arena MCTS battles" figure quoted in this issue's own 2026-09-04 comments predates all three fixes now shipped under #62 (this one and the two above) — no post-fix full-battle MCTS timing existed anywhere in this file before this entry. Worth a real end-to-end re-measurement before the next design projects savings off that number.
+
+---
