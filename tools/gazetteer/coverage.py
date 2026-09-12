@@ -63,27 +63,55 @@ DEFAULT_EXTENT = (
 #: hidden -- see the module docstring.
 DEFAULT_MIN_SLIVER_PX2 = 100.0
 
+#: Below this, a fragment is not a gap at all -- it is arithmetic. Every
+#: boolean operation on real polygons leaves a scatter of degenerate pieces
+#: whose area rounds to zero; GEOS produced twenty of them from a set of
+#: regions that were gapless by construction, at full coordinate precision,
+#: with a total area of 0.00 px2. Counting those made `tessellates` report
+#: False for a tessellation that provably was one, which is worse than useless
+#: -- a gate nothing can pass gets ignored, and then the real 50 px gap it was
+#: built to catch gets ignored along with it.
+#:
+#: 0.01 px2 is one square centimetre of ground. It sits four orders of
+#: magnitude above the exhaust (individually around 1e-9 px2) and two below the
+#: smallest gap anyone has ever drawn by hand, which keeps both halves honest:
+#: a real 1 m2 hairline between two hand-drawn districts is still counted and
+#: still blocks `tessellates`, exactly as before.
+DEFAULT_NOISE_PX2 = 0.01
+
 
 class CoverageError(ValueError):
     pass
 
 
 def _rings_of(region):
-    """A region's rings, tolerating both the session item and location shapes."""
+    """A region's rings, tolerating both the session item and location shapes.
+
+    Returns them in GeoJSON Polygon order: outside first, then holes. A session
+    item keeps its holes in `holesPx` alongside its `ringPx`, because the
+    drawing tools only ever produce and edit the outer ring and having one
+    named field for it keeps every one of them simpler.
+    """
     geom = region.get("geometry") or {}
     if region.get("ringsPx"):
         return list(region["ringsPx"])
-    if region.get("ringPx"):
-        return [region["ringPx"]]
-    if geom.get("ringPx"):
-        return [geom["ringPx"]]
+    for source in (region, geom):
+        if source.get("ringPx"):
+            return [source["ringPx"]] + list(source.get("holesPx") or [])
     if geom.get("rings"):
         return list(geom["rings"])
     return []
 
 
-def _to_polygon(ring):
-    """One ring -> a valid shapely polygon, or None if it cannot be one.
+def _to_polygon(rings):
+    """Rings -> a valid shapely polygon, or None if they cannot be one.
+
+    The FIRST ring is the outside and every later ring is a hole, which is
+    GeoJSON's Polygon convention and is also exactly what `_describe` below
+    emits. Those two used to disagree: this read every ring as solid ground and
+    unioned them, so a region with an island in it reported the island as part
+    of the region and the island's own region as an overlap. A tessellation
+    check that cannot represent a lagoon is not checking the thing it claims to.
 
     buffer(0) is the standard repair for a self-intersecting ring, which a
     hand-drawn region produces easily -- a bowtie from a dragged vertex. The
@@ -91,9 +119,15 @@ def _to_polygon(ring):
     coverage view going blank the moment one region is briefly malformed
     mid-edit, which is exactly when it is being looked at.
     """
-    if len(ring) < 3:
+    usable = [r for r in rings if r and len(r) >= 3]
+    if not usable:
         return None
-    poly = Polygon([(float(x), float(y)) for x, y in ring])
+    shell = [(float(x), float(y)) for x, y in usable[0]]
+    holes = [[(float(x), float(y)) for x, y in r] for r in usable[1:]]
+    try:
+        poly = Polygon(shell, holes)
+    except (ValueError, TypeError):
+        return None
     if not poly.is_valid:
         poly = poly.buffer(0)
     if poly.is_empty or poly.area <= 0:
@@ -135,7 +169,8 @@ def _describe(poly, georef=None):
     }
 
 
-def analyse(regions, *, extent=None, min_sliver_px2=DEFAULT_MIN_SLIVER_PX2, sites=()):
+def analyse(regions, *, extent=None, min_sliver_px2=DEFAULT_MIN_SLIVER_PX2,
+            noise_px2=DEFAULT_NOISE_PX2, sites=()):
     """The whole tessellation, checked.
 
     `regions` are dicts carrying an id and a ring in image pixels (any of the
@@ -157,12 +192,12 @@ def analyse(regions, *, extent=None, min_sliver_px2=DEFAULT_MIN_SLIVER_PX2, site
             invalid.append({"id": region.get("id") or region.get("localId"),
                             "problem": "no polygon geometry"})
             continue
-        polys = [p for p in (_to_polygon(r) for r in rings) if p is not None]
-        if not polys:
+        poly = _to_polygon(rings)
+        if poly is None:
             invalid.append({"id": region.get("id") or region.get("localId"),
                             "problem": "geometry could not be made into a polygon"})
             continue
-        merged = unary_union(polys).intersection(sheet)
+        merged = poly.intersection(sheet)
         if merged.is_empty:
             invalid.append({"id": region.get("id") or region.get("localId"),
                             "problem": "lies entirely outside the sheet"})
@@ -176,6 +211,8 @@ def analyse(regions, *, extent=None, min_sliver_px2=DEFAULT_MIN_SLIVER_PX2, site
     voids, void_slivers, void_sliver_area = [], 0, 0.0
     gap_geom = sheet.difference(claimed) if claimed is not None else sheet
     for part in _parts(gap_geom):
+        if part.area < noise_px2:
+            continue
         if part.area < min_sliver_px2:
             void_slivers += 1
             void_sliver_area += part.area
@@ -195,6 +232,8 @@ def analyse(regions, *, extent=None, min_sliver_px2=DEFAULT_MIN_SLIVER_PX2, site
                 continue
             shared = a["geom"].intersection(b["geom"])
             for part in _parts(shared):
+                if part.area < noise_px2:
+                    continue
                 if part.area < min_sliver_px2:
                     overlap_slivers += 1
                     overlap_sliver_area += part.area
@@ -235,6 +274,7 @@ def analyse(regions, *, extent=None, min_sliver_px2=DEFAULT_MIN_SLIVER_PX2, site
         "tessellates": (not voids and not overlaps
                         and void_slivers == 0 and overlap_slivers == 0),
         "minSliverPx2": min_sliver_px2,
+        "noisePx2": noise_px2,
     }
 
 

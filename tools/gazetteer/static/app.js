@@ -15,6 +15,14 @@ import {
   imagePxToRef, refsTouched, polygonAreaPx, polygonCentroidPx, GridError,
 } from "/core/grid.mjs";
 import { check as checkDepth, suggestDepth, DEPTHS } from "/core/depth.mjs";
+import { metrics as shapeMetrics, capacity as shapeCapacity } from "/core/shape.mjs";
+
+/** This map is rendered at exactly one metre to the pixel -- 12,000 m of
+ *  ground over 12,000 px of content area, per data/map/campaign-map.json's
+ *  `metresPerPixel`. Named rather than inlined as 1 so that the places
+ *  depending on it are findable if the sheet is ever re-exported at another
+ *  scale; core/grid.mjs assumes the same thing. */
+const METRES_PER_PX = 1.0;
 import {
   createDrawController, ll, px, ringToLatLngs, fmtArea, round1, TIER_COLOUR,
 } from "/static/draw.js";
@@ -30,6 +38,13 @@ const state = {
   nextLocal: 1,
   dirty: false,
   saveTimer: null,
+  // Set when the server refuses a save because the session file changed on
+  // disk underneath this page. Sticky until a reload, and deliberately so:
+  // the refusal reloads the server's own copy, so a second attempt would
+  // succeed and quietly overwrite whatever the other writer did with this
+  // page's stale items — the guard would fire once and then wave the clobber
+  // through.
+  saveBlocked: false,
   features: new Map(),   // ground-truth building id -> { ringPx, layer, centroid }
   featureLayer: null,
   suppressedLayer: null,
@@ -48,7 +63,12 @@ async function api(path, body) {
     body: JSON.stringify(body),
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `${res.status} ${path}`);
+  if (!res.ok) {
+    const err = new Error(data.error || `${res.status} ${path}`);
+    err.status = res.status;
+    err.payload = data;
+    throw err;
+  }
   return data;
 }
 
@@ -267,6 +287,7 @@ async function loadSession() {
 
 function markDirty() {
   state.dirty = true;
+  if (state.saveBlocked) return;   // nothing may be written until a reload
   $("save-state").textContent = "unsaved";
   $("save-state").classList.add("is-dirty");
   clearTimeout(state.saveTimer);
@@ -275,6 +296,7 @@ function markDirty() {
 
 async function save() {
   clearTimeout(state.saveTimer);
+  if (state.saveBlocked) return;
   try {
     const data = await api("/api/session", { items: state.items });
     // Take the server's derived block back. It is the authority — it has the
@@ -294,6 +316,20 @@ async function save() {
       setStatus("saved, but: " + data.problems.join("; "), "warn");
     }
   } catch (err) {
+    // 409: the file changed on disk since this page loaded it, so saving
+    // would revert whatever did that. Say so in words somebody can act on
+    // rather than repeating the server's sentence, and leave the page dirty —
+    // nothing has been lost, it simply has not been written yet.
+    if (err.status === 409) {
+      state.saveBlocked = true;
+      setStatus("Not saved — the session file was changed by something else "
+        + "since this page loaded, and saving now would overwrite that. "
+        + "Saving is off until you reload. Your unsaved edits are still on "
+        + "screen; copy anything you need before reloading.", "error");
+      $("save-state").textContent = "saving off — file changed on disk";
+      $("save-state").classList.add("is-dirty");
+      return;
+    }
     setStatus("could not save: " + err.message, "error");
   }
 }
@@ -312,6 +348,11 @@ function buildItem(shape) {
     tags: [],
     source: shape.source || "drawn",
     sourceFeatureIds: shape.featureIds || [],
+    // Storeys and height for the real footprint this was taken from, with
+    // their provenance. Research about the source, not lore -- but floor area
+    // cannot be estimated without it, and a defaulted height has to be able
+    // to say that it is one.
+    build: shape.build || null,
     geometry: shape.pointPx
       ? { kind: "point", pointPx: shape.pointPx }
       : { kind: "polygon", ringPx: shape.ringPx },
@@ -403,6 +444,7 @@ async function onAreaSelect(areaSpec, additive) {
     const item = buildItem({
       tier: "site", ringPx: adopted.ringPx, source: adopted.source,
       featureIds: adopted.featureIds, realWorldNames: adopted.realWorldNames,
+      build: adopted.build,
     });
     state.items.push(item);
     state.draw.addShape(item);
@@ -526,6 +568,7 @@ async function onPick(point, tool) {
     onShapeDrawn({
       tier: "site",
       ringPx: adopted.ringPx,
+      build: adopted.build,
       source: adopted.source,
       featureIds: adopted.featureIds,
       realWorldNames: adopted.realWorldNames,
@@ -697,6 +740,7 @@ function renderInspector(localId) {
   // something silently refused to act here.
   $("f-depth").value = item.depth || "named";
   renderDepthOwes(item);
+  renderShapeReport(item);
 
   const locked = !!item.locked;
   ["f-name", "f-kind", "f-note", "f-tags", "f-depth"].forEach((id) => { $(id).disabled = locked; });
@@ -833,6 +877,79 @@ function updateStatusChips() {
  * suggestions to promote. A warning that cannot be ignored becomes a warning
  * that is always ignored, so these deliberately do not block anything.
  */
+/** What the FOOTPRINT will carry, next to what the text currently is.
+ *
+ *  Deliberately separate from renderDepthOwes: that one answers "has the
+ *  writing caught up with the declaration", this one answers "is the
+ *  declaration bigger than the building". They fail in opposite directions
+ *  and merging them would produce one box that is sometimes about prose and
+ *  sometimes about geometry.
+ *
+ *  A mismatch is shown loudly and blocks nothing, in the same spirit as
+ *  depth's `overweight`: a warning that cannot be ignored becomes a warning
+ *  that is always ignored. Occasionally a shrine the size of a wardrobe really
+ *  is the most important place on the map, and that stays the writer's call --
+ *  the point is that it becomes a call rather than an oversight. */
+function renderShapeReport(item) {
+  const box = $("shape-report");
+  if (!box) return;
+  const geom = item && item.geometry;
+  // Sites only. A region is a district, not a building: running the same
+  // arithmetic over Island Centre reported "2,359,871 m2 of floor" and
+  // "hundreds of group-sized spaces", which is true, useless, and the kind of
+  // confident nonsense that teaches people to stop reading the box.
+  if (!item || item.tier !== "site"
+      || !geom || geom.kind !== "polygon"
+      || !geom.ringPx || geom.ringPx.length < 3) {
+    box.innerHTML = "";
+    return;
+  }
+
+  let m;
+  try {
+    const build = item.build || {};
+    m = shapeMetrics(geom.ringPx, {
+      metresPerPx: METRES_PER_PX,
+      heightM: build.heightM != null ? build.heightM : null,
+      levels: build.levels != null ? build.levels : null,
+      heightSource: build.heightSource || null,
+    });
+  } catch (err) {
+    box.innerHTML = "";
+    return;
+  }
+
+  const cap = shapeCapacity(m);
+  const declared = item.depth || "named";
+  const over = DEPTHS.indexOf(declared) > DEPTHS.indexOf(cap.maxDepth);
+
+  const facts = [
+    `${fmtNum(m.areaM2)} m² footprint`,
+    `${fmtNum(m.lengthM)} × ${fmtNum(m.widthM)} m`,
+    m.elongation != null ? `${m.elongation.toFixed(1)}:1` : "flat",
+    `${m.levels} level${m.levels === 1 ? "" : "s"}${m.floorAreaEstimated ? "?" : ""}`,
+    `${fmtNum(m.floorAreaM2)} m² floor`,
+  ];
+
+  const parts = [
+    `<p class="gz-shape__head"><span class="gz-shape__tag">${escapeHtml(m.shape)}</span>`
+    + `<span class="gz-shape__facts">${facts.map(escapeHtml).join(" · ")}</span></p>`,
+  ];
+  if (over) {
+    parts.push(`<p class="gz-shape__line is-over">Declared <strong>${escapeHtml(declared)}</strong>,`
+      + ` but this footprint comfortably carries <strong>${escapeHtml(cap.maxDepth)}</strong>.</p>`);
+  }
+  cap.reasons.forEach((reason) => {
+    parts.push(`<p class="gz-shape__line">${escapeHtml(reason)}</p>`);
+  });
+  box.innerHTML = parts.join("");
+}
+
+/** Thousands separators, and no trailing ".0" on a number nobody measured. */
+function fmtNum(v) {
+  return (Math.round(v * 10) / 10).toLocaleString("en-GB");
+}
+
 function renderDepthOwes(item) {
   const box = $("depth-owes");
   const result = checkDepth(item);
@@ -1081,6 +1198,7 @@ function wireChrome() {
     // location still owes has to be recomputed as they are typed, not only
     // when the selection changes.
     renderDepthOwes(item);
+  renderShapeReport(item);
   });
   bind("f-name", (it) => { it.name = $("f-name").value; });
   bind("f-note", (it) => { it.note = $("f-note").value; });

@@ -28,6 +28,7 @@ import shutil
 import sys
 import tempfile
 import threading
+import time
 import unittest
 import urllib.error
 import urllib.request
@@ -297,6 +298,63 @@ class TestServer(unittest.TestCase):
                   encoding="utf-8") as fh:
             on_disk = json.load(fh)
         self.assertEqual(on_disk["items"][0]["name"], "Test District")
+
+    def test_an_edit_made_on_disk_is_not_silently_overwritten(self):
+        """The server holds the whole draft in memory and writes it out whole.
+
+        So anything that edits the file directly -- a backfill script, a hand
+        correction, another tool -- is invisible to it, and the next save from
+        a browser that loaded earlier reverts the lot without a word. Found
+        live: a backfill of the research provenance on forty regions was one
+        autosave away from being wiped.
+        """
+        self._seed_item(name="Before")
+        path = os.path.join(self.draft_dir, gz.STATE.draft["id"] + ".json")
+
+        # Something else edits the file, the way a script would.
+        with open(path, encoding="utf-8") as fh:
+            on_disk = json.load(fh)
+        on_disk["items"][0]["provenance"] = {"writtenBy": "another tool"}
+        time.sleep(0.02)   # coarse mtime resolution on some filesystems
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(on_disk, fh, ensure_ascii=False)
+
+        stale = [dict(gz.STATE.draft["items"][0], name="After")]
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            post(self.base + "/api/session", {"items": stale})
+        self.assertEqual(cm.exception.code, 409)
+        body = json.loads(cm.exception.read().decode("utf-8"))
+        self.assertIn("changed on disk", body["error"])
+        # And the refusal hands back what is really there, so the client can
+        # reload rather than guess.
+        self.assertEqual(body["draft"]["items"][0]["provenance"],
+                         {"writtenBy": "another tool"})
+
+        with open(path, encoding="utf-8") as fh:
+            self.assertEqual(json.load(fh)["items"][0]["name"], "Before",
+                             "the on-disk edit was overwritten anyway")
+
+    def test_a_deliberate_overwrite_is_still_possible(self):
+        self._seed_item(name="Before")
+        path = os.path.join(self.draft_dir, gz.STATE.draft["id"] + ".json")
+        with open(path, encoding="utf-8") as fh:
+            on_disk = json.load(fh)
+        on_disk["items"][0]["note"] = "edited elsewhere"
+        time.sleep(0.02)
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(on_disk, fh, ensure_ascii=False)
+
+        items = [dict(gz.STATE.draft["items"][0], name="After")]
+        res = post(self.base + "/api/session", {"items": items, "force": True})
+        self.assertEqual(res["draft"]["items"][0]["name"], "After")
+
+    def test_a_normal_save_is_not_blocked_by_its_own_previous_save(self):
+        # The guard must compare against what THIS process wrote, or the
+        # second save of every session fails.
+        self._seed_item(name="One")
+        items = [dict(gz.STATE.draft["items"][0], name="Two")]
+        res = post(self.base + "/api/session", {"items": items})
+        self.assertEqual(res["draft"]["items"][0]["name"], "Two")
 
     def test_a_malformed_item_is_reported_but_the_session_is_still_saved(self):
         """An hour of drawing must never be lost because one shape is broken."""

@@ -100,6 +100,7 @@ class State:
             else:
                 self.draft = session_mod.new_draft(
                     map_sha256=(manifest.get("image") or {}).get("sha256"))
+        self._draft_mtime = self._on_disk_mtime()
 
     @property
     def conn(self):
@@ -111,6 +112,35 @@ class State:
 
     def refresh_suppression(self):
         self.suppression = overrides_mod.Suppression(self.overrides)
+
+    def _on_disk_mtime(self):
+        """Modification time of the draft file, or None if it is not there."""
+        try:
+            return os.path.getmtime(session_mod.draft_path(self.draft["id"]))
+        except OSError:
+            return None
+
+    def draft_changed_underneath(self):
+        """Has something else written the draft since this process last did?
+
+        The server holds the whole draft in memory and writes it out whole, so
+        a tool that edits the file directly -- a backfill script, a hand
+        correction -- is invisible to it, and the next save from the browser
+        silently reverts the lot. That is not hypothetical: a backfill of the
+        research provenance on forty regions was one autosave away from being
+        wiped by a browser that had loaded before it ran.
+        """
+        current = self._on_disk_mtime()
+        if current is None or self._draft_mtime is None:
+            return False
+        return current > self._draft_mtime + 0.001
+
+    def reload_draft(self):
+        path = session_mod.draft_path(self.draft["id"])
+        if os.path.exists(path):
+            self.draft = session_mod.load(path)
+            self._draft_mtime = self._on_disk_mtime()
+        return self.draft
 
     def save_draft(self):
         """Derive what can be derived, then write -- always write.
@@ -130,7 +160,9 @@ class State:
                 session_mod.derive_item(item, self.georef)
             except Exception:
                 item["derived"] = {}
-        return session_mod.save(self.draft, session_mod.draft_path(self.draft["id"]))
+        path = session_mod.save(self.draft, session_mod.draft_path(self.draft["id"]))
+        self._draft_mtime = self._on_disk_mtime()
+        return path
 
 
 STATE = None
@@ -337,6 +369,7 @@ class Handler(BaseHTTPRequestHandler):
                 "building": tags.get("building"),
                 "levels": tags.get("building:levels"),
                 "heightM": row.get("height_m"),
+                "build": _build_info(tags, row.get("height_m")),
                 "kind": groundtruth.classify(tags, row.get("area")),
             })
             if len(out) >= MAX_FEATURES:
@@ -402,6 +435,7 @@ class Handler(BaseHTTPRequestHandler):
             "building": h[3].get("building"),
             "levels": h[3].get("building:levels"),
             "heightM": h[4],
+            "build": _build_info(h[3], h[4]),
         } for h in hits]})
 
     def _api_adopt(self):
@@ -419,6 +453,7 @@ class Handler(BaseHTTPRequestHandler):
 
         rings = []
         names = []
+        builds = []
         for fid in ids:
             from citymap.store import gpkg
             row = gpkg.get_feature_kwargs(STATE.conn, fid)
@@ -431,6 +466,7 @@ class Handler(BaseHTTPRequestHandler):
             nm = tags.get("name") or tags.get("name:en")
             if nm:
                 names.append(nm)
+            builds.append(_build_info(tags, row.get("height_m")))
 
         if not rings:
             return self._error(404, "none of those features have geometry")
@@ -445,6 +481,11 @@ class Handler(BaseHTTPRequestHandler):
             "source": "adopted" if len(rings) == 1 else "merged",
             "featureIds": ids,
             "realWorldNames": names,
+            # The tallest of a merged set, because a campus is as complex as
+            # its biggest building and averaging would flatten exactly the one
+            # thing worth knowing about it.
+            "build": max(builds, key=lambda b: b.get("heightM") or 0)
+                     if builds else None,
         })
 
     def _api_suppress(self):
@@ -623,6 +664,18 @@ class Handler(BaseHTTPRequestHandler):
         if items is None:
             return self._error(400, "need items")
         with STATE.lock:
+            if STATE.draft_changed_underneath() and not body.get("force"):
+                # Refuse rather than overwrite, and hand back what is actually
+                # on disk so the browser can reload instead of guessing.
+                fresh = STATE.reload_draft()
+                return self._send(409, {
+                    "error": "the draft file changed on disk since this "
+                             "session loaded it -- saving now would overwrite "
+                             "those changes. Reload to pick them up, or send "
+                             "force:true to overwrite deliberately.",
+                    "draft": fresh,
+                    "summary": session_mod.summarise(fresh),
+                })
             STATE.draft["items"] = items
             problems = session_mod.validate(STATE.draft)
             path = STATE.save_draft()
@@ -673,6 +726,36 @@ def _save_location(doc, directory=None):
         json.dump(doc, fh, ensure_ascii=False, indent=2)
         fh.write("\n")
     return path
+
+
+def _build_info(tags, height_m):
+    """Storeys and height for one real footprint, and where they came from.
+
+    The provenance matters more than the number. `height_m` in the store is
+    already a best effort -- citymap/parse.py takes a real `height` tag, else a
+    storey count times 3.3, else a per-building-type DEFAULT. Two thirds of the
+    buildings on this sheet are that default, so a floor-area estimate built
+    from it without saying so is a guess wearing a measurement's clothes.
+    """
+    levels = None
+    raw = tags.get("building:levels")
+    if raw:
+        try:
+            levels = float(str(raw).split(";")[0].strip())
+        except ValueError:
+            levels = None
+    if tags.get("height"):
+        source = "tagged"
+    elif levels is not None:
+        source = "levels"
+    else:
+        source = "typical"
+    return {
+        "levels": levels,
+        "heightM": height_m,
+        "heightSource": source,
+        "building": tags.get("building"),
+    }
 
 
 def _convex_hull(points):

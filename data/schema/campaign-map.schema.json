@@ -66,6 +66,31 @@
       }
     },
 
+    "pageFurniture": {
+      "type": "array",
+      "description": "Rectangles inside the content area that are printed page furniture rather than terrain -- the title cartouche, a legend, an inset. Anything reading the picture to decide what the ground is must take `ground` here instead of the pixels, because furniture is painted in ink colours that classify as whatever they happen to resemble. Image pixels, not content pixels. See tools/gazetteer/landmask.py.",
+      "items": {
+        "type": "object",
+        "required": ["id", "rect", "ground"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "rect": {
+            "type": "array",
+            "description": "[x0, y0, x1, y1] in image pixels, upper-left inclusive and lower-right exclusive.",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": { "type": "number" }
+          },
+          "ground": {
+            "enum": ["water", "land"],
+            "description": "What is actually underneath the furniture."
+          },
+          "note": { "type": "string" }
+        }
+      }
+    },
+
     "frameRef": {
       "type": "string",
       "description": "Id of the map frame in data/map/frames/ that this raster was exported from. It supplies the centre, the page rotation, the extent and the CRS -- everything needed to turn a content pixel into lon/lat."

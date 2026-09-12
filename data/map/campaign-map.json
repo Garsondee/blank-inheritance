@@ -25,6 +25,19 @@
     "separator": "·",
     "majorColLetters": "ABCDEF"
   },
+  "pageFurniture": [
+    {
+      "id": "cartouche",
+      "rect": [
+        9600,
+        11000,
+        12200,
+        12200
+      ],
+      "ground": "water",
+      "note": "The title and legend block, printed over the bay in the bottom-right corner of the content area. Its cream fill (215, 196, 171) reads as land, which put three square kilometres of reclaimed ground in open water and gave the region tessellation two districts made entirely of legend. The ground underneath it is sea. Measured from the box's own dark border rule at x=9600 and y=11000."
+    }
+  ],
   "frameRef": "kurose-12km",
   "metresPerPixel": 1.0,
   "calibration": {

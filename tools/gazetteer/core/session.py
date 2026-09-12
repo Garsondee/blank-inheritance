@@ -107,6 +107,14 @@ def make_item(local_id, tier, geometry, note="", name="", kind="", tags=None,
         ring = geometry.get("ringPx") or []
         if len(ring) < 3:
             raise ValueError("a polygon needs at least 3 points, got %d" % len(ring))
+        # Holes are generated, never drawn -- a region tessellation produces
+        # them wherever an island sits in a bay. They are kept in their own
+        # field rather than appended to `ringPx` so that every tool which
+        # drags, nudges or hit-tests the outline keeps working on one ring.
+        for hole in geometry.get("holesPx") or []:
+            if len(hole) < 3:
+                raise ValueError(
+                    "a hole needs at least 3 points, got %d" % len(hole))
     elif kind_geom == "point":
         if not geometry.get("pointPx"):
             raise ValueError("a point needs pointPx")
@@ -149,15 +157,29 @@ def derive_item(item, georef=None):
     d = {}
     if geom["kind"] == "polygon":
         ring = [(float(x), float(y)) for x, y in geom["ringPx"]]
+        holes = [[(float(x), float(y)) for x, y in hole]
+                 for hole in geom.get("holesPx") or []]
         d["refs"] = grid.refs_touched(ring)
         cx, cy = grid.polygon_centroid_px(ring)
         d["centroidPx"] = [round(cx, 2), round(cy, 2)]
-        d["areaPx2"] = round(grid.polygon_area_px(ring), 2)
+        # Net of its holes: a bay region that reports the island inside it as
+        # part of its own area is lying about the only number anyone reads.
+        area_px = grid.polygon_area_px(ring)
+        for hole in holes:
+            area_px -= grid.polygon_area_px(hole)
+        d["areaPx2"] = round(area_px, 2)
         d["vertexCount"] = len(ring)
+        if holes:
+            d["holeCount"] = len(holes)
         if georef is not None:
             d["areaM2"] = round(d["areaPx2"] * georef.metres_per_px ** 2, 1)
             geom["ring"] = [[round(lon, 8), round(lat, 8)]
                             for lon, lat in georef.ring_to_lonlat(ring)]
+            if holes:
+                geom["holes"] = [
+                    [[round(lon, 8), round(lat, 8)]
+                     for lon, lat in georef.ring_to_lonlat(hole)]
+                    for hole in holes]
             lon, lat = georef.image_px_to_lonlat(cx, cy)
             d["centroidLonLat"] = [round(lon, 8), round(lat, 8)]
     else:

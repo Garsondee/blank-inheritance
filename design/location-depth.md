@@ -204,3 +204,49 @@ retuned in one edit when the corpus is big enough to argue with them.
 
 Retune them against real content, not taste. If two thirds of honestly-written depth-1 sketches trip
 the ceiling, the ceiling is wrong, not the sketches.
+
+## What the building will carry — the footprint gate (2026-09-12)
+
+Depth is declared, not inferred. That is still true, and it is what the rest of this document is
+about. But a declaration can be wrong in a way the word counts above can never catch: the place may
+be too small to hold what is being claimed for it.
+
+The first drawing session made this concrete. Fifty-one adopted footprints ranging from **24 m² to
+16,479 m²** were offered the same blank note field and the same invitation to write. One of them is a
+bicycle store. Nothing in the tool said so.
+
+`tools/gazetteer/core/shape.py` (mirrored in `shape.mjs`, held together by
+`test/fixtures/gazetteer-shape-cases.json`) measures the footprint and reports a **ceiling** on the
+depth ladder:
+
+| Total floor area | Carries up to | Reads as |
+|---|---|---|
+| under 30 m² | `named` | a kiosk, a shed, a store, a shrine box |
+| 30–200 m² | `sketch` | a shop, a house, a single hall |
+| 200–1,500 m² | `scene` | a real building with several distinct spaces |
+| 1,500 m² and up | `standing` | a complex — wings, floors, somewhere you can get lost |
+
+Floor area is footprint × storeys. Storeys come from real tagging where it exists and are **counted
+as one where it does not**, which is most of this sheet — the report says so every time rather than
+quietly doubling a guess.
+
+One shape fact overrides area: a plan narrower than **6 m** with an aspect ratio past **3:1** is a
+wall, a jetty, a canopy or an inspection line, and is capped at `sketch` however much floor it has.
+The 334 m × 4.3 m baggage inspection line has 1,430 m² of floor and nowhere inside it to stand six
+people in a circle.
+
+Two things this deliberately does not do:
+
+- **It does not gate on the aspect ratio alone.** That was the first version and it was wrong. It
+  capped a 13 m wide, 82 m long, three-storey office block at a one-line entry on a 6.3:1 ratio. What
+  stops somewhere being a room is not being long, it is being *narrow*. The ratio now only ever
+  describes.
+- **It does not block anything.** Like `overweight` above, it is advice — a warning that cannot be
+  ignored becomes a warning that is always ignored. Occasionally a shrine the size of a wardrobe
+  really is the most important place on the map. The point is that this becomes a decision somebody
+  makes, instead of an oversight.
+
+Shown in the Gazetteer's inspector under the depth box, for `site` locations only. A region is a
+district, not a building; running the same arithmetic over one reported "2,359,871 m² of floor" and
+"hundreds of group-sized spaces", which is true, useless, and exactly the sort of confident nonsense
+that teaches people to stop reading the box.

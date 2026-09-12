@@ -638,3 +638,42 @@ body {
   pointer-events: none;
   z-index: 700;
 }
+
+/* --- what the footprint will carry -------------------------------------- */
+/* Sits under the depth box and answers a different question: that one is
+   about whether the prose has caught up, this one about whether the building
+   is big enough for the prose. Quieter than `is-missing` on purpose --
+   nothing here blocks anything, it is the geometry having its say before
+   somebody writes three paragraphs about a bicycle store. */
+.gz-shape { margin: 8px 0 0; }
+.gz-shape__head {
+  margin: 0 0 4px;
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.gz-shape__tag {
+  font: 600 10px/1.4 var(--bi-font-mono, monospace);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border: 1px solid var(--bi-rule, #8a7a5c);
+  border-radius: 2px;
+  opacity: .85;
+}
+.gz-shape__facts {
+  font: 400 11px/1.5 var(--bi-font-mono, monospace);
+  opacity: .75;
+}
+.gz-shape__line {
+  margin: 3px 0 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  opacity: .8;
+}
+.gz-shape__line.is-over {
+  color: var(--bi-vermilion, #d1402a);
+  opacity: 1;
+  font-weight: 600;
+}

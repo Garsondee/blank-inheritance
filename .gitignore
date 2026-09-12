@@ -103,6 +103,9 @@ harvest/test-reports/
 # not project content. Same treatment as tools/city-map/_out/.
 /tools/gazetteer/_calibration/
 /tools/gazetteer/_tiles/
+# Land/water mask and overlay renders, all derived from the gitignored
+# master PNG. Regenerate with tools/gazetteer/landmask.py.
+/tools/gazetteer/_cache/
 
 # Drawing-session drafts: raw input awaiting hand-conversion into real location
 # entities, exactly like data/map/editor-submissions/ before them.
