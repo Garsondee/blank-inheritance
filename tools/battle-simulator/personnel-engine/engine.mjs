@@ -1133,10 +1133,16 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
   // `target` at all, so "who's actually caught in it" is computed here from real state, not trusted
   // from the proposal (matching this whole engine's "never trust the AI/scenario" design).
   if (proposal.type === "areaAttack") {
-    const originPos = state.positions.get(proposal.originId);
+    // GH #61, Gap 2 — a free-point throw ("drop it in the gap so it catches two enemies and no
+    // allies") is just as legal an aim as a combatant's own square: originPoint (a plain {col,row})
+    // takes precedence when supplied, falling back to the existing originId-names-a-combatant path
+    // unchanged for every pre-#61 caller. checkAreaAttackLegal was already written to take a plain
+    // originPos regardless of where it came from — this is the one remaining place that only ever
+    // derived it from a combatant's own square.
+    const originPos = proposal.originPoint ?? state.positions.get(proposal.originId);
     const areaAttackAbility = (combatant.areaAttacks ?? [])[proposal.areaAttackIndex ?? 0];
-    if (!areaAttackAbility) return { type: "areaAttack", originId: proposal.originId, legal: false, reason: `No areaAttack at index ${proposal.areaAttackIndex ?? 0} — ${combatant.name} has ${(combatant.areaAttacks ?? []).length}.` };
-    if (!originPos) return { type: "areaAttack", originId: proposal.originId, legal: false, reason: `${proposal.originId} has no known position to aim at.` };
+    if (!areaAttackAbility) return { type: "areaAttack", originId: proposal.originId, originPoint: proposal.originPoint ?? null, legal: false, reason: `No areaAttack at index ${proposal.areaAttackIndex ?? 0} — ${combatant.name} has ${(combatant.areaAttacks ?? []).length}.` };
+    if (!originPos) return { type: "areaAttack", originId: proposal.originId, originPoint: proposal.originPoint ?? null, legal: false, reason: proposal.originId ? `${proposal.originId} has no known position to aim at.` : `No aim point given — need either an originId or an originPoint.` };
 
     const affectedIds = [...state.combatants.keys()].filter((id) => {
       const c = state.combatants.get(id);
@@ -1149,7 +1155,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
       attacker: combatant, attackerPos: pos, originPos, areaAttack: areaAttackAbility, turnState: turnProgress, walls: state.walls,
       affectedCount: affectedIds.length
     });
-    if (!check.legal) return { type: "areaAttack", originId: proposal.originId, legal: false, reason: check.reason };
+    if (!check.legal) return { type: "areaAttack", originId: proposal.originId, originPoint: proposal.originPoint ?? null, legal: false, reason: check.reason };
 
     const affected = affectedIds.map((id) => {
       const target = state.combatants.get(id);
@@ -1172,7 +1178,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     if (areaAttackAbility.usesRemaining != null) areaAttackAbility.usesRemaining -= 1;
 
     return {
-      type: "areaAttack", areaAttackName: areaAttackAbility.name, originId: proposal.originId, legal: true, actionsCost: areaAttackAbility.actions ?? 1,
+      type: "areaAttack", areaAttackName: areaAttackAbility.name, originId: proposal.originId ?? null, originPoint: { col: originPos.col, row: originPos.row }, legal: true, actionsCost: areaAttackAbility.actions ?? 1,
       radius: areaAttackAbility.radius, damage,
       affected: results.map((r) => {
         const target = state.combatants.get(r.targetId);

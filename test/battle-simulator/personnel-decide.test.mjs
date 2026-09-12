@@ -1236,3 +1236,71 @@ test("decide() END TO END: with a melee ally already engaged, whole-turn plannin
   const result = sandbox.apply("me", proposal);
   assert.equal(result.legal, true, `expected the chosen proposal to be legal, got: ${JSON.stringify(result)}`);
 });
+
+// --- Free-point area attack aiming (GH #61, Gap 2) ---
+
+const FRAG_GRENADE = { name: "Frag Grenade", saveType: "ref", dc: 17, range: 70, radius: 5, actions: 1, damage: [{ dice: "1d8", bonus: 0, damageType: "fire" }] };
+
+function makeGrenadierState({ grenadierPos = { col: 8, row: 8 }, e1Pos = { col: 10, row: 9 }, e2Pos = { col: 10, row: 11 }, allyPos = null } = {}) {
+  const grenadier = { id: "grenadier", name: "grenadier", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], areaAttacks: [{ ...FRAG_GRENADE }], position: grenadierPos };
+  const e1 = { id: "e1", name: "e1", side: "opposition", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 0, strikes: [], position: e1Pos };
+  const e2 = { id: "e2", name: "e2", side: "opposition", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 0, strikes: [], position: e2Pos };
+  const combatants = new Map([["grenadier", grenadier], ["e1", e1], ["e2", e2]]);
+  const positions = new Map([["grenadier", grenadier.position], ["e1", e1Pos], ["e2", e2Pos]]);
+  if (allyPos) {
+    const ally = { id: "ally", name: "ally", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 0, strikes: [], position: allyPos };
+    combatants.set("ally", ally);
+    positions.set("ally", allyPos);
+  }
+  const state = { round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [], combatants, positions };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };
+  return { state, turn };
+}
+
+test("generateProposals: offers a free-point areaAttack candidate at the midpoint between two enemies close enough for one blast to plausibly catch both", () => {
+  const { state, turn } = makeGrenadierState();
+  const proposals = generateProposals(state, "grenadier", turn);
+  const freePointProposals = proposals.filter((p) => p.type === "areaAttack" && p.originPoint);
+  assert.ok(freePointProposals.some((p) => p.originPoint.col === 10 && p.originPoint.row === 10),
+    `expected a free-point candidate at the real midpoint (10,10), got: ${JSON.stringify(freePointProposals)}`);
+});
+
+test("generateProposals: offers NO free-point areaAttack candidate for two enemies too far apart for one blast to plausibly catch both", () => {
+  const { state, turn } = makeGrenadierState({ e2Pos: { col: 10, row: 30 } }); // far outside 2x radius (10ft) of e1
+  const proposals = generateProposals(state, "grenadier", turn);
+  const freePointProposals = proposals.filter((p) => p.type === "areaAttack" && p.originPoint);
+  assert.equal(freePointProposals.length, 0, `expected zero free-point candidates for two enemies this far apart, got: ${JSON.stringify(freePointProposals)}`);
+});
+
+test("engine.mjs areaAttack resolution: a free-point origin (no originId at all) legally catches BOTH enemies — the real signature play this issue exists to enable", () => {
+  const { state, turn } = makeGrenadierState();
+  const sandbox = forkTurnSandbox({ state, turn });
+  const result = sandbox.apply("grenadier", { type: "areaAttack", originPoint: { col: 10, row: 10 }, areaAttackIndex: 0 });
+  assert.equal(result.legal, true, `expected a legal free-point blast, got: ${JSON.stringify(result)}`);
+  const affectedIds = result.affected.map((a) => a.targetId).sort();
+  assert.deepEqual(affectedIds, ["e1", "e2"], `expected exactly e1 and e2 caught, got: ${JSON.stringify(affectedIds)}`);
+});
+
+test("decide() END TO END: catches-two-enemies-no-allies — with a real ally positioned well clear of the midpoint, whole-turn planning prefers the free-point throw that catches both enemies over aiming at either one alone", () => {
+  const { state, turn } = makeGrenadierState({ allyPos: { col: 0, row: 0 } }); // ally far from the blast
+  const before = evaluateState(state, "party", undefined, "grenadier");
+
+  // Apply each candidate to its OWN fresh sandbox (forkTurnSandbox never mutates the shared `state`)
+  // and compare the resulting states' own gain directly.
+  const afterFreePoint = forkTurnSandbox({ state, turn });
+  const freePointResult = afterFreePoint.apply("grenadier", { type: "areaAttack", originPoint: { col: 10, row: 10 }, areaAttackIndex: 0 });
+  const afterSingle = forkTurnSandbox({ state, turn });
+  const singleResult = afterSingle.apply("grenadier", { type: "areaAttack", originId: "e1", areaAttackIndex: 0 });
+  assert.equal(freePointResult.legal, true, `expected the free-point throw to be legal, got: ${JSON.stringify(freePointResult)}`);
+  assert.equal(singleResult.legal, true, `expected the single-target throw to be legal, got: ${JSON.stringify(singleResult)}`);
+
+  const gainFreePoint = evaluateState(afterFreePoint.state, "party", undefined, "grenadier") - before;
+  const gainSingle = evaluateState(afterSingle.state, "party", undefined, "grenadier") - before;
+  assert.ok(gainFreePoint > gainSingle,
+    `catching both enemies (gain ${gainFreePoint.toFixed(2)}) must score above catching only one (gain ${gainSingle.toFixed(2)}) when no ally is caught either way`);
+
+  const chosen = decide(state, "grenadier", turn, { competence: 1 });
+  assert.equal(chosen.type, "areaAttack");
+  assert.ok(chosen.originPoint && chosen.originPoint.col === 10 && chosen.originPoint.row === 10,
+    `expected whole-turn planning to choose the real catches-both-enemies free point, chose: ${JSON.stringify(chosen)}`);
+});

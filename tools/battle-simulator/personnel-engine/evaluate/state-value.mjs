@@ -89,12 +89,18 @@ function effectiveDistance(state, from, to) {
   return result;
 }
 
-/** Every attack option a combatant has — Strikes, attack spells, and save-based attacks (a saveAttack is distinguished by carrying `saveType`, never `attackBonus`; see bestExpectedDamage below). */
+/** Every attack option a combatant has — Strikes, attack spells, save-based attacks, and area
+ * attacks (a saveAttack/areaAttack is distinguished by carrying `saveType`, never `attackBonus`;
+ * see bestExpectedDamage below — both resolve through the identical save-based branch there, since
+ * an areaAttack's shape is a saveAttack's plus `radius`, and this single-target evaluator function
+ * only ever asks "how much would this option do to THIS ONE target", never pricing the multi-target
+ * upside a real area attack's blast also has — that's a real, deliberate simplification, GH #61). */
 export function attackOptions(combatant) {
   const out = [];
   for (const s of combatant.strikes ?? []) if (s.usesRemaining == null || s.usesRemaining > 0) out.push(s);
   for (const s of combatant.spells ?? []) if (s.usesRemaining == null || s.usesRemaining > 0) out.push(s);
   for (const s of combatant.saveAttacks ?? []) if (s.usesRemaining == null || s.usesRemaining > 0) out.push(s);
+  for (const s of combatant.areaAttacks ?? []) if (s.usesRemaining == null || s.usesRemaining > 0) out.push(s);
   return out;
 }
 
@@ -392,7 +398,7 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS, actingComb
     score += weights.allyDamage * ally.currentHP;
     score -= weights.tempoDenial * tempoOwed(ally); // Stunned only — a certain, already-resolved lost action
     score -= weights.maneuverTempoDenial * maneuverTempoOwed(ally, state.combatants); // Prone/Grabbed — contested by a real future roll, priced lower (design doc §44)
-    for (const s of [...(ally.strikes ?? []), ...(ally.spells ?? []), ...(ally.healAbilities ?? []), ...(ally.saveAttacks ?? []), ...(ally.conditionSaves ?? [])]) {
+    for (const s of [...(ally.strikes ?? []), ...(ally.spells ?? []), ...(ally.healAbilities ?? []), ...(ally.saveAttacks ?? []), ...(ally.conditionSaves ?? []), ...(ally.areaAttacks ?? [])]) {
       if (s.usesRemaining != null) score += weights.resource * s.usesRemaining;
     }
   }

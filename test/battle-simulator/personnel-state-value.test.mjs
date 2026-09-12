@@ -12,7 +12,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { evaluateState, DEFAULT_WEIGHTS, bestExpectedDamage } from "../../tools/battle-simulator/personnel-engine/evaluate/state-value.mjs";
+import { evaluateState, DEFAULT_WEIGHTS, bestExpectedDamage, attackOptions } from "../../tools/battle-simulator/personnel-engine/evaluate/state-value.mjs";
 import { degreeProbabilities } from "../../tools/battle-simulator/engine/resolve.mjs";
 import { lineOfEffect } from "../../tools/battle-simulator/personnel-engine/terrain.mjs";
 import { alliesWithPositions } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
@@ -1024,4 +1024,39 @@ test("FLANKING: setupValue counts an ALREADY-ACTED ally as a real flank partner 
   // "veteran genuinely credited" from "veteran silently dropped".
   assert.ok(setupValueWithVeteran - setupValueWithoutVeteran > 1e-6,
     `"future" (still to act) must get a real, isolated setupValue boost from "veteran" (already acted) completing a flank alongside it (with veteran: ${setupValueWithVeteran.toFixed(4)}, without: ${setupValueWithoutVeteran.toFixed(4)}) — stillToActIds must restrict whose OWN attack counts, never who can complete a flank for someone else`);
+});
+
+// --- Area attacks visible to the evaluator (GH #61, Gap 1) ---
+//
+// Confirmed directly before this shipped: attackOptions(tough) returned only "Gun Bash" — the real
+// Frag Grenade fixture was completely invisible to threatExposure/offensiveReach/resource, on
+// EITHER side, so a grenadier's own threat never registered and spending a limited grenade charge
+// cost nothing. Out of scope here (GH #61's own explicit scope, Gap 2): aiming a blast at empty
+// ground — this only closes the "the evaluator is blind to area attacks" half.
+
+test("attackOptions: includes areaAttacks — a real grenadier's grenade is no longer invisible to the evaluator", () => {
+  const withGrenade = { strikes: [{ name: "Gun Bash", strikeType: "melee", attackBonus: 8, traits: [], damage: [{ dice: "1d4", bonus: 0 }] }], areaAttacks: [{ name: "Frag Grenade", saveType: "ref", dc: 17, range: 70, radius: 5, actions: 1, damage: [{ dice: "1d8", bonus: 0, damageType: "fire" }] }] };
+  const names = attackOptions(withGrenade).map((o) => o.name);
+  assert.ok(names.includes("Frag Grenade"), `expected "Frag Grenade" among attackOptions, got: ${JSON.stringify(names)}`);
+});
+
+test("attackOptions: an areaAttack with usesRemaining:0 is correctly excluded — matching every other limited-use option type", () => {
+  const spent = { strikes: [], areaAttacks: [{ name: "Frag Grenade", saveType: "ref", dc: 17, range: 70, radius: 5, actions: 1, damage: [{ dice: "1d8", bonus: 0, damageType: "fire" }], usesRemaining: 0 }] };
+  assert.deepEqual(attackOptions(spent), [], "an area attack with zero uses remaining must not be offered as a real option");
+});
+
+test("threatExposure: a grenadier's own area attack now registers as a real, isolated threat to a nearby ally — GH #61's own literal 'Done when' wording", () => {
+  const grenadier = { id: "grenadier", name: "grenadier", side: "opposition", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], areaAttacks: [{ name: "Frag Grenade", saveType: "ref", dc: 17, range: 70, radius: 5, actions: 1, damage: [{ dice: "3d6", bonus: 0, damageType: "fire" }] }] };
+  const ally = { id: "ally", name: "ally", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [] };
+  const state = { round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, combatants: new Map([["ally", ally], ["grenadier", grenadier]]), positions: new Map([["ally", { col: 0, row: 0 }], ["grenadier", { col: 0, row: 10 }]]) };
+  const zeroThreatExposure = { ...DEFAULT_WEIGHTS, threatExposure: 0 };
+  const isolatedThreatExposure = evaluateState(state, "party", DEFAULT_WEIGHTS) - evaluateState(state, "party", zeroThreatExposure);
+  assert.ok(isolatedThreatExposure < -1e-6, `expected a real, negative (costly) threatExposure contribution from the grenadier's own grenade, got ${isolatedThreatExposure.toFixed(4)}`);
+});
+
+test("RESOURCE: a limited-use areaAttack with charges left is worth something to its side, same as any other limited-use option", () => {
+  const base = makeState({ allyCount: 1, enemyCount: 1 });
+  const withResource = { ...base, combatants: new Map(base.combatants) };
+  withResource.combatants.set("ally-0", { ...base.combatants.get("ally-0"), areaAttacks: [{ name: "Frag Grenade", saveType: "ref", dc: 17, range: 70, radius: 5, actions: 1, damage: [{ dice: "1d8", bonus: 0, damageType: "fire" }], usesRemaining: 1 }] });
+  assert.ok(evaluateState(withResource, "party") > evaluateState(base, "party"), "an unspent limited-use area attack must be worth something, same as a strike/spell/heal/saveAttack/conditionSave");
 });

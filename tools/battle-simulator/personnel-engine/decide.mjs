@@ -486,8 +486,33 @@ export function generateProposals(state, combatantId, turn, externalDestCache, i
   // prices an origin that would also catch a nearby ally exactly as unfavorably as any other
   // ally-damaging proposal — the friendly-fire awareness comes for free from correct simulation,
   // not a bespoke heuristic. ---
-  (me.areaAttacks ?? []).forEach((_, i) => {
+  (me.areaAttacks ?? []).forEach((ability, i) => {
     for (const e of targetableEnemies) proposals.push({ type: "areaAttack", originId: e.id, areaAttackIndex: i });
+
+    // GH #61, Gap 2 — free-point aiming: the signature "drop it in the gap so it catches two
+    // enemies and no allies" play was structurally unavailable before this (originId had to name a
+    // living combatant). For every pair of targetable enemies close enough together that a single
+    // blast could plausibly reach both (their own distance apart within twice the radius — the
+    // widest gap where a point can still sit within both their individual radii), propose the
+    // midpoint between them as a free aim point. No "avoid allies" pre-filtering here either,
+    // matching the per-enemy-square candidate's own established reasoning just above: the
+    // evaluator's already-correct friendly-fire simulation prices that for free once #61's own Gap
+    // 1 (areaAttacks visible to attackOptions) makes it visible at all. Deliberately pairwise, not a
+    // full N-way cluster centroid (the issue's own two-enemies-no-allies case doesn't need one) — a
+    // tight 3+ cluster still gets covered by whichever pair's own midpoint happens to catch the
+    // third too, just not the single mathematically optimal point; a real centroid pass is a
+    // reasonable future refinement, not required by this issue's own "Done when".
+    for (let a = 0; a < targetableEnemies.length; a++) {
+      const posA = state.positions.get(targetableEnemies[a].id);
+      if (!posA) continue;
+      for (let b = a + 1; b < targetableEnemies.length; b++) {
+        const posB = state.positions.get(targetableEnemies[b].id);
+        if (!posB) continue;
+        if (distanceFeet(posA, posB) > 2 * (ability.radius ?? 0)) continue; // too far apart for one blast to plausibly catch both
+        const originPoint = { col: Math.round((posA.col + posB.col) / 2), row: Math.round((posA.row + posB.row) / 2) };
+        proposals.push({ type: "areaAttack", originPoint, areaAttackIndex: i });
+      }
+    }
   });
 
   // --- Support ---
@@ -1007,7 +1032,7 @@ function describe(proposal, result) {
     case "saveAttack": return `Use ${result?.saveAttackName ?? "ability " + (proposal.saveAttackIndex ?? 0)} against ${proposal.targetId}`;
     case "demoralize": return `Demoralize ${proposal.targetId}`;
     case "conditionSave": return `Use ${result?.conditionSaveName ?? "ability " + (proposal.conditionSaveIndex ?? 0)} against ${proposal.targetId}`;
-    case "areaAttack": return `Throw ${result?.areaAttackName ?? "ability " + (proposal.areaAttackIndex ?? 0)} at ${proposal.originId}'s position`;
+    case "areaAttack": return `Throw ${result?.areaAttackName ?? "ability " + (proposal.areaAttackIndex ?? 0)} at ${proposal.originId ? `${proposal.originId}'s position` : `(${proposal.originPoint.col},${proposal.originPoint.row})`}`;
     case "healAbility": return `Heal ${proposal.targetId} with ${result?.abilityName ?? "ability"}`;
     case "trip": return `Trip ${proposal.targetId}`;
     case "shove": return `Shove ${proposal.targetId}`;
