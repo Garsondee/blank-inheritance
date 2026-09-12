@@ -51,6 +51,23 @@ test("readPackDocuments: paizo-pregens (Adventure Pregens) also contains all six
   assert.equal(classes.size, 6, `expected 6 distinct classes among level-1 pregens, found: ${[...classes].join(", ")}`);
 });
 
-test("readPackDocuments: a directory with no 000003.log throws a clear error rather than silently returning nothing", () => {
-  assert.throws(() => readPackDocuments(path.join(repoRoot, "gamesystems", "sf2e", "packs")), /ENOENT|no such file/);
+test("readPackDocuments: a directory that is not a pack throws a clear error rather than silently returning nothing", () => {
+  // The packs ROOT is a directory of packs, not a pack: no write-ahead log,
+  // no SSTables, nothing to read.
+  //
+  // This used to assert /ENOENT|no such file/, which pinned the test to the
+  // errno readFileSync happened to raise rather than to the behaviour the
+  // test is named for. Adding the SSTable reader replaced that errno with a
+  // sentence, and a test that fails when an error message gets BETTER is
+  // testing the wrong thing. What matters is that it throws, and that the
+  // message says where and what in words somebody can act on.
+  assert.throws(
+    () => readPackDocuments(path.join(repoRoot, "gamesystems", "sf2e", "packs")),
+    (err) => {
+      assert.match(err.message, /write-ahead log|SSTable|ENOENT/,
+        "the error should name what it went looking for");
+      assert.ok(err.message.length > 30,
+        `expected an explanation, got ${JSON.stringify(err.message)}`);
+      return true;
+    });
 });

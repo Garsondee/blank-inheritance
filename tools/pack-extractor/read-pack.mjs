@@ -1,11 +1,19 @@
 /**
- * Standalone reader for Foundry VTT compendium packs stored as raw LevelDB
- * write-ahead logs (a pack that has never been compacted has all of its
- * data in `000003.log` — no `.ldb` SST files at all, which is exactly what
- * every pack under gamesystems/sf2e/packs/ looks like). No `.ldb` reader is
- * implemented here on purpose: every shipped sf2e pack fits this case, and
- * adding SST-table parsing for a case that doesn't occur would be
- * unjustified complexity for what this tool actually needs to do.
+ * Standalone reader for Foundry VTT compendium packs stored as LevelDB.
+ *
+ * A pack's data lives in two places and this reads both. The write-ahead log
+ * (`NNNNNN.log`) holds recent writes; once LevelDB compacts, those writes move
+ * into SSTables (`NNNNNN.ldb`) and the log is emptied. This file handles the
+ * log; read-table.mjs handles the tables; `readPackEntries` merges them.
+ *
+ * It used to handle only the log, on the stated grounds that no shipped sf2e
+ * pack had ever been compacted. That stopped being true -- every pack under
+ * gamesystems/sf2e/packs/ is now a zero-byte log beside a several-hundred-
+ * kilobyte .ldb -- and the failure was silent: no error, an empty document
+ * list, and sixty-four tests reporting missing pregens and null actors, which
+ * reads like missing content and was nothing of the kind. The lesson is in the
+ * shape of the bug rather than the bug: "this case does not occur" was true
+ * when written and had no way to announce that it had stopped being true.
  *
  * Implements just enough of the LevelDB log format (leveldb/db/log_format.h,
  * log_reader.cc, write_batch.cc) to recover the Put entries: 32KB blocks of
@@ -23,6 +31,8 @@
  */
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
+
+import { readTableEntries } from "./read-table.mjs";
 
 const BLOCK_SIZE = 32768;
 const HEADER_SIZE = 7; // checksum(4) + length(2) + type(1)
@@ -115,29 +125,43 @@ function decodeWriteBatch(record) {
  * semantics within a replayed WAL).
  */
 export function readPackEntries(packDir) {
-  const logPath = findWriteAheadLog(packDir);
-  const buf = readFileSync(logPath);
-  if (buf.length === 0) {
-    // Not "no data" — data that has MOVED. Silence here is the dangerous
-    // outcome: callers get an empty document list and report a missing
-    // pregen or a null actor, which reads like a content problem and is not.
-    const tables = readdirSync(packDir).filter((n) => /\.ldb$/.test(n));
-    throw new Error(
-      `${path.basename(packDir)}: the write-ahead log ${path.basename(logPath)} `
-      + `is empty and this pack has ${tables.length} compacted SSTable(s) `
-      + `(${tables.join(", ") || "none"}). LevelDB has compacted the pack, so its `
-      + `contents now live in .ldb files, which this reader does not parse. `
-      + `This happens once Foundry has opened the database enough times. `
-      + `Nothing is lost — the extractor needs an SSTable reader.`);
-  }
-  const records = readLogRecords(buf);
   const latest = new Map();
-  for (const record of records) {
-    for (const { key, value } of decodeWriteBatch(record)) {
+
+  // Compacted tables first, oldest file number first: a higher number is a
+  // later write, and the write-ahead log is later than all of them. Applying
+  // them in that order makes the last write for a key win, which is LevelDB's
+  // own semantics without having to reconcile sequence numbers across two
+  // different on-disk formats.
+  for (const tablePath of findTables(packDir)) {
+    for (const { key, value } of readTableEntries(tablePath)) {
       latest.set(key, value);
     }
   }
+
+  const logPath = findWriteAheadLog(packDir, { required: latest.size === 0 });
+  if (logPath) {
+    for (const record of readLogRecords(readFileSync(logPath))) {
+      for (const { key, value } of decodeWriteBatch(record)) {
+        latest.set(key, value);
+      }
+    }
+  }
+
+  if (latest.size === 0) {
+    throw new Error(
+      `${path.basename(packDir)}: no entries in either the write-ahead log or `
+      + `any SSTable. The pack is present but reads as empty, which is more `
+      + `likely a reader fault than a genuinely empty compendium.`);
+  }
   return [...latest.entries()].map(([key, value]) => ({ key, value }));
+}
+
+/** Every compacted SSTable in a pack, oldest file number first. */
+export function findTables(packDir) {
+  return readdirSync(packDir)
+    .filter((name) => /^\d+\.ldb$/.test(name))
+    .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
+    .map((name) => path.join(packDir, name));
 }
 
 /**
@@ -160,15 +184,15 @@ export function readPackEntries(packDir) {
  * whole content in the WAL, which is why this has worked at all. Parsing
  * SSTables is a real piece of work and wants its own change.
  */
-export function findWriteAheadLog(packDir) {
+export function findWriteAheadLog(packDir, { required = true } = {}) {
   const logs = readdirSync(packDir)
     .filter((name) => /^\d+\.log$/.test(name))
     .sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
   if (!logs.length) {
+    if (!required) return null;
     throw new Error(
-      `no LevelDB write-ahead log in ${packDir} — expected a NNNNNN.log file. `
-      + `If the pack has been compacted its contents are in .ldb SSTables, `
-      + `which this reader does not parse.`);
+      `no LevelDB write-ahead log in ${packDir} — expected a NNNNNN.log file, `
+      + `and no SSTable supplied any entries either.`);
   }
   return path.join(packDir, logs[logs.length - 1]);
 }

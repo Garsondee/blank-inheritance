@@ -2,7 +2,7 @@
 
 Condensed findings from direct source research against the local `foundryvtt/` (Foundry VTT v14.367, unminified `client/`+`common/`, minified `dist/`) and `gamesystems/sf2e/` (sf2e v1.4.1) trees — see [[reference-foundry-source-trees]] in memory. Verified against source, not recalled Foundry knowledge; v14 changed enough (ApplicationV2, the Level document, ES2020+ module namespacing) that pre-v13 tutorials and general knowledge are unreliable.
 
-Everything here is either a direct citation (`file:line`, relative to `foundryvtt/Foundry Virtual Tabletop/resources/app/` unless noted) or explicitly marked **NOT VERIFIED**. Where sf2e pack data was the evidence, it was extracted by parsing the LevelDB write-ahead logs directly (12,428 documents across 29 packs, 0 parse failures) — real shipped content, not documentation.
+Everything here is either a direct citation (`file:line`, relative to `foundryvtt/Foundry Virtual Tabletop/resources/app/` unless noted) or explicitly marked **NOT VERIFIED**. Where sf2e pack data was the evidence, it was extracted by parsing LevelDB directly (12,428 documents across 29 packs, 0 parse failures). That extraction originally read only the write-ahead logs; since 2026-09-12 it also reads compacted `.ldb` SSTables, which is now where all 29 packs actually keep their content — real shipped content, not documentation.
 
 This is a reference, not a tutorial — [foundry-module-design.md](foundry-module-design.md) is where the architecture and decisions live. Come back here for exact field names/types/constants.
 
