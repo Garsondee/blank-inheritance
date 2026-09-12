@@ -21,7 +21,7 @@
  * an embedded document (e.g. `!actors.items!abc123.def456`). Values are
  * UTF-8 JSON text.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 
 const BLOCK_SIZE = 32768;
@@ -115,8 +115,21 @@ function decodeWriteBatch(record) {
  * semantics within a replayed WAL).
  */
 export function readPackEntries(packDir) {
-  const logPath = path.join(packDir, "000003.log");
+  const logPath = findWriteAheadLog(packDir);
   const buf = readFileSync(logPath);
+  if (buf.length === 0) {
+    // Not "no data" — data that has MOVED. Silence here is the dangerous
+    // outcome: callers get an empty document list and report a missing
+    // pregen or a null actor, which reads like a content problem and is not.
+    const tables = readdirSync(packDir).filter((n) => /\.ldb$/.test(n));
+    throw new Error(
+      `${path.basename(packDir)}: the write-ahead log ${path.basename(logPath)} `
+      + `is empty and this pack has ${tables.length} compacted SSTable(s) `
+      + `(${tables.join(", ") || "none"}). LevelDB has compacted the pack, so its `
+      + `contents now live in .ldb files, which this reader does not parse. `
+      + `This happens once Foundry has opened the database enough times. `
+      + `Nothing is lost — the extractor needs an SSTable reader.`);
+  }
   const records = readLogRecords(buf);
   const latest = new Map();
   for (const record of records) {
@@ -125,6 +138,39 @@ export function readPackEntries(packDir) {
     }
   }
   return [...latest.entries()].map(([key, value]) => ({ key, value }));
+}
+
+/**
+ * The pack's live write-ahead log.
+ *
+ * LevelDB renames its WAL every time the database is opened — 000003.log
+ * becomes 000006.log becomes 000028.log — and keeps exactly one live at a
+ * time. This used to be hard-coded as "000003.log", which meant every one of
+ * these extractors broke the moment somebody launched their local Foundry,
+ * with an ENOENT naming a file that had simply been renumbered. 64 tests were
+ * failing on it.
+ *
+ * Highest number wins: LevelDB deletes superseded logs, so in practice there
+ * is one, and if a crash ever leaves two behind the newer is the live one.
+ *
+ * KNOWN LIMIT, and it is not fixed here: this reads the WAL only. Once LevelDB
+ * compacts, entries move out of the log and into .ldb SSTables, and those are
+ * invisible to this reader — a compacted pack would come back quietly short
+ * rather than erroring. Every pack in the shipped tree currently carries its
+ * whole content in the WAL, which is why this has worked at all. Parsing
+ * SSTables is a real piece of work and wants its own change.
+ */
+export function findWriteAheadLog(packDir) {
+  const logs = readdirSync(packDir)
+    .filter((name) => /^\d+\.log$/.test(name))
+    .sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+  if (!logs.length) {
+    throw new Error(
+      `no LevelDB write-ahead log in ${packDir} — expected a NNNNNN.log file. `
+      + `If the pack has been compacted its contents are in .ldb SSTables, `
+      + `which this reader does not parse.`);
+  }
+  return path.join(packDir, logs[logs.length - 1]);
 }
 
 const KEY_PATTERN = /^!([a-zA-Z._]+)!(.+)$/;
