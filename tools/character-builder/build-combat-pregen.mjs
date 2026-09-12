@@ -279,6 +279,19 @@ export function deriveSkillModifier(ingredients, skillName, abilityModifiers) {
  * to derive from. At level 1 the "minimum 1" qualifier and the later-level increases are both
  * moot (a level-1 Mystic's pool is large enough that 10 is always available), so the flat number
  * transcribed here is the complete, correct level-1 value, not a simplification.
+ *
+ * Deliberately NOT returned here: usesRemaining/usesPerEncounter (GH #55). Every other limited-use
+ * ability this file derives (deriveSaveAttacks' grenade, deriveSaveSpells' Thunderstrike) reads a
+ * REAL structured field — system.quantity, system.slots.slotN.max — because their limit genuinely
+ * is a per-day/per-encounter count. Transfer Vitality's real limit is categorically different: the
+ * Vitality Network feat's own regenerating "vitality network" HP-pool (capacity 6+4/level,
+ * regenerating 4-8 HP per turn in combat, full refill on Refocus), which has no per-day slot count
+ * to read at all. This function's whole contract is "a number that's actually derived from real
+ * structured data, or an honest absence" (see this file's own atWill/cantrip tests) — inventing an
+ * approximated uses-per-encounter number here would misrepresent a guess as derived fact. The
+ * approximation belongs at the fixture-construction site instead, hand-authored with its reasoning
+ * written down there (data/raw-validation-fixtures/lunar-17.json's own notes field; mirrors the
+ * identical, already-shipped choice for the level-12 Frame-scale Mystic in data/combatants.mjs).
  */
 export function deriveTransferVitality(ingredients) {
   const action = ingredients.actions.find((a) => a.name === "Transfer Vitality");

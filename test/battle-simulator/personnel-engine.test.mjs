@@ -306,6 +306,44 @@ test("a healAbility never overheals past the target's maxHP", () => {
   assert.equal(action.targetHPAfter, 16, "5 healing on 14/16 HP must cap at maxHP (16), not overshoot to 19");
 });
 
+// GH #55: no fixture ever set usesRemaining on Transfer Vitality, so the shared, already-tested
+// usesRemaining mechanism every sibling ability type relies on (checkHealAbilityLegal, mirroring
+// checkStrikeLegal/checkSpellAttackLegal/checkSaveAttackLegal) never actually fired for it — an
+// unlimited free heal. This proves it now bounds correctly once a fixture sets a real value (2,
+// matching Lunar-17's real fixture and the level-12 Frame-scale Mystic's identical approximation).
+test("Transfer Vitality: usesRemaining bounds repeated casts within one encounter, same generic mechanism as every sibling ability", () => {
+  const caster = makeCaster({ healAbilities: [{ name: "Transfer Vitality", healingAmount: 5, range: 60, actions: 1, usesRemaining: 2 }] });
+  const woundedAlly = makeCaster({ id: "ally", name: "Ally", currentHP: 5, maxHP: 100, spells: [], healAbilities: [] });
+  function ai(state, combatantId) {
+    if (combatantId === "caster") return { type: "healAbility", targetId: "ally", abilityIndex: 0 };
+    return null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [caster, woundedAlly], ai });
+  const actions = log.rounds[0].turns.find((t) => t.combatantId === "caster").actions;
+  assert.equal(actions.length, 3, "the caster has 3 actions available and the AI proposes the same heal with all of them");
+  assert.deepEqual(actions.map((a) => a.legal), [true, true, false], "a third cast must be rejected once usesRemaining hits 0");
+  assert.equal(actions[2].reason, "Transfer Vitality has no uses remaining this encounter.");
+});
+
+// GH #55: the original bug report assumed Transfer Vitality "moves HP between bodies" and flagged
+// the caster being untouched as the bug. Checked directly against the real extracted rule text
+// (Vitality Network feat, Player Core) instead of the ability's name alone: it heals from a
+// separate resource pool the caster cultivates, never their own current HP. The caster being
+// untouched is the correct, RAW-accurate behavior — this guards against a future "fix" that debits
+// the caster's HP based on a surface reading of what "Transfer Vitality" sounds like it should do.
+test("Transfer Vitality: the caster's own HP is never touched — it heals from a separate resource pool, not its own body, per the real Player Core rule", () => {
+  const caster = makeCaster({ healAbilities: [{ name: "Transfer Vitality", healingAmount: 5, range: 60, actions: 1, usesRemaining: 2 }] });
+  const woundedAlly = makeCaster({ id: "ally", name: "Ally", currentHP: 5, maxHP: 100, spells: [], healAbilities: [] });
+  function ai(state, combatantId, turnState) {
+    if (combatantId === "caster" && turnState.actionsUsed === 0) return { type: "healAbility", targetId: "ally", abilityIndex: 0 };
+    return null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [caster, woundedAlly], ai });
+  const turn = log.rounds[0].turns.find((t) => t.combatantId === "caster");
+  assert.equal(turn.actions[0].legal, true);
+  assert.equal(turn.snapshot.caster.currentHP, 16, "casting Transfer Vitality must never reduce the caster's own currentHP");
+});
+
 test("every legal action's result carries an actionsCost field matching what was actually spent", () => {
   const caster = makeCaster();
   caster.strikes = [{ name: "Backup Strike", strikeType: "melee", attackBonus: 100, traits: [], damage: [{ dice: "1d1", bonus: 5 }] }];

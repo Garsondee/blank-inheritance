@@ -108,6 +108,19 @@ test("deriveTransferVitality: real 1-action, 60ft heal ability, granted via Luna
   assert.equal(heal.healingAmount, 10);
 });
 
+// GH #55: usesRemaining must stay undefined here, deliberately — the real limit is the Vitality
+// Network feat's own regenerating HP-pool, not a per-day slot count, so there is no real structured
+// field for this function to derive it from (unlike deriveSaveAttacks' grenade quantity or
+// deriveSaveSpells' Thunderstrike slots, both tested above). A hand-authored approximation belongs
+// at the fixture-construction site (lunar-17.json's own notes field), never invented here — this
+// test is the same "assert the deliberate absence, not just its accidental omission" pattern as the
+// cantrip usesRemaining tests above, applied to a different kind of real-but-underivable limit.
+test("deriveTransferVitality: never invents a usesRemaining — the real limit is a regenerating resource pool, not a derivable per-day count", () => {
+  const ingredients = lunar17Ingredients();
+  const heal = deriveTransferVitality(ingredients);
+  assert.equal(heal.usesRemaining, undefined, "no real structured field for Transfer Vitality's limit exists in the raw data — this function must not guess one");
+});
+
 test("all three weapons' category (simple) is trained per the Mystic class's real system.attacks table — proficiency isn't a guess", () => {
   const ingredients = lunar17Ingredients();
   assert.equal(ingredients.classAttacks.simple, 1, "expected Mystic's real class data to show simple weapons as trained (rank 1)");

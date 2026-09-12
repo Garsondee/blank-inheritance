@@ -36,7 +36,11 @@ test("lunar-17.json: checked-in strikes/spell/heal-ability match a fresh live re
   }).value);
   assert.deepEqual(fixture.strikes, deriveStrikes(ingredients, ["Zero Knife", "Arc Pistol", "Semi-Auto Pistol"], mods));
   assert.deepEqual(fixture.spells, deriveSpells(ingredients, ["Eldritch Lance"], mods));
-  assert.deepEqual(fixture.healAbilities, [deriveTransferVitality(ingredients)]);
+  assert.deepEqual(
+    fixture.healAbilities,
+    [{ ...deriveTransferVitality(ingredients), usesRemaining: 2, usesPerEncounter: 2 }],
+    "usesRemaining/usesPerEncounter are hand-authored on top of the pure derivation (GH #55) — the real limit is the Vitality Network feat's own regenerating resource pool, not a derivable per-day count; see lunar-17.json's own notes field and deriveTransferVitality's docstring for why"
+  );
   assert.equal(fixture.saveAttacks, undefined, "her Incendiary Grenade is real but a burst-AREA effect (see design doc §21) — must never be wired as a single-target saveAttack again");
   assert.equal(fixture.intimidationModifier, deriveSkillModifier(ingredients, "intimidation", mods));
   assert.equal(fixture.side, "party");
@@ -275,16 +279,17 @@ test("all ten fixtures are personnel-engine-shape-compatible: every strike/spell
  * Well-formedness (design doc §76.9, GH #69/#55): every limited-resource ability across all six
  * arrays must EITHER declare a real usesRemaining OR be explicitly marked atWill — never neither.
  * This is the check that would have caught #55 (Transfer Vitality: no derivable limit, and nothing
- * marked it at-will either — just silently, structurally absent). Two REAL, CURRENTLY-EXPECTED
- * failures are named here explicitly, not hidden: both are real Paizo abilities whose true limit (if
- * any) simply isn't captured anywhere in this project's current data model, confirmed by direct
- * investigation, not assumed. An unexpected THIRD gap fails loudly, pointing at a real new problem.
- * A KNOWN gap silently disappearing ALSO fails loudly — the signal that someone fixed it for real
- * (#55/#60) and this list needs updating, not a reason to quietly stop checking.
+ * marked it at-will either — just silently, structurally absent). #55 fixed Lunar-17's own gap
+ * (hand-authored usesRemaining:2, see lunar-17.json's own notes field for why it's an approximation
+ * rather than a derived number) — one REAL, CURRENTLY-EXPECTED gap remains, named here explicitly,
+ * not hidden: a real Paizo ability whose true limit (if any) simply isn't captured anywhere in this
+ * project's current data model, confirmed by direct investigation, not assumed. An unexpected
+ * SECOND gap fails loudly, pointing at a real new problem. The known gap silently disappearing ALSO
+ * fails loudly — the signal that someone fixed it for real (#60 or similar) and this list needs
+ * updating, not a reason to quietly stop checking.
  */
-test("well-formedness (GH #69/#55): every spell/healAbility/saveAttack/areaAttack/conditionSave entry either declares a real usesRemaining or is explicitly atWill — exactly two known, honest exceptions", () => {
+test("well-formedness (GH #69/#55): every spell/healAbility/saveAttack/areaAttack/conditionSave entry either declares a real usesRemaining or is explicitly atWill — exactly one known, honest exception", () => {
   const KNOWN_GAPS = [
-    { file: "lunar-17.json", array: "healAbilities", name: "Transfer Vitality" },
     { file: "erabryth.json", array: "conditionSaves", name: "Forced Reflection" }
   ];
   const foundGaps = [];
@@ -305,5 +310,5 @@ test("well-formedness (GH #69/#55): every spell/healAbility/saveAttack/areaAttac
     const stillGap = foundGaps.some((g) => g.file === known.file && g.array === known.array && g.name === known.name);
     assert.ok(stillGap, `${known.file}'s ${known.array} entry "${known.name}" is no longer a well-formedness gap — if #55/#60 (or similar) resolved this for real, remove it from KNOWN_GAPS here; this assertion exists specifically so a real fix can't go unnoticed.`);
   }
-  assert.equal(foundGaps.length, KNOWN_GAPS.length, `expected exactly ${KNOWN_GAPS.length} known well-formedness gaps (Transfer Vitality, Forced Reflection), found ${foundGaps.length}: ${JSON.stringify(foundGaps)}`);
+  assert.equal(foundGaps.length, KNOWN_GAPS.length, `expected exactly ${KNOWN_GAPS.length} known well-formedness gap (Forced Reflection), found ${foundGaps.length}: ${JSON.stringify(foundGaps)}`);
 });
