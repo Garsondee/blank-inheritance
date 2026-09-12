@@ -56,6 +56,8 @@ import { lineOfEffect, hasCover, STANDARD_COVER_AC_BONUS } from "../terrain.mjs"
 import { pathCost } from "../world/pathfind.mjs";
 import { splitByRelation } from "../factions.mjs";
 import { isRestrained, isImmobilized, isOffGuardFromConditions, attackerConditionPenalty } from "../conditions.mjs";
+import { isFlanking } from "../flanking.mjs";
+import { alliesWithPositions, OFF_GUARD_AC_PENALTY } from "../engine.mjs";
 
 /**
  * Straight-line distanceFeet becomes actively MISLEADING once a wall sits between two combatants —
@@ -176,9 +178,34 @@ export function maxLegalRangeFeet(item) {
  * integration above: cover lowers the estimated damage a target behind it would take, which
  * threatExposure/offensiveReach already turn into a real positional preference on their own.
  */
-export function bestExpectedDamage(attacker, fromPos, target, targetPos, walls) {
-  const targetEffective = resolveEffectiveStats(target);
+/**
+ * GH #59 — `alliesOfAttacker` is OPTIONAL, defaulting to `[]` (every existing caller that omits it
+ * is byte-for-byte unaffected, since an empty list can never satisfy isFlanking's own "at least one
+ * ally on the opposite heading" requirement). Must be built the SAME way engine.mjs's own real,
+ * resolution-time `alliesWithPositions` does (exact side match, alive, excluding the attacker
+ * itself) — imported directly from there rather than reimplemented, so an evaluator-side "would
+ * flank" check can never drift from what actually happens when the strike resolves. Two real traps
+ * a naive construction falls into, found by adversarial review before this shipped: (1) reusing
+ * evaluateState's own broader `allies` array would silently include NEUTRAL combatants as valid
+ * flank partners — factions.mjs's isAlliedWith treats a neutral as a party asset to protect, but
+ * engine.mjs's real flanking gate strictly requires c.side === combatant.side, excluding them —
+ * the evaluator would credit a "flank" that grants zero actual AC reduction when it resolves. (2) A
+ * flanking PARTNER only needs to be alive and correctly-sided, never "hasn't acted yet this round" —
+ * setupValue's own stillToActIds-filtered list (a real, tempting, wrong source given code
+ * proximity) would wrongly drop an already-acted ally who is still physically standing there,
+ * still completing the flank.
+ */
+export function bestExpectedDamage(attacker, fromPos, target, targetPos, walls, alliesOfAttacker = []) {
+  const targetEffective = resolveEffectiveStats(target); // already folds in off-guard-from-conditions (prone/unconscious/grabbed), if any
   const coverBonus = hasCover(fromPos, targetPos, walls) ? STANDARD_COVER_AC_BONUS : 0;
+  // Off-guard doesn't stack with itself (Player Core) — gated on !isOffGuardFromConditions(target)
+  // to match engine.mjs's own real resolution-time gate exactly; without it, an already-prone,
+  // already-flanked target would double-count the same -2 (resolveEffectiveStats above already
+  // applied it once). Computed ONCE, not per-option, since it doesn't depend on which attack is
+  // being scored — only whether THIS option is melee does (flanking's off-guard, Player Core pg.
+  // 409, applies to melee attacks only, never to a ranged Strike or a save-based option).
+  const flankBonus = (!isOffGuardFromConditions(target) && alliesOfAttacker.length && isFlanking(attacker, fromPos, target, targetPos, alliesOfAttacker, walls))
+    ? OFF_GUARD_AC_PENALTY : 0;
   let best = 0;
   const dist = distanceFeet(fromPos, targetPos);
   for (const option of attackOptions(attacker)) {
@@ -191,6 +218,7 @@ export function bestExpectedDamage(attacker, fromPos, target, targetPos, walls) 
     // hurt us now") visible to threatExposure/offensiveReach with no new evaluator weight needed.
     if (option.attackBonus != null && isRestrained(attacker)) continue;
     if (dist > usefulRangeFeet(option)) continue; // out of useful range from here
+    const meleeFlankBonus = option.strikeType === "melee" ? flankBonus : 0;
     const value = option.saveType != null
       ? expectedSaveDamage({
           saveBonus: target.saves[option.saveType] + (option.saveType === "ref" ? coverBonus : 0), dc: option.dc,
@@ -198,7 +226,7 @@ export function bestExpectedDamage(attacker, fromPos, target, targetPos, walls) 
         })
       : expectedStrikeDamage({
           attackModifier: option.attackBonus + attackerConditionPenalty(attacker),
-          targetAc: targetEffective.ac + coverBonus,
+          targetAc: targetEffective.ac + coverBonus - meleeFlankBonus,
           strike: option, target, targetEffective
         });
     if (value > best) best = value;
@@ -405,6 +433,15 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS, actingComb
     if (ally.currentHP <= 0) continue;
     const allyPos = state.positions.get(ally.id);
     if (!allyPos) continue;
+    // GH #59 — this ally's own real, same-side, living flanking partners. Computed once per ally
+    // (not per enemy below, since it doesn't depend on which enemy is being scored) via the SAME
+    // function engine.mjs uses at real resolution time, not a reimplementation — so offensiveReach's
+    // own "would this position flank" check can never drift from what actually happens when the
+    // Strike resolves. Deliberately NOT `allies` itself (includes neutrals, which engine.mjs's own
+    // real gate excludes) and NOT anything filtered by initiative order (a flanking PARTNER only
+    // needs to be alive and correctly-sided, never "hasn't acted yet this round" — see setupValue's
+    // own use of this same list below for why that distinction matters).
+    const alliesForFlanking = alliesWithPositions(state, ally);
 
     // Deferred, not applied inline: the low-HP/outnumbered caution factors below need this ally's
     // FULL visible-enemy count first, so threatExposure's actual cost is applied in a second pass
@@ -437,7 +474,7 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS, actingComb
 
       if (enemy.currentHP <= 0) continue;
       if (state.walls?.length && !lineOfEffect(allyPos, enemyPos, state.walls)) continue; // no real shot exists from here
-      reachByEnemy.set(enemy.id, (reachByEnemy.get(enemy.id) ?? 0) + bestExpectedDamage(ally, allyPos, enemy, enemyPos, state.walls));
+      reachByEnemy.set(enemy.id, (reachByEnemy.get(enemy.id) ?? 0) + bestExpectedDamage(ally, allyPos, enemy, enemyPos, state.walls, alliesForFlanking));
       visibleEnemies.push({ enemy, enemyPos, damage: bestExpectedDamage(enemy, enemyPos, ally, allyPos, state.walls) }); // REAL, current-condition damage — threatExposure/pileOnRisk correctly want this, unlike threatReduction above
     }
 
@@ -598,12 +635,19 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS, actingComb
         if (ally.currentHP <= 0 || !stillToActIds.has(ally.id)) continue;
         const allyPos = state.positions.get(ally.id);
         if (!allyPos) continue;
+        // GH #59 — deliberately NOT stillToActIds-filtered, even though we're inside a loop that
+        // otherwise is: stillToActIds restricts which ally's OWN setup-value counts (the thing this
+        // whole block is about), but a flanking PARTNER only needs to be alive and correctly-sided —
+        // an ally who already acted this round is still physically standing there, still completing
+        // a real flank. Reusing a stillToActIds-filtered list here would silently drop exactly those
+        // already-acted partners. See offensiveReach's own identical call above for the full reasoning.
+        const alliesForFlanking = alliesWithPositions(state, ally);
         for (const enemy of enemies) {
           if (enemy.currentHP <= 0) continue;
           const enemyPos = state.positions.get(enemy.id);
           if (!enemyPos) continue;
           if (state.walls?.length && !lineOfEffect(allyPos, enemyPos, state.walls)) continue;
-          setupByEnemy.set(enemy.id, (setupByEnemy.get(enemy.id) ?? 0) + bestExpectedDamage(ally, allyPos, enemy, enemyPos, state.walls));
+          setupByEnemy.set(enemy.id, (setupByEnemy.get(enemy.id) ?? 0) + bestExpectedDamage(ally, allyPos, enemy, enemyPos, state.walls, alliesForFlanking));
         }
       }
       for (const enemy of enemies) {

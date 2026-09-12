@@ -15,6 +15,7 @@ import assert from "node:assert/strict";
 import { evaluateState, DEFAULT_WEIGHTS, bestExpectedDamage } from "../../tools/battle-simulator/personnel-engine/evaluate/state-value.mjs";
 import { degreeProbabilities } from "../../tools/battle-simulator/engine/resolve.mjs";
 import { lineOfEffect } from "../../tools/battle-simulator/personnel-engine/terrain.mjs";
+import { alliesWithPositions } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
 
 function makeState({ allyCount = 1, enemyCount = 1, enemyHP = 20, allyHP = 20 } = {}) {
   const combatants = new Map();
@@ -871,4 +872,156 @@ test("threatReduction closes GH #58's own literal acceptance test: at equal AC-a
 test("WEIGHTS: threatReduction is strictly below enemyDamage — the same structural condition offensiveReach's own monotonicity proof depends on", () => {
   assert.ok(DEFAULT_WEIGHTS.threatReduction < DEFAULT_WEIGHTS.enemyDamage,
     `threatReduction (${DEFAULT_WEIGHTS.threatReduction}) must stay below enemyDamage (${DEFAULT_WEIGHTS.enemyDamage})`);
+});
+
+// --- Flanking (GH #59) — bestExpectedDamage prices the off-guard AC reduction a flank produces ---
+//
+// Adversarially reviewed before this shipped. Confirmed sound: reusing isFlanking directly (the
+// same predicate engine.mjs applies at real resolution time) rather than reimplementing the
+// geometry, and the melee-only / non-stacking-with-conditions gating. Found and fixed before any
+// code existed: (A) building the ally list from evaluateState's own broader `allies` array would
+// silently credit a NEUTRAL combatant as a flank partner — engine.mjs's own real resolution-time
+// gate (alliesWithPositions) strictly requires an exact side match, excluding neutrals, so an
+// evaluator that used the broader list would value a "flank" that grants zero actual AC reduction
+// when it resolves; (B) setupValue's own stillToActIds-filtered ally list is a tempting but WRONG
+// source for "who can flank with me" — a flanking partner only needs to be alive and correctly
+// sided, never "hasn't acted yet this round". Both are covered directly below, not just the
+// literal "Done when" case.
+
+function makeFlankingScenario({ secondCombatantSide = "party" } = {}) {
+  const sword = { name: "Sword", strikeType: "melee", attackBonus: 8, traits: [], damage: [{ dice: "1d8", bonus: 2, damageType: "slashing" }] };
+  const rogue = { id: "rogue", name: "rogue", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [sword] };
+  const second = { id: "second", name: "second", side: secondCombatantSide, currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [sword] };
+  const enemy = { id: "enemy", name: "enemy", side: "opposition", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [sword] };
+  const combatants = new Map([["rogue", rogue], ["second", second], ["enemy", enemy]]);
+  // rogue north of enemy, "second" south — the exact opposite compass heading, a textbook flank.
+  const positions = new Map([["rogue", { col: 10, row: 9 }], ["second", { col: 10, row: 11 }], ["enemy", { col: 10, row: 10 }]]);
+  return { round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, combatants, positions };
+}
+
+test("FLANKING: a textbook flank (rogue + a real party ally on opposite headings from the enemy) scores strictly above the identical position with no flanking partner present", () => {
+  const flanked = makeFlankingScenario({ secondCombatantSide: "party" });
+  const noPartner = { ...flanked, combatants: new Map(flanked.combatants), positions: new Map(flanked.positions) };
+  noPartner.combatants.delete("second");
+  noPartner.positions.delete("second");
+  const flankedScore = evaluateState(flanked, "party", DEFAULT_WEIGHTS);
+  const noPartnerScore = evaluateState(noPartner, "party", DEFAULT_WEIGHTS);
+  assert.ok(flankedScore > noPartnerScore,
+    `GH #59's own literal "Done when": a textbook flank (${flankedScore.toFixed(4)}) must score strictly above the equivalent non-flanking position (${noPartnerScore.toFixed(4)})`);
+});
+
+test("FLANKING: a NEUTRAL combatant standing in the exact flanking square does NOT count as a flank partner — matching engine.mjs's own real resolution-time exclusion of neutrals, not evaluateState's own broader ally-side notion", () => {
+  // Isolated via bestExpectedDamage directly, not the full evaluateState score — a neutral
+  // combatant's mere PRESENCE still affects other, unrelated terms (allyDamage, outnumberedCaution's
+  // visible-headcount, etc.), so comparing full evaluateState scores would conflate "does it count
+  // as a flank partner" with "does it exist in the state at all". This isolates the one thing GH #59
+  // actually changed: bestExpectedDamage's own flanking bonus.
+  const sword = { name: "Sword", strikeType: "melee", attackBonus: 8, traits: [], damage: [{ dice: "1d8", bonus: 2, damageType: "slashing" }] };
+  const rogue = { id: "rogue", name: "rogue", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [sword] };
+  const partner = { id: "partner", name: "partner", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [sword] };
+  const neutral = { ...partner, id: "neutral", name: "neutral", side: "neutral" };
+  const target = { id: "enemy", name: "enemy", side: "opposition", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [] };
+  const rogueFromPos = { col: 10, row: 9 }, enemyPos = { col: 10, row: 10 }, partnerPos = { col: 10, row: 11 };
+
+  const state = { combatants: new Map([["rogue", rogue], ["neutral", neutral]]), positions: new Map([["rogue", rogueFromPos], ["neutral", partnerPos]]) };
+  const realAlliesOfRogue = alliesWithPositions(state, rogue); // the REAL production path, not a hand-built list
+  assert.deepEqual(realAlliesOfRogue, [], "alliesWithPositions must exclude a neutral combatant entirely — it is not on rogue's own side");
+
+  const withRealPartner = bestExpectedDamage(rogue, rogueFromPos, target, enemyPos, [], [{ id: partner.id, pos: partnerPos, combatant: partner }]);
+  const withNeutralOnly = bestExpectedDamage(rogue, rogueFromPos, target, enemyPos, [], realAlliesOfRogue);
+  const withNoOne = bestExpectedDamage(rogue, rogueFromPos, target, enemyPos, [], []);
+  assert.ok(withRealPartner > withNeutralOnly, `a real party-side partner (${withRealPartner}) must score above a neutral in the identical position (${withNeutralOnly})`);
+  assert.equal(withNeutralOnly, withNoOne, "once correctly filtered by alliesWithPositions, a neutral contributes nothing — identical to having no potential partner at all");
+});
+
+test("FLANKING: end-to-end through the REAL evaluateState wiring (not just bestExpectedDamage directly) — offensiveReach's own isolated credit is strictly lower with a neutral in the flanking square than with a real party partner", () => {
+  // Isolates offensiveReach's own contribution via a zero-weight control (this project's established
+  // difference-in-differences technique, GH #58) so allyDamage/outnumberedCaution/etc. — which
+  // legitimately DO differ between "a neutral is present" and "a party member is present", for
+  // reasons unrelated to flanking — cancel out of the comparison instead of confounding it. This is
+  // the test that actually exercises the real call site inside evaluateState's own per-ally loop
+  // (state-value.mjs's own alliesForFlanking construction), not just the bestExpectedDamage/
+  // alliesWithPositions primitives in isolation above — confirmed load-bearing by temporarily
+  // reintroducing the original bug (building alliesForFlanking from the broader `allies` array) at
+  // that exact call site: this specific test is the one that fails, the isolated unit tests above do not.
+  const zeroOffensiveReach = { ...DEFAULT_WEIGHTS, offensiveReach: 0 };
+  function isolatedOffensiveReach(secondCombatantSide) {
+    const state = makeFlankingScenario({ secondCombatantSide });
+    return evaluateState(state, "party", DEFAULT_WEIGHTS) - evaluateState(state, "party", zeroOffensiveReach);
+  }
+  const withRealPartner = isolatedOffensiveReach("party");
+  const withNeutral = isolatedOffensiveReach("neutral");
+  assert.ok(withRealPartner > withNeutral,
+    `offensiveReach's own isolated credit with a real party partner (${withRealPartner.toFixed(4)}) must exceed a neutral in the identical flanking square (${withNeutral.toFixed(4)}) — if these are ever equal, alliesForFlanking is being built from something broader than an exact side match again`);
+});
+
+test("FLANKING: does not stack with an already-off-guard (prone) target — the AC drop is exactly 2, never 4", () => {
+  const sword = { name: "Sword", strikeType: "melee", attackBonus: 8, traits: [], damage: [{ dice: "1d8", bonus: 2, damageType: "slashing" }] };
+  const rogue = { id: "rogue", name: "rogue", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [sword] };
+  const partner = { id: "partner", name: "partner", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [sword] };
+  const target = { id: "enemy", name: "enemy", side: "opposition", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [] };
+  const rogueFromPos = { col: 10, row: 9 }, enemyPos = { col: 10, row: 10 }, partnerPos = { col: 10, row: 11 };
+  const realAllies = [{ id: partner.id, pos: partnerPos, combatant: partner }];
+
+  const proneAlone = bestExpectedDamage(rogue, rogueFromPos, { ...target, prone: true }, enemyPos, [], []);
+  const proneWithFlank = bestExpectedDamage(rogue, rogueFromPos, { ...target, prone: true }, enemyPos, [], realAllies);
+  assert.ok(Math.abs(proneAlone - proneWithFlank) < 1e-9,
+    `a prone (already off-guard) target must score identically whether or not it's ALSO flanked (${proneAlone.toFixed(4)} vs ${proneWithFlank.toFixed(4)}) — off-guard doesn't stack with itself`);
+
+  const uprightNoFlank = bestExpectedDamage(rogue, rogueFromPos, target, enemyPos, [], []);
+  assert.ok(proneAlone > uprightNoFlank, "sanity check: prone alone must still be worth something, or this test isn't exercising a real off-guard bonus");
+});
+
+test("FLANKING: a ranged Strike option never gets the flanking bonus — off-guard from flanking applies to melee attacks only", () => {
+  const pistol = { name: "Pistol", strikeType: "ranged", attackBonus: 8, rangeIncrement: 60, traits: [], damage: [{ dice: "1d6", bonus: 2, damageType: "piercing" }] };
+  const gunner = { id: "gunner", name: "gunner", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [pistol] };
+  const partner = { id: "partner", name: "partner", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [{ name: "Sword", strikeType: "melee", attackBonus: 8, traits: [], damage: [{ dice: "1d8", bonus: 2, damageType: "slashing" }] }] };
+  const target = { id: "enemy", name: "enemy", side: "opposition", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [] };
+  const gunnerFromPos = { col: 10, row: 9 }, enemyPos = { col: 10, row: 10 }, partnerPos = { col: 10, row: 11 };
+  const realAllies = [{ id: partner.id, pos: partnerPos, combatant: partner }];
+
+  const withoutFlank = bestExpectedDamage(gunner, gunnerFromPos, target, enemyPos, [], []);
+  const withFlank = bestExpectedDamage(gunner, gunnerFromPos, target, enemyPos, [], realAllies);
+  assert.equal(withoutFlank, withFlank, "a ranged attacker's own expected damage must be completely unaffected by a flanking partner being present — flanking's off-guard never applies to ranged Strikes");
+});
+
+test("FLANKING: setupValue counts an ALREADY-ACTED ally as a real flank partner — stillToActIds restricts whose OWN setup value counts, never who can complete a flank", () => {
+  const sword = { name: "Sword", strikeType: "melee", attackBonus: 8, traits: [], damage: [{ dice: "1d8", bonus: 2, damageType: "slashing" }] };
+  // "rogue" is the acting combatant (evaluateState's own actingCombatantId) — positioned away from
+  // the actual fight so it contributes no offensiveReach/setupValue of its own and can't confound
+  // the comparison. "future" is still to act (comes AFTER rogue in initiative) — the one ally whose
+  // OWN setupValue actually gets credited here. "veteran" already acted (comes BEFORE rogue) but
+  // stands in the real flanking square opposite "future" — must still count as "future"'s partner.
+  const rogue = { id: "rogue", name: "rogue", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [] };
+  const future = { id: "future", name: "future", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [sword] };
+  const veteran = { id: "veteran", name: "veteran", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [sword] };
+  const enemy = { id: "enemy", name: "enemy", side: "opposition", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [sword] };
+  const positions = new Map([["rogue", { col: 0, row: 0 }], ["future", { col: 10, row: 9 }], ["veteran", { col: 10, row: 11 }], ["enemy", { col: 10, row: 10 }]]);
+  const combatants = new Map([["rogue", rogue], ["future", future], ["veteran", veteran], ["enemy", enemy]]);
+  const initiativeOrder = ["veteran", "rogue", "future"]; // veteran already acted; future is still to act
+
+  const withVeteran = { round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, combatants, positions, initiativeOrder };
+  const withoutVeteran = { ...withVeteran, combatants: new Map(combatants), positions: new Map(positions) };
+  withoutVeteran.combatants.delete("veteran");
+  withoutVeteran.positions.delete("veteran");
+
+  // Isolated via a zero-weight difference-in-differences (same technique as the offensiveReach test
+  // above) — removing "veteran" from the state also changes OTHER, unrelated terms (e.g.
+  // outnumberedCaution's own visible-ally headcount), which confounds a raw full-score comparison
+  // the same way a neutral bystander confounded the earlier test. Isolating setupValue specifically
+  // is what actually proves the mechanism under test, not just "veteran's presence changes the score
+  // somehow".
+  const zeroSetupValue = { ...DEFAULT_WEIGHTS, setupValue: 0 };
+  function isolatedSetupValue(state) {
+    return evaluateState(state, "party", DEFAULT_WEIGHTS, "rogue") - evaluateState(state, "party", zeroSetupValue, "rogue");
+  }
+  const setupValueWithVeteran = isolatedSetupValue(withVeteran);
+  const setupValueWithoutVeteran = isolatedSetupValue(withoutVeteran);
+  // A real, substantial gap (~0.39 when correct), NOT a bare `>` — the buggy (stillToActIds-leaked)
+  // version of this construction makes BOTH sides land within floating-point noise of each other
+  // (observed ~1e-15 apart, which a bare `>` would pass VACUOUSLY on the noise's own arbitrary
+  // sign) rather than truly equal, so this must require a MEANINGFUL margin to actually distinguish
+  // "veteran genuinely credited" from "veteran silently dropped".
+  assert.ok(setupValueWithVeteran - setupValueWithoutVeteran > 1e-6,
+    `"future" (still to act) must get a real, isolated setupValue boost from "veteran" (already acted) completing a flank alongside it (with veteran: ${setupValueWithVeteran.toFixed(4)}, without: ${setupValueWithoutVeteran.toFixed(4)}) — stillToActIds must restrict whose OWN attack counts, never who can complete a flank for someone else`);
 });

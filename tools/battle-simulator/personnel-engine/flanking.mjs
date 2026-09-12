@@ -25,8 +25,10 @@ import { lineOfEffect } from "./terrain.mjs";
 import { reachFeetForStrike } from "./grid.mjs";
 
 /** Every melee strike a combatant has (a strike, unarmed or otherwise, that isn't ranged) — the
- * "wielding a melee weapon or able to make an unarmed attack" requirement. */
-function meleeReachFeet(combatant) {
+ * "wielding a melee weapon or able to make an unarmed attack" requirement. Exported (GH #59) so
+ * decide.mjs can gate flank-seeking candidate generation on "do I/does this ally even have a melee
+ * option" before searching, the same way it already gates cover-seeking on having a ranged one. */
+export function meleeReachFeet(combatant) {
   const meleeStrikes = (combatant.strikes ?? []).filter((s) => s.strikeType === "melee");
   if (!meleeStrikes.length) return null; // can't flank at all -- no melee option, ranged doesn't count
   return Math.max(...meleeStrikes.map((s) => reachFeetForStrike(s)));

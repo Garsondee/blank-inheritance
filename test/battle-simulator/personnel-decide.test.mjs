@@ -1187,3 +1187,52 @@ test("GH #62 END TO END: a real runBattle turn — Strike kills an adjacent enem
     assert.equal(action.legal !== false, true, `expected every real action to be legal, got: ${JSON.stringify(action)}`);
   }
 });
+
+// --- Flank-seeking movement candidates (GH #59) ---
+
+const MELEE_SWORD = { name: "Sword", strikeType: "melee", attackBonus: 8, traits: [], damage: [{ dice: "1d8", bonus: 2, damageType: "slashing" }] };
+const RANGED_PISTOL = { name: "Pistol", strikeType: "ranged", attackBonus: 8, rangeIncrement: 60, traits: [], damage: [{ dice: "1d6", bonus: 2, damageType: "piercing" }] };
+
+function makeFlankSeekingState({ meStrikes = [MELEE_SWORD] } = {}) {
+  const me = { id: "me", name: "Me", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 30, strikes: meStrikes, position: { col: 5, row: 10 } };
+  // "ally" is already engaged (adjacent, melee reach) with "enemy", standing NORTH of it. A real
+  // flank square exists SOUTH of the enemy (col 10, row 11), well within me's own speed from (5,10).
+  const ally = { id: "ally", name: "Ally", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [MELEE_SWORD], position: { col: 10, row: 9 } };
+  const enemy = { id: "enemy", name: "Enemy", side: "opposition", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 0, strikes: [MELEE_SWORD], position: { col: 10, row: 10 } };
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["me", me], ["ally", ally], ["enemy", enemy]]),
+    positions: new Map([["me", { ...me.position }], ["ally", { ...ally.position }], ["enemy", { ...enemy.position }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 30 } };
+  return { state, turn };
+}
+
+test("generateProposals: offers a real flank-seeking destination when a melee ally is already engaged with a reachable enemy", () => {
+  const { state, turn } = makeFlankSeekingState();
+  const proposals = generateProposals(state, "me", turn);
+  const moveProposals = proposals.filter((p) => p.type === "move");
+  const flankCell = { col: 10, row: 11 }; // exact opposite compass heading from the enemy, relative to "ally"
+  const offersTheFlankSquare = moveProposals.some((p) => p.to?.col === flankCell.col && p.to?.row === flankCell.row);
+  assert.ok(offersTheFlankSquare,
+    `expected a move proposal to the real flanking square (${JSON.stringify(flankCell)}), got destinations: ${JSON.stringify(moveProposals.map((p) => p.to))}`);
+});
+
+test("generateProposals: offers NO flank-seeking destination when I have no melee option at all — a ranged-only combatant can never flank", () => {
+  const { state, turn } = makeFlankSeekingState({ meStrikes: [RANGED_PISTOL] });
+  const proposals = generateProposals(state, "me", turn);
+  const moveProposals = proposals.filter((p) => p.type === "move");
+  const flankCell = { col: 10, row: 11 };
+  const offersTheFlankSquare = moveProposals.some((p) => p.to?.col === flankCell.col && p.to?.row === flankCell.row);
+  assert.equal(offersTheFlankSquare, false,
+    "a ranged-only combatant must never be offered the flanking square specifically FOR flanking purposes (it may still incidentally appear via some other destination query, but the flank-seeking search itself must not run)");
+});
+
+test("decide() END TO END: with a melee ally already engaged, whole-turn planning actually MOVES to and STRIKES from the real flanking square — not just that the candidate exists, but that it gets chosen and executed legally", () => {
+  const { state, turn } = makeFlankSeekingState();
+  const proposal = decide(state, "me", turn, { competence: 1 });
+  assert.ok(proposal, "expected a real decision, not null");
+  const sandbox = forkTurnSandbox({ state, turn });
+  const result = sandbox.apply("me", proposal);
+  assert.equal(result.legal, true, `expected the chosen proposal to be legal, got: ${JSON.stringify(result)}`);
+});

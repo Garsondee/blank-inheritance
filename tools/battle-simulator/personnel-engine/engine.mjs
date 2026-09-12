@@ -131,7 +131,7 @@ import { isFlanking } from "./flanking.mjs";
  * per-attack, alongside the persistent (Prone/Unconscious) one resolveEffectiveStats already folds
  * into the target's base AC. Never double-counted: this only adds the flanking-specific -2 on top
  * when it ISN'T already covered by a persistent off-guard the target has for some other reason. */
-const OFF_GUARD_AC_PENALTY = 2;
+export const OFF_GUARD_AC_PENALTY = 2;
 
 /**
  * OUTCOME TABLES (design doc §15f) — the ONE seam where a real battle and a lookahead sandbox
@@ -820,7 +820,7 @@ function livingPositions(state) {
 /** Every OTHER living, same-side combatant — flanking.mjs's own candidate pool for "who could be
  * flanking alongside me". An unconscious ally (currentHP<=0) can't act and can't attack, so can't
  * help flank either — excluded the same way livingPositions already excludes anyone down. */
-function alliesWithPositions(state, combatant) {
+export function alliesWithPositions(state, combatant) {
   return [...state.combatants.values()]
     .filter((c) => c.id !== combatant.id && c.side === combatant.side && c.currentHP > 0)
     .map((c) => ({ id: c.id, pos: state.positions.get(c.id), combatant: c }));

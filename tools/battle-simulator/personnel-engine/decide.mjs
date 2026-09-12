@@ -48,6 +48,7 @@ import { reachableCells } from "./world/pathfind.mjs";
 import { refreshBelief, believedEnemies } from "./knowledge/belief.mjs";
 import { isDead, isUnconscious } from "./conditions.mjs";
 import { hasCover, lineOfEffect } from "./terrain.mjs";
+import { isFlanking, meleeReachFeet } from "./flanking.mjs";
 
 /**
  * A per-decision RNG derived from (battle seed, round, combatant, decision index). Must NOT be the
@@ -312,6 +313,41 @@ function bestCoverDestination(state, moverId, from, threatPos, maxFeet, myRangeF
 }
 
 /**
+ * GH #59 — Ingram's/the report's own diagnosis: "a rogue has no way to seek a flank." For a melee
+ * ally already engaged with a specific, reachable enemy, searches for the cheapest cell I can
+ * reach that would put ME on the exact opposite compass heading from that enemy — a real flank,
+ * off-guarding it for both of us. Reuses isFlanking directly for the per-cell check, the same
+ * predicate engine.mjs applies at real resolution time, rather than reimplementing the geometry —
+ * so a "would flank if I stood here" check here can never drift from the "does flank" check that
+ * actually fires when a Strike resolves.
+ *
+ * The caller gates on `meleeReachFeet(me) != null` BEFORE calling this at all (mirroring
+ * bestCoverDestination's own call-site gate on having a real ranged option, `decide.mjs`'s own
+ * established pattern) — an adversarial review of this design flagged that relying solely on
+ * isFlanking's own internal meleeReachFeet(attacker) check would recompute that same filter+map+max
+ * over `me.strikes` on every reachable cell, for every (engaged ally x enemy) pair, even when `me`
+ * is provably ranged-only and could never produce a single valid candidate — real, avoidable waste
+ * given planTurn's own whole-turn search calls generateProposals repeatedly per decision.
+ */
+function bestFlankingDestination(state, moverId, me, ally, allyPos, enemy, enemyPos, maxFeet, cache) {
+  const others = otherLivingPositions(state, moverId);
+  const moverSide = state.combatants.get(moverId).side;
+  const myPos = state.positions.get(moverId);
+  const reachableKey = `reach|${moverId}|${myPos.col},${myPos.row}|${maxFeet}`;
+  const reachable = cachedReachableCells(cache, reachableKey, { from: myPos, maxFeet, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls, moverSide });
+  const alliesOfMe = [{ id: ally.id, pos: allyPos, combatant: ally }];
+
+  let best = null, bestCost = Infinity;
+  for (const [cellKey, { cost, path }] of reachable) {
+    const [col, row] = cellKey.split(",").map(Number);
+    const cell = { col, row };
+    if (!isFlanking(me, cell, enemy, enemyPos, alliesOfMe, state.walls)) continue;
+    if (cost < bestCost) { best = { col, row, path }; bestCost = cost; }
+  }
+  return best;
+}
+
+/**
  * Every action worth considering. Deliberately generous — the evaluator decides what is good,
  * this only decides what is *conceivable*.
  *
@@ -501,6 +537,26 @@ export function generateProposals(state, combatantId, turn, externalDestCache, i
   for (const a of allies) {
     const aPos = state.positions.get(a.id);
     if (aPos && a.currentHP < a.maxHP) addDest(bestDestinationToward(state, combatantId, myPos, aPos, speed, FEET_PER_SQUARE, destCache));
+  }
+  // GH #59: flank-seeking — only searched when I have a melee option at all (mirroring the
+  // cover-seeking gate's own "only if there's a real ranged option to protect" shape, one line
+  // above but for the opposite weapon type), gated at the CALL SITE rather than relying solely on
+  // bestFlankingDestination's own internal isFlanking check — see that function's own header for
+  // why the up-front gate matters for cost, not just correctness.
+  if (meleeReachFeet(me) != null) {
+    for (const a of allies) {
+      if (a.currentHP <= 0) continue;
+      const aPos = state.positions.get(a.id);
+      if (!aPos) continue;
+      const allyMeleeReach = meleeReachFeet(a);
+      if (allyMeleeReach == null) continue; // this ally has no melee option, so it can never flank with anyone
+      for (const e of enemies) {
+        const ePos = believedPositions.get(e.id); // belief, not ground truth — matches every other enemy-directed candidate above
+        if (!ePos) continue;
+        if (distanceFeet(aPos, ePos) > allyMeleeReach) continue; // this ally isn't actually engaged with THIS enemy
+        addDest(bestFlankingDestination(state, combatantId, me, a, aPos, e, ePos, speed, destCache));
+      }
+    }
   }
   if (me.objective) addDest(bestDestinationToward(state, combatantId, myPos, me.objective, speed, 0, destCache));
 
