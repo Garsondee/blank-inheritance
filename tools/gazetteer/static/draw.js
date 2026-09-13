@@ -772,6 +772,21 @@ export function createDrawController(opts) {
 
   map.on("click", (e) => {
     if (suppressNextClick) { suppressNextClick = false; return; }
+    // A vertex or midpoint handle has its own drag behaviour (see
+    // drawHandles) that must run untouched -- the mousedown handler below
+    // already steps aside for exactly this reason, but a CLICK on a
+    // Region/Site/Lasso/Bisect tool's turf reaches here too, and reached
+    // here unchecked it silently started a brand new draft on top of the
+    // selected shape's own handle instead of leaving the handle alone.
+    // Found live: that single wrong click set `drafting`, which is the
+    // very first thing the mousedown handler below refuses to act on --
+    // so every mousedown after it, including the next attempt to actually
+    // drag that same handle, fell through with nothing to intercept it,
+    // and Leaflet's own native map-drag panned the view instead. One
+    // mis-routed click, several tools' worth of confusing fallout.
+    const clickTarget = e.originalEvent && e.originalEvent.target;
+    if (clickTarget && clickTarget.closest
+        && clickTarget.closest(".gz-vertex, .gz-vertex--mid")) return;
     const p = px(e.latlng);
     if (POLYGON_DRAFT_TOOLS.has(tool)) {
       const placed = placeDraftPoint(p);

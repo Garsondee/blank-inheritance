@@ -230,6 +230,29 @@ test("a locked item is protected everywhere it could be deleted or overwritten",
     "moved wholesale with the arrow keys");
 });
 
+test("a click on an existing vertex handle never starts a new draft, in any drafting tool", () => {
+  // Ingram, driving this live: "I enable 'region' mode, I click on the
+  // vertex of a region to move it... it fucking pans." Root cause -- the
+  // map's own "click" handler treats every click as "place a new draft
+  // point" whenever Region/Site/Lasso/Bisect is armed, with no exception
+  // for a click that actually landed on the SELECTED shape's own vertex
+  // handle. That single mis-routed click set `drafting`, and `drafting`
+  // is the very first thing the "mousedown" handler refuses to act on --
+  // so the NEXT mousedown (the real attempt to drag that same handle) had
+  // nothing left to intercept it, and Leaflet's own native map-drag
+  // panned the view instead. The mousedown handler already had this
+  // guard; the click handler did not, which is exactly how one working
+  // check and one missing twin produced a bug that only shows up on the
+  // SECOND gesture, not the one that actually went wrong.
+  const draw = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(
+    /map\.on\("click"[\s\S]{0,1500}closest\(["'`]\.gz-vertex, \.gz-vertex--mid["'`]\)[\s\S]{0,150}POLYGON_DRAFT_TOOLS\.has\(tool\)/
+      .test(draw),
+    "the map's click handler no longer checks .gz-vertex/.gz-vertex--mid " +
+    "before POLYGON_DRAFT_TOOLS.has(tool) -- a click on an existing " +
+    "handle would again be free to start a brand new draft on top of it");
+});
+
 test("the session list keeps a usable height whatever the inspector is doing", () => {
   // The session list is the surface this tool is for -- working through a
   // session's worth of locations one at a time -- and it was getting
