@@ -406,6 +406,26 @@ test("the map-level snap hint stands down for the whole span of a vertex/midpoin
     "mousemove again");
 });
 
+test("deleting a shared vertex removes it from every welded region, not just one", () => {
+  // The same sliver dragging a shared corner away creates, made a different
+  // way: deleting it from only one side of a border leaves the other side
+  // still carrying a point that no longer exists on this one. Ingram asked
+  // for this explicitly once told drag-welding alone doesn't cover delete.
+  const src = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(/const welded = findWeldedVertices\(entry, ring\[i\]\[0\], ring\[i\]\[1\]\)/.test(src),
+    "right-click delete no longer looks up welded neighbours before " +
+    "removing a vertex");
+  assert.ok(/welded\.some\(\(w\) => w\.entry\.item\.geometry\.ringPx\.length <= 3\)/.test(src),
+    "delete no longer refuses when removing a shared corner would take a " +
+    "WELDED ring below a legal polygon -- it will happily leave that " +
+    "neighbour region degenerate while refusing to touch this one");
+  assert.ok(/for \(const w of welded\)\s*\{[\s\S]{0,150}ringPx\.splice\(w\.index, 1\)/.test(src),
+    "delete no longer removes the point from welded neighbours' rings -- " +
+    "only this region's copy of a shared corner would be deleted, leaving " +
+    "the other side of the border still carrying a point that no longer " +
+    "exists on this one");
+});
+
 test("the shared fixture is reachable from both suites' expected paths", () => {
   const fixture = JSON.parse(
     readFileSync(join(here, "fixtures", "gazetteer-grid-cases.json"), "utf8"));

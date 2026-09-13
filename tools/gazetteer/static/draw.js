@@ -582,13 +582,26 @@ export function createDrawController(opts) {
         onGeometryChange(entry.item);
         drawHandles();
       });
-      // Right-click removes this vertex. A polygon cannot go below three, and
-      // refusing is better than silently leaving a degenerate shape behind.
+      // Right-click removes this vertex, and every welded neighbour's copy
+      // of it too -- deleting a shared corner from only one side of a
+      // border is exactly the same sliver dragging one away creates. A
+      // polygon cannot go below three points, and refusing the WHOLE
+      // delete (not just part of it) is better than silently leaving one
+      // ring short while its neighbour still shares the point that's now
+      // gone.
       m.on("contextmenu", (e) => {
         L.DomEvent.stop(e);
-        if (ring.length <= 3) { report("a polygon needs at least three points"); return; }
+        const welded = findWeldedVertices(entry, ring[i][0], ring[i][1]);
+        if (ring.length <= 3 || welded.some((w) => w.entry.item.geometry.ringPx.length <= 3)) {
+          report("a polygon needs at least three points");
+          return;
+        }
         ring.splice(i, 1);
         entry.layer.setLatLngs(polyLatLngs(entry.item.geometry));
+        for (const w of welded) {
+          w.entry.item.geometry.ringPx.splice(w.index, 1);
+          w.entry.layer.setLatLngs(polyLatLngs(w.entry.item.geometry));
+        }
         onGeometryChange(entry.item);
         drawHandles();
       });
