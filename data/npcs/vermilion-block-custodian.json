@@ -1,0 +1,14 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "vermilion-block-custodian",
+  "type": "npc",
+  "name": null,
+  "role": "Reagent Stores Custodian, The Vermilion Block",
+  "pole": null,
+  "affiliation": "directorate",
+  "description": "Signs for every delivery into the six fenced silos north-west of the Block and every draw back out of them -- the one paper trail that actually exists for what has come in from across Golarion in bulk. Not a spellcaster, by design: a custodian who could use what they store would be a security problem the Directorate would rather not create. Knows exactly how much is in each silo and exactly nothing about what any of it is eventually used for, which is precisely the arrangement their superiors want.",
+  "designNotes": "Placeholder role, not a character -- created 2026-09-13 alongside the location itself, following the standing convention (see range-safety-officer.json, deep-storage-custodian.json). Name, personality, and how they feel about being kept deliberately in the dark are all open.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "placeholder — not yet named or cast"
+}
