@@ -333,12 +333,23 @@ export function createDrawController(opts) {
       }));
     });
     if (pts.length >= minPoints) {
-      const refs = refsTouched(pts, grid);
       const verb = tool === "lasso" ? "select + adopt everything inside"
         : isLineTool() ? "cut" : "finish";
-      const measure = isLineTool() ? "" : ` · ${fmtArea(polygonAreaPx(pts))}`;
-      report(`${pts.length} points · ${refs.length} cell${refs.length === 1 ? "" : "s"}`
-        + `${measure} — Enter to ${verb}, Esc to cancel, Backspace to undo a point`);
+      if (isLineTool()) {
+        // A cut is a path, not an area -- "cells touched" and "area
+        // enclosed" are both polygon concepts, and cellCoverage actively
+        // throws below 3 points, which a two-point cut (bisect's own
+        // valid minimum) always is. Found live: every real attempt to use
+        // Bisect crashed here, uncaught, the moment the second point
+        // landed -- "a polygon ring needs at least 3 distinct points,"
+        // thrown from inside a status-line readout a cut was never going
+        // to need in the first place.
+        report(`${pts.length} points — Enter to ${verb}, Esc to cancel, Backspace to undo a point`);
+      } else {
+        const refs = refsTouched(pts, grid);
+        report(`${pts.length} points · ${refs.length} cell${refs.length === 1 ? "" : "s"}`
+          + ` · ${fmtArea(polygonAreaPx(pts))} — Enter to ${verb}, Esc to cancel, Backspace to undo a point`);
+      }
     } else {
       const hint = tool === "lasso"
         ? "draw a lasso around drawn AND real buildings — both get selected"

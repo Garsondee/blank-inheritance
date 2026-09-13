@@ -626,6 +626,27 @@ test("the published-locations ghost never draws for whatever is currently select
     "until something else happened to trigger a redraw");
 });
 
+test("drafting a bisect cut never calls the polygon-only cell/area readout", () => {
+  // Found from the client activity log itself: four real attempts to use
+  // Bisect, four uncaught crashes, every one of them "a polygon ring needs
+  // at least 3 distinct points" thrown from cellCoverage -- because
+  // redrawDraft's live status line called refsTouched (a polygon area
+  // function, which hard-requires 3+ points) the moment ANY drafting tool
+  // reached ITS OWN minimum point count, and bisect's own minimum is 2.
+  // A cut is a path, not an area; it was never going to need cells-touched
+  // or area-enclosed even once fixed to not crash.
+  const src = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(/if \(isLineTool\(\)\) \{[\s\S]{0,700}report\(`\$\{pts\.length\} points — Enter to \$\{verb\}/.test(src),
+    "redrawDraft no longer gives the line-drafting tool (bisect) its own " +
+    "status branch -- it will fall through to the polygon one again");
+  // The actual regression: refsTouched must never be reachable without
+  // first checking isLineTool().
+  assert.ok(!/pts\.length >= minPoints\) \{\s*\n\s*const refs = refsTouched\(pts, grid\);/.test(src),
+    "redrawDraft calls refsTouched unconditionally again the moment a " +
+    "drafting tool reaches its own minimum point count -- bisect's " +
+    "minimum is 2, and refsTouched throws below 3");
+});
+
 test("the shared fixture is reachable from both suites' expected paths", () => {
   const fixture = JSON.parse(
     readFileSync(join(here, "fixtures", "gazetteer-grid-cases.json"), "utf8"));
