@@ -55,7 +55,28 @@
     "stealth": 5,
     "thievery": 3
   },
+  "areaAttacks": [
+    {
+      "name": "Frag Grenade",
+      "saveType": "ref",
+      "dc": 13,
+      "range": 70,
+      "radius": 5,
+      "actions": 1,
+      "traits": [
+        "consumable"
+      ],
+      "damage": [
+        {
+          "dice": "1d8",
+          "bonus": 0,
+          "damageType": "piercing"
+        }
+      ],
+      "usesRemaining": 1
+    }
+  ],
   "intimidationModifier": null,
   "athleticsModifier": null,
-  "notes": "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level -1 pick (design doc §76 Phase 4, GH #64's own suggested-ten survey), melee-only: Tail (agile/finesse/razing) derives unmodified through the existing toCombatant. Its real \"Frag Grenade\" (a genuine single-target thrown Strike, not a burst/area effect) is deliberately NOT wired — its raw range shape is a flat 70ft maximum with no range increment at all, a real weapon shape this project's checkStrikeRange (personnel-engine/legality.mjs) doesn't support yet (it falls back to an unlimited range when rangeIncrement is absent, which would make the grenade illegally unlimited-range rather than merely under-modeled) — a real, separate, generically-useful gap flagged for its own follow-up, not worked around here. \"Dangerous Recycling\"/\"Scoring\" are real passives, captured under `actions` for transcript honesty, not mechanically wired."
+  "notes": "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level -1 pick (design doc §76 Phase 4, GH #64's own suggested-ten survey), melee-only strike: Tail (agile/finesse/razing) derives unmodified through the existing toCombatant. Its real \"Frag Grenade\" is a genuine area-fire burst (GH #148 correction — GH #64's own closing comment mischaracterized it as a single-target thrown Strike without checking system.action) — DC 13 (10 + its real attack-row bonus of 3), 5ft burst radius and 1d8 piercing damage read straight off its real system.area.value/damageRolls, usesRemaining 1 from its real carried weapon-item quantity (looked up by its own real, differently-suffixed name via deriveAreaAttack's carriedWeaponName). Its real range is stored under system.range.max (70), not .increment — a second real cross-pack shape inconsistency deriveAreaAttack's own range derivation now also reads correctly (see its docstring). \"Dangerous Recycling\"/\"Scoring\" are real passives, captured under `actions` for transcript honesty, not mechanically wired."
 }

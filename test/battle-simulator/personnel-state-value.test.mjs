@@ -12,7 +12,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { evaluateState, DEFAULT_WEIGHTS, bestExpectedDamage, attackOptions } from "../../tools/battle-simulator/personnel-engine/evaluate/state-value.mjs";
+import { evaluateState, DEFAULT_WEIGHTS, bestExpectedDamage, attackOptions, usefulRangeFeet, maxLegalRangeFeet } from "../../tools/battle-simulator/personnel-engine/evaluate/state-value.mjs";
 import { degreeProbabilities } from "../../tools/battle-simulator/engine/resolve.mjs";
 import { lineOfEffect } from "../../tools/battle-simulator/personnel-engine/terrain.mjs";
 import { alliesWithPositions } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
@@ -1210,4 +1210,46 @@ test("RESOURCE: an ordinary healAbility with usesRemaining (Transfer Vitality's 
   const zeroResource = { ...DEFAULT_WEIGHTS, resource: 0 };
   const isolated = evaluateState(withUses, "party", DEFAULT_WEIGHTS) - evaluateState(withUses, "party", zeroResource);
   assert.ok(isolated > 0, "a flat usesRemaining ability must still contribute via the pre-existing per-ability loop, unchanged");
+});
+
+// ---------------------------------------------------------------------------
+// usefulRangeFeet / maxLegalRangeFeet — GH #148. Both duplicate legality.mjs's own checkStrikeRange
+// range-shape logic (a genuinely separate copy, used for AI heuristic scoring rather than legality
+// gating) and used to share its exact same bug: a ranged Strike with no rangeIncrement fell back to
+// Infinity in both functions. Fixed alongside checkStrikeRange so the AI's own evaluation of a
+// flat-rangeMax Strike agrees with what's actually legal, rather than believing it has infinite reach
+// while legality correctly caps it.
+// ---------------------------------------------------------------------------
+
+test("usefulRangeFeet: a flat-rangeMax ranged Strike (no rangeIncrement) is USEFUL across its entire span — no increment means no accuracy falloff to make part of it less worth using", () => {
+  const strike = { name: "Thrown Rock", strikeType: "ranged", rangeMax: 70 };
+  assert.equal(usefulRangeFeet(strike), 70);
+});
+
+test("usefulRangeFeet: an increment-based ranged Strike is unaffected — still just the first, no-penalty increment", () => {
+  const strike = { name: "Pistol", strikeType: "ranged", rangeIncrement: 30 };
+  assert.equal(usefulRangeFeet(strike), 30);
+});
+
+test("usefulRangeFeet: a ranged option with neither rangeIncrement nor rangeMax keeps its pre-existing Infinity fallback — this heuristic function runs unconditionally over every attack option on every evaluateState call, unlike checkStrikeRange's own stricter throw", () => {
+  assert.equal(usefulRangeFeet({ name: "Mystery Weapon", strikeType: "ranged" }), Infinity);
+});
+
+test("usefulRangeFeet: melee reach and a spell/saveAttack's flat .range both still take priority over any strikeType-based branch, unchanged", () => {
+  assert.equal(usefulRangeFeet({ strikeType: "melee", traits: ["reach-10"] }), 10);
+  assert.equal(usefulRangeFeet({ range: 60, strikeType: "ranged", rangeMax: 9999 }), 60, "a saveAttack/spell's own .range always wins, same as before this fix");
+});
+
+test("maxLegalRangeFeet: a flat-rangeMax ranged Strike's true legal maximum IS rangeMax — no increment to multiply by 6", () => {
+  const strike = { name: "Thrown Rock", strikeType: "ranged", rangeMax: 70 };
+  assert.equal(maxLegalRangeFeet(strike), 70);
+});
+
+test("maxLegalRangeFeet: an increment-based ranged Strike is unaffected — still the real 6th-increment cap", () => {
+  const strike = { name: "Pistol", strikeType: "ranged", rangeIncrement: 30 };
+  assert.equal(maxLegalRangeFeet(strike), 180);
+});
+
+test("maxLegalRangeFeet: a ranged option with neither field keeps its pre-existing Infinity fallback, same reasoning as usefulRangeFeet above", () => {
+  assert.equal(maxLegalRangeFeet({ name: "Mystery Weapon", strikeType: "ranged" }), Infinity);
 });

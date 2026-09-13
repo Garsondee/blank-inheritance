@@ -232,6 +232,39 @@ test("checkStrikeRange: ranged allows a target within the 6th range increment", 
   assert.equal(result.legal, true);
 });
 
+// GH #148 — a flat-`rangeMax` ranged Strike (no rangeIncrement at all): legal at any distance up to
+// rangeMax with zero range penalty anywhere in that span, illegal beyond it. Real motivating shape:
+// a single-target thrown Strike with a flat maximum and no increment concept — distinct from a
+// grenade's own Area Fire action (an areaAttack, checked separately by checkAreaAttackLegal).
+test("checkStrikeRange: a flat-rangeMax ranged Strike (no rangeIncrement) is legal at any distance up to rangeMax", () => {
+  const strike = { name: "Thrown Rock", strikeType: "ranged", rangeMax: 70 };
+  const atMax = checkStrikeRange({ attackerPos: { col: 0, row: 0 }, targetPos: { col: 14, row: 0 }, strike }); // exactly 70ft
+  assert.equal(atMax.legal, true, `expected legal exactly at rangeMax: ${atMax.reason}`);
+  const wellWithin = checkStrikeRange({ attackerPos: { col: 0, row: 0 }, targetPos: { col: 2, row: 0 }, strike }); // 10ft
+  assert.equal(wellWithin.legal, true);
+});
+
+test("checkStrikeRange: a flat-rangeMax ranged Strike rejects a target one square beyond rangeMax", () => {
+  const strike = { name: "Thrown Rock", strikeType: "ranged", rangeMax: 70 };
+  const result = checkStrikeRange({ attackerPos: { col: 0, row: 0 }, targetPos: { col: 15, row: 0 }, strike }); // 75ft
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /flat maximum range/);
+});
+
+test("checkStrikeRange: rangeIncrement takes priority when a strike somehow carries both fields — never silently prefers the flatter, more permissive shape", () => {
+  const strike = { name: "Ambiguous", strikeType: "ranged", rangeIncrement: 20, rangeMax: 9999 };
+  const result = checkStrikeRange({ attackerPos: { col: 0, row: 0 }, targetPos: { col: 25, row: 0 }, strike }); // 125ft > 120ft (6*20)
+  assert.equal(result.legal, false, "must use the real increment-based cap (120ft), not the much larger rangeMax");
+});
+
+test("checkStrikeRange: a ranged Strike with NEITHER rangeIncrement nor rangeMax throws — a real data error, not a legal unlimited-range state (the exact bug this fix closes: it used to silently default to Infinity)", () => {
+  const strike = { name: "Mystery Weapon", strikeType: "ranged" };
+  assert.throws(
+    () => checkStrikeRange({ attackerPos: { col: 0, row: 0 }, targetPos: { col: 999, row: 0 }, strike }),
+    /neither rangeIncrement nor rangeMax/
+  );
+});
+
 test("rangeIncrementPenalty: matches Player Core pg. 254's own worked example exactly — real feet values, scale-independent (a 60ft-increment pistol)", () => {
   const strike = { strikeType: "ranged", rangeIncrement: 60 };
   assert.equal(rangeIncrementPenalty(strike, 60), 0, "exactly at the increment: no penalty");
@@ -244,6 +277,12 @@ test("rangeIncrementPenalty: matches Player Core pg. 254's own worked example ex
 test("rangeIncrementPenalty: is always 0 for melee, and for a ranged strike with no rangeIncrement set", () => {
   assert.equal(rangeIncrementPenalty({ strikeType: "melee" }, 9999), 0);
   assert.equal(rangeIncrementPenalty({ strikeType: "ranged" }, 9999), 0, "no rangeIncrement must not throw or divide by zero");
+});
+
+test("rangeIncrementPenalty: a flat-rangeMax ranged Strike (GH #148) never takes a range penalty, at any legal distance — there is no increment to scale one off", () => {
+  const strike = { name: "Thrown Rock", strikeType: "ranged", rangeMax: 70 };
+  assert.equal(rangeIncrementPenalty(strike, 1), 0);
+  assert.equal(rangeIncrementPenalty(strike, 70), 0, "even right at the flat maximum, still zero penalty — the whole span is equally accurate");
 });
 
 test("checkTargetAlive: rejects a missing or already-dead target", () => {

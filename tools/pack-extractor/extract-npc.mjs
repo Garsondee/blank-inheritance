@@ -163,16 +163,40 @@ export function toCombatant(npc, { strikeNames, side = "opposition" } = {}) {
   const strikes = strikeNames.map((wantedName) => {
     const melee = meleeItems.find((m) => m.name === wantedName);
     if (!melee) throw new Error(`No melee/strike item named "${wantedName}" on ${npc.name}.`);
+    // GH #148 — found investigating Scrap Rat's real Frag Grenade, which GH #64's own closing comment
+    // mischaracterized as "a genuine single-target thrown Strike, not a burst/area effect" without
+    // actually checking this field: its real system.action is "area-fire" (a genuine burst effect,
+    // same shape as Tough's already-wired Frag Grenade — see deriveAreaAttack below), and a repeat
+    // sweep of every melee-type item across this project's three available bestiary packs found 22
+    // more area-fire items and 5 auto-fire items, none of them ever a genuine Strike. Blocked here
+    // rather than left to silently produce a strike with a meaningless "attackBonus" (really a
+    // basic-save DC's own 10+bonus basis) and zero friendly-fire risk from its own burst radius —
+    // exactly the mistake deriveAreaAttack's own header says this project used to make before it
+    // existed. Route an area-fire item through deriveAreaAttack, and an auto-fire one stays
+    // unwired entirely (this project's own established "out-of-scope multi-target category," e.g.
+    // Tough's Scattergun) — never through here.
+    if (melee.system.action === "area-fire" || melee.system.action === "auto-fire") {
+      throw new Error(`"${wantedName}" on ${npc.name} has system.action "${melee.system.action}", not "strike" — never wire a burst/multi-target effect as a single-target Strike. Use deriveAreaAttack for a real area-fire burst, or leave an auto-fire weapon unwired (this project's established out-of-scope category).`);
+    }
     const isRanged = melee.system.range != null;
     const [damageEntry] = Object.values(melee.system.damageRolls ?? {});
     if (!damageEntry) throw new Error(`"${wantedName}" on ${npc.name} has no damageRolls entry to derive damage from.`);
     const { dice, bonus } = parseDamageString(damageEntry.damage);
+    // GH #148: a real ranged Strike's range is EITHER a firearm-style increment (Player Core pg. 254:
+    // -2 penalty per increment beyond the first, illegal past the 6th) OR — a real, if so-far
+    // unpopulated in this project's own data, shape — a flat maximum with no increment scaling at all
+    // (legality.mjs's checkStrikeRange/rangeIncrementPenalty, personnel-engine/evaluate/state-value.mjs's
+    // usefulRangeFeet/maxLegalRangeFeet all understand both). Never both at once in the raw data seen
+    // so far — reading whichever one is actually present rather than assuming increment.
+    const rangeShape = isRanged
+      ? (melee.system.range.increment != null ? { rangeIncrement: melee.system.range.increment } : { rangeMax: melee.system.range.max })
+      : {};
 
     return {
       name: melee.name,
       strikeType: isRanged ? "ranged" : "melee",
       attackBonus: melee.system.bonus.value,
-      ...(isRanged ? { rangeIncrement: melee.system.range.increment } : {}),
+      ...rangeShape,
       traits: melee.system.traits?.value ?? [],
       damage: [{ dice, bonus, damageType: damageEntry.damageType }]
     };
@@ -286,8 +310,25 @@ export function deriveSpellAttacks(npc, spellNames) {
  * transcribes rather than parses). `usesRemaining` comes from the real carried quantity on the
  * PAIRED `weapon`-type item of the same name (a grenade you've thrown is a grenade you don't have
  * anymore) — the same weapon/melee-item pairing toCombatant's own header documents for Strikes.
+ *
+ * GH #148: the raw `system.range` shape for a real area-fire item is genuinely inconsistent ACROSS
+ * PACKS, confirmed by a direct sweep of every area-fire item in this project's three available
+ * bestiary packs — `rulebook-bestiaries`/`starfinder-society-bestiary` store the flat throw range
+ * under `.increment` (Tough's own real `{increment: 70, max: null}`, which is why this function's
+ * original `item.system.range?.increment` alone worked for her), while EVERY `alien-core-bestiary`
+ * area-fire item stores the identical real number under `.max` instead (`{increment: null, max: 70}`
+ * — Scrap Rat's own real shape). Reading only `.increment` silently produced `range: null` for any
+ * alien-core-bestiary grenade, which checkAreaAttackLegal's own `?? FEET_PER_SQUARE` convention would
+ * then have silently treated as touch-range-only — a real, separate bug from #148's main one, caught
+ * here specifically because Scrap Rat is this project's first alien-core-bestiary area-fire wire-up.
+ *
+ * `carriedWeaponName` (optional, defaults to `name`) exists because the melee attack-row item and its
+ * paired weapon-type carried item don't always share an exactly identical name either — Tough's real
+ * data has both named "Frag Grenade (Commercial)", but Scrap Rat's melee item is named "Frag Grenade"
+ * while her weapon-type sibling is "Frag Grenade (Commercial)". Defaulting to `name` keeps every
+ * existing call site (Tough's own) byte-identical; only a real name mismatch needs the override.
  */
-export function deriveAreaAttack(npc, { name, saveType, actions }) {
+export function deriveAreaAttack(npc, { name, saveType, actions, carriedWeaponName = name }) {
   const item = npc.items.find((i) => i.type === "melee" && i.name === name);
   if (!item) throw new Error(`No melee/attack-row item named "${name}" on ${npc.name}.`);
   if (item.system.action !== "area-fire") {
@@ -299,13 +340,13 @@ export function deriveAreaAttack(npc, { name, saveType, actions }) {
   const [damageEntry] = Object.values(item.system.damageRolls ?? {});
   if (!damageEntry) throw new Error(`"${name}" on ${npc.name} has no damageRolls entry to derive damage from.`);
   const { dice, bonus } = parseDamageString(damageEntry.damage);
-  const carriedWeapon = npc.items.find((i) => i.type === "weapon" && i.name === name);
+  const carriedWeapon = npc.items.find((i) => i.type === "weapon" && i.name === carriedWeaponName);
 
   return {
     name: item.name,
     saveType,
     dc: 10 + item.system.bonus.value,
-    range: item.system.range?.increment ?? null,
+    range: item.system.range?.increment ?? item.system.range?.max ?? null,
     radius: item.system.area.value,
     actions,
     traits: item.system.traits?.value ?? [],

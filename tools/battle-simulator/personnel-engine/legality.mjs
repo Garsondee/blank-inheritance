@@ -154,6 +154,33 @@ export function checkStepLegality({ combatant, from, to, effectiveSpeed, allPosi
   return checkMoveLegality({ combatant, from, to, effectiveSpeed, allPositions, gridSize, turnState, walls });
 }
 
+/**
+ * GH #148 — a real, confirmed bug: this used to fall back to `maxRange = Infinity` whenever
+ * `strike.rangeIncrement` was absent, treating a ranged Strike with no declared range data as having
+ * UNLIMITED range. Not merely under-modeled (the way an unmodeled trait honestly is elsewhere in this
+ * project) — actively wrong, since every real SF2E ranged Strike has SOME finite maximum (Player Core
+ * pg. 254).
+ *
+ * `rangeMax` (sf2e-common.schema.json's `strike` $def) is the second legal shape alongside
+ * `rangeIncrement`: a flat maximum with NO increment scaling at all — legal at any distance up to
+ * `rangeMax`, zero range penalty anywhere in that span (rangeIncrementPenalty, just below, already
+ * returns 0 whenever `rangeIncrement` is unset, for exactly this reason). Investigated directly
+ * before building this: every `{increment: null, max: N}` raw range shape found across this
+ * project's three available bestiary packs (alien-core-bestiary, rulebook-bestiaries,
+ * starfinder-society-bestiary — ~30 items total) turned out to be a real Area Fire burst effect
+ * (`system.action: "area-fire"`, wired via deriveAreaAttack/checkAreaAttackLegal instead — see
+ * extract-npc.mjs's own toCombatant guard against exactly this), never a genuine single-target
+ * Strike. `rangeMax` is still built and tested here as its own real, legal strike shape — a flat-max
+ * thrown Strike with no increment is a valid, if currently unpopulated, SF2E shape distinct from a
+ * grenade's Area Fire action — but as of this fix nothing in this project's real data actually uses
+ * it yet.
+ *
+ * A ranged Strike with NEITHER field set is a genuine data error, not a legal unlimited-range state —
+ * throws rather than silently guessing a fallback number, matching this project's own established
+ * discipline elsewhere (extract-npc.mjs's deriveUsesFromFrequency, parseDamageString, the
+ * initiative-statistic guard): better to fail loudly the moment such a strike is evaluated than to
+ * silently simulate a sniper with infinite range.
+ */
 export function checkStrikeRange({ attackerPos, targetPos, strike }) {
   const reach = reachFeetForStrike(strike);
   const dist = distanceFeet(attackerPos, targetPos);
@@ -161,16 +188,25 @@ export function checkStrikeRange({ attackerPos, targetPos, strike }) {
     return { legal: false, reason: `Target is ${dist}ft away, outside melee reach (${reach}ft).` };
   }
   if (strike.strikeType === "ranged") {
-    const increment = strike.rangeIncrement ?? Infinity;
-    const maxRange = increment * 6; // Player Core pg. 254: beyond the 6th range increment is impossible
-    if (dist > maxRange) {
-      return { legal: false, reason: `Target is ${dist}ft away, beyond the 6th range increment (max ${maxRange}ft) for a ranged Strike with increment ${increment}ft.` };
+    if (strike.rangeIncrement != null) {
+      const maxRange = strike.rangeIncrement * 6; // Player Core pg. 254: beyond the 6th range increment is impossible
+      if (dist > maxRange) {
+        return { legal: false, reason: `Target is ${dist}ft away, beyond the 6th range increment (max ${maxRange}ft) for a ranged Strike with increment ${strike.rangeIncrement}ft.` };
+      }
+    } else if (strike.rangeMax != null) {
+      if (dist > strike.rangeMax) {
+        return { legal: false, reason: `Target is ${dist}ft away, beyond ${strike.name}'s flat maximum range (${strike.rangeMax}ft).` };
+      }
+    } else {
+      throw new Error(`"${strike.name}" is a ranged Strike with neither rangeIncrement nor rangeMax set — real range data is required, there is no safe default for "how far can this hit."`);
     }
   }
   return { legal: true, reason: null };
 }
 
-/** Player Core pg. 254: -2 penalty per additional range increment beyond the first. */
+/** Player Core pg. 254: -2 penalty per additional range increment beyond the first. A flat-`rangeMax`
+ * Strike (no increment at all — see checkStrikeRange's own header) correctly falls through to 0 here,
+ * same as melee: there is no increment to scale a penalty off, by design, not by omission. */
 export function rangeIncrementPenalty(strike, distanceFeetValue) {
   if (strike.strikeType !== "ranged" || !strike.rangeIncrement) return 0;
   const incrementNumber = Math.max(1, Math.ceil(distanceFeetValue / strike.rangeIncrement));

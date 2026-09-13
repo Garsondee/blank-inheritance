@@ -114,11 +114,18 @@ export function proactiveAttackOptions(combatant) {
   return attackOptions(combatant).filter((s) => !s.reactionOnly);
 }
 
-/** The distance at which an option is actually worth using — flat range for a spell, reach for melee, one increment for a gun. */
+/** The distance at which an option is actually worth using — flat range for a spell, reach for melee,
+ * one increment for a gun, or the entire span for a flat-`rangeMax` Strike (GH #148 — no increment
+ * means no accuracy falloff anywhere in that span, so the whole thing is equally "useful"). A ranged
+ * Strike with neither field is the same genuine data error checkStrikeRange (legality.mjs) throws on;
+ * this function keeps its own long-standing Infinity fallback for that case rather than throwing,
+ * since it runs unconditionally over every attack option on every evaluateState call (not gated
+ * behind a specific attempted Strike the way checkStrikeRange is) — a real occurrence would already
+ * have been caught there first. */
 export function usefulRangeFeet(item) {
   if (item.range != null) return item.range;
   if (item.strikeType === "melee") return reachFeetForStrike(item);
-  return item.rangeIncrement ?? Infinity;
+  return item.rangeIncrement ?? item.rangeMax ?? Infinity;
 }
 
 /**
@@ -149,11 +156,17 @@ function healReachFeet(combatant) {
  * not a usefulRangeFeet change, because usefulRangeFeet's OTHER callers (the closing gradient,
  * bestExpectedDamage, the myRanges standoff candidates) are about "worth approaching to without a
  * penalty," a genuinely different, already-correct question this fix must not disturb.
+ *
+ * GH #148: a flat-`rangeMax` Strike has no increment to multiply by 6 — its legal max IS `rangeMax`
+ * itself, identical to usefulRangeFeet's own value for that shape (no accuracy falloff means "useful"
+ * and "legal max" coincide). Same Infinity fallback, and the same reasoning for keeping it (rather
+ * than throwing, as checkStrikeRange does), as usefulRangeFeet just above.
  */
 export function maxLegalRangeFeet(item) {
   if (item.range != null) return item.range;
   if (item.strikeType === "melee") return reachFeetForStrike(item);
-  return item.rangeIncrement != null ? item.rangeIncrement * 6 : Infinity;
+  if (item.rangeIncrement != null) return item.rangeIncrement * 6;
+  return item.rangeMax ?? Infinity;
 }
 
 /**

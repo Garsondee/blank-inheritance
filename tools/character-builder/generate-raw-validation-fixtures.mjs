@@ -480,24 +480,23 @@ function buildScrapRat() {
   const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "alien-core-bestiary");
   const scrapRat = findNPC(packDir, "Scrap Rat");
   if (!scrapRat) throw new Error("Scrap Rat not found in alien-core-bestiary — Paizo may have renamed the NPC.");
-  // Its real "Frag Grenade" is a plain melee-type single-target thrown Strike (unlike every PC-side
-  // grenade excluded elsewhere in this project, which are real @Template[burst] area effects, and
-  // unlike Tough's own Frag Grenade (Commercial), a real area-fire action) — but its own raw range
-  // shape is {increment: null, max: 70}, a flat maximum with NO range increment at all (RAW: thrown
-  // weapons don't get range-increment accuracy penalties the way firearms do). toCombatant only ever
-  // reads range.increment, and legality.mjs's checkStrikeRange falls back to Infinity when it's
-  // missing — confirmed directly, this would make the grenade illegally unlimited-range, not merely
-  // "arrives partly inert" the way an unmodeled trait does elsewhere in this project. Not wired,
-  // matching the issue's own "prefer creatures whose kit the engine models" guidance — Tail alone is
-  // a complete, honest, correctly-ranged combatant. Flagged via spawn_task as a real, separate,
-  // generically-useful gap (flat-max-range thrown weapons), not silently worked around here.
+  // CORRECTION (GH #148): GH #64's own closing comment claimed this was "a genuine single-target
+  // thrown Strike, not a burst/area effect" — checked again directly while investigating #148, and
+  // that was wrong. Its real system.action is "area-fire" with a real burst area (value 5), the
+  // IDENTICAL shape to Tough's already-wired Frag Grenade (Commercial) — a real areaAttack, not a
+  // Strike. Wired the correct way below via deriveAreaAttack. Her melee-type attack-row item is named
+  // plain "Frag Grenade" (no "(Commercial)" suffix), while her weapon-type carried item is named "Frag
+  // Grenade (Commercial)" — a real name mismatch Tough's own data doesn't have, handled via
+  // deriveAreaAttack's carriedWeaponName override rather than assuming the two always match.
   const combatant = toCombatant(scrapRat, { strikeNames: ["Tail"] });
+  const areaAttacks = [deriveAreaAttack(scrapRat, { name: "Frag Grenade", saveType: "ref", actions: 1, carriedWeaponName: "Frag Grenade (Commercial)" })];
   return {
     id: "raw-validation-scrap-rat",
     ...combatant,
+    areaAttacks,
     intimidationModifier: combatant.skills.intimidation ?? null, // real: not one of its 4 listed skills (acrobatics/crafting/stealth/thievery)
     athleticsModifier: combatant.skills.athletics ?? null, // real: ALSO not one of its 4 listed skills — Acrobatics is its mobility skill instead
-    notes: "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level -1 pick (design doc §76 Phase 4, GH #64's own suggested-ten survey), melee-only: Tail (agile/finesse/razing) derives unmodified through the existing toCombatant. Its real \"Frag Grenade\" (a genuine single-target thrown Strike, not a burst/area effect) is deliberately NOT wired — its raw range shape is a flat 70ft maximum with no range increment at all, a real weapon shape this project's checkStrikeRange (personnel-engine/legality.mjs) doesn't support yet (it falls back to an unlimited range when rangeIncrement is absent, which would make the grenade illegally unlimited-range rather than merely under-modeled) — a real, separate, generically-useful gap flagged for its own follow-up, not worked around here. \"Dangerous Recycling\"/\"Scoring\" are real passives, captured under `actions` for transcript honesty, not mechanically wired."
+    notes: "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level -1 pick (design doc §76 Phase 4, GH #64's own suggested-ten survey), melee-only strike: Tail (agile/finesse/razing) derives unmodified through the existing toCombatant. Its real \"Frag Grenade\" is a genuine area-fire burst (GH #148 correction — GH #64's own closing comment mischaracterized it as a single-target thrown Strike without checking system.action) — DC 13 (10 + its real attack-row bonus of 3), 5ft burst radius and 1d8 piercing damage read straight off its real system.area.value/damageRolls, usesRemaining 1 from its real carried weapon-item quantity (looked up by its own real, differently-suffixed name via deriveAreaAttack's carriedWeaponName). Its real range is stored under system.range.max (70), not .increment — a second real cross-pack shape inconsistency deriveAreaAttack's own range derivation now also reads correctly (see its docstring). \"Dangerous Recycling\"/\"Scoring\" are real passives, captured under `actions` for transcript honesty, not mechanically wired."
   };
 }
 
@@ -672,7 +671,7 @@ console.log(`wrote tough.json (AC ${tough.ac}, HP ${tough.maxHP}, ${tough.strike
 console.log(`wrote obozaya.json (AC ${obozaya.ac}, HP ${obozaya.maxHP}, ${obozaya.strikes.length} strikes incl. a ${obozaya.strikes.find((s) => s.name === "Laser Rifle")?.rangeIncrement}ft rifle, intimidation +${obozaya.intimidationModifier})`);
 console.log(`wrote kuriaku.json (AC ${kuriaku.ac}, HP ${kuriaku.maxHP}, ${kuriaku.strikes.length} strikes incl. a ${kuriaku.strikes.find((s) => s.name === "Shobhad Longrifle")?.rangeIncrement}ft rifle, intimidation ${kuriaku.intimidationModifier})`);
 console.log(`wrote khefak.json (level ${khefak.level}, AC ${khefak.ac}, HP ${khefak.maxHP}, ${khefak.strikes.length} strikes, initiative +${khefak.initiativeModifier})`);
-console.log(`wrote scrap-rat.json (level ${scrapRat.level}, AC ${scrapRat.ac}, HP ${scrapRat.maxHP}, ${scrapRat.strikes.length} strikes, initiative +${scrapRat.initiativeModifier})`);
+console.log(`wrote scrap-rat.json (level ${scrapRat.level}, AC ${scrapRat.ac}, HP ${scrapRat.maxHP}, ${scrapRat.strikes.length} strikes, ${scrapRat.areaAttacks.length} areaAttack, initiative +${scrapRat.initiativeModifier})`);
 console.log(`wrote cybernetic-zombie.json (level ${cyberneticZombie.level}, AC ${cyberneticZombie.ac}, HP ${cyberneticZombie.maxHP}, ${cyberneticZombie.strikes.length} strikes, ${cyberneticZombie.reactions.length} reaction, initiative +${cyberneticZombie.initiativeModifier})`);
 console.log(`wrote jinsul-trooper.json (level ${jinsulTrooper.level}, AC ${jinsulTrooper.ac}, HP ${jinsulTrooper.maxHP}, ${jinsulTrooper.strikes.length} strikes, initiative +${jinsulTrooper.initiativeModifier})`);
 console.log(`wrote space-goblin-miscreant.json (level ${spaceGoblinMiscreant.level}, AC ${spaceGoblinMiscreant.ac}, HP ${spaceGoblinMiscreant.maxHP}, ${spaceGoblinMiscreant.strikes.length} strikes, ${spaceGoblinMiscreant.reactions.length} reaction, initiative +${spaceGoblinMiscreant.initiativeModifier})`);

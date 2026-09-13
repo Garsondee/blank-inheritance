@@ -327,7 +327,12 @@ const CONFORMANCE_CASES = [
       }
     })]
   },
-  { file: "tough.json", array: "areaAttacks", derive: () => [deriveAreaAttack(toughNPC, { name: "Frag Grenade (Commercial)", saveType: "ref", actions: 1 })] }
+  { file: "tough.json", array: "areaAttacks", derive: () => [deriveAreaAttack(toughNPC, { name: "Frag Grenade (Commercial)", saveType: "ref", actions: 1 })] },
+  // GH #148 — correction of GH #64's own closing comment: Scrap Rat's real Frag Grenade is a genuine
+  // area-fire burst (identical shape to Tough's own), not a single-target Strike as originally
+  // claimed. Her melee attack-row item ("Frag Grenade") and weapon-type carried item ("Frag Grenade
+  // (Commercial)") don't share an exact name, unlike Tough's — carriedWeaponName covers that mismatch.
+  { file: "scrap-rat.json", array: "areaAttacks", derive: () => [deriveAreaAttack(scrapRatNPC, { name: "Frag Grenade", saveType: "ref", actions: 1, carriedWeaponName: "Frag Grenade (Commercial)" })] }
 ];
 
 test("CONFORMANCE (GH #69): every currently-populated non-strike ability array matches a fresh live re-derivation exactly, via one systematic table instead of scattered bespoke assertions — the safety net for #64's own future NPC imports", () => {
