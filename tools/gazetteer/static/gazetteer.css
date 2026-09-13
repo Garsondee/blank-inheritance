@@ -646,6 +646,19 @@ body {
   border-radius: 1px;
 }
 .gz-vertex:hover::after { background: var(--bi-vermilion); }
+/* Confirmation on the handle itself, not only on the separate gz-snap ring
+   below -- a fast drag looks at the handle, not at a thin ring half-hidden
+   behind it. Asked for directly: "I'm never sure that I've snapped things
+   together and not left a sliver between them." The same settled green
+   LOCKED regions already use elsewhere in this tool for "shared, done." */
+/* :hover repeated explicitly -- .gz-vertex:hover::after otherwise wins on
+   specificity alone (two class-level selectors against one), and the
+   handle being dragged is exactly the one sitting under the cursor. */
+.gz-vertex--snapped::after, .gz-vertex--snapped:hover::after {
+  background: #3d6b47;
+  border-color: #5c9c6b;
+  box-shadow: 0 0 0 4px rgba(61, 107, 71, .45);
+}
 .gz-vertex--mid {
   width: 22px; height: 22px;
   margin: -11px 0 0 -11px;
@@ -692,20 +705,25 @@ body {
 /* Where the next region vertex would land. A ring rather than a filled dot:
    you need to see the ground underneath the thing you are about to weld to.
    Vertex snaps read stronger than edge snaps because they are the stronger
-   commitment -- a shared corner, not just a shared line. */
+   commitment -- a shared corner, not just a shared line.
+
+   Sized to visibly clear the 26px vertex handle it sits under during an
+   edit (see gz-vertex--snapped above for the handle's own confirmation) --
+   at the old 12px this ring was almost entirely hidden behind the handle
+   itself, which was a real part of "never sure I've actually snapped." */
 .gz-snap {
   border-radius: 50%;
-  margin: -6px 0 0 -6px;
-  width: 12px; height: 12px;
+  margin: -18px 0 0 -18px;
+  width: 36px; height: 36px;
   pointer-events: none;
 }
 .gz-snap--vertex {
-  border: 2px solid var(--bi-brass-lit);
-  background: rgba(172, 138, 77, .35);
+  border: 3px solid var(--bi-brass-lit);
+  background: rgba(172, 138, 77, .25);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, .5);
 }
 .gz-snap--edge {
-  border: 2px dashed var(--bi-brass);
+  border: 3px dashed var(--bi-brass);
   background: transparent;
 }
 

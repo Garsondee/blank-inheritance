@@ -214,6 +214,7 @@ export function createDrawController(opts) {
    *  round1 would reintroduce the very sub-pixel mismatch this prevents. */
   function placeDraftPoint(p) {
     if (tool !== "region" && tool !== "bisect") return [round1(p[0]), round1(p[1])];
+    if (snapSuspended) return [round1(p[0]), round1(p[1])];
     const snapped = snapRegionPoint(p[0], p[1]);
     if (!snapped) return [round1(p[0]), round1(p[1])];
     report(snapped.kind === "vertex"
@@ -231,20 +232,39 @@ export function createDrawController(opts) {
    *  which is exactly the few-pixel miss that leaves a border merely CLOSE
    *  rather than genuinely shared. `excludeId` is the entry's own localId,
    *  not optional here the way it is for fresh drawing -- a vertex must
-   *  never snap onto one of its own ring's other points. */
-  function snapEditedVertex(entry, p) {
-    if (entry.item.tier !== "region") return [round1(p[0]), round1(p[1])];
+   *  never snap onto one of its own ring's other points. `marker` -- the
+   *  handle actually being dragged -- gets a `gz-vertex--snapped` class
+   *  while snapped, so confirmation shows on the THING the eye is already
+   *  on, not only on a separate ring that a fast drag can miss entirely:
+   *  asked for directly, "I'm never sure that I've snapped things together
+   *  and not left a sliver between them." */
+  function snapEditedVertex(entry, p, marker) {
+    const clearSnappedClass = () => {
+      if (marker) {
+        const el = marker.getElement();
+        if (el) el.classList.remove("gz-vertex--snapped");
+      }
+    };
+    if (entry.item.tier !== "region" || snapSuspended) {
+      snapLayer.clearLayers();
+      clearSnappedClass();
+      return [round1(p[0]), round1(p[1])];
+    }
     const snapped = snapRegionPoint(p[0], p[1], { excludeId: entry.item.localId });
     // Same marker showSnapHint draws while drawing a fresh region -- shown
     // here too, mid-drag, so a snap about to happen is visible before the
     // handle is released rather than a surprise discovered afterward.
     snapLayer.clearLayers();
-    if (!snapped) return [round1(p[0]), round1(p[1])];
+    if (!snapped) { clearSnappedClass(); return [round1(p[0]), round1(p[1])]; }
     snapLayer.addLayer(L.marker(ll(snapped.x, snapped.y), {
-      icon: L.divIcon({ className: "gz-snap gz-snap--" + snapped.kind, iconSize: [12, 12] }),
+      icon: L.divIcon({ className: "gz-snap gz-snap--" + snapped.kind, iconSize: [36, 36] }),
       interactive: false,
       zIndexOffset: 1200,
     }));
+    if (marker) {
+      const el = marker.getElement();
+      if (el) el.classList.add("gz-vertex--snapped");
+    }
     report(snapped.kind === "vertex"
       ? "snapped to an existing corner — the border is now shared exactly"
       : "snapped onto an existing border");
@@ -261,12 +281,13 @@ export function createDrawController(opts) {
     if (editingVertex) return;
     snapLayer.clearLayers();
     if (tool !== "region" && tool !== "bisect") return;
+    if (snapSuspended) return;
     const snapped = snapRegionPoint(p[0], p[1]);
     if (!snapped) return;
     snapLayer.addLayer(L.marker(ll(snapped.x, snapped.y), {
       icon: L.divIcon({
         className: "gz-snap gz-snap--" + snapped.kind,
-        iconSize: [12, 12],
+        iconSize: [36, 36],
       }),
       interactive: false,
       zIndexOffset: 1200,
@@ -507,6 +528,20 @@ export function createDrawController(opts) {
   // checks this to stand down for that span -- see its own comment.
   let editingVertex = false;
 
+  // Alt held = place this point freely, no snapping. Asked for directly:
+  // in a crowded corner the always-on snap radius can catch a DIFFERENT
+  // nearby vertex or edge than the one actually meant, and the placed
+  // point jumps between candidates as the cursor drifts a few pixels
+  // rather than tracking it smoothly -- exactly backwards from the fine,
+  // deliberate positioning a real hand-tidying pass needs. Snapping stays
+  // the default (most placements DO want it); this is the escape hatch
+  // for the rare point that must land somewhere else. Cleared on blur too,
+  // so alt-tabbing away mid-drag can never leave it stuck suspended.
+  let snapSuspended = false;
+  window.addEventListener("keydown", (e) => { if (e.key === "Alt") snapSuspended = true; });
+  window.addEventListener("keyup", (e) => { if (e.key === "Alt") snapSuspended = false; });
+  window.addEventListener("blur", () => { snapSuspended = false; });
+
   /** Force every touched layer's Canvas renderer to redraw right now,
    *  synchronously, instead of waiting for the requestAnimationFrame this
    *  map's default renderer normally batches redraws through. That
@@ -594,7 +629,7 @@ export function createDrawController(opts) {
       });
       const applyDrag = () => {
         const p = px(m.getLatLng());
-        ring[i] = snapEditedVertex(entry, p);
+        ring[i] = snapEditedVertex(entry, p, m);
         // The handle itself jumps to the snapped point too, not just the
         // polygon outline underneath it -- a magnet that only moves the
         // shape while the cursor's own handle keeps drifting free reads as
@@ -671,7 +706,7 @@ export function createDrawController(opts) {
       const applyMidDrag = () => {
         if (!inserted) return;
         const p = px(mid.getLatLng());
-        ring[i + 1] = snapEditedVertex(entry, p);
+        ring[i + 1] = snapEditedVertex(entry, p, mid);
         mid.setLatLng(ll(ring[i + 1][0], ring[i + 1][1]));
         entry.layer.setLatLngs(polyLatLngs(entry.item.geometry));
         for (const w of welded) {

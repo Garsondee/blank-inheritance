@@ -503,6 +503,70 @@ test("the published-locations reference overlay never shares a live tier's colou
     "collides with a live tier/selection colour in draw.js");
 });
 
+test("Alt bypasses snapping for a freely-placed point, and clears itself on blur", () => {
+  // Asked for directly: "less jumping from position to position, more fine
+  // tuned positioning for accuracy." In a crowded corner the always-on
+  // snap radius can catch a different nearby vertex/edge than the one
+  // meant, so a placed point jumps between candidates as the cursor
+  // drifts a few pixels rather than tracking it smoothly. Snapping stays
+  // the default; Alt is the escape hatch for the rare point that must
+  // land somewhere else.
+  const src = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(/let snapSuspended = false/.test(src),
+    "draw.js no longer tracks an Alt-held snap-suspend state");
+  assert.ok(/keydown.*=>\s*\{\s*if \(e\.key === "Alt"\) snapSuspended = true/.test(src) ||
+    /if \(e\.key === "Alt"\) snapSuspended = true/.test(src),
+    "Alt keydown no longer suspends snapping");
+  assert.ok(/addEventListener\("blur", \(\) => \{ snapSuspended = false/.test(src),
+    "losing window focus (alt-tabbing away mid-drag) no longer clears " +
+    "snapSuspended -- it could get stuck permanently suspending snap for " +
+    "the rest of the session");
+  // Threaded through every place that decides whether to snap a point.
+  assert.ok(/if \(snapSuspended\) return \[round1\(p\[0\]\), round1\(p\[1\]\)\];/.test(src),
+    "placeDraftPoint no longer checks snapSuspended before snapping a " +
+    "freshly-drawn region vertex");
+  assert.ok(/entry\.item\.tier !== "region" \|\| snapSuspended/.test(src),
+    "snapEditedVertex no longer checks snapSuspended before snapping a " +
+    "dragged vertex/midpoint");
+  assert.ok(/if \(snapSuspended\) return;/.test(src),
+    "showSnapHint no longer checks snapSuspended before showing a hover " +
+    "snap preview");
+});
+
+test("a snapped vertex shows confirmation on the handle itself, not only a separate ring", () => {
+  // "I'm never sure that I've snapped things together and not left a
+  // sliver between them." The pre-existing gz-snap ring sits directly
+  // under the 26px vertex handle being dragged -- at its old 12px size it
+  // was almost entirely hidden behind that handle, which a fast drag
+  // never looks away from to check.
+  const draw = readFileSync(join(STATIC, "draw.js"), "utf8");
+  const css = readFileSync(join(STATIC, "gazetteer.css"), "utf8");
+  assert.ok(/function snapEditedVertex\(entry, p, marker\)/.test(draw),
+    "snapEditedVertex no longer takes the dragged marker -- it has no way " +
+    "to mark the handle itself as snapped");
+  assert.ok(/el\.classList\.add\("gz-vertex--snapped"\)/.test(draw),
+    "a successful snap no longer adds gz-vertex--snapped to the dragged " +
+    "handle");
+  assert.ok(/el\.classList\.remove\("gz-vertex--snapped"\)/.test(draw),
+    "draw.js no longer clears gz-vertex--snapped once a vertex stops " +
+    "being snapped -- the confirmation would stick after dragging away");
+  assert.ok(/snapEditedVertex\(entry, p, m\)/.test(draw),
+    "the main vertex handle's drag handler no longer passes itself to " +
+    "snapEditedVertex");
+  assert.ok(/snapEditedVertex\(entry, p, mid\)/.test(draw),
+    "the midpoint handle's drag handler no longer passes itself to " +
+    "snapEditedVertex");
+  assert.ok(/gz-snap\s*\{[^}]*width:\s*36px/.test(css),
+    "the gz-snap ring is no longer sized to visibly clear the 26px vertex " +
+    "handle it sits under -- back near that handle's own size, it reads " +
+    "as hidden behind it again");
+  assert.ok(/\.gz-vertex--snapped::after,\s*\.gz-vertex--snapped:hover::after/.test(css),
+    "gz-vertex--snapped's :hover case is no longer spelled out explicitly " +
+    "-- .gz-vertex:hover::after has higher specificity and would silently " +
+    "win back the vermilion colour the instant the cursor (already over " +
+    "the handle being dragged) counts as hovering it");
+});
+
 test("the shared fixture is reachable from both suites' expected paths", () => {
   const fixture = JSON.parse(
     readFileSync(join(here, "fixtures", "gazetteer-grid-cases.json"), "utf8"));

@@ -3075,7 +3075,7 @@ function defaultStatus() {
     case "adopt": return "Click a real building to take its actual footprint.";
     case "lasso": return "Draw a polygon around drawn AND real buildings — both get selected (real ones adopted on the spot). Enter to finish.";
     case "remove": return "Click a building to remove it · drag a box for many · Alt+drag removes the whole area.";
-    default: return "Click to select, drag a box to select AND adopt everything inside (real buildings included), Shift adds to the selection. Right-click drag to pan. Drag a shape's handles to edit it; right-click a handle to delete that point.";
+    default: return "Click to select, drag a box to select AND adopt everything inside (real buildings included), Shift adds to the selection. Right-click drag to pan. Drag a shape's handles to edit it (hold Alt to place a point freely, without snapping); right-click a handle to delete that point.";
   }
 }
 
