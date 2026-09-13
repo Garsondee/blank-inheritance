@@ -1,0 +1,61 @@
+{
+  "id": "raw-validation-scrap-rat",
+  "name": "Scrap Rat",
+  "side": "opposition",
+  "level": -1,
+  "initiativeModifier": 7,
+  "maxHP": 8,
+  "currentHP": 8,
+  "ac": 14,
+  "saves": {
+    "fort": 5,
+    "ref": 8,
+    "will": 2
+  },
+  "speed": 25,
+  "strikes": [
+    {
+      "name": "Tail",
+      "strikeType": "melee",
+      "attackBonus": 6,
+      "traits": [
+        "agile",
+        "finesse",
+        "razing",
+        "unarmed"
+      ],
+      "damage": [
+        {
+          "dice": "1d4",
+          "bonus": 2,
+          "damageType": "slashing"
+        }
+      ]
+    }
+  ],
+  "reactions": [],
+  "actions": [
+    {
+      "name": "Dangerous Recycling",
+      "actionType": "passive",
+      "actionsCost": null,
+      "description": "<p>Over the course of 1 minute of uninterrupted work, a scrap rat can assemble any level 0 commercial grenade using nothing but junk. It falls apart and becomes unusable junk after 10 minutes.</p>"
+    },
+    {
+      "name": "Scoring",
+      "actionType": "passive",
+      "actionsCost": null,
+      "description": "<p>When the scrap rat's tail Strike deals damage to an object or creature with the tech trait, the tail also gains the following traits until the beginning of the scrap rat's next turn: deadly d4, hampering, and razing.</p>\n<p>@UUID[Compendium.sf2e.bestiary-effects.Item.GpzaKY9WlDFAhgcg]{Effect: Scoring}</p>"
+    }
+  ],
+  "lore": [],
+  "skills": {
+    "acrobatics": 4,
+    "crafting": 4,
+    "stealth": 5,
+    "thievery": 3
+  },
+  "intimidationModifier": null,
+  "athleticsModifier": null,
+  "notes": "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level -1 pick (design doc §76 Phase 4, GH #64's own suggested-ten survey), melee-only: Tail (agile/finesse/razing) derives unmodified through the existing toCombatant. Its real \"Frag Grenade\" (a genuine single-target thrown Strike, not a burst/area effect) is deliberately NOT wired — its raw range shape is a flat 70ft maximum with no range increment at all, a real weapon shape this project's checkStrikeRange (personnel-engine/legality.mjs) doesn't support yet (it falls back to an unlimited range when rangeIncrement is absent, which would make the grenade illegally unlimited-range rather than merely under-modeled) — a real, separate, generically-useful gap flagged for its own follow-up, not worked around here. \"Dangerous Recycling\"/\"Scoring\" are real passives, captured under `actions` for transcript honesty, not mechanically wired."
+}

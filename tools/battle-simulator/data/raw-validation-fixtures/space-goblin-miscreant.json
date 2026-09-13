@@ -1,0 +1,74 @@
+{
+  "id": "raw-validation-space-goblin-miscreant",
+  "name": "Space Goblin Miscreant",
+  "side": "opposition",
+  "level": 1,
+  "initiativeModifier": 4,
+  "maxHP": 15,
+  "currentHP": 15,
+  "ac": 15,
+  "saves": {
+    "fort": 7,
+    "ref": 7,
+    "will": 3
+  },
+  "speed": 25,
+  "strikes": [
+    {
+      "name": "Dogslicer",
+      "strikeType": "melee",
+      "attackBonus": 5,
+      "traits": [
+        "agile",
+        "analog",
+        "finesse"
+      ],
+      "damage": [
+        {
+          "dice": "1d6",
+          "bonus": 1,
+          "damageType": "slashing"
+        }
+      ]
+    },
+    {
+      "name": "Bigger Boom Pistol",
+      "strikeType": "ranged",
+      "attackBonus": 9,
+      "rangeIncrement": 40,
+      "traits": [
+        "boost-1d6",
+        "expend-2",
+        "razing",
+        "reload-1",
+        "tech"
+      ],
+      "damage": [
+        {
+          "dice": "1d6",
+          "bonus": 3,
+          "damageType": "sonic"
+        }
+      ]
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Goblin Scuttle",
+      "actionType": "reaction",
+      "actionsCost": null,
+      "description": "<p><strong>Trigger</strong> A goblin ally ends a move action adjacent to the miscreant</p><hr /><p><strong>Effect</strong> The miscreant Steps.</p>"
+    }
+  ],
+  "actions": [],
+  "lore": [],
+  "skills": {
+    "acrobatics": 5,
+    "athletics": 3,
+    "stealth": 6,
+    "thievery": 5
+  },
+  "intimidationModifier": null,
+  "athleticsModifier": 3,
+  "notes": "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/rulebook-bestiaries) — see test/character-builder/extract-npc.test.mjs. Level 1 melee+ranged pick (design doc §76 Phase 4, GH #64's own suggested-ten survey): Dogslicer (agile/finesse melee) and Bigger Boom Pistol (tech, real boost-1d6/razing traits — the boost isn't mechanically applied, same class of unmodeled-trait honesty as Kuriaku's own rifle) both derive unmodified through the existing toCombatant. \"Goblin Scuttle\" is a real reaction, captured under `reactions` for transcript honesty, not mechanically wired — a movement-triggered-on-hit shape distinct from the one reaction this engine fires."
+}

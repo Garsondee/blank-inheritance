@@ -1,0 +1,109 @@
+{
+  "id": "raw-validation-corpse-fleet-infantry",
+  "name": "Corpse Fleet Infantry",
+  "side": "opposition",
+  "level": 1,
+  "initiativeModifier": 5,
+  "maxHP": 26,
+  "currentHP": 26,
+  "ac": 15,
+  "saves": {
+    "fort": 8,
+    "ref": 9,
+    "will": 3
+  },
+  "speed": 25,
+  "strikes": [
+    {
+      "name": "Arc Pistol",
+      "strikeType": "ranged",
+      "attackBonus": 9,
+      "rangeIncrement": 30,
+      "traits": [
+        "arc",
+        "expend-2",
+        "reload-1",
+        "tech"
+      ],
+      "damage": [
+        {
+          "dice": "1d4",
+          "bonus": 0,
+          "damageType": "electricity"
+        }
+      ]
+    },
+    {
+      "name": "Autotarget Rifle",
+      "strikeType": "ranged",
+      "attackBonus": 9,
+      "rangeIncrement": 30,
+      "traits": [
+        "analog",
+        "automatic",
+        "expend-1",
+        "reload-2"
+      ],
+      "damage": [
+        {
+          "dice": "1d6",
+          "bonus": 0,
+          "damageType": "piercing"
+        }
+      ]
+    },
+    {
+      "name": "Battleglove",
+      "strikeType": "melee",
+      "attackBonus": 7,
+      "traits": [
+        "agile",
+        "analog",
+        "free-hand"
+      ],
+      "damage": [
+        {
+          "dice": "1d4",
+          "bonus": 2,
+          "damageType": "bludgeoning"
+        }
+      ]
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Coordinated Shuffle",
+      "actionType": "reaction",
+      "actionsCost": null,
+      "description": "<p><strong>Trigger</strong> An adjacent ally moves away from the Corpse Fleet infantry</p><hr /><p><strong>Effect</strong> The Corpse Fleet infantry Strides up to half their Speed. They must move in the same direction as the triggering ally.</p>"
+    }
+  ],
+  "actions": [
+    {
+      "name": "Void Healing",
+      "actionType": "passive",
+      "actionsCost": null,
+      "description": "<p>@Localize[PF2E.NPC.Abilities.Glossary.NegativeHealing]</p>"
+    },
+    {
+      "name": "Fusillade",
+      "actionType": "passive",
+      "actionsCost": null,
+      "description": "<p>The Corpse Fleet infantry's ranged Strikes deal an additional 1d4 precision damage when the Corpse Fleet infantry is within the first range increment of at least one other member of the Corpse Fleet wielding a ranged weapon.</p>"
+    }
+  ],
+  "lore": [
+    {
+      "name": "Corpse Fleet Lore",
+      "modifier": 3
+    }
+  ],
+  "skills": {
+    "acrobatics": 7,
+    "athletics": 5,
+    "intimidation": 4
+  },
+  "intimidationModifier": 4,
+  "athleticsModifier": 5,
+  "notes": "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level 1 three-weapon pick (design doc §76 Phase 4, GH #64's own suggested-ten survey): Arc Pistol (arc/tech), Autotarget Rifle (analog/automatic — the automatic trait isn't mechanically modeled, the same honest-trait-gap discipline already applied to Kuriaku's own rifle), and Battleglove (agile/free-hand melee) all derive unmodified through the existing toCombatant; its real second, close-combat \"Autotarget Rifle\" melee profile is not addressable by name (see this function's own comment) and isn't needed — three distinct real weapons is exactly this pick's own point. \"Coordinated Shuffle\" is a real reaction, captured under `reactions`, not mechanically wired. \"Void Healing\"/\"Fusillade\" are real passives, likewise captured but not wired."
+}

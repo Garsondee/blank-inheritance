@@ -1,0 +1,68 @@
+{
+  "id": "raw-validation-observer-class-security-robot",
+  "name": "Observer-Class Security Robot",
+  "side": "opposition",
+  "level": 1,
+  "initiativeModifier": 10,
+  "maxHP": 20,
+  "currentHP": 20,
+  "ac": 15,
+  "saves": {
+    "fort": 7,
+    "ref": 10,
+    "will": 4
+  },
+  "speed": 25,
+  "strikes": [
+    {
+      "name": "Body",
+      "strikeType": "melee",
+      "attackBonus": 7,
+      "traits": [],
+      "damage": [
+        {
+          "dice": "1d6",
+          "bonus": 1,
+          "damageType": "bludgeoning"
+        }
+      ]
+    },
+    {
+      "name": "Pulsecaster Pistol",
+      "strikeType": "ranged",
+      "attackBonus": 9,
+      "rangeIncrement": 30,
+      "traits": [
+        "expend-2",
+        "nonlethal",
+        "reload-1",
+        "tech"
+      ],
+      "damage": [
+        {
+          "dice": "1d6",
+          "bonus": 0,
+          "damageType": "electricity"
+        }
+      ]
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Exigency",
+      "actionType": "reaction",
+      "actionsCost": null,
+      "description": "<p><strong>Frequency</strong> once every 10 minutes</p>\n<p><strong>Trigger</strong> A creature targets the security robot with an attack</p><hr /><p><strong>Effect</strong> The robot overclocks its processing power to attempt to avoid an attack, gaining a +2 circumstance bonus to its AC against the triggering attack.</p>"
+    }
+  ],
+  "actions": [],
+  "lore": [],
+  "skills": {
+    "acrobatics": 6,
+    "athletics": 4,
+    "computers": 4
+  },
+  "intimidationModifier": null,
+  "athleticsModifier": 4,
+  "notes": "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level 1 high-Reflex construct pick (design doc §76 Phase 4, GH #64's own suggested-ten survey, real Reflex +10 — the highest save on any fixture in this project to date): Body (unarmed melee) and Pulsecaster Pistol (tech, nonlethal — the nonlethal trait isn't mechanically modeled, this engine has no separate nonlethal-damage/unconscious-not-dying track) both derive unmodified through the existing toCombatant. \"Exigency\" is a real reaction, captured under `reactions` for transcript honesty, not mechanically wired — an HP-threshold-triggered shape distinct from the one reaction this engine fires."
+}

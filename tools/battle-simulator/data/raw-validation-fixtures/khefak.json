@@ -1,0 +1,63 @@
+{
+  "id": "raw-validation-khefak",
+  "name": "Khefak",
+  "side": "opposition",
+  "level": -1,
+  "initiativeModifier": 5,
+  "maxHP": 7,
+  "currentHP": 7,
+  "ac": 15,
+  "saves": {
+    "fort": 5,
+    "ref": 2,
+    "will": 2
+  },
+  "speed": 20,
+  "strikes": [
+    {
+      "name": "Claw",
+      "strikeType": "melee",
+      "attackBonus": 6,
+      "traits": [
+        "agile"
+      ],
+      "damage": [
+        {
+          "dice": "1d4",
+          "bonus": 1,
+          "damageType": "slashing"
+        }
+      ]
+    },
+    {
+      "name": "Jaws",
+      "strikeType": "melee",
+      "attackBonus": 6,
+      "traits": [],
+      "damage": [
+        {
+          "dice": "1d4",
+          "bonus": 1,
+          "damageType": "piercing"
+        }
+      ]
+    }
+  ],
+  "reactions": [],
+  "actions": [
+    {
+      "name": "Gnaw Scrap",
+      "actionType": "passive",
+      "actionsCost": null,
+      "description": "<p>A khefak chews on an unattended object to feed, dealing @Damage[4[piercing]] damage every 10 minutes to the object. This damage ignores 10 points of Hardness. If a khefak doesn't spend at least 1 hour Gnawing Scrap per day, it begins to starve until it spends 10 minutes Gnawing Scrap.</p>"
+    }
+  ],
+  "lore": [],
+  "skills": {
+    "athletics": 5,
+    "survival": 5
+  },
+  "intimidationModifier": null,
+  "athleticsModifier": 5,
+  "notes": "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level -1 swarm-filler pick (design doc §76 Phase 4, GH #64's own suggested-ten survey): Claw (agile, real 1d6+2 slashing) and Jaws (real 1d8+2 piercing) both derive unmodified through the existing toCombatant. \"Gnaw Scrap\" is a real passive, captured under `actions` for transcript honesty, not mechanically wired (an exploration-trait ability, not combat-relevant)."
+}

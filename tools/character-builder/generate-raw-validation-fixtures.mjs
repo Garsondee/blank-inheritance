@@ -445,6 +445,180 @@ function buildKuriaku() {
   };
 }
 
+/**
+ * GH #64 (design doc §76 Phase 4, "the cheapest item in the programme") — ten more opposition NPCs,
+ * chosen from the issue's own pre-vetted "suggested varied ten" survey (all confirmed extractable
+ * directly, not re-guessed here): a level -1..1 spread, six real trait categories (animal/beast/
+ * undead/construct/aberration/mindless/tech/humanoid), pure attack-roll kits throughout — none of
+ * these ten needed deriveSpellAttacks/deriveConditionSave/deriveAreaAttack, unlike three of the
+ * original five NPCs, since none carries a save-based special or an area/spell attack worth wiring.
+ * Every one follows buildSecurityGoon()'s own minimal shape exactly — a real, final NPC statblock,
+ * no derivation, ~12 lines each, per the issue's own estimate.
+ *
+ * GH #57's own caveat applies to all ten identically, not restated per-function: every reaction and
+ * every plain `action`-type item below is captured under `reactions`/`actions` for transcript
+ * honesty only — personnel-engine's move branch fires a reaction ONLY for one named exactly
+ * "Reactive Strike" (flanking.mjs's hasReactiveStrike), which none of these ten happen to have —
+ * so these ten are, like the original five's own Security Goon/Xenowarden/Tough, systematically
+ * weaker in play than their real Paizo XP budget assumes.
+ */
+function buildKhefak() {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "alien-core-bestiary");
+  const khefak = findNPC(packDir, "Khefak");
+  if (!khefak) throw new Error("Khefak not found in alien-core-bestiary — Paizo may have renamed the NPC.");
+  const combatant = toCombatant(khefak, { strikeNames: ["Claw", "Jaws"] });
+  return {
+    id: "raw-validation-khefak",
+    ...combatant,
+    intimidationModifier: combatant.skills.intimidation ?? null, // real: not one of its 2 listed skills (athletics/survival)
+    athleticsModifier: combatant.skills.athletics ?? null, // real, trained — IS one of its 2 listed skills
+    notes: "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level -1 swarm-filler pick (design doc §76 Phase 4, GH #64's own suggested-ten survey): Claw (agile, real 1d6+2 slashing) and Jaws (real 1d8+2 piercing) both derive unmodified through the existing toCombatant. \"Gnaw Scrap\" is a real passive, captured under `actions` for transcript honesty, not mechanically wired (an exploration-trait ability, not combat-relevant)."
+  };
+}
+
+function buildScrapRat() {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "alien-core-bestiary");
+  const scrapRat = findNPC(packDir, "Scrap Rat");
+  if (!scrapRat) throw new Error("Scrap Rat not found in alien-core-bestiary — Paizo may have renamed the NPC.");
+  // Its real "Frag Grenade" is a plain melee-type single-target thrown Strike (unlike every PC-side
+  // grenade excluded elsewhere in this project, which are real @Template[burst] area effects, and
+  // unlike Tough's own Frag Grenade (Commercial), a real area-fire action) — but its own raw range
+  // shape is {increment: null, max: 70}, a flat maximum with NO range increment at all (RAW: thrown
+  // weapons don't get range-increment accuracy penalties the way firearms do). toCombatant only ever
+  // reads range.increment, and legality.mjs's checkStrikeRange falls back to Infinity when it's
+  // missing — confirmed directly, this would make the grenade illegally unlimited-range, not merely
+  // "arrives partly inert" the way an unmodeled trait does elsewhere in this project. Not wired,
+  // matching the issue's own "prefer creatures whose kit the engine models" guidance — Tail alone is
+  // a complete, honest, correctly-ranged combatant. Flagged via spawn_task as a real, separate,
+  // generically-useful gap (flat-max-range thrown weapons), not silently worked around here.
+  const combatant = toCombatant(scrapRat, { strikeNames: ["Tail"] });
+  return {
+    id: "raw-validation-scrap-rat",
+    ...combatant,
+    intimidationModifier: combatant.skills.intimidation ?? null, // real: not one of its 4 listed skills (acrobatics/crafting/stealth/thievery)
+    athleticsModifier: combatant.skills.athletics ?? null, // real: ALSO not one of its 4 listed skills — Acrobatics is its mobility skill instead
+    notes: "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level -1 pick (design doc §76 Phase 4, GH #64's own suggested-ten survey), melee-only: Tail (agile/finesse/razing) derives unmodified through the existing toCombatant. Its real \"Frag Grenade\" (a genuine single-target thrown Strike, not a burst/area effect) is deliberately NOT wired — its raw range shape is a flat 70ft maximum with no range increment at all, a real weapon shape this project's checkStrikeRange (personnel-engine/legality.mjs) doesn't support yet (it falls back to an unlimited range when rangeIncrement is absent, which would make the grenade illegally unlimited-range rather than merely under-modeled) — a real, separate, generically-useful gap flagged for its own follow-up, not worked around here. \"Dangerous Recycling\"/\"Scoring\" are real passives, captured under `actions` for transcript honesty, not mechanically wired."
+  };
+}
+
+function buildCyberneticZombie() {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "alien-core-bestiary");
+  const zombie = findNPC(packDir, "Cybernetic Zombie");
+  if (!zombie) throw new Error("Cybernetic Zombie not found in alien-core-bestiary — Paizo may have renamed the NPC.");
+  const combatant = toCombatant(zombie, { strikeNames: ["Laser Pistol", "Fist"] });
+  return {
+    id: "raw-validation-cybernetic-zombie",
+    ...combatant,
+    intimidationModifier: combatant.skills.intimidation ?? null, // real: not its one listed skill (athletics)
+    athleticsModifier: combatant.skills.athletics ?? null, // real, trained — its only listed skill
+    notes: "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level -1 HP-sponge pick (design doc §76 Phase 4, GH #64's own suggested-ten survey, HP 40 vs. every other level -1..0 pick's 7-26): Laser Pistol (ranged, tech) and Fist (unarmed melee) both derive unmodified through the existing toCombatant. \"Self-Destruct\" is a real reaction, captured under `reactions` for transcript honesty, not mechanically wired — its trigger (real death) is a structurally different shape from the one reaction this engine fires (GH #18's movement-triggered Reactive Strike). \"Cybernetics\"/\"Void Healing\" are real passives, captured under `actions`, not mechanically wired (this engine has no positive-vs-negative-healing-polarity mechanism for the latter)."
+  };
+}
+
+function buildJinsulTrooper() {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "alien-core-bestiary");
+  const trooper = findNPC(packDir, "Jinsul Trooper");
+  if (!trooper) throw new Error("Jinsul Trooper not found in alien-core-bestiary — Paizo may have renamed the NPC.");
+  const combatant = toCombatant(trooper, { strikeNames: ["Laser Rifle", "Leg Blade"] });
+  return {
+    id: "raw-validation-jinsul-trooper",
+    ...combatant,
+    intimidationModifier: combatant.skills.intimidation ?? null, // real, trained — IS one of its 3 listed skills (athletics/intimidation/survival)
+    athleticsModifier: combatant.skills.athletics ?? null, // real, trained — ALSO one of its 3 listed skills
+    notes: "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level 0 ranged pick (design doc §76 Phase 4, GH #64's own suggested-ten survey): Laser Rifle (100ft range, tech) derives unmodified. Its real Leg Blade carries a SECOND damage-roll entry (1 persistent bleed) this project does not model — toCombatant only ever reads the first entry (1d4+1 slashing) — the same honest, already-documented limitation as Xenowarden Greenhorn's own real second damage entry. \"Strider Leap\" is a real action, captured under `actions`, not mechanically wired (no dedicated movement-ability mechanism exists). \"All-Around Vision\" is a real passive, likewise captured but not wired."
+  };
+}
+
+function buildSpaceGoblinMiscreant() {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "rulebook-bestiaries");
+  const goblin = findNPC(packDir, "Space Goblin Miscreant");
+  if (!goblin) throw new Error("Space Goblin Miscreant not found in rulebook-bestiaries — Paizo may have renamed the NPC.");
+  const combatant = toCombatant(goblin, { strikeNames: ["Dogslicer", "Bigger Boom Pistol"] });
+  return {
+    id: "raw-validation-space-goblin-miscreant",
+    ...combatant,
+    intimidationModifier: combatant.skills.intimidation ?? null, // real: not one of its 4 listed skills (acrobatics/athletics/stealth/thievery)
+    athleticsModifier: combatant.skills.athletics ?? null, // real, trained — IS one of its 4 listed skills
+    notes: "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/rulebook-bestiaries) — see test/character-builder/extract-npc.test.mjs. Level 1 melee+ranged pick (design doc §76 Phase 4, GH #64's own suggested-ten survey): Dogslicer (agile/finesse melee) and Bigger Boom Pistol (tech, real boost-1d6/razing traits — the boost isn't mechanically applied, same class of unmodeled-trait honesty as Kuriaku's own rifle) both derive unmodified through the existing toCombatant. \"Goblin Scuttle\" is a real reaction, captured under `reactions` for transcript honesty, not mechanically wired — a movement-triggered-on-hit shape distinct from the one reaction this engine fires."
+  };
+}
+
+function buildAkata() {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "alien-core-bestiary");
+  const akata = findNPC(packDir, "Akata");
+  if (!akata) throw new Error("Akata not found in alien-core-bestiary — Paizo may have renamed the NPC.");
+  const combatant = toCombatant(akata, { strikeNames: ["Jaws"] });
+  return {
+    id: "raw-validation-akata",
+    ...combatant,
+    intimidationModifier: combatant.skills.intimidation ?? null, // real: not one of its 3 listed skills (acrobatics/athletics/stealth)
+    athleticsModifier: combatant.skills.athletics ?? null, // real, trained — IS one of its 3 listed skills
+    notes: "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level 1 pure-melee-beast pick (design doc §76 Phase 4, GH #64's own suggested-ten survey), only one real Strike (Jaws, agile/unarmed) — its real Hibernation/No Hearing/No Breath/Salt Water Vulnerability/Void Death traits are all real passives with no combat-roll effect of their own (sensory/environmental, not damage/save mechanics), captured under `actions` for transcript honesty, not mechanically wired."
+  };
+}
+
+function buildVoidZombie() {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "alien-core-bestiary");
+  const zombie = findNPC(packDir, "Void Zombie");
+  if (!zombie) throw new Error("Void Zombie not found in alien-core-bestiary — Paizo may have renamed the NPC.");
+  const combatant = toCombatant(zombie, { strikeNames: ["Fist", "Feeding Tendril"] });
+  return {
+    id: "raw-validation-void-zombie",
+    ...combatant,
+    intimidationModifier: combatant.skills.intimidation ?? null, // real: not its one listed skill (athletics)
+    athleticsModifier: combatant.skills.athletics ?? null, // real, trained — its only listed skill
+    notes: "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level 1 undead-brute pick (design doc §76 Phase 4, GH #64's own suggested-ten survey): Fist (unarmed) and Feeding Tendril (agile) both derive unmodified through the existing toCombatant. \"Feed on Blood\" is a real action, captured under `actions`, not mechanically wired (a real-HP-drain-and-heal ability this project's single-damage-type strike shape doesn't represent). \"Salt Water Vulnerability\"/\"Void Healing\" are real passives, likewise captured but not wired."
+  };
+}
+
+function buildObserverClassSecurityRobot() {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "alien-core-bestiary");
+  const robot = findNPC(packDir, "Observer-Class Security Robot");
+  if (!robot) throw new Error("Observer-Class Security Robot not found in alien-core-bestiary — Paizo may have renamed the NPC.");
+  const combatant = toCombatant(robot, { strikeNames: ["Body", "Pulsecaster Pistol"] });
+  return {
+    id: "raw-validation-observer-class-security-robot",
+    ...combatant,
+    intimidationModifier: combatant.skills.intimidation ?? null, // real: not one of its 3 listed skills (acrobatics/athletics/computers)
+    athleticsModifier: combatant.skills.athletics ?? null, // real, trained — IS one of its 3 listed skills
+    notes: "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level 1 high-Reflex construct pick (design doc §76 Phase 4, GH #64's own suggested-ten survey, real Reflex +10 — the highest save on any fixture in this project to date): Body (unarmed melee) and Pulsecaster Pistol (tech, nonlethal — the nonlethal trait isn't mechanically modeled, this engine has no separate nonlethal-damage/unconscious-not-dying track) both derive unmodified through the existing toCombatant. \"Exigency\" is a real reaction, captured under `reactions` for transcript honesty, not mechanically wired — an HP-threshold-triggered shape distinct from the one reaction this engine fires."
+  };
+}
+
+function buildCorpseFleetInfantry() {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "alien-core-bestiary");
+  const infantry = findNPC(packDir, "Corpse Fleet Infantry");
+  if (!infantry) throw new Error("Corpse Fleet Infantry not found in alien-core-bestiary — Paizo may have renamed the NPC.");
+  // Its real raw data carries a SECOND, redundant "Autotarget Rifle" melee item (a close-combat-bash
+  // profile of the same weapon, range: null) — toCombatant's own name-based lookup can only ever
+  // address the first of a repeated name, which the raw data's own item order happens to make the
+  // real RANGED profile (range increment 30, matching the issue's own "three weapons" framing), the
+  // same "can't address a repeated name, the useful one wins by order" situation Xenowarden
+  // Greenhorn's own build function already documented for her two real "Knife" items.
+  const combatant = toCombatant(infantry, { strikeNames: ["Arc Pistol", "Autotarget Rifle", "Battleglove"] });
+  return {
+    id: "raw-validation-corpse-fleet-infantry",
+    ...combatant,
+    intimidationModifier: combatant.skills.intimidation ?? null, // real, trained — IS one of its 3 listed skills (acrobatics/athletics/intimidation)
+    athleticsModifier: combatant.skills.athletics ?? null, // real, trained — ALSO one of its 3 listed skills
+    notes: "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level 1 three-weapon pick (design doc §76 Phase 4, GH #64's own suggested-ten survey): Arc Pistol (arc/tech), Autotarget Rifle (analog/automatic — the automatic trait isn't mechanically modeled, the same honest-trait-gap discipline already applied to Kuriaku's own rifle), and Battleglove (agile/free-hand melee) all derive unmodified through the existing toCombatant; its real second, close-combat \"Autotarget Rifle\" melee profile is not addressable by name (see this function's own comment) and isn't needed — three distinct real weapons is exactly this pick's own point. \"Coordinated Shuffle\" is a real reaction, captured under `reactions`, not mechanically wired. \"Void Healing\"/\"Fusillade\" are real passives, likewise captured but not wired."
+  };
+}
+
+function buildAssemblyOoze() {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "alien-core-bestiary");
+  const ooze = findNPC(packDir, "Assembly Ooze");
+  if (!ooze) throw new Error("Assembly Ooze not found in alien-core-bestiary — Paizo may have renamed the NPC.");
+  const combatant = toCombatant(ooze, { strikeNames: ["Pseudopod"] });
+  return {
+    id: "raw-validation-assembly-ooze",
+    ...combatant,
+    intimidationModifier: combatant.skills.intimidation ?? null, // real: not one of its 2 listed skills (athletics/stealth)
+    athleticsModifier: combatant.skills.athletics ?? null, // real, trained — IS one of its 2 listed skills
+    notes: "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level 1 damage-sponge pick (design doc §76 Phase 4, GH #64's own suggested-ten survey, AC 11 / HP 54, the lowest AC and joint-highest HP of any fixture in this project to date). Its real Pseudopod carries TWO real, non-persistent damage-roll entries on the SAME strike (1d6 bludgeoning AND 1d4 acid) — a genuinely different, more consequential gap than Jinsul Trooper's/Xenowarden Greenhorn's own dropped PERSISTENT entries: toCombatant only ever reads the first entry, so the real acid component is silently absent, not merely a secondary/over-time effect. Flagged honestly rather than hidden — fixing it would mean extending toCombatant's single-damage-type Strike shape (and personnel-engine's own single-damage-type resolution, which reads only `strike.damage[0]` throughout) to a real multi-damage-type model, a genuinely separate, larger change than this content-import ticket's own scope. \"Techsense\"/\"Assemble\" are real passives, captured under `actions`, not mechanically wired. \"Disassemble\"/\"Sticky Disarm\" are real actions, likewise captured but not wired (no dedicated disarm/self-destruct mechanism exists)."
+  };
+}
+
 const lunar17 = buildLunar17();
 const securityGoon = buildSecurityGoon();
 const tapkey = buildTapkey();
@@ -455,6 +629,16 @@ const vorzaMoonshot = buildVorzaMoonshot();
 const tough = buildTough();
 const obozaya = buildObozaya();
 const kuriaku = buildKuriaku();
+const khefak = buildKhefak();
+const scrapRat = buildScrapRat();
+const cyberneticZombie = buildCyberneticZombie();
+const jinsulTrooper = buildJinsulTrooper();
+const spaceGoblinMiscreant = buildSpaceGoblinMiscreant();
+const akata = buildAkata();
+const voidZombie = buildVoidZombie();
+const observerClassSecurityRobot = buildObserverClassSecurityRobot();
+const corpseFleetInfantry = buildCorpseFleetInfantry();
+const assemblyOoze = buildAssemblyOoze();
 
 writeFileSync(path.join(outDir, "lunar-17.json"), JSON.stringify(lunar17, null, 2) + "\n");
 writeFileSync(path.join(outDir, "security-goon.json"), JSON.stringify(securityGoon, null, 2) + "\n");
@@ -466,6 +650,16 @@ writeFileSync(path.join(outDir, "vorza-moonshot.json"), JSON.stringify(vorzaMoon
 writeFileSync(path.join(outDir, "tough.json"), JSON.stringify(tough, null, 2) + "\n");
 writeFileSync(path.join(outDir, "obozaya.json"), JSON.stringify(obozaya, null, 2) + "\n");
 writeFileSync(path.join(outDir, "kuriaku.json"), JSON.stringify(kuriaku, null, 2) + "\n");
+writeFileSync(path.join(outDir, "khefak.json"), JSON.stringify(khefak, null, 2) + "\n");
+writeFileSync(path.join(outDir, "scrap-rat.json"), JSON.stringify(scrapRat, null, 2) + "\n");
+writeFileSync(path.join(outDir, "cybernetic-zombie.json"), JSON.stringify(cyberneticZombie, null, 2) + "\n");
+writeFileSync(path.join(outDir, "jinsul-trooper.json"), JSON.stringify(jinsulTrooper, null, 2) + "\n");
+writeFileSync(path.join(outDir, "space-goblin-miscreant.json"), JSON.stringify(spaceGoblinMiscreant, null, 2) + "\n");
+writeFileSync(path.join(outDir, "akata.json"), JSON.stringify(akata, null, 2) + "\n");
+writeFileSync(path.join(outDir, "void-zombie.json"), JSON.stringify(voidZombie, null, 2) + "\n");
+writeFileSync(path.join(outDir, "observer-class-security-robot.json"), JSON.stringify(observerClassSecurityRobot, null, 2) + "\n");
+writeFileSync(path.join(outDir, "corpse-fleet-infantry.json"), JSON.stringify(corpseFleetInfantry, null, 2) + "\n");
+writeFileSync(path.join(outDir, "assembly-ooze.json"), JSON.stringify(assemblyOoze, null, 2) + "\n");
 
 console.log(`wrote lunar-17.json (AC ${lunar17.ac}, HP ${lunar17.maxHP}, ${lunar17.strikes.length} strikes, ${lunar17.spells.length} spell, ${lunar17.healAbilities.length} heal abilities, spellSlots ${JSON.stringify(lunar17.spellSlots)}, intimidation +${lunar17.intimidationModifier})`);
 console.log(`wrote security-goon.json (AC ${securityGoon.ac}, HP ${securityGoon.maxHP}, ${securityGoon.strikes.length} strikes, ${securityGoon.reactions.length} reaction, ${securityGoon.actions.length} other action, intimidation +${securityGoon.intimidationModifier})`);
@@ -477,3 +671,13 @@ console.log(`wrote vorza-moonshot.json (AC ${vorzaMoonshot.ac}, HP ${vorzaMoonsh
 console.log(`wrote tough.json (AC ${tough.ac}, HP ${tough.maxHP}, ${tough.strikes.length} strikes, ${tough.areaAttacks.length} areaAttack, intimidation +${tough.intimidationModifier})`);
 console.log(`wrote obozaya.json (AC ${obozaya.ac}, HP ${obozaya.maxHP}, ${obozaya.strikes.length} strikes incl. a ${obozaya.strikes.find((s) => s.name === "Laser Rifle")?.rangeIncrement}ft rifle, intimidation +${obozaya.intimidationModifier})`);
 console.log(`wrote kuriaku.json (AC ${kuriaku.ac}, HP ${kuriaku.maxHP}, ${kuriaku.strikes.length} strikes incl. a ${kuriaku.strikes.find((s) => s.name === "Shobhad Longrifle")?.rangeIncrement}ft rifle, intimidation ${kuriaku.intimidationModifier})`);
+console.log(`wrote khefak.json (level ${khefak.level}, AC ${khefak.ac}, HP ${khefak.maxHP}, ${khefak.strikes.length} strikes, initiative +${khefak.initiativeModifier})`);
+console.log(`wrote scrap-rat.json (level ${scrapRat.level}, AC ${scrapRat.ac}, HP ${scrapRat.maxHP}, ${scrapRat.strikes.length} strikes, initiative +${scrapRat.initiativeModifier})`);
+console.log(`wrote cybernetic-zombie.json (level ${cyberneticZombie.level}, AC ${cyberneticZombie.ac}, HP ${cyberneticZombie.maxHP}, ${cyberneticZombie.strikes.length} strikes, ${cyberneticZombie.reactions.length} reaction, initiative +${cyberneticZombie.initiativeModifier})`);
+console.log(`wrote jinsul-trooper.json (level ${jinsulTrooper.level}, AC ${jinsulTrooper.ac}, HP ${jinsulTrooper.maxHP}, ${jinsulTrooper.strikes.length} strikes, initiative +${jinsulTrooper.initiativeModifier})`);
+console.log(`wrote space-goblin-miscreant.json (level ${spaceGoblinMiscreant.level}, AC ${spaceGoblinMiscreant.ac}, HP ${spaceGoblinMiscreant.maxHP}, ${spaceGoblinMiscreant.strikes.length} strikes, ${spaceGoblinMiscreant.reactions.length} reaction, initiative +${spaceGoblinMiscreant.initiativeModifier})`);
+console.log(`wrote akata.json (level ${akata.level}, AC ${akata.ac}, HP ${akata.maxHP}, ${akata.strikes.length} strikes, initiative +${akata.initiativeModifier})`);
+console.log(`wrote void-zombie.json (level ${voidZombie.level}, AC ${voidZombie.ac}, HP ${voidZombie.maxHP}, ${voidZombie.strikes.length} strikes, initiative +${voidZombie.initiativeModifier})`);
+console.log(`wrote observer-class-security-robot.json (level ${observerClassSecurityRobot.level}, AC ${observerClassSecurityRobot.ac}, HP ${observerClassSecurityRobot.maxHP}, ${observerClassSecurityRobot.strikes.length} strikes, ${observerClassSecurityRobot.reactions.length} reaction, initiative +${observerClassSecurityRobot.initiativeModifier})`);
+console.log(`wrote corpse-fleet-infantry.json (level ${corpseFleetInfantry.level}, AC ${corpseFleetInfantry.ac}, HP ${corpseFleetInfantry.maxHP}, ${corpseFleetInfantry.strikes.length} strikes, ${corpseFleetInfantry.reactions.length} reaction, initiative +${corpseFleetInfantry.initiativeModifier})`);
+console.log(`wrote assembly-ooze.json (level ${assemblyOoze.level}, AC ${assemblyOoze.ac}, HP ${assemblyOoze.maxHP}, ${assemblyOoze.strikes.length} strikes, initiative +${assemblyOoze.initiativeModifier})`);

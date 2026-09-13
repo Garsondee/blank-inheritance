@@ -242,7 +242,14 @@ test("kuriaku.json: checked-in strikes match a fresh live re-extraction exactly 
   assert.equal(fixture.side, "opposition");
 });
 
-const ALL_FIXTURE_NAMES = ["lunar-17.json", "security-goon.json", "tapkey.json", "xenowarden-greenhorn.json", "bennit.json", "erabryth.json", "vorza-moonshot.json", "tough.json", "obozaya.json", "kuriaku.json"];
+const ALL_FIXTURE_NAMES = [
+  "lunar-17.json", "security-goon.json", "tapkey.json", "xenowarden-greenhorn.json", "bennit.json",
+  "erabryth.json", "vorza-moonshot.json", "tough.json", "obozaya.json", "kuriaku.json",
+  // GH #64
+  "khefak.json", "scrap-rat.json", "cybernetic-zombie.json", "jinsul-trooper.json",
+  "space-goblin-miscreant.json", "akata.json", "void-zombie.json",
+  "observer-class-security-robot.json", "corpse-fleet-infantry.json", "assembly-ooze.json"
+];
 
 /**
  * CONFORMANCE (GH #69's own remaining scope, design doc §76.9: "Do the numbers match the cited
@@ -288,6 +295,17 @@ const erabrythNPC = loadNPC("alien-core-bestiary", "Erabryth");
 const toughNPC = loadNPC("rulebook-bestiaries", "Tough");
 const securityGoonNPC = loadNPC("rulebook-bestiaries", "Security Goon");
 const kuriakuNPC = loadNPC("starfinder-society-bestiary", "Kuriaku");
+// GH #64
+const khefakNPC = loadNPC("alien-core-bestiary", "Khefak");
+const scrapRatNPC = loadNPC("alien-core-bestiary", "Scrap Rat");
+const cyberneticZombieNPC = loadNPC("alien-core-bestiary", "Cybernetic Zombie");
+const jinsulTrooperNPC = loadNPC("alien-core-bestiary", "Jinsul Trooper");
+const spaceGoblinMiscreantNPC = loadNPC("rulebook-bestiaries", "Space Goblin Miscreant");
+const akataNPC = loadNPC("alien-core-bestiary", "Akata");
+const voidZombieNPC = loadNPC("alien-core-bestiary", "Void Zombie");
+const observerClassSecurityRobotNPC = loadNPC("alien-core-bestiary", "Observer-Class Security Robot");
+const corpseFleetInfantryNPC = loadNPC("alien-core-bestiary", "Corpse Fleet Infantry");
+const assemblyOozeNPC = loadNPC("alien-core-bestiary", "Assembly Ooze");
 
 const CONFORMANCE_CASES = [
   { file: "lunar-17.json", array: "spells", derive: () => deriveSpells(lunar17Ingredients, ["Eldritch Lance"], lunar17Mods) },
@@ -326,9 +344,15 @@ test("CONFORMANCE (GH #69): every currently-populated non-strike ability array m
 // — confirmed directly against every current fixture's own raw system.initiative.statistic). NPCs
 // get a real conformance check against fresh raw pack data, the same discipline as CONFORMANCE_CASES
 // above, since an NPC fixture carries no separate `perception` field to self-compare against.
-test("CONFORMANCE (GH #63): every fixture is level 1, and initiativeModifier matches a fresh re-derivation/re-check exactly", () => {
+test("CONFORMANCE (GH #63): every fixture's level matches its real, expected value, and initiativeModifier matches a fresh re-derivation/re-check exactly", () => {
+  // GH #64 gave this project its first non-level-1 fixtures — a per-fixture expected table is a
+  // stricter, more useful check than the old blanket "===1" ever was (catches a wrong level far
+  // more precisely than "is it 1"), not just a forced accommodation of the new spread.
+  const EXPECTED_LEVEL = {
+    "khefak.json": -1, "scrap-rat.json": -1, "cybernetic-zombie.json": -1, "jinsul-trooper.json": 0
+  };
   for (const name of ALL_FIXTURE_NAMES) {
-    assert.equal(readFixture(name).level, 1, `${name}: expected level 1 — every current fixture is a level-1 pregen or NPC`);
+    assert.equal(readFixture(name).level, EXPECTED_LEVEL[name] ?? 1, `${name}: level no longer matches its expected value`);
   }
 
   for (const name of ["lunar-17.json", "tapkey.json", "bennit.json", "vorza-moonshot.json", "obozaya.json"]) {
@@ -341,7 +365,18 @@ test("CONFORMANCE (GH #63): every fixture is level 1, and initiativeModifier mat
     { file: "xenowarden-greenhorn.json", npc: xenowardenNPC },
     { file: "erabryth.json", npc: erabrythNPC },
     { file: "tough.json", npc: toughNPC },
-    { file: "kuriaku.json", npc: kuriakuNPC }
+    { file: "kuriaku.json", npc: kuriakuNPC },
+    // GH #64
+    { file: "khefak.json", npc: khefakNPC },
+    { file: "scrap-rat.json", npc: scrapRatNPC },
+    { file: "cybernetic-zombie.json", npc: cyberneticZombieNPC },
+    { file: "jinsul-trooper.json", npc: jinsulTrooperNPC },
+    { file: "space-goblin-miscreant.json", npc: spaceGoblinMiscreantNPC },
+    { file: "akata.json", npc: akataNPC },
+    { file: "void-zombie.json", npc: voidZombieNPC },
+    { file: "observer-class-security-robot.json", npc: observerClassSecurityRobotNPC },
+    { file: "corpse-fleet-infantry.json", npc: corpseFleetInfantryNPC },
+    { file: "assembly-ooze.json", npc: assemblyOozeNPC }
   ];
   for (const { file, npc } of npcCases) {
     const fixture = readFixture(file);

@@ -1,0 +1,78 @@
+{
+  "id": "raw-validation-cybernetic-zombie",
+  "name": "Cybernetic Zombie",
+  "side": "opposition",
+  "level": -1,
+  "initiativeModifier": 3,
+  "maxHP": 40,
+  "currentHP": 40,
+  "ac": 15,
+  "saves": {
+    "fort": 5,
+    "ref": 6,
+    "will": 2
+  },
+  "speed": 20,
+  "strikes": [
+    {
+      "name": "Laser Pistol",
+      "strikeType": "ranged",
+      "attackBonus": 6,
+      "rangeIncrement": 40,
+      "traits": [
+        "expend-2",
+        "reload-1",
+        "tech"
+      ],
+      "damage": [
+        {
+          "dice": "1d6",
+          "bonus": 0,
+          "damageType": "fire"
+        }
+      ]
+    },
+    {
+      "name": "Fist",
+      "strikeType": "melee",
+      "attackBonus": 4,
+      "traits": [],
+      "damage": [
+        {
+          "dice": "1d6",
+          "bonus": 2,
+          "damageType": "bludgeoning"
+        }
+      ]
+    }
+  ],
+  "reactions": [
+    {
+      "name": "Self-Destruct",
+      "actionType": "reaction",
+      "actionsCost": null,
+      "description": "<p>A cybernetic zombie must use this reaction unless its cybernetics are disabled</p>\n<p><strong>Trigger</strong> The cybernetic zombie is reduced to 0 Hit Points</p><hr /><p><strong>Effect</strong> The zombie's damaged cybernetics explode, dealing @Damage[1d8[electricity]|options:area-damage] damage in a @Template[type:emanation|distance:10] (@Check[reflex|dc:15|basic|options:area-effect] save). This ability destroys the zombie's integrated items and any tech items on the zombie of 1st level or lower.</p>"
+    }
+  ],
+  "actions": [
+    {
+      "name": "Cybernetics",
+      "actionType": "passive",
+      "actionsCost": null,
+      "description": "<p>A cybernetic zombie's cybernetics can be disabled for 1 hour by a creature that succeeds at a DC 15 check to [[/act disable-device dc=15]] or Disable a System. Attempting to do so can typically be done only while within reach of the zombie and is a 2-action activity that has the manipulate trait. The cybernetics are also disabled for 1 hour if the zombie takes any electricity damage. A cybernetic zombie with disabled cybernetics is @UUID[Compendium.sf2e.conditions.Item.xYTAsEpcJE1Ccni3]{Slowed 1} and can't use any reactions.</p>"
+    },
+    {
+      "name": "Void Healing",
+      "actionType": "passive",
+      "actionsCost": null,
+      "description": "<p>@Localize[PF2E.NPC.Abilities.Glossary.NegativeHealing]</p>"
+    }
+  ],
+  "lore": [],
+  "skills": {
+    "athletics": 5
+  },
+  "intimidationModifier": null,
+  "athleticsModifier": 5,
+  "notes": "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level -1 HP-sponge pick (design doc §76 Phase 4, GH #64's own suggested-ten survey, HP 40 vs. every other level -1..0 pick's 7-26): Laser Pistol (ranged, tech) and Fist (unarmed melee) both derive unmodified through the existing toCombatant. \"Self-Destruct\" is a real reaction, captured under `reactions` for transcript honesty, not mechanically wired — its trigger (real death) is a structurally different shape from the one reaction this engine fires (GH #18's movement-triggered Reactive Strike). \"Cybernetics\"/\"Void Healing\" are real passives, captured under `actions`, not mechanically wired (this engine has no positive-vs-negative-healing-polarity mechanism for the latter)."
+}

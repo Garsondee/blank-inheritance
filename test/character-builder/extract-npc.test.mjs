@@ -57,6 +57,29 @@ test("toCombatant: throws a clear error rather than silently deriving initiative
   assert.throws(() => toCombatant(stealthInitiativeNPC, { strikeNames: ["Arc Pistol", "Baton"] }), /initiative uses "stealth", not Perception/);
 });
 
+// GH #64: found while wiring Assembly Ooze, whose real Pseudopod carries two REAL, non-persistent
+// damage entries (1d6 bludgeoning AND 1d4 acid, both always apply, no over-time/secondary framing at
+// all) — genuinely different from the already-documented "second entry is persistent bleed/flavor"
+// case (Xenowarden Greenhorn's Gouging Claw, Jinsul Trooper's Leg Blade), where dropping it loses
+// only a minor secondary effect. Here the dropped entry is a real chunk of the strike's own base
+// damage, silently under-dealing damage relative to the real statblock — pinned directly as its own
+// unit test, not left implicit in one fixture's own notes field.
+test("toCombatant: a melee item with TWO real (non-persistent) damageRolls entries only reads the first — a real, if narrow, gap this project accepts rather than hides", () => {
+  const goon = findNPC(bestiaryDir, "Security Goon");
+  const dualDamageNPC = {
+    ...goon,
+    items: [{
+      type: "melee", name: "Twin Blade",
+      system: {
+        bonus: { value: 9 }, range: null, traits: { value: [] },
+        damageRolls: { a: { damage: "1d6", damageType: "bludgeoning" }, b: { damage: "1d4", damageType: "acid" } }
+      }
+    }]
+  };
+  const [strike] = toCombatant(dualDamageNPC, { strikeNames: ["Twin Blade"] }).strikes;
+  assert.deepEqual(strike.damage, [{ dice: "1d6", bonus: 0, damageType: "bludgeoning" }], "only the first entry — the second (acid) is silently dropped, not summed or merged");
+});
+
 test("toCombatant: Arc Pistol strike (ranged) — attack +9, damage 1d4+2 electricity, range increment 30, real traits", () => {
   const goon = findNPC(bestiaryDir, "Security Goon");
   const [arcPistol] = toCombatant(goon, { strikeNames: ["Arc Pistol"] }).strikes;
