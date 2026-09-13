@@ -340,6 +340,72 @@ test("region drawing snaps to existing region borders, and only region borders",
     "radius is a different-sized target at every zoom level");
 });
 
+test("dragging a region vertex also drags any other region's vertex welded to the same point", () => {
+  // Snapping (above) only helps a vertex moving TOWARD a border it doesn't
+  // yet touch. It does nothing for the opposite, far more common case while
+  // tidying an already-mostly-tessellated map: dragging a vertex AWAY from a
+  // point it currently shares with a neighbour. Left alone, that turns one
+  // exactly-shared corner into two merely-close ones -- a sliver, created by
+  // the very act of trying to fix one. Reported live once the map held 56
+  // regions: "every single time I move a vertex we create a potential
+  // sliver that needs to be addressed."
+  const src = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(/function findWeldedVertices\(entry, x, y\)/.test(src),
+    "draw.js no longer finds a dragged vertex's coincident neighbours -- " +
+    "editing a shared tessellation corner will silently strand the other " +
+    "side of the border");
+  assert.ok(/WELD_TOLERANCE_PX\s*=\s*0\.\d+/.test(src),
+    "the weld tolerance is no longer a small, tight epsilon -- welding must " +
+    "only join points snapping already made EXACTLY equal, never every " +
+    "vertex that happens to be nearby (that is what drop-to-snap is for)");
+  // Found (and captured) at gesture START, on both handle kinds -- the
+  // moment movement begins, the dragged point stops being coincident with
+  // anything, so re-scanning mid-drag would always find nothing.
+  assert.ok(/m\.on\("dragstart",\s*\(\)\s*=>\s*\{[\s\S]{0,200}findWeldedVertices\(/.test(src),
+    "the main vertex handle no longer looks up welded neighbours when its " +
+    "drag starts");
+  assert.ok(/mid\.on\("dragstart",\s*\(\)\s*=>\s*\{[\s\S]{0,300}findWeldedVertices\(/.test(src),
+    "the midpoint-insert handle no longer looks up welded neighbours when " +
+    "its drag starts");
+  // And actually moved, every tick, not just looked up once and forgotten.
+  assert.ok(/for \(const w of welded\)\s*\{[\s\S]{0,150}ringPx\[w\.index\]\s*=[\s\S]{0,150}setLatLngs/.test(src),
+    "a welded neighbour's ring is no longer updated during the drag -- its " +
+    "polygon would visibly lag behind, or never move at all, while the " +
+    "vertex it shares a corner with does");
+});
+
+test("the map-level snap hint stands down for the whole span of a vertex/midpoint drag", () => {
+  // showSnapHint runs its own full-region scan from the MAP's own
+  // "mousemove" -- which keeps firing for the entire drag regardless of
+  // tool, since Leaflet's marker dragging doesn't suppress it. Before this,
+  // that was a SECOND, entirely unthrottled copy of the exact per-mousemove
+  // cost the drag handler's own rafThrottle exists to bound, running in
+  // parallel with it. Reported live as still "extremely laggy... unusable"
+  // even after the drag handler alone was throttled.
+  const src = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(/let editingVertex = false/.test(src),
+    "draw.js no longer tracks whether a vertex/midpoint drag is in " +
+    "progress -- showSnapHint has no way to stand down for it");
+  assert.ok(/function showSnapHint\(p\)\s*\{\s*(?:\/\/[^\n]*\n\s*)*if \(editingVertex\) return;/.test(src),
+    "showSnapHint no longer checks editingVertex first -- it will run its " +
+    "full-region scan on every native mousemove even while a vertex's own " +
+    "drag handler already owns the snap hint");
+  assert.ok(/m\.on\("dragstart",\s*\(\)\s*=>\s*\{\s*editingVertex = true/.test(src),
+    "the main vertex handle no longer sets editingVertex when its drag " +
+    "starts");
+  assert.ok(/editingVertex = false[\s\S]{0,40}snapLayer\.clearLayers\(\)/.test(src),
+    "a drag's end no longer clears editingVertex -- the map-level snap " +
+    "hint would stay suppressed for the rest of the session");
+  // The remaining legitimate case -- hovering while about to place a fresh
+  // region/bisect draft point -- still runs the same expensive scan on
+  // every mousemove, so it needs the same once-per-frame throttle the drag
+  // handler already gets.
+  assert.ok(/showSnapHint:\s*rafThrottle\(showSnapHint\)/.test(src),
+    "the exported showSnapHint is no longer throttled -- hovering with " +
+    "Region/Bisect armed will run a full-region scan on every native " +
+    "mousemove again");
+});
+
 test("the shared fixture is reachable from both suites' expected paths", () => {
   const fixture = JSON.parse(
     readFileSync(join(here, "fixtures", "gazetteer-grid-cases.json"), "utf8"));

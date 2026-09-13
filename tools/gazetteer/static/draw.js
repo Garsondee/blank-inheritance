@@ -172,6 +172,33 @@ export function createDrawController(opts) {
     return null;
   }
 
+  /** Every OTHER region's ring vertex currently sitting exactly on top of
+   *  (x, y) -- a shared tessellation corner, not merely a nearby one.
+   *  Dragging a vertex away from a point it currently shares with a
+   *  neighbour, without also moving the neighbour's own copy, is exactly
+   *  how a drag creates a sliver: the two borders were identical, and now
+   *  they are merely close. A tight tolerance on purpose -- this has to
+   *  find points that snapping already made EXACTLY equal, never every
+   *  vertex that just happens to be nearby (that's what snapping on drop
+   *  is for). */
+  const WELD_TOLERANCE_PX = 0.05;
+  function findWeldedVertices(entry, x, y) {
+    const welded = [];
+    for (const [id, other] of shapes) {
+      if (id === entry.item.localId) continue;
+      if (other.item.tier !== "region") continue;
+      const ring = other.item.geometry && other.item.geometry.ringPx;
+      if (!ring) continue;
+      for (let i = 0; i < ring.length; i++) {
+        if (Math.abs(ring[i][0] - x) < WELD_TOLERANCE_PX &&
+            Math.abs(ring[i][1] - y) < WELD_TOLERANCE_PX) {
+          welded.push({ entry: other, index: i });
+        }
+      }
+    }
+    return welded;
+  }
+
   /** The snapped position for a draft click, or the raw one. Rounding happens
    *  AFTER snapping, and a snapped vertex is copied through unrounded, or
    *  round1 would reintroduce the very sub-pixel mismatch this prevents. */
@@ -215,6 +242,13 @@ export function createDrawController(opts) {
   }
 
   function showSnapHint(p) {
+    // A vertex/midpoint drag in progress already owns snapLayer via its own
+    // snapEditedVertex call and has nothing to gain from this map-level
+    // hint running too. This fires from the MAP's own "mousemove", which
+    // keeps firing for the whole drag regardless of tool -- left unguarded,
+    // it was a SECOND, entirely unthrottled full-region scan running
+    // alongside the throttled one, on every native mousemove event.
+    if (editingVertex) return;
     snapLayer.clearLayers();
     if (tool !== "region" && tool !== "bisect") return;
     const snapped = snapRegionPoint(p[0], p[1]);
@@ -437,25 +471,31 @@ export function createDrawController(opts) {
 
   // --- vertex handles ------------------------------------------------------
 
-  /** Runs `fn` with the marker's freshest state at most once per animation
-   *  frame, instead of on every native "drag" event. A real mouse (or a
-   *  trackpad, at an even higher rate) fires drag events far faster than the
-   *  screen repaints, and snapEditedVertex scans every vertex and edge of
-   *  every region in the session on each call -- cheap once per frame,
-   *  laggy enough to read as "unusable" once the session held 50+ regions
-   *  and it ran on every single one of those events instead. The handle's
-   *  own on-screen position is unaffected either way -- Leaflet moves it
-   *  natively before this ever runs -- so throttling only delays the snap
-   *  check, the polygon outline redraw, and the status text, never the
-   *  handle tracking the cursor. */
+  /** Runs `fn` with its latest call's arguments at most once per animation
+   *  frame, instead of on every native "drag"/"mousemove" event. A real
+   *  mouse (or a trackpad, at an even higher rate) fires those far faster
+   *  than the screen repaints, and both snapEditedVertex and showSnapHint
+   *  scan every vertex and edge of every region in the session on each
+   *  call -- cheap once per frame, laggy enough to read as "unusable" once
+   *  the session held 50+ regions and either ran on every single one of
+   *  those events instead. A dragged handle's own on-screen position is
+   *  unaffected either way -- Leaflet moves it natively before this ever
+   *  runs -- so throttling only delays the snap check, the polygon outline
+   *  redraw, and the status text, never the handle tracking the cursor. */
   function rafThrottle(fn) {
     let scheduled = false;
-    return () => {
+    let latestArgs = [];
+    return (...args) => {
+      latestArgs = args;
       if (scheduled) return;
       scheduled = true;
-      requestAnimationFrame(() => { scheduled = false; fn(); });
+      requestAnimationFrame(() => { scheduled = false; fn(...latestArgs); });
     };
   }
+
+  // Set for the whole span of a vertex/midpoint drag. showSnapHint (below)
+  // checks this to stand down for that span -- see its own comment.
+  let editingVertex = false;
 
   function drawHandles() {
     handleLayer.clearLayers();
@@ -501,6 +541,16 @@ export function createDrawController(opts) {
         icon: L.divIcon({ className: "gz-vertex", iconSize: [26, 26] }),
         draggable: true, zIndexOffset: 1000,
       });
+      // Every OTHER region's vertex currently welded to this one -- see
+      // findWeldedVertices. Captured once, at the start of the gesture:
+      // re-scanning mid-drag would find nothing after the first pixel of
+      // movement, since the whole point is that two points stop being
+      // coincident the moment only one of them moves.
+      let welded = [];
+      m.on("dragstart", () => {
+        editingVertex = true;
+        welded = findWeldedVertices(entry, ring[i][0], ring[i][1]);
+      });
       const applyDrag = () => {
         const p = px(m.getLatLng());
         ring[i] = snapEditedVertex(entry, p);
@@ -510,6 +560,15 @@ export function createDrawController(opts) {
         // a bug, not an assist.
         m.setLatLng(ll(ring[i][0], ring[i][1]));
         entry.layer.setLatLngs(polyLatLngs(entry.item.geometry));
+        // Every welded neighbour moves with it -- otherwise a border that
+        // was genuinely shared becomes merely close, which is a sliver by
+        // another name. Each gets its own fresh [x, y], never a shared
+        // array reference, so a later, independent edit to one region's
+        // ring can never silently mutate another's.
+        for (const w of welded) {
+          w.entry.item.geometry.ringPx[w.index] = [ring[i][0], ring[i][1]];
+          w.entry.layer.setLatLngs(polyLatLngs(w.entry.item.geometry));
+        }
         liveReport(ring);
       };
       m.on("drag", rafThrottle(applyDrag));
@@ -518,6 +577,7 @@ export function createDrawController(opts) {
         // rAF from the last drag event runs, and the release point must
         // always be exact, not whichever frame happened to land first.
         applyDrag();
+        editingVertex = false;
         snapLayer.clearLayers();
         onGeometryChange(entry.item);
         drawHandles();
@@ -545,9 +605,12 @@ export function createDrawController(opts) {
         draggable: true, zIndexOffset: 800,
       });
       let inserted = false;
+      let welded = [];
       mid.on("dragstart", () => {
+        editingVertex = true;
         ring.splice(i + 1, 0, [x, y]);
         inserted = true;
+        welded = findWeldedVertices(entry, x, y);
       });
       const applyMidDrag = () => {
         if (!inserted) return;
@@ -555,11 +618,16 @@ export function createDrawController(opts) {
         ring[i + 1] = snapEditedVertex(entry, p);
         mid.setLatLng(ll(ring[i + 1][0], ring[i + 1][1]));
         entry.layer.setLatLngs(polyLatLngs(entry.item.geometry));
+        for (const w of welded) {
+          w.entry.item.geometry.ringPx[w.index] = [ring[i + 1][0], ring[i + 1][1]];
+          w.entry.layer.setLatLngs(polyLatLngs(w.entry.item.geometry));
+        }
         liveReport(ring);
       };
       mid.on("drag", rafThrottle(applyMidDrag));
       mid.on("dragend", () => {
         applyMidDrag();
+        editingVertex = false;
         snapLayer.clearLayers();
         onGeometryChange(entry.item);
         drawHandles();
@@ -973,7 +1041,8 @@ export function createDrawController(opts) {
   return {
     setTool, get tool() { return tool; },
     addShape, removeShape, clearShapes, select, selected, selectMany, selectedList,
-    toggle, drawHandles, nudge, restyleOne, restyleAll, showSnapHint, snapRegionPoint,
+    toggle, drawHandles, nudge, restyleOne, restyleAll, snapRegionPoint,
+    showSnapHint: rafThrottle(showSnapHint),
     finishDraft, cancelDraft, undoPoint, setFocus,
     get drafting() { return !!drafting; },
     shapes,
