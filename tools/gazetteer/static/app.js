@@ -71,6 +71,73 @@ const state = {
 
 // --- api --------------------------------------------------------------------
 
+// --- client activity log ------------------------------------------------
+//
+// Asked for directly: "have the app output a log, then you can examine
+// that log to see what I'm doing and maybe understand better." Buffered
+// here and flushed to /api/client-log, which appends one JSON line per
+// entry to tools/gazetteer/_client.log (gitignored, a debugging aid, not
+// project content). Every entry carries this tab's own session id and a
+// client timestamp, so a session can be replayed in order after the fact
+// instead of reconstructed from a bug report alone.
+//
+// Logging failures are swallowed everywhere, deliberately: a debug
+// channel that can itself throw and break the page defeats the entire
+// point of having it.
+const LOG_SESSION_ID = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+let logBuffer = [];
+let logFlushTimer = null;
+
+function clientLog(type, data) {
+  try {
+    logBuffer.push(Object.assign({ sessionId: LOG_SESSION_ID, t: Date.now(), type }, data || {}));
+  } catch (e) { return; }
+  if (logBuffer.length >= 20) { flushClientLog(false); return; }
+  if (!logFlushTimer) logFlushTimer = setTimeout(() => flushClientLog(false), 2000);
+}
+
+function flushClientLog(useBeacon) {
+  clearTimeout(logFlushTimer);
+  logFlushTimer = null;
+  if (!logBuffer.length) return;
+  const entries = logBuffer;
+  logBuffer = [];
+  let payload;
+  try {
+    payload = JSON.stringify({ entries });
+  } catch (e) { return; }
+  if (useBeacon && navigator.sendBeacon) {
+    try {
+      navigator.sendBeacon("/api/client-log", new Blob([payload], { type: "application/json" }));
+      return;
+    } catch (e) { /* fall through to fetch */ }
+  }
+  fetch("/api/client-log", {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: payload,
+  }).catch(() => {});
+}
+
+window.addEventListener("error", (e) => {
+  clientLog("js_error", {
+    message: e.message, source: e.filename, line: e.lineno,
+    stack: e.error && e.error.stack,
+  });
+});
+window.addEventListener("unhandledrejection", (e) => {
+  clientLog("js_error", {
+    message: "unhandled rejection: " + (e.reason && e.reason.message || e.reason),
+    stack: e.reason && e.reason.stack,
+  });
+});
+// A backgrounded tab is the last reliable moment a normal flush can still
+// land; pagehide is the last moment of any kind. Both use sendBeacon,
+// which is built for exactly this -- surviving past when the page itself
+// is torn down, unlike a fetch a navigating-away tab can simply cancel.
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") flushClientLog(true);
+});
+window.addEventListener("pagehide", () => flushClientLog(true));
+
 async function api(path, body) {
   const res = await fetch(path, body === undefined ? {} : {
     method: "POST",
@@ -771,6 +838,7 @@ async function boot() {
     onBisect,
     onPick: onPick,
     onStatus: (text) => setStatus(text || defaultStatus()),
+    onLog: clientLog,
   });
 
   wireLayerToggles(gridLayer);
@@ -1028,11 +1096,13 @@ async function undo() {
     updateUndoButton(data.undoAvailable);
     refreshCoverage();
     refreshOverview();
+    clientLog("undo", { ok: true, undid: data.undid });
   } catch (err) {
     // The server's own message already distinguishes "nothing to undo" from
     // a stale-draft conflict -- no need to re-guess which one happened here.
     const message = (err.payload && err.payload.error) || err.message;
     setStatus(err.status === 409 ? message : "could not undo: " + message, "error");
+    clientLog("undo", { ok: false, status: err.status, message });
   }
 }
 
@@ -1068,6 +1138,7 @@ async function save() {
     if (data.problems && data.problems.length) {
       setStatus("saved, but: " + data.problems.join("; "), "warn");
     }
+    clientLog("save", { ok: true, problems: data.problems || [], resyncedLocations: data.resyncedLocations || [] });
   } catch (err) {
     // 409: the file changed on disk since this page loaded it, so saving
     // would revert whatever did that. Say so in words somebody can act on
@@ -1081,9 +1152,11 @@ async function save() {
         + "screen; copy anything you need before reloading.", "error");
       $("save-state").textContent = "saving off — file changed on disk";
       $("save-state").classList.add("is-dirty");
+      clientLog("save", { ok: false, status: 409, message: "saveBlocked: file changed on disk" });
       return;
     }
     setStatus("could not save: " + err.message, "error");
+    clientLog("save", { ok: false, status: err.status, message: err.message });
   }
 }
 
@@ -1625,7 +1698,18 @@ async function refreshPublished() {
 function renderPublishedLayer() {
   state.publishedLayer.clearLayers();
   if (!$("l-published").checked) return;
+  // Never draw the ghost for whatever is currently selected. It is a
+  // reference for comparing the live draft against what is actually on
+  // disk elsewhere -- useful for OTHER locations, pure clutter for the one
+  // whose own vertices are being dragged right now: the live shape right
+  // there already IS the thing to be looking at, and a frozen dashed copy
+  // of it, sitting behind or beside it until the next refreshPublished(),
+  // reads as a stray line left over from the edit rather than what it is.
+  const selectedId = state.draw.selected();
+  const selectedItem = selectedId && itemById(selectedId);
+  const suppressLocationId = selectedItem && selectedItem.locationRef;
   state.published.forEach((loc) => {
+    if (loc.id === suppressLocationId) return;
     let layer;
     if (loc.tier === "point") {
       layer = L.marker(ll(loc.pointPx[0], loc.pointPx[1]), {
@@ -1667,6 +1751,9 @@ function itemById(localId) { return state.items.find((it) => it.localId === loca
 function handleSelectionChange(ids) {
   if (ids.length <= 1) renderInspector(ids[0] || null);
   else renderBatchPanel(ids);
+  // Selecting something new changes which location's published ghost (if
+  // any) renderPublishedLayer suppresses -- see its own comment.
+  renderPublishedLayer();
 }
 
 let confirmTierChangeArmed = null; // { localId } | null while a tier-change confirm is pending
@@ -3047,6 +3134,7 @@ const TOOL_LABEL = {
 };
 
 function setTool(tool) {
+  clientLog("tool_change", { tool, previousTool: state.draw.tool });
   state.draw.setTool(tool);
   document.querySelectorAll(".gz-tool").forEach((b) =>
     b.classList.toggle("is-active", b.dataset.tool === tool));

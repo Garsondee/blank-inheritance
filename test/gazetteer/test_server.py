@@ -82,9 +82,11 @@ class TestServer(unittest.TestCase):
         cls.lore_docs_dir = os.path.join(cls.tmp, "lore-docs")
         cls.lore_library_path = os.path.join(cls.tmp, "lore-library.json")
         cls.lore_instructions_path = os.path.join(cls.tmp, "lore-instructions.json")
+        cls.client_log_path = os.path.join(cls.tmp, "client.log")
         cls._old_draft_dir = session_mod.DRAFT_DIR
         cls._old_overrides = overrides_mod.OVERRIDES_PATH
         cls._old_locations_dir = gz.LOCATIONS_DIR
+        cls._old_client_log_path = gz.CLIENT_LOG_PATH
         cls._old_requests_path = requests_mod.REQUESTS_PATH
         cls._old_biome_cache = biome_mod.CACHE_PATH
         cls._old_biome_overrides = biome_mod.OVERRIDES_PATH
@@ -100,6 +102,7 @@ class TestServer(unittest.TestCase):
         lore_mod.LIBRARY_PATH = cls.lore_library_path
         lore_mod.INSTRUCTIONS_PATH = cls.lore_instructions_path
         lore_mod.REPO_ROOT = cls.tmp
+        gz.CLIENT_LOG_PATH = cls.client_log_path
         os.makedirs(cls.draft_dir, exist_ok=True)
         os.makedirs(cls.lore_docs_dir, exist_ok=True)
 
@@ -122,6 +125,7 @@ class TestServer(unittest.TestCase):
         lore_mod.LIBRARY_PATH = cls._old_lore_library_path
         lore_mod.INSTRUCTIONS_PATH = cls._old_lore_instructions_path
         lore_mod.REPO_ROOT = cls._old_lore_repo_root
+        gz.CLIENT_LOG_PATH = cls._old_client_log_path
         shutil.rmtree(cls.tmp, ignore_errors=True)
 
     def _seed_item(self, tier="site", ring=None, point=None, name="", note=""):
@@ -1453,6 +1457,60 @@ class TestServer(unittest.TestCase):
             post(self.base + "/api/regions/bisect",
                 {"localId": "bisect-miss", "cutPoints": [[9000, 9000], [9100, 9100]]})
         self.assertEqual(ctx.exception.code, 409)
+
+    def test_client_log_appends_one_json_line_per_entry(self):
+        if os.path.exists(gz.CLIENT_LOG_PATH):
+            os.remove(gz.CLIENT_LOG_PATH)
+        result = post(self.base + "/api/client-log", {"entries": [
+            {"type": "tool_change", "tool": "region", "t": 1},
+            {"type": "vertex_dragend", "itemId": "item-1", "snapped": None, "t": 2},
+        ]})
+        self.assertEqual(result, {"ok": True, "written": 2})
+        with open(gz.CLIENT_LOG_PATH, encoding="utf-8") as fh:
+            lines = [json.loads(line) for line in fh if line.strip()]
+        self.assertEqual(len(lines), 2)
+        self.assertEqual(lines[0]["type"], "tool_change")
+        self.assertEqual(lines[1]["type"], "vertex_dragend")
+        # A server-received timestamp is attached to every entry, distinct
+        # from whatever client timestamp it arrived carrying -- the whole
+        # point being able to see clock skew and request queuing later.
+        self.assertIn("receivedAt", lines[0])
+
+    def test_client_log_keeps_writing_past_one_malformed_entry(self):
+        if os.path.exists(gz.CLIENT_LOG_PATH):
+            os.remove(gz.CLIENT_LOG_PATH)
+        result = post(self.base + "/api/client-log", {"entries": [
+            {"type": "ok_one"}, "not-a-dict-entry", {"type": "ok_two"},
+        ]})
+        self.assertEqual(result["written"], 3)
+        with open(gz.CLIENT_LOG_PATH, encoding="utf-8") as fh:
+            lines = [json.loads(line) for line in fh if line.strip()]
+        self.assertEqual([l.get("type") for l in lines], ["ok_one", None, "ok_two"])
+
+    def test_client_log_without_entries_is_a_400_not_a_silent_no_op(self):
+        with self.assertRaises(urllib.error.HTTPError) as ctx:
+            post(self.base + "/api/client-log", {"nope": True})
+        self.assertEqual(ctx.exception.code, 400)
+
+    def test_client_log_trims_to_the_line_budget_once_it_grows_past_it(self):
+        if os.path.exists(gz.CLIENT_LOG_PATH):
+            os.remove(gz.CLIENT_LOG_PATH)
+        old_budget = gz.CLIENT_LOG_MAX_LINES
+        gz.CLIENT_LOG_MAX_LINES = 10
+        padding = "x" * 250  # each entry comfortably past the ~300B/line trim estimate
+        try:
+            for batch in range(3):
+                post(self.base + "/api/client-log", {"entries": [
+                    {"type": "e", "n": batch * 10 + i, "pad": padding} for i in range(10)
+                ]})
+            with open(gz.CLIENT_LOG_PATH, encoding="utf-8") as fh:
+                lines = [json.loads(line) for line in fh if line.strip()]
+            # Trimmed to the budget, and kept the MOST RECENT activity, not
+            # the oldest -- entries 0-19 are gone, 20-29 survive.
+            self.assertEqual(len(lines), 10)
+            self.assertEqual([l["n"] for l in lines], list(range(20, 30)))
+        finally:
+            gz.CLIENT_LOG_MAX_LINES = old_budget
 
 
 if __name__ == "__main__":

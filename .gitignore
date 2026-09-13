@@ -106,6 +106,10 @@ harvest/test-reports/
 # Land/water mask and overlay renders, all derived from the gitignored
 # master PNG. Regenerate with tools/gazetteer/landmask.py.
 /tools/gazetteer/_cache/
+# Client-reported activity log (tool changes, drags, welds, saves, JS
+# errors) -- a debugging aid for reading back what a session actually did,
+# not project content.
+/tools/gazetteer/_client.log
 
 # Drawing-session drafts: raw input awaiting hand-conversion into real location
 # entities, exactly like data/map/editor-submissions/ before them.

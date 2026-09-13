@@ -58,8 +58,11 @@ export function polyLatLngs(g) {
 export function createDrawController(opts) {
   const {
     map, grid, onComplete, onSelect, onGeometryChange, onMarquee, onPick, onStatus,
-    onAreaSelect, onBisect,
+    onAreaSelect, onBisect, onLog,
   } = opts;
+  // A no-op when the caller doesn't want logging, so every call site below
+  // can call log(...) unconditionally without an existence check.
+  const log = onLog || (() => {});
 
   const shapeLayer = L.layerGroup().addTo(map);
   const handleLayer = L.layerGroup().addTo(map);
@@ -248,6 +251,7 @@ export function createDrawController(opts) {
     if (entry.item.tier !== "region" || snapSuspended) {
       snapLayer.clearLayers();
       clearSnappedClass();
+      lastSnapInfo = null;
       return [round1(p[0]), round1(p[1])];
     }
     const snapped = snapRegionPoint(p[0], p[1], { excludeId: entry.item.localId });
@@ -255,7 +259,7 @@ export function createDrawController(opts) {
     // here too, mid-drag, so a snap about to happen is visible before the
     // handle is released rather than a surprise discovered afterward.
     snapLayer.clearLayers();
-    if (!snapped) { clearSnappedClass(); return [round1(p[0]), round1(p[1])]; }
+    if (!snapped) { clearSnappedClass(); lastSnapInfo = null; return [round1(p[0]), round1(p[1])]; }
     snapLayer.addLayer(L.marker(ll(snapped.x, snapped.y), {
       icon: L.divIcon({ className: "gz-snap gz-snap--" + snapped.kind, iconSize: [36, 36] }),
       interactive: false,
@@ -265,6 +269,10 @@ export function createDrawController(opts) {
       const el = marker.getElement();
       if (el) el.classList.add("gz-vertex--snapped");
     }
+    // Read once at dragend for that gesture's one log entry -- never for
+    // anything that affects behaviour, and never logged per-tick, which at
+    // 60-throttled calls a second would drown out everything else.
+    lastSnapInfo = { kind: snapped.kind, targetId: snapped.id };
     report(snapped.kind === "vertex"
       ? "snapped to an existing corner — the border is now shared exactly"
       : "snapped onto an existing border");
@@ -538,6 +546,9 @@ export function createDrawController(opts) {
   // for the rare point that must land somewhere else. Cleared on blur too,
   // so alt-tabbing away mid-drag can never leave it stuck suspended.
   let snapSuspended = false;
+  // Set by snapEditedVertex's most recent call; read once at dragend for
+  // that gesture's one log entry. See snapEditedVertex's own comment.
+  let lastSnapInfo = null;
   window.addEventListener("keydown", (e) => { if (e.key === "Alt") snapSuspended = true; });
   window.addEventListener("keyup", (e) => { if (e.key === "Alt") snapSuspended = false; });
   window.addEventListener("blur", () => { snapSuspended = false; });
@@ -626,6 +637,11 @@ export function createDrawController(opts) {
       m.on("dragstart", () => {
         editingVertex = true;
         welded = findWeldedVertices(entry, ring[i][0], ring[i][1]);
+        log("vertex_dragstart", {
+          itemId: entry.item.localId, itemName: entry.item.name, tier: entry.item.tier,
+          ringIndex: i, isMidpoint: false, startPx: [ring[i][0], ring[i][1]],
+          weldedIds: welded.map((w) => w.entry.item.localId),
+        });
       });
       const applyDrag = () => {
         const p = px(m.getLatLng());
@@ -656,6 +672,11 @@ export function createDrawController(opts) {
         editingVertex = false;
         forceRedraw([entry.layer, ...welded.map((w) => w.entry.layer)]);
         snapLayer.clearLayers();
+        log("vertex_dragend", {
+          itemId: entry.item.localId, ringIndex: i, isMidpoint: false,
+          finalPx: [ring[i][0], ring[i][1]], snapped: lastSnapInfo,
+          weldedIds: welded.map((w) => w.entry.item.localId),
+        });
         onGeometryChange(entry.item);
         drawHandles();
       });
@@ -680,6 +701,10 @@ export function createDrawController(opts) {
           w.entry.layer.setLatLngs(polyLatLngs(w.entry.item.geometry));
         }
         forceRedraw([entry.layer, ...welded.map((w) => w.entry.layer)]);
+        log("vertex_delete", {
+          itemId: entry.item.localId, ringIndex: i,
+          weldedIds: welded.map((w) => w.entry.item.localId),
+        });
         onGeometryChange(entry.item);
         drawHandles();
       });
@@ -719,6 +744,11 @@ export function createDrawController(opts) {
         ring.splice(i + 1, 0, [midX, midY]);
         inserted = true;
         welded = findWeldedVertices(entry, midX, midY);
+        log("vertex_dragstart", {
+          itemId: entry.item.localId, itemName: entry.item.name, tier: entry.item.tier,
+          ringIndex: i + 1, isMidpoint: true, startPx: [midX, midY],
+          weldedIds: welded.map((w) => w.entry.item.localId),
+        });
       });
       const applyMidDrag = () => {
         if (!inserted) return;
@@ -738,6 +768,11 @@ export function createDrawController(opts) {
         editingVertex = false;
         forceRedraw([entry.layer, ...welded.map((w) => w.entry.layer)]);
         snapLayer.clearLayers();
+        log("vertex_dragend", {
+          itemId: entry.item.localId, ringIndex: i + 1, isMidpoint: true,
+          finalPx: ring[i + 1], snapped: lastSnapInfo,
+          weldedIds: welded.map((w) => w.entry.item.localId),
+        });
         onGeometryChange(entry.item);
         drawHandles();
       });

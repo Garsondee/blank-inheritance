@@ -60,6 +60,19 @@ FONT_DIR = os.path.join(_REPO_ROOT, "module", "blank-inheritance", "assets", "fo
 LOCATIONS_DIR = os.path.join(_REPO_ROOT, "data", "locations")
 DEFAULT_PORT = 8767
 
+#: Underscore-prefixed to match this directory's own convention for
+#: generated/scratch output (_cache/, _tiles/, _calibration/) -- not source,
+#: gitignored, safe to delete. One line of JSON per client-reported event:
+#: tool changes, vertex drags, welds, snaps, saves, undos, and any JS error
+#: the page catches -- written here specifically so a session can be
+#: examined after the fact instead of guessed at from a bug report alone.
+CLIENT_LOG_PATH = os.path.join(_HERE, "_client.log")
+#: Trimmed back to this many lines once the file exceeds roughly 4x that in
+#: bytes, keeping only the most recent activity -- a debug log, not an
+#: audit trail, and an unbounded one left running for days is a footgun.
+CLIENT_LOG_MAX_LINES = 4000
+_client_log_lock = threading.Lock()
+
 #: Above this view width in image pixels, a feature query refuses. At 4000 px
 #: across (4 km, twenty cells) a viewport already holds tens of thousands of
 #: buildings; past it the answer is not useful at any size. The UI shows the
@@ -283,6 +296,8 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if path == "/api/session":
                 return self._api_save_session()
+            if path == "/api/client-log":
+                return self._api_client_log()
             if path == "/api/session/new":
                 return self._api_new_session()
             if path == "/api/hit-test":
@@ -1405,6 +1420,52 @@ class Handler(BaseHTTPRequestHandler):
             g = it.get("geometry") or {}
             return (g.get("kind"), g.get("ringPx"), g.get("pointPx"))
         return shape(current) == shape(incoming)
+
+    def _api_client_log(self):
+        """Append client-reported events to CLIENT_LOG_PATH, one JSON object
+        per line. The body is `{"entries": [...]}`; each entry is whatever
+        shape the client sent (already timestamped client-side), plus a
+        server-received timestamp so clock skew and request queuing are both
+        visible later. Never raises past a malformed entry -- a logging
+        endpoint that can itself break the page it is trying to explain
+        defeats the entire point, so a bad entry is recorded as a
+        malformed-entry note and the rest of the batch still gets written."""
+        body = self._body()
+        entries = body.get("entries")
+        if not isinstance(entries, list):
+            return self._error(400, "expected {entries: [...]}")
+        received_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        lines = []
+        for entry in entries:
+            try:
+                record = dict(entry) if isinstance(entry, dict) else {"raw": entry}
+            except Exception:
+                record = {"raw": repr(entry)}
+            record["receivedAt"] = received_at
+            lines.append(json.dumps(record, ensure_ascii=False))
+        with _client_log_lock:
+            with open(CLIENT_LOG_PATH, "a", encoding="utf-8") as fh:
+                fh.write("\n".join(lines) + "\n")
+            self._trim_client_log()
+        return self._send(200, {"ok": True, "written": len(lines)})
+
+    def _trim_client_log(self):
+        """Keep the log from growing without bound across a long session --
+        called with _client_log_lock already held. Only actually reads/
+        rewrites the file once it is well past the line budget, so this is
+        cheap on every normal call."""
+        try:
+            size = os.path.getsize(CLIENT_LOG_PATH)
+        except OSError:
+            return
+        if size < CLIENT_LOG_MAX_LINES * 300:  # ~300 bytes/line, a loose guess
+            return
+        with open(CLIENT_LOG_PATH, "r", encoding="utf-8") as fh:
+            lines = fh.readlines()
+        if len(lines) <= CLIENT_LOG_MAX_LINES:
+            return
+        with open(CLIENT_LOG_PATH, "w", encoding="utf-8") as fh:
+            fh.writelines(lines[-CLIENT_LOG_MAX_LINES:])
 
     def _api_save_session(self):
         body = self._body()

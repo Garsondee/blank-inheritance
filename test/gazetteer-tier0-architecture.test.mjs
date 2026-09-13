@@ -482,7 +482,7 @@ test("the published-locations reference overlay never shares a live tier's colou
   // this ghost sat still the whole time.
   const app = readFileSync(join(STATIC, "app.js"), "utf8");
   const draw = readFileSync(join(STATIC, "draw.js"), "utf8");
-  const fnMatch = app.match(/function renderPublishedLayer\(\)\s*\{[\s\S]{0,2000}?state\.publishedLayer\.addLayer\(layer\);/);
+  const fnMatch = app.match(/function renderPublishedLayer\(\)\s*\{[\s\S]{0,2600}?state\.publishedLayer\.addLayer\(layer\);/);
   assert.ok(fnMatch, "renderPublishedLayer() is no longer where this reference overlay is drawn");
   const fn = fnMatch[0];
   assert.ok(!/color:\s*"#ac8a4d"/.test(fn),
@@ -598,6 +598,32 @@ test("inserting a midpoint welds to what THAT new point touches, not to vertex i
   assert.ok(!/mid\.on\("dragstart", \(\) => \{[\s\S]{0,200}findWeldedVertices\(entry, x, y\)/.test(src),
     "a midpoint's dragstart handler calls findWeldedVertices(entry, x, y) " +
     "again -- vertex i's own coordinates, not the midpoint being created");
+});
+
+test("the published-locations ghost never draws for whatever is currently selected", () => {
+  // The colour/dash fix alone did not close the loop: "I still see a
+  // dashed line left behind when I move vertexes... only gets updated
+  // when I refresh." Correct -- that dashed line is exactly the reference
+  // overlay, working as designed (frozen until refreshPublished() runs
+  // again), but a frozen ghost of the very shape someone is actively
+  // dragging vertices on is pure clutter, not a useful comparison. Other
+  // locations' ghosts stay -- only the one currently selected is
+  // suppressed.
+  const app = readFileSync(join(STATIC, "app.js"), "utf8");
+  assert.ok(/const selectedId = state\.draw\.selected\(\);/.test(app),
+    "renderPublishedLayer no longer looks up the currently-selected item");
+  assert.ok(/const suppressLocationId = selectedItem && selectedItem\.locationRef;/.test(app),
+    "renderPublishedLayer no longer resolves the selected item's own " +
+    "published location id to suppress");
+  assert.ok(/if \(loc\.id === suppressLocationId\) return;/.test(app),
+    "renderPublishedLayer no longer skips drawing the ghost for whatever " +
+    "is currently selected -- dragging a vertex will show a frozen dashed " +
+    "copy of the very shape being edited again");
+  assert.ok(/renderPublishedLayer\(\);\s*\n\}/.test(app) &&
+    /function handleSelectionChange\(ids\)[\s\S]{0,300}renderPublishedLayer\(\)/.test(app),
+    "handleSelectionChange no longer re-renders the published layer on " +
+    "every selection change -- the suppressed ghost would not update " +
+    "until something else happened to trigger a redraw");
 });
 
 test("the shared fixture is reachable from both suites' expected paths", () => {
