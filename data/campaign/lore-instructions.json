@@ -1,0 +1,16 @@
+{
+  "$schema": "../schema/lore-instructions.schema.json",
+  "id": "lore-instructions",
+  "type": "lore-instructions",
+  "instructions": [
+    {
+      "id": "instr-1",
+      "documentId": "open-questions",
+      "text": "Test instruction: verify the queue works end to end.",
+      "status": "done",
+      "raisedAt": "2026-09-13T01:12:04",
+      "resolvedAt": "2026-09-13T01:15:34",
+      "resolution": "withdrawn by Ingram"
+    }
+  ]
+}

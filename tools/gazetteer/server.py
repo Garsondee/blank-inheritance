@@ -45,7 +45,7 @@ from urllib.parse import parse_qs, urlparse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from core import groundtruth, location as location_mod, overrides as overrides_mod, session as session_mod  # noqa: E402
+from core import groundtruth, location as location_mod, overrides as overrides_mod, session as session_mod, undo as undo_mod  # noqa: E402
 from core.georef import MapGeoref  # noqa: E402
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -87,6 +87,7 @@ class State:
         self.suppression = overrides_mod.Suppression(self.overrides)
         self.lock = threading.Lock()
         self._local = threading.local()
+        self.undo_stack = undo_mod.UndoStack()
 
         if draft_id:
             path = session_mod.draft_path(draft_id)
@@ -112,6 +113,21 @@ class State:
 
     def refresh_suppression(self):
         self.suppression = overrides_mod.Suppression(self.overrides)
+
+    def landmask(self):
+        """(land, water) off the real painted map, loaded once per process.
+
+        landmask.load() reads and vectorises a cached raster; cheap next to a
+        tile render, but not free, and a clip is expected to run once per
+        district in a batch pass -- see landmask.py's own docstring for why
+        this has to be the painted map and not OSM's coastline.
+        """
+        cached = getattr(self, "_landmask", None)
+        if cached is None:
+            import landmask as landmask_mod
+            _, land, water = landmask_mod.load()
+            cached = self._landmask = (land, water)
+        return cached
 
     def _on_disk_mtime(self):
         """Modification time of the draft file, or None if it is not there."""
@@ -245,6 +261,16 @@ class Handler(BaseHTTPRequestHandler):
                 return self._api_queue()
             if path.startswith("/api/crop/"):
                 return self._api_crop(path[len("/api/crop/"):])
+            if path == "/api/requests":
+                return self._api_requests(query)
+            if path == "/api/biomes":
+                return self._api_biomes()
+            if path == "/api/lore/documents":
+                return self._api_lore_documents()
+            if path == "/api/lore/document":
+                return self._api_lore_document(query)
+            if path == "/api/lore/instructions":
+                return self._api_lore_instructions(query)
             return self._error(404, "no route for %s" % path)
         except Exception as exc:  # a local tool: show the fault, do not hide it
             import traceback
@@ -267,10 +293,35 @@ class Handler(BaseHTTPRequestHandler):
                 return self._api_suppress()
             if path == "/api/unsuppress":
                 return self._api_unsuppress()
+            if path == "/api/location":
+                return self._api_update_location()
+            if path == "/api/clip-to-shore":
+                return self._api_clip_to_shore()
             if path == "/api/promote":
                 return self._api_promote()
             if path == "/api/handoff":
                 return self._api_handoff()
+            if path == "/api/undo":
+                return self._api_undo()
+            if path == "/api/requests":
+                return self._api_create_request()
+            if path.startswith("/api/requests/") and path.endswith("/resolve"):
+                request_id = path[len("/api/requests/"):-len("/resolve")]
+                return self._api_resolve_request(request_id)
+            if path == "/api/biomes/rebuild":
+                return self._api_rebuild_biomes()
+            if path.startswith("/api/location/") and path.endswith("/approve"):
+                location_id = path[len("/api/location/"):-len("/approve")]
+                return self._api_approve_location(location_id)
+            if path == "/api/lore/document":
+                return self._api_save_lore_document()
+            if path == "/api/lore/documents":
+                return self._api_add_lore_document()
+            if path == "/api/lore/instructions":
+                return self._api_create_lore_instruction()
+            if path.startswith("/api/lore/instructions/") and path.endswith("/resolve"):
+                instruction_id = path[len("/api/lore/instructions/"):-len("/resolve")]
+                return self._api_resolve_lore_instruction(instruction_id)
             return self._error(404, "no route for %s" % path)
         except Exception as exc:
             import traceback
@@ -445,6 +496,37 @@ class Handler(BaseHTTPRequestHandler):
             "build": _build_info(h[3], h[4]),
         } for h in hits]})
 
+    def _api_clip_to_shore(self):
+        """How much of a drawn shape actually sits on its own side of the
+        real, painted shore -- landmask.py's clip_ring_to_shore(), computed
+        but NOT applied. The caller (the review-mode UI, or a one-off script)
+        decides whether to save the result, the same "compute, then the
+        caller saves" shape /api/adopt already uses.
+
+        Refuses with a plain reason (never a raw traceback) when the clip
+        would empty the shape or split it in two -- both are real judgement
+        calls, not something to guess at silently. See landmask.ClipError.
+        """
+        import landmask as landmask_mod
+
+        body = self._body()
+        local_id = body.get("localId")
+        item = next((it for it in STATE.draft["items"] if it["localId"] == local_id), None)
+        if item is None:
+            return self._error(404, "no item %r in the current session" % local_id)
+        geom = item.get("geometry") or {}
+        if geom.get("kind") != "polygon":
+            return self._error(400, "only a polygon has a shore to clip to")
+
+        try:
+            land, water = STATE.landmask()
+            result = landmask_mod.clip_ring_to_shore(
+                geom["ringPx"], land, water, kind=item.get("kind") or "")
+        except landmask_mod.ClipError as exc:
+            return self._error(409, str(exc))
+
+        self._send(200, result)
+
     def _api_adopt(self):
         """Turn one or more real building footprints into a draft item.
 
@@ -546,12 +628,28 @@ class Handler(BaseHTTPRequestHandler):
         """
         import coverage as coverage_mod
 
+        # A promoted region's draft copy is the SAME physical district as its
+        # data/locations/ twin, not a second one -- counting both is what a
+        # region promotion used to do by construction (promotion never
+        # deletes the draft item), and it went untested because The Proving
+        # Ground was the first region anyone actually promoted. Left in, it
+        # reports 100% self-overlap against every region the moment it is
+        # promoted, and can bury a real overlap underneath it in the list.
+        promoted_source_local_ids = {
+            (doc.get("derived") or {}).get("sourceLocalId")
+            for doc in _load_all_locations() if doc.get("tier") == "region"
+        }
+        promoted_source_local_ids.discard(None)
+
         regions, sites = [], []
         for item in STATE.draft.get("items", []):
             if item.get("tier") == "region":
+                if item.get("localId") in promoted_source_local_ids:
+                    continue
                 regions.append({"id": item.get("localId"),
                                 "geometry": item.get("geometry") or {},
-                                "name": item.get("name") or ""})
+                                "name": item.get("name") or "",
+                                "tags": item.get("tags") or []})
             else:
                 derived = item.get("derived") or {}
                 if derived.get("centroidPx"):
@@ -568,7 +666,8 @@ class Handler(BaseHTTPRequestHandler):
                                  for lon, lat in ring])
             if rings_px:
                 regions.append({"id": doc["id"], "ringsPx": rings_px,
-                                "name": doc.get("name") or doc["id"]})
+                                "name": doc.get("name") or doc["id"],
+                                "tags": doc.get("tags") or []})
                 promoted += 1
 
         try:
@@ -585,7 +684,20 @@ class Handler(BaseHTTPRequestHandler):
     def _api_locations(self):
         """Every promoted location, with geometry converted to image pixels so
         the client can draw them straight onto the same Leaflet CRS.Simple map
-        it draws everything else on -- no lon/lat handling in the browser."""
+        it draws everything else on -- no lon/lat handling in the browser.
+
+        Also the ONLY thing that tells the browser a draft item has been
+        promoted at all -- the inspector panel matches an item to its entry
+        here (by `locationRef` first, falling back to `sourceLocalId` for
+        anything promoted before that stamp existed; see
+        core/promotion.mjs's resolvePromotedLocation, the JS mirror of the
+        same two-way match server.py's own handoff code uses) and shows
+        `lore`/`scene`/`npcRefs`/`classification` from THIS response instead
+        of the draft's own note. Found missing live: Ingram promoted four
+        locations, refreshed the Gazetteer, and the inspector still showed
+        only his rough notes -- the handoff document had already been fixed
+        to read the promoted entity, but nothing in the live UI had.
+        """
         out = []
         for doc in _load_all_locations():
             g = STATE.georef
@@ -600,9 +712,86 @@ class Handler(BaseHTTPRequestHandler):
                 "id": doc["id"], "tier": doc["tier"], "name": doc.get("name"),
                 "kind": doc.get("kind") or "", "status": doc["authoring"]["status"],
                 "ref": doc["derived"]["ref"], "withinRegionRef": doc["derived"].get("withinRegionRef"),
+                "sourceLocalId": doc["derived"].get("sourceLocalId"),
                 "pointPx": image_px, "ringsPx": rings_px,
+                "depth": doc.get("depth") or "named",
+                "rank": doc.get("rank"),
+                "lore": doc.get("lore") or {}, "scene": doc.get("scene") or {},
+                "npcRefs": doc.get("npcRefs") or [], "classification": doc.get("classification"),
+                "authoringNote": (doc.get("authoring") or {}).get("note") or "",
             })
         self._send(200, {"locations": out})
+
+    #: What the review mode is allowed to rewrite on an already-promoted
+    #: location. Deliberately short: geometry, `derived` and provenance are
+    #: computed from the drawing and must never be editable as text, or the
+    #: file stops agreeing with the map it came from.
+    EDITABLE_LOCATION_FIELDS = ("name", "nameJa", "rank", "classification",
+                                "tags", "lore", "scene", "npcRefs", "factionRefs",
+                                "episodeRefs", "openQuestionRefs", "assetRefs",
+                                "playlistRefs", "bibleRef", "depth")
+
+    def _api_update_location(self):
+        """Rewrite the written parts of an existing data/locations entry.
+
+        The review mode's save path. Promotion is still the only thing that
+        CREATES a location, and this cannot create one -- it refuses an id it
+        does not already have on disk, so a typo makes an error rather than a
+        stray half-built file.
+        """
+        body = self._body()
+        location_id = (body.get("id") or "").strip()
+        if not location_id:
+            return self._error(400, "need id")
+        dest = os.path.join(LOCATIONS_DIR, location_id + ".json")
+        if not os.path.exists(dest):
+            return self._error(404, "no data/locations/%s.json -- promote it first"
+                               % location_id)
+
+        with STATE.lock:
+            with open(dest, encoding="utf-8") as fh:
+                doc = json.load(fh)
+            changed = []
+            for field in self.EDITABLE_LOCATION_FIELDS:
+                if field in body:
+                    doc[field] = body[field]
+                    changed.append(field)
+            if "status" in body and body["status"]:
+                if body["status"] == "approved":
+                    return self._error(400, "status 'approved' cannot be set through a "
+                                            "normal edit -- use POST /api/location/<id>/approve")
+                doc.setdefault("authoring", {})["status"] = body["status"]
+                changed.append("status")
+            _save_location(doc)
+
+        self._send(200, {"saved": _repo_relative(dest), "changed": changed,
+                         "location": doc})
+
+    def _api_approve_location(self, location_id):
+        """The one path that can ever write status 'approved' -- or take it
+        back. Ingram, 2026-09-13: this is the seal of quality, and it is his
+        alone to give; every other write path (promotion, the review-mode
+        editor, a mass-edit-by-instruction) explicitly refuses the value
+        instead of accepting it as a side effect. A dedicated, unmistakably-
+        named endpoint is the actual enforcement -- a rule that only lives in
+        a comment is a rule that survives until the next tired edit forgets
+        it, which is exactly how it got INTO the review-mode editor unguarded
+        in the first place.
+        """
+        location_id = (location_id or "").strip()
+        dest = os.path.join(LOCATIONS_DIR, location_id + ".json")
+        if not os.path.exists(dest):
+            return self._error(404, "no data/locations/%s.json" % location_id)
+        body = self._body()
+        approved = body.get("approved", True)
+
+        with STATE.lock:
+            with open(dest, encoding="utf-8") as fh:
+                doc = json.load(fh)
+            doc.setdefault("authoring", {})["status"] = "approved" if approved else "drafted"
+            _save_location(doc)
+
+        self._send(200, {"saved": _repo_relative(dest), "location": doc})
 
     def _api_promote(self):
         """Turn one draft item into a permanent data/locations/*.json entity.
@@ -626,18 +815,39 @@ class Handler(BaseHTTPRequestHandler):
         if problems and not body.get("force"):
             return self._send(409, {"error": "not ready to promote", "problems": problems})
 
+        # "approved" is Ingram's own seal, never a side effect of a normal
+        # promotion -- see /api/location/<id>/approve, the one place it can
+        # actually be set. Refused loudly rather than silently downgraded:
+        # a caller that typed this deserves to know it did nothing, not to
+        # have it quietly vanish and wonder later why approval never stuck.
+        if body.get("status") == "approved":
+            return self._error(400, "status 'approved' cannot be set through promotion -- "
+                                    "use POST /api/location/<id>/approve instead")
+
         dest = os.path.join(LOCATIONS_DIR, location_id + ".json")
         if os.path.exists(dest) and not body.get("overwrite"):
             return self._error(409, "data/locations/%s.json already exists" % location_id)
 
         with STATE.lock:
-            existing = _load_all_locations()
+            # Everything EXCEPT the one being written. On an overwrite the
+            # previous version of this same location is still on disk, and
+            # including it meant a re-promoted location could be found inside
+            # itself -- Deep Storage came back with withinRegionRef pointing
+            # at "deep-storage" the first time it was re-promoted after being
+            # re-tiered from region to site.
+            existing = [d for d in _load_all_locations() if d["id"] != location_id]
             existing_regions = [d for d in existing if d["tier"] == "region"]
             doc = location_mod.build_location(
                 item, location_id, STATE.georef,
                 lore=body.get("lore"), name=body.get("name"), nameJa=body.get("nameJa"),
                 session_id=STATE.draft["id"], existing_regions=existing_regions,
-                status=body.get("status"))
+                status=body.get("status"), scene=body.get("scene"),
+                npc_refs=body.get("npcRefs"), faction_refs=body.get("factionRefs"),
+                episode_refs=body.get("episodeRefs"),
+                open_question_refs=body.get("openQuestionRefs"),
+                bible_ref=body.get("bibleRef"), asset_refs=body.get("assetRefs"),
+                playlist_refs=body.get("playlistRefs"), tags=body.get("tags"),
+                classification=body.get("classification"), rank=body.get("rank"))
 
             if doc["tier"] == "region":
                 location_mod.recompute_region_contents(doc, existing)
@@ -659,6 +869,23 @@ class Handler(BaseHTTPRequestHandler):
                             region, existing + [doc])
                         _save_location(region)
 
+            # Point the draft item at what it became, and save. Promotion is a
+            # one-way door -- the location never writes lore back into the
+            # draft -- but without a pointer the session has no idea the door
+            # was ever walked through, so the UI and the handoff both go on
+            # reporting a fully-written location as owing its entire lore.
+            # Promotion is also exactly the moment the item stops being a
+            # draft, which is what `locked` already means (see its own commit).
+            item["locationRef"] = location_id
+            item["locked"] = True
+            # A place named during promotion should appear under that name on
+            # the map too, or the drawing it came from stays "(unnamed site)"
+            # forever. Only fills a blank: a name typed in the tool is the
+            # person's own and always wins.
+            if not (item.get("name") or "").strip() and (doc.get("name") or "").strip():
+                item["name"] = doc["name"]
+            STATE.save_draft()
+
         self._send(200, {"saved": _repo_relative(dest), "location": doc})
 
     def _api_crop(self, rel):
@@ -679,6 +906,214 @@ class Handler(BaseHTTPRequestHandler):
         except crop_mod.CropError as exc:
             return self._error(409, str(exc))
         self._send(200, data, content_type="image/png")
+
+    def _api_requests(self, query):
+        """The Claude -> Ingram 'please define this place' queue. See
+        core/requests.py's own docstring for why this exists at all.
+        `?status=open` narrows to what still needs a look; omitted, every
+        request (open and resolved) comes back, so a resolved one is still
+        auditable rather than vanishing the moment it is closed."""
+        from core import requests as requests_mod
+
+        doc = requests_mod.load()
+        status = (query.get("status") or [None])[0]
+        items = requests_mod.open_requests(doc) if status == "open" else doc["requests"]
+        self._send(200, {"requests": items})
+
+    def _api_create_request(self):
+        from core import requests as requests_mod
+
+        body = self._body()
+        with STATE.lock:
+            doc = requests_mod.load()
+            try:
+                doc, entry = requests_mod.create(
+                    doc, body.get("what"), why=body.get("why"), hint=body.get("hint"))
+            except requests_mod.RequestError as exc:
+                return self._error(400, str(exc))
+            requests_mod.save(doc)
+        self._send(200, {"request": entry})
+
+    def _api_resolve_request(self, request_id):
+        from core import requests as requests_mod
+
+        body = self._body()
+        with STATE.lock:
+            doc = requests_mod.load()
+            try:
+                doc, entry = requests_mod.resolve(
+                    doc, request_id, resolution=body.get("resolution"))
+            except requests_mod.RequestError as exc:
+                # "no such request" is a 404; "already resolved" is a real
+                # request in a state the caller's action does not fit, which
+                # is what 409 means everywhere else in this file.
+                status = 409 if "already resolved" in str(exc) else 404
+                return self._error(status, str(exc))
+            requests_mod.save(doc)
+        self._send(200, {"request": entry})
+
+    def _api_lore_documents(self):
+        """The library's own list, with live per-document status the
+        registry itself does not store: whether the real file still exists,
+        how long it is, and how many instructions are waiting against it.
+        Computed fresh rather than cached, because "is this stale" is
+        exactly the question a stale cache could not honestly answer.
+        """
+        from core import lore_library as lore_mod
+
+        library = lore_mod.load_library()
+        instructions = lore_mod.load_instructions()
+        rows = []
+        for entry in library.get("documents") or []:
+            row = dict(entry)
+            try:
+                content = lore_mod.read_document_content(entry)
+                row["exists"] = True
+                row["wordCount"] = len(content.split())
+            except lore_mod.LoreError:
+                row["exists"] = False
+                row["wordCount"] = 0
+            row["pendingInstructions"] = len(
+                lore_mod.pending_instructions(instructions, document_id=entry["id"]))
+            rows.append(row)
+        self._send(200, {"documents": rows})
+
+    def _api_lore_document(self, query):
+        from core import lore_library as lore_mod
+
+        document_id = (query.get("id") or [None])[0]
+        if not document_id:
+            return self._error(400, "need ?id=")
+        library = lore_mod.load_library()
+        entry = lore_mod.find_document(library, document_id)
+        if entry is None:
+            return self._error(404, "no document %r in the library" % document_id)
+        try:
+            content = lore_mod.read_document_content(entry)
+        except lore_mod.LoreError as exc:
+            return self._error(409, str(exc))
+        self._send(200, {
+            "document": entry,
+            "content": content,
+            "outboundLinks": lore_mod.outbound_links(content, library),
+            "inboundLinks": lore_mod.inbound_links(library, document_id),
+        })
+
+    def _api_save_lore_document(self):
+        """Ingram typing directly into the viewer, or Claude applying an
+        instruction -- the same save path either way. Approval-style gating
+        does not belong here: a document's importance is a signal for HOW
+        CAREFULLY an edit should be made and whether it needs asking about
+        first, not a lock the server enforces, because the server cannot
+        tell a careful edit from a careless one -- only judgement can, which
+        is exactly why the standing rule is "ask when unsure," not
+        "refuse automatically."""
+        from core import lore_library as lore_mod
+
+        body = self._body()
+        document_id = (body.get("id") or "").strip()
+        if not document_id:
+            return self._error(400, "need id")
+        content = body.get("content")
+        if content is None:
+            return self._error(400, "need content")
+        library = lore_mod.load_library()
+        entry = lore_mod.find_document(library, document_id)
+        if entry is None:
+            return self._error(404, "no document %r in the library" % document_id)
+        try:
+            lore_mod.write_document_content(entry, content)
+        except lore_mod.LoreError as exc:
+            return self._error(409, str(exc))
+        self._send(200, {"saved": entry["path"], "wordCount": len(content.split())})
+
+    def _api_add_lore_document(self):
+        from core import lore_library as lore_mod
+
+        body = self._body()
+        library = lore_mod.load_library()
+        try:
+            updated = lore_mod.add_document(library, {
+                "id": body.get("id"), "path": body.get("path"), "title": body.get("title"),
+                "importance": body.get("importance"), "category": body.get("category"),
+                "description": body.get("description", ""), "topics": list(body.get("topics") or []),
+                "addedDate": datetime.datetime.now().strftime("%Y-%m-%d"),
+            })
+        except lore_mod.LoreError as exc:
+            return self._error(400, str(exc))
+        lore_mod.save_library(updated)
+        self._send(200, {"library": updated})
+
+    def _api_lore_instructions(self, query):
+        from core import lore_library as lore_mod
+
+        doc = lore_mod.load_instructions()
+        status = (query.get("status") or [None])[0]
+        document_id = (query.get("documentId") or [None])[0]
+        items = doc.get("instructions") or []
+        if status == "pending":
+            items = lore_mod.pending_instructions(doc, document_id=document_id)
+        elif document_id:
+            items = [i for i in items if i.get("documentId") == document_id]
+        self._send(200, {"instructions": items})
+
+    def _api_create_lore_instruction(self):
+        from core import lore_library as lore_mod
+
+        body = self._body()
+        with STATE.lock:
+            doc = lore_mod.load_instructions()
+            try:
+                doc, entry = lore_mod.create_instruction(doc, body.get("documentId"), body.get("text"))
+            except lore_mod.LoreError as exc:
+                return self._error(400, str(exc))
+            lore_mod.save_instructions(doc)
+        self._send(200, {"instruction": entry})
+
+    def _api_resolve_lore_instruction(self, instruction_id):
+        from core import lore_library as lore_mod
+
+        body = self._body()
+        with STATE.lock:
+            doc = lore_mod.load_instructions()
+            try:
+                doc, entry = lore_mod.resolve_instruction(
+                    doc, instruction_id, status=body.get("status", "done"),
+                    resolution=body.get("resolution", ""))
+            except lore_mod.LoreError as exc:
+                status = 409 if "already" in str(exc) else 404
+                return self._error(status, str(exc))
+            lore_mod.save_instructions(doc)
+        self._send(200, {"instruction": entry})
+
+    def _api_biomes(self):
+        """What every grid cell is standing on -- see tools/gazetteer/
+        biome.py's own docstring for the real-data/district/override
+        layering. Served from the cache; a fresh clone or a stale cache
+        (a district promoted since, an override edited) needs an explicit
+        POST /api/biomes/rebuild rather than this endpoint silently paying
+        the ~5-10 second real cost of a full build on some unlucky request."""
+        import biome as biome_mod
+
+        from core import biome as biome_core
+
+        cached = biome_mod.load_cached()
+        if cached is None:
+            if not groundtruth.store_exists():
+                return self._error(409, "no biome data yet, and no GeoPackage to "
+                                        "build it from -- see biome.py's own house rule")
+            cached = biome_mod.build_and_cache(locations_dir=LOCATIONS_DIR)
+        self._send(200, {"biomes": cached, "taxonomy": list(biome_core.BIOMES)})
+
+    def _api_rebuild_biomes(self):
+        import biome as biome_mod
+        from core import biome as biome_core
+
+        if not groundtruth.store_exists():
+            return self._error(409, "needs data/map/kurose.gpkg (not in a fresh clone)")
+        result = biome_mod.build_and_cache(locations_dir=LOCATIONS_DIR)
+        self._send(200, {"biomes": result, "taxonomy": list(biome_core.BIOMES),
+                         "cellCount": len(result)})
 
     def _api_queue(self):
         """What in this session needs attention, grouped by district. See
@@ -712,13 +1147,34 @@ class Handler(BaseHTTPRequestHandler):
 
             from core import depth as depth_mod, shape as shape_mod
 
+            # An item that has been promoted is answered for by its location,
+            # not by the rough note it was drawn with -- so the depth check
+            # runs against the promoted document. Checking the draft item
+            # instead reported fully-written places as owing everything.
+            all_locations = _load_all_locations()
+            by_id = {d["id"]: d for d in all_locations}
+            by_local_id = {(d.get("derived") or {}).get("sourceLocalId"): d
+                           for d in all_locations
+                           if (d.get("derived") or {}).get("sourceLocalId")}
+
+            locations = {}
             shape_reports = {}
             depth_reports = {}
             for item in items:
                 if item["localId"] not in ids:
                     continue
+                # Either link answers this: the stamp the promote endpoint
+                # leaves on the item, or the provenance every promoted
+                # document already carries back to the item it came from.
+                # Both, so this works for locations promoted before the stamp
+                # existed, and for an item whose draft was rebuilt since.
+                location = (by_id.get(item.get("locationRef"))
+                            or by_local_id.get(item["localId"]))
+                if location is not None:
+                    locations[item["localId"]] = location
                 try:
-                    depth_reports[item["localId"]] = depth_mod.check(item)
+                    depth_reports[item["localId"]] = depth_mod.check(
+                        location if location is not None else item)
                 except Exception:
                     pass
                 geom = item.get("geometry") or {}
@@ -736,7 +1192,7 @@ class Handler(BaseHTTPRequestHandler):
 
             doc = handoff_mod.build(
                 items, ids, shape_reports=shape_reports, depth_reports=depth_reports,
-                session_note=body.get("sessionNote") or "")
+                session_note=body.get("sessionNote") or "", locations=locations)
 
         self._send(200, {"markdown": doc})
 
@@ -748,8 +1204,35 @@ class Handler(BaseHTTPRequestHandler):
         # someone else adopted a minute ago, before anyone has saved again.
         with STATE.lock:
             session_mod.derive_draft(STATE.draft, STATE.georef)
+            undo_available = STATE.undo_stack.peek()["description"] if len(STATE.undo_stack) else None
         self._send(200, {"draft": STATE.draft,
-                         "summary": session_mod.summarise(STATE.draft)})
+                         "summary": session_mod.summarise(STATE.draft),
+                         "undoAvailable": undo_available})
+
+    @staticmethod
+    def _looks_like_the_same_item(current, incoming):
+        """Is the incoming item the same thing the server already has under
+        that localId, or a different item wearing a recycled id?
+
+        Only asked when restoring a promotion link onto a payload that has
+        lost one (see _api_save_session). Getting this wrong in the generous
+        direction is how a brand-new factory ended up stamped as a promoted
+        house, so identity is checked rather than assumed: the real building
+        it was adopted from, or failing that the shape itself. A false
+        negative merely drops a link that a re-promote restores; a false
+        positive silently corrupts two locations at once.
+        """
+        if (current.get("sourceFeatureIds") or incoming.get("sourceFeatureIds")):
+            return (list(current.get("sourceFeatureIds") or [])
+                    == list(incoming.get("sourceFeatureIds") or []))
+        # The DRAWN shape only. The stored copy also carries lon/lat derived
+        # onto its geometry at save time, so comparing the whole geometry dict
+        # would call a stale tab's unchanged item a different one -- which the
+        # stale-save test caught immediately.
+        def shape(it):
+            g = it.get("geometry") or {}
+            return (g.get("kind"), g.get("ringPx"), g.get("pointPx"))
+        return shape(current) == shape(incoming)
 
     def _api_save_session(self):
         body = self._body()
@@ -769,7 +1252,79 @@ class Handler(BaseHTTPRequestHandler):
                     "draft": fresh,
                     "summary": session_mod.summarise(fresh),
                 })
+
+            # A real edit (not a no-op re-save of the same state) gets a
+            # snapshot of what it is about to replace pushed onto the undo
+            # stack BEFORE anything changes -- see core/undo.py's own
+            # docstring for why this is a whole-list snapshot rather than a
+            # per-field record, and why it exists at all.
+            if undo_mod.has_real_change(STATE.draft["items"], items):
+                STATE.undo_stack.push({
+                    "items": STATE.draft["items"],
+                    "nextLocalId": STATE.draft.get("nextLocalId"),
+                    "description": undo_mod.describe_change(STATE.draft["items"], items),
+                    "at": datetime.datetime.now().isoformat(timespec="seconds"),
+                })
+
+            # Promotion is a one-way door (core/location.py's own words) --
+            # once the server has stamped an item with locationRef, an
+            # ordinary save must never silently erase that stamp. Found
+            # live: a browser tab left open from before three locations were
+            # promoted (via a script, not that tab -- but the same thing
+            # happens between any two tabs) sent its own, older idea of
+            # those items on its next save, unrelated edit elsewhere in the
+            # session, and locationRef/locked both reverted to absent. The
+            # written lore stayed on disk and was still findable by
+            # sourceLocalId (core/promotion.mjs's fallback), so the
+            # inspector kept showing it -- but the map's green "locked"
+            # outline and the sidebar's [locked] tag both went dark, because
+            # the saving tab's payload said, truthfully for what THAT TAB
+            # knew, that the item had never been promoted.
+            #
+            # This only fills a GAP. An item that already carries its own
+            # locationRef in the incoming payload -- a tab that DOES know
+            # about the promotion -- keeps full control of its own `locked`,
+            # Unlock button included; only a payload missing the link
+            # entirely gets it restored.
+            current_by_local_id = {it["localId"]: it for it in STATE.draft["items"]}
+            for item in items:
+                current = current_by_local_id.get(item.get("localId"))
+                if (current and current.get("locationRef") and not item.get("locationRef")
+                        and self._looks_like_the_same_item(current, item)):
+                    item["locationRef"] = current["locationRef"]
+                    item["locked"] = True
+
+            # A save may not delete a promoted item. The lock that is supposed
+            # to protect one is enforced in the browser, against the browser's
+            # own copy of `locked` -- so a tab that loaded before a promotion
+            # happened believes the item is an ordinary draft and will happily
+            # drop it, and the server used to take that at face value. That is
+            # exactly how five promoted homes were lost. Deleting one for real
+            # means removing its data/locations entry first; until then this
+            # keeps it, and says so rather than doing it quietly.
+            # `allowDeletePromoted` is the deliberate way out, for a caller that
+            # really does mean it -- accidental deletion is what this blocks, not
+            # intentional deletion.
+            incoming_ids = {it.get("localId") for it in items}
+            rescued = []
+            if not body.get("allowDeletePromoted"):
+                rescued = [it for it in STATE.draft["items"]
+                           if it.get("locationRef") and it["localId"] not in incoming_ids]
+                if rescued:
+                    items = list(items) + rescued
+
             STATE.draft["items"] = items
+            # Never hand out an id twice, even after the highest items are
+            # deleted -- see core/session.py's own note on nextLocalId.
+            highest = 0
+            for it in items:
+                digits = "".join(c for c in str(it.get("localId") or "") if c.isdigit())
+                if digits:
+                    highest = max(highest, int(digits))
+            STATE.draft["nextLocalId"] = max(
+                int(STATE.draft.get("nextLocalId") or 1),
+                int(body.get("nextLocalId") or 1),
+                highest + 1)
             problems = session_mod.validate(STATE.draft)
             path = STATE.save_draft()
         self._send(200, {
@@ -777,6 +1332,62 @@ class Handler(BaseHTTPRequestHandler):
             "draft": STATE.draft,
             "summary": session_mod.summarise(STATE.draft),
             "problems": problems,
+            "keptPromoted": [it["localId"] for it in rescued],
+            "undoAvailable": STATE.undo_stack.peek()["description"] if len(STATE.undo_stack) else None,
+        })
+
+    def _api_undo(self):
+        """Pop the most recent snapshot off the undo stack and restore it.
+
+        Goes through the exact same guards a normal save does -- the
+        stale-draft check and the promoted-item rescue -- because a restore
+        is still a write to the live draft and the reasons those guards
+        exist (another tab, a promotion that happened since) apply just as
+        much to undoing an edit as to making one. `force` is accepted for
+        the same reason _api_save_session accepts it.
+        """
+        body = self._body()
+        with STATE.lock:
+            entry = STATE.undo_stack.pop()
+            if entry is None:
+                return self._error(409, "nothing to undo")
+
+            if STATE.draft_changed_underneath() and not body.get("force"):
+                # Put it back -- this undo did not happen, so it is not
+                # spent. The draft on disk needs a look before anything else
+                # touches it, the same as a normal save would say.
+                STATE.undo_stack.push(entry)
+                fresh = STATE.reload_draft()
+                return self._send(409, {
+                    "error": "the draft file changed on disk since this "
+                             "session loaded it -- undoing now would "
+                             "overwrite those changes. Reload to pick them "
+                             "up, or send force:true to overwrite deliberately.",
+                    "draft": fresh,
+                    "summary": session_mod.summarise(fresh),
+                })
+
+            items = entry["items"]
+            incoming_ids = {it.get("localId") for it in items}
+            rescued = [it for it in STATE.draft["items"]
+                       if it.get("locationRef") and it["localId"] not in incoming_ids]
+            if rescued:
+                items = list(items) + rescued
+
+            STATE.draft["items"] = items
+            STATE.draft["nextLocalId"] = max(
+                int(STATE.draft.get("nextLocalId") or 1),
+                int(entry.get("nextLocalId") or 1))
+            problems = session_mod.validate(STATE.draft)
+            path = STATE.save_draft()
+        self._send(200, {
+            "saved": _repo_relative(path),
+            "draft": STATE.draft,
+            "summary": session_mod.summarise(STATE.draft),
+            "problems": problems,
+            "undid": entry["description"],
+            "keptPromoted": [it["localId"] for it in rescued],
+            "undoAvailable": STATE.undo_stack.peek()["description"] if len(STATE.undo_stack) else None,
         })
 
     def _api_new_session(self):

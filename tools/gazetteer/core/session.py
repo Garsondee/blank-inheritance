@@ -73,6 +73,14 @@ def new_draft(map_sha256=None, map_ref="campaign-map", now=None):
         "updated": now.isoformat(timespec="seconds"),
         "mapRef": map_ref,
         "mapSha256": map_sha256,
+        # A counter that only ever goes UP, so a localId is never reused.
+        # Deriving the next id from `1 + max(existing)` instead meant deleting
+        # the highest items rolled the counter backwards and handed their ids
+        # to whatever was drawn next -- and a recycled id inherits the dead
+        # item's promotion link. That happened for real: five promoted homes
+        # were deleted, twenty-seven new buildings were drawn, and the first
+        # five of them came back claiming to BE the homes.
+        "nextLocalId": 1,
         "items": [],
     }
 
@@ -90,7 +98,7 @@ def draft_path(draft_id, directory=None):
 
 def make_item(local_id, tier, geometry, note="", name="", kind="", tags=None,
               source="drawn", source_feature_ids=None, depth="named",
-              brief="", constraints=None):
+              brief="", constraints=None, rank=None):
     """One drawn thing, validated.
 
     Validation is strict and immediate rather than deferred to a later
@@ -159,6 +167,12 @@ def make_item(local_id, tier, geometry, note="", name="", kind="", tags=None,
         "depth": depth,
         "note": note or "",
         "tags": list(tags or []),
+        # Plot importance, 1 = most important. Lives on the draft item as
+        # well as the promoted location for the same reason `depth` does:
+        # a place can be ranked long before it is promoted, and the review
+        # mode has to be able to triage things that are still drafts.
+        # See design/location-rank.md.
+        "rank": rank,
         "source": source,
         "sourceFeatureIds": list(source_feature_ids or []),
         # See this function's own docstring. `brief` is one line; `constraints`

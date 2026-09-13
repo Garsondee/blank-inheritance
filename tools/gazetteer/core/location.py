@@ -37,7 +37,10 @@ class PromotionError(ValueError):
 
 
 def build_location(item, location_id, georef, *, lore=None, name=None, nameJa=None,
-                   session_id=None, existing_regions=(), status=None, now=None):
+                   session_id=None, existing_regions=(), status=None, now=None,
+                   scene=None, npc_refs=None, faction_refs=None, episode_refs=None,
+                   open_question_refs=None, bible_ref=None, asset_refs=None,
+                   playlist_refs=None, tags=None, classification=None, rank=None):
     """A draft item -> a full location document.
 
     `existing_regions` is the list of already-promoted region documents (full
@@ -45,7 +48,27 @@ def build_location(item, location_id, georef, *, lore=None, name=None, nameJa=No
     `derived.withinRegionRef` for a site or point. Passing an empty list is
     correct and common: it just means no region has been drawn over this
     ground yet, and `withinRegionRef` comes back null rather than guessed.
+
+    `scene` and the cross-reference lists exist for the same reason `lore`
+    does: a location promoted straight into `sketch` depth or deeper needs
+    them on arrival, not as a follow-up hand-edit. Their absence was a real
+    gap -- `scene` used to be hardcoded empty regardless of what was passed,
+    which meant there was no way to promote a fully-written standing-depth
+    location in one step; found while actually trying to do that. Each stays
+    optional and defaults to depth.py's own cheapest-rung shape, matching how
+    `lore` already behaves.
+
+    `tags` follows the same explicit-override-else-carry-from-item pattern as
+    `name`/`nameJa`: a session item already carries its own `tags` (set by
+    hand, e.g. "military", "underground"), and promotion keeps them unless
+    the caller passes something else.
+
+    `classification` has no item-side equivalent to carry from -- the drawing
+    tool has no concept of it yet -- so it is taken from the caller alone and
+    defaults to None (undeclared), matching the schema. See
+    location.schema.json's own description for what the tiers mean.
     """
+    scene = dict(scene or {})
     tier = item["tier"]
     geom = item["geometry"]
     lore = dict(lore or {})
@@ -59,14 +82,24 @@ def build_location(item, location_id, georef, *, lore=None, name=None, nameJa=No
     if geom["kind"] == "polygon":
         ring_px = geom["ringPx"]
         ring_lonlat = geom.get("ring") or georef.ring_to_lonlat(ring_px)
-        rings = [ring_lonlat]
+        holes_px = geom.get("holesPx") or []
+        holes_lonlat = geom.get("holes") or [georef.ring_to_lonlat(h) for h in holes_px]
+        # GeoJSON Polygon order, matched by coverage.py's own _to_polygon: the
+        # first ring is the shell, every later one a hole -- an island sitting
+        # inside a region (The Open Sea holding The River Island) is real
+        # here, not a hypothetical, and dropping the hole on promotion is
+        # exactly the bug that made that overlap look unfixable.
+        rings = [ring_lonlat] + list(holes_lonlat)
         point_ll = None
         from .grid import cells_touched, polygon_area_px, polygon_centroid_px
         cx_px, cy_px = polygon_centroid_px(ring_px)
-        area_m2 = round(polygon_area_px(ring_px) * georef.metres_per_px ** 2, 1)
+        area_px = polygon_area_px(ring_px)
+        for hole in holes_px:
+            area_px -= polygon_area_px(hole)
+        area_m2 = round(area_px * georef.metres_per_px ** 2, 1)
         cells = cells_touched(ring_px, border=georef.border_px, cell=georef.cell_px,
                               cols=georef.cols, rows=georef.rows)
-        image_px = [ring_px]
+        image_px = [ring_px] + list(holes_px)
     else:
         x, y = geom["pointPx"]
         point_ll = list(geom.get("point") or georef.image_px_to_lonlat(x, y))
@@ -85,7 +118,12 @@ def build_location(item, location_id, georef, *, lore=None, name=None, nameJa=No
 
     within = None
     if tier in ("site", "point"):
-        within = _find_containing_region(centroid_lonlat, existing_regions)
+        # Nothing contains itself. Callers re-promoting an existing location
+        # have its previous version in `existing_regions`, and without this a
+        # re-promotion could set withinRegionRef to the location's own id.
+        within = _find_containing_region(
+            centroid_lonlat,
+            [r for r in existing_regions if r.get("id") != location_id])
 
     doc = {
         "$schema": "../schema/location.schema.json",
@@ -96,6 +134,12 @@ def build_location(item, location_id, georef, *, lore=None, name=None, nameJa=No
         "nameJa": nameJa if nameJa is not None else None,
         "namingPlaceholderRef": None,
         "kind": item.get("kind") or "",
+        # Explicit override if given, else carried from the draft item's own
+        # tags (e.g. "underground", set by hand for Deep Storage) -- same
+        # explicit-else-carried pattern as name/nameJa above.
+        "tags": list(tags) if tags is not None else list(item.get("tags") or []),
+        "classification": classification,
+        "rank": rank,
         # Carried from the draft, defaulting to the cheapest rung: an
         # undeclared location owes the least, not the most. What that
         # obligates is design/location-depth.md, checked by core/depth.py.
@@ -124,13 +168,24 @@ def build_location(item, location_id, georef, *, lore=None, name=None, nameJa=No
             "playerFacing": lore.get("playerFacing", ""),
             "gmOnly": lore.get("gmOnly", ""),
         },
-        # Empty at promotion and filled as the location is developed. Present
-        # rather than omitted so the shape of what a deeper location owes is
-        # visible in the file itself, not only in the specification.
-        "scene": {"hooks": [], "activities": [], "history": "", "consequences": ""},
+        # Empty by default and filled as the location is developed, or
+        # supplied up front by a caller that already has it -- present
+        # rather than omitted either way, so the shape of what a deeper
+        # location owes is visible in the file itself, not only in the spec.
+        "scene": {
+            "hooks": list(scene.get("hooks") or []),
+            "activities": list(scene.get("activities") or []),
+            "history": scene.get("history", ""),
+            "consequences": scene.get("consequences", ""),
+        },
         "realWorld": item.get("realWorld") or {},
-        "factionRefs": [], "npcRefs": [], "episodeRefs": [], "openQuestionRefs": [],
-        "bibleRef": None, "assetRefs": [], "playlistRefs": [],
+        "factionRefs": list(faction_refs or []),
+        "npcRefs": list(npc_refs or []),
+        "episodeRefs": list(episode_refs or []),
+        "openQuestionRefs": list(open_question_refs or []),
+        "bibleRef": bible_ref,
+        "assetRefs": list(asset_refs or []),
+        "playlistRefs": list(playlist_refs or []),
     }
     return doc
 

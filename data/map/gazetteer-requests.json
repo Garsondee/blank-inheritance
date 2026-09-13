@@ -1,0 +1,6 @@
+{
+  "$schema": "../schema/gazetteer-requests.schema.json",
+  "id": "gazetteer-requests",
+  "type": "gazetteer-requests",
+  "requests": []
+}

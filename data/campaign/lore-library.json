@@ -1,0 +1,335 @@
+{
+  "$schema": "../schema/lore-library.schema.json",
+  "id": "lore-library",
+  "type": "lore-library",
+  "documents": [
+    {
+      "id": "ledger",
+      "path": "ideas/story/bible/LEDGER.md",
+      "title": "The Ledger",
+      "importance": 1,
+      "category": "ledger",
+      "description": "Append-only record of every direct lore question asked and answered. Check before asking Ingram anything already settled; check before writing anything the answer might affect.",
+      "topics": [
+        "process",
+        "canon",
+        "decisions"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "bible-readme",
+      "path": "ideas/story/bible/README.md",
+      "title": "Bible: Structure & Rules",
+      "importance": 1,
+      "category": "bible",
+      "description": "The bible's own template and discipline -- read this before adding or editing any bible page.",
+      "topics": [
+        "process"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "story-bible-v4",
+      "path": "ideas/story/blank-inheritance-v4.md",
+      "title": "Story Bible v4",
+      "importance": 1,
+      "category": "bible",
+      "description": "The story's source of truth as of 2026-09-09 -- supersedes design-bible/campaign-arc for narrative content.",
+      "topics": [
+        "story",
+        "canon"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "chapter-one",
+      "path": "ideas/story/blank-inheritance-ch1-v2.md",
+      "title": "Chapter One v2",
+      "importance": 2,
+      "category": "bible",
+      "description": "The opening chapter, alongside the v4 bible the story's other source of truth.",
+      "topics": [
+        "story",
+        "canon"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "master-timeline",
+      "path": "ideas/story/blank-inheritance-master-timeline.md",
+      "title": "Master Timeline",
+      "importance": 2,
+      "category": "bible",
+      "description": "The campaign's own chronology -- check before placing an event in time.",
+      "topics": [
+        "story",
+        "timeline"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "dossier-observer",
+      "path": "ideas/story/dossier-observer.md",
+      "title": "Dossier: The Observer",
+      "importance": 3,
+      "category": "bible",
+      "description": "",
+      "topics": [
+        "antagonists"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "dossier-cicada",
+      "path": "ideas/story/dossier-cicada.md",
+      "title": "Dossier: Cicada",
+      "importance": 3,
+      "category": "bible",
+      "description": "",
+      "topics": [
+        "antagonists"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "dossier-shinobu",
+      "path": "ideas/story/dossier-shinobu.md",
+      "title": "Dossier: Shinobu",
+      "importance": 3,
+      "category": "bible",
+      "description": "",
+      "topics": [
+        "antagonists"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "dossier-first-impact",
+      "path": "ideas/story/dossier-first-impact.md",
+      "title": "Dossier: First Impact",
+      "importance": 3,
+      "category": "bible",
+      "description": "",
+      "topics": [
+        "story"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "campaign-arc",
+      "path": "design/campaign-arc.md",
+      "title": "Campaign Arc",
+      "importance": 2,
+      "category": "design",
+      "description": "Everything design-level that has emerged since the original pitch: tone pivot, 8-level arc shape, theme, evolving mechanics threads. The living design doc.",
+      "topics": [
+        "tone",
+        "arc",
+        "mechanics"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "induction",
+      "path": "design/induction.md",
+      "title": "Induction",
+      "importance": 2,
+      "category": "design",
+      "description": "All PCs are new and were summoned; everyone starts disguised as terrestrial; induction IS chargen. The streaming/sorting mechanism that is the campaign's central quiet mystery.",
+      "topics": [
+        "induction",
+        "school",
+        "mystery",
+        "the-directorate"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "naming-placeholders",
+      "path": "data/campaign/naming-placeholders.json",
+      "title": "Naming Placeholders",
+      "importance": 2,
+      "category": "campaign-data",
+      "description": "Every name still open and explicitly Ingram's call -- the city, the school, and more. Check before inventing a proper name for anything.",
+      "topics": [
+        "naming"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "open-questions",
+      "path": "data/campaign/open-questions.json",
+      "title": "Open Questions",
+      "importance": 2,
+      "category": "campaign-data",
+      "description": "Creative calls (tone, structure, character agency) that are the user's own, not implementation details. Don't resolve unilaterally.",
+      "topics": [
+        "process",
+        "canon"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "char-nozomi",
+      "path": "ideas/story/bible/characters/nozomi.md",
+      "title": "Nozomi",
+      "importance": 3,
+      "category": "bible",
+      "description": "",
+      "topics": [
+        "characters"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "char-nobu",
+      "path": "ideas/story/bible/characters/nobu.md",
+      "title": "Nobu",
+      "importance": 3,
+      "category": "bible",
+      "description": "",
+      "topics": [
+        "characters"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "char-taka",
+      "path": "ideas/story/bible/characters/taka.md",
+      "title": "Taka",
+      "importance": 3,
+      "category": "bible",
+      "description": "",
+      "topics": [
+        "characters"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "char-shucks",
+      "path": "ideas/story/bible/characters/shucks-mordant.md",
+      "title": "Shucks Mordant",
+      "importance": 3,
+      "category": "bible",
+      "description": "",
+      "topics": [
+        "characters",
+        "antagonists"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "species-mitflits",
+      "path": "ideas/story/bible/species/mitflits.md",
+      "title": "Mitflits",
+      "importance": 3,
+      "category": "bible",
+      "description": "Ingram's own unusual take, deliberately NOT the Paizo default -- a sympathetic reframed species, not vermin.",
+      "topics": [
+        "species",
+        "tone"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "loc-central-fortification",
+      "path": "ideas/story/bible/locations/central-fortification.md",
+      "title": "Central Fortification",
+      "importance": 3,
+      "category": "bible",
+      "description": "",
+      "topics": [
+        "locations"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "loc-the-rock",
+      "path": "ideas/story/bible/locations/the-rock.md",
+      "title": "The Rock",
+      "importance": 3,
+      "category": "bible",
+      "description": "",
+      "topics": [
+        "locations"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "loc-deep-storage",
+      "path": "ideas/story/bible/locations/deep-storage.md",
+      "title": "Deep Storage",
+      "importance": 3,
+      "category": "bible",
+      "description": "",
+      "topics": [
+        "locations"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "loc-general-hospital",
+      "path": "ideas/story/bible/locations/general-hospital.md",
+      "title": "General Hospital",
+      "importance": 3,
+      "category": "bible",
+      "description": "",
+      "topics": [
+        "locations"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "loc-main-school-complex",
+      "path": "ideas/story/bible/locations/main-school-complex.md",
+      "title": "Main School Complex",
+      "importance": 3,
+      "category": "bible",
+      "description": "The combined school/technical college -- ties directly to induction.md's streaming mechanism.",
+      "topics": [
+        "locations",
+        "school",
+        "mystery"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "loc-gnoll-statue",
+      "path": "ideas/story/bible/locations/the-gnoll-statue.md",
+      "title": "The Gnoll Statue",
+      "importance": 4,
+      "category": "bible",
+      "description": "",
+      "topics": [
+        "locations"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "location-rank",
+      "path": "design/location-rank.md",
+      "title": "Location Rank",
+      "importance": 3,
+      "category": "design",
+      "description": "The rank ladder for BUILDINGS -- rank 1 = no narrative decision without asking. The lore library's own importance field is this same idea applied to documents.",
+      "topics": [
+        "process",
+        "rank"
+      ],
+      "addedDate": "2026-09-13"
+    },
+    {
+      "id": "location-depth",
+      "path": "design/location-depth.md",
+      "title": "Location Depth",
+      "importance": 4,
+      "category": "design",
+      "description": "How developed a location is supposed to be, and what that obliges.",
+      "topics": [
+        "process"
+      ],
+      "addedDate": "2026-09-13"
+    }
+  ]
+}

@@ -118,11 +118,45 @@ def _depth_lines(depth_report):
     return lines
 
 
-def build_item_section(item, *, regions_by_id, shape_report=None, depth_report=None):
+def _promoted_lines(location):
+    """The two things a handoff must say about an already-promoted item: that
+    it HAS been promoted, and what was actually written.
+
+    Without this the document reported a promoted location as owing its whole
+    lore, because the depth check ran against the draft item -- which still
+    holds only the rough note, by design, since promotion is a one-way door
+    into data/locations/ and never writes back. Ingram hit exactly that:
+    refreshed the Gazetteer after two locations had been fully written, and
+    the handoff still handed back the stubs. A handoff that understates what
+    exists invites the next conversation to rewrite it from scratch.
+    """
+    if not location:
+        return []
+    status = (location.get("authoring") or {}).get("status") or "?"
+    return ["_Promoted — `data/locations/%s.json` (%s). Depth and lore below are "
+            "the PROMOTED entity's, not the draft note's._" % (location["id"], status)]
+
+
+def _written_lore_lines(location):
+    if not location:
+        return []
+    summary = ((location.get("lore") or {}).get("summary") or "").strip()
+    if not summary:
+        return []
+    return ["", "**Written summary:**", summary]
+
+
+def build_item_section(item, *, regions_by_id, shape_report=None, depth_report=None,
+                       location=None):
     """One item, as a Markdown section. Public so a single-item handoff and a
-    multi-item one share exactly the same per-item formatting."""
+    multi-item one share exactly the same per-item formatting.
+
+    `location` is the promoted data/locations/ document this item became, when
+    it has been promoted -- see _promoted_lines.
+    """
     lines = ["### " + _heading(item)]
-    if item.get("locked"):
+    lines.extend(_promoted_lines(location))
+    if item.get("locked") and not location:
         lines.append("_Locked -- has a real lore entry already._")
     if item.get("tier") == "region":
         lines.extend(_region_block(item, regions_by_id))
@@ -130,6 +164,8 @@ def build_item_section(item, *, regions_by_id, shape_report=None, depth_report=N
         lines.extend(_region_context_lines(item, regions_by_id))
     lines.extend(_shape_lines(shape_report))
     lines.extend(_depth_lines(depth_report))
+
+    lines.extend(_written_lore_lines(location))
 
     note = (item.get("note") or "").strip()
     lines.append("")
@@ -143,18 +179,23 @@ def build_item_section(item, *, regions_by_id, shape_report=None, depth_report=N
     return "\n".join(lines)
 
 
-def build(items, ids, *, shape_reports=None, depth_reports=None, session_note=""):
+def build(items, ids, *, shape_reports=None, depth_reports=None, session_note="",
+          locations=None):
     """The full handoff document for a set of selected items.
 
     `shape_reports` / `depth_reports` are optional {localId: report} maps --
     a region has no shape report (shape.py refuses regions on purpose, see
     its own docstring), so a missing entry is expected and simply omits that
-    section rather than erroring.
+    section rather than erroring. `locations` is the same shape: {localId:
+    promoted location document} for items that have been promoted, and the
+    caller is expected to have computed that item's depth report against the
+    LOCATION rather than the draft item.
     """
     by_id = {it["localId"]: it for it in items}
     regions_by_id = {it["localId"]: it for it in items if it.get("tier") == "region"}
     shape_reports = shape_reports or {}
     depth_reports = depth_reports or {}
+    locations = locations or {}
 
     selected = [by_id[i] for i in ids if i in by_id]
     missing = [i for i in ids if i not in by_id]
@@ -171,6 +212,7 @@ def build(items, ids, *, shape_reports=None, depth_reports=None, session_note=""
         parts.append(build_item_section(
             item, regions_by_id=regions_by_id,
             shape_report=shape_reports.get(item["localId"]),
-            depth_report=depth_reports.get(item["localId"])))
+            depth_report=depth_reports.get(item["localId"]),
+            location=locations.get(item["localId"])))
 
     return "\n\n".join(parts) + "\n"

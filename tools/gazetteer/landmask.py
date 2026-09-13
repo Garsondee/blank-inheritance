@@ -314,6 +314,62 @@ def to_polygons(mask, extent=None, min_feature_m2=MIN_FEATURE_M2,
     return land, water
 
 
+class ClipError(ValueError):
+    pass
+
+
+def clip_ring_to_shore(ring_px, land, water, *, kind, min_area_px2=1.0):
+    """A hand-drawn ring, trimmed to the real painted coastline.
+
+    Districts were voronoi-seeded (2026-09-11), so most run straight out over
+    open water at the map's edges rather than following the shore -- Ingram's
+    own words, 2026-09-12: "increase the resolution of these district borders
+    and the ocean borders." `land`/`water` are landmask.load()'s own output,
+    which is the authoritative shore for this exact reason (design/
+    map-generation.md: OSM's coastline is wrong here on purpose -- a buried
+    airport, a shrunk island -- so only the painted map can answer this).
+
+    Which target to clip against follows the region's own declared `kind`:
+    a land district is intersected with `land`, a water region (The Open Sea,
+    The Inner Harbour, ...) with `water`. Clipping the wrong one would trim a
+    bay down to its own headlands.
+
+    A clip that empties the shape, or splits it into several disconnected
+    pieces, is refused rather than silently returning a MultiPolygon a
+    session item's ringPx cannot represent -- the caller is expected to
+    report this as "needs a look," not a shape a person never drew.
+    """
+    from shapely.geometry import Polygon
+    from shapely.ops import unary_union
+
+    target = water if kind == "water" else land
+    ring = Polygon(ring_px)
+    if not ring.is_valid:
+        ring = ring.buffer(0)
+    clipped = ring.intersection(unary_union(target))
+    clipped = _drop_specks(clipped, min_area_px2) if not clipped.is_empty else clipped
+
+    if clipped.is_empty:
+        raise ClipError("clipping to the shore leaves nothing -- "
+                        "this shape may not actually touch %s" % kind)
+    parts = list(getattr(clipped, "geoms", [clipped]))
+    parts = [p for p in parts if p.area >= min_area_px2]
+    if len(parts) > 1:
+        raise ClipError("clipping to the shore splits this into %d separate "
+                        "pieces -- needs a look before this can be applied "
+                        "automatically" % len(parts))
+
+    poly = parts[0]
+    exterior = [[round(x, 1), round(y, 1)] for x, y in poly.exterior.coords[:-1]]
+    holes = [[[round(x, 1), round(y, 1)] for x, y in interior.coords[:-1]]
+            for interior in poly.interiors]
+    return {
+        "ringPx": exterior, "holesPx": holes,
+        "areaPx2": round(poly.area, 1),
+        "areaChangePx2": round(poly.area - ring.area, 1),
+    }
+
+
 def build(image_path=None, step=DEFAULT_STEP, extent=None, cache_path=None):
     """Sample, cache the raster, and return (mask, land, water)."""
     mask = sample(image_path=image_path, step=step, extent=extent,

@@ -201,10 +201,17 @@ class TestCompute(unittest.TestCase):
         self.assertEqual(orphans, [], "no building should be outside every region "
                                       "on a sheet that tessellates")
 
-        no_neighbours = [r["localId"] for r in regions
+        # A region tagged "underground" (Deep Storage, sitting entirely inside
+        # The Container Ground's surface footprint -- see coverage.py's own
+        # exclusion for the same case) has no exterior border to share by
+        # construction: it doesn't sit beside anything, it sits under it.
+        # Excluded here for the same reason, not because the computation is
+        # wrong -- a region genuinely isolated on the surface still fails.
+        surface_regions = [r for r in regions if "underground" not in (r.get("tags") or [])]
+        no_neighbours = [r["localId"] for r in surface_regions
                         if not result[r["localId"]]["neighbourRefs"]]
         self.assertEqual(no_neighbours, [],
-                         "every region on a full tessellation borders something")
+                         "every surface region on a full tessellation borders something")
 
 
 class TestPurity(unittest.TestCase):

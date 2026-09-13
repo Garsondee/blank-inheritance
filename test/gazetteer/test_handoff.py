@@ -144,3 +144,70 @@ class TestBuild(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def promoted_location(location_id="deep-storage", summary="A bunker warehouse under the crane yard.",
+                      status="drafted", source_local_id="s1"):
+    return {
+        "id": location_id, "tier": "site", "name": "Deep Storage",
+        "authoring": {"note": "rough note", "status": status},
+        "lore": {"summary": summary, "playerFacing": "x", "gmOnly": "y"},
+        "derived": {"sourceLocalId": source_local_id},
+    }
+
+
+class TestPromotedItems(unittest.TestCase):
+    """The gap Ingram hit: two locations were written in full and promoted,
+    he refreshed the Gazetteer, and the handoff still described them as
+    owing their entire lore -- because the draft item legitimately still
+    holds only his rough note, and nothing said the promotion had happened."""
+
+    def test_a_promoted_item_says_so_and_names_its_file(self):
+        s = site("s1", name="Deep Storage", note="rough note")
+        doc = handoff.build_item_section(s, regions_by_id={},
+                                         location=promoted_location())
+        self.assertIn("Promoted", doc)
+        self.assertIn("data/locations/deep-storage.json", doc)
+
+    def test_a_promoted_item_carries_the_written_summary_back(self):
+        """So the next conversation starts from what exists rather than
+        rewriting it from the stub."""
+        s = site("s1", name="Deep Storage", note="rough note")
+        doc = handoff.build_item_section(
+            s, regions_by_id={},
+            location=promoted_location(summary="A bunker under the crane yard."))
+        self.assertIn("Written summary", doc)
+        self.assertIn("A bunker under the crane yard.", doc)
+
+    def test_the_original_note_is_still_shown_alongside_the_written_lore(self):
+        """The note is the brief the lore was written FROM, and stays useful
+        context -- the written summary adds to it, never replaces it."""
+        s = site("s1", name="Deep Storage", note="anything unusual goes here")
+        doc = handoff.build_item_section(s, regions_by_id={},
+                                         location=promoted_location())
+        self.assertIn("anything unusual goes here", doc)
+        self.assertIn("**Note:**", doc)
+
+    def test_an_unpromoted_item_is_unchanged(self):
+        s = site("s1", name="Shed", note="a store shed")
+        doc = handoff.build_item_section(s, regions_by_id={})
+        self.assertNotIn("Promoted", doc)
+        self.assertNotIn("Written summary", doc)
+
+    def test_a_promoted_item_is_not_also_labelled_locked(self):
+        """Promotion sets `locked`, so both labels would otherwise fire and
+        say the same thing twice in two different vocabularies."""
+        s = site("s1", name="Deep Storage", locked=True)
+        doc = handoff.build_item_section(s, regions_by_id={},
+                                         location=promoted_location())
+        self.assertIn("Promoted", doc)
+        self.assertNotIn("_Locked", doc)
+
+    def test_build_matches_locations_up_by_localId(self):
+        a = site("s1", name="Promoted one")
+        b = site("s2", name="Draft one")
+        doc = handoff.build([a, b], ["s1", "s2"],
+                            locations={"s1": promoted_location()})
+        promoted_half, draft_half = doc.split("### Draft one")
+        self.assertIn("Promoted", promoted_half)
+        self.assertNotIn("Promoted", draft_half)

@@ -46,7 +46,7 @@ except ImportError:                                      # pragma: no cover
 
 try:
     import landmask
-    from shapely.geometry import box
+    from shapely.geometry import box, Polygon
 except ImportError as exc:                               # pragma: no cover
     landmask = None
     _IMPORT_ERROR = exc
@@ -265,6 +265,74 @@ class TestManifestFurniture(unittest.TestCase):
         got = landmask.furniture_from_manifest(path)
         self.assertEqual(len(got), 1)
         self.assertEqual(got[0][4], "water", "ground defaults to sea")
+
+
+@unittest.skipIf(landmask is None, "shapely unavailable")
+class TestClipRingToShore(unittest.TestCase):
+    """Trimming a hand-drawn district boundary to the real painted shore --
+    Ingram, 2026-09-12: "increase the resolution of these district borders
+    and the ocean borders." Districts were voronoi-seeded and most run
+    straight out over open water, since nothing about that placement knew
+    where the coast actually was."""
+
+    EXTENT = (0.0, 0.0, 400.0, 400.0)
+
+    def _land_water(self):
+        # A shore running along x=200: land to the west, water to the east.
+        rows = ["." * 8 + "~" * 8] * 16
+        bits = [1 if ch == "~" else 0 for row in rows for ch in row]
+        mask = landmask.Mask(bits, 16, 16, 25, (12.5, 12.5))
+        return landmask.to_polygons(mask, extent=self.EXTENT,
+                                    min_feature_m2=0, simplify_m=0)
+
+    def test_a_district_drawn_past_the_shore_is_trimmed_to_it(self):
+        land, water = self._land_water()
+        # A district drawn from the middle of the land out into open water.
+        overshooting = [[100, 100], [350, 100], [350, 300], [100, 300]]
+        result = landmask.clip_ring_to_shore(overshooting, land, water, kind="district")
+        self.assertLess(result["areaPx2"], Polygon(overshooting).area)
+        clipped = Polygon(result["ringPx"])
+        self.assertTrue(clipped.within(land.buffer(1e-6)))
+
+    def test_a_water_region_clips_to_water_not_land(self):
+        land, water = self._land_water()
+        # Drawn spanning the shore -- as a WATER region it should keep only
+        # the wet half, the opposite of the district case above.
+        spanning = [[100, 100], [350, 100], [350, 300], [100, 300]]
+        result = landmask.clip_ring_to_shore(spanning, land, water, kind="water")
+        clipped = Polygon(result["ringPx"])
+        self.assertTrue(clipped.within(water.buffer(1e-6)))
+
+    def test_a_shape_already_inside_its_own_shore_is_left_alone(self):
+        land, water = self._land_water()
+        entirely_land = [[20, 20], [180, 20], [180, 180], [20, 180]]
+        result = landmask.clip_ring_to_shore(entirely_land, land, water, kind="district")
+        self.assertAlmostEqual(result["areaPx2"], Polygon(entirely_land).area, delta=1.0)
+        self.assertAlmostEqual(result["areaChangePx2"], 0.0, delta=1.0)
+
+    def test_a_shape_entirely_off_its_own_shore_refuses_rather_than_vanish(self):
+        land, water = self._land_water()
+        entirely_water = [[220, 20], [380, 20], [380, 180], [220, 180]]
+        with self.assertRaises(landmask.ClipError):
+            landmask.clip_ring_to_shore(entirely_water, land, water, kind="district")
+
+    def test_a_clip_that_would_split_the_shape_refuses_rather_than_guess(self):
+        """A session item's ringPx is one ring. If trimming to the real shore
+        would leave two disconnected pieces, that is a real judgement call
+        about which piece is "the district" and must not be made silently."""
+        # Two separate islands (rows 4-6 and rows 10-12), with open water
+        # between them. A district drawn as one tall bar spanning both,
+        # clipped to land, would have to become two separate polygons.
+        rows = ["." * 16] * 16
+        for r in list(range(4, 7)) + list(range(10, 13)):
+            rows[r] = "." * 4 + "~" * 8 + "." * 4
+        bits = [1 if ch == "~" else 0 for row in rows for ch in row]
+        mask = landmask.Mask(bits, 16, 16, 25, (12.5, 12.5))
+        land, water = landmask.to_polygons(mask, extent=self.EXTENT,
+                                           min_feature_m2=0, simplify_m=0)
+        tall_bar = [[120, 80], [280, 80], [280, 340], [120, 340]]
+        with self.assertRaises(landmask.ClipError):
+            landmask.clip_ring_to_shore(tall_bar, land, water, kind="district")
 
 
 @unittest.skipIf(landmask is None, "shapely unavailable")

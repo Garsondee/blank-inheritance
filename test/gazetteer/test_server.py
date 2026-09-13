@@ -41,6 +41,9 @@ import crop as crop_mod  # noqa: E402
 import server as gz  # noqa: E402
 from core import groundtruth, overrides as overrides_mod, session as session_mod  # noqa: E402
 from core import location as location_mod  # noqa: E402
+from core import requests as requests_mod  # noqa: E402
+from core import lore_library as lore_mod  # noqa: E402
+import biome as biome_mod  # noqa: E402
 
 # Sannomiya: the densest ground truth on the sheet, so a small window there is
 # a real test of the feature query rather than an empty one.
@@ -63,6 +66,8 @@ def post(url, payload):
 @unittest.skipUnless(groundtruth.store_exists(),
                      "needs data/map/kurose.gpkg (120 MB, not in a fresh clone)")
 class TestServer(unittest.TestCase):
+    _seed_counter = 0  # see _seed_item's own docstring for why this exists
+
     @classmethod
     def setUpClass(cls):
         cls.tmp = tempfile.mkdtemp()
@@ -71,13 +76,32 @@ class TestServer(unittest.TestCase):
         cls.draft_dir = os.path.join(cls.tmp, "drafts")
         cls.overrides_path = os.path.join(cls.tmp, "overrides.json")
         cls.locations_dir = os.path.join(cls.tmp, "locations")
+        cls.requests_path = os.path.join(cls.tmp, "gazetteer-requests.json")
+        cls.biome_cache_path = os.path.join(cls.tmp, "biomes.json")
+        cls.biome_overrides_path = os.path.join(cls.tmp, "biome-overrides.json")
+        cls.lore_docs_dir = os.path.join(cls.tmp, "lore-docs")
+        cls.lore_library_path = os.path.join(cls.tmp, "lore-library.json")
+        cls.lore_instructions_path = os.path.join(cls.tmp, "lore-instructions.json")
         cls._old_draft_dir = session_mod.DRAFT_DIR
         cls._old_overrides = overrides_mod.OVERRIDES_PATH
         cls._old_locations_dir = gz.LOCATIONS_DIR
+        cls._old_requests_path = requests_mod.REQUESTS_PATH
+        cls._old_biome_cache = biome_mod.CACHE_PATH
+        cls._old_biome_overrides = biome_mod.OVERRIDES_PATH
+        cls._old_lore_library_path = lore_mod.LIBRARY_PATH
+        cls._old_lore_instructions_path = lore_mod.INSTRUCTIONS_PATH
+        cls._old_lore_repo_root = lore_mod.REPO_ROOT
         session_mod.DRAFT_DIR = cls.draft_dir
         overrides_mod.OVERRIDES_PATH = cls.overrides_path
         gz.LOCATIONS_DIR = cls.locations_dir
+        requests_mod.REQUESTS_PATH = cls.requests_path
+        biome_mod.CACHE_PATH = cls.biome_cache_path
+        biome_mod.OVERRIDES_PATH = cls.biome_overrides_path
+        lore_mod.LIBRARY_PATH = cls.lore_library_path
+        lore_mod.INSTRUCTIONS_PATH = cls.lore_instructions_path
+        lore_mod.REPO_ROOT = cls.tmp
         os.makedirs(cls.draft_dir, exist_ok=True)
+        os.makedirs(cls.lore_docs_dir, exist_ok=True)
 
         gz.STATE = gz.State(tile_dir=os.path.join(cls.tmp, "tiles"))
         cls.httpd = ThreadingHTTPServer(("127.0.0.1", 0), gz.Handler)
@@ -92,19 +116,52 @@ class TestServer(unittest.TestCase):
         session_mod.DRAFT_DIR = cls._old_draft_dir
         overrides_mod.OVERRIDES_PATH = cls._old_overrides
         gz.LOCATIONS_DIR = cls._old_locations_dir
+        requests_mod.REQUESTS_PATH = cls._old_requests_path
+        biome_mod.CACHE_PATH = cls._old_biome_cache
+        biome_mod.OVERRIDES_PATH = cls._old_biome_overrides
+        lore_mod.LIBRARY_PATH = cls._old_lore_library_path
+        lore_mod.INSTRUCTIONS_PATH = cls._old_lore_instructions_path
+        lore_mod.REPO_ROOT = cls._old_lore_repo_root
         shutil.rmtree(cls.tmp, ignore_errors=True)
 
     def _seed_item(self, tier="site", ring=None, point=None, name="", note=""):
         """Save a session with one item and return its saved (derived) form,
-        the way a real client would before promoting it."""
+        the way a real client would before promoting it.
+
+        The default ring is nudged by a few pixels on every call that does
+        not supply its own -- found live: two unrelated tests both using
+        this same default rectangle for "seed-1" is exactly the shape
+        _looks_like_the_same_item falls back to when sourceFeatureIds is
+        empty on both sides (true here, always), so one test's promoted
+        seed-1 was silently donating its locationRef to the next test's
+        freshly-seeded seed-1 at the same coordinates -- the identical
+        mechanism this project built to protect a real stale browser tab,
+        tripped instead by every test in this file sharing one server
+        process and one default shape. A 1px-per-call nudge, comfortably
+        inside the sheet at any realistic test count, is enough: the shape
+        comparison is exact equality, not a tolerance.
+        """
+        if ring is None and point is None:
+            n = TestServer._seed_counter
+            TestServer._seed_counter += 1
+            ring = [[4400 + n, 6400], [4800 + n, 6400], [4800 + n, 6800], [4400 + n, 6800]]
         geometry = ({"kind": "point", "pointPx": point} if point else
                    {"kind": "polygon", "ringPx": ring or
                     [[4400, 6400], [4800, 6400], [4800, 6800], [4400, 6800]]})
         item = {"localId": "seed-1", "tier": tier, "name": name, "kind": "",
                "note": note, "tags": [], "source": "drawn", "sourceFeatureIds": [],
                "geometry": geometry, "derived": {}}
-        res = post(self.base + "/api/session", {"items": [item]})
-        return res["draft"]["items"][0]
+        # The undo stack is process-lifetime state, not draft state, so
+        # resetting the draft alone would leave it carrying entries from
+        # whichever test happened to run first -- every test that cares
+        # about undo starts from a clean stack the same way it starts from
+        # a clean draft.
+        gz.STATE.undo_stack = gz.undo_mod.UndoStack()
+        # allowDeletePromoted: this helper deliberately resets the whole
+        # session, including anything a previous test promoted.
+        res = post(self.base + "/api/session",
+                   {"items": [item], "allowDeletePromoted": True})
+        return next(i for i in res["draft"]["items"] if i["localId"] == "seed-1")
 
     # --- configuration -------------------------------------------------------
 
@@ -285,7 +342,7 @@ class TestServer(unittest.TestCase):
                          "ringPx": [[4400, 6400], [4800, 6400], [4800, 6800], [4400, 6800]]},
             "derived": {},
         }]
-        res = post(self.base + "/api/session", {"items": items})
+        res = post(self.base + "/api/session", {"items": items, "allowDeletePromoted": True})
         self.assertEqual(res["problems"], [])
         saved = res["draft"]["items"][0]
         self.assertEqual(saved["derived"]["refs"],
@@ -321,7 +378,7 @@ class TestServer(unittest.TestCase):
                         "ringPx": [[4500, 6500], [4550, 6500], [4550, 6550], [4500, 6550]]},
             "derived": {},
         }
-        res = post(self.base + "/api/session", {"items": [region, site]})
+        res = post(self.base + "/api/session", {"items": [region, site], "allowDeletePromoted": True})
         by_id = {i["localId"]: i for i in res["draft"]["items"]}
 
         self.assertEqual(by_id["item-2"]["derived"]["withinRegionRef"], "item-1")
@@ -346,7 +403,7 @@ class TestServer(unittest.TestCase):
                         "ringPx": [[4400, 6400], [4800, 6400], [4800, 6800], [4400, 6800]]},
             "derived": {},
         }
-        post(self.base + "/api/session", {"items": [region]})
+        post(self.base + "/api/session", {"items": [region], "allowDeletePromoted": True})
         fresh = get(self.base + "/api/session")
         self.assertEqual(fresh["draft"]["items"][0]["derived"]["containsRefs"], [])
 
@@ -363,7 +420,7 @@ class TestServer(unittest.TestCase):
                         "ringPx": [[4500, 6500], [4550, 6500], [4550, 6550], [4500, 6550]]},
             "derived": {}},
         ]
-        post(self.base + "/api/session", {"items": items})
+        post(self.base + "/api/session", {"items": items, "allowDeletePromoted": True})
         result = get(self.base + "/api/queue")
         self.assertEqual(result["regionCount"], 1)
         by_id = {r["localId"]: r for r in result["regions"]}
@@ -386,7 +443,7 @@ class TestServer(unittest.TestCase):
                         "ringPx": [[4500, 6500], [4550, 6500], [4550, 6550], [4500, 6550]]},
             "derived": {}},
         ]
-        post(self.base + "/api/session", {"items": items})
+        post(self.base + "/api/session", {"items": items, "allowDeletePromoted": True})
         result = post(self.base + "/api/handoff", {"localIds": ["s1"]})
         self.assertIn("Pure military and checkpoints.", result["markdown"])
         self.assertIn("Shed", result["markdown"])
@@ -522,6 +579,606 @@ class TestServer(unittest.TestCase):
         found = next(loc for loc in locs if loc["id"] == "station-rear")
         self.assertEqual(found["name"], "Station Rear")
         self.assertIsNotNone(found["ringsPx"])
+
+    def test_promotion_stamps_the_draft_item_so_the_session_knows(self):
+        """Ingram's report: two locations were written in full and promoted,
+        he refreshed the Gazetteer, and both still showed their stub notes
+        with the whole lore listed as outstanding. Promotion is a one-way
+        door and never writes lore back into the draft -- but the draft has
+        to at least know the door was walked through, or the session panel
+        and the handoff both keep reporting a finished place as unwritten."""
+        self._seed_item(note="A quiet block behind the station.", name="Station Rear")
+        post(self.base + "/api/promote",
+            {"localId": "seed-1", "id": "stamp-test"})
+        item = next(i for i in get(self.base + "/api/session")["draft"]["items"]
+                    if i["localId"] == "seed-1")
+        self.assertEqual(item["locationRef"], "stamp-test")
+        self.assertTrue(item["locked"], "a promoted item is no longer a draft")
+
+    def test_a_stale_save_cannot_erase_an_earlier_promotion(self):
+        """Found live: Ingram had a browser tab open from before three
+        locations were promoted (by a direct script call, not that tab).
+        An unrelated edit in that tab triggered its next autosave, which
+        sent the tab's own older idea of those items -- no locationRef, no
+        locked -- and the server accepted it, silently un-stamping all
+        three. The written lore was still on disk and still findable by
+        sourceLocalId, but the inspector's Promoted badge and the map's
+        green locked outline both went dark. A plain save must never be
+        able to do that."""
+        seeded = self._seed_item(note="a rough note", name="Written Place")
+        post(self.base + "/api/promote",
+            {"localId": "seed-1", "id": "stale-save-test"})
+
+        # A second, older payload for the same item -- as if a tab that
+        # loaded the session before promotion is now saving an unrelated
+        # change of its own, unaware locationRef/locked exist at all. Must
+        # be the SAME drawn shape _seed_item actually used (read back from
+        # its own return value, not a second hardcoded copy of the ring) --
+        # _looks_like_the_same_item compares the shape exactly, and
+        # _seed_item nudges its default ring a little on every call so
+        # unrelated tests never collide on it by accident.
+        stale_item = {
+            "localId": "seed-1", "tier": "site", "name": "Written Place",
+            "kind": "", "note": "a rough note, edited in the stale tab",
+            "tags": [], "source": "drawn", "sourceFeatureIds": [],
+            "geometry": {"kind": "polygon", "ringPx": seeded["geometry"]["ringPx"]},
+            "derived": {},
+        }
+        post(self.base + "/api/session", {"items": [stale_item]})
+
+        item = next(i for i in get(self.base + "/api/session")["draft"]["items"]
+                    if i["localId"] == "seed-1")
+        self.assertEqual(item["locationRef"], "stale-save-test",
+                         "the link to the promoted file must survive a stale save")
+        self.assertTrue(item["locked"])
+        # The stale tab's own edit still goes through -- this is reconciling
+        # a gap, not refusing the save outright.
+        self.assertEqual(item["note"], "a rough note, edited in the stale tab")
+
+    def test_a_tab_that_knows_about_the_promotion_can_still_unlock_it(self):
+        """The fix above only fills a GAP (locationRef missing entirely). A
+        tab that already has the link and deliberately clicks Unlock must
+        still be able to -- this is not a promotion made permanent."""
+        self._seed_item(note="a rough note", name="Written Place")
+        post(self.base + "/api/promote",
+            {"localId": "seed-1", "id": "unlock-test"})
+        item = next(i for i in get(self.base + "/api/session")["draft"]["items"]
+                    if i["localId"] == "seed-1")
+
+        item["locked"] = False   # the tab already knows locationRef and unlocks deliberately
+        post(self.base + "/api/session", {"items": [item]})
+
+        saved = next(i for i in get(self.base + "/api/session")["draft"]["items"]
+                    if i["localId"] == "seed-1")
+        self.assertEqual(saved["locationRef"], "unlock-test")
+        self.assertFalse(saved["locked"], "a tab that knows about the promotion may still unlock it")
+
+    def test_a_promoted_region_does_not_overlap_its_own_draft_copy_in_coverage(self):
+        """Found live, promoting The Proving Ground -- the first REGION
+        anyone had promoted this session (every earlier promotion was a
+        site). Promotion never deletes the draft item, so /api/coverage was
+        counting a promoted region twice: once from the draft, once from
+        data/locations/ -- and reporting the district as 100% overlapping
+        ITSELF. That also buried a real, separate overlap against The Long
+        Sheds underneath two rows of noise."""
+        self._seed_item(tier="region", note="a training ground",
+                        name="Coverage Region", ring=[[3400, 3400], [3900, 3400],
+                                                       [3900, 3900], [3400, 3900]])
+        post(self.base + "/api/promote",
+            {"localId": "seed-1", "id": "coverage-region-test"})
+        result = get(self.base + "/api/coverage")
+        self_overlaps = [o for o in result["overlaps"]
+                         if {o["a"], o["b"]} == {"seed-1", "coverage-region-test"}]
+        self.assertEqual(self_overlaps, [],
+                         "a promoted region must not be checked against its own draft copy")
+
+    def test_a_recycled_localId_never_inherits_the_dead_item_promotion_link(self):
+        """The worst bug this tool has produced, found live. Five promoted
+        homes were deleted; the id counter was derived from 1 + max(existing),
+        so it rolled BACKWARDS and handed those ids to the next twenty-seven
+        buildings drawn. The save path then restored each dead home's
+        locationRef onto the new building wearing its id, and the handoff
+        duly reported a 15,103 m2 factory as a 121 m2 cottage."""
+        self._seed_item(note="a house", name="A House")
+        post(self.base + "/api/promote", {"localId": "seed-1", "id": "recycled-test"})
+
+        # A DIFFERENT building that has been handed the same localId.
+        impostor = {
+            "localId": "seed-1", "tier": "site", "name": "", "kind": "",
+            "note": "a completely different building", "tags": [],
+            "source": "drawn", "sourceFeatureIds": [],
+            "geometry": {"kind": "polygon", "ringPx":
+                        [[9000, 9000], [9400, 9000], [9400, 9400], [9000, 9400]]},
+            "derived": {},
+        }
+        post(self.base + "/api/session", {"items": [impostor]})
+
+        item = next(i for i in get(self.base + "/api/session")["draft"]["items"]
+                    if i["localId"] == "seed-1")
+        self.assertIsNone(item.get("locationRef"),
+                          "a different building must never inherit a dead item's location")
+        self.assertFalse(item.get("locked"))
+
+    def test_the_id_counter_never_goes_backwards_after_a_deletion(self):
+        """The root cause of the above: ids must not be reissued."""
+        self._seed_item(note="first")
+        after_seed = get(self.base + "/api/session")["draft"]
+        # Save a draft whose highest id is much higher, then delete it.
+        high = dict(after_seed["items"][0])
+        high["localId"] = "item-900"
+        post(self.base + "/api/session", {"items": [high], "nextLocalId": 901})
+        post(self.base + "/api/session", {"items": [], "nextLocalId": 901})
+
+        draft = get(self.base + "/api/session")["draft"]
+        self.assertGreaterEqual(draft["nextLocalId"], 901,
+                                "deleting the highest item must not roll the counter back")
+
+    def test_a_save_cannot_delete_a_promoted_item(self):
+        """How five promoted homes were actually lost. The lock that protects
+        a promoted item is enforced in the BROWSER, against the browser's own
+        copy of `locked` -- so a tab that loaded before the promotion believes
+        it is an ordinary draft and drops it, and the server took that at face
+        value. Deleting a promoted item for real means removing its
+        data/locations entry first."""
+        self._seed_item(note="a house", name="A House")
+        post(self.base + "/api/promote", {"localId": "seed-1", "id": "undeletable-test"})
+
+        # A save that simply omits it -- exactly what a stale tab sends.
+        res = post(self.base + "/api/session", {"items": []})
+
+        survivors = [i["localId"] for i in get(self.base + "/api/session")["draft"]["items"]]
+        self.assertIn("seed-1", survivors, "a promoted item must survive a save that drops it")
+        self.assertIn("seed-1", res.get("keptPromoted", []),
+                      "and the save must say so rather than doing it quietly")
+
+    def test_a_deleted_item_can_be_restored_with_undo(self):
+        """The direct fix for how the five homes went missing earlier in
+        this project's history: a save that drops an item is one keystroke
+        away from being reversed, not an investigation."""
+        self._seed_item(note="a house", name="A House")
+        post(self.base + "/api/session", {"items": []})
+        self.assertEqual(get(self.base + "/api/session")["draft"]["items"], [])
+
+        res = post(self.base + "/api/undo", {})
+        self.assertEqual(res["undid"], "deleted 'A House'")
+        survivors = [i["localId"] for i in res["draft"]["items"]]
+        self.assertIn("seed-1", survivors)
+        # And it is really back, not just in this one response.
+        self.assertIn("seed-1",
+                      [i["localId"] for i in get(self.base + "/api/session")["draft"]["items"]])
+
+    def test_a_save_names_what_undoing_it_would_restore(self):
+        item = self._seed_item(note="a house", name="Signal Box")
+        res = post(self.base + "/api/session",
+                  {"items": [dict(item, name="Renamed Box")]})
+        self.assertEqual(res["undoAvailable"], "renamed 'Signal Box' to 'Renamed Box'")
+        # A plain GET agrees -- a page that only just loaded still offers it.
+        self.assertEqual(get(self.base + "/api/session")["undoAvailable"],
+                         "renamed 'Signal Box' to 'Renamed Box'")
+
+    def test_a_no_op_save_does_not_spend_an_undo_slot(self):
+        item = self._seed_item(note="a house", name="Unchanged")
+        before = post(self.base + "/api/session", {"items": [item]})["undoAvailable"]
+        # Re-posting the exact same item is not an edit -- resaving on a
+        # timer, or the inspector re-sending the current selection, must not
+        # bury a real prior edit's undo under a no-op.
+        after = post(self.base + "/api/session", {"items": [item]})["undoAvailable"]
+        self.assertEqual(before, after)
+
+    def test_undo_reaches_back_more_than_one_step(self):
+        # _seed_item's own save would count as one more real change and push
+        # its own entry, so the two deletes under test are built as plain
+        # saves on top of one seeded pair, not as two separate _seed_item
+        # calls (each of which resets the stack -- see its own docstring).
+        first = self._seed_item(note="a house", name="First")
+        second = dict(first, localId="seed-2", name="Second")
+        post(self.base + "/api/session", {"items": [first, second]})
+        post(self.base + "/api/session", {"items": [first]})   # deletes Second
+        post(self.base + "/api/session", {"items": []})        # deletes First
+
+        first_undo = post(self.base + "/api/undo", {})
+        self.assertEqual(first_undo["undid"], "deleted 'First'")
+        second_undo = post(self.base + "/api/undo", {})
+        self.assertEqual(second_undo["undid"], "deleted 'Second'")
+
+    def test_undo_on_an_empty_stack_is_a_409_not_a_silent_no_op(self):
+        self._seed_item(note="fresh session, nothing to undo yet")
+        # _seed_item's own save is itself one real change and left an entry
+        # of its own on the stack it just cleared -- drain that first so
+        # this test is actually exercising an empty stack, not a full one.
+        post(self.base + "/api/undo", {})
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            post(self.base + "/api/undo", {})
+        self.assertEqual(cm.exception.code, 409)
+
+    # --- the Claude -> Ingram request queue ----------------------------------
+
+    def _reset_requests(self):
+        requests_mod.save(requests_mod.empty())
+
+    def test_raising_a_request_and_listing_it_back(self):
+        self._reset_requests()
+        res = post(self.base + "/api/requests", {
+            "what": "a name for the harbourmaster's office",
+            "why": "The Old Landing's lore mentions one but nothing is drawn",
+            "hint": "C3.44",
+        })
+        self.assertEqual(res["request"]["status"], "open")
+        self.assertEqual(res["request"]["hint"], "C3.44")
+
+        listed = get(self.base + "/api/requests")["requests"]
+        self.assertEqual(len(listed), 1)
+        self.assertEqual(listed[0]["what"], "a name for the harbourmaster's office")
+
+    def test_status_open_narrows_the_listing(self):
+        self._reset_requests()
+        r1 = post(self.base + "/api/requests", {"what": "first"})["request"]
+        post(self.base + "/api/requests", {"what": "second"})
+        post(self.base + "/api/requests/%s/resolve" % r1["id"], {"resolution": "done"})
+
+        everything = get(self.base + "/api/requests")["requests"]
+        open_only = get(self.base + "/api/requests?status=open")["requests"]
+        self.assertEqual(len(everything), 2)
+        self.assertEqual(len(open_only), 1)
+        self.assertEqual(open_only[0]["what"], "second")
+
+    def test_a_request_with_no_what_is_a_400(self):
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            post(self.base + "/api/requests", {"why": "no `what` given"})
+        self.assertEqual(cm.exception.code, 400)
+
+    def test_resolving_an_unknown_request_is_a_404(self):
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            post(self.base + "/api/requests/req-does-not-exist/resolve", {})
+        self.assertEqual(cm.exception.code, 404)
+
+    def test_resolving_twice_is_a_409_not_a_silent_overwrite(self):
+        self._reset_requests()
+        r = post(self.base + "/api/requests", {"what": "something"})["request"]
+        post(self.base + "/api/requests/%s/resolve" % r["id"], {"resolution": "first"})
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            post(self.base + "/api/requests/%s/resolve" % r["id"], {"resolution": "second"})
+        self.assertEqual(cm.exception.code, 409)
+
+    # --- grid-cell biomes ------------------------------------------------
+
+    def test_biomes_builds_and_caches_on_first_request(self):
+        res = get(self.base + "/api/biomes")
+        self.assertGreater(len(res["biomes"]), 3000)
+        self.assertIn("ocean", res["taxonomy"])
+        self.assertTrue(os.path.exists(self.biome_cache_path),
+                        "a build on first request must actually populate the cache file")
+
+    def test_a_second_request_serves_the_same_cache_without_rebuilding(self):
+        first = get(self.base + "/api/biomes")
+        # Corrupt one entry directly in the cache file on disk -- if the
+        # second GET rebuilt instead of reading the cache, this edit would
+        # be silently overwritten and the assertion below would never catch
+        # a regression back to "always rebuilds".
+        with open(self.biome_cache_path, encoding="utf-8") as fh:
+            doc = json.load(fh)
+        any_ref = next(iter(doc["biomes"]))
+        doc["biomes"][any_ref] = "dense-urban"
+        with open(self.biome_cache_path, "w", encoding="utf-8") as fh:
+            json.dump(doc, fh)
+        second = get(self.base + "/api/biomes")
+        self.assertEqual(second["biomes"][any_ref], "dense-urban")
+
+    def test_rebuild_overwrites_a_stale_cache(self):
+        get(self.base + "/api/biomes")
+        with open(self.biome_cache_path, encoding="utf-8") as fh:
+            doc = json.load(fh)
+        any_ref = next(iter(doc["biomes"]))
+        doc["biomes"][any_ref] = "dense-urban"
+        with open(self.biome_cache_path, "w", encoding="utf-8") as fh:
+            json.dump(doc, fh)
+
+        rebuilt = post(self.base + "/api/biomes/rebuild", {})
+        self.assertEqual(rebuilt["cellCount"], len(rebuilt["biomes"]))
+        # The hand-edited value must be gone -- a real rebuild recomputes
+        # every cell from the actual data, it does not merge onto whatever
+        # was there before.
+        reloaded = get(self.base + "/api/biomes")
+        self.assertEqual(reloaded["biomes"][any_ref], rebuilt["biomes"][any_ref])
+
+    def test_a_hand_override_beats_automatic_measurement_end_to_end(self):
+        # The full stack, not just core/biome.py's own unit test: write a
+        # real override file, rebuild through the real endpoint, confirm it
+        # won for a cell that automatic measurement would not have picked.
+        doc = biome_mod.empty_overrides()
+        doc["overrides"].append({"ref": "A1·00", "biome": "dense-urban", "note": "test"})
+        biome_mod.save_overrides(doc)
+        try:
+            rebuilt = post(self.base + "/api/biomes/rebuild", {})
+            self.assertEqual(rebuilt["biomes"]["A1·00"], "dense-urban")
+        finally:
+            biome_mod.save_overrides(biome_mod.empty_overrides())
+            post(self.base + "/api/biomes/rebuild", {})
+
+    # --- the Lore Library ---------------------------------------------------
+
+    def _reset_lore_library(self):
+        lore_mod.save_library(lore_mod.empty_library())
+        lore_mod.save_instructions(lore_mod.empty_instructions())
+
+    def _write_lore_doc(self, rel_path, content):
+        full = os.path.join(self.tmp, rel_path)
+        os.makedirs(os.path.dirname(full), exist_ok=True)
+        with open(full, "w", encoding="utf-8") as fh:
+            fh.write(content)
+
+    def test_documents_lists_the_registry_with_live_status(self):
+        self._reset_lore_library()
+        self._write_lore_doc("lore-docs/ledger.md", "one two three four five")
+        doc = lore_mod.add_document(lore_mod.load_library(),
+                                    {"id": "ledger", "path": "lore-docs/ledger.md",
+                                     "title": "The Ledger", "importance": 1, "category": "ledger"})
+        lore_mod.save_library(doc)
+
+        res = get(self.base + "/api/lore/documents")
+        row = res["documents"][0]
+        self.assertEqual(row["id"], "ledger")
+        self.assertTrue(row["exists"])
+        self.assertEqual(row["wordCount"], 5)
+        self.assertEqual(row["pendingInstructions"], 0)
+
+    def test_documents_flags_a_registered_file_that_no_longer_exists(self):
+        self._reset_lore_library()
+        doc = lore_mod.add_document(lore_mod.load_library(),
+                                    {"id": "gone", "path": "lore-docs/gone.md",
+                                     "title": "Gone", "importance": 3, "category": "design"})
+        lore_mod.save_library(doc)
+        res = get(self.base + "/api/lore/documents")
+        self.assertFalse(res["documents"][0]["exists"])
+
+    def test_reading_one_document_returns_content_and_links(self):
+        self._reset_lore_library()
+        self._write_lore_doc("lore-docs/a.md", "See The Rock for context.")
+        self._write_lore_doc("lore-docs/rock.md", "The Rock itself.")
+        doc = lore_mod.load_library()
+        doc = lore_mod.add_document(doc, {"id": "a", "path": "lore-docs/a.md",
+                                          "title": "Doc A", "importance": 3, "category": "design"})
+        doc = lore_mod.add_document(doc, {"id": "rock", "path": "lore-docs/rock.md",
+                                          "title": "The Rock", "importance": 3, "category": "bible"})
+        lore_mod.save_library(doc)
+
+        res = get(self.base + "/api/lore/document?id=a")
+        self.assertEqual(res["content"], "See The Rock for context.")
+        self.assertEqual(res["outboundLinks"], ["rock"])
+
+        backlinks = get(self.base + "/api/lore/document?id=rock")
+        self.assertEqual(backlinks["inboundLinks"], ["a"])
+
+    def test_reading_an_unknown_document_is_a_404(self):
+        self._reset_lore_library()
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            get(self.base + "/api/lore/document?id=no-such-doc")
+        self.assertEqual(cm.exception.code, 404)
+
+    def test_saving_a_document_writes_the_real_file(self):
+        self._reset_lore_library()
+        self._write_lore_doc("lore-docs/a.md", "old content")
+        doc = lore_mod.add_document(lore_mod.load_library(),
+                                    {"id": "a", "path": "lore-docs/a.md", "title": "Doc A",
+                                     "importance": 3, "category": "design"})
+        lore_mod.save_library(doc)
+
+        post(self.base + "/api/lore/document", {"id": "a", "content": "new content"})
+        with open(os.path.join(self.tmp, "lore-docs/a.md"), encoding="utf-8") as fh:
+            self.assertEqual(fh.read(), "new content")
+
+    def test_adding_a_document_to_the_registry(self):
+        self._reset_lore_library()
+        res = post(self.base + "/api/lore/documents", {
+            "id": "new-doc", "path": "lore-docs/new.md", "title": "New Doc",
+            "importance": 2, "category": "design"})
+        self.assertEqual(len(res["library"]["documents"]), 1)
+
+    def test_adding_a_duplicate_document_id_is_a_400(self):
+        self._reset_lore_library()
+        post(self.base + "/api/lore/documents", {
+            "id": "dup", "path": "lore-docs/one.md", "title": "One",
+            "importance": 2, "category": "design"})
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            post(self.base + "/api/lore/documents", {
+                "id": "dup", "path": "lore-docs/two.md", "title": "Two",
+                "importance": 2, "category": "design"})
+        self.assertEqual(cm.exception.code, 400)
+
+    def test_raising_and_resolving_an_instruction(self):
+        self._reset_lore_library()
+        created = post(self.base + "/api/lore/instructions",
+                       {"documentId": "ledger", "text": "Fix the typo in entry 12."})
+        self.assertEqual(created["instruction"]["status"], "pending")
+
+        pending = get(self.base + "/api/lore/instructions?status=pending")
+        self.assertEqual(len(pending["instructions"]), 1)
+
+        resolved = post(self.base + "/api/lore/instructions/%s/resolve"
+                        % created["instruction"]["id"],
+                        {"status": "done", "resolution": "fixed"})
+        self.assertEqual(resolved["instruction"]["status"], "done")
+
+        pending_after = get(self.base + "/api/lore/instructions?status=pending")
+        self.assertEqual(pending_after["instructions"], [])
+
+    def test_an_instruction_can_be_resolved_as_needing_clarification(self):
+        self._reset_lore_library()
+        created = post(self.base + "/api/lore/instructions",
+                       {"documentId": "ledger", "text": "make it more dramatic"})
+        resolved = post(self.base + "/api/lore/instructions/%s/resolve"
+                        % created["instruction"]["id"],
+                        {"status": "needs-clarification",
+                         "resolution": "asked which section this means"})
+        self.assertEqual(resolved["instruction"]["status"], "needs-clarification")
+
+    def test_resolving_an_unknown_instruction_is_a_404(self):
+        self._reset_lore_library()
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            post(self.base + "/api/lore/instructions/instr-999/resolve", {})
+        self.assertEqual(cm.exception.code, 404)
+
+    def test_an_instruction_with_no_text_is_a_400(self):
+        self._reset_lore_library()
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            post(self.base + "/api/lore/instructions", {"documentId": "ledger", "text": ""})
+        self.assertEqual(cm.exception.code, 400)
+
+    # --- approval: Ingram's alone, never a side effect --------------------
+
+    def test_promotion_refuses_an_incoming_approved_status(self):
+        self._seed_item(note="a house", name="Approval Test House")
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            post(self.base + "/api/promote", {
+                "localId": "seed-1", "id": "approval-test-house",
+                "status": "approved", "lore": {"summary": "x"}})
+        self.assertEqual(cm.exception.code, 400)
+        self.assertFalse(os.path.exists(
+            os.path.join(self.locations_dir, "approval-test-house.json")),
+            "a refused promotion must not still create the file")
+
+    def test_review_mode_edit_refuses_an_incoming_approved_status(self):
+        self._seed_item(note="a house", name="Edit Approval Test")
+        post(self.base + "/api/promote", {
+            "localId": "seed-1", "id": "edit-approval-test",
+            "lore": {"summary": "first pass"}})
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            post(self.base + "/api/location", {"id": "edit-approval-test", "status": "approved"})
+        self.assertEqual(cm.exception.code, 400)
+        doc = json.loads(
+            open(os.path.join(self.locations_dir, "edit-approval-test.json"), encoding="utf-8").read())
+        self.assertEqual(doc["authoring"]["status"], "drafted",
+                         "the refused status must not have been written anyway")
+
+    def test_the_dedicated_endpoint_is_the_only_way_to_approve(self):
+        self._seed_item(note="a house", name="Real Approval Test")
+        post(self.base + "/api/promote", {
+            "localId": "seed-1", "id": "real-approval-test",
+            "lore": {"summary": "first pass"}})
+        res = post(self.base + "/api/location/real-approval-test/approve", {})
+        self.assertEqual(res["location"]["authoring"]["status"], "approved")
+
+    def test_approval_can_be_taken_back(self):
+        self._seed_item(note="a house", name="Unapprove Test")
+        post(self.base + "/api/promote", {
+            "localId": "seed-1", "id": "unapprove-test", "lore": {"summary": "x"}})
+        post(self.base + "/api/location/unapprove-test/approve", {})
+        res = post(self.base + "/api/location/unapprove-test/approve", {"approved": False})
+        self.assertEqual(res["location"]["authoring"]["status"], "drafted")
+
+    def test_approving_an_unknown_location_is_a_404(self):
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            post(self.base + "/api/location/no-such-place/approve", {})
+        self.assertEqual(cm.exception.code, 404)
+
+    def test_review_mode_can_rewrite_lore_without_touching_geometry(self):
+        """The review mode's save path. It edits what was WRITTEN and must
+        never be able to edit what was DRAWN -- geometry, derived and
+        provenance come from the map and stay that way, or the file quietly
+        stops agreeing with the shape it came from."""
+        self._seed_item(note="a rough note", name="Editable Place")
+        promoted = post(self.base + "/api/promote", {
+            "localId": "seed-1", "id": "review-edit-test", "status": "drafted",
+            "lore": {"summary": "first pass"}})["location"]
+
+        res = post(self.base + "/api/location", {
+            "id": "review-edit-test", "rank": 2,
+            "lore": {"summary": "second pass", "playerFacing": "seen", "gmOnly": "hidden"},
+            "scene": {"hooks": ["a hook"], "activities": ["a", "b"]},
+        })
+        doc = res["location"]
+        self.assertEqual(doc["lore"]["summary"], "second pass")
+        self.assertEqual(doc["rank"], 2)
+        self.assertEqual(doc["scene"]["hooks"], ["a hook"])
+        self.assertEqual(doc["geometry"], promoted["geometry"],
+                         "geometry is drawn, never edited as text")
+        self.assertEqual(doc["derived"], promoted["derived"],
+                         "derived is computed, never edited as text")
+
+    def test_review_mode_cannot_create_a_location_by_typo(self):
+        """Promotion is still the only thing that creates one. An id that is
+        not already on disk is an error, not a new half-built file."""
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            post(self.base + "/api/location", {"id": "no-such-location-here",
+                                               "lore": {"summary": "x"}})
+        self.assertEqual(cm.exception.code, 404)
+
+    def test_clip_to_shore_trims_a_district_to_the_real_coastline(self):
+        """Ingram, 2026-09-12: "increase the resolution of these district
+        borders and the ocean borders." A shape drawn out into open water
+        comes back smaller, clipped against landmask.py's own reading of the
+        painted map -- never OSM, which knows about an airport and an island
+        this map does not have."""
+        # Drawn to overshoot the real painted shore on its western edge --
+        # computed against the actual landmask (see the module docstring for
+        # why this can't be a blind guess at real coordinates), clear of the
+        # two small offshore specks so the clip stays a single piece.
+        self._seed_item(tier="region",
+                        ring=[[-500, 3000], [2500, 3000], [2500, 6000], [-500, 6000]],
+                        name="Western Overshoot", note="deliberately runs into the sea")
+        res = post(self.base + "/api/clip-to-shore", {"localId": "seed-1"})
+        self.assertIn("ringPx", res)
+        self.assertGreater(len(res["ringPx"]), 2)
+        self.assertLess(res["areaChangePx2"], 0, "clipping to shore should only ever shrink")
+
+    def test_clip_to_shore_on_an_unknown_item_is_a_404(self):
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            post(self.base + "/api/clip-to-shore", {"localId": "no-such-item"})
+        self.assertEqual(cm.exception.code, 404)
+
+    def test_promotion_names_an_unnamed_item_but_never_renames_a_named_one(self):
+        self._seed_item(note="no name yet")
+        post(self.base + "/api/promote",
+            {"localId": "seed-1", "id": "naming-test", "name": "Central Fortification"})
+        item = next(i for i in get(self.base + "/api/session")["draft"]["items"]
+                    if i["localId"] == "seed-1")
+        self.assertEqual(item["name"], "Central Fortification")
+
+        self._seed_item(note="has one", name="Ingram's Own Name")
+        post(self.base + "/api/promote",
+            {"localId": "seed-1", "id": "naming-test-2", "name": "Something Else"})
+        item2 = next(i for i in get(self.base + "/api/session")["draft"]["items"]
+                     if i["localId"] == "seed-1")
+        self.assertEqual(item2["name"], "Ingram's Own Name",
+                         "a name typed in the tool is the person's own and wins")
+
+    def test_a_handoff_for_a_promoted_item_reports_the_location_not_the_stub(self):
+        self._seed_item(note="a rough note", name="Written Place")
+        post(self.base + "/api/promote", {
+            "localId": "seed-1", "id": "handoff-test", "status": "drafted",
+            "lore": {"summary": "The written summary.", "playerFacing": "seen",
+                     "gmOnly": "hidden"},
+        })
+        doc = post(self.base + "/api/handoff", {"localIds": ["seed-1"]})["markdown"]
+        self.assertIn("Promoted", doc)
+        self.assertIn("data/locations/handoff-test.json", doc)
+        self.assertIn("The written summary.", doc)
+        self.assertIn("a rough note", doc)
+
+    def test_api_locations_carries_enough_for_the_inspector_to_show_written_lore(self):
+        """The browser has no other way to learn a draft item was promoted --
+        this response IS the link. Found missing live: the handoff document
+        read the promoted entity correctly, but the actual Gazetteer UI
+        (click a building, see what's written) still only ever showed the
+        draft's own note, because nothing client-side had a way to fetch or
+        recognise the promoted lore at all."""
+        self._seed_item(note="a rough note", name="Written Place")
+        post(self.base + "/api/promote", {
+            "localId": "seed-1", "id": "locations-api-test", "status": "drafted",
+            "classification": "top-secret",
+            "lore": {"summary": "The written summary.", "playerFacing": "seen", "gmOnly": "hidden"},
+            "scene": {"hooks": ["a hook"], "activities": ["a", "b", "c"]},
+            "npcRefs": ["commander", "caretaker"],
+        })
+        found = next(loc for loc in get(self.base + "/api/locations")["locations"]
+                    if loc["id"] == "locations-api-test")
+        self.assertEqual(found["sourceLocalId"], "seed-1")
+        self.assertEqual(found["lore"]["summary"], "The written summary.")
+        self.assertEqual(found["scene"]["hooks"], ["a hook"])
+        self.assertEqual(found["npcRefs"], ["commander", "caretaker"])
+        self.assertEqual(found["classification"], "top-secret")
+        self.assertEqual(found["authoringNote"], "a rough note")
+        self.assertEqual(found["depth"], "named")
 
     def test_promoting_the_same_id_twice_is_refused_without_overwrite(self):
         self._seed_item(note="first")

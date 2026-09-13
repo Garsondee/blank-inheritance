@@ -254,24 +254,42 @@ test("the session list keeps a usable height whatever the inspector is doing", (
     "width from a bigger window will squeeze the map and overflow the page");
 });
 
-test("the session panel itself cannot be collapsed away", () => {
-  // Collapsing is keyed off a .gz-panel__body wrapper. The inspector and
-  // layers panels have one; the session panel deliberately does not,
-  // because collapsing the list this tool exists to work through is not a
-  // feature, it is a way to lose the list.
+test("inspector, layers, session and regions are all genuinely collapsible", () => {
+  // Collapsing is keyed off a .gz-panel__body wrapper -- see
+  // wireCollapsiblePanels in app.js. Session used to be deliberately exempt
+  // ("collapsing the list this tool exists to work through is not a
+  // feature, it is a way to lose the list"), until Ingram's own 2026-09-12
+  // survey overturned that ("I don't actually use the 'Session' section
+  // myself"). The new invariant is the opposite of the old one: every one
+  // of these four must be collapsible, Session and the Regions quick-nav
+  // panel included, so a future edit cannot silently pin one open or closed
+  // again without the DEFAULT_COLLAPSED assertion below also catching it.
   const html = readFileSync(join(STATIC, "index.html"), "utf8");
   const section = (id) => {
     const start = html.indexOf(`id="${id}"`);
     assert.ok(start > -1, `index.html no longer has #${id}`);
     return html.slice(start, html.indexOf("</section>", start));
   };
-  assert.ok(section("inspector").includes("gz-panel__body"),
-    "#inspector lost its .gz-panel__body wrapper and can no longer be collapsed");
-  assert.ok(section("layers-panel").includes("gz-panel__body"),
-    "#layers-panel lost its .gz-panel__body wrapper and can no longer be collapsed");
-  assert.ok(!section("session-panel").includes("gz-panel__body"),
-    "#session-panel gained a .gz-panel__body wrapper, which makes the session " +
-    "list collapsible -- the one panel that must always be visible");
+  for (const id of ["inspector", "layers-panel", "session-panel", "regions-panel"]) {
+    assert.ok(section(id).includes("gz-panel__body"),
+      `#${id} has no .gz-panel__body wrapper and so cannot be collapsed`);
+  }
+});
+
+test("session and regions default to collapsed, so inspector gets first look", () => {
+  // The other half of the same survey note: collapsible alone is not
+  // enough if the default state does not match what was actually asked
+  // for. A static check on DEFAULT_COLLAPSED rather than a live toggle,
+  // matching this file's own house style for behaviour that can be read
+  // straight off the source.
+  const js = readFileSync(join(STATIC, "app.js"), "utf8");
+  const match = js.match(/DEFAULT_COLLAPSED\s*=\s*(\{[^}]*\});/);
+  assert.ok(match, "could not find a DEFAULT_COLLAPSED object literal in app.js");
+  const defaults = JSON.parse(match[1]);
+  assert.equal(defaults["session-panel"], true,
+    "Session no longer defaults to collapsed");
+  assert.equal(defaults["regions-panel"], true,
+    "the Regions quick-nav panel no longer defaults to collapsed");
 });
 
 test("region drawing snaps to existing region borders, and only region borders", () => {

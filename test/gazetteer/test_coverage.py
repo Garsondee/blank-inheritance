@@ -263,5 +263,51 @@ class TestTheRealSheet(unittest.TestCase):
                                  "world it has deliberately diverged from" % name)
 
 
+class TestUndergroundRegions(unittest.TestCase):
+    """Deep Storage sits entirely under The Container Ground's surface
+    footprint -- a real Z-axis stack, found live once both were drawn.
+    Untagged, that reads as a total overlap and the tessellation never
+    passes; tagged "underground", it is excluded from the surface math
+    entirely and reported separately instead."""
+
+    def test_an_underground_region_matching_a_surface_footprint_is_not_an_overlap(self):
+        surface = region("container-ground", 0, 0, 100, 100)
+        bunker = region("deep-storage", 20, 20, 60, 60)
+        bunker["tags"] = ["underground"]
+        r = analyse([surface, bunker])
+        self.assertTrue(r["tessellates"], cov.summarise(r))
+        self.assertEqual(r["overlaps"], [])
+        self.assertEqual(r["undergroundRegionIds"], ["deep-storage"])
+
+    def test_an_underground_region_does_not_inflate_or_double_count_claimed_area(self):
+        surface = region("container-ground", 0, 0, 100, 100)
+        bunker = region("deep-storage", 20, 20, 60, 60)
+        bunker["tags"] = ["underground"]
+        r = analyse([surface, bunker])
+        self.assertAlmostEqual(r["claimedAreaPx2"], 10000.0, places=3)  # the surface alone
+        self.assertEqual(r["regionCount"], 1, "the underground region is excluded, not merged")
+
+    def test_underground_exclusion_does_not_swallow_a_real_surface_overlap(self):
+        """The exclusion must be targeted at tagged regions, not a global
+        relaxation of the overlap check while any tag is present."""
+        west = region("west", 0, 0, 51, 100)
+        east = region("east", 49, 0, 100, 100)
+        bunker = region("deep-storage", 20, 20, 30, 30)
+        bunker["tags"] = ["underground"]
+        r = analyse([west, east, bunker])
+        self.assertFalse(r["tessellates"])
+        self.assertEqual(len(r["overlaps"]), 1)
+        self.assertEqual({r["overlaps"][0]["a"], r["overlaps"][0]["b"]}, {"west", "east"})
+
+    def test_an_untagged_region_in_the_same_position_is_still_a_real_overlap(self):
+        """Confirms the exclusion is reading the tag, not the geometry --
+        the identical shapes without the tag must fail exactly as before."""
+        surface = region("container-ground", 0, 0, 100, 100)
+        untagged = region("deep-storage", 20, 20, 60, 60)
+        r = analyse([surface, untagged])
+        self.assertFalse(r["tessellates"])
+        self.assertEqual(len(r["overlaps"]), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -25,6 +25,26 @@
       "description": "A short, blunt classifier for sorting and map colour -- district / quarter / waterfront / industrial / residential / civic / commercial / transport / military / green / water / landmark / ruin / infrastructure / other, or blank. Not the terrain system; finer character belongs in lore.summary, where it can be prose."
     },
 
+    "tags": {
+      "type": "array",
+      "description": "Freeform structural markers, same convention as a gazetteer session item's own `tags`. Notably 'underground': tools/gazetteer/coverage.py excludes a region carrying it from the surface-tessellation and overlap checks, since it occupies the same footprint as whatever district sits above it -- a real Z-axis stack the tessellation has no way to represent in two dimensions, not an overlap to report.",
+      "items": { "type": "string" }
+    },
+
+    "rank": {
+      "type": ["integer", "null"],
+      "minimum": 1,
+      "maximum": 5,
+      "description": "How much this place matters to the plot, 1 being the most important (Central Fortification is rank 1). A SEPARATE axis from `depth`, though informed by it: `depth` is how much has been written, `rank` is how much process the place earns -- how many passes of writing and revision before it counts as finished, and how hard Claude must check narrative decisions with Ingram before committing them rather than deciding alone. The two can legitimately disagree: somewhere seen once but pivotal is rank 1 at depth sketch; somewhere returned to constantly but incidental is rank 4 at depth standing. Null means not yet ranked. Rungs: 1 pivotal (the campaign turns on it) / 2 major (a named, recurring place with real consequence) / 3 supporting (a scene happens here) / 4 colour (texture, walked past) / 5 background (exists for the map to be complete). See design/location-rank.md for what each rung obliges.",
+      "default": null
+    },
+
+    "classification": {
+      "type": ["string", "null"],
+      "enum": ["public", "internal", "secret", "classified", "top-secret", "omega-zero", null],
+      "description": "Whether this place's own EXISTENCE and purpose are secret -- a different axis from design/strategy-layer.md's Clearance rungs, which gate how far a party that already knows a place exists may go INSIDE it once they're there. Null (the default, and correct for almost everything) means undeclared -- most locations have nothing to say here and showing up on an ordinary map is the whole point of them. The first five tiers are the same real Japanese document-classification ladder already used for text (ideas/entries/redacted-document-chain.json: 公開/部外秘/秘/機密/極秘 -- public/internal/secret/classified/top-secret) generalised from documents to places. 'omega-zero' sits above that ladder rather than extending it: a vanishingly rare tier for the handful of sites (The Rock is the first) whose existence is unknown even to most Directorate staff, not merely restricted. See design/strategy-layer.md's Site Classification section."
+    },
+
     "depth": {
       "enum": ["named", "sketch", "scene", "standing"],
       "default": "named",
@@ -39,7 +59,7 @@
       "properties": {
         "rings": {
           "type": "array",
-          "description": "One or more closed rings. A site tier normally has exactly one; a region may hold several disjoint parts. Each ring is [lon, lat] pairs.",
+          "description": "One or more closed rings in GeoJSON Polygon order: the first ring is the shell, every ring after it is a hole punched in that shell -- never a second disjoint part. A site tier normally has exactly one (no holes); a region gains a second ring when another region's territory sits entirely inside it (The Open Sea holds The River Island this way). Each ring is [lon, lat] pairs. Consumed in this order by coverage.py's _to_polygon and built in this order by core/location.py's build_location.",
           "minItems": 1,
           "items": {
             "type": "array",
@@ -91,7 +111,7 @@
         },
         "neighbourRefs": {
           "type": "array",
-          "description": "For a region: other region ids sharing a boundary. Not yet computed by the promotion path -- populated by a future adjacency pass; empty until then.",
+          "description": "For a region: other region ids sharing a boundary. tools/gazetteer/core/containment.py computes this correctly for draft items (it's what drives the drawing UI's tree and handoff views), but the promotion path does not yet carry it onto the promoted document -- build_location() still hardcodes this to empty, same shape as the scene/cross-ref gap that promotion once had, just not closed yet. A region tagged 'underground' (see top-level `tags`) legitimately has none either way: it sits entirely inside another region's footprint rather than bordering it.",
           "items": { "type": "string" }
         },
         "sourceSession": { "type": ["string", "null"], "description": "The gazetteer draft this was promoted from, for provenance." },
@@ -120,7 +140,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "summary": { "type": "string", "description": "A GM-facing paragraph: what this place is, in plain instructional sentences (design/gm-facing prose style)." },
+        "summary": { "type": "string", "description": "A GM-facing paragraph: what this place is, in plain instructional sentences (see design/prose-craft-and-naming.md §1, the two registers)." },
         "playerFacing": { "type": "string", "description": "What a player would see/hear on arrival, or an Encyclopaedia-check reveal. Law 11: only what has actually been learned." },
         "gmOnly": { "type": "string", "description": "Anything hidden -- a Fact per design/npc-social-intel.md's pattern, a hook, a hazard." }
       }

@@ -88,6 +88,38 @@ class TestBuildLocation(unittest.TestCase):
         self.assertEqual(doc["lore"]["summary"],
                          "A dense commercial quarter north of the station.")
 
+    def test_a_region_with_a_hole_carries_the_hole_into_rings_on_promotion(self):
+        # A real case, not a hypothetical: The Open Sea holds The River
+        # Island as a hole in its own ring. build_location() used to convert
+        # only `ringPx` and silently drop `holesPx`, so a promoted region
+        # with an island in it came back solid -- the promoted document
+        # disagreed with the draft it was promoted from, and coverage.py's
+        # overlap check (which does honour holes) kept reporting the two as
+        # overlapping no matter how many times the draft geometry was fixed.
+        outer = [[4000, 6000], [6000, 6000], [6000, 8000], [4000, 8000]]  # 2km sq
+        hole = [[4800, 6800], [5200, 6800], [5200, 7200], [4800, 7200]]   # 400m sq, centred inside
+        item = session.make_item("r2", "region",
+                                 {"kind": "polygon", "ringPx": outer, "holesPx": [hole]},
+                                 name="Test Sea", note="water with an island in it")
+        doc = location.build_location(item, "test-sea", self.g)
+
+        self.assertEqual(len(doc["geometry"]["rings"]), 2)
+        self.assertEqual(len(doc["geometry"]["rings"][0]), 4)   # the shell
+        self.assertEqual(len(doc["geometry"]["rings"][1]), 4)   # the hole
+        for lon, lat in doc["geometry"]["rings"][1]:
+            self.assertTrue(135.0 < lon < 135.4)
+            self.assertTrue(34.5 < lat < 34.9)
+
+        # derived.imagePx is documented as "same shape as geometry.rings".
+        self.assertEqual(len(doc["derived"]["imagePx"]), 2)
+        self.assertEqual(doc["derived"]["imagePx"][1], hole)
+
+        # areaM2 is net of the hole, not the solid outer square's area.
+        solid_area_m2 = 2000 * 2000 * self.g.metres_per_px ** 2
+        hole_area_m2 = 400 * 400 * self.g.metres_per_px ** 2
+        self.assertAlmostEqual(doc["derived"]["areaM2"],
+                               solid_area_m2 - hole_area_m2, delta=1.0)
+
     def test_lore_is_never_invented_only_carried_through(self):
         """The whole point of taking lore as an argument rather than deriving
         it: this function must be incapable of writing a place's fiction."""
@@ -101,6 +133,59 @@ class TestBuildLocation(unittest.TestCase):
         self.assertEqual(doc["derived"]["sourceSession"], "session-20260911-144323")
         self.assertEqual(doc["derived"]["sourceLocalId"], "s1")
         self.assertIsNotNone(doc["derived"]["promotedDate"])
+
+    def test_scene_and_cross_refs_flow_through_for_a_standing_depth_promotion(self):
+        """Regression: build_location used to hardcode scene to all-empty and
+        had no parameters for npcRefs/factionRefs/etc, so a location already
+        authored all the way to standing depth still had to be promoted bare
+        and hand-patched afterwards. Found while promoting Deep Storage and
+        the fortress island hospital, both written to standing depth already."""
+        item = region_item()
+        item["depth"] = "standing"
+        doc = location.build_location(
+            item, "test-district", self.g,
+            scene={
+                "hooks": ["A courier goes missing carrying a manifest nobody will name."],
+                "activities": ["Watch the loading crews argue over a discrepancy.",
+                               "Trade a favour with a clearance clerk.",
+                               "Get lost in a level that isn't on the plan."],
+                "history": "Built in the boom years, expanded twice since.",
+                "consequences": "Word gets back to whoever actually owns this level.",
+            },
+            npc_refs=["shucks-mordant", "vault-custodian"],
+            faction_refs=["directorate"],
+            episode_refs=["episode-c1s1--intake-medicals"],
+            open_question_refs=["bleed-visibility"],
+            bible_ref="locations/deep-storage.md",
+            asset_refs=["deep-storage-concept"],
+            playlist_refs=["deep-storage-ambience"])
+        self.assertEqual(doc["scene"]["hooks"],
+                         ["A courier goes missing carrying a manifest nobody will name."])
+        self.assertEqual(len(doc["scene"]["activities"]), 3)
+        self.assertEqual(doc["scene"]["history"], "Built in the boom years, expanded twice since.")
+        self.assertEqual(doc["scene"]["consequences"],
+                         "Word gets back to whoever actually owns this level.")
+        self.assertEqual(doc["npcRefs"], ["shucks-mordant", "vault-custodian"])
+        self.assertEqual(doc["factionRefs"], ["directorate"])
+        self.assertEqual(doc["episodeRefs"], ["episode-c1s1--intake-medicals"])
+        self.assertEqual(doc["openQuestionRefs"], ["bleed-visibility"])
+        self.assertEqual(doc["bibleRef"], "locations/deep-storage.md")
+        self.assertEqual(doc["assetRefs"], ["deep-storage-concept"])
+        self.assertEqual(doc["playlistRefs"], ["deep-storage-ambience"])
+
+    def test_scene_and_cross_refs_default_to_empty_when_not_supplied(self):
+        """The old hardcoded-empty behaviour is still correct as a DEFAULT --
+        this only had to become overridable, not stop being the default for a
+        location promoted with nothing but geometry and a note."""
+        doc = location.build_location(region_item(), "test-district", self.g)
+        self.assertEqual(doc["scene"], {"hooks": [], "activities": [], "history": "", "consequences": ""})
+        self.assertEqual(doc["npcRefs"], [])
+        self.assertEqual(doc["factionRefs"], [])
+        self.assertEqual(doc["episodeRefs"], [])
+        self.assertEqual(doc["openQuestionRefs"], [])
+        self.assertIsNone(doc["bibleRef"])
+        self.assertEqual(doc["assetRefs"], [])
+        self.assertEqual(doc["playlistRefs"], [])
 
     def test_build_location_refuses_a_tier_geometry_mismatch_bypassing_make_item(self):
         """session.make_item already refuses this pairing at draw time; this is
@@ -213,3 +298,90 @@ class TestValidateForPromotion(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRePromotion(unittest.TestCase):
+    """Re-promoting an existing location -- what happens when a place is
+    re-tiered or rewritten and pushed through promotion a second time."""
+
+    def setUp(self):
+        self.g = georef()
+
+    def test_a_location_is_never_found_inside_itself(self):
+        """Found live: Deep Storage was drawn as a region, promoted, then
+        re-tiered to a site by hand and re-promoted. Its own previous
+        (region) version was still on disk and still in the existing-regions
+        list, so its centroid matched its own footprint and it came back
+        with withinRegionRef pointing at "deep-storage"."""
+        previous_version_of_itself = location.build_location(
+            region_item(), "deep-storage", self.g)
+        doc = location.build_location(
+            site_item(), "deep-storage", self.g,
+            existing_regions=[previous_version_of_itself])
+        self.assertIsNone(doc["derived"]["withinRegionRef"],
+                          "a location must never be its own container")
+
+    def test_a_genuine_container_is_still_found_alongside_the_old_self(self):
+        """The exclusion must be by id only -- a real surrounding region in
+        the same list still has to win, or the fix would break containment."""
+        old_self = location.build_location(region_item(), "the-site", self.g)
+        real_region = location.build_location(region_item(), "the-district", self.g)
+        doc = location.build_location(
+            site_item(), "the-site", self.g,
+            existing_regions=[old_self, real_region])
+        self.assertEqual(doc["derived"]["withinRegionRef"], "the-district")
+
+
+class TestClassification(unittest.TestCase):
+    """Site classification -- design/strategy-layer.md's Site Classification
+    section, added 2026-09-12 alongside The Rock, the first site to carry it.
+    A different axis from Clearance rungs: whether a place's EXISTENCE is
+    secret, not how deep a party who already knows it exists may go."""
+
+    def setUp(self):
+        self.g = georef()
+
+    def test_classification_defaults_to_none(self):
+        doc = location.build_location(region_item(), "test-district", self.g)
+        self.assertIsNone(doc["classification"])
+
+    def test_classification_is_carried_when_given(self):
+        doc = location.build_location(
+            region_item(), "test-district", self.g, classification="omega-zero")
+        self.assertEqual(doc["classification"], "omega-zero")
+
+    def test_classification_has_no_item_side_default_to_carry(self):
+        """Unlike tags, there is nothing on a session item to fall back to --
+        an item with an unrelated field that happens to be called
+        'classification' must not leak into the promoted document."""
+        item = region_item()
+        item["classification"] = "top-secret"
+        doc = location.build_location(item, "test-district", self.g)
+        self.assertIsNone(doc["classification"],
+                          "classification must come from the caller alone, never the item")
+
+
+class TestRank(unittest.TestCase):
+    """Plot rank -- design/location-rank.md. A separate axis from depth:
+    depth is how much has been written, rank is how much process the place
+    earns. 1 is the most important."""
+
+    def setUp(self):
+        self.g = georef()
+
+    def test_rank_defaults_to_none_meaning_not_yet_ranked(self):
+        doc = location.build_location(region_item(), "test-district", self.g)
+        self.assertIsNone(doc["rank"])
+
+    def test_rank_is_carried_when_given(self):
+        doc = location.build_location(region_item(), "test-district", self.g, rank=1)
+        self.assertEqual(doc["rank"], 1)
+
+    def test_rank_is_independent_of_depth(self):
+        """The whole reason it is a second field: somewhere seen once can be
+        pivotal, and somewhere returned to constantly can be incidental."""
+        item = region_item()
+        item["depth"] = "sketch"
+        doc = location.build_location(item, "test-district", self.g, rank=1)
+        self.assertEqual(doc["depth"], "sketch")
+        self.assertEqual(doc["rank"], 1)

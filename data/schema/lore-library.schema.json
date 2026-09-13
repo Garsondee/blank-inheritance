@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "lore-library.schema.json",
+  "title": "Lore Library",
+  "description": "Ingram, 2026-09-13: 'a small set of documents which you treat as holy.' The curated registry of documents Claude must check before making a writing decision, and Ingram browses/edits through the Gazetteer's Lore mode. Deliberately NOT every file in the repo -- adding a document here is a decision that it belongs in the small set, not an automatic index of everything. importance mirrors data/schema/location.schema.json's rank ladder: 1 is read fully before anything remotely related is written, and any ambiguous edit to it must be asked about rather than inferred (design/location-rank.md's rank-1 rule, extended to documents); 5 is background reference, fine to skim or edit on reasonable judgement. Consumed by tools/gazetteer/core/lore_library.py.",
+  "type": "object",
+  "required": ["$schema", "id", "type", "documents"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "lore-library" },
+    "type": { "const": "lore-library" },
+
+    "documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "path", "title", "importance", "category"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Stable short id, kebab-case -- independent of path, so a file move doesn't orphan instructions/backlinks pointing at it." },
+          "path": { "type": "string", "description": "Repo-relative path to the real markdown (or JSON) file. The library is an index, not a copy -- content always comes from this file." },
+          "title": { "type": "string" },
+          "importance": {
+            "type": "integer", "minimum": 1, "maximum": 5,
+            "description": "1 = holy: read in full before anything related is written, any ambiguous edit gets asked about, never edited on inference alone. 5 = background reference. Mirrors location.schema.json's rank ladder on purpose -- same concept, applied to documents instead of places."
+          },
+          "category": {
+            "enum": ["bible", "ledger", "design", "campaign-data", "other"],
+            "description": "Broad shelf, for the library's own grouping -- not a rigid taxonomy."
+          },
+          "description": { "type": "string", "description": "One line: what this document is for, and when to check it." },
+          "topics": {
+            "type": "array", "items": { "type": "string" },
+            "description": "Free-text keywords (e.g. 'schools', 'the-watcher', 'nozomi') so a location or NPC write can be matched against relevant documents without reading every title."
+          },
+          "addedDate": { "type": "string" }
+        }
+      }
+    }
+  }
+}

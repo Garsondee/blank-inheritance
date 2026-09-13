@@ -13,6 +13,12 @@ So this reports the two failures directly:
   overlaps  ground two regions both claim. Every one is a building whose
             district depends on which way the tie is broken.
 
+A region tagged "underground" is excluded from both checks and reported
+separately, in `undergroundRegionIds` -- it is meant to sit entirely inside
+another region's surface footprint (a bunker under a district, say), which is
+a real relationship this 2D tessellation cannot otherwise represent without
+it reading as an overlap.
+
 **The target is the painted sheet, not the real world.** Coverage is measured
 against the campaign map's content rectangle and nothing else -- no landuse,
 no coastline, no OSM. That is deliberate and it is what makes this safe: the
@@ -184,9 +190,20 @@ def analyse(regions, *, extent=None, min_sliver_px2=DEFAULT_MIN_SLIVER_PX2,
     sheet = box(x0, y0, x1, y1)
     total = sheet.area
 
+    # An underground region (Deep Storage under The Container Ground, so far)
+    # occupies the same surface footprint as whatever district sits above it
+    # -- a real Z-axis stack this 2D tessellation has no way to represent, not
+    # a drawing mistake. It is excluded from the surface math entirely rather
+    # than reported as an overlap against everything above it, and listed
+    # here instead so the exclusion is visible, never silent -- same spirit
+    # as the sliver counts below.
+    underground_ids = []
     prepared = []
     invalid = []
     for region in regions:
+        if "underground" in (region.get("tags") or []):
+            underground_ids.append(region.get("id") or region.get("localId"))
+            continue
         rings = _rings_of(region)
         if not rings:
             invalid.append({"id": region.get("id") or region.get("localId"),
@@ -271,6 +288,7 @@ def analyse(regions, *, extent=None, min_sliver_px2=DEFAULT_MIN_SLIVER_PX2,
         "overlapSliverCount": overlap_slivers,
         "overlapSliverAreaPx2": round(overlap_sliver_area, 1),
         "orphanSiteIds": orphans,
+        "undergroundRegionIds": sorted(underground_ids),
         "tessellates": (not voids and not overlaps
                         and void_slivers == 0 and overlap_slivers == 0),
         "minSliverPx2": min_sliver_px2,
@@ -298,6 +316,9 @@ def summarise(result, metres_per_px=1.0):
                                              "" if result["overlapSliverCount"] == 1 else "s"))
     if result["invalidRegions"]:
         bits.append("%d unusable" % len(result["invalidRegions"]))
+    if result.get("undergroundRegionIds"):
+        n = len(result["undergroundRegionIds"])
+        bits.append("%d underground (excluded)" % n)
     if result["tessellates"]:
         bits.append("tessellates")
     return " · ".join(bits)

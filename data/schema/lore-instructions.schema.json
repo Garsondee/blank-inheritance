@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "lore-instructions.schema.json",
+  "title": "Lore Instructions",
+  "description": "Ingram's own words, 2026-09-13: 'if I want a mass edit of a document I don't have to edit everything myself I can instead write a description of a change I want to a document and you will do that work for me.' The reverse of tools/gazetteer/core/requests.py's Claude-to-Ingram queue -- this is Ingram-to-Claude, attached to a specific lore-library document. An instruction on an importance-1 document is a real fork: apply it if it is genuinely unambiguous, otherwise resolve it with status 'needs-clarification' and ask in chat rather than guessing (see design/location-rank.md's rank-1 rule and the same standing caution extended to documents in lore-library.schema.json). Consumed by tools/gazetteer/core/lore_library.py.",
+  "type": "object",
+  "required": ["$schema", "id", "type", "instructions"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "lore-instructions" },
+    "type": { "const": "lore-instructions" },
+
+    "instructions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "documentId", "text", "status", "raisedAt"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "instr-<n>, monotonic, never recycled." },
+          "documentId": { "type": "string", "description": "A lore-library.json document id -- the file this instruction applies to." },
+          "text": { "type": "string", "description": "Ingram's own words describing the change wanted. Never rewritten or summarised when logged -- kept verbatim so intent survives even if the edit that follows needs a second pass." },
+          "status": { "enum": ["pending", "done", "needs-clarification"] },
+          "raisedAt": { "type": "string" },
+          "resolvedAt": { "type": ["string", "null"] },
+          "resolution": { "type": ["string", "null"], "description": "One line on what was actually done -- or, for 'needs-clarification', what question was asked instead of guessing." }
+        }
+      }
+    }
+  }
+}
