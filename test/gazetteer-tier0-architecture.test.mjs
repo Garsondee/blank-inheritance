@@ -462,7 +462,7 @@ test("a finished edit forces its layers to redraw rather than waiting on the nex
     ["vertex delete", /ringPx\.splice\(w\.index, 1\);[\s\S]{0,150}forceRedraw\(/],
     ["midpoint dragend", /applyMidDrag\(\);[\s\S]{0,40}editingVertex = false;[\s\S]{0,60}forceRedraw\(/],
     ["point dragend", /m\.on\("dragend", \(\) => \{ forceRedraw\(/],
-    ["nudge", /function nudge\([^)]*\)\s*\{[\s\S]{0,700}forceRedraw\(\[entry\.layer\]\)[\s\S]{0,60}onGeometryChange\(entry\.item\)/],
+    ["nudge", /function nudge\([^)]*\)\s*\{[\s\S]{0,700}forceRedraw\(\[entry\.layer\]\)[\s\S]{0,150}onGeometryChange\(entry\.item\)/],
   ]) {
     assert.ok(pattern.test(src), `${label} no longer forces a redraw once its edit settles`);
   }

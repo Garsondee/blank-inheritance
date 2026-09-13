@@ -808,6 +808,7 @@ export function createDrawController(opts) {
       liveReport(g.ringPx);
     }
     forceRedraw([entry.layer]);
+    log("nudge", { itemId: entry.item.localId, dx, dy });
     onGeometryChange(entry.item);
     drawHandles();
   }
