@@ -102,7 +102,7 @@ body {
   cursor: not-allowed;
 }
 .gz-btn:disabled:hover { background: var(--bi-paper-shade); }
-.gz-tool.is-active {
+.gz-tool.is-active, .gz-btn.is-active {
   background: var(--bi-paper-ink);
   color: var(--bi-paper);
   border-color: var(--bi-paper-ink);
@@ -113,6 +113,14 @@ body {
   color: var(--bi-paper);
   border-color: var(--bi-vermilion);
 }
+/* The same arm/confirm treatment, spent on a SAVE rather than a delete --
+   the Lore Library's own high-importance-document confirm step. */
+.gz-btn--promote.is-armed {
+  background: var(--bi-vermilion);
+  border-color: var(--bi-vermilion);
+  animation: gz-armed-pulse 1s ease-in-out infinite;
+}
+@keyframes gz-armed-pulse { 50% { opacity: .7; } }
 
 .gz-bar__right { display: flex; align-items: center; gap: 10px; }
 .gz-save {
@@ -178,6 +186,15 @@ body {
    the body went to zero height with the content still inside it. */
 .gz-panel--capped { flex: 0 0 auto; max-height: 42vh; }
 .gz-panel--capped > .gz-panel__body { overflow-y: auto; min-height: 0; flex: 1 1 auto; }
+/* Session's own body needs the same "fill what's left" flex column as a
+   capped panel's, minus the max-height/scroll -- the SECTION has no height
+   cap here, only .gz-list does its own overflow-y. Without this, wrapping
+   Session's filters+list+hint in a .gz-panel__body (done to make it
+   collapsible at all) leaves .gz-list's `flex: 1 1 auto` targeting a plain
+   block div instead of a flex container, and the list stops growing to fill
+   the panel -- found by checking this, not by assuming a body wrapper is a
+   drop-in change. */
+.gz-panel--grow > .gz-panel__body { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
 
 /* Two columns once the sidebar is wide enough to carry them. Stacked, the
    inspector and the list compete for the same vertical space and one of
@@ -294,6 +311,45 @@ body {
    contract in vermilion, the "complete" state in the settled green locking
    already uses, and advice about the DECLARATION in plain ink -- advice that
    shouted would be indistinguishable from a blocker. */
+/* The written lore for an already-promoted item, read from
+   data/locations/*.json -- not the Note field below, which is frozen at
+   whatever it said the day this was promoted. This box didn't exist at all
+   until Ingram clicked a fully-written building and saw nothing but his own
+   rough note: promotion had somewhere to write TO, and the inspector had no
+   way to read back FROM it. Same colour pairing as the "adopt" tool and the
+   locked map outline -- green is this project's one settled/done signal. */
+.gz-promoted {
+  margin: 4px 0 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--bi-ok);
+  border-radius: 3px;
+  background: rgba(61, 107, 71, .10);
+}
+.gz-promoted__badge {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--bi-ok);
+  /* No text-transform: this line carries a real file path, and
+     uppercasing "data/locations/the-rock.json" makes it unreadable as one. */
+}
+.gz-promoted__lore { margin: 0; }
+.gz-promoted__lore dt {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--bi-paper-ink-2);
+  margin: 10px 0 2px;
+}
+.gz-promoted__lore dt:first-child { margin-top: 0; }
+.gz-promoted__lore dd {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+.gz-promoted__lore dd.gz-promoted__list { padding-left: 16px; }
+
 .gz-owes { margin: 10px 0 0; }
 .gz-owes__line {
   margin: 0 0 3px;
@@ -857,6 +913,12 @@ body {
 .gz-district--bucket { background: transparent; font-style: italic; }
 .gz-district--bucket .gz-district__name { text-transform: none; color: var(--bi-paper-ink-2); }
 
+/* The Regions quick-nav panel's rows: no caret, no checkbox, just name,
+   progress and ref -- .gz-district's 5-column template (caret, checkbox,
+   text, progress, ref) would otherwise squeeze the name into a 16px-wide
+   first column meant for a caret this row does not have. */
+.gz-list--compact .gz-district { grid-template-columns: 1fr auto auto; }
+
 .gz-item--nested { padding-left: 22px; }
 
 /* A named-depth item with a real note: FINISHED, not merely unflagged. Most
@@ -924,6 +986,18 @@ body {
 .gz-overview__name { color: var(--bi-paper-ink); }
 .gz-overview__why { color: var(--bi-vermilion); white-space: nowrap; }
 .gz-overview__empty { color: var(--bi-paper-ink-2); font-size: 11.5px; padding: 4px 2px; cursor: default; }
+.gz-overview__subhead {
+  margin: 8px 0 2px; font-size: 10.5px; text-transform: uppercase;
+  letter-spacing: .04em; color: var(--bi-paper-ink-2);
+}
+.gz-overview__list li.gz-request { cursor: default; align-items: flex-start; }
+.gz-overview__list li.gz-request .gz-overview__name { white-space: normal; }
+.gz-overview__list li.gz-request .gz-overview__why { white-space: normal; text-align: right; }
+.gz-overview__resolve {
+  flex: 0 0 auto; font-size: 10.5px; padding: 1px 6px; border: 1px solid var(--bi-paper-rule);
+  background: var(--bi-paper-shade); color: var(--bi-paper-ink-2); border-radius: 3px; cursor: pointer;
+}
+.gz-overview__resolve:hover { background: #f4eeda; color: var(--bi-paper-ink); }
 
 /* --- handoff clipboard fallback ---------------------------------------------
    Only ever shown when the Clipboard API is unavailable or refuses --
@@ -958,3 +1032,275 @@ body {
 
 /* --- dimmed pins (district focus mode) -------------------------------------- */
 .gz-pin--dimmed { opacity: .3; }
+
+/* --- modes ---------------------------------------------------------------- */
+/* Two layouts for two jobs. Survey is the drawing loop and gets the map;
+   Review is the evaluation loop and gets the text. The instrumentation that
+   used to compete for sidebar height in survey mode (`.gz-survey-hide`) is
+   simply not shown there any more -- it belongs to review, which has room. */
+.gz-modes { display: flex; gap: 2px; margin-left: 14px; }
+.gz-mode {
+  font: inherit;
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border: 1px solid var(--bi-paper-rule);
+  background: transparent;
+  color: var(--bi-paper-ink-2);
+  cursor: pointer;
+}
+.gz-mode:first-child { border-radius: 3px 0 0 3px; }
+.gz-mode:last-child { border-radius: 0 3px 3px 0; }
+.gz-mode.is-on {
+  background: var(--bi-brass);
+  color: var(--bi-brass-shadow);
+  border-color: var(--bi-brass-dark);
+  font-weight: 700;
+}
+
+body[data-mode="survey"] .gz-survey-hide { display: none !important; }
+body[data-mode="review"] .gz-side,
+body[data-mode="review"] #side-resize,
+body[data-mode="review"] .gz-tools,
+body[data-mode="review"] #tool-armed { display: none !important; }
+body[data-mode="review"] #map { display: none; }
+body[data-mode="survey"] .gz-review { display: none !important; }
+/* The sidebar and resizer are display:none in review mode, but their GRID
+   TRACKS still reserve their width -- which left the editor with 336px of a
+   1521px window, i.e. the exact problem review mode exists to solve. Collapse
+   the main grid to one column so the review screen gets the whole page. */
+body[data-mode="review"] .gz-main { grid-template-columns: minmax(0, 1fr); }
+
+/* Lore mode: no map, no drawing tools -- .gz-review and .gz-lore are both
+   children of <main class="gz-main"> (not its siblings), so -- exactly like
+   review mode above -- .gz-main itself is never hidden, only ITS children
+   and its grid columns collapsed, or .gz-lore would be hidden along with
+   everything else inside it. Found live: the first version hid .gz-main
+   outright and took the whole Lore section down with it. */
+body:not([data-mode="lore"]) .gz-lore { display: none !important; }
+body[data-mode="lore"] .gz-side,
+body[data-mode="lore"] #side-resize,
+body[data-mode="lore"] .gz-tools,
+body[data-mode="lore"] #tool-armed,
+body[data-mode="lore"] #map,
+body[data-mode="lore"] .gz-review { display: none !important; }
+body[data-mode="lore"] .gz-main { grid-template-columns: minmax(0, 1fr); }
+
+/* --- review screen -------------------------------------------------------- */
+.gz-review {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(230px, 280px) minmax(0, 1fr) minmax(240px, 300px);
+  gap: 1px;
+  background: var(--bi-paper-rule);
+  overflow: hidden;
+}
+.gz-review > * { background: var(--bi-paper); min-width: 0; min-height: 0; }
+
+.gz-review__list { display: flex; flex-direction: column; overflow: hidden; }
+.gz-review__head { padding: 10px 12px; border-bottom: 1px solid var(--bi-paper-rule); }
+.gz-review__head h2 {
+  margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
+}
+.gz-review__head input[type="search"] { width: 100%; margin-bottom: 8px; }
+.gz-review__head .gz-chips { margin-bottom: 6px; }
+.gz-review__rows { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1 1 auto; }
+
+.gz-review__row {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--bi-paper-rule);
+  cursor: pointer;
+}
+.gz-review__row:hover { background: rgba(172, 138, 77, .10); }
+.gz-review__row.is-on { background: rgba(79, 200, 216, .16); }
+.gz-review__rank {
+  font-weight: 700; font-size: 12px; text-align: center;
+  color: var(--bi-brass-dark);
+}
+.gz-review__rank[data-rank="1"] { color: var(--bi-vermilion); }
+.gz-review__rank[data-rank="none"] { color: var(--bi-paper-ink-2); font-weight: 400; }
+.gz-review__row-name { font-size: 12px; }
+.gz-review__row-sub { display: block; font-size: 10px; color: var(--bi-paper-ink-2); }
+.gz-review__row-owes { font-size: 10px; color: var(--bi-vermilion); white-space: nowrap; }
+.gz-review__row-owes.is-done { color: var(--bi-ok); }
+.gz-review__approved {
+  font-size: 10px; font-weight: 700; color: var(--bi-ok, #3f6b3f);
+  text-transform: uppercase; letter-spacing: .02em;
+}
+
+.gz-review__editor { display: flex; flex-direction: column; overflow: hidden; }
+.gz-review__editor .gz-form { display: flex; flex-direction: column; overflow: hidden; height: 100%; }
+.gz-review__title { display: flex; gap: 10px; align-items: baseline; padding: 10px 14px 6px; }
+.gz-review__title input { flex: 1 1 auto; font-size: 15px; font-weight: 700; }
+.gz-review__where { font-size: 10px; color: var(--bi-paper-ink-2); white-space: nowrap; }
+.gz-review__meta {
+  display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap;
+  padding: 0 14px 8px; border-bottom: 1px solid var(--bi-paper-rule);
+}
+.gz-field--inline { margin: 0; }
+.gz-review__meta .gz-owes { margin: 0; flex: 1 1 200px; }
+
+/* The reason review mode exists: prose needs room. Two columns of tall boxes
+   on a wide screen, one on a narrow one, and the whole pane scrolls once
+   rather than every box scrolling separately. */
+.gz-review__panes {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 12px 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 12px 16px;
+  align-content: start;
+}
+.gz-field--tall { display: flex; flex-direction: column; margin: 0; }
+.gz-field--tall textarea {
+  min-height: 150px;
+  resize: vertical;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.gz-review__actions {
+  display: flex; gap: 8px; align-items: center;
+  padding: 10px 14px; border-top: 1px solid var(--bi-paper-rule);
+}
+.gz-review__actions .gz-hint { flex: 1 1 auto; margin: 0; }
+
+.gz-review__map { position: relative; overflow: hidden; }
+.gz-review__map #map { display: block; width: 100%; height: 100%; }
+body[data-mode="review"] .gz-review__map #map { display: block; }
+
+/* Floats over the map rather than reserving its own layout row -- the
+   review map pane is already the smallest of the three columns, and this
+   control only matters while actively looking at biomes. z-index above
+   Leaflet's own panes (max z ~700) so it is never hidden behind a tile. */
+.gz-biome-control {
+  position: absolute; top: 8px; left: 8px; z-index: 750;
+  display: flex; gap: 6px;
+}
+.gz-biome-legend {
+  position: absolute; bottom: 8px; left: 8px; z-index: 750;
+  background: var(--bi-paper-shade); border: 1px solid var(--bi-paper-rule);
+  border-radius: 3px; padding: 6px 8px; font-size: 10.5px;
+  display: flex; flex-direction: column; gap: 3px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.25);
+}
+.gz-biome-legend__row { display: flex; align-items: center; gap: 6px; }
+.gz-biome-legend__swatch {
+  width: 11px; height: 11px; border-radius: 2px; border: 1px solid rgba(0,0,0,.35);
+  flex: 0 0 auto;
+}
+.gz-biome-legend__label { color: var(--bi-paper-ink); text-transform: capitalize; }
+
+/* --- lore mode -------------------------------------------------------- */
+
+.gz-lore {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(220px, 260px) minmax(0, 1fr) minmax(260px, 320px);
+  gap: 1px;
+  background: var(--bi-paper-rule);
+  overflow: hidden;
+}
+.gz-lore > * { background: var(--bi-paper); min-width: 0; min-height: 0; }
+
+.gz-lore__list { display: flex; flex-direction: column; overflow: hidden; }
+.gz-lore__head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 10px 12px; border-bottom: 1px solid var(--bi-paper-rule);
+}
+.gz-lore__head h2 { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+#lore-filter { margin: 8px 12px; width: calc(100% - 24px); }
+.gz-lore__docs { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1 1 auto; }
+#btn-add-lore-doc { margin: 8px 12px; }
+
+.gz-lore__doc-row {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 7px 12px; border-bottom: 1px solid var(--bi-paper-rule); cursor: pointer;
+}
+.gz-lore__doc-row:hover { background: rgba(172, 138, 77, .10); }
+.gz-lore__doc-row.is-on { background: rgba(79, 200, 216, .16); }
+.gz-lore__doc-row.is-missing { opacity: .55; }
+.gz-lore__doc-row-top { display: flex; align-items: baseline; gap: 6px; }
+.gz-lore__doc-title { font-size: 12px; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gz-lore__doc-sub { font-size: 10px; color: var(--bi-paper-ink-2); }
+.gz-lore__doc-badge {
+  font-size: 9px; padding: 1px 5px; border-radius: 3px; white-space: nowrap;
+  background: var(--bi-vermilion); color: var(--bi-paper);
+}
+
+/* A star per importance point, 1 (holy) through 5 -- the same "more stars,
+   more caution" reading as location rank's own display, just spelled with
+   a different glyph so a document is never visually confused for a place. */
+.gz-lore__stars { color: var(--bi-brass-dark); font-size: 10px; letter-spacing: 1px; }
+.gz-lore__stars[data-importance="1"] { color: var(--bi-vermilion); font-weight: 700; }
+
+.gz-lore__viewer { display: flex; flex-direction: column; overflow: hidden; }
+.gz-lore__viewer-head {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 10px 14px; border-bottom: 1px solid var(--bi-paper-rule);
+}
+.gz-lore__viewer-head h3 { margin: 0; font-size: 15px; flex: 1 1 auto; min-width: 0; }
+.gz-lore__importance {
+  font-size: 10px; padding: 2px 8px; border-radius: 3px; white-space: nowrap;
+  background: var(--bi-paper-shade); border: 1px solid var(--bi-paper-rule);
+}
+.gz-lore__importance[data-importance="1"] {
+  background: var(--bi-vermilion); color: var(--bi-paper); border-color: var(--bi-vermilion);
+  font-weight: 700;
+}
+.gz-lore__description { margin: 0; padding: 0 14px; font-size: 11px; color: var(--bi-paper-ink-2); }
+.gz-lore__links {
+  padding: 6px 14px; font-size: 10.5px; color: var(--bi-paper-ink-2);
+  border-bottom: 1px solid var(--bi-paper-rule);
+}
+.gz-lore__links a { color: var(--bi-cyan, #4fc8d8); cursor: pointer; text-decoration: underline; }
+.gz-lore__content {
+  flex: 1 1 auto; overflow-y: auto; padding: 14px 20px;
+  font-size: 13px; line-height: 1.65; max-width: 780px;
+}
+.gz-lore__content h1, .gz-lore__content h2, .gz-lore__content h3 {
+  font-family: var(--bi-font-condensed); text-wrap: balance;
+}
+.gz-lore__content p { margin: 0 0 .9em; }
+.gz-lore__content ul, .gz-lore__content ol { margin: 0 0 .9em; padding-left: 1.4em; }
+.gz-lore__content code { background: var(--bi-paper-shade); padding: .1em .3em; border-radius: 3px; font-size: .92em; }
+.gz-lore__content a { color: var(--bi-cyan, #4fc8d8); }
+.gz-lore__content blockquote {
+  margin: 0 0 .9em; padding: 2px 12px; border-left: 3px solid var(--bi-paper-rule);
+  color: var(--bi-paper-ink-2); font-style: italic;
+}
+.gz-lore__editor {
+  flex: 1 1 auto; margin: 14px 20px; font: inherit; font-size: 12.5px;
+  line-height: 1.6; resize: none;
+}
+
+.gz-lore__instructions { display: flex; flex-direction: column; overflow: hidden; padding: 12px 14px; gap: 8px; }
+.gz-lore__instructions h3 { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.gz-lore__instr-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1 1 auto; min-height: 60px; }
+.gz-lore__instr-row { padding: 7px 0; border-bottom: 1px dotted var(--bi-paper-rule); font-size: 11.5px; }
+.gz-lore__instr-text { color: var(--bi-paper-ink); }
+.gz-lore__instr-meta { display: block; font-size: 10px; color: var(--bi-paper-ink-2); margin-top: 2px; }
+.gz-lore__instr-row[data-status="pending"] .gz-lore__instr-meta { color: var(--bi-vermilion); }
+.gz-lore__instr-row[data-status="needs-clarification"] .gz-lore__instr-meta { color: var(--bi-vermilion); font-weight: 700; }
+#lore-instruction-text { width: 100%; font: inherit; font-size: 12px; resize: vertical; }
+
+/* [hidden] override required: a plain `display: flex` rule has the same
+   specificity as the UA stylesheet's `[hidden] { display: none }` and wins
+   by being later in the cascade -- this exact trap already bit .gz-focus-bar
+   once in this project (cdf7e01); same fix. */
+.gz-lore__add-form {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 10px 12px; border-top: 1px solid var(--bi-paper-rule);
+}
+.gz-lore__add-form[hidden] { display: none; }
+.gz-lore__add-form input, .gz-lore__add-form select { width: 100%; font-size: 11.5px; }

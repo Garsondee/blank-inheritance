@@ -12,11 +12,12 @@
  */
 
 import {
-  imagePxToRef, refsTouched, polygonAreaPx, polygonCentroidPx, GridError,
+  imagePxToRef, refsTouched, polygonAreaPx, polygonCentroidPx, GridError, cellToRef,
 } from "/core/grid.mjs";
 import { check as checkDepth, suggestDepth, DEPTHS } from "/core/depth.mjs";
 import { metrics as shapeMetrics, capacity as shapeCapacity } from "/core/shape.mjs";
 import { compute as computeContainment, centroidOf as containmentCentroidOf } from "/core/containment.mjs";
+import { resolvePromotedLocation, depthSubject } from "/core/promotion.mjs";
 
 /** This map is rendered at exactly one metre to the pixel -- 12,000 m of
  *  ground over 12,000 px of content area, per data/map/campaign-map.json's
@@ -51,6 +52,10 @@ const state = {
   suppressedLayer: null,
   publishedLayer: null,
   coverageLayer: null,
+  biomeLayer: null,       // the L.GridLayer while "Show biomes" is on, else null
+  biomes: null,           // cached {ref: biome} from /api/biomes, fetched once per page load
+  biomeTaxonomy: null,    // cached taxonomy list alongside it
+  lore: { currentId: null, current: null, library: [], editing: false },
   published: new Map(),  // location id -> record from /api/locations
   filter: "",
   // Which district a building stands in, recomputed CLIENT-SIDE on every
@@ -161,6 +166,549 @@ function makeGridLayer(cfg) {
       return tile;
     },
   }))({ tileSize: size, minZoom: 0, maxZoom: maxNative + 2, noWrap: true, pane: "overlayPane" });
+}
+
+// --- grid-cell biomes ---------------------------------------------------------
+
+/**
+ * Colours for tools/gazetteer/core/biome.py's own BIOMES -- kept here as a
+ * plain lookup rather than fetched from the server, since a colour is a
+ * presentation choice this file already owns for every other layer (see
+ * TIER_COLOUR) and the server's own taxonomy list (served alongside
+ * /api/biomes) is what's actually authoritative for WHICH names exist; this
+ * only has to agree on what each one looks like.
+ */
+const BIOME_COLOUR = {
+  "ocean": "#2f6f9f",
+  "shore": "#d9c08a",
+  "dense-urban": "#8a3a3a",
+  "residential": "#c98a3e",
+  "industrial": "#6b5b7a",
+  "open-ground": "#a8b84a",
+  "upland": "#3f6b3f",
+};
+
+/**
+ * One filled rectangle per cell, the same canvas-tile technique as
+ * makeGridLayer -- a few thousand individual Leaflet vector shapes would
+ * work but this stays consistent with how the reference grid already
+ * draws itself, and only paints the cells actually visible in each tile.
+ */
+function makeBiomeLayer(cfg, biomesByRef) {
+  const g = cfg.grid;
+  const border = cfg.border.px;
+  const maxNative = cfg.tiles.maxZoom;
+  const size = cfg.tiles.tileSize;
+  const gridOpts = { cols: g.cols, rows: g.rows, separator: g.separator };
+
+  return new (L.GridLayer.extend({
+    createTile(coords) {
+      const tile = document.createElement("canvas");
+      tile.width = tile.height = size;
+      const ctx = tile.getContext("2d");
+
+      const factor = Math.pow(2, maxNative - coords.z);
+      const originX = coords.x * size * factor;
+      const originY = coords.y * size * factor;
+      const toTile = (v, origin) => (v - origin) / factor;
+      const cellOnScreen = g.cellPx / factor;
+
+      const c0 = Math.max(0, Math.floor((originX - border) / g.cellPx));
+      const r0 = Math.max(0, Math.floor((originY - border) / g.cellPx));
+      const c1 = Math.min(g.cols - 1, Math.ceil((originX + size * factor - border) / g.cellPx));
+      const r1 = Math.min(g.rows - 1, Math.ceil((originY + size * factor - border) / g.cellPx));
+
+      ctx.globalAlpha = 0.45;
+      for (let r = r0; r <= r1; r += 1) {
+        for (let c = c0; c <= c1; c += 1) {
+          const ref = cellToRef(c, r, gridOpts);
+          const biome = biomesByRef[ref];
+          if (!biome) continue;
+          ctx.fillStyle = BIOME_COLOUR[biome] || "#999";
+          const x = toTile(border + c * g.cellPx, originX);
+          const y = toTile(border + r * g.cellPx, originY);
+          // ceil the size so adjacent cells' rounded origins never leave a
+          // one-pixel gap of bare map showing between two filled cells.
+          ctx.fillRect(Math.floor(x), Math.floor(y), Math.ceil(cellOnScreen) + 1, Math.ceil(cellOnScreen) + 1);
+        }
+      }
+      return tile;
+    },
+  }))({ tileSize: size, minZoom: 0, maxZoom: maxNative + 2, noWrap: true, pane: "overlayPane" });
+}
+
+function renderBiomeLegend(taxonomy) {
+  const el = $("biome-legend");
+  el.innerHTML = "";
+  (taxonomy || Object.keys(BIOME_COLOUR)).forEach((name) => {
+    const row = document.createElement("div");
+    row.className = "gz-biome-legend__row";
+    row.innerHTML = `<span class="gz-biome-legend__swatch" style="background:${BIOME_COLOUR[name] || "#999"}"></span>`
+      + `<span class="gz-biome-legend__label">${escapeHtml(name.replace("-", " "))}</span>`;
+    el.appendChild(row);
+  });
+}
+
+async function toggleBiomeLayer() {
+  const btn = $("btn-biomes");
+  if (state.biomeLayer) {
+    state.map.removeLayer(state.biomeLayer);
+    state.biomeLayer = null;
+    btn.textContent = "Show biomes";
+    btn.classList.remove("is-active");
+    $("biome-legend").hidden = true;
+    $("btn-biomes-rebuild").hidden = true;
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = "Loading…";
+  try {
+    if (!state.biomes) {
+      const data = await api("/api/biomes");
+      state.biomes = data.biomes;
+      state.biomeTaxonomy = data.taxonomy;
+    }
+    state.biomeLayer = makeBiomeLayer(state.cfg, state.biomes).addTo(state.map);
+    btn.textContent = "Hide biomes";
+    btn.classList.add("is-active");
+    renderBiomeLegend(state.biomeTaxonomy);
+    $("biome-legend").hidden = false;
+    $("btn-biomes-rebuild").hidden = false;
+  } catch (err) {
+    setStatus("could not load biomes: " + err.message, "error");
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function rebuildBiomes() {
+  const btn = $("btn-biomes-rebuild");
+  btn.disabled = true;
+  btn.textContent = "Rebuilding…";
+  try {
+    const data = await api("/api/biomes/rebuild", {});
+    state.biomes = data.biomes;
+    state.biomeTaxonomy = data.taxonomy;
+    if (state.biomeLayer) {
+      state.map.removeLayer(state.biomeLayer);
+      state.biomeLayer = makeBiomeLayer(state.cfg, state.biomes).addTo(state.map);
+    }
+    setStatus(`biomes rebuilt: ${data.cellCount} cells`, "warn");
+  } catch (err) {
+    setStatus("could not rebuild biomes: " + err.message, "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Rebuild";
+  }
+}
+
+// --- the Lore Library ----------------------------------------------------
+
+/**
+ * A small, deliberately incomplete markdown -> HTML converter. This project
+ * writes plain, structurally simple markdown throughout (headers, bold,
+ * lists, links, the occasional blockquote) -- a full CommonMark engine
+ * would be dead weight against what these files actually use, and this
+ * tool has stayed dependency-free by choice everywhere else. Escapes raw
+ * HTML first, so nothing in a document's own prose can break the page
+ * around it.
+ */
+function mdToHtml(md) {
+  const lines = escapeHtml(md || "").split("\n");
+  const out = [];
+  let para = [];
+  let listOpen = false;
+
+  const inline = (s) => s
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" data-lore-link="$2">$1</a>')
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/(?<![*\w])\*([^*]+)\*(?!\w)/g, "<em>$1</em>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>");
+
+  const flushPara = () => {
+    if (para.length) { out.push("<p>" + inline(para.join(" ")) + "</p>"); para = []; }
+  };
+  const closeList = () => { if (listOpen) { out.push("</ul>"); listOpen = false; } };
+
+  for (const raw of lines) {
+    const line = raw.trimEnd();
+    const heading = line.match(/^(#{1,3})\s+(.*)/);
+    const listItem = line.match(/^[-*]\s+(.*)/);
+    const quote = line.match(/^>\s?(.*)/);
+    if (heading) {
+      flushPara(); closeList();
+      const level = heading[1].length;
+      out.push(`<h${level}>${inline(heading[2])}</h${level}>`);
+    } else if (listItem) {
+      flushPara();
+      if (!listOpen) { out.push("<ul>"); listOpen = true; }
+      out.push(`<li>${inline(listItem[1])}</li>`);
+    } else if (quote) {
+      flushPara(); closeList();
+      out.push(`<blockquote>${inline(quote[1])}</blockquote>`);
+    } else if (line.trim() === "" || /^-{3,}$/.test(line.trim())) {
+      flushPara(); closeList();
+      if (/^-{3,}$/.test(line.trim())) out.push("<hr>");
+    } else {
+      closeList();
+      para.push(line);
+    }
+  }
+  flushPara(); closeList();
+  return out.join("\n");
+}
+
+function loreImportanceStars(n) {
+  return "★".repeat(n) + "☆".repeat(5 - n);
+}
+
+// Same stale-response race as renderLoreInstructions (see its own comment)
+// -- this one is fired on every keystroke in the filter box, which makes
+// out-of-order responses the normal case under fast typing, not an edge
+// case that needs provoking to hit.
+let loreDocListRequestId = 0;
+
+async function renderLoreDocList() {
+  const list = $("lore-doc-list");
+  if (!list) return;
+  const requestId = ++loreDocListRequestId;
+  let data;
+  try {
+    data = await api("/api/lore/documents");
+  } catch (err) {
+    if (requestId === loreDocListRequestId) {
+      list.innerHTML = `<li class="gz-hint">could not load the library: ${escapeHtml(err.message)}</li>`;
+    }
+    return;
+  }
+  if (requestId !== loreDocListRequestId) return;  // a newer call has since started
+  const filterText = ($("lore-filter").value || "").trim().toLowerCase();
+  list.innerHTML = "";
+  const docs = data.documents.filter((d) => !filterText
+    || (d.title || "").toLowerCase().includes(filterText)
+    || (d.topics || []).some((t) => t.toLowerCase().includes(filterText)));
+  docs.sort((a, b) => a.importance - b.importance || a.title.localeCompare(b.title));
+  docs.forEach((d) => {
+    const li = document.createElement("li");
+    li.className = "gz-lore__doc-row" + (!d.exists ? " is-missing" : "")
+      + (state.lore.currentId === d.id ? " is-on" : "");
+    li.innerHTML = `
+      <div class="gz-lore__doc-row-top">
+        <span class="gz-lore__stars" data-importance="${d.importance}">${loreImportanceStars(d.importance)}</span>
+        <span class="gz-lore__doc-title">${escapeHtml(d.title)}</span>
+        ${d.pendingInstructions ? `<span class="gz-lore__doc-badge">${d.pendingInstructions}</span>` : ""}
+      </div>
+      <span class="gz-lore__doc-sub">${escapeHtml(d.category)}${d.exists ? "" : " · file missing"}</span>`;
+    li.addEventListener("click", () => selectLoreDoc(d.id));
+    list.appendChild(li);
+  });
+  if (!docs.length) {
+    list.innerHTML = '<li class="gz-hint" style="padding:10px 12px">Nothing matches.</li>';
+  }
+}
+
+async function selectLoreDoc(id) {
+  state.lore.currentId = id;
+  state.lore.editing = false;
+  renderLoreDocList();
+  $("btn-lore-edit").hidden = false;
+  $("btn-lore-save").hidden = true;
+  $("btn-lore-cancel").hidden = true;
+  $("lore-doc-editor").hidden = true;
+  $("lore-doc-content").hidden = false;
+  // Switching documents must disarm a pending save-confirm from whatever
+  // was open before -- see saveLoreDoc's own note on why an armed state
+  // must never survive to be spent on an unrelated later edit.
+  loreSaveArmedUntil = 0;
+  clearTimeout(loreSaveArmedTimer);
+  $("btn-lore-save").textContent = "Save";
+  $("btn-lore-save").classList.remove("is-armed");
+  $("lore-doc-title").textContent = "Loading…";
+  let data;
+  try {
+    data = await api("/api/lore/document?id=" + encodeURIComponent(id));
+  } catch (err) {
+    $("lore-doc-title").textContent = "Could not load this document";
+    $("lore-doc-content").innerHTML = `<p class="gz-hint">${escapeHtml(err.message)}</p>`;
+    $("btn-lore-edit").hidden = true;
+    return;
+  }
+  state.lore.current = data;
+  renderLoreViewer(data);
+  renderLoreInstructions(id);
+}
+
+function renderLoreViewer(data) {
+  const entry = data.document;
+  $("lore-doc-title").textContent = entry.title;
+  const badge = $("lore-doc-importance");
+  badge.hidden = false;
+  badge.dataset.importance = entry.importance;
+  badge.textContent = "importance " + entry.importance + (entry.importance === 1 ? " — holy" : "");
+  $("lore-doc-description").textContent = entry.description || "";
+  $("lore-doc-content").innerHTML = mdToHtml(data.content);
+  $("lore-doc-content").querySelectorAll("a[data-lore-link]").forEach((a) => {
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      const target = resolveLoreLinkTarget(a.dataset.loreLink);
+      if (target) selectLoreDoc(target);
+    });
+  });
+  renderLoreLinks(data);
+}
+
+function resolveLoreLinkTarget(href) {
+  const library = state.lore.library || [];
+  const byPath = library.find((d) => d.path === href || d.path.endsWith("/" + href));
+  return byPath ? byPath.id : null;
+}
+
+function renderLoreLinks(data) {
+  const box = $("lore-doc-links");
+  const library = state.lore.library || [];
+  const titleOf = (id) => (library.find((d) => d.id === id) || {}).title || id;
+  const bits = [];
+  if (data.outboundLinks && data.outboundLinks.length) {
+    bits.push("Links to: " + data.outboundLinks.map((id) =>
+      `<a data-lore-link-id="${id}">${escapeHtml(titleOf(id))}</a>`).join(", "));
+  }
+  if (data.inboundLinks && data.inboundLinks.length) {
+    bits.push("Linked from: " + data.inboundLinks.map((id) =>
+      `<a data-lore-link-id="${id}">${escapeHtml(titleOf(id))}</a>`).join(", "));
+  }
+  box.innerHTML = bits.join(" &nbsp;·&nbsp; ");
+  box.hidden = !bits.length;
+  box.querySelectorAll("a[data-lore-link-id]").forEach((a) => {
+    a.addEventListener("click", () => selectLoreDoc(a.dataset.loreLinkId));
+  });
+}
+
+function enterLoreEditMode() {
+  if (!state.lore.current) return;
+  state.lore.editing = true;
+  $("lore-doc-editor").value = state.lore.current.content;
+  $("lore-doc-editor").hidden = false;
+  $("lore-doc-content").hidden = true;
+  $("btn-lore-edit").hidden = true;
+  $("btn-lore-save").hidden = false;
+  $("btn-lore-cancel").hidden = false;
+  $("lore-doc-editor").focus();
+}
+
+function cancelLoreEdit() {
+  state.lore.editing = false;
+  $("lore-doc-editor").hidden = true;
+  $("lore-doc-content").hidden = false;
+  $("btn-lore-edit").hidden = false;
+  $("btn-lore-save").hidden = true;
+  $("btn-lore-cancel").hidden = true;
+  // Leaving edit mode, however it happened, disarms a pending save-confirm
+  // -- an armed state must never survive to be spent on a LATER, unrelated
+  // edit of the same or a different document.
+  loreSaveArmedUntil = 0;
+  clearTimeout(loreSaveArmedTimer);
+  $("btn-lore-save").textContent = "Save";
+  $("btn-lore-save").classList.remove("is-armed");
+}
+
+// Ingram, 2026-09-13: "the more important a document becomes the more
+// cautious you should be." Importance 1-2 documents get a same-surface
+// arm/confirm before the write actually happens -- the first click arms
+// it and relabels the button, a second click within the window commits,
+// and it disarms itself if nothing follows. Not a native confirm() dialog:
+// this project's own history (the earlier silent batch-delete confirm-
+// dialog bug, cdf7e01's commit notes on the same fix) already found that
+// pattern unreliable in this exact preview harness.
+const LORE_SAVE_ARM_MS = 4000;
+let loreSaveArmedUntil = 0;
+let loreSaveArmedTimer = null;
+
+async function saveLoreDoc() {
+  const id = state.lore.currentId;
+  const importance = state.lore.current?.document?.importance;
+  const btn = $("btn-lore-save");
+
+  if (importance <= 2 && Date.now() > loreSaveArmedUntil) {
+    loreSaveArmedUntil = Date.now() + LORE_SAVE_ARM_MS;
+    btn.textContent = "Click again to save";
+    btn.classList.add("is-armed");
+    clearTimeout(loreSaveArmedTimer);
+    loreSaveArmedTimer = setTimeout(() => {
+      loreSaveArmedUntil = 0;
+      btn.textContent = "Save";
+      btn.classList.remove("is-armed");
+    }, LORE_SAVE_ARM_MS);
+    return;
+  }
+  loreSaveArmedUntil = 0;
+  clearTimeout(loreSaveArmedTimer);
+  btn.textContent = "Save";
+  btn.classList.remove("is-armed");
+
+  const content = $("lore-doc-editor").value;
+  try {
+    await api("/api/lore/document", { id, content });
+    setStatus("saved " + state.lore.current.document.title);
+    cancelLoreEdit();
+    await selectLoreDoc(id);
+    renderLoreDocList();
+  } catch (err) {
+    setStatus("could not save: " + err.message, "error");
+  }
+}
+
+// A stale response landing after a fresher one is a real race, not a
+// hypothetical: selecting a document fires this once, and saving an
+// instruction moments later fires it again without waiting for the first
+// call to finish -- if the first (now-stale) fetch happens to resolve
+// second, it silently overwrites the correct, newer render with an empty
+// list. Found live: a saved instruction's own success message appeared
+// while the list still read "No instructions yet."
+let loreInstructionsRequestId = 0;
+
+async function renderLoreInstructions(documentId) {
+  const list = $("lore-instructions-list");
+  const requestId = ++loreInstructionsRequestId;
+  let data;
+  try {
+    data = await api("/api/lore/instructions?documentId=" + encodeURIComponent(documentId));
+  } catch (err) {
+    if (requestId === loreInstructionsRequestId) list.innerHTML = "";
+    return;
+  }
+  if (requestId !== loreInstructionsRequestId) return;  // a newer call has since started
+  list.innerHTML = "";
+  const items = (data.instructions || []).slice().reverse();
+  if (!items.length) {
+    list.innerHTML = '<li class="gz-hint">No instructions yet for this document.</li>';
+  }
+  items.forEach((instr) => {
+    const li = document.createElement("li");
+    li.className = "gz-lore__instr-row";
+    li.dataset.status = instr.status;
+    const statusLabel = instr.status === "pending" ? "pending"
+      : instr.status === "needs-clarification" ? "needs clarification" : "done";
+    li.innerHTML = `
+      <span class="gz-lore__instr-text">${escapeHtml(instr.text)}</span>
+      <span class="gz-lore__instr-meta">${statusLabel}${instr.resolution ? " — " + escapeHtml(instr.resolution) : ""}</span>`;
+    if (instr.status === "pending") {
+      const cancel = document.createElement("button");
+      cancel.type = "button";
+      cancel.className = "gz-overview__resolve";
+      cancel.textContent = "Withdraw";
+      cancel.title = "Cancel this instruction without it being acted on";
+      cancel.addEventListener("click", async () => {
+        await api("/api/lore/instructions/" + instr.id + "/resolve",
+          { status: "done", resolution: "withdrawn by Ingram" });
+        renderLoreInstructions(documentId);
+        renderLoreDocList();
+      });
+      li.appendChild(cancel);
+    }
+    list.appendChild(li);
+  });
+}
+
+async function addLoreInstruction() {
+  const textarea = $("lore-instruction-text");
+  const text = textarea.value.trim();
+  const documentId = state.lore.currentId;
+  if (!text || !documentId) return;
+  try {
+    await api("/api/lore/instructions", { documentId, text });
+    textarea.value = "";
+    $("btn-add-instruction").disabled = true;
+    renderLoreInstructions(documentId);
+    renderLoreDocList();
+    setStatus("instruction saved — Summon Claude when you're ready");
+  } catch (err) {
+    setStatus("could not save the instruction: " + err.message, "error");
+  }
+}
+
+async function summonClaude() {
+  let data;
+  try {
+    data = await api("/api/lore/instructions?status=pending");
+  } catch (err) {
+    setStatus("could not check pending instructions: " + err.message, "error");
+    return;
+  }
+  const pending = data.instructions || [];
+  if (!pending.length) {
+    setStatus("nothing pending — nothing to summon Claude for", "warn");
+    return;
+  }
+  const library = state.lore.library || [];
+  const titleOf = (id) => (library.find((d) => d.id === id) || {}).title || id;
+  const lines = ["There's work waiting in the Lore Library:", ""];
+  pending.forEach((instr) => {
+    lines.push(`- [${titleOf(instr.documentId)}] ${instr.text}`);
+  });
+  const text = lines.join("\n");
+  const ok = await copyTextToClipboard(text);
+  if (ok) {
+    setStatus(`copied ${pending.length} pending instruction${pending.length === 1 ? "" : "s"} — paste it into a new message`);
+  } else {
+    showHandoffFallback(text);
+    setStatus("could not copy automatically — select the text shown and copy it by hand", "warn");
+  }
+}
+
+function showAddLoreDocForm() {
+  $("lore-add-form").hidden = false;
+  $("btn-add-lore-doc").hidden = true;
+  $("lore-add-path").focus();
+}
+
+function hideAddLoreDocForm() {
+  $("lore-add-form").hidden = true;
+  $("btn-add-lore-doc").hidden = false;
+  $("lore-add-form").reset();
+}
+
+async function submitAddLoreDoc(e) {
+  e.preventDefault();
+  const path = $("lore-add-path").value.trim();
+  const title = $("lore-add-title").value.trim();
+  if (!path || !title) return;
+  const id = path.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  try {
+    await api("/api/lore/documents", {
+      id, path, title,
+      importance: Number($("lore-add-importance").value),
+      category: $("lore-add-category").value,
+      description: $("lore-add-description").value.trim(),
+    });
+    hideAddLoreDocForm();
+    await refreshLoreLibraryCache();
+    renderLoreDocList();
+    setStatus("added " + title + " to the library");
+  } catch (err) {
+    setStatus("could not add that document: " + err.message, "error");
+  }
+}
+
+async function refreshLoreLibraryCache() {
+  try {
+    const data = await api("/api/lore/documents");
+    state.lore.library = data.documents;
+  } catch (err) { /* the list itself will show the error */ }
+}
+
+function wireLoreMode() {
+  $("lore-filter").addEventListener("input", renderLoreDocList);
+  $("btn-lore-edit").addEventListener("click", enterLoreEditMode);
+  $("btn-lore-save").addEventListener("click", saveLoreDoc);
+  $("btn-lore-cancel").addEventListener("click", cancelLoreEdit);
+  $("btn-add-lore-doc").addEventListener("click", showAddLoreDocForm);
+  $("btn-cancel-add-lore-doc").addEventListener("click", hideAddLoreDocForm);
+  $("lore-add-form").addEventListener("submit", submitAddLoreDoc);
+  $("btn-summon-claude").addEventListener("click", summonClaude);
+  $("lore-instruction-text").addEventListener("input", (e) => {
+    $("btn-add-instruction").disabled = !e.target.value.trim();
+  });
+  $("btn-add-instruction").addEventListener("click", addLoreInstruction);
 }
 
 // --- boot --------------------------------------------------------------------
@@ -296,8 +844,14 @@ async function boot() {
 async function loadSession() {
   const data = await api("/api/session");
   state.items = data.draft.items || [];
-  state.nextLocal = 1 + state.items.reduce(
+  updateUndoButton(data.undoAvailable);
+  // The draft's own counter, which only ever goes up. Deriving this from
+  // `1 + max(existing)` meant deleting the highest items rolled it backwards
+  // and reissued their ids to whatever was drawn next -- and a reissued id
+  // inherits the dead item's promotion link. See core/session.py#nextLocalId.
+  const highest = state.items.reduce(
     (m, it) => Math.max(m, parseInt(String(it.localId).replace(/\D/g, ""), 10) || 0), 0);
+  state.nextLocal = Math.max(data.draft.nextLocalId || 1, highest + 1);
   state.draw.clearShapes();
   state.items.forEach((it) => state.draw.addShape(it));
   renderList();
@@ -446,6 +1000,35 @@ function renderRegionFields(item) {
   $("inherited-brief-text").textContent = brief;
 }
 
+function updateUndoButton(description) {
+  const btn = $("btn-undo");
+  btn.disabled = !description;
+  btn.title = description ? "Undo: " + description + " (Ctrl+Z)" : "Nothing to undo yet";
+}
+
+async function undo() {
+  try {
+    const data = await api("/api/undo", {});
+    // A full replace, not a merge -- undo can bring back an item this page
+    // never had (deleted before this tab loaded) or drop one it does, so
+    // patching derived fields onto the existing array the way save() does
+    // is not enough.
+    state.items = data.draft.items || [];
+    state.draw.clearShapes();
+    state.items.forEach((it) => state.draw.addShape(it));
+    renderList();   // renderList() itself recomputes containment
+    setStatus("Undid: " + data.undid, "warn");
+    updateUndoButton(data.undoAvailable);
+    refreshCoverage();
+    refreshOverview();
+  } catch (err) {
+    // The server's own message already distinguishes "nothing to undo" from
+    // a stale-draft conflict -- no need to re-guess which one happened here.
+    const message = (err.payload && err.payload.error) || err.message;
+    setStatus(err.status === 409 ? message : "could not undo: " + message, "error");
+  }
+}
+
 function markDirty() {
   state.dirty = true;
   if (state.saveBlocked) return;   // nothing may be written until a reload
@@ -459,7 +1042,8 @@ async function save() {
   clearTimeout(state.saveTimer);
   if (state.saveBlocked) return;
   try {
-    const data = await api("/api/session", { items: state.items });
+    const data = await api("/api/session",
+      { items: state.items, nextLocalId: state.nextLocal });
     // Take the server's derived block back. It is the authority — it has the
     // georeference, so it alone can attach canonical lon/lat and real areas —
     // and without this the list and the filter would be searching fields the
@@ -469,6 +1053,7 @@ async function save() {
     state.dirty = false;
     $("save-state").textContent = "saved " + new Date().toLocaleTimeString();
     $("save-state").classList.remove("is-dirty");
+    updateUndoButton(data.undoAvailable);
     // The coverage check runs server-side against the SAVED draft, so this is
     // the only moment it can be recomputed and still be telling the truth.
     refreshCoverage();
@@ -902,6 +1487,60 @@ async function refreshOverview() {
     li.addEventListener("click", () => setFocusRegion(r.localId));
     list.appendChild(li);
   });
+  refreshRequests();
+}
+
+/**
+ * The Claude -> Ingram "please define this place" queue (core/requests.py).
+ * A separate fetch from refreshOverview's /api/queue, and a separate list in
+ * the same panel body, because a request is not "unfinished work on
+ * something drawn" -- it is "nothing has been drawn here yet" -- and
+ * conflating the two would make an open request look like just another row
+ * of session backlog instead of the thing it actually is: a gap raised from
+ * OUTSIDE this session, most often while writing lore for something else.
+ */
+async function refreshRequests() {
+  const head = $("requests-head"), list = $("overview-requests");
+  if (!head || !list) return;
+  let data;
+  try {
+    data = await api("/api/requests?status=open");
+  } catch (err) {
+    return; // same convenience-not-critical-path rule as refreshOverview
+  }
+  const open = data.requests || [];
+  head.hidden = list.hidden = open.length === 0;
+  if (!open.length) return;
+  list.innerHTML = "";
+  open.forEach((r) => {
+    const li = document.createElement("li");
+    li.className = "gz-request";
+    const hint = r.hint ? ` (${escapeHtml(r.hint)})` : "";
+    li.innerHTML = `<span class="gz-overview__name">${escapeHtml(r.what)}${hint}</span>`
+      + `<span class="gz-overview__why">${escapeHtml(r.why || "")}</span>`;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "gz-overview__resolve";
+    btn.textContent = "Resolve";
+    btn.title = "Mark this request resolved";
+    // A native prompt(), not an inline field: this project's own history
+    // (the "Copy for Claude" clipboard fallback, the earlier silent-dialog
+    // batch-delete bug guarded by this file's own tier0 test) already found
+    // that browser-native dialogs are not reliable in this preview harness
+    // -- so this asks nothing and just resolves. Recording HOW is a
+    // follow-up, not a blocker for marking a gap closed.
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      try {
+        await api("/api/requests/" + encodeURIComponent(r.id) + "/resolve", {});
+        refreshRequests();
+      } catch (err) {
+        setStatus("could not resolve request: " + err.message, "error");
+      }
+    });
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
 }
 
 // --- published locations -----------------------------------------------------
@@ -913,18 +1552,37 @@ async function refreshOverview() {
  * draft item is scratch until promoted, and this is where "promoted" becomes
  * visible on the map, in this session and every one after it.
  */
+/**
+ * Fetches every promoted location into `state.published`, unconditionally --
+ * this is the inspector's only way to know a draft item was promoted at all
+ * (see promoteLocationFor/renderInspector), so it must run regardless of
+ * whether the decorative map OVERLAY below is currently switched on. Used to
+ * be one function that skipped the fetch entirely when the "published"
+ * layer checkbox was off, which meant an item could be fully promoted and
+ * written and the inspector would still have no way to find that out unless
+ * a completely unrelated checkbox happened to be ticked.
+ */
 async function refreshPublished() {
   state.published.clear();
-  if (!$("l-published").checked) { state.publishedLayer.clearLayers(); return; }
   let data;
   try {
     data = await api("/api/locations");
   } catch (err) {
-    return; // locations may not exist yet on a fresh repo; not an error to show
+    renderPublishedLayer(); // clears it; locations may not exist yet on a fresh repo
+    return;
   }
+  data.locations.forEach((loc) => state.published.set(loc.id, loc));
+  renderPublishedLayer();
+}
+
+/** The decorative map overlay only -- gated by its own checkbox, reading
+ *  from whatever refreshPublished() already fetched. Split out so toggling
+ *  this checkbox never has to re-fetch, and so it never controls whether the
+ *  DATA exists, only whether it is drawn as a second shape on the map. */
+function renderPublishedLayer() {
   state.publishedLayer.clearLayers();
-  data.locations.forEach((loc) => {
-    state.published.set(loc.id, loc);
+  if (!$("l-published").checked) return;
+  state.published.forEach((loc) => {
     let layer;
     if (loc.tier === "point") {
       layer = L.marker(ll(loc.pointPx[0], loc.pointPx[1]), {
@@ -992,6 +1650,7 @@ function renderInspector(localId) {
 
   renderBreadcrumb(item);
   renderRegionFields(item);
+  renderPromotedBox(item);
 
   // A locked item has a real lore entry and reads as settled -- every field
   // that could change or destroy it is disabled until it is unlocked again,
@@ -1272,9 +1931,58 @@ function fmtNum(v) {
   return (Math.round(v * 10) / 10).toLocaleString("en-GB");
 }
 
+/**
+ * The box that used to not exist: what was actually WRITTEN for this item,
+ * once it has been promoted. Reads state.published (via
+ * resolvePromotedLocation), never the draft item -- the draft's own Note
+ * field is frozen at whatever it said the day this was promoted, and until
+ * this function existed there was nowhere in the live UI that showed
+ * anything else. The Copy-for-Claude handoff got this fix first
+ * (core/handoff.py); this is the same fix for the page itself.
+ */
+function renderPromotedBox(item) {
+  const box = $("promoted-box");
+  const noteHint = $("f-note-hint");
+  const loc = resolvePromotedLocation(item, state.published);
+  if (!loc) { box.hidden = true; noteHint.textContent = ""; return; }
+  box.hidden = false;
+  noteHint.textContent = " — the ORIGINAL draft note; see the written entry above";
+
+  $("promoted-badge").textContent =
+    `Promoted — data/locations/${loc.id}.json (${loc.status})`;
+
+  const lore = loc.lore || {};
+  const scene = loc.scene || {};
+  const rows = [];
+  const text = (label, value) => { if ((value || "").trim()) rows.push([label, escapeHtml(value), false]); };
+  const list = (label, values) => {
+    if (values && values.length) {
+      rows.push([label, `<ul>${values.map((v) => `<li>${escapeHtml(v)}</li>`).join("")}</ul>`, true]);
+    }
+  };
+  text("Summary", lore.summary);
+  text("Player-facing", lore.playerFacing);
+  text("GM-only", lore.gmOnly);
+  list("Hooks", scene.hooks);
+  list("Activities", scene.activities);
+  text("History", scene.history);
+  text("Consequences", scene.consequences);
+  if (loc.npcRefs && loc.npcRefs.length) rows.push(["NPCs", escapeHtml(loc.npcRefs.join(", ")), false]);
+  if (loc.classification) rows.push(["Classification", escapeHtml(loc.classification), false]);
+
+  $("promoted-lore").innerHTML = rows.map(([label, html, isList]) =>
+    `<dt>${escapeHtml(label)}</dt><dd${isList ? ' class="gz-promoted__list"' : ""}>${html}</dd>`
+  ).join("");
+}
+
 function renderDepthOwes(item) {
   const box = $("depth-owes");
-  const result = checkDepth(item);
+  // Once promoted, the DRAFT item's own note is frozen at whatever it said
+  // on promotion day -- what this location still owes has to be checked
+  // against what was actually written, not the stub. Same fix as the
+  // handoff document already got server-side; found missing here separately
+  // because nothing client-side used to know a location existed at all.
+  const result = checkDepth(depthSubject(item, state.published));
   const parts = [];
 
   if (result.missing.length) {
@@ -1295,7 +2003,7 @@ function renderDepthOwes(item) {
 
   // Only worth saying when it is actually deeper than what is declared --
   // "this already passes as named" is noise on a named location.
-  const deepest = suggestDepth(item);
+  const deepest = suggestDepth(depthSubject(item, state.published));
   if (deepest && DEPTHS.indexOf(deepest) > DEPTHS.indexOf(result.depth)) {
     parts.push(`<p class="gz-owes__line is-advice">Already passes as `
       + `<strong>${escapeHtml(deepest)}</strong> — consider promoting it.</p>`);
@@ -1309,9 +2017,10 @@ function renderDepthOwes(item) {
  *  would bury the handful that were actually commissioned as more. A red
  *  marker means the content has not caught up with the declaration yet. */
 function depthBadge(item) {
-  const depth = item.depth || "named";
+  const subject = depthSubject(item, state.published);
+  const depth = subject.depth || "named";
   if (depth === "named") return "";
-  const owes = checkDepth(item).missing.length;
+  const owes = checkDepth(subject).missing.length;
   return `<span class="gz-item__depth${owes ? " is-owing" : ""}"`
     + ` title="${owes ? `still owes ${owes} thing${owes === 1 ? "" : "s"}` : "complete"}">`
     + `${escapeHtml(depth)}</span> `;
@@ -1482,8 +2191,50 @@ function updateFocusBar() {
   $("focus-bar-name").textContent = region ? (region.name || "unnamed district") : "(deleted)";
 }
 
+/**
+ * The compact Regions quick-nav panel: every district, one line each,
+ * independent of Session's current filter/focus so it always shows the
+ * whole map regardless of what Session happens to be narrowed to right now.
+ * Clicking a row focuses that district (flies the map, dims the rest) and
+ * makes sure Session -- collapsed by default -- is actually open to show
+ * what was just focused, since focusing into a panel nobody can see is not
+ * a real action.
+ */
+function renderRegionsPanel() {
+  const list = $("regions-list");
+  if (!list) return;
+  const regions = sortItems(state.items.filter((it) => it.tier === "region"));
+  $("regions-count").textContent = String(regions.length);
+  list.innerHTML = "";
+  regions.forEach((region) => {
+    const members = state.items.filter(
+      (it) => (it.tier === "site" || it.tier === "point") && regionOf(it)?.localId === region.localId);
+    const locked = members.filter((m) => m.locked).length;
+    const li = document.createElement("li");
+    li.className = "gz-district" + (state.focusRegionId === region.localId ? " is-focused" : "");
+    li.innerHTML = `
+      <span class="gz-district__text">
+        <span class="gz-district__name">${region.name ? escapeHtml(region.name) : "<em>unnamed district</em>"}</span>
+      </span>
+      <span class="gz-district__progress" title="${locked} of ${members.length} locked">${members.length ? `${locked}/${members.length}` : "empty"}</span>
+      <span class="gz-district__ref">${escapeHtml(liveRef(region))}</span>`;
+    li.addEventListener("click", () => {
+      setFocusRegion(state.focusRegionId === region.localId ? null : region.localId);
+      const sessionPanel = document.getElementById("session-panel");
+      if (sessionPanel) {
+        sessionPanel.classList.remove("is-collapsed");
+        const stored = readStore(COLLAPSE_KEY, {}) || {};
+        stored["session-panel"] = false;
+        writeStore(COLLAPSE_KEY, stored);
+      }
+    });
+    list.appendChild(li);
+  });
+}
+
 function renderList() {
   recomputeContainment();
+  renderRegionsPanel();
   const list = $("item-list");
   const sel = new Set(state.draw.selectedList());
   list.innerHTML = "";
@@ -1651,6 +2402,9 @@ function wireChrome() {
     btn.addEventListener("click", () => setTool(btn.dataset.tool));
   });
   $("btn-save").addEventListener("click", save);
+  $("btn-undo").addEventListener("click", undo);
+  $("btn-biomes").addEventListener("click", toggleBiomeLayer);
+  $("btn-biomes-rebuild").addEventListener("click", rebuildBiomes);
   $("f-search").addEventListener("input", (e) => { state.filter = e.target.value; renderList(); });
   document.querySelectorAll("#status-chips .gz-chip").forEach((chip) => {
     chip.addEventListener("click", () => { statusFilter = chip.dataset.status; renderList(); });
@@ -1878,6 +2632,22 @@ function updatePromoteBox(item) {
   if (!item) { box.hidden = true; return; }
   box.hidden = false;
 
+  // Already promoted: the button used to stay enabled and just say "Ready",
+  // which invited a re-click that only ever produced a cryptic 409 from the
+  // server (promote refuses an existing id without an explicit overwrite,
+  // and this simple button has no way to carry the existing lore/scene
+  // forward if it DID overwrite -- it only ever sends localId+id). Disabled
+  // and explained is the honest state; re-promoting with real content stays
+  // a deliberate, scripted action, same as every location promoted so far.
+  const loc = resolvePromotedLocation(item, state.published);
+  if (loc) {
+    hint.textContent = `Already promoted — data/locations/${loc.id}.json (${loc.status}). `
+      + "See the written entry above.";
+    hint.className = "gz-hint is-done";
+    btn.disabled = true;
+    return;
+  }
+
   const problems = [];
   if (!(item.name || "").trim() && !(item.note || "").trim()) {
     problems.push("needs a name or a note before it can become a real location");
@@ -2033,14 +2803,30 @@ function writeStore(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* not worth failing over */ }
 }
 
+// Session used to have no `.gz-panel__body` wrapper on purpose -- collapsing
+// the list this tool exists to work through read as a way to lose the list,
+// not a feature. Ingram's own 2026-09-12 survey overturned that: he does not
+// use Session himself and wants Inspector to have priority, so it and the
+// new Regions quick-nav panel both default closed. Session keeps its body
+// wrapper's presence as the ONLY thing that makes a panel collapsible at
+// all (see the check just below), so if it stops being collapsible again
+// that decision needs to be re-made deliberately, not rediscovered as a bug.
+const DEFAULT_COLLAPSED = { "session-panel": true, "regions-panel": true };
+
 function wireCollapsiblePanels() {
-  const collapsed = readStore(COLLAPSE_KEY, {}) || {};
+  // Defaults first, then whatever is actually stored on top -- a returning
+  // browser already has SOME collapsedPanels object from before Session and
+  // Regions existed as collapsible panels at all, and a plain readStore
+  // fallback only applies when the key is missing entirely, not per-panel.
+  // Without the merge, an existing stored object with no "session-panel"
+  // entry would read as "not collapsed" instead of falling back to the new
+  // default, silently keeping Session open for everyone who had used the
+  // tool even once before this change.
+  const collapsed = Object.assign({}, DEFAULT_COLLAPSED, readStore(COLLAPSE_KEY, {}));
   document.querySelectorAll(".gz-panel").forEach((panel) => {
     const head = panel.querySelector(":scope > .gz-panel__head");
     const body = panel.querySelector(":scope > .gz-panel__body");
-    // No body wrapper = not collapsible. The session panel has none on
-    // purpose: collapsing the list this tool exists to work through is not
-    // a feature, it is a way to lose the list.
+    // No body wrapper = not collapsible.
     if (!head || !body || !panel.id) return;
     head.classList.add("is-toggle");
     head.setAttribute("role", "button");
@@ -2142,7 +2928,9 @@ function wireLayerToggles(gridLayer) {
       ? state.draw.addShape(it) : state.draw.removeShape(it.localId));
   });
   $("l-suppressed").addEventListener("change", showSuppressed);
-  $("l-published").addEventListener("change", refreshPublished);
+  $("l-published").addEventListener("change", renderPublishedLayer);
+  wireReview();
+  wireLoreMode();
   $("l-coverage").addEventListener("change", refreshCoverage);
 }
 
@@ -2224,6 +3012,11 @@ function wireKeys() {
       return;
     }
     if (e.key === "s" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); save(); return; }
+    // Not bound inside the `typing` branch above: a text field's own native
+    // undo is what Ctrl+Z should do while focus is there, not this.
+    if (e.key === "z" && (e.ctrlKey || e.metaKey) && !$("btn-undo").disabled) {
+      e.preventDefault(); undo(); return;
+    }
     const tools = {
       v: "pan", l: "lasso", r: "region", s: "site", p: "point",
       b: "adopt", x: "remove",
@@ -2260,3 +3053,298 @@ boot().catch((err) => {
   setStatus("failed to start: " + err.message, "error");
   console.error(err);
 });
+
+// --- modes -------------------------------------------------------------------
+//
+// Survey is the drawing loop: draw or adopt, write a rough note, select, hand
+// off. Review is the evaluation loop: rank what matters, see what is owed, and
+// write lore with room to write it in. They want opposite layouts, which is
+// why they are modes rather than one screen trying to be both.
+//
+// One Leaflet instance, re-parented between the two. A second map would be a
+// second thing to keep in step with the session, and the first time the two
+// disagreed nobody would know which was right.
+
+const MODE_KEY = "gz.mode";
+let reviewSelectedKey = null;   // "loc:<id>" or "item:<localId>"
+let reviewRankFilter = "all";
+let reviewTierFilter = "all";
+
+function setMode(mode) {
+  const next = mode === "review" ? "review" : mode === "lore" ? "lore" : "survey";
+  document.body.dataset.mode = next;
+  document.querySelectorAll("#modes .gz-mode").forEach((b) => {
+    b.classList.toggle("is-on", b.dataset.mode === next);
+  });
+
+  // Lore mode has no use for the map at all -- left wherever it already is
+  // (almost always inside .gz-main, which lore mode's own CSS hides outright)
+  // rather than re-parented, since there is no lore-side slot for it to go.
+  if (next !== "lore") {
+    const mapEl = $("map");
+    const target = next === "review"
+      ? $("review-map-slot")
+      : document.querySelector(".gz-main");
+    if (mapEl.parentElement !== target) {
+      if (next === "survey") target.insertBefore(mapEl, target.firstChild);
+      else target.appendChild(mapEl);
+    }
+  }
+  writeStore(MODE_KEY, next);
+  if (next === "review") renderReview();
+  if (next === "lore") { refreshLoreLibraryCache().then(renderLoreDocList); }
+  // Leaflet measures its container once; after a re-parent it must be told.
+  setTimeout(() => { try { state.map.invalidateSize(); } catch (err) {} }, 0);
+}
+
+/** Every location worth reviewing, promoted or not, as one list.
+ *
+ *  Promoted entries carry real lore; draft-only ones carry a name and a note
+ *  and can still be RANKED, because ranking is triage and triage has to happen
+ *  before the writing rather than after it. */
+function reviewEntries() {
+  const rows = [];
+  const claimed = new Set();
+  state.items.forEach((item) => {
+    const loc = resolvePromotedLocation(item, state.published);
+    if (loc) claimed.add(loc.id);
+    const name = (loc && loc.name) || item.name || "";
+    if (!name.trim()) return;   // unlabelled shapes are not review work yet
+    rows.push({
+      key: loc ? ("loc:" + loc.id) : ("item:" + item.localId),
+      localId: item.localId,
+      locationId: loc ? loc.id : null,
+      name,
+      tier: item.tier,
+      rank: (loc && loc.rank != null) ? loc.rank : (item.rank != null ? item.rank : null),
+      depth: (loc && loc.depth) || item.depth || "named",
+      district: (regionOf(item) || {}).name || "",
+      owes: checkDepth(loc || item).missing,
+      item,
+      loc,
+    });
+  });
+  // A promoted location whose draft item is gone is still reviewable.
+  state.published.forEach((loc) => {
+    if (claimed.has(loc.id)) return;
+    rows.push({
+      key: "loc:" + loc.id, localId: null, locationId: loc.id,
+      name: loc.name || loc.id, tier: loc.tier,
+      rank: loc.rank != null ? loc.rank : null,
+      depth: loc.depth || "named", district: "",
+      owes: checkDepth(loc).missing, item: null, loc,
+    });
+  });
+  rows.sort((a, b) => {
+    const ar = a.rank == null ? 99 : a.rank;
+    const br = b.rank == null ? 99 : b.rank;
+    return ar - br || a.name.localeCompare(b.name);
+  });
+  return rows;
+}
+
+function renderReview() {
+  const q = ($("review-search").value || "").trim().toLowerCase();
+  const rows = reviewEntries().filter((r) => {
+    if (reviewRankFilter === "none" && r.rank != null) return false;
+    if (reviewRankFilter !== "all" && reviewRankFilter !== "none"
+        && String(r.rank) !== reviewRankFilter) return false;
+    if (reviewTierFilter !== "all" && r.tier !== reviewTierFilter) return false;
+    if (q && !((r.name + " " + r.district).toLowerCase().includes(q))) return false;
+    return true;
+  });
+  $("review-count").textContent = String(rows.length);
+
+  const list = $("review-rows");
+  list.innerHTML = "";
+  rows.forEach((r) => {
+    const li = document.createElement("li");
+    li.className = "gz-review__row" + (r.key === reviewSelectedKey ? " is-on" : "");
+    const approved = r.loc && r.loc.status === "approved";
+    const owes = r.owes.length ? ("owes " + r.owes.length) : "complete";
+    const rankLabel = r.rank == null ? "none" : String(r.rank);
+    const sub = escapeHtml(r.depth)
+      + (r.district ? " · " + escapeHtml(r.district) : "")
+      + (r.locationId ? "" : " · draft");
+    li.innerHTML =
+      '<span class="gz-review__rank" data-rank="' + rankLabel + '">'
+      + (r.rank == null ? "–" : r.rank) + "</span>"
+      + '<span><span class="gz-review__row-name">' + escapeHtml(r.name)
+      // The seal of quality, Ingram's own words: shown wherever the name
+      // itself is, not buried in a status line, since this is the one fact
+      // about a location that should be visible without opening it.
+      + (approved ? ' <span class="gz-review__approved" title="Approved by Ingram">✓ approved</span>' : "")
+      + "</span>"
+      + '<span class="gz-review__row-sub">' + sub + "</span></span>"
+      + '<span class="gz-review__row-owes' + (r.owes.length ? "" : " is-done") + '">'
+      + owes + "</span>";
+    li.addEventListener("click", () => selectReview(r.key));
+    list.appendChild(li);
+  });
+}
+
+function currentReviewRow() {
+  return reviewEntries().find((r) => r.key === reviewSelectedKey) || null;
+}
+
+function selectReview(key) {
+  reviewSelectedKey = key;
+  const row = currentReviewRow();
+  $("review-empty").hidden = !!row;
+  $("review-form").hidden = !row;
+  renderReview();
+  if (!row) return;
+
+  const loc = row.loc;
+  const item = row.item;
+  const lore = (loc && loc.lore) || {};
+  const scene = (loc && loc.scene) || {};
+  $("r-name").value = row.name;
+  $("r-where").textContent = [row.district, row.locationId || "draft only"]
+    .filter(Boolean).join(" · ");
+  $("r-rank").value = row.rank == null ? "" : String(row.rank);
+  $("r-depth").value = row.depth;
+  $("r-summary").value = lore.summary || "";
+  $("r-playerFacing").value = lore.playerFacing || "";
+  $("r-gmOnly").value = lore.gmOnly || "";
+  $("r-hooks").value = (scene.hooks || []).join("\n");
+  $("r-activities").value = (scene.activities || []).join("\n");
+  $("r-note").value = (item && item.note) || (loc && loc.authoringNote) || "";
+
+  // Lore fields only mean something once there is a location to hold them.
+  const draftOnly = !row.locationId;
+  ["r-summary", "r-playerFacing", "r-gmOnly", "r-hooks", "r-activities"]
+    .forEach((id) => { $(id).disabled = draftOnly; });
+  $("r-state").textContent = draftOnly
+    ? "Draft only — rank and note save to the session. Promote it to write lore."
+    : "";
+
+  const approveBtn = $("r-approve");
+  approveBtn.disabled = draftOnly;
+  approveBtn.textContent = (loc && loc.status === "approved") ? "Unapprove" : "Approve";
+  approveBtn.title = draftOnly ? "Promote this first -- there is no location yet to approve"
+    : (loc && loc.status === "approved") ? "Take back approval" : "Mark this location approved";
+
+  renderReviewOwes(row);
+  if (item) { state.draw.select(item.localId); zoomTo(item); }
+}
+
+function renderReviewOwes(row) {
+  const box = $("r-owes");
+  const subject = row.loc || row.item;
+  if (!subject) { box.innerHTML = ""; return; }
+  const result = checkDepth(subject);
+  box.innerHTML = result.missing.length
+    ? '<p class="gz-owes__line is-missing"><strong>Still owes:</strong> '
+      + result.missing.map(escapeHtml).join(", ") + "</p>"
+    : '<p class="gz-owes__line is-done">Complete for <strong>'
+      + escapeHtml(result.depth) + "</strong> — " + result.words + " words.</p>";
+}
+
+async function saveReview() {
+  const row = currentReviewRow();
+  if (!row) return;
+  const rank = $("r-rank").value === "" ? null : parseInt($("r-rank").value, 10);
+  const lines = (id) => $(id).value.split("\n").map((s) => s.trim()).filter(Boolean);
+
+  // The draft item carries name, note, depth and rank. Rank lives on both
+  // sides for the same reason depth does -- see core/session.py.
+  if (row.item) {
+    row.item.name = $("r-name").value.trim();
+    row.item.note = $("r-note").value;
+    row.item.depth = $("r-depth").value;
+    row.item.rank = rank;
+    markDirty();
+    await save();
+  }
+
+  if (row.locationId) {
+    try {
+      await api("/api/location", {
+        id: row.locationId,
+        name: $("r-name").value.trim() || null,
+        rank: rank,
+        depth: $("r-depth").value,
+        lore: {
+          summary: $("r-summary").value,
+          playerFacing: $("r-playerFacing").value,
+          gmOnly: $("r-gmOnly").value,
+        },
+        scene: {
+          hooks: lines("r-hooks"),
+          activities: lines("r-activities"),
+          history: ((row.loc || {}).scene || {}).history || "",
+          consequences: ((row.loc || {}).scene || {}).consequences || "",
+        },
+      });
+      await refreshPublished();
+      setStatus("saved " + row.locationId);
+    } catch (err) {
+      setStatus("could not save: " + err.message, "error");
+      return;
+    }
+  } else {
+    setStatus("saved to the session");
+  }
+  const key = reviewSelectedKey;
+  renderReview();
+  selectReview(key);
+}
+
+/**
+ * The seal of quality, and it is Ingram's alone -- see server.py's
+ * /api/location/<id>/approve, the single endpoint that can ever write or
+ * clear "approved", and the standing rule (2026-09-13) behind why every
+ * OTHER write path (promotion, a normal edit, a Lore Library instruction)
+ * explicitly refuses the value instead of accepting it as a side effect.
+ * This button is that one deliberate action, nothing else in the UI
+ * reaches this endpoint.
+ */
+async function toggleApproveReview() {
+  const row = currentReviewRow();
+  if (!row || !row.locationId) return;
+  const nowApproved = !(row.loc && row.loc.status === "approved");
+  try {
+    await api("/api/location/" + encodeURIComponent(row.locationId) + "/approve",
+      { approved: nowApproved });
+    await refreshPublished();
+    setStatus(nowApproved ? "approved " + row.locationId : "approval withdrawn for " + row.locationId);
+  } catch (err) {
+    setStatus("could not change approval: " + err.message, "error");
+    return;
+  }
+  const key = reviewSelectedKey;
+  renderReview();
+  selectReview(key);
+}
+
+function wireReview() {
+  document.querySelectorAll("#modes .gz-mode").forEach((b) => {
+    b.addEventListener("click", () => setMode(b.dataset.mode));
+  });
+  $("review-search").addEventListener("input", renderReview);
+  $("review-rank-chips").addEventListener("click", (e) => {
+    const chip = e.target.closest(".gz-chip");
+    if (!chip) return;
+    reviewRankFilter = chip.dataset.rank;
+    $("review-rank-chips").querySelectorAll(".gz-chip")
+      .forEach((c) => c.classList.toggle("is-on", c === chip));
+    renderReview();
+  });
+  $("review-kind-chips").addEventListener("click", (e) => {
+    const chip = e.target.closest(".gz-chip");
+    if (!chip) return;
+    reviewTierFilter = chip.dataset.tier;
+    $("review-kind-chips").querySelectorAll(".gz-chip")
+      .forEach((c) => c.classList.toggle("is-on", c === chip));
+    renderReview();
+  });
+  $("r-save").addEventListener("click", saveReview);
+  $("r-approve").addEventListener("click", toggleApproveReview);
+  $("r-handoff").addEventListener("click", () => {
+    const row = currentReviewRow();
+    if (row && row.localId) copyForClaude([row.localId]);
+    else setStatus("no draft item to hand off for this one", "warn");
+  });
+  setMode(readStore(MODE_KEY, "survey"));
+}
