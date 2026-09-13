@@ -312,6 +312,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._api_rebuild_biomes()
             if path == "/api/regions/reconcile":
                 return self._api_reconcile_regions()
+            if path == "/api/regions/merge":
+                return self._api_merge_regions()
             if path.startswith("/api/location/") and path.endswith("/approve"):
                 location_id = path[len("/api/location/"):-len("/approve")]
                 return self._api_approve_location(location_id)
@@ -959,6 +961,50 @@ class Handler(BaseHTTPRequestHandler):
                 _save_location(by_slug[slug])
 
         self._send(200, {"changed": True, "report": report, "syncedLocations": synced})
+
+    def _api_merge_regions(self):
+        """Ingram, 2026-09-13: "shift clicking on both regions and using a
+        'merge' button makes the most sense." core/reconcile.py#merge_regions
+        does the actual geometry; this is the HTTP wrapping around it --
+        undo protection, the stale-draft guard every other write already
+        gets, and the same promoted-file resync a hand-dragged vertex gets,
+        reused rather than re-implemented, since a merge is just another
+        way a promoted region's draft ring can change shape.
+        """
+        from core import reconcile as reconcile_mod
+
+        body = self._body()
+        local_ids = body.get("localIds") or []
+
+        with STATE.lock:
+            if STATE.draft_changed_underneath():
+                fresh = STATE.reload_draft()
+                return self._send(409, {
+                    "error": "the draft changed on disk since this session loaded it "
+                             "-- reload before merging",
+                    "draft": fresh,
+                })
+
+            try:
+                new_items, survivor_id = reconcile_mod.merge_regions(
+                    STATE.draft["items"], local_ids)
+            except reconcile_mod.MergeError as exc:
+                return self._error(409, str(exc))
+
+            if undo_mod.has_real_change(STATE.draft["items"], new_items):
+                STATE.undo_stack.push({
+                    "items": STATE.draft["items"],
+                    "nextLocalId": STATE.draft.get("nextLocalId"),
+                    "description": "merged %d regions into one" % len(local_ids),
+                    "at": datetime.datetime.now().isoformat(timespec="seconds"),
+                })
+
+            STATE.draft["items"] = new_items
+            STATE.save_draft()
+            resynced = _resync_promoted_region_geometry(STATE.draft["items"])
+
+        self._send(200, {"survivorLocalId": survivor_id, "resyncedLocations": resynced,
+                         "draft": STATE.draft})
 
     def _api_crop(self, rel):
         """A labelled PNG of the painted map around one item -- see crop.py's

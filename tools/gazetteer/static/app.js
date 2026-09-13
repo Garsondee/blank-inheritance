@@ -1737,6 +1737,12 @@ function renderBatchPanel(ids) {
   // once ALL of them already are, so the button's own label never claims an
   // action ("lock" vs "unlock") that would be a no-op for part of the group.
   $("btn-batch-lock").textContent = ids.length && lockedCount === ids.length ? "Unlock selected" : "Lock selected";
+  // Merge only ever makes sense for two or more REGIONS -- a site and a
+  // region have no shared geometric meaning to combine, and showing the
+  // button for a mixed selection would just be an extra way to hit the
+  // server's own refusal instead of never offering the action at all.
+  $("btn-batch-merge").hidden = !(ids.length >= 2
+    && ids.every((id) => { const it = itemById(id); return it && it.tier === "region"; }));
   renderList();
 }
 
@@ -2531,6 +2537,29 @@ function wireChrome() {
     markDirty();
     renderBatchPanel(ids);
     setStatus(`${next ? "locked" : "unlocked"} ${ids.length} item${ids.length === 1 ? "" : "s"}`);
+  });
+  $("btn-batch-merge").addEventListener("click", async () => {
+    const ids = state.draw.selectedList();
+    if (ids.length < 2) return;
+    try {
+      // A server round trip, not a local edit like the buttons around it --
+      // the union and the "do these actually touch" check are shapely's
+      // job, not something to reimplement in the browser.
+      const data = await api("/api/regions/merge", { localIds: ids });
+      state.items = data.draft.items || [];
+      state.draw.clearShapes();
+      state.items.forEach((it) => state.draw.addShape(it));
+      state.draw.selectMany([data.survivorLocalId]);
+      renderList();
+      setStatus(`merged ${ids.length} regions into one`
+        + (data.resyncedLocations.length
+           ? ` — resynced ${data.resyncedLocations.join(", ")}` : ""));
+      refreshCoverage();
+      refreshOverview();
+    } catch (err) {
+      const message = (err.payload && err.payload.error) || err.message;
+      setStatus("could not merge: " + message, "error");
+    }
   });
   // Two clicks, not a native confirm dialog: that turned out to be silently
   // unanswerable in this app's own preview environment -- it neither

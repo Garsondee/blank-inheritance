@@ -211,3 +211,72 @@ def trim_overlapping_regions(items, *, min_overlap_px2=MIN_OVERLAP_PX2):
         out.append(it)
 
     return out, {"trimmed": trimmed, "merged": merged, "unresolved": unresolved}
+
+
+class MergeError(ValueError):
+    """The requested regions cannot be merged as given."""
+
+
+def merge_regions(items, local_ids):
+    """Ingram, 2026-09-13: "shift clicking on both regions and using a
+    'merge' button makes the most sense" -- combine two or more selected
+    region-tier items into one, by geometric union.
+
+    Returns (new_items, survivor_local_id): `survivor_local_id` is whichever
+    ONE of `local_ids` keeps its identity afterward, and every other
+    selected item is dropped from the returned list outright -- once merged
+    they are the same ground, and a region is small enough that keeping a
+    second, now-redundant draft note or lore entry around serves nobody.
+
+    Raises MergeError, never silently, for either way this can go wrong:
+    the regions do not actually share a border (their union is not one
+    connected piece -- the same MultiPolygon check the trim-and-merge loop
+    above already relies on), or more than one of them is already promoted
+    with its own real written lore, which would otherwise mean silently
+    discarding one person's writing to keep the other's.
+    """
+    by_id = {it["localId"]: it for it in items}
+    targets = []
+    for lid in local_ids:
+        it = by_id.get(lid)
+        if it is None:
+            raise MergeError("no item %r in this session" % lid)
+        if it.get("tier") != "region":
+            raise MergeError("%r is not a region" % lid)
+        targets.append(it)
+    if len(targets) < 2:
+        raise MergeError("need at least two regions to merge")
+
+    promoted = [t for t in targets if t.get("locationRef")]
+    if len(promoted) > 1:
+        raise MergeError(
+            "more than one of these is already promoted with its own written "
+            "lore (%s) -- merging would have to silently pick one's writing "
+            "over the other's, so this refuses instead" %
+            ", ".join(t["locationRef"] for t in promoted))
+
+    polys = []
+    for t in targets:
+        poly = _polygon(t)
+        if poly is None:
+            raise MergeError("%r has no usable polygon geometry" % t["localId"])
+        polys.append(poly)
+
+    merged = unary_union(polys).buffer(0)
+    if merged.geom_type == "MultiPolygon":
+        raise MergeError(
+            "these regions do not actually share a border -- merging them "
+            "would produce two disconnected pieces wearing one id")
+
+    survivor_id = promoted[0]["localId"] if promoted else targets[0]["localId"]
+    shell, holes = _rings_from_polygon(merged)
+    removed_ids = {t["localId"] for t in targets} - {survivor_id}
+
+    new_items = []
+    for it in items:
+        if it["localId"] == survivor_id:
+            it = dict(it, geometry=dict(it["geometry"], ringPx=shell, holesPx=holes))
+        elif it["localId"] in removed_ids:
+            continue
+        new_items.append(it)
+    return new_items, survivor_id

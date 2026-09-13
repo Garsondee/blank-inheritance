@@ -1363,6 +1363,53 @@ class TestServer(unittest.TestCase):
         result = post(self.base + "/api/session", {"items": [item]})
         self.assertEqual(result["resyncedLocations"], [])
 
+    def test_merge_regions_end_to_end_through_the_real_http_surface(self):
+        """Ingram, 2026-09-13: "shift clicking on both regions and using a
+        'merge' button makes the most sense." """
+        self._seed_item()
+        post(self.base + "/api/session", {"items": [{
+            "localId": "merge-a", "tier": "region", "name": "District A", "kind": "",
+            "note": "", "tags": [], "source": "drawn", "sourceFeatureIds": [],
+            "geometry": {"kind": "polygon",
+                        "ringPx": [[1000, 1000], [1100, 1000], [1100, 1100], [1000, 1100]]},
+            "derived": {},
+        }, {
+            "localId": "merge-b", "tier": "region", "name": "District B", "kind": "",
+            "note": "", "tags": [], "source": "drawn", "sourceFeatureIds": [],
+            "geometry": {"kind": "polygon",
+                        "ringPx": [[1100, 1000], [1200, 1000], [1200, 1100], [1100, 1100]]},
+            "derived": {},
+        }]})
+
+        result = post(self.base + "/api/regions/merge", {"localIds": ["merge-a", "merge-b"]})
+        self.assertEqual(result["survivorLocalId"], "merge-a")
+
+        after = get(self.base + "/api/session")["draft"]["items"]
+        self.assertIsNone(next((it for it in after if it["localId"] == "merge-b"), None),
+                          "the non-surviving region must be gone from the draft")
+        survivor = next(it for it in after if it["localId"] == "merge-a")
+        from shapely.geometry import Polygon
+        self.assertAlmostEqual(Polygon(survivor["geometry"]["ringPx"]).area, 100 * 200, delta=0.5)
+
+    def test_merge_regions_refuses_and_reports_409_when_they_do_not_touch(self):
+        self._seed_item()
+        post(self.base + "/api/session", {"items": [{
+            "localId": "far-a", "tier": "region", "name": "", "kind": "",
+            "note": "", "tags": [], "source": "drawn", "sourceFeatureIds": [],
+            "geometry": {"kind": "polygon",
+                        "ringPx": [[100, 100], [200, 100], [200, 200], [100, 200]]},
+            "derived": {},
+        }, {
+            "localId": "far-b", "tier": "region", "name": "", "kind": "",
+            "note": "", "tags": [], "source": "drawn", "sourceFeatureIds": [],
+            "geometry": {"kind": "polygon",
+                        "ringPx": [[9000, 9000], [9100, 9000], [9100, 9100], [9000, 9100]]},
+            "derived": {},
+        }]})
+        with self.assertRaises(urllib.error.HTTPError) as ctx:
+            post(self.base + "/api/regions/merge", {"localIds": ["far-a", "far-b"]})
+        self.assertEqual(ctx.exception.code, 409)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -196,5 +196,62 @@ class TestTrimOverlappingRegions(unittest.TestCase):
                          "and the merge loop's own union check is what must catch it")
 
 
+class TestMergeRegions(unittest.TestCase):
+
+    def test_two_touching_regions_become_one_with_the_union_shape(self):
+        a = region("a", square(0, 0, 100, 100))
+        b = region("b", square(100, 0, 200, 100))
+        new_items, survivor_id = reconcile.merge_regions([a, b], ["a", "b"])
+
+        self.assertEqual(len(new_items), 1)
+        self.assertEqual(survivor_id, "a", "no promoted item among them -- the first one wins")
+        self.assertAlmostEqual(ring_of(new_items[0]).area, 100 * 200, delta=0.5)
+
+    def test_the_already_promoted_region_always_survives_regardless_of_order(self):
+        a = region("a", square(0, 0, 100, 100))
+        b = dict(region("b", square(100, 0, 200, 100)), locationRef="the-real-district")
+        new_items, survivor_id = reconcile.merge_regions([a, b], ["a", "b"])
+        self.assertEqual(survivor_id, "b")
+        self.assertEqual(new_items[0]["locationRef"], "the-real-district")
+
+    def test_three_regions_merge_into_one_if_they_all_connect(self):
+        a = region("a", square(0, 0, 50, 100))
+        b = region("b", square(50, 0, 100, 100))
+        c = region("c", square(100, 0, 150, 100))
+        new_items, survivor_id = reconcile.merge_regions([a, b, c], ["a", "b", "c"])
+        self.assertEqual(len(new_items), 1)
+        self.assertAlmostEqual(ring_of(new_items[0]).area, 150 * 100, delta=0.5)
+
+    def test_two_regions_that_do_not_touch_refuse_to_merge(self):
+        a = region("a", square(0, 0, 100, 100))
+        b = region("b", square(500, 500, 600, 600))
+        with self.assertRaises(reconcile.MergeError):
+            reconcile.merge_regions([a, b], ["a", "b"])
+
+    def test_two_already_promoted_regions_refuse_to_merge(self):
+        a = dict(region("a", square(0, 0, 100, 100)), locationRef="district-one")
+        b = dict(region("b", square(100, 0, 200, 100)), locationRef="district-two")
+        with self.assertRaises(reconcile.MergeError):
+            reconcile.merge_regions([a, b], ["a", "b"])
+
+    def test_merging_a_site_is_refused(self):
+        a = region("a", square(0, 0, 100, 100))
+        b = site("b", point=(150, 50))
+        with self.assertRaises(reconcile.MergeError):
+            reconcile.merge_regions([a, b], ["a", "b"])
+
+    def test_a_single_id_is_refused_there_is_nothing_to_merge(self):
+        a = region("a", square(0, 0, 100, 100))
+        with self.assertRaises(reconcile.MergeError):
+            reconcile.merge_regions([a], ["a"])
+
+    def test_other_items_in_the_session_pass_through_untouched(self):
+        a = region("a", square(0, 0, 100, 100))
+        b = region("b", square(100, 0, 200, 100))
+        bystander = region("bystander", square(500, 500, 600, 600))
+        new_items, _ = reconcile.merge_regions([a, b, bystander], ["a", "b"])
+        self.assertIn(bystander, new_items)
+
+
 if __name__ == "__main__":
     unittest.main()
