@@ -618,24 +618,45 @@ body {
 
 /* Vertex handles. Square and small: a round handle reads as a map symbol, a
    square one reads as a control, and on a sheet already full of circles the
-   difference matters. */
+   difference matters.
+
+   The box Leaflet actually positions and sizes (this element -- divIcon has
+   no separate hit-area concept, so this IS the click target) is bigger than
+   the small square anyone actually sees, padded well past it on purpose.
+   Found live, the hard way: a drag aimed at a corner landed a few pixels
+   short on the real building sitting next to it and adopted that instead of
+   moving anything, which from the far end of a mouse reads as "dragging a
+   vertex does nothing, or does something else entirely" -- not as a miss.
+   The visible dot stays exactly the size it was; only the forgiveness
+   around it grew. */
 .gz-vertex {
+  width: 26px; height: 26px;
+  margin: -13px 0 0 -13px;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gz-vertex::after {
+  content: "";
+  display: block;
+  width: 10px; height: 10px;
   background: var(--bi-paper);
   border: 2px solid var(--bi-vermilion);
   border-radius: 1px;
-  margin: -5px 0 0 -5px;
-  width: 10px; height: 10px;
-  cursor: grab;
 }
-.gz-vertex:hover { background: var(--bi-vermilion); }
+.gz-vertex:hover::after { background: var(--bi-vermilion); }
 .gz-vertex--mid {
+  width: 22px; height: 22px;
+  margin: -11px 0 0 -11px;
+}
+.gz-vertex--mid::after {
+  width: 8px; height: 8px;
   border-color: var(--bi-brass);
   border-style: dashed;
   opacity: .75;
-  width: 8px; height: 8px;
-  margin: -4px 0 0 -4px;
 }
-.gz-vertex--mid:hover { opacity: 1; background: var(--bi-brass); }
+.gz-vertex--mid:hover::after { opacity: 1; background: var(--bi-brass); }
 
 .gz-pin {
   width: 14px; height: 14px;

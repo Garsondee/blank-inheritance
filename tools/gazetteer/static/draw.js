@@ -462,7 +462,7 @@ export function createDrawController(opts) {
     if (g.kind === "point") {
       const [x, y] = g.pointPx;
       const m = L.marker(ll(x, y), {
-        icon: L.divIcon({ className: "gz-vertex", iconSize: [10, 10] }),
+        icon: L.divIcon({ className: "gz-vertex", iconSize: [26, 26] }),
         draggable: true, zIndexOffset: 1000,
       });
       m.on("drag", () => {
@@ -478,7 +478,7 @@ export function createDrawController(opts) {
     const ring = g.ringPx;
     ring.forEach(([x, y], i) => {
       const m = L.marker(ll(x, y), {
-        icon: L.divIcon({ className: "gz-vertex", iconSize: [10, 10] }),
+        icon: L.divIcon({ className: "gz-vertex", iconSize: [26, 26] }),
         draggable: true, zIndexOffset: 1000,
       });
       m.on("drag", () => {
@@ -512,7 +512,7 @@ export function createDrawController(opts) {
     ring.forEach(([x, y], i) => {
       const [nx, ny] = ring[(i + 1) % ring.length];
       const mid = L.marker(ll((x + nx) / 2, (y + ny) / 2), {
-        icon: L.divIcon({ className: "gz-vertex gz-vertex--mid", iconSize: [8, 8] }),
+        icon: L.divIcon({ className: "gz-vertex gz-vertex--mid", iconSize: [22, 22] }),
         draggable: true, zIndexOffset: 800,
       });
       let inserted = false;
