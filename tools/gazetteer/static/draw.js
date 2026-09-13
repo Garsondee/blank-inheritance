@@ -506,10 +506,26 @@ export function createDrawController(opts) {
    *  throttling rAF under load -- and until one arrives, the canvas keeps
    *  showing the shape from before the edit. Reported live as "regions
    *  don't update their appearance... I need to refresh to get the
-   *  current shapes." A polygon someone just finished editing must never
-   *  depend on some later frame arriving. Deduped by renderer instance --
-   *  every layer using this map's default renderer shares one Canvas, so
-   *  redrawing it once already covers all of them. */
+   *  current shapes."
+   *
+   *  Verified the ordinary fix (just calling the renderer's own _redraw)
+   *  genuinely reprojects and re-strokes every affected shape with correct
+   *  data, right down to the actual ctx.fill()/stroke() calls -- and it
+   *  still was not enough to make it appear reliably. That points past
+   *  the 2D drawing calls themselves to the browser's own paint/compositor
+   *  step, which nothing on this page can directly command -- except by
+   *  resetting the canvas element's backing store outright
+   *  (canvas.width = canvas.width), the same hard reset a full reload
+   *  effectively forces by tearing the whole renderer down and rebuilding
+   *  it fresh, which is the one thing that was already reported to always
+   *  fix it. That wipes the bitmap, so _redrawBounds -- which would
+   *  otherwise clip the next _redraw to only the just-edited region -- is
+   *  cleared first, so every layer gets redrawn onto the fresh canvas, not
+   *  just the one that changed.
+   *
+   *  Deduped by renderer instance -- every layer using this map's default
+   *  renderer shares one Canvas, so resetting it once already covers all
+   *  of them. */
   function forceRedraw(layers) {
     const renderers = new Set();
     for (const layer of layers) {
@@ -518,6 +534,12 @@ export function createDrawController(opts) {
     for (const renderer of renderers) {
       if (renderer._redrawRequest) cancelAnimationFrame(renderer._redrawRequest);
       renderer._redrawRequest = null;
+      const canvas = renderer._container;
+      if (canvas && typeof canvas.width === "number") {
+        // eslint-disable-next-line no-self-assign -- this IS the reset
+        canvas.width = canvas.width;
+      }
+      renderer._redrawBounds = null;
       if (typeof renderer._redraw === "function") renderer._redraw();
     }
   }

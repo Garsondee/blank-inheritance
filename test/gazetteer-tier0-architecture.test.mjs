@@ -444,10 +444,17 @@ test("a finished edit forces its layers to redraw rather than waiting on the nex
     "finished drag, delete or nudge is back to depending on Leaflet's " +
     "Canvas renderer's own rAF-batched redraw arriving promptly, which it " +
     "is not guaranteed to do");
-  assert.ok(/renderer\._redrawRequest[\s\S]{0,80}renderer\._redraw\(\)/.test(src),
+  assert.ok(/renderer\._redrawRequest[\s\S]{0,400}renderer\._redraw\(\)/.test(src),
     "forceRedraw no longer bypasses the pending requestAnimationFrame and " +
     "calls the renderer's own _redraw synchronously -- the whole point of " +
     "forcing it");
+  assert.ok(/canvas\.width = canvas\.width/.test(src),
+    "forceRedraw no longer hard-resets the canvas element's own backing " +
+    "store -- correctly re-issuing the 2D drawing calls was verified live " +
+    "and still was not reliably enough to make the edit appear, which " +
+    "points past the draw calls to the browser's own paint step; a full " +
+    "reload's hard reset was the one thing already confirmed to always " +
+    "work");
   // Every settle point that changes a polygon's shape: vertex dragend,
   // vertex delete, midpoint dragend, point dragend, and nudge.
   for (const [label, pattern] of [
