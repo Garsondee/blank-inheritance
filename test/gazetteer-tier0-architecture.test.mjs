@@ -448,13 +448,12 @@ test("a finished edit forces its layers to redraw rather than waiting on the nex
     "forceRedraw no longer bypasses the pending requestAnimationFrame and " +
     "calls the renderer's own _redraw synchronously -- the whole point of " +
     "forcing it");
-  assert.ok(/canvas\.width = canvas\.width/.test(src),
-    "forceRedraw no longer hard-resets the canvas element's own backing " +
-    "store -- correctly re-issuing the 2D drawing calls was verified live " +
-    "and still was not reliably enough to make the edit appear, which " +
-    "points past the draw calls to the browser's own paint step; a full " +
-    "reload's hard reset was the one thing already confirmed to always " +
-    "work");
+  assert.ok(!/canvas\.width = canvas\.width/.test(src),
+    "forceRedraw hard-resets canvas.width again -- tried and reverted " +
+    "live: that throws away the whole 2D context state, including the " +
+    "devicePixelRatio scale transform Leaflet applies once and only " +
+    "reapplies on a real resize/zoom, so every layer renders at half " +
+    "size in the top-left quarter of the canvas until the next zoom");
   // Every settle point that changes a polygon's shape: vertex dragend,
   // vertex delete, midpoint dragend, point dragend, and nudge.
   for (const [label, pattern] of [
