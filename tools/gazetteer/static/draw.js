@@ -497,6 +497,31 @@ export function createDrawController(opts) {
   // checks this to stand down for that span -- see its own comment.
   let editingVertex = false;
 
+  /** Force every touched layer's Canvas renderer to redraw right now,
+   *  synchronously, instead of waiting for the requestAnimationFrame this
+   *  map's default renderer normally batches redraws through. That
+   *  batching depends on the browser actually delivering an animation
+   *  frame promptly, which is not guaranteed the instant a drag, delete or
+   *  nudge finishes -- an occluded or backgrounded window, the browser
+   *  throttling rAF under load -- and until one arrives, the canvas keeps
+   *  showing the shape from before the edit. Reported live as "regions
+   *  don't update their appearance... I need to refresh to get the
+   *  current shapes." A polygon someone just finished editing must never
+   *  depend on some later frame arriving. Deduped by renderer instance --
+   *  every layer using this map's default renderer shares one Canvas, so
+   *  redrawing it once already covers all of them. */
+  function forceRedraw(layers) {
+    const renderers = new Set();
+    for (const layer of layers) {
+      if (layer && layer._renderer) renderers.add(layer._renderer);
+    }
+    for (const renderer of renderers) {
+      if (renderer._redrawRequest) cancelAnimationFrame(renderer._redrawRequest);
+      renderer._redrawRequest = null;
+      if (typeof renderer._redraw === "function") renderer._redraw();
+    }
+  }
+
   function drawHandles() {
     handleLayer.clearLayers();
     // Vertex handles only make sense for exactly one shape at a time -- with
@@ -530,7 +555,7 @@ export function createDrawController(opts) {
         g.pointPx = [round1(p[0]), round1(p[1])];
         entry.layer.setLatLng(m.getLatLng());
       });
-      m.on("dragend", () => onGeometryChange(entry.item));
+      m.on("dragend", () => { forceRedraw([entry.layer]); onGeometryChange(entry.item); });
       handleLayer.addLayer(m);
       return;
     }
@@ -578,6 +603,7 @@ export function createDrawController(opts) {
         // always be exact, not whichever frame happened to land first.
         applyDrag();
         editingVertex = false;
+        forceRedraw([entry.layer, ...welded.map((w) => w.entry.layer)]);
         snapLayer.clearLayers();
         onGeometryChange(entry.item);
         drawHandles();
@@ -602,6 +628,7 @@ export function createDrawController(opts) {
           w.entry.item.geometry.ringPx.splice(w.index, 1);
           w.entry.layer.setLatLngs(polyLatLngs(w.entry.item.geometry));
         }
+        forceRedraw([entry.layer, ...welded.map((w) => w.entry.layer)]);
         onGeometryChange(entry.item);
         drawHandles();
       });
@@ -641,6 +668,7 @@ export function createDrawController(opts) {
       mid.on("dragend", () => {
         applyMidDrag();
         editingVertex = false;
+        forceRedraw([entry.layer, ...welded.map((w) => w.entry.layer)]);
         snapLayer.clearLayers();
         onGeometryChange(entry.item);
         drawHandles();
@@ -665,6 +693,7 @@ export function createDrawController(opts) {
       entry.layer.setLatLngs(polyLatLngs(g));
       liveReport(g.ringPx);
     }
+    forceRedraw([entry.layer]);
     onGeometryChange(entry.item);
     drawHandles();
   }

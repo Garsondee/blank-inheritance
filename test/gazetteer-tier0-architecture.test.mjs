@@ -393,7 +393,7 @@ test("the map-level snap hint stands down for the whole span of a vertex/midpoin
   assert.ok(/m\.on\("dragstart",\s*\(\)\s*=>\s*\{\s*editingVertex = true/.test(src),
     "the main vertex handle no longer sets editingVertex when its drag " +
     "starts");
-  assert.ok(/editingVertex = false[\s\S]{0,40}snapLayer\.clearLayers\(\)/.test(src),
+  assert.ok(/editingVertex = false[\s\S]{0,150}snapLayer\.clearLayers\(\)/.test(src),
     "a drag's end no longer clears editingVertex -- the map-level snap " +
     "hint would stay suppressed for the rest of the session");
   // The remaining legitimate case -- hovering while about to place a fresh
@@ -424,6 +424,41 @@ test("deleting a shared vertex removes it from every welded region, not just one
     "only this region's copy of a shared corner would be deleted, leaving " +
     "the other side of the border still carrying a point that no longer " +
     "exists on this one");
+});
+
+test("a finished edit forces its layers to redraw rather than waiting on the next animation frame", () => {
+  // This map prefers Canvas rendering, which batches every layer's redraw
+  // into one requestAnimationFrame call rather than repainting per layer.
+  // That batching depends on the browser actually delivering an animation
+  // frame promptly -- not guaranteed the instant a drag/delete/nudge
+  // finishes (an occluded or backgrounded window, rAF throttled under
+  // load) -- and reproduced live: the renderer's own _redrawRequest stayed
+  // pending well after a completed drag, with the canvas never
+  // repainting the welded neighbour's new shape until something else
+  // (a full page reload) forced one. Reported as "regions don't update
+  // their appearance when I change them... I need to refresh to get the
+  // current shapes."
+  const src = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(/function forceRedraw\(layers\)/.test(src),
+    "draw.js no longer forces a synchronous redraw after an edit -- a " +
+    "finished drag, delete or nudge is back to depending on Leaflet's " +
+    "Canvas renderer's own rAF-batched redraw arriving promptly, which it " +
+    "is not guaranteed to do");
+  assert.ok(/renderer\._redrawRequest[\s\S]{0,80}renderer\._redraw\(\)/.test(src),
+    "forceRedraw no longer bypasses the pending requestAnimationFrame and " +
+    "calls the renderer's own _redraw synchronously -- the whole point of " +
+    "forcing it");
+  // Every settle point that changes a polygon's shape: vertex dragend,
+  // vertex delete, midpoint dragend, point dragend, and nudge.
+  for (const [label, pattern] of [
+    ["vertex dragend", /applyDrag\(\);[\s\S]{0,40}editingVertex = false;[\s\S]{0,60}forceRedraw\(/],
+    ["vertex delete", /ringPx\.splice\(w\.index, 1\);[\s\S]{0,150}forceRedraw\(/],
+    ["midpoint dragend", /applyMidDrag\(\);[\s\S]{0,40}editingVertex = false;[\s\S]{0,60}forceRedraw\(/],
+    ["point dragend", /m\.on\("dragend", \(\) => \{ forceRedraw\(/],
+    ["nudge", /function nudge\([^)]*\)\s*\{[\s\S]{0,700}forceRedraw\(\[entry\.layer\]\)[\s\S]{0,60}onGeometryChange\(entry\.item\)/],
+  ]) {
+    assert.ok(pattern.test(src), `${label} no longer forces a redraw once its edit settles`);
+  }
 });
 
 test("the shared fixture is reachable from both suites' expected paths", () => {
