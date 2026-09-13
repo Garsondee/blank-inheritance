@@ -437,6 +437,26 @@ export function createDrawController(opts) {
 
   // --- vertex handles ------------------------------------------------------
 
+  /** Runs `fn` with the marker's freshest state at most once per animation
+   *  frame, instead of on every native "drag" event. A real mouse (or a
+   *  trackpad, at an even higher rate) fires drag events far faster than the
+   *  screen repaints, and snapEditedVertex scans every vertex and edge of
+   *  every region in the session on each call -- cheap once per frame,
+   *  laggy enough to read as "unusable" once the session held 50+ regions
+   *  and it ran on every single one of those events instead. The handle's
+   *  own on-screen position is unaffected either way -- Leaflet moves it
+   *  natively before this ever runs -- so throttling only delays the snap
+   *  check, the polygon outline redraw, and the status text, never the
+   *  handle tracking the cursor. */
+  function rafThrottle(fn) {
+    let scheduled = false;
+    return () => {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(() => { scheduled = false; fn(); });
+    };
+  }
+
   function drawHandles() {
     handleLayer.clearLayers();
     // Vertex handles only make sense for exactly one shape at a time -- with
@@ -481,7 +501,7 @@ export function createDrawController(opts) {
         icon: L.divIcon({ className: "gz-vertex", iconSize: [26, 26] }),
         draggable: true, zIndexOffset: 1000,
       });
-      m.on("drag", () => {
+      const applyDrag = () => {
         const p = px(m.getLatLng());
         ring[i] = snapEditedVertex(entry, p);
         // The handle itself jumps to the snapped point too, not just the
@@ -491,8 +511,17 @@ export function createDrawController(opts) {
         m.setLatLng(ll(ring[i][0], ring[i][1]));
         entry.layer.setLatLngs(polyLatLngs(entry.item.geometry));
         liveReport(ring);
+      };
+      m.on("drag", rafThrottle(applyDrag));
+      m.on("dragend", () => {
+        // One final UNTHROTTLED flush -- dragend can fire before a pending
+        // rAF from the last drag event runs, and the release point must
+        // always be exact, not whichever frame happened to land first.
+        applyDrag();
+        snapLayer.clearLayers();
+        onGeometryChange(entry.item);
+        drawHandles();
       });
-      m.on("dragend", () => { snapLayer.clearLayers(); onGeometryChange(entry.item); drawHandles(); });
       // Right-click removes this vertex. A polygon cannot go below three, and
       // refusing is better than silently leaving a degenerate shape behind.
       m.on("contextmenu", (e) => {
@@ -520,15 +549,21 @@ export function createDrawController(opts) {
         ring.splice(i + 1, 0, [x, y]);
         inserted = true;
       });
-      mid.on("drag", () => {
+      const applyMidDrag = () => {
         if (!inserted) return;
         const p = px(mid.getLatLng());
         ring[i + 1] = snapEditedVertex(entry, p);
         mid.setLatLng(ll(ring[i + 1][0], ring[i + 1][1]));
         entry.layer.setLatLngs(polyLatLngs(entry.item.geometry));
         liveReport(ring);
+      };
+      mid.on("drag", rafThrottle(applyMidDrag));
+      mid.on("dragend", () => {
+        applyMidDrag();
+        snapLayer.clearLayers();
+        onGeometryChange(entry.item);
+        drawHandles();
       });
-      mid.on("dragend", () => { snapLayer.clearLayers(); onGeometryChange(entry.item); drawHandles(); });
       handleLayer.addLayer(mid);
     });
   }
@@ -649,7 +684,6 @@ export function createDrawController(opts) {
     const alt = startEvent.originalEvent.altKey;
     const additive = startEvent.originalEvent.shiftKey;
     marquee = { box, origin, alt, kind };
-    map.dragging.disable();
     const prevCursor = map.getContainer().style.cursor;
     map.getContainer().style.cursor = "crosshair";
 
@@ -671,7 +705,6 @@ export function createDrawController(opts) {
 
     function up(ev) {
       container.removeChild(box);
-      map.dragging.enable();
       map.getContainer().style.cursor = prevCursor;
       const p = map.mouseEventToContainerPoint(ev);
       const a = px(map.containerPointToLatLng(origin));
@@ -852,10 +885,28 @@ export function createDrawController(opts) {
   // and it also settles the one thing map.dragging could never cleanly give
   // Select mode: a button dedicated to "move the view", never ambiguous with
   // "draw a selection". Implemented by hand rather than via map.dragging,
-  // which Leaflet wires to the left button only. The browser's own context
-  // menu is suppressed over the whole map so right-click reads as "the pan
-  // button", not "show a menu" -- except on a vertex handle, where it is
-  // still exactly what it already was: delete this point.
+  // which Leaflet wires to the left button only.
+  //
+  // map.dragging is disabled here, permanently, not just during a marquee.
+  // It is a SEPARATE Leaflet Handler subscribed to the map's native
+  // "mousedown", registered before this module's own listeners -- see the
+  // marquee comment above trackDrag for the first time this exact race bit.
+  // Select/Remove claim the drag for themselves via beginMarquee, but
+  // Region/Site/Lasso/Bisect never did: a mousedown that missed a vertex
+  // handle by even a pixel -- real-mouse precision on a 12000px map, not
+  // the exact coordinates a synthetic test drives -- fell through with
+  // nothing to intercept it, and map.dragging panned the camera instead of
+  // doing nothing. Found live: the earlier fix (a click landing exactly ON
+  // a handle no longer starts a draft) was real but incomplete, because it
+  // never addressed a drag that starts beside one. Disabling the handler
+  // outright removes the whole class for every tool at once, including
+  // whatever drafting tool gets added next, rather than teaching each one
+  // its own guard.
+  map.dragging.disable();
+  // The browser's own context menu is suppressed over the whole map so
+  // right-click reads as "the pan button", not "show a menu" -- except on a
+  // vertex handle, where it is still exactly what it already was: delete
+  // this point.
   map.getContainer().addEventListener("contextmenu", (e) => e.preventDefault());
 
   map.getContainer().addEventListener("mousedown", (e) => {
