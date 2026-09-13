@@ -172,16 +172,26 @@ export function createDrawController(opts) {
     return null;
   }
 
-  /** Every OTHER region's ring vertex currently sitting exactly on top of
-   *  (x, y) -- a shared tessellation corner, not merely a nearby one.
-   *  Dragging a vertex away from a point it currently shares with a
-   *  neighbour, without also moving the neighbour's own copy, is exactly
-   *  how a drag creates a sliver: the two borders were identical, and now
-   *  they are merely close. A tight tolerance on purpose -- this has to
-   *  find points that snapping already made EXACTLY equal, never every
-   *  vertex that just happens to be nearby (that's what snapping on drop
-   *  is for). */
-  const WELD_TOLERANCE_PX = 0.05;
+  /** Every OTHER region's ring vertex currently sitting on top of (x, y) --
+   *  a shared tessellation corner, not merely a nearby one. Dragging a
+   *  vertex away from a point it currently shares with a neighbour,
+   *  without also moving the neighbour's own copy, is exactly how a drag
+   *  creates a sliver: the two borders were identical, and now they are
+   *  merely close.
+   *
+   *  A tight tolerance on purpose, but not THIS tight -- 0.05px only ever
+   *  caught points snapping had made bit-for-bit equal, and a live check
+   *  of the real 56-region session found that was the minority: 865
+   *  vertex pairs sit under 1px apart, a further 89 sit 3-4px apart, and
+   *  then it goes sparse (under 10 pairs per pixel-bucket) out past that
+   *  -- a real gap, not a smooth falloff. Those two clusters are borders
+   *  meant to be shared, hand-tidied to two different levels of
+   *  precision before this tool could weld anything; the sparse tail
+   *  past 5px is genuinely distinct, unrelated corners that only happen
+   *  to be somewhat close. 5px sits in that gap: wide enough to catch
+   *  both real clusters, nowhere near wide enough to catch the
+   *  unrelated tail. */
+  const WELD_TOLERANCE_PX = 5;
   function findWeldedVertices(entry, x, y) {
     const welded = [];
     for (const [id, other] of shapes) {

@@ -354,10 +354,11 @@ test("dragging a region vertex also drags any other region's vertex welded to th
     "draw.js no longer finds a dragged vertex's coincident neighbours -- " +
     "editing a shared tessellation corner will silently strand the other " +
     "side of the border");
-  assert.ok(/WELD_TOLERANCE_PX\s*=\s*0\.\d+/.test(src),
-    "the weld tolerance is no longer a small, tight epsilon -- welding must " +
-    "only join points snapping already made EXACTLY equal, never every " +
-    "vertex that happens to be nearby (that is what drop-to-snap is for)");
+  assert.ok(/WELD_TOLERANCE_PX\s*=\s*\d(?:\.\d+)?;/.test(src),
+    "the weld tolerance is no longer a small, single-digit-pixel epsilon " +
+    "-- it must stay tight enough to never join two genuinely distinct, " +
+    "merely nearby corners, informed by the real session's own pair-" +
+    "distance distribution rather than a guess");
   // Found (and captured) at gesture START, on both handle kinds -- the
   // moment movement begins, the dragged point stops being coincident with
   // anything, so re-scanning mid-drag would always find nothing.
@@ -465,6 +466,41 @@ test("a finished edit forces its layers to redraw rather than waiting on the nex
   ]) {
     assert.ok(pattern.test(src), `${label} no longer forces a redraw once its edit settles`);
   }
+});
+
+test("the published-locations reference overlay never shares a live tier's colour", () => {
+  // The actual root cause of a whole investigation: "the original shape
+  // remains behind... the tan coloured lines don't update" turned out not
+  // to be a rendering bug at all. state.publishedLayer draws whatever was
+  // last written to data/locations/*.json -- frozen until refreshPublished()
+  // runs again (page load, promote, a few specific actions), by design NOT
+  // tracking a vertex drag on the live draft underneath it. It used to
+  // share region's own unselected colour (#ac8a4d), so that frozen
+  // reference and the shape actually being edited read as the same
+  // outline failing to move, when they were never the same layer. Verified
+  // live: dragging a vertex for real, watching the live shape move while
+  // this ghost sat still the whole time.
+  const app = readFileSync(join(STATIC, "app.js"), "utf8");
+  const draw = readFileSync(join(STATIC, "draw.js"), "utf8");
+  const fnMatch = app.match(/function renderPublishedLayer\(\)\s*\{[\s\S]{0,2000}?state\.publishedLayer\.addLayer\(layer\);/);
+  assert.ok(fnMatch, "renderPublishedLayer() is no longer where this reference overlay is drawn");
+  const fn = fnMatch[0];
+  assert.ok(!/color:\s*"#ac8a4d"/.test(fn),
+    "the published overlay draws region's own unselected colour again -- " +
+    "an edited region and its frozen last-saved reference will look like " +
+    "the same outline that failed to update");
+  assert.ok(/dashArray/.test(fn),
+    "the published overlay no longer marks itself as a reference/ghost " +
+    "with a dashed outline -- nothing distinguishes it from a live shape " +
+    "at a glance while editing");
+  // And the colour it does use must not collide with any OTHER live tier
+  // either -- site/point vermilion, the selected cyan, or locked green.
+  const liveColours = [...draw.matchAll(/color:\s*"(#[0-9a-f]{6})"/g)].map((m) => m[1]);
+  const publishedColour = fn.match(/color:\s*"(#[0-9a-f]{6})"/);
+  assert.ok(publishedColour, "the published overlay no longer sets an explicit stroke colour");
+  assert.ok(!liveColours.includes(publishedColour[1]),
+    `the published overlay's colour (${publishedColour && publishedColour[1]}) ` +
+    "collides with a live tier/selection colour in draw.js");
 });
 
 test("the shared fixture is reachable from both suites' expected paths", () => {

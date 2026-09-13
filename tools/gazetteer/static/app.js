@@ -1632,9 +1632,21 @@ function renderPublishedLayer() {
         icon: L.divIcon({ className: "gz-pin gz-pin--published", iconSize: [16, 16] }),
       });
     } else {
+      // Deliberately NOT region-brass (#ac8a4d) or any other live tier
+      // colour: this polygon is whatever was last written to
+      // data/locations/*.json, frozen until refreshPublished() runs again
+      // (page load, promote, a handful of specific actions) -- it does NOT
+      // track a vertex drag on the live draft underneath it, on purpose.
+      // Sharing region's own colour made that reference polygon and the
+      // thing actually being edited look like the same shape not updating.
+      // Found live: dragging a vertex for real, watching the live shape
+      // move while this ghost sat frozen the whole time, reported as "the
+      // original shape remains behind... the tan coloured lines don't
+      // update" -- because they were never the same layer.
       const rings = (loc.ringsPx || []).map(ringToLatLngs);
       layer = L.polygon(rings, {
-        color: "#ac8a4d", weight: 2, fillOpacity: 0.28, fillColor: "#e6c98d",
+        color: "#6b7280", weight: 2, fillOpacity: 0.12, fillColor: "#6b7280",
+        dashArray: "4 4", interactive: true,
       });
     }
     const label = `${loc.name || "(unnamed)"} · ${loc.tier} · ${loc.status}`;
