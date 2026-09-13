@@ -691,7 +691,24 @@ export function createDrawController(opts) {
     // separate "add point" tool is not needed.
     ring.forEach(([x, y], i) => {
       const [nx, ny] = ring[(i + 1) % ring.length];
-      const mid = L.marker(ll((x + nx) / 2, (y + ny) / 2), {
+      // The point actually being created -- the midpoint of this edge, not
+      // vertex i itself. Found live, the hard way: dragstart used to pass
+      // (x, y) -- vertex i's OWN coordinates -- to findWeldedVertices and
+      // splice it in as the inserted point, instead of this. A real,
+      // pre-existing vertex is exactly the kind of point likely to already
+      // have a genuine weld partner elsewhere on the map (that is the
+      // whole point of welding), so inserting a midpoint next to ANY
+      // already-shared corner found and dragged that corner's unrelated
+      // neighbour along for the ride -- reported as "it starts moving
+      // nearby lines and vertexes which make no sense," the resulting
+      // self-intersections once that unrelated vertex got yanked across
+      // the map, and "snapping something from a different district"
+      // instead of just placing a clean new point. A freshly-computed
+      // midpoint has no pre-existing relationship to protect; it is only
+      // ever welded if it happens to land on a real shared corner, which
+      // this fix is what makes that check actually test for.
+      const midX = (x + nx) / 2, midY = (y + ny) / 2;
+      const mid = L.marker(ll(midX, midY), {
         icon: L.divIcon({ className: "gz-vertex gz-vertex--mid", iconSize: [22, 22] }),
         draggable: true, zIndexOffset: 800,
       });
@@ -699,9 +716,9 @@ export function createDrawController(opts) {
       let welded = [];
       mid.on("dragstart", () => {
         editingVertex = true;
-        ring.splice(i + 1, 0, [x, y]);
+        ring.splice(i + 1, 0, [midX, midY]);
         inserted = true;
-        welded = findWeldedVertices(entry, x, y);
+        welded = findWeldedVertices(entry, midX, midY);
       });
       const applyMidDrag = () => {
         if (!inserted) return;

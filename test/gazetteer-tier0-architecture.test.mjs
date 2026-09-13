@@ -567,6 +567,39 @@ test("a snapped vertex shows confirmation on the handle itself, not only a separ
     "the handle being dragged) counts as hovering it");
 });
 
+test("inserting a midpoint welds to what THAT new point touches, not to vertex i's own weld partners", () => {
+  // A real, severe bug: dragstart used to pass (x, y) -- the destructured
+  // coordinates of the EXISTING vertex i the midpoint sits next to -- to
+  // both ring.splice and findWeldedVertices, instead of the midpoint
+  // (x+nx)/2, (y+ny)/2 actually being created. A real, pre-existing
+  // vertex is exactly the kind of point likely to already have a genuine
+  // weld partner elsewhere on the map, so inserting a midpoint next to
+  // ANY already-shared corner found and dragged that corner's unrelated
+  // neighbour along for the ride. Reported live: "sometimes it starts
+  // moving nearby lines and vertexes which make no sense... creating
+  // self intersections... snapping something from a different district."
+  const src = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(/const midX = \(x \+ nx\) \/ 2, midY = \(y \+ ny\) \/ 2;/.test(src),
+    "draw.js no longer computes a named midX/midY for the point a " +
+    "midpoint handle actually creates");
+  assert.ok(/L\.marker\(ll\(midX, midY\)/.test(src),
+    "the midpoint marker itself is no longer placed at midX/midY");
+  assert.ok(/ring\.splice\(i \+ 1, 0, \[midX, midY\]\)/.test(src),
+    "inserting a midpoint no longer splices in the point actually being " +
+    "created (midX, midY) -- it is back to inserting a duplicate of " +
+    "vertex i's own coordinates instead");
+  assert.ok(/findWeldedVertices\(entry, midX, midY\)/.test(src),
+    "a midpoint's weld lookup no longer queries the point actually being " +
+    "created -- back to querying vertex i's own position, which finds " +
+    "THAT vertex's real weld partners and drags them to wherever the new " +
+    "point ends up");
+  // The regression specifically: must never again pass vertex i's raw (x,
+  // y) straight through to findWeldedVertices for the midpoint case.
+  assert.ok(!/mid\.on\("dragstart", \(\) => \{[\s\S]{0,200}findWeldedVertices\(entry, x, y\)/.test(src),
+    "a midpoint's dragstart handler calls findWeldedVertices(entry, x, y) " +
+    "again -- vertex i's own coordinates, not the midpoint being created");
+});
+
 test("the shared fixture is reachable from both suites' expected paths", () => {
   const fixture = JSON.parse(
     readFileSync(join(here, "fixtures", "gazetteer-grid-cases.json"), "utf8"));
