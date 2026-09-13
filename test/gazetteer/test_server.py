@@ -1322,6 +1322,47 @@ class TestServer(unittest.TestCase):
         self.assertEqual(restored["geometry"]["ringPx"], original_ring,
                          "undo must restore the pre-reconcile shape, not just log that it ran")
 
+    def test_an_ordinary_save_resyncs_a_hand_edited_promoted_regions_file(self):
+        """Ingram, after finding the vertex handles a LOCKED region didn't
+        have: dragging a promoted region's border by hand has to actually
+        reach data/locations/, not just the draft -- reconcile.py's own
+        auto-fix already gets this; a plain save (a hand-dragged vertex)
+        must get it too, or the promoted file quietly goes stale the
+        moment someone edits a border without running reconcile."""
+        self._seed_item()
+        self._promote_region("hand-edit-old-1", "reconcile-hand-edit-district",
+                             [[6000, 6000], [6500, 6000], [6500, 6500], [6000, 6500]])
+        current = get(self.base + "/api/session")["draft"]["items"]
+        item = next(it for it in current if it["localId"] == "hand-edit-old-1")
+        # The exact gesture a hand-dragged vertex produces: the SAME item,
+        # SAME locationRef, one corner moved.
+        item["geometry"]["ringPx"] = [[6000, 6000], [6600, 6000], [6500, 6500], [6000, 6500]]
+
+        result = post(self.base + "/api/session", {"items": [item]})
+        self.assertEqual(result["resyncedLocations"], ["reconcile-hand-edit-district"])
+
+        with open(os.path.join(self.locations_dir, "reconcile-hand-edit-district.json"),
+                 encoding="utf-8") as fh:
+            promoted = json.load(fh)
+        self.assertEqual(len(promoted["derived"]["imagePx"][0]), 4)
+        from shapely.geometry import Polygon
+        self.assertAlmostEqual(
+            Polygon(promoted["derived"]["imagePx"][0]).area,
+            Polygon(item["geometry"]["ringPx"]).area, delta=0.5,
+            msg="the promoted file's own geometry must match the hand-edited draft, not the old shape")
+
+    def test_a_save_that_does_not_touch_region_geometry_resyncs_nothing(self):
+        """The common case -- editing a site's note, say -- must not pay for
+        or trigger a region-file rewrite it has nothing to do with."""
+        self._seed_item()
+        self._promote_region("no-touch-old-1", "reconcile-no-touch-district",
+                             [[6000, 6000], [6500, 6000], [6500, 6500], [6000, 6500]])
+        current = get(self.base + "/api/session")["draft"]["items"]
+        item = next(it for it in current if it["localId"] == "no-touch-old-1")
+
+        result = post(self.base + "/api/session", {"items": [item]})
+        self.assertEqual(result["resyncedLocations"], [])
+
 
 if __name__ == "__main__":
     unittest.main()

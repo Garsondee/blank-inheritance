@@ -217,9 +217,14 @@ test("a locked item is protected everywhere it could be deleted or overwritten",
   assert.ok(/"btn-lock"/.test(app), "app.js no longer wires up a #btn-lock control");
   assert.ok(/"btn-batch-lock"/.test(app), "app.js no longer wires up a #btn-batch-lock control");
 
-  assert.ok(/function drawHandles\(\)\s*\{[\s\S]{0,700}\.locked/.test(draw),
-    "drawHandles() no longer checks .locked -- a locked shape would still " +
-    "grow vertex/midpoint handles and be freely reshaped by dragging them");
+  assert.ok(/function drawHandles\(\)\s*\{[\s\S]{0,1200}entry\.item\.locked[\s\S]{0,60}entry\.item\.tier/.test(draw),
+    "drawHandles() no longer checks .locked at all, or no longer checks it " +
+    "tier-aware -- a locked SITE or POINT must still grow no handles (a " +
+    "real lore entry, protected from accidental reshaping); a locked " +
+    "REGION must grow them anyway, deliberately, since its border keeps " +
+    "needing to be tidied against its neighbours for as long as Ingram " +
+    "keeps drawing more of them (see server.py's own resync-on-save, " +
+    "which is what keeps a hand-edited promoted region's file in sync)");
   assert.ok(/function nudge\([^)]*\)\s*\{[\s\S]{0,200}\.locked/.test(draw),
     "nudge() no longer checks .locked -- a locked shape could still be " +
     "moved wholesale with the arrow keys");

@@ -185,6 +185,35 @@ export function createDrawController(opts) {
     return [snapped.x, snapped.y];
   }
 
+  /** The same snap `placeDraftPoint` gives a freshly-drawn region vertex,
+   *  extended to EDITING one that already exists -- dragging a vertex or a
+   *  midpoint-insert handle on an already-drawn region. Found missing live,
+   *  the moment Ingram went to hand-tidy a border: a fresh region snapped
+   *  onto its neighbours as it was drawn, but touching up an old one up
+   *  afterwards placed the point at the raw mouse position every time,
+   *  which is exactly the few-pixel miss that leaves a border merely CLOSE
+   *  rather than genuinely shared. `excludeId` is the entry's own localId,
+   *  not optional here the way it is for fresh drawing -- a vertex must
+   *  never snap onto one of its own ring's other points. */
+  function snapEditedVertex(entry, p) {
+    if (entry.item.tier !== "region") return [round1(p[0]), round1(p[1])];
+    const snapped = snapRegionPoint(p[0], p[1], { excludeId: entry.item.localId });
+    // Same marker showSnapHint draws while drawing a fresh region -- shown
+    // here too, mid-drag, so a snap about to happen is visible before the
+    // handle is released rather than a surprise discovered afterward.
+    snapLayer.clearLayers();
+    if (!snapped) return [round1(p[0]), round1(p[1])];
+    snapLayer.addLayer(L.marker(ll(snapped.x, snapped.y), {
+      icon: L.divIcon({ className: "gz-snap gz-snap--" + snapped.kind, iconSize: [12, 12] }),
+      interactive: false,
+      zIndexOffset: 1200,
+    }));
+    report(snapped.kind === "vertex"
+      ? "snapped to an existing corner — the border is now shared exactly"
+      : "snapped onto an existing border");
+    return [snapped.x, snapped.y];
+  }
+
   function showSnapHint(p) {
     snapLayer.clearLayers();
     if (tool !== "region") return;
@@ -393,10 +422,18 @@ export function createDrawController(opts) {
     // selections are for instead.
     const entry = selected() && shapes.get(selected());
     if (!entry) return;
-    // A locked item has a real lore entry and reads as settled, not a draft
-    // still being nudged into place -- no handles to grab means no accidental
-    // reshape, the same protection Delete gets from the same flag.
-    if (entry.item.locked) return;
+    // A locked SITE or POINT has a real lore entry and reads as settled --
+    // no handles to grab means no accidental reshape, the same protection
+    // Delete gets from the same flag. A locked REGION is deliberately
+    // exempted: its border is shared tessellation geometry that keeps
+    // needing to be tidied against its neighbours for as long as Ingram
+    // keeps drawing more of them, which is not optional maintenance the
+    // way reshaping a building's footprint is -- see server.py's own save
+    // path, which resyncs a promoted region's data/locations/ file to
+    // match on every save for exactly this reason, geometry edited here or
+    // not. Found live: locked was blocking the only thing region-tidying
+    // tools exist to do.
+    if (entry.item.locked && entry.item.tier !== "region") return;
     const g = entry.item.geometry;
 
     if (g.kind === "point") {
@@ -423,11 +460,16 @@ export function createDrawController(opts) {
       });
       m.on("drag", () => {
         const p = px(m.getLatLng());
-        ring[i] = [round1(p[0]), round1(p[1])];
+        ring[i] = snapEditedVertex(entry, p);
+        // The handle itself jumps to the snapped point too, not just the
+        // polygon outline underneath it -- a magnet that only moves the
+        // shape while the cursor's own handle keeps drifting free reads as
+        // a bug, not an assist.
+        m.setLatLng(ll(ring[i][0], ring[i][1]));
         entry.layer.setLatLngs(polyLatLngs(entry.item.geometry));
         liveReport(ring);
       });
-      m.on("dragend", () => { onGeometryChange(entry.item); drawHandles(); });
+      m.on("dragend", () => { snapLayer.clearLayers(); onGeometryChange(entry.item); drawHandles(); });
       // Right-click removes this vertex. A polygon cannot go below three, and
       // refusing is better than silently leaving a degenerate shape behind.
       m.on("contextmenu", (e) => {
@@ -458,11 +500,12 @@ export function createDrawController(opts) {
       mid.on("drag", () => {
         if (!inserted) return;
         const p = px(mid.getLatLng());
-        ring[i + 1] = [round1(p[0]), round1(p[1])];
+        ring[i + 1] = snapEditedVertex(entry, p);
+        mid.setLatLng(ll(ring[i + 1][0], ring[i + 1][1]));
         entry.layer.setLatLngs(polyLatLngs(entry.item.geometry));
         liveReport(ring);
       });
-      mid.on("dragend", () => { onGeometryChange(entry.item); drawHandles(); });
+      mid.on("dragend", () => { snapLayer.clearLayers(); onGeometryChange(entry.item); drawHandles(); });
       handleLayer.addLayer(mid);
     });
   }

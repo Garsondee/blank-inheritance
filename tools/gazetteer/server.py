@@ -1399,12 +1399,14 @@ class Handler(BaseHTTPRequestHandler):
                 highest + 1)
             problems = session_mod.validate(STATE.draft)
             path = STATE.save_draft()
+            resynced = _resync_promoted_region_geometry(STATE.draft["items"])
         self._send(200, {
             "saved": _repo_relative(path),
             "draft": STATE.draft,
             "summary": session_mod.summarise(STATE.draft),
             "problems": problems,
             "keptPromoted": [it["localId"] for it in rescued],
+            "resyncedLocations": resynced,
             "undoAvailable": STATE.undo_stack.peek()["description"] if len(STATE.undo_stack) else None,
         })
 
@@ -1452,6 +1454,12 @@ class Handler(BaseHTTPRequestHandler):
                 int(entry.get("nextLocalId") or 1))
             problems = session_mod.validate(STATE.draft)
             path = STATE.save_draft()
+            # An undo that puts a region's border back the way it was is
+            # still a change to what the border IS -- the exact same reason
+            # a normal save resyncs, not a special case of it. Skipping this
+            # here would mean undoing a bad drag reverts the draft but
+            # leaves the promoted file wearing the bad shape forever.
+            resynced = _resync_promoted_region_geometry(STATE.draft["items"])
         self._send(200, {
             "saved": _repo_relative(path),
             "draft": STATE.draft,
@@ -1459,6 +1467,7 @@ class Handler(BaseHTTPRequestHandler):
             "problems": problems,
             "undid": entry["description"],
             "keptPromoted": [it["localId"] for it in rescued],
+            "resyncedLocations": resynced,
             "undoAvailable": STATE.undo_stack.peek()["description"] if len(STATE.undo_stack) else None,
         })
 
@@ -1502,6 +1511,47 @@ def _save_location(doc, directory=None):
         json.dump(doc, fh, ensure_ascii=False, indent=2)
         fh.write("\n")
     return path
+
+
+def _resync_promoted_region_geometry(items):
+    """Any promoted region whose draft copy's ringPx no longer matches what
+    its data/locations/ file already has gets that file rewritten to match.
+
+    Called from every ordinary session save, not just from
+    /api/regions/reconcile: a region's border is now editable by hand
+    (draw.js's drawHandles() deliberately gives a locked REGION handles,
+    unlike a locked site -- see its own comment) and a hand-dragged vertex
+    deserves the exact same sync a reconciled one already gets, or the
+    promoted file quietly becomes a second, stale copy of the truth the
+    moment anyone drags a corner instead of running reconcile.
+
+    Cheap in the common case -- most saves touch no region geometry at all,
+    and the check below is one list-equality comparison per promoted
+    region, not a re-derivation of anything.
+    """
+    promoted_regions = [it for it in items
+                        if it.get("tier") == "region" and it.get("locationRef")]
+    if not promoted_regions:
+        return []
+
+    all_locations = _load_all_locations()
+    by_slug = {d["id"]: d for d in all_locations}
+    changed_slugs = []
+    for item in promoted_regions:
+        doc = by_slug.get(item["locationRef"])
+        new_ring = (item.get("geometry") or {}).get("ringPx")
+        if doc is None or new_ring is None:
+            continue
+        current_shell = ((doc.get("derived") or {}).get("imagePx") or [None])[0]
+        if current_shell == new_ring:
+            continue
+        location_mod.resync_region_geometry(doc, item, STATE.georef)
+        changed_slugs.append(item["locationRef"])
+
+    for slug in changed_slugs:
+        location_mod.recompute_region_contents(by_slug[slug], all_locations)
+        _save_location(by_slug[slug])
+    return changed_slugs
 
 
 def _build_info(tags, height_m):
