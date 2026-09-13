@@ -310,6 +310,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._api_resolve_request(request_id)
             if path == "/api/biomes/rebuild":
                 return self._api_rebuild_biomes()
+            if path == "/api/regions/reconcile":
+                return self._api_reconcile_regions()
             if path.startswith("/api/location/") and path.endswith("/approve"):
                 location_id = path[len("/api/location/"):-len("/approve")]
                 return self._api_approve_location(location_id)
@@ -887,6 +889,76 @@ class Handler(BaseHTTPRequestHandler):
             STATE.save_draft()
 
         self._send(200, {"saved": _repo_relative(dest), "location": doc})
+
+    def _api_reconcile_regions(self):
+        """Ingram, 2026-09-13: "I will be drawing boundaries as accurately
+        as possible, so treat my region points as key and adjust other
+        things around those... build a protocol for doing this again and
+        again." This is that protocol, run on demand -- see
+        core/reconcile.py's own docstring for the actual rule (smaller
+        region wins, a severed piece merges into whichever region caused
+        the split) rather than repeating it here.
+
+        Two things happen together because they must: the draft's own
+        region items are trimmed/grown, AND any of those regions that are
+        already promoted get their data/locations/*.json twin resynced to
+        match (core/location.py's resync_region_geometry) -- leaving only
+        the draft fixed would make containment agree with a map picture
+        the promoted files still disagree with, which is the exact kind of
+        two-copies-of-the-truth drift this whole protocol exists to close.
+        """
+        from core import reconcile as reconcile_mod
+
+        with STATE.lock:
+            if STATE.draft_changed_underneath():
+                fresh = STATE.reload_draft()
+                return self._send(409, {
+                    "error": "the draft changed on disk since this session loaded it "
+                             "-- reload before reconciling",
+                    "draft": fresh,
+                })
+
+            new_items, report = reconcile_mod.trim_overlapping_regions(STATE.draft["items"])
+            changed_ids = set(report["trimmed"]) | {
+                target for targets in report["merged"].values() for target in targets}
+            if not changed_ids:
+                return self._send(200, {"changed": False, "report": report, "syncedLocations": []})
+
+            if undo_mod.has_real_change(STATE.draft["items"], new_items):
+                STATE.undo_stack.push({
+                    "items": STATE.draft["items"],
+                    "nextLocalId": STATE.draft.get("nextLocalId"),
+                    "description": "reconciled %d overlapping region(s)" % len(changed_ids),
+                    "at": datetime.datetime.now().isoformat(timespec="seconds"),
+                })
+
+            STATE.draft["items"] = new_items
+            STATE.save_draft()
+
+            # Only NOW load what is promoted, and only for regions this
+            # pass actually touched -- reading it before the draft save
+            # would risk resyncing against a geometry that was about to be
+            # superseded by whatever validate()/derive found on save.
+            by_id = {it["localId"]: it for it in new_items}
+            existing = _load_all_locations()
+            by_slug = {d["id"]: d for d in existing}
+            synced = []
+            for local_id in changed_ids:
+                item = by_id.get(local_id)
+                slug = item.get("locationRef") if item else None
+                if slug and slug in by_slug:
+                    location_mod.resync_region_geometry(by_slug[slug], item, STATE.georef)
+                    synced.append(slug)
+
+            # containsRefs last, once and only once every touched region's
+            # geometry is final -- recomputing it mid-loop would let an
+            # earlier region's contents be checked against a later one's
+            # stale, about-to-change shape.
+            for slug in synced:
+                location_mod.recompute_region_contents(by_slug[slug], existing)
+                _save_location(by_slug[slug])
+
+        self._send(200, {"changed": True, "report": report, "syncedLocations": synced})
 
     def _api_crop(self, rel):
         """A labelled PNG of the painted map around one item -- see crop.py's

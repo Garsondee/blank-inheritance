@@ -190,6 +190,51 @@ def build_location(item, location_id, georef, *, lore=None, name=None, nameJa=No
     return doc
 
 
+def resync_region_geometry(doc, item, georef):
+    """After `core/reconcile.py` rewrites a draft region item's `ringPx`
+    (trimming it back, or growing it with a merged-in fragment), an
+    already-promoted region's own file is a SECOND copy of that same
+    geometry -- in lon/lat, with its own derived fields -- that promotion
+    wrote once and nothing has kept in sync since. This is the sync: same
+    geometry math `build_location` uses at promotion time, applied to an
+    EXISTING document in place, touching only `geometry.rings` and the
+    handful of `derived` fields computed purely from geometry.
+
+    Everything else -- name, lore, authoring, scene, every cross-reference
+    -- is untouched, because reconcile.py only ever changes a shape's
+    OUTLINE, never what it means. `derived.containsRefs` is deliberately
+    NOT touched here; call `recompute_region_contents` separately once
+    every affected region's geometry has been resynced, so it sees every
+    new shape rather than a mix of old and new.
+    """
+    if doc["tier"] != "region":
+        raise PromotionError("only a region has geometry worth resyncing this way")
+    geom = item["geometry"]
+    ring_px = [[float(x), float(y)] for x, y in geom["ringPx"]]
+    holes_px = [[[float(x), float(y)] for x, y in hole]
+               for hole in geom.get("holesPx") or []]
+
+    from .grid import cells_touched, polygon_area_px, polygon_centroid_px, cell_to_ref
+    ring_lonlat = georef.ring_to_lonlat(ring_px)
+    holes_lonlat = [georef.ring_to_lonlat(h) for h in holes_px]
+    cx_px, cy_px = polygon_centroid_px(ring_px)
+    area_px = polygon_area_px(ring_px)
+    for hole in holes_px:
+        area_px -= polygon_area_px(hole)
+    cells = cells_touched(ring_px, border=georef.border_px, cell=georef.cell_px,
+                          cols=georef.cols, rows=georef.rows)
+    ref_strs = [cell_to_ref(c, r, cols=georef.cols, rows=georef.rows,
+                            separator=georef.separator) for c, r in cells]
+
+    doc["geometry"]["rings"] = [ring_lonlat] + holes_lonlat
+    doc["derived"]["imagePx"] = [ring_px] + holes_px
+    doc["derived"]["centroidPx"] = [round(cx_px, 2), round(cy_px, 2)]
+    doc["derived"]["cells"] = ref_strs
+    doc["derived"]["ref"] = ref_strs[0] if ref_strs else None
+    doc["derived"]["areaM2"] = round(area_px * georef.metres_per_px ** 2, 1)
+    return doc
+
+
 def recompute_region_contents(region_doc, other_locations):
     """A region's `derived.containsRefs` -- every site/point whose centroid
     falls inside it, by lon/lat point-in-polygon.

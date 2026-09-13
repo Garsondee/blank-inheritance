@@ -385,3 +385,64 @@ class TestRank(unittest.TestCase):
         doc = location.build_location(item, "test-district", self.g, rank=1)
         self.assertEqual(doc["depth"], "sketch")
         self.assertEqual(doc["rank"], 1)
+
+
+class TestResyncRegionGeometry(unittest.TestCase):
+    """core/reconcile.py trims or grows a DRAFT region item's ringPx; this
+    is the other half -- carrying that same change into the region's
+    already-promoted twin, since promotion copies geometry once and
+    nothing keeps the two in sync on its own."""
+
+    def setUp(self):
+        self.g = georef()
+
+    def test_geometry_and_geometry_derived_fields_follow_the_new_ring(self):
+        item = region_item()
+        doc = location.build_location(item, "test-district", self.g,
+                                      lore={"summary": "a real district"})
+        original_rings = doc["geometry"]["rings"]
+
+        shrunk = dict(item, geometry={"kind": "polygon",
+                                      "ringPx": [[4400, 6400], [4900, 6400],
+                                                [4900, 6900], [4400, 6900]]})
+        location.resync_region_geometry(doc, shrunk, self.g)
+
+        self.assertNotEqual(doc["geometry"]["rings"], original_rings)
+        self.assertAlmostEqual(doc["derived"]["areaM2"], 500 * 500, delta=1.0)
+        self.assertGreater(len(doc["derived"]["cells"]), 0)
+        self.assertEqual(doc["derived"]["ref"], doc["derived"]["cells"][0])
+
+    def test_everything_that_is_not_geometry_survives_untouched(self):
+        item = region_item()
+        doc = location.build_location(
+            item, "test-district", self.g,
+            lore={"summary": "written lore", "playerFacing": "what a player sees"},
+            name="The Real Name", npc_refs=["some-npc"], rank=2)
+        doc["authoring"]["status"] = "approved"
+
+        shrunk = dict(item, geometry={"kind": "polygon",
+                                      "ringPx": [[4400, 6400], [4900, 6400],
+                                                [4900, 6900], [4400, 6900]]})
+        location.resync_region_geometry(doc, shrunk, self.g)
+
+        self.assertEqual(doc["name"], "The Real Name")
+        self.assertEqual(doc["lore"]["summary"], "written lore")
+        self.assertEqual(doc["lore"]["playerFacing"], "what a player sees")
+        self.assertEqual(doc["npcRefs"], ["some-npc"])
+        self.assertEqual(doc["rank"], 2)
+        self.assertEqual(doc["authoring"]["status"], "approved")
+
+    def test_a_grown_ring_with_a_hole_carries_the_hole_across(self):
+        item = region_item()
+        doc = location.build_location(item, "test-district", self.g)
+        with_hole = dict(item, geometry={
+            "kind": "polygon", "ringPx": REGION_RING,
+            "holesPx": [[[4700, 6700], [4900, 6700], [4900, 6900], [4700, 6900]]]})
+        location.resync_region_geometry(doc, with_hole, self.g)
+        self.assertEqual(len(doc["geometry"]["rings"]), 2, "shell plus one hole")
+
+    def test_refuses_a_non_region_document(self):
+        item = site_item()
+        doc = location.build_location(item, "test-site", self.g)
+        with self.assertRaises(location.PromotionError):
+            location.resync_region_geometry(doc, item, self.g)

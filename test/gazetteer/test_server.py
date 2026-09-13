@@ -1236,6 +1236,92 @@ class TestServer(unittest.TestCase):
             region = json.load(fh)
         self.assertIn("test-building", region["derived"]["containsRefs"])
 
+    def _promote_region(self, local_id, location_id, ring, name="", note="a test region"):
+        post(self.base + "/api/session", {"items": [{
+            "localId": local_id, "tier": "region", "name": name, "kind": "",
+            "note": note, "tags": [], "source": "drawn", "sourceFeatureIds": [],
+            "geometry": {"kind": "polygon", "ringPx": ring}, "derived": {},
+        }]})
+        post(self.base + "/api/promote", {"localId": local_id, "id": location_id})
+
+    def test_reconcile_trims_a_promoted_region_and_resyncs_its_file(self):
+        """Ingram, 2026-09-13: "build a protocol for doing this again and
+        again." End-to-end through the real HTTP surface: an old, already-
+        promoted region gets a precise new region drawn into its corner,
+        and one POST is enough to both trim the draft copy and rewrite the
+        promoted file to match -- not just one or the other."""
+        self._seed_item()  # resets the undo stack and draft to something known
+        self._promote_region("old-1", "reconcile-old-district",
+                             [[2000, 2000], [3000, 2000], [3000, 3000], [2000, 3000]],
+                             name="Old District")
+        current = get(self.base + "/api/session")["draft"]["items"]
+        old = next(it for it in current if it["localId"] == "old-1")
+        new_corner = {
+            "localId": "old-2", "tier": "region", "name": "New Precise Corner",
+            "kind": "", "note": "carved precisely", "tags": [], "source": "drawn",
+            "sourceFeatureIds": [],
+            "geometry": {"kind": "polygon",
+                        "ringPx": [[2800, 2000], [3000, 2000], [3000, 2200], [2800, 2200]]},
+            "derived": {},
+        }
+        post(self.base + "/api/session", {"items": [old, new_corner]})
+
+        result = post(self.base + "/api/regions/reconcile", {})
+        self.assertTrue(result["changed"])
+        self.assertIn("old-1", result["report"]["trimmed"])
+        self.assertIn("reconcile-old-district", result["syncedLocations"])
+
+        after = get(self.base + "/api/session")["draft"]["items"]
+        trimmed = next(it for it in after if it["localId"] == "old-1")
+        untouched = next(it for it in after if it["localId"] == "old-2")
+        self.assertEqual(untouched["geometry"]["ringPx"], new_corner["geometry"]["ringPx"],
+                         "the smaller, more specific region must not be rewritten")
+
+        from shapely.geometry import Polygon
+        self.assertLess(Polygon(trimmed["geometry"]["ringPx"]).area, 1000 * 1000,
+                        "the bigger region's draft copy must actually shrink")
+
+        with open(os.path.join(self.locations_dir, "reconcile-old-district.json"),
+                 encoding="utf-8") as fh:
+            promoted = json.load(fh)
+        self.assertLess(promoted["derived"]["areaM2"], 1000 * 1000,
+                        "the PROMOTED file, not just the draft, must be resynced")
+
+    def test_reconcile_with_nothing_overlapping_changes_nothing(self):
+        self._seed_item()
+        self._promote_region("clean-1", "reconcile-clean-district",
+                             [[5000, 5000], [5500, 5000], [5500, 5500], [5000, 5500]])
+        result = post(self.base + "/api/regions/reconcile", {})
+        self.assertFalse(result["changed"])
+        self.assertEqual(result["syncedLocations"], [])
+
+    def test_a_reconcile_can_be_undone_like_any_other_edit(self):
+        self._seed_item()
+        self._promote_region("undo-old-1", "reconcile-undo-district",
+                             [[7000, 7000], [8000, 7000], [8000, 8000], [7000, 8000]])
+        current = get(self.base + "/api/session")["draft"]["items"]
+        old = next(it for it in current if it["localId"] == "undo-old-1")
+        new_corner = {
+            "localId": "undo-old-2", "tier": "region", "name": "", "kind": "",
+            "note": "", "tags": [], "source": "drawn", "sourceFeatureIds": [],
+            "geometry": {"kind": "polygon",
+                        "ringPx": [[7800, 7000], [8000, 7000], [8000, 7200], [7800, 7200]]},
+            "derived": {},
+        }
+        post(self.base + "/api/session", {"items": [old, new_corner]})
+        original_ring = old["geometry"]["ringPx"]
+
+        post(self.base + "/api/regions/reconcile", {})
+        shrunk = next(it for it in get(self.base + "/api/session")["draft"]["items"]
+                     if it["localId"] == "undo-old-1")
+        self.assertNotEqual(shrunk["geometry"]["ringPx"], original_ring)
+
+        post(self.base + "/api/undo", {})
+        restored = next(it for it in get(self.base + "/api/session")["draft"]["items"]
+                        if it["localId"] == "undo-old-1")
+        self.assertEqual(restored["geometry"]["ringPx"], original_ring,
+                         "undo must restore the pre-reconcile shape, not just log that it ran")
+
 
 if __name__ == "__main__":
     unittest.main()
