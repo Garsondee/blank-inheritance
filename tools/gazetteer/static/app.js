@@ -16,8 +16,9 @@ import {
 } from "/core/grid.mjs";
 import { check as checkDepth, suggestDepth, DEPTHS } from "/core/depth.mjs";
 import { metrics as shapeMetrics, capacity as shapeCapacity } from "/core/shape.mjs";
-import { compute as computeContainment, centroidOf as containmentCentroidOf } from "/core/containment.mjs";
+import { compute as computeContainment } from "/core/containment.mjs";
 import { resolvePromotedLocation, depthSubject } from "/core/promotion.mjs";
+import { describe as describeBearing } from "/core/bearing.mjs";
 
 /** This map is rendered at exactly one metre to the pixel -- 12,000 m of
  *  ground over 12,000 px of content area, per data/map/campaign-map.json's
@@ -903,21 +904,20 @@ function regionFacts(item) {
   };
 }
 
-/** Distance in metres and an 8-point compass bearing from a to b, in image
- *  pixels (= metres on this sheet). Bearing is PAGE-relative, not true
- *  north -- the sheet is rotated 31 degrees, and "which way to walk on the
- *  map you are looking at" is the question a breadcrumb answers, the same
- *  choice core/shape.py's own bearingDeg already makes for a footprint's
- *  long axis. Image y increases downward, so "south" is +y. */
-function distanceAndBearing(a, b) {
-  const dx = b[0] - a[0];
-  const dy = b[1] - a[1];
-  const distance = Math.hypot(dx, dy);
-  const angle = (Math.atan2(dy, dx) * 180) / Math.PI; // -180..180, 0 = east, +90 = south
-  const index = Math.round(((angle + 360) % 360) / 45) % 8;
-  // atan2 gives 0=east; rotate the compass table so index 0 lands on E.
-  const compass = ["E", "SE", "S", "SW", "W", "NW", "N", "NE"];
-  return { distanceM: distance, bearing: compass[index] };
+/** Where a shape actually IS, for wayfinding -- the true area centroid, not
+ *  containment.mjs's centroidOf, whose own comment is explicit that its
+ *  vertex mean is deliberate for ITS purpose (a reliable interior point for
+ *  a point-in-polygon test); it was never meant to also answer "where does
+ *  a person aim to say this district's centre is", and for a large,
+ *  irregular district (Island Centre, after enough region trims to no
+ *  longer be roughly convex) the two points can sit well over a hundred
+ *  metres apart -- found live, breadcrumb-testing the bearing fix: correct
+ *  direction math still read as wrong because it was pointed at the wrong
+ *  spot inside a correctly-shaped district. */
+function landmarkCentroidOf(geometry) {
+  if (geometry.kind === "point") return geometry.pointPx;
+  const c = polygonCentroidPx(geometry.ringPx);
+  return [c.x, c.y];
 }
 
 /**
@@ -935,7 +935,7 @@ const LANDMARK_MAX_DISTANCE_PX = 1500;
 function nearestLandmark(item) {
   let centroid;
   try {
-    centroid = containmentCentroidOf(item.geometry);
+    centroid = landmarkCentroidOf(item.geometry);
   } catch (err) {
     return null;
   }
@@ -945,7 +945,7 @@ function nearestLandmark(item) {
     if (other.localId === item.localId || !other.locked) continue;
     let oc;
     try {
-      oc = containmentCentroidOf(other.geometry);
+      oc = landmarkCentroidOf(other.geometry);
     } catch (err) {
       continue;
     }
@@ -953,8 +953,14 @@ function nearestLandmark(item) {
     if (d < bestDist) { bestDist = d; best = other; }
   }
   if (!best || bestDist > LANDMARK_MAX_DISTANCE_PX) return null;
-  const { distanceM, bearing } = distanceAndBearing(centroid, containmentCentroidOf(best.geometry));
-  return { item: best, distanceM, bearing };
+  // "<dist> <bearing> of <Landmark>" reads as a claim about the LANDMARK's
+  // position -- "start at the landmark, head <bearing>, arrive here" -- so
+  // this needs the bearing FROM the landmark TO this item, not the other
+  // way round. Found live: written the other way round, it said "270 m NW
+  // of General Hospital" for a building that was actually southeast of it.
+  const { distanceM, bearingDeg, compass } = describeBearing(
+    landmarkCentroidOf(best.geometry), centroid, METRES_PER_PX);
+  return { item: best, distanceM, bearing: compass, bearingDeg };
 }
 
 function renderBreadcrumb(item) {
