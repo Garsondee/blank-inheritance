@@ -1,0 +1,126 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "no-1-machine-shop",
+  "type": "location",
+  "tier": "site",
+  "name": "No. 1 Machine Shop",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21593583,
+          34.6809038
+        ],
+        [
+          135.21609583,
+          34.68092732
+        ],
+        [
+          135.21647173,
+          34.68098164
+        ],
+        [
+          135.21658762,
+          34.6809984
+        ],
+        [
+          135.21677718,
+          34.68011457
+        ],
+        [
+          135.2161254,
+          34.68001997
+        ],
+        [
+          135.21593583,
+          34.6809038
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6899.3,
+          5413.2
+        ],
+        [
+          6910.6,
+          5403.5
+        ],
+        [
+          6937.2,
+          5380.8
+        ],
+        [
+          6945.4,
+          5373.8
+        ],
+        [
+          7010.2,
+          5449.4
+        ],
+        [
+          6964.1,
+          5488.8
+        ],
+        [
+          6899.3,
+          5413.2
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6954.74,
+      5431.29
+    ],
+    "cells": [
+      "D3·35",
+      "D3·36",
+      "D3·46"
+    ],
+    "ref": "D3·35",
+    "areaM2": 6039.2,
+    "withinRegionRef": "garrison",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-236",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "The heaviest work on the island: gantries, a pit deep enough to stand a limb in, and the week's technician-day allocation posted on the door every Monday. The allocation is argued about for the rest of the week.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The heaviest work on the island: gantries, a pit deep enough to stand a limb in, and the week's technician-day allocation posted on the door every Monday. The allocation is argued about for the rest of the week.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

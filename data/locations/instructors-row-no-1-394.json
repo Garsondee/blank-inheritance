@@ -1,0 +1,142 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "instructors-row-no-1-394",
+  "type": "location",
+  "tier": "site",
+  "name": "Instructors' Row, No. 1",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "",
+  "tags": [
+    "staff-housing"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21219274,
+          34.67037165
+        ],
+        [
+          135.21234395,
+          34.6704361
+        ],
+        [
+          135.21240101,
+          34.67032976
+        ],
+        [
+          135.21230949,
+          34.67028855
+        ],
+        [
+          135.21224656,
+          34.67027318
+        ],
+        [
+          135.21220873,
+          34.67027698
+        ],
+        [
+          135.21218365,
+          34.67029863
+        ],
+        [
+          135.21217487,
+          34.67033955
+        ],
+        [
+          135.21219274,
+          34.67037165
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7197.8,
+          6593.7
+        ],
+        [
+          7206.1,
+          6580.5
+        ],
+        [
+          7216.6,
+          6588
+        ],
+        [
+          7211.7,
+          6596.2
+        ],
+        [
+          7207.6,
+          6600.6
+        ],
+        [
+          7204.4,
+          6602
+        ],
+        [
+          7201.2,
+          6601.1
+        ],
+        [
+          7198.2,
+          6597.6
+        ],
+        [
+          7197.8,
+          6593.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7206.47,
+      6591.88
+    ],
+    "cells": [
+      "D4·41",
+      "D4·51",
+      "D4·52"
+    ],
+    "ref": "D4·41",
+    "areaM2": 232.6,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-394",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "All of these are staff accommodation.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Housing for the school's senior teaching staff, close enough to the Complex that the first bell is audible from the doorstep.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

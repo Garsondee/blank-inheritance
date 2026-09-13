@@ -1,0 +1,138 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-instrument-shop",
+  "type": "location",
+  "tier": "site",
+  "name": "The Instrument Shop",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "industrial",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20553194,
+          34.66576166
+        ],
+        [
+          135.20555583,
+          34.66527898
+        ],
+        [
+          135.205831,
+          34.6652882
+        ],
+        [
+          135.20582645,
+          34.66537939
+        ],
+        [
+          135.2058446,
+          34.66537996
+        ],
+        [
+          135.20584252,
+          34.66542494
+        ],
+        [
+          135.20590819,
+          34.66542642
+        ],
+        [
+          135.20589148,
+          34.66577371
+        ],
+        [
+          135.20553194,
+          34.66576166
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6932,
+          7344.4
+        ],
+        [
+          6961.1,
+          7389.4
+        ],
+        [
+          6982.3,
+          7375.7
+        ],
+        [
+          6976.8,
+          7367.2
+        ],
+        [
+          6978.2,
+          7366.3
+        ],
+        [
+          6975.5,
+          7362.1
+        ],
+        [
+          6980.6,
+          7358.9
+        ],
+        [
+          6959.7,
+          7326.5
+        ],
+        [
+          6932,
+          7344.4
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6958.99,
+      7357.33
+    ],
+    "cells": [
+      "D4·35"
+    ],
+    "ref": "D4·35",
+    "areaM2": 1658.1,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-369",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Gauges, dials and the delicate end of the trade, done at benches in a quiet the rest of the works never gets. Everything leaves here calibrated, boxed, and signed for by the person who set it.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Gauges, dials and the delicate end of the trade, done at benches in a quiet the rest of the works never gets. Everything leaves here calibrated, boxed, and signed for by the person who set it.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

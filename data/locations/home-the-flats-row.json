@@ -1,0 +1,110 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "home-the-flats-row",
+  "type": "location",
+  "tier": "site",
+  "name": "The Corner House",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [
+    "pc-adoptable"
+  ],
+  "classification": null,
+  "depth": "sketch",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21304679,
+          34.70202886
+        ],
+        [
+          135.21313761,
+          34.70187572
+        ],
+        [
+          135.21309507,
+          34.70185877
+        ],
+        [
+          135.21300426,
+          34.70201191
+        ],
+        [
+          135.21304679,
+          34.70202886
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          5480.1,
+          3529.7
+        ],
+        [
+          5495.9,
+          3540.1
+        ],
+        [
+          5493.5,
+          3543.7
+        ],
+        [
+          5477.7,
+          3533.3
+        ],
+        [
+          5480.1,
+          3529.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      5486.8,
+      3536.7
+    ],
+    "cells": [
+      "C2·66"
+    ],
+    "ref": "C2·66",
+    "areaM2": 81.8,
+    "withinRegionRef": "flats",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-389",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "A small residential building in The Flats, available to become a PC's home.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A small house in The Flats, the dense low grid behind the waterfront where the city stops climbing and simply repeats. A distinctive windowless grey structure stands two streets over -- nobody currently living on this row has ever found out what it actually is.",
+    "playerFacing": "Low-built and packed close against its neighbours, on a street indistinguishable from the next one except by number. The grey building down the road is the one thing anyone visiting actually remembers afterward.",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [
+      "The unexplained grey building two streets over is a standing, low-key curiosity -- something to investigate whenever the party actually has time to spare."
+    ],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": [],
+  "rank": 4
+}

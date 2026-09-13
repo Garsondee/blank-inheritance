@@ -1,0 +1,171 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-component-store",
+  "type": "location",
+  "tier": "site",
+  "name": "The Component Store",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "industrial",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20545058,
+          34.66560874
+        ],
+        [
+          135.20543407,
+          34.66584812
+        ],
+        [
+          135.20546062,
+          34.66584982
+        ],
+        [
+          135.20546015,
+          34.66586157
+        ],
+        [
+          135.20545813,
+          34.66587826
+        ],
+        [
+          135.20460726,
+          34.66583991
+        ],
+        [
+          135.20461076,
+          34.66578273
+        ],
+        [
+          135.20456606,
+          34.66578045
+        ],
+        [
+          135.2045761,
+          34.66563843
+        ],
+        [
+          135.2046208,
+          34.66564071
+        ],
+        [
+          135.20462533,
+          34.66557256
+        ],
+        [
+          135.20469996,
+          34.66557594
+        ],
+        [
+          135.20545058,
+          34.66560874
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6934.2,
+          7362.8
+        ],
+        [
+          6919.4,
+          7340.7
+        ],
+        [
+          6921.4,
+          7339.3
+        ],
+        [
+          6920.7,
+          7338.2
+        ],
+        [
+          6919.6,
+          7336.7
+        ],
+        [
+          6854.6,
+          7380
+        ],
+        [
+          6858.1,
+          7385.3
+        ],
+        [
+          6854.7,
+          7387.6
+        ],
+        [
+          6863.5,
+          7400.7
+        ],
+        [
+          6866.9,
+          7398.4
+        ],
+        [
+          6871.1,
+          7404.7
+        ],
+        [
+          6876.8,
+          7400.9
+        ],
+        [
+          6934.2,
+          7362.8
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6893.54,
+      7371.86
+    ],
+    "cells": [
+      "D4·35",
+      "D4·36"
+    ],
+    "ref": "D4·35",
+    "areaM2": 2326.0,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-378",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Finished parts, binned and numbered, waiting for the shop that ordered them to actually be ready for them. The storekeeper's refusal to release anything early is the single most reliable fact about the works.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Finished parts, binned and numbered, waiting for the shop that ordered them to actually be ready for them. The storekeeper's refusal to release anything early is the single most reliable fact about the works.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

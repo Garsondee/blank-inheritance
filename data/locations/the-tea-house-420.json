@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-tea-house-420",
+  "type": "location",
+  "tier": "site",
+  "name": "The Tea House",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "shop"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21182354,
+          34.66764163
+        ],
+        [
+          135.21193462,
+          34.66745661
+        ],
+        [
+          135.21176045,
+          34.66738662
+        ],
+        [
+          135.21165087,
+          34.66757196
+        ],
+        [
+          135.21182354,
+          34.66764163
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7322.6,
+          6871.7
+        ],
+        [
+          7341.8,
+          6884.2
+        ],
+        [
+          7332,
+          6899
+        ],
+        [
+          7312.9,
+          6886.4
+        ],
+        [
+          7322.6,
+          6871.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7327.34,
+      6885.33
+    ],
+    "cells": [
+      "D4·53"
+    ],
+    "ref": "D4·53",
+    "areaM2": 404.8,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-420",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Shops",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A quiet tea house that does most of its trade with staff avoiding the walk home for lunch.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

@@ -1,0 +1,244 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-bonded-store",
+  "type": "location",
+  "tier": "site",
+  "name": "The Bonded Store",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20363176,
+          34.66969235
+        ],
+        [
+          135.2038005,
+          34.669698
+        ],
+        [
+          135.20379873,
+          34.66972922
+        ],
+        [
+          135.20426959,
+          34.66974457
+        ],
+        [
+          135.20426876,
+          34.66977533
+        ],
+        [
+          135.20454638,
+          34.66978442
+        ],
+        [
+          135.20454798,
+          34.66975119
+        ],
+        [
+          135.20503755,
+          34.66976789
+        ],
+        [
+          135.20503841,
+          34.6697549
+        ],
+        [
+          135.20520903,
+          34.66975964
+        ],
+        [
+          135.205235,
+          34.66923198
+        ],
+        [
+          135.20506084,
+          34.66922583
+        ],
+        [
+          135.20506222,
+          34.66919585
+        ],
+        [
+          135.20458538,
+          34.66917922
+        ],
+        [
+          135.2045866,
+          34.66914723
+        ],
+        [
+          135.20445565,
+          34.66914304
+        ],
+        [
+          135.20430356,
+          34.66913765
+        ],
+        [
+          135.20430184,
+          34.66916361
+        ],
+        [
+          135.20383098,
+          34.66914826
+        ],
+        [
+          135.20383024,
+          34.66916851
+        ],
+        [
+          135.20365757,
+          34.66916268
+        ],
+        [
+          135.20363176,
+          34.66969235
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6560.4,
+          7057.4
+        ],
+        [
+          6573.4,
+          7049
+        ],
+        [
+          6571.5,
+          7046.1
+        ],
+        [
+          6607.8,
+          7022.7
+        ],
+        [
+          6606,
+          7019.8
+        ],
+        [
+          6627.4,
+          7006
+        ],
+        [
+          6629.4,
+          7009.1
+        ],
+        [
+          6667.1,
+          6984.7
+        ],
+        [
+          6667.9,
+          6985.9
+        ],
+        [
+          6681.1,
+          6977.5
+        ],
+        [
+          6712.9,
+          7026.7
+        ],
+        [
+          6699.5,
+          7035.4
+        ],
+        [
+          6701.3,
+          7038.2
+        ],
+        [
+          6664.6,
+          7062
+        ],
+        [
+          6666.5,
+          7065
+        ],
+        [
+          6656.4,
+          7071.5
+        ],
+        [
+          6644.7,
+          7079.1
+        ],
+        [
+          6643.1,
+          7076.7
+        ],
+        [
+          6606.8,
+          7100.1
+        ],
+        [
+          6605.6,
+          7098.2
+        ],
+        [
+          6592.3,
+          7106.8
+        ],
+        [
+          6560.4,
+          7057.4
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6636.56,
+      7042.3
+    ],
+    "cells": [
+      "D4·23",
+      "D4·14",
+      "D4·24"
+    ],
+    "ref": "D4·23",
+    "areaM2": 9273.5,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-375",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Material arrives here under seal and stays sealed until somebody with the authority to break it says so. The seals are the Directorate's own rather than a customs service's, and the difference has never been explained to anyone who asked.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Material arrives here under seal and stays sealed until somebody with the authority to break it says so. The seals are the Directorate's own rather than a customs service's, and the difference has never been explained to anyone who asked.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

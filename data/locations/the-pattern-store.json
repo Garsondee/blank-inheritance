@@ -1,0 +1,178 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-pattern-store",
+  "type": "location",
+  "tier": "site",
+  "name": "The Pattern Store",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "industrial",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20520744,
+          34.66661808
+        ],
+        [
+          135.20521725,
+          34.66631078
+        ],
+        [
+          135.20564224,
+          34.66632756
+        ],
+        [
+          135.20563716,
+          34.66639493
+        ],
+        [
+          135.20570094,
+          34.66639733
+        ],
+        [
+          135.20570375,
+          34.66648284
+        ],
+        [
+          135.20567893,
+          34.66655984
+        ],
+        [
+          135.20563261,
+          34.66661383
+        ],
+        [
+          135.20554514,
+          34.66666695
+        ],
+        [
+          135.20549948,
+          34.66668816
+        ],
+        [
+          135.20535337,
+          34.66668404
+        ],
+        [
+          135.20528563,
+          34.66666369
+        ],
+        [
+          135.20528527,
+          34.66661885
+        ],
+        [
+          135.20520744,
+          34.66661808
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6858.1,
+          7277.7
+        ],
+        [
+          6876.2,
+          7306.6
+        ],
+        [
+          6908.8,
+          7285.2
+        ],
+        [
+          6904.6,
+          7279
+        ],
+        [
+          6909.5,
+          7275.8
+        ],
+        [
+          6904.9,
+          7267.5
+        ],
+        [
+          6898.6,
+          7261.3
+        ],
+        [
+          6891.9,
+          7258.3
+        ],
+        [
+          6882,
+          7257.3
+        ],
+        [
+          6877.2,
+          7257.4
+        ],
+        [
+          6865.9,
+          7264.6
+        ],
+        [
+          6861.7,
+          7269.7
+        ],
+        [
+          6864.2,
+          7274
+        ],
+        [
+          6858.1,
+          7277.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6883.71,
+      7278.95
+    ],
+    "cells": [
+      "D4·35"
+    ],
+    "ref": "D4·35",
+    "areaM2": 1590.8,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-373",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Racks of wooden patterns for every casting the works has ever poured, some of them older than anyone now working here. They are catalogued under a system that has been replaced twice and never actually changed.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Racks of wooden patterns for every casting the works has ever poured, some of them older than anyone now working here. They are catalogued under a system that has been replaced twice and never actually changed.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

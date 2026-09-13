@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-time-office",
+  "type": "location",
+  "tier": "site",
+  "name": "The Time Office",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20678556,
+          34.66387017
+        ],
+        [
+          135.20695595,
+          34.66387815
+        ],
+        [
+          135.20696556,
+          34.66374262
+        ],
+        [
+          135.20679517,
+          34.66373464
+        ],
+        [
+          135.20678556,
+          34.66387017
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7137.6,
+          7466.7
+        ],
+        [
+          7150.6,
+          7458
+        ],
+        [
+          7159,
+          7470.5
+        ],
+        [
+          7146,
+          7479.2
+        ],
+        [
+          7137.6,
+          7466.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7148.3,
+      7468.6
+    ],
+    "cells": [
+      "D4·46"
+    ],
+    "ref": "D4·46",
+    "areaM2": 235.6,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-372",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Clocking-in for the whole works. Every hour anyone spends on this strip is a card in a rack in this building, and the argument about whose fault a late card is has been running for decades.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Clocking-in for the whole works. Every hour anyone spends on this strip is a card in a rack in this building, and the argument about whose fault a late card is has been running for decades.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

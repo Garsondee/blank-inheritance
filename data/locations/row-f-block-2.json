@@ -1,0 +1,139 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "row-f-block-2",
+  "type": "location",
+  "tier": "site",
+  "name": "Row F, Block 2",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.2101776,
+          34.67105183
+        ],
+        [
+          135.21025979,
+          34.67091859
+        ],
+        [
+          135.21069517,
+          34.67109882
+        ],
+        [
+          135.21061486,
+          34.67123115
+        ],
+        [
+          135.21056824,
+          34.67121201
+        ],
+        [
+          135.21057983,
+          34.67119275
+        ],
+        [
+          135.21023525,
+          34.67105094
+        ],
+        [
+          135.21022366,
+          34.67107019
+        ],
+        [
+          135.2101776,
+          34.67105183
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7000.4,
+          6622.6
+        ],
+        [
+          7014.4,
+          6631.5
+        ],
+        [
+          7038.6,
+          6594
+        ],
+        [
+          7024.8,
+          6585.1
+        ],
+        [
+          7022.2,
+          6589.1
+        ],
+        [
+          7024.2,
+          6590.4
+        ],
+        [
+          7005,
+          6620
+        ],
+        [
+          7003,
+          6618.7
+        ],
+        [
+          7000.4,
+          6622.6
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7020.31,
+      6608.82
+    ],
+    "cells": [
+      "D4·41",
+      "D4·42"
+    ],
+    "ref": "D4·41",
+    "areaM2": 652.3,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-116",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Housing for candidates on the transport and logistics track rather than combat drill, so its residents keep hours nobody else's do — up before dawn, asleep by early evening — and the rest of the row has learned not to slam the stairwell door before six.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Housing for candidates on the transport and logistics track rather than combat drill, so its residents keep hours nobody else's do — up before dawn, asleep by early evening — and the rest of the row has learned not to slam the stairwell door before six.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

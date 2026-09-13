@@ -1,0 +1,171 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "west-tower",
+  "type": "location",
+  "tier": "site",
+  "name": "West Tower",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20900331,
+          34.6719992
+        ],
+        [
+          135.20907323,
+          34.67202791
+        ],
+        [
+          135.20906353,
+          34.67204625
+        ],
+        [
+          135.2090818,
+          34.67205409
+        ],
+        [
+          135.20906812,
+          34.67207751
+        ],
+        [
+          135.20900119,
+          34.67204943
+        ],
+        [
+          135.20880337,
+          34.67237199
+        ],
+        [
+          135.2089559,
+          34.67243474
+        ],
+        [
+          135.20915581,
+          34.67210802
+        ],
+        [
+          135.20913045,
+          34.67209736
+        ],
+        [
+          135.20934155,
+          34.67175261
+        ],
+        [
+          135.20919108,
+          34.67169096
+        ],
+        [
+          135.20900331,
+          34.6719992
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6854.3,
+          6586.8
+        ],
+        [
+          6858.2,
+          6580.8
+        ],
+        [
+          6856.4,
+          6579.5
+        ],
+        [
+          6857.4,
+          6577.9
+        ],
+        [
+          6855,
+          6576.3
+        ],
+        [
+          6851.3,
+          6582.1
+        ],
+        [
+          6817.5,
+          6560.5
+        ],
+        [
+          6826,
+          6547.4
+        ],
+        [
+          6860.2,
+          6569.3
+        ],
+        [
+          6858.8,
+          6571.5
+        ],
+        [
+          6894.9,
+          6594.6
+        ],
+        [
+          6886.5,
+          6607.5
+        ],
+        [
+          6854.3,
+          6586.8
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6856.14,
+      6577.28
+    ],
+    "cells": [
+      "D4·31",
+      "D4·32"
+    ],
+    "ref": "D4·31",
+    "areaM2": 1250.1,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-121",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "East Tower's twin, mirrored across the row, and the subject of an ongoing, entirely unofficial rivalry over which building's floor actually wins the twice-yearly relay. The ground-floor common room has a single working television that six hundred people have strong opinions about.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "East Tower's twin, mirrored across the row, and the subject of an ongoing, entirely unofficial rivalry over which building's floor actually wins the twice-yearly relay. The ground-floor common room has a single working television that six hundred people have strong opinions about.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

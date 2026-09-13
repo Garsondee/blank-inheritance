@@ -1,0 +1,110 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "home-south-grid-terrace",
+  "type": "location",
+  "tier": "site",
+  "name": "Canal Row",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [
+    "pc-adoptable"
+  ],
+  "classification": null,
+  "depth": "sketch",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.17239939,
+          34.66739571
+        ],
+        [
+          135.17243219,
+          34.6673902
+        ],
+        [
+          135.17239204,
+          34.66723813
+        ],
+        [
+          135.17235925,
+          34.66724364
+        ],
+        [
+          135.17239939,
+          34.66739571
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          4224.4,
+          8731.3
+        ],
+        [
+          4227.3,
+          8730.3
+        ],
+        [
+          4232.7,
+          8746.7
+        ],
+        [
+          4229.8,
+          8747.7
+        ],
+        [
+          4224.4,
+          8731.3
+        ]
+      ]
+    ],
+    "centroidPx": [
+      4228.55,
+      8739.0
+    ],
+    "cells": [
+      "C5·02"
+    ],
+    "ref": "C5·02",
+    "areaM2": 53.0,
+    "withinRegionRef": "south-grid",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-386",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "A small residential building in The South Grid, available to become a PC's home.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A narrow terrace house in The South Grid, the largest stretch of ordinary city on the whole map -- housing, schools and small industry, repeating for as far as the streets go. This one backs onto the canal that cuts the grid in two, close enough to hear boat traffic through the wall some nights.",
+    "playerFacing": "Two floors, a front door straight onto the street, and a back window looking down over the canal instead of a yard. The neighbours know everyone's comings and goings on this row, and are not remotely shy about mentioning it.",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [
+      "A neighbour treats anyone living here as approachable in exactly the way the rest of the city doesn't -- a source of ordinary gossip, small favours, and a door that's easy to knock on."
+    ],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": [],
+  "rank": 4
+}

@@ -1,0 +1,140 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "assistants-row-no-4-397",
+  "type": "location",
+  "tier": "site",
+  "name": "Assistants' Row, No. 4",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "",
+  "tags": [
+    "staff-housing"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21111335,
+          34.67018203
+        ],
+        [
+          135.21142864,
+          34.670313
+        ],
+        [
+          135.21183609,
+          34.67022003
+        ],
+        [
+          135.21188896,
+          34.67033661
+        ],
+        [
+          135.21142591,
+          34.6704546
+        ],
+        [
+          135.21138332,
+          34.67042513
+        ],
+        [
+          135.21136046,
+          34.67044989
+        ],
+        [
+          135.21103275,
+          34.67030508
+        ],
+        [
+          135.21111335,
+          34.67018203
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7123.3,
+          6662.1
+        ],
+        [
+          7140.8,
+          6634.9
+        ],
+        [
+          7178.2,
+          6624.8
+        ],
+        [
+          7175.8,
+          6611.2
+        ],
+        [
+          7132.6,
+          6621.5
+        ],
+        [
+          7130.9,
+          6626.3
+        ],
+        [
+          7127.7,
+          6625
+        ],
+        [
+          7110,
+          6654.1
+        ],
+        [
+          7123.3,
+          6662.1
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7141.69,
+      6632.64
+    ],
+    "cells": [
+      "D4·42"
+    ],
+    "ref": "D4·42",
+    "areaM2": 1165.6,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-397",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "All of these are staff accommodation.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Smaller housing for junior teaching and administrative staff -- shared kitchens, private rooms.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

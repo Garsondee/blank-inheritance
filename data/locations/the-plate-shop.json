@@ -1,0 +1,149 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-plate-shop",
+  "type": "location",
+  "tier": "site",
+  "name": "The Plate Shop",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21416619,
+          34.68080891
+        ],
+        [
+          135.21449853,
+          34.68085726
+        ],
+        [
+          135.21450045,
+          34.68085109
+        ],
+        [
+          135.21454104,
+          34.68065962
+        ],
+        [
+          135.21456947,
+          34.68053271
+        ],
+        [
+          135.21462855,
+          34.68025894
+        ],
+        [
+          135.21463848,
+          34.68021432
+        ],
+        [
+          135.21430559,
+          34.6801652
+        ],
+        [
+          135.21416773,
+          34.68080398
+        ],
+        [
+          135.21416619,
+          34.68080891
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6765,
+          5504.7
+        ],
+        [
+          6788.5,
+          5484.6
+        ],
+        [
+          6789,
+          5485.1
+        ],
+        [
+          6803,
+          5501.5
+        ],
+        [
+          6812.4,
+          5512.3
+        ],
+        [
+          6832.5,
+          5535.7
+        ],
+        [
+          6835.8,
+          5539.5
+        ],
+        [
+          6812.3,
+          5559.7
+        ],
+        [
+          6765.4,
+          5505.1
+        ],
+        [
+          6765,
+          5504.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6800.42,
+      5522.13
+    ],
+    "cells": [
+      "D3·26",
+      "D3·36"
+    ],
+    "ref": "D3·26",
+    "areaM2": 2242.9,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-229",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Cutting, forming and welding armour plate. Audible across the whole compound and cordially hated by everyone trying to sleep south of it.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Cutting, forming and welding armour plate. Audible across the whole compound and cordially hated by everyone trying to sleep south of it.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

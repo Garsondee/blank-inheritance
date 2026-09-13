@@ -1,0 +1,14 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "registry-clerk",
+  "type": "npc",
+  "name": null,
+  "role": "Registry Clerk, The Registry",
+  "pole": null,
+  "affiliation": "directorate",
+  "description": "Works the records floor and the print room where every Directorate document is typed once per clearance level. Has read every version of everything and holds no clearance rung worth the name -- an institutional absurdity nobody above them has ever noticed.",
+  "designNotes": "Created 2026-09-12 with The Registry. The obvious lever for ideas/entries/redacted-document-chain.json: a less-censored document is a physical object somebody in this building typed. Name, manner, and what they would want in exchange are all open.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "placeholder — not yet named or cast"
+}

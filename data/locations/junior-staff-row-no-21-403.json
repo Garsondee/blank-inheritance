@@ -1,0 +1,172 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "junior-staff-row-no-21-403",
+  "type": "location",
+  "tier": "site",
+  "name": "Junior Staff Row, No. 21",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "",
+  "tags": [
+    "staff-housing"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21202425,
+          34.66980063
+        ],
+        [
+          135.21204472,
+          34.66977076
+        ],
+        [
+          135.21202999,
+          34.66976433
+        ],
+        [
+          135.21204174,
+          34.66974709
+        ],
+        [
+          135.21205442,
+          34.66975242
+        ],
+        [
+          135.21208173,
+          34.66971084
+        ],
+        [
+          135.21233093,
+          34.66982379
+        ],
+        [
+          135.21230837,
+          34.66985782
+        ],
+        [
+          135.21232421,
+          34.6698658
+        ],
+        [
+          135.21231207,
+          34.66988428
+        ],
+        [
+          135.21229734,
+          34.66987785
+        ],
+        [
+          135.21227345,
+          34.66991358
+        ],
+        [
+          135.21202425,
+          34.66980063
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7216.7,
+          6656.1
+        ],
+        [
+          7220,
+          6658
+        ],
+        [
+          7219.2,
+          6659.3
+        ],
+        [
+          7221.1,
+          6660.4
+        ],
+        [
+          7221.8,
+          6659.3
+        ],
+        [
+          7226.3,
+          6662
+        ],
+        [
+          7239.6,
+          6639.6
+        ],
+        [
+          7235.9,
+          6637.4
+        ],
+        [
+          7236.7,
+          6635.9
+        ],
+        [
+          7234.7,
+          6634.7
+        ],
+        [
+          7233.9,
+          6636
+        ],
+        [
+          7230,
+          6633.7
+        ],
+        [
+          7216.7,
+          6656.1
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7228.17,
+      6647.81
+    ],
+    "cells": [
+      "D4·52"
+    ],
+    "ref": "D4·52",
+    "areaM2": 300.4,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-403",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "All of these are staff accommodation.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The newest hires get these -- small, close together, and first to lose hot water when the boiler struggles.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

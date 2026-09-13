@@ -1,0 +1,107 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "row-a-block-7",
+  "type": "location",
+  "tier": "site",
+  "name": "Row A, Block 7",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21142088,
+          34.67277255
+        ],
+        [
+          135.21149606,
+          34.672649
+        ],
+        [
+          135.2118386,
+          34.67278972
+        ],
+        [
+          135.21176436,
+          34.67291281
+        ],
+        [
+          135.21142088,
+          34.67277255
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7001.5,
+          6400.3
+        ],
+        [
+          7014.4,
+          6408.6
+        ],
+        [
+          7033.5,
+          6379.2
+        ],
+        [
+          7020.7,
+          6370.9
+        ],
+        [
+          7001.5,
+          6400.3
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7017.51,
+      6389.76
+    ],
+    "cells": [
+      "D4·40",
+      "D4·41"
+    ],
+    "ref": "D4·40",
+    "areaM2": 536.7,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-129",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Closest block to the Canteen Window, and consequently first in every queue that forms there. Residents have turned this minor accident of geography into a defining point of pride entirely out of proportion to what it actually gets them.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Closest block to the Canteen Window, and consequently first in every queue that forms there. Residents have turned this minor accident of geography into a defining point of pride entirely out of proportion to what it actually gets them.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

@@ -1,0 +1,124 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-laundry-449",
+  "type": "location",
+  "tier": "site",
+  "name": "The Laundry",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "amenity"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.2133379,
+          34.66684761
+        ],
+        [
+          135.21352227,
+          34.66653996
+        ],
+        [
+          135.21380084,
+          34.66665323
+        ],
+        [
+          135.21386081,
+          34.66662189
+        ],
+        [
+          135.21390013,
+          34.6667053
+        ],
+        [
+          135.21372183,
+          34.66700371
+        ],
+        [
+          135.2133379,
+          34.66684761
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7486.9,
+          6877
+        ],
+        [
+          7518.8,
+          6897.8
+        ],
+        [
+          7534.4,
+          6874
+        ],
+        [
+          7540.9,
+          6874.2
+        ],
+        [
+          7539.3,
+          6864.4
+        ],
+        [
+          7508.4,
+          6844.2
+        ],
+        [
+          7486.9,
+          6877
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7514.0,
+      6871.02
+    ],
+    "cells": [
+      "D4·63"
+    ],
+    "ref": "D4·63",
+    "areaM2": 1518.1,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-449",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "amenities and other general city supporting functions and administration.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A commercial laundry running on contract for half the housing rows nearby.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

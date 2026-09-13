@@ -1,0 +1,131 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-hydraulic-shop",
+  "type": "location",
+  "tier": "site",
+  "name": "The Hydraulic Shop",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "industrial",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20547473,
+          34.6653091
+        ],
+        [
+          135.20424042,
+          34.66525362
+        ],
+        [
+          135.20423448,
+          34.66533397
+        ],
+        [
+          135.20422329,
+          34.66552051
+        ],
+        [
+          135.2047025,
+          34.66554225
+        ],
+        [
+          135.20470578,
+          34.66548832
+        ],
+        [
+          135.20546088,
+          34.66552207
+        ],
+        [
+          135.20547473,
+          34.6653091
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6953,
+          7390.3
+        ],
+        [
+          6858.7,
+          7453.1
+        ],
+        [
+          6853.7,
+          7445.7
+        ],
+        [
+          6842.3,
+          7428.4
+        ],
+        [
+          6878.9,
+          7404
+        ],
+        [
+          6882.2,
+          7409
+        ],
+        [
+          6939.9,
+          7370.6
+        ],
+        [
+          6953,
+          7390.3
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6895.97,
+      7412.47
+    ],
+    "cells": [
+      "D4·35",
+      "D4·36"
+    ],
+    "ref": "D4·35",
+    "areaM2": 2946.0,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-367",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Rams, lines and actuators: the parts that make a Frame move, rather than the ones that make it heavy. Everything here is tested to pressures that make the building creak, behind a wall built for exactly that.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Rams, lines and actuators: the parts that make a Frame move, rather than the ones that make it heavy. Everything here is tested to pressures that make the building creak, behind a wall built for exactly that.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

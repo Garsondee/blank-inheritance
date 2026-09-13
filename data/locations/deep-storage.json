@@ -1,0 +1,157 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "deep-storage",
+  "type": "location",
+  "tier": "site",
+  "name": "Deep Storage",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "underground"
+  ],
+  "depth": "standing",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.23335717,
+          34.65534028
+        ],
+        [
+          135.23106577,
+          34.65461587
+        ],
+        [
+          135.23107909,
+          34.65436858
+        ],
+        [
+          135.23101907,
+          34.65423141
+        ],
+        [
+          135.23089404,
+          34.65408304
+        ],
+        [
+          135.23068639,
+          34.65396975
+        ],
+        [
+          135.2310296,
+          34.65343062
+        ],
+        [
+          135.23395273,
+          34.65433878
+        ],
+        [
+          135.23395273,
+          34.65433878
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          9716,
+          7043.3
+        ],
+        [
+          9576,
+          7219.3
+        ],
+        [
+          9591,
+          7242.3
+        ],
+        [
+          9594,
+          7258.2
+        ],
+        [
+          9592.5,
+          7278.2
+        ],
+        [
+          9582.5,
+          7298.7
+        ],
+        [
+          9640,
+          7334.2
+        ],
+        [
+          9819.5,
+          7111.2
+        ],
+        [
+          9819.5,
+          7111.2
+        ]
+      ]
+    ],
+    "centroidPx": [
+      9686.16,
+      7183.77
+    ],
+    "cells": [
+      "E4·64",
+      "E4·74",
+      "E4·84",
+      "E4·65",
+      "E4·75"
+    ],
+    "ref": "E4·64",
+    "areaM2": 32719.1,
+    "withinRegionRef": "container-ground",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-238",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "Deep Storage - So called because it's a bunker warehouse where anything unusual gets stored which isn't currently being used. Many underground floors, most of which have elevated security requirements to reach.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Deep Storage is the Directorate's below-ground holding facility for anything unusual that isn't currently in use, built beneath the working crane yard of the Container Ground on the fortress island's eastern apron. Nothing above ground marks it beyond a single freight lift inside an ordinary equipment shed. Several underground floors go down from that lift, and most of them require a Clearance rung (design/strategy-layer.md) most parties will not have yet. What is actually stored down there is left deliberately incomplete rather than invented outright: some decommissioned Frame hardware too compromised, obsolete or politically awkward for the active hangar ends up here (data/hangar/legacy-units.json), alongside old equipment and paperwork nobody has re-filed in decades. A custodian runs the place day to day and decides what counts as ‘currently being used’ -- that judgement call, and who it favours, is the location's real content.",
+    "playerFacing": "From outside, Deep Storage is a padlocked equipment shed wedged between container stacks, easy to miss and clearly meant to be. Inside is a single freight lift with a floor-indicator panel that skips several numbers without explanation. Below, the air runs cold and smells of oil and old paper. Each level is one long corridor of numbered doors, most unmarked, a few stencilled with a unit designation or a clearance mark nobody at the table will recognise. Some floors are lit and swept. Others stay dark until someone finds the switch, and plainly haven't had a visitor in years.",
+    "gmOnly": "Access below the second underground floor is gated by a real Clearance rung, not narrative fiat -- check the party's current rung against design/strategy-layer.md's table before deciding what the custodian will actually let them reach. Rung 2 (Duty Section) gets a supervised look. Rung 3 (Officers) gets a requisition slip honoured without a countersignature. Anything past that needs the custodian to personally vouch for them. At least one manifest down here was never filed at any clearance level at all, which is a different and worse problem than a redacted one (ideas/entries/redacted-document-chain.json) -- decide what it actually covers only once the party goes looking for it themselves, not before. Treat the legacy Frame hardware referenced in data/hangar/legacy-units.json as physically plausible to find here, but do not decide which specific unit or how many without checking that file first: its units list is intentionally still empty, and populating it is a real campaign decision, not set dressing for this location."
+  },
+  "scene": {
+    "hooks": [
+      "A requisition slip for a component already logged as scrapped comes back from Deep Storage stamped RECEIVED, from a floor the party doesn't have clearance to reach.",
+      "The custodian asks the party to quietly account for everything on one specific floor before an inspection, without saying who is inspecting or why.",
+      "A name stencilled on an old crate matches a name in the party's own case file, and neither the custodian nor the manifest will explain the connection."
+    ],
+    "activities": [
+      "Requisition or trade for salvaged equipment, including possible legacy Frame components, by dealing directly with the custodian rather than the paperwork.",
+      "Navigate the underground levels without a reliable map, since the floor plans disagree with each other and the lift panel cannot be trusted.",
+      "Negotiate with the custodian for access to a floor above the party's current Clearance rung, in exchange for a favour or a piece of information.",
+      "Search one specific floor for one specific missing item, playing the setting itself -- numbered doors, patchy lighting, decades of unsorted paperwork -- as a real obstacle."
+    ],
+    "history": "Deep Storage was dug out and expanded in stages as the Directorate accumulated things it didn't want destroyed and also didn't want found, long before any of the six pilots arrived. Sitting it under a working cargo apron rather than inside the Directorate's own island complex was deliberate: nobody audits a warehouse's basement as carefully as they audit a garrison. Decommissioned Frame hardware has been moved here quietly for as long as the hangar has existed, whenever a unit became too compromised, obsolete or politically awkward to keep on the active roster. None of that hardware is authored yet -- data/hangar/legacy-units.json's units list is still empty -- but the physical connection is now on record, so a specific find can be placed here later without contradicting anything already written.",
+    "consequences": "Every time the party is let onto a floor above their current Clearance rung, note it: the custodian remembers who has been given more than their rank allows, and that debt gets called in later, not necessarily by the custodian personally. If the party is caught taking something without signing for it, security tightens for everyone, not just them -- more frequent inventories, a second lock on the lift, a custodian who stops answering questions they used to answer for free."
+  },
+  "realWorld": {},
+  "factionRefs": [
+    "directorate"
+  ],
+  "npcRefs": [
+    "commander",
+    "deep-storage-custodian"
+  ],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": "locations/deep-storage.md",
+  "assetRefs": [],
+  "playlistRefs": [],
+  "rank": 2
+}

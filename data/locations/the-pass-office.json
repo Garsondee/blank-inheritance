@@ -1,0 +1,109 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-pass-office",
+  "type": "location",
+  "tier": "site",
+  "name": "The Pass Office",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.2172047,
+          34.68032272
+        ],
+        [
+          135.21740975,
+          34.68035253
+        ],
+        [
+          135.21745868,
+          34.68012663
+        ],
+        [
+          135.21725269,
+          34.68009728
+        ],
+        [
+          135.2172047,
+          34.68032272
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7032.2,
+          5409.6
+        ],
+        [
+          7046.7,
+          5397.2
+        ],
+        [
+          7063.3,
+          5416.5
+        ],
+        [
+          7048.7,
+          5428.9
+        ],
+        [
+          7032.2,
+          5409.6
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7047.73,
+      5413.05
+    ],
+    "cells": [
+      "D3·45",
+      "D3·46"
+    ],
+    "ref": "D3·45",
+    "areaM2": 486.0,
+    "withinRegionRef": "garrison",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-226",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Where a permit becomes a pass for this end of the island. Queue outside, counter inside, and a list on the wall of people who are not to be issued one.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Where a permit becomes a pass for this end of the island. Queue outside, counter inside, and a list on the wall of people who are not to be issued one.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

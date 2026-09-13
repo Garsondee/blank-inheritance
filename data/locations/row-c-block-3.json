@@ -1,0 +1,154 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "row-c-block-3",
+  "type": "location",
+  "tier": "site",
+  "name": "Row C, Block 3",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.2120037,
+          34.67209684
+        ],
+        [
+          135.21209674,
+          34.67194155
+        ],
+        [
+          135.21236919,
+          34.67205155
+        ],
+        [
+          135.21232132,
+          34.67213351
+        ],
+        [
+          135.21234313,
+          34.67214276
+        ],
+        [
+          135.21231787,
+          34.67218544
+        ],
+        [
+          135.21229307,
+          34.67217555
+        ],
+        [
+          135.21228491,
+          34.67218895
+        ],
+        [
+          135.21217097,
+          34.67214298
+        ],
+        [
+          135.21216071,
+          34.67216054
+        ],
+        [
+          135.2120037,
+          34.67209684
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7085.6,
+          6437.7
+        ],
+        [
+          7101.7,
+          6448.2
+        ],
+        [
+          7117,
+          6425
+        ],
+        [
+          7108.6,
+          6419.4
+        ],
+        [
+          7109.8,
+          6417.5
+        ],
+        [
+          7105.4,
+          6414.6
+        ],
+        [
+          7104,
+          6416.7
+        ],
+        [
+          7102.6,
+          6415.8
+        ],
+        [
+          7096.2,
+          6425.5
+        ],
+        [
+          7094.4,
+          6424.3
+        ],
+        [
+          7085.6,
+          6437.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7101.57,
+      6431.55
+    ],
+    "cells": [
+      "D4·41"
+    ],
+    "ref": "D4·41",
+    "areaM2": 522.1,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-106",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "First-term overflow: bunks assigned faster than furniture arrives, so half the rooms still have packing crates doing duty as nightstands. Loudest laundry-day arguments in the row, entirely because it's closest to the Wash House.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "First-term overflow: bunks assigned faster than furniture arrives, so half the rooms still have packing crates doing duty as nightstands. Loudest laundry-day arguments in the row, entirely because it's closest to the Wash House.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

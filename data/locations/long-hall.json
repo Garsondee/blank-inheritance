@@ -1,0 +1,354 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "long-hall",
+  "type": "location",
+  "tier": "site",
+  "name": "Long Hall",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21139569,
+          34.67080955
+        ],
+        [
+          135.211412,
+          34.67080578
+        ],
+        [
+          135.21141185,
+          34.67078073
+        ],
+        [
+          135.21148166,
+          34.67077914
+        ],
+        [
+          135.21148131,
+          34.67079815
+        ],
+        [
+          135.2115752,
+          34.67080366
+        ],
+        [
+          135.21157374,
+          34.67103571
+        ],
+        [
+          135.21154419,
+          34.67103337
+        ],
+        [
+          135.21154452,
+          34.67112428
+        ],
+        [
+          135.21157556,
+          34.67112694
+        ],
+        [
+          135.21157433,
+          34.67148345
+        ],
+        [
+          135.21154534,
+          34.67148188
+        ],
+        [
+          135.21154848,
+          34.67150757
+        ],
+        [
+          135.21148597,
+          34.67150874
+        ],
+        [
+          135.21148519,
+          34.67153425
+        ],
+        [
+          135.21143634,
+          34.67153504
+        ],
+        [
+          135.21143594,
+          34.67155931
+        ],
+        [
+          135.21159499,
+          34.67156025
+        ],
+        [
+          135.2115971,
+          34.67174765
+        ],
+        [
+          135.21165956,
+          34.67177476
+        ],
+        [
+          135.21165566,
+          34.67179237
+        ],
+        [
+          135.21206906,
+          34.67196133
+        ],
+        [
+          135.21198888,
+          34.67210093
+        ],
+        [
+          135.21192903,
+          34.67207568
+        ],
+        [
+          135.21193818,
+          34.67205656
+        ],
+        [
+          135.21161271,
+          34.67193264
+        ],
+        [
+          135.21160604,
+          34.67194636
+        ],
+        [
+          135.2114936,
+          34.67190071
+        ],
+        [
+          135.21157583,
+          34.67176221
+        ],
+        [
+          135.21154983,
+          34.67176128
+        ],
+        [
+          135.21149674,
+          34.67186254
+        ],
+        [
+          135.21147585,
+          34.67187586
+        ],
+        [
+          135.21138355,
+          34.67177328
+        ],
+        [
+          135.21138214,
+          34.67163474
+        ],
+        [
+          135.21140515,
+          34.67163504
+        ],
+        [
+          135.21139569,
+          34.67080955
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7110.2,
+          6589
+        ],
+        [
+          7111.7,
+          6588.6
+        ],
+        [
+          7113.1,
+          6591
+        ],
+        [
+          7118.7,
+          6587.9
+        ],
+        [
+          7117.6,
+          6586.1
+        ],
+        [
+          7124.7,
+          6581.2
+        ],
+        [
+          7111.5,
+          6559.1
+        ],
+        [
+          7109.3,
+          6560.7
+        ],
+        [
+          7104.2,
+          6552
+        ],
+        [
+          7106.5,
+          6550.3
+        ],
+        [
+          7086.3,
+          6516.3
+        ],
+        [
+          7084.1,
+          6517.8
+        ],
+        [
+          7082.9,
+          6515.2
+        ],
+        [
+          7077.9,
+          6518
+        ],
+        [
+          7076.4,
+          6515.6
+        ],
+        [
+          7072.5,
+          6517.8
+        ],
+        [
+          7071.1,
+          6515.5
+        ],
+        [
+          7083.6,
+          6508
+        ],
+        [
+          7073.2,
+          6490
+        ],
+        [
+          7076.6,
+          6484.5
+        ],
+        [
+          7075.3,
+          6483
+        ],
+        [
+          7098.4,
+          6447.6
+        ],
+        [
+          7084.2,
+          6438
+        ],
+        [
+          7080.9,
+          6443.2
+        ],
+        [
+          7082.7,
+          6444.6
+        ],
+        [
+          7064,
+          6471.6
+        ],
+        [
+          7062.7,
+          6470.6
+        ],
+        [
+          7056.4,
+          6480.2
+        ],
+        [
+          7070.7,
+          6489.6
+        ],
+        [
+          7068.7,
+          6490.9
+        ],
+        [
+          7058.8,
+          6483.7
+        ],
+        [
+          7056.4,
+          6483.4
+        ],
+        [
+          7054.9,
+          6497.5
+        ],
+        [
+          7062.6,
+          6510.8
+        ],
+        [
+          7064.4,
+          6509.7
+        ],
+        [
+          7110.2,
+          6589
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7085.33,
+      6514.21
+    ],
+    "cells": [
+      "D4·41"
+    ],
+    "ref": "D4·41",
+    "areaM2": 2614.5,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-133",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "The one building big enough to feed several hundred candidates in three seatings — trestle tables, a serving line, a noticeboard at the door thick with drill schedules and the occasional handwritten notice about a lost card key. Loud, steamed-up, genuinely the social centre of the whole housing row.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The one building big enough to feed several hundred candidates in three seatings — trestle tables, a serving line, a noticeboard at the door thick with drill schedules and the occasional handwritten notice about a lost card key. Loud, steamed-up, genuinely the social centre of the whole housing row.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

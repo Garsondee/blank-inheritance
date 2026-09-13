@@ -1,0 +1,303 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "island-centre",
+  "type": "location",
+  "tier": "region",
+  "name": "Island Centre",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "district",
+  "tags": [
+    "auto-tessellated",
+    "land"
+  ],
+  "classification": null,
+  "rank": 2,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.2222572,
+          34.66385303
+        ],
+        [
+          135.21420871,
+          34.67032641
+        ],
+        [
+          135.20174325,
+          34.66544023
+        ],
+        [
+          135.20211965,
+          34.65977809
+        ],
+        [
+          135.2023122,
+          34.65916083
+        ],
+        [
+          135.2041913,
+          34.6582445
+        ],
+        [
+          135.20402189,
+          34.65623363
+        ],
+        [
+          135.20449164,
+          34.65600455
+        ],
+        [
+          135.20518473,
+          34.65697498
+        ],
+        [
+          135.20616661,
+          34.65701952
+        ],
+        [
+          135.21507462,
+          34.65141976
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          8359.754215,
+          6747.47335
+        ],
+        [
+          7359.461968,
+          6504.103097
+        ],
+        [
+          6651.064525,
+          7551.596788
+        ],
+        [
+          7000,
+          8075
+        ],
+        [
+          7050,
+          8125
+        ],
+        [
+          7250,
+          8125
+        ],
+        [
+          7350,
+          8325
+        ],
+        [
+          7400,
+          8325
+        ],
+        [
+          7400,
+          8200
+        ],
+        [
+          7475,
+          8150
+        ],
+        [
+          8493.964508,
+          8269.878177
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7661.41,
+      7448.35
+    ],
+    "cells": [
+      "D4·51",
+      "D4·61",
+      "D4·71",
+      "D4·42",
+      "D4·52",
+      "D4·62",
+      "D4·72",
+      "D4·82",
+      "D4·92",
+      "E4·02",
+      "D4·43",
+      "D4·53",
+      "D4·63",
+      "D4·73",
+      "D4·83",
+      "D4·93",
+      "E4·03",
+      "D4·34",
+      "D4·44",
+      "D4·54",
+      "D4·64",
+      "D4·74",
+      "D4·84",
+      "D4·94",
+      "E4·04",
+      "D4·25",
+      "D4·35",
+      "D4·45",
+      "D4·55",
+      "D4·65",
+      "D4·75",
+      "D4·85",
+      "D4·95",
+      "E4·05",
+      "E4·15",
+      "D4·26",
+      "D4·36",
+      "D4·46",
+      "D4·56",
+      "D4·66",
+      "D4·76",
+      "D4·86",
+      "D4·96",
+      "E4·06",
+      "E4·16",
+      "D4·27",
+      "D4·37",
+      "D4·47",
+      "D4·57",
+      "D4·67",
+      "D4·77",
+      "D4·87",
+      "D4·97",
+      "E4·07",
+      "E4·17",
+      "D4·38",
+      "D4·48",
+      "D4·58",
+      "D4·68",
+      "D4·78",
+      "D4·88",
+      "D4·98",
+      "E4·08",
+      "E4·18",
+      "D4·39",
+      "D4·49",
+      "D4·59",
+      "D4·69",
+      "D4·79",
+      "D4·89",
+      "D4·99",
+      "E4·09",
+      "E4·19",
+      "D5·50",
+      "D5·80",
+      "D5·90",
+      "E5·00",
+      "E5·10"
+    ],
+    "ref": "D4·51",
+    "areaM2": 2359871.4,
+    "withinRegionRef": null,
+    "containsRefs": [
+      "central-fortification",
+      "general-hospital",
+      "junior-staff-row-no-18-393",
+      "junior-staff-row-no-19-395",
+      "junior-staff-row-no-20-399",
+      "junior-staff-row-no-22-406",
+      "main-school-complex",
+      "the-almshouse-453",
+      "the-anchor-house-437",
+      "the-armour-shop",
+      "the-bathhouse-447",
+      "the-calibration-hall",
+      "the-civic-hall-451",
+      "the-clinic-annex-457",
+      "the-component-store",
+      "the-corner-block-no-25-413",
+      "the-erecting-shop",
+      "the-fire-point-443",
+      "the-general-store-416",
+      "the-generating-hall",
+      "the-hydraulic-shop",
+      "the-instrument-shop",
+      "the-laundry-449",
+      "the-long-terrace-no-14-408",
+      "the-long-terrace-no-16-411",
+      "the-long-terrace-no-7-391",
+      "the-market-hall-456",
+      "the-met-office",
+      "the-noodle-counter-417",
+      "the-notice-house-446",
+      "the-paint-shop",
+      "the-pattern-store",
+      "the-plot-room",
+      "the-postbox-court-452",
+      "the-register-office-448",
+      "the-registry",
+      "the-rock",
+      "the-second-bathhouse-445",
+      "the-shrine-gate-444",
+      "the-tailors-418",
+      "the-tea-house-420",
+      "the-telephone-exchange",
+      "the-time-office",
+      "the-tool-store-455",
+      "the-tsurumi-compound-423",
+      "the-water-office-454",
+      "the-weighbridge-450",
+      "the-well-house-442",
+      "the-works-canteen",
+      "walled-house-no-1-422",
+      "walled-house-no-10-424",
+      "walled-house-no-11-425",
+      "walled-house-no-12-426",
+      "walled-house-no-13-431",
+      "walled-house-no-14-434",
+      "walled-house-no-15-440",
+      "walled-house-no-16-436",
+      "walled-house-no-18-438",
+      "walled-house-no-19-441",
+      "walled-house-no-2-421",
+      "walled-house-no-20-433",
+      "walled-house-no-21-435",
+      "walled-house-no-4-427",
+      "walled-house-no-5-428",
+      "walled-house-no-6-429",
+      "walled-house-no-7-430",
+      "walled-house-no-8-439",
+      "walled-house-no-9-432"
+    ],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-176",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "The fortress island's own downtown: offices, canteens and billets on a rectilinear grid laid out all at once, with the Directorate's island complex anchoring the south end. Everything here is the same age and it shows.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The fortress island's own downtown: offices, canteens and billets on a rectilinear grid laid out all at once, with the Directorate's island complex anchoring the south end. Everything here is the same age and it shows.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

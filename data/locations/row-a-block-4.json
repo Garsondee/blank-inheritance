@@ -1,0 +1,202 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "row-a-block-4",
+  "type": "location",
+  "tier": "site",
+  "name": "Row A, Block 4",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21070842,
+          34.67236943
+        ],
+        [
+          135.21070771,
+          34.67219287
+        ],
+        [
+          135.21075169,
+          34.67219236
+        ],
+        [
+          135.21075166,
+          34.67217458
+        ],
+        [
+          135.210869,
+          34.67217389
+        ],
+        [
+          135.21086944,
+          34.67214436
+        ],
+        [
+          135.21090762,
+          34.67214459
+        ],
+        [
+          135.21090865,
+          34.67219747
+        ],
+        [
+          135.21096685,
+          34.67219735
+        ],
+        [
+          135.21096751,
+          34.67237917
+        ],
+        [
+          135.21091081,
+          34.6723796
+        ],
+        [
+          135.21091227,
+          34.67279132
+        ],
+        [
+          135.21086137,
+          34.67279102
+        ],
+        [
+          135.21086109,
+          34.67275871
+        ],
+        [
+          135.21074619,
+          34.67275926
+        ],
+        [
+          135.2107451,
+          34.67236934
+        ],
+        [
+          135.21070842,
+          34.67236943
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6968,
+          6472
+        ],
+        [
+          6977.9,
+          6488.9
+        ],
+        [
+          6981.4,
+          6486.9
+        ],
+        [
+          6982.4,
+          6488.6
+        ],
+        [
+          6991.7,
+          6483.2
+        ],
+        [
+          6993.4,
+          6486
+        ],
+        [
+          6996.4,
+          6484.2
+        ],
+        [
+          6993.5,
+          6479.1
+        ],
+        [
+          6998.1,
+          6476.4
+        ],
+        [
+          6987.9,
+          6459
+        ],
+        [
+          6983.4,
+          6461.6
+        ],
+        [
+          6960.3,
+          6422.2
+        ],
+        [
+          6956.3,
+          6424.6
+        ],
+        [
+          6958.1,
+          6427.7
+        ],
+        [
+          6949,
+          6433
+        ],
+        [
+          6970.9,
+          6470.3
+        ],
+        [
+          6968,
+          6472
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6973.79,
+      6459.2
+    ],
+    "cells": [
+      "D4·31"
+    ],
+    "ref": "D4·31",
+    "areaM2": 1183.0,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-127",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Home to most of the row's active intramural athletes, and it shows: a hand-strung volleyball net in the little yard between it and its neighbour, replaced twice a year, contested every evening it isn't raining.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Home to most of the row's active intramural athletes, and it shows: a hand-strung volleyball net in the little yard between it and its neighbour, replaced twice a year, contested every evening it isn't raining.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

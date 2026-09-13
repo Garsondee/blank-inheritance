@@ -1,0 +1,166 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-registry",
+  "type": "location",
+  "tier": "site",
+  "name": "The Registry",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [],
+  "classification": null,
+  "depth": "scene",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20469996,
+          34.66557594
+        ],
+        [
+          135.2047025,
+          34.66554225
+        ],
+        [
+          135.20470578,
+          34.66548832
+        ],
+        [
+          135.20546088,
+          34.66552207
+        ],
+        [
+          135.2055286,
+          34.66552464
+        ],
+        [
+          135.20550634,
+          34.66586417
+        ],
+        [
+          135.20546015,
+          34.66586157
+        ],
+        [
+          135.20546062,
+          34.66584982
+        ],
+        [
+          135.20543407,
+          34.66584812
+        ],
+        [
+          135.20545058,
+          34.66560874
+        ],
+        [
+          135.20469996,
+          34.66557594
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6876.8,
+          7400.9
+        ],
+        [
+          6878.9,
+          7404
+        ],
+        [
+          6882.2,
+          7409
+        ],
+        [
+          6939.9,
+          7370.6
+        ],
+        [
+          6945.1,
+          7367.2
+        ],
+        [
+          6924.2,
+          7335.8
+        ],
+        [
+          6920.7,
+          7338.2
+        ],
+        [
+          6921.4,
+          7339.3
+        ],
+        [
+          6919.4,
+          7340.7
+        ],
+        [
+          6934.2,
+          7362.8
+        ],
+        [
+          6876.8,
+          7400.9
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6914.61,
+      7377.14
+    ],
+    "cells": [
+      "D4·35",
+      "D4·36"
+    ],
+    "ref": "D4·35",
+    "areaM2": 915.3,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-370",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "Records and the print room, around a light well. Every document the Directorate issues is typed here once per clearance level.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Records for the whole island, built around a light well so the typing floor gets daylight. The important thing about this building is what happens in the print room at the back: a document that exists at several clearance levels is not censored after the fact, it is typed separately for each one. The lower-cleared version is not a marked-up copy of the higher -- it is its own document, and the words a reader is not cleared for were never set in type on the page they are holding. The typists know every version. They are the single best-informed group of people on the island and are paid as though they are the least.",
+    "playerFacing": "Forty typewriters going at once around a well of grey daylight, and a smell of ink and hot metal from the print room. Everything is on a trolley going somewhere. Nobody will hand you anything without a signature, and the person who takes the signature will read your name upside down and remember it.",
+    "gmOnly": "The physical explanation for ideas/entries/redacted-document-chain.json, and worth playing straight: a less-redacted version of a document is a different physical object, produced in this building, by people. Obtaining one is therefore a social or a physical problem, not a technical one -- there is nothing to decrypt, only somebody to persuade, or a trolley to intercept.\n\nThe typists are the lever. They have read every version of everything and no clearance rung of their own worth speaking of, which is an institutional absurdity the Directorate has never noticed and the party might."
+  },
+  "scene": {
+    "hooks": [
+      "A document the party already owns exists here in a longer version, and the only difference between the two is a person who has to be persuaded.",
+      "A trolley of the day's work goes past unattended, and everything on it is signed for somewhere else."
+    ],
+    "activities": [
+      "Request a file properly, and find out what properly actually costs.",
+      "Get a typist to tell you what was in a version you are not cleared for, without either of you saying so directly.",
+      "Read the clearance markings on a stack of documents and work out the shape of something from the markings alone."
+    ],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [
+    "directorate"
+  ],
+  "npcRefs": [
+    "registry-clerk"
+  ],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": [],
+  "rank": 3
+}

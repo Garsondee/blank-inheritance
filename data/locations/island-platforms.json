@@ -1,0 +1,122 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "island-platforms",
+  "type": "location",
+  "tier": "site",
+  "name": "Island Platforms",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "transport",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.2029101,
+          34.68101814
+        ],
+        [
+          135.20324101,
+          34.67997547
+        ],
+        [
+          135.20287975,
+          34.67989723
+        ],
+        [
+          135.20256925,
+          34.68087447
+        ],
+        [
+          135.20254845,
+          34.68094113
+        ],
+        [
+          135.20286826,
+          34.68100923
+        ],
+        [
+          135.2029101,
+          34.68101814
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          5864.9,
+          6009
+        ],
+        [
+          5949.8,
+          6093.2
+        ],
+        [
+          5925.7,
+          6117.5
+        ],
+        [
+          5846.1,
+          6038.6
+        ],
+        [
+          5840.7,
+          6033.2
+        ],
+        [
+          5862.1,
+          6011.8
+        ],
+        [
+          5864.9,
+          6009
+        ]
+      ]
+    ],
+    "centroidPx": [
+      5895.26,
+      6063.23
+    ],
+    "cells": [
+      "C3·89"
+    ],
+    "ref": "C3·89",
+    "areaM2": 4096.6,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-155",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "The island line's own platforms, beyond the barrier. The trains are visibly smaller — narrower gauge, four short carriages, no first class — and run to a timetable that is not published outside the Transfer. Standing room only at shift change. The seaward side is fenced along its entire length; the posted notice calls it a safety measure.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The island line's own platforms, beyond the barrier. The trains are visibly smaller — narrower gauge, four short carriages, no first class — and run to a timetable that is not published outside the Transfer. Standing room only at shift change. The seaward side is fenced along its entire length; the posted notice calls it a safety measure.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

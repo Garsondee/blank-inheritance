@@ -1,0 +1,140 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-long-terrace-no-8-392",
+  "type": "location",
+  "tier": "site",
+  "name": "The Long Terrace, No. 8",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "",
+  "tags": [
+    "staff-housing"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21364699,
+          34.67019213
+        ],
+        [
+          135.2137043,
+          34.67010033
+        ],
+        [
+          135.21395731,
+          34.67020618
+        ],
+        [
+          135.21389962,
+          34.67029922
+        ],
+        [
+          135.21385655,
+          34.6702815
+        ],
+        [
+          135.21384723,
+          34.6702986
+        ],
+        [
+          135.21376258,
+          34.67026347
+        ],
+        [
+          135.21377377,
+          34.67024545
+        ],
+        [
+          135.21364699,
+          34.67019213
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7322.7,
+          6543.1
+        ],
+        [
+          7332.4,
+          6549.2
+        ],
+        [
+          7346.4,
+          6527.3
+        ],
+        [
+          7336.6,
+          6521.1
+        ],
+        [
+          7334.2,
+          6524.8
+        ],
+        [
+          7332.5,
+          6523.6
+        ],
+        [
+          7327.8,
+          6530.9
+        ],
+        [
+          7329.7,
+          6532.1
+        ],
+        [
+          7322.7,
+          6543.1
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7334.34,
+      6534.72
+    ],
+    "cells": [
+      "D4·51"
+    ],
+    "ref": "D4·51",
+    "areaM2": 318.4,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-392",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "All of these are staff accommodation.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A long run of near-identical staff housing built in one pass; residents tell the doors apart by what's hanging in the window, since the numbers wore off years ago.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

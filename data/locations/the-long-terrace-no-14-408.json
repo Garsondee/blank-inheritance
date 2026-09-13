@@ -1,0 +1,109 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-long-terrace-no-14-408",
+  "type": "location",
+  "tier": "site",
+  "name": "The Long Terrace, No. 14",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "",
+  "tags": [
+    "staff-housing"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21329204,
+          34.66973611
+        ],
+        [
+          135.21363734,
+          34.6698807
+        ],
+        [
+          135.2137438,
+          34.6697105
+        ],
+        [
+          135.21339849,
+          34.6695659
+        ],
+        [
+          135.21329204,
+          34.66973611
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7320.4,
+          6603.2
+        ],
+        [
+          7339.5,
+          6573.3
+        ],
+        [
+          7357.5,
+          6584.6
+        ],
+        [
+          7338.4,
+          6614.5
+        ],
+        [
+          7320.4,
+          6603.2
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7338.95,
+      6593.9
+    ],
+    "cells": [
+      "D4·51",
+      "D4·52"
+    ],
+    "ref": "D4·51",
+    "areaM2": 754.0,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-408",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "All of these are staff accommodation.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A long run of near-identical staff housing built in one pass; residents tell the doors apart by what's hanging in the window, since the numbers wore off years ago.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

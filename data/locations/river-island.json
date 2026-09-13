@@ -1,0 +1,192 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "river-island",
+  "type": "location",
+  "tier": "region",
+  "name": "The River Island",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "district",
+  "tags": [
+    "auto-tessellated",
+    "land"
+  ],
+  "classification": null,
+  "rank": 4,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.15488281,
+          34.64904876
+        ],
+        [
+          135.15554553,
+          34.64820269
+        ],
+        [
+          135.15652727,
+          34.64824762
+        ],
+        [
+          135.15724432,
+          34.64659021
+        ],
+        [
+          135.16574858,
+          34.64741726
+        ],
+        [
+          135.16677244,
+          34.64796484
+        ],
+        [
+          135.16619408,
+          34.64981644
+        ],
+        [
+          135.16371862,
+          34.64945292
+        ],
+        [
+          135.16407985,
+          34.65084664
+        ],
+        [
+          135.16361002,
+          34.65107557
+        ],
+        [
+          135.16066468,
+          34.65094092
+        ],
+        [
+          135.15936382,
+          34.65000502
+        ],
+        [
+          135.15529828,
+          34.64963119
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          3875,
+          11300
+        ],
+        [
+          3975,
+          11350
+        ],
+        [
+          4050,
+          11300
+        ],
+        [
+          4200,
+          11425
+        ],
+        [
+          4825,
+          10950
+        ],
+        [
+          4875,
+          10850
+        ],
+        [
+          4725,
+          10700
+        ],
+        [
+          4550,
+          10850
+        ],
+        [
+          4500,
+          10700
+        ],
+        [
+          4450,
+          10700
+        ],
+        [
+          4225,
+          10850
+        ],
+        [
+          4175,
+          11000
+        ],
+        [
+          3875,
+          11225
+        ]
+      ]
+    ],
+    "centroidPx": [
+      4377.91,
+      11045.5
+    ],
+    "cells": [
+      "C6·02",
+      "C6·12",
+      "C6·22",
+      "C6·32",
+      "B6·93",
+      "C6·03",
+      "C6·13",
+      "C6·23",
+      "C6·33",
+      "B6·84",
+      "B6·94",
+      "C6·04",
+      "C6·14",
+      "C6·24",
+      "B6·85",
+      "B6·95",
+      "C6·05",
+      "C6·15",
+      "B6·96",
+      "C6·06"
+    ],
+    "ref": "C6·02",
+    "areaM2": 343437.5,
+    "withinRegionRef": null,
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-214",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "A flat block of made ground in the river mouth, ringed by water and reached by two bridges. Storage, mostly, and one building nobody can account for.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A flat block of made ground in the river mouth, ringed by water and reached by two bridges. Storage, mostly, and one building nobody can account for.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

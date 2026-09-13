@@ -1,0 +1,229 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "north-approach-channel",
+  "type": "location",
+  "tier": "region",
+  "name": "The North Approach Channel",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "water",
+  "tags": [
+    "auto-tessellated",
+    "water"
+  ],
+  "classification": null,
+  "rank": 4,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21560719,
+          34.69373148
+        ],
+        [
+          135.21479218,
+          34.69259109
+        ],
+        [
+          135.21837044,
+          34.69006127
+        ],
+        [
+          135.21355379,
+          34.6874888
+        ],
+        [
+          135.23447909,
+          34.67767455
+        ],
+        [
+          135.22979965,
+          34.69224165
+        ],
+        [
+          135.22448783,
+          34.69152723
+        ],
+        [
+          135.2189337,
+          34.69528245
+        ],
+        [
+          135.21565441,
+          34.69376917
+        ],
+        [
+          135.21565441,
+          34.69376917
+        ],
+        [
+          135.21562439,
+          34.69375554
+        ],
+        [
+          135.21560775,
+          34.69373225
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6150.0,
+          4203.1
+        ],
+        [
+          6150.0,
+          4350.0
+        ],
+        [
+          6575.0,
+          4425.0
+        ],
+        [
+          6340.0,
+          4895.1
+        ],
+        [
+          8544.7,
+          4857.7
+        ],
+        [
+          7353.8,
+          3684.3
+        ],
+        [
+          6975.0,
+          4000.0
+        ],
+        [
+          6325.0,
+          3900.0
+        ],
+        [
+          6151.6,
+          4197.3
+        ],
+        [
+          6151.6,
+          4197.3
+        ],
+        [
+          6150.0,
+          4200.0
+        ],
+        [
+          6150.0,
+          4203.0
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7225.03,
+      4414.18
+    ],
+    "cells": [
+      "D2·57",
+      "D2·67",
+      "D2·08",
+      "D2·18",
+      "D2·28",
+      "D2·38",
+      "D2·48",
+      "D2·58",
+      "D2·68",
+      "D2·78",
+      "C2·99",
+      "D2·09",
+      "D2·19",
+      "D2·29",
+      "D2·39",
+      "D2·49",
+      "D2·59",
+      "D2·69",
+      "D2·79",
+      "D2·89",
+      "C3·90",
+      "D3·00",
+      "D3·10",
+      "D3·20",
+      "D3·30",
+      "D3·40",
+      "D3·50",
+      "D3·60",
+      "D3·70",
+      "D3·80",
+      "D3·90",
+      "D3·11",
+      "D3·21",
+      "D3·31",
+      "D3·41",
+      "D3·51",
+      "D3·61",
+      "D3·71",
+      "D3·81",
+      "D3·91",
+      "E3·01",
+      "D3·02",
+      "D3·12",
+      "D3·22",
+      "D3·32",
+      "D3·42",
+      "D3·52",
+      "D3·62",
+      "D3·72",
+      "D3·82",
+      "D3·92",
+      "E3·02",
+      "E3·12",
+      "D3·03",
+      "D3·13",
+      "D3·23",
+      "D3·33",
+      "D3·43",
+      "D3·53",
+      "D3·63",
+      "D3·73",
+      "D3·83",
+      "D3·93",
+      "E3·03",
+      "E3·13"
+    ],
+    "ref": "D2·57",
+    "areaM2": 1702580.8,
+    "withinRegionRef": null,
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-213",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "The marked channel inbound past the headland. Narrow, busy, and the one stretch of water where the harbour office gives orders rather than advice.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The marked channel inbound past the headland. Narrow, busy, and the one stretch of water where the harbour office gives orders rather than advice.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-weighbridge-450",
+  "type": "location",
+  "tier": "site",
+  "name": "The Weighbridge",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "amenity"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.2146115,
+          34.66522362
+        ],
+        [
+          135.21454869,
+          34.66523855
+        ],
+        [
+          135.21458249,
+          34.66533198
+        ],
+        [
+          135.21464531,
+          34.66531704
+        ],
+        [
+          135.2146115,
+          34.66522362
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7679,
+          6972.8
+        ],
+        [
+          7673.2,
+          6974.3
+        ],
+        [
+          7670.6,
+          6963.8
+        ],
+        [
+          7676.4,
+          6962.3
+        ],
+        [
+          7679,
+          6972.8
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7674.8,
+      6968.3
+    ],
+    "cells": [
+      "D4·73"
+    ],
+    "ref": "D4·73",
+    "areaM2": 64.8,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-450",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "amenities and other general city supporting functions and administration.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A public weighing station for cart and handbarrow traffic moving goods through the quarter.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

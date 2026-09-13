@@ -1,0 +1,155 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "row-d-block-8",
+  "type": "location",
+  "tier": "site",
+  "name": "Row D, Block 8",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21104869,
+          34.6715032
+        ],
+        [
+          135.21112482,
+          34.6715069
+        ],
+        [
+          135.21112391,
+          34.67152514
+        ],
+        [
+          135.21122831,
+          34.67152762
+        ],
+        [
+          135.21122857,
+          34.67072461
+        ],
+        [
+          135.21119283,
+          34.67072424
+        ],
+        [
+          135.21119083,
+          34.67071789
+        ],
+        [
+          135.21112832,
+          34.67071906
+        ],
+        [
+          135.21112707,
+          34.67073328
+        ],
+        [
+          135.21105909,
+          34.67073921
+        ],
+        [
+          135.21104869,
+          34.6715032
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7043.7,
+          6538.9
+        ],
+        [
+          7049.5,
+          6535
+        ],
+        [
+          7048.4,
+          6533.3
+        ],
+        [
+          7056.5,
+          6528.2
+        ],
+        [
+          7101.8,
+          6604.9
+        ],
+        [
+          7099,
+          6606.6
+        ],
+        [
+          7099.2,
+          6607.3
+        ],
+        [
+          7094.2,
+          6610.1
+        ],
+        [
+          7093.3,
+          6608.8
+        ],
+        [
+          7087.6,
+          6611.4
+        ],
+        [
+          7043.7,
+          6538.9
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7072.34,
+      6570.57
+    ],
+    "cells": [
+      "D4·41",
+      "D4·42"
+    ],
+    "ref": "D4·41",
+    "areaM2": 1402.8,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-110",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Large enough to have its own unofficial block captain, self-appointed, mostly concerned with roster sheets for the mess hall queue and a genuinely well-run lost-and-found shelf by the stairwell door.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Large enough to have its own unofficial block captain, self-appointed, mostly concerned with roster sheets for the mess hall queue and a genuinely well-run lost-and-found shelf by the stairwell door.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

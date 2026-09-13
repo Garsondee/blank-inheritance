@@ -1,0 +1,125 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-kennels",
+  "type": "location",
+  "tier": "site",
+  "name": "The Kennels",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21775229,
+          34.68000019
+        ],
+        [
+          135.21770419,
+          34.68010844
+        ],
+        [
+          135.21788339,
+          34.68016237
+        ],
+        [
+          135.21790477,
+          34.68011426
+        ],
+        [
+          135.21791011,
+          34.68010224
+        ],
+        [
+          135.2179311,
+          34.68005536
+        ],
+        [
+          135.21775229,
+          34.68000019
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7093.6,
+          5414.9
+        ],
+        [
+          7083.7,
+          5406.8
+        ],
+        [
+          7094.8,
+          5393.3
+        ],
+        [
+          7099.2,
+          5396.9
+        ],
+        [
+          7100.3,
+          5397.8
+        ],
+        [
+          7104.6,
+          5401.3
+        ],
+        [
+          7093.6,
+          5414.9
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7094.16,
+      5404.09
+    ],
+    "cells": [
+      "D3·45",
+      "D3·46"
+    ],
+    "ref": "D3·45",
+    "areaM2": 222.4,
+    "withinRegionRef": "garrison",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-224",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Working dogs for the perimeter patrols, and the one building on the base that anybody volunteers to be posted to.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Working dogs for the perimeter patrols, and the one building on the base that anybody volunteers to be posted to.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

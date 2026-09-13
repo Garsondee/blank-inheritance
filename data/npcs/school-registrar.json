@@ -1,0 +1,14 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "school-registrar",
+  "type": "npc",
+  "name": null,
+  "role": "Registrar, Main School Complex",
+  "pole": null,
+  "affiliation": "directorate",
+  "description": "Runs placement testing and academic streaming for every candidate who passes through the Main School Complex (data/locations/main-school-complex.json) -- scores the tests, keeps the real archive on the second floor, and decides which section a student lands in. Sees the raw data behind every candidate's placement, which is more than almost anyone else on the island sees in one place, and has never been told why the Directorate wants it kept.",
+  "designNotes": "Placeholder role, not a character -- created 2026-09-13 alongside the location itself, following the standing convention (see range-safety-officer.json). Whether this person has ever actually noticed a pattern worth flagging is a GM call at the table, not decided here. Name, personality, and how closely they're watched are all open.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "placeholder — not yet named or cast"
+}

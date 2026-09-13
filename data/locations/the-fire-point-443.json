@@ -1,0 +1,124 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-fire-point-443",
+  "type": "location",
+  "tier": "site",
+  "name": "The Fire Point",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "amenity"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21489793,
+          34.66501273
+        ],
+        [
+          135.21483319,
+          34.66512072
+        ],
+        [
+          135.2148854,
+          34.66514237
+        ],
+        [
+          135.21491937,
+          34.66508707
+        ],
+        [
+          135.21497401,
+          34.66510857
+        ],
+        [
+          135.21500478,
+          34.66505588
+        ],
+        [
+          135.21489793,
+          34.66501273
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7713.5,
+          6979.6
+        ],
+        [
+          7702.3,
+          6972.3
+        ],
+        [
+          7705.2,
+          6967.8
+        ],
+        [
+          7711,
+          6971.5
+        ],
+        [
+          7714.1,
+          6966.9
+        ],
+        [
+          7719.5,
+          6970.5
+        ],
+        [
+          7713.5,
+          6979.6
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7711.34,
+      6972.8
+    ],
+    "cells": [
+      "D4·73"
+    ],
+    "ref": "D4·73",
+    "areaM2": 108.3,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-443",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "amenities and other general city supporting functions and administration.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A hand-pump and hose store, maintained by a rotating civic duty roster rather than a standing brigade.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

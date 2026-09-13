@@ -1,0 +1,138 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "candidate-gate",
+  "type": "location",
+  "tier": "site",
+  "name": "Candidate Gate",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21052621,
+          34.67238396
+        ],
+        [
+          135.21052615,
+          34.67219766
+        ],
+        [
+          135.2105428,
+          34.67219792
+        ],
+        [
+          135.21054239,
+          34.67218137
+        ],
+        [
+          135.21060058,
+          34.67218126
+        ],
+        [
+          135.21060122,
+          34.67219456
+        ],
+        [
+          135.21061975,
+          34.67219389
+        ],
+        [
+          135.21062015,
+          34.67238421
+        ],
+        [
+          135.21052621,
+          34.67238396
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6952.8,
+          6479.1
+        ],
+        [
+          6963.3,
+          6496.9
+        ],
+        [
+          6964.6,
+          6496.1
+        ],
+        [
+          6965.5,
+          6497.7
+        ],
+        [
+          6970.1,
+          6495
+        ],
+        [
+          6969.4,
+          6493.7
+        ],
+        [
+          6970.9,
+          6492.9
+        ],
+        [
+          6960.2,
+          6474.7
+        ],
+        [
+          6952.8,
+          6479.1
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6962.06,
+      6486.33
+    ],
+    "cells": [
+      "D4·31"
+    ],
+    "ref": "D4·31",
+    "areaM2": 188.1,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-130",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "The single staffed checkpoint at the housing rows' only road entrance. Every candidate signs in and out here, badge checked against a roster, curfew logged. Small guard booth, a barrier arm, a weather-beaten awning where the off-duty proctors actually spend most of their shift talking rather than checking anyone.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The single staffed checkpoint at the housing rows' only road entrance. Every candidate signs in and out here, badge checked against a roster, curfew logged. Small guard booth, a barrier arm, a weather-beaten awning where the off-duty proctors actually spend most of their shift talking rather than checking anyone.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

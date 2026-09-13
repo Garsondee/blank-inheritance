@@ -1,0 +1,168 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "main-mech-hangar",
+  "type": "location",
+  "tier": "site",
+  "name": "Main Mech Hangar",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21473302,
+          34.67766531
+        ],
+        [
+          135.21339543,
+          34.67717657
+        ],
+        [
+          135.21485311,
+          34.67514675
+        ],
+        [
+          135.21602398,
+          34.67569479
+        ],
+        [
+          135.21559811,
+          34.67635784
+        ],
+        [
+          135.21537157,
+          34.67636887
+        ],
+        [
+          135.21511955,
+          34.67651271
+        ],
+        [
+          135.21501035,
+          34.67669681
+        ],
+        [
+          135.21499766,
+          34.67686526
+        ],
+        [
+          135.21507316,
+          34.67700639
+        ],
+        [
+          135.21513418,
+          34.67709179
+        ],
+        [
+          135.21513418,
+          34.67709179
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6987,
+          5778.6
+        ],
+        [
+          6909,
+          5887.6
+        ],
+        [
+          7138.5,
+          6013.6
+        ],
+        [
+          7200,
+          5906.7
+        ],
+        [
+          7129,
+          5863.2
+        ],
+        [
+          7110.5,
+          5872.7
+        ],
+        [
+          7082.5,
+          5870.7
+        ],
+        [
+          7063.5,
+          5858.2
+        ],
+        [
+          7053,
+          5842.7
+        ],
+        [
+          7051,
+          5825.7
+        ],
+        [
+          7051,
+          5814.7
+        ],
+        [
+          7051,
+          5814.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7055.28,
+      5898.83
+    ],
+    "cells": [
+      "D3·37",
+      "D3·47",
+      "D3·38",
+      "D3·48",
+      "D3·49"
+    ],
+    "ref": "D3·37",
+    "areaM2": 30925.7,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-216",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "A concrete bunker with 9 mech bays arranged in a row. The huge cylindrical doors open out onto the mech firing and training fields to the north east. Six bays hold Frames. Three are swept, lit, numbered and empty, and nobody has been told why the bunker was built with nine.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A concrete bunker with 9 mech bays arranged in a row. The huge cylindrical doors open out onto the mech firing and training fields to the north east. Six bays hold Frames. Three are swept, lit, numbered and empty, and nobody has been told why the bunker was built with nine.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

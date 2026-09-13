@@ -1,0 +1,259 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "south-waterfront",
+  "type": "location",
+  "tier": "region",
+  "name": "South Waterfront",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "district",
+  "tags": [
+    "auto-tessellated",
+    "land"
+  ],
+  "classification": null,
+  "rank": 4,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.17679377,
+          34.65502252
+        ],
+        [
+          135.15971017,
+          34.65229375
+        ],
+        [
+          135.15962857,
+          34.65170734
+        ],
+        [
+          135.16009842,
+          34.65147843
+        ],
+        [
+          135.16322439,
+          34.65230996
+        ],
+        [
+          135.16355572,
+          34.6518869
+        ],
+        [
+          135.1643447,
+          34.65254896
+        ],
+        [
+          135.16795272,
+          34.65183738
+        ],
+        [
+          135.16981992,
+          34.65223564
+        ],
+        [
+          135.17248825,
+          34.65198183
+        ],
+        [
+          135.17277737,
+          34.65105601
+        ],
+        [
+          135.1681455,
+          34.65122018
+        ],
+        [
+          135.16721798,
+          34.65036401
+        ],
+        [
+          135.16751928,
+          34.64812416
+        ],
+        [
+          135.17004896,
+          34.64767627
+        ],
+        [
+          135.17181971,
+          34.6483831
+        ],
+        [
+          135.18364308,
+          34.64942292
+        ],
+        [
+          135.18640497,
+          34.65180488
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          5268.609367,
+          9708.959932
+        ],
+        [
+          4073.406215,
+          10765.163983
+        ],
+        [
+          4100,
+          10825
+        ],
+        [
+          4150,
+          10825
+        ],
+        [
+          4350,
+          10600
+        ],
+        [
+          4400,
+          10625
+        ],
+        [
+          4425,
+          10525
+        ],
+        [
+          4750,
+          10425
+        ],
+        [
+          4875,
+          10300
+        ],
+        [
+          5100,
+          10200
+        ],
+        [
+          5175,
+          10275
+        ],
+        [
+          4800,
+          10475
+        ],
+        [
+          4775,
+          10600
+        ],
+        [
+          4925,
+          10800
+        ],
+        [
+          5150,
+          10725
+        ],
+        [
+          5250,
+          10575
+        ],
+        [
+          6125,
+          9925
+        ],
+        [
+          6208.817783,
+          9568.774424
+        ]
+      ]
+    ],
+    "centroidPx": [
+      5323.52,
+      10137.02
+    ],
+    "cells": [
+      "C5·86",
+      "C5·96",
+      "D5·06",
+      "C5·47",
+      "C5·57",
+      "C5·67",
+      "C5·77",
+      "C5·87",
+      "C5·97",
+      "D5·07",
+      "C5·38",
+      "C5·48",
+      "C5·58",
+      "C5·68",
+      "C5·78",
+      "C5·88",
+      "C5·98",
+      "C5·29",
+      "C5·39",
+      "C5·49",
+      "C5·59",
+      "C5·69",
+      "C5·79",
+      "C5·89",
+      "C5·99",
+      "C6·10",
+      "C6·20",
+      "C6·30",
+      "C6·40",
+      "C6·50",
+      "C6·60",
+      "C6·70",
+      "C6·01",
+      "C6·11",
+      "C6·21",
+      "C6·31",
+      "C6·41",
+      "C6·51",
+      "C6·61",
+      "B6·92",
+      "C6·02",
+      "C6·12",
+      "C6·22",
+      "C6·32",
+      "C6·42",
+      "C6·52",
+      "B6·93"
+    ],
+    "ref": "C5·86",
+    "areaM2": 964881.8,
+    "withinRegionRef": null,
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-208",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "Working shoreline south of the centre: slipways, a small yard, and the reclaimed strip where the coast road runs out of shore to follow.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Working shoreline south of the centre: slipways, a small yard, and the reclaimed strip where the coast road runs out of shore to follow.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

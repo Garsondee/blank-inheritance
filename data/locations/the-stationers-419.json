@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-stationers-419",
+  "type": "location",
+  "tier": "site",
+  "name": "The Stationer's",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "shop"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21077446,
+          34.67009607
+        ],
+        [
+          135.21069167,
+          34.67023379
+        ],
+        [
+          135.21073773,
+          34.67025215
+        ],
+        [
+          135.21082052,
+          34.67011443
+        ],
+        [
+          135.21077446,
+          34.67009607
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7101.4,
+          6686.1
+        ],
+        [
+          7087.1,
+          6676.8
+        ],
+        [
+          7089.7,
+          6672.9
+        ],
+        [
+          7104,
+          6682.2
+        ],
+        [
+          7101.4,
+          6686.1
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7095.55,
+      6679.5
+    ],
+    "cells": [
+      "D4·42"
+    ],
+    "ref": "D4·42",
+    "areaM2": 79.9,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-419",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Shops",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "School supplies, ink, and paper -- does most of its business in the week before term starts.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

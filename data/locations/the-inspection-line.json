@@ -1,0 +1,122 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-inspection-line",
+  "type": "location",
+  "tier": "site",
+  "name": "The Inspection Line",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20347552,
+          34.66694966
+        ],
+        [
+          135.20347361,
+          34.66699665
+        ],
+        [
+          135.20350448,
+          34.6669973
+        ],
+        [
+          135.20376284,
+          34.66700427
+        ],
+        [
+          135.20380305,
+          34.66700559
+        ],
+        [
+          135.20380458,
+          34.66695984
+        ],
+        [
+          135.20347552,
+          34.66694966
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6702.7,
+          7326.7
+        ],
+        [
+          6699.9,
+          7322.3
+        ],
+        [
+          6702.3,
+          7320.8
+        ],
+        [
+          6722.3,
+          7308.1
+        ],
+        [
+          6725.4,
+          7306.1
+        ],
+        [
+          6728.1,
+          7310.4
+        ],
+        [
+          6702.7,
+          7326.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6713.97,
+      7316.42
+    ],
+    "cells": [
+      "D4·25"
+    ],
+    "ref": "D4·25",
+    "areaM2": 154.8,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-362",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "A covered thirty metres with a pit beneath it and good light above. Vehicles are walked through slowly. So are the people driving them.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A covered thirty metres with a pit beneath it and good light above. Vehicles are walked through slowly. So are the people driving them.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

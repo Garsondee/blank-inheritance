@@ -1,0 +1,134 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-tsurumi-compound-423",
+  "type": "location",
+  "tier": "site",
+  "name": "The Tsurumi Compound",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "wealthy",
+    "walled"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21302639,
+          34.66759621
+        ],
+        [
+          135.21321298,
+          34.66729166
+        ],
+        [
+          135.21359187,
+          34.66744604
+        ],
+        [
+          135.21360422,
+          34.66742431
+        ],
+        [
+          135.21375387,
+          34.66751672
+        ],
+        [
+          135.21379833,
+          34.66763217
+        ],
+        [
+          135.2136673,
+          34.66785309
+        ],
+        [
+          135.21302639,
+          34.66759621
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7420.1,
+          6820
+        ],
+        [
+          7452,
+          6840.4
+        ],
+        [
+          7473.2,
+          6808
+        ],
+        [
+          7475.4,
+          6809.5
+        ],
+        [
+          7482,
+          6793.7
+        ],
+        [
+          7479,
+          6780.6
+        ],
+        [
+          7456.2,
+          6765.6
+        ],
+        [
+          7420.1,
+          6820
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7453.47,
+      6803.42
+    ],
+    "cells": [
+      "D4·62",
+      "D4·63"
+    ],
+    "ref": "D4·62",
+    "areaM2": 2418.0,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-423",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Larger and more expensive houses. Some within walled compounds with gates and expensive looking bodyguards.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The largest house on the row, and the only one whose gate has ever turned away a Directorate courier and made it stick.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

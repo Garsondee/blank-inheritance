@@ -1,0 +1,201 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "rail-cut",
+  "type": "location",
+  "tier": "region",
+  "name": "The Rail Cut",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "district",
+  "tags": [
+    "auto-tessellated",
+    "land"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20142238,
+          34.69959799
+        ],
+        [
+          135.21018315,
+          34.71185705
+        ],
+        [
+          135.2012917,
+          34.72194685
+        ],
+        [
+          135.19873552,
+          34.72244495
+        ],
+        [
+          135.18966493,
+          34.70975055
+        ],
+        [
+          135.19664409,
+          34.6995464
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          4700,
+          4303.228708
+        ],
+        [
+          4700,
+          2724.146274
+        ],
+        [
+          3429.719573,
+          2174.160993
+        ],
+        [
+          3200,
+          2245.557697
+        ],
+        [
+          3200,
+          3880.607966
+        ],
+        [
+          4325.879255,
+          4530.634657
+        ]
+      ]
+    ],
+    "centroidPx": [
+      3950.71,
+      3337.32
+    ],
+    "cells": [
+      "B1·59",
+      "B1·69",
+      "B2·50",
+      "B2·60",
+      "B2·70",
+      "B2·80",
+      "B2·51",
+      "B2·61",
+      "B2·71",
+      "B2·81",
+      "B2·91",
+      "C2·01",
+      "C2·11",
+      "B2·52",
+      "B2·62",
+      "B2·72",
+      "B2·82",
+      "B2·92",
+      "C2·02",
+      "C2·12",
+      "C2·22",
+      "B2·53",
+      "B2·63",
+      "B2·73",
+      "B2·83",
+      "B2·93",
+      "C2·03",
+      "C2·13",
+      "C2·23",
+      "B2·54",
+      "B2·64",
+      "B2·74",
+      "B2·84",
+      "B2·94",
+      "C2·04",
+      "C2·14",
+      "C2·24",
+      "B2·55",
+      "B2·65",
+      "B2·75",
+      "B2·85",
+      "B2·95",
+      "C2·05",
+      "C2·15",
+      "C2·25",
+      "B2·56",
+      "B2·66",
+      "B2·76",
+      "B2·86",
+      "B2·96",
+      "C2·06",
+      "C2·16",
+      "C2·26",
+      "B2·57",
+      "B2·67",
+      "B2·77",
+      "B2·87",
+      "B2·97",
+      "C2·07",
+      "C2·17",
+      "C2·27",
+      "B2·58",
+      "B2·68",
+      "B2·78",
+      "B2·88",
+      "B2·98",
+      "C2·08",
+      "C2·18",
+      "C2·28",
+      "B2·69",
+      "B2·79",
+      "B2·89",
+      "B2·99",
+      "C2·09",
+      "C2·19",
+      "C2·29",
+      "B3·70",
+      "B3·80",
+      "B3·90",
+      "C3·00",
+      "C3·10",
+      "C3·20",
+      "B3·91",
+      "C3·01",
+      "C3·11"
+    ],
+    "ref": "B1·59",
+    "areaM2": 2768727.7,
+    "withinRegionRef": null,
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-194",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "Where the main line comes down out of the valley and splits the built ground in two. Everything here is arranged around getting over, under or alongside the tracks.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Where the main line comes down out of the valley and splits the built ground in two. Everything here is arranged around getting over, under or alongside the tracks.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

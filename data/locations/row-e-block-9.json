@@ -1,0 +1,204 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "row-e-block-9",
+  "type": "location",
+  "tier": "site",
+  "name": "Row E, Block 9",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21254145,
+          34.67240615
+        ],
+        [
+          135.21252113,
+          34.67239722
+        ],
+        [
+          135.21250425,
+          34.67242324
+        ],
+        [
+          135.21246211,
+          34.67240506
+        ],
+        [
+          135.21247528,
+          34.67237561
+        ],
+        [
+          135.2124007,
+          34.67234393
+        ],
+        [
+          135.21260406,
+          34.6720061
+        ],
+        [
+          135.21262084,
+          34.67201362
+        ],
+        [
+          135.21265469,
+          34.67195105
+        ],
+        [
+          135.21259689,
+          34.6719269
+        ],
+        [
+          135.21288253,
+          34.6714453
+        ],
+        [
+          135.21296253,
+          34.67147747
+        ],
+        [
+          135.21298035,
+          34.67145098
+        ],
+        [
+          135.21302453,
+          34.67147026
+        ],
+        [
+          135.21272503,
+          34.6719963
+        ],
+        [
+          135.21276456,
+          34.67201261
+        ],
+        [
+          135.21254145,
+          34.67240615
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7110.6,
+          6383.1
+        ],
+        [
+          7109.5,
+          6384.9
+        ],
+        [
+          7106.7,
+          6383.2
+        ],
+        [
+          7104.4,
+          6386.9
+        ],
+        [
+          7107.1,
+          6389.1
+        ],
+        [
+          7103,
+          6395.6
+        ],
+        [
+          7138.1,
+          6418.4
+        ],
+        [
+          7139,
+          6416.9
+        ],
+        [
+          7145.2,
+          6421.3
+        ],
+        [
+          7142,
+          6426.3
+        ],
+        [
+          7191.7,
+          6459
+        ],
+        [
+          7196.2,
+          6452.2
+        ],
+        [
+          7199.1,
+          6453.9
+        ],
+        [
+          7201.5,
+          6450
+        ],
+        [
+          7148.2,
+          6413.7
+        ],
+        [
+          7150.4,
+          6410.3
+        ],
+        [
+          7110.6,
+          6383.1
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7150.34,
+      6421.06
+    ],
+    "cells": [
+      "D4·40",
+      "D4·41",
+      "D4·51"
+    ],
+    "ref": "D4·40",
+    "areaM2": 1508.0,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-132",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "The block with the best rooftop access, unofficially, via a maintenance ladder nobody has ever bothered to lock. On clear nights it's where candidates go to be somewhere that isn't quite inside the rules, watching the smokestack line and the cliff-top campus lights from a little further off than they're supposed to be.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The block with the best rooftop access, unofficially, via a maintenance ladder nobody has ever bothered to lock. On clear nights it's where candidates go to be somewhere that isn't quite inside the rules, watching the smokestack line and the cliff-top campus lights from a little further off than they're supposed to be.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

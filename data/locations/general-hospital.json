@@ -1,0 +1,138 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "general-hospital",
+  "type": "location",
+  "tier": "site",
+  "name": "General Hospital",
+  "nameJa": "総合病院",
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [],
+  "depth": "standing",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21913879,
+          34.66266365
+        ],
+        [
+          135.21977512,
+          34.66160371
+        ],
+        [
+          135.22112583,
+          34.66215183
+        ],
+        [
+          135.22091437,
+          34.66250309
+        ],
+        [
+          135.22076855,
+          34.66244441
+        ],
+        [
+          135.2203437,
+          34.6631531
+        ],
+        [
+          135.21913879,
+          34.66266365
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          8180.7,
+          7006.4
+        ],
+        [
+          8290.7,
+          7078
+        ],
+        [
+          8366.4,
+          6962.7
+        ],
+        [
+          8329.9,
+          6939
+        ],
+        [
+          8321.7,
+          6951.4
+        ],
+        [
+          8248.2,
+          6903.5
+        ],
+        [
+          8180.7,
+          7006.4
+        ]
+      ]
+    ],
+    "centroidPx": [
+      8272.33,
+      6989.46
+    ],
+    "cells": [
+      "D4·93",
+      "E4·03",
+      "D4·94",
+      "E4·04"
+    ],
+    "ref": "D4·93",
+    "areaM2": 16799.1,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-350",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "[real-world: 東京インテリア]\n\nThis is the main hospital building for the fortress island.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The General Hospital is the fortress island's main civilian and garrison hospital: a blocky former commercial building in Island Centre, repurposed wholesale rather than built for the job. Sixteen thousand square metres of wings, wards and corridors count as a single storey, though the party will only ever need a handful of its rooms. It answers, at least on paper, to the Directorate's Chief Medical Officer, Shucks Mordant, though he is not here in person and never has been. A Chief of Staff runs it day to day and is who the party will actually deal with. It is a different, larger, and entirely separate facility from the campus's own Intake Medicals hall (data/scene-briefs/episode-c1s1--intake-medicals.json), which handles new arrivals only and should never be confused with this one.",
+    "playerFacing": "A wide, flat-fronted building with the proportions of a department store rather than a hospital: broad display windows on the ground floor, painted over from the inside, and a loading bay round the side still marked for deliveries it no longer receives. Inside, the conversion shows. Wards sit in what used to be showroom floors, corridors run wider than they need to, and the signage is newer than the building and still catching up to it. Whatever a visitor came for is probably a fifteen-minute walk from the front doors, past a great deal that has nothing to do with them.",
+    "gmOnly": "Play this as administratively separate from Intake Medicals even though both nominally answer to Shucks Mordant: he staffs the campus clinic in person every intake and has never set foot in this building, and that should read as an ordinary fact about a busy man's job, not as a mystery. His oversight of this hospital is a reasonable extension of his title as the Directorate's Chief Medical Officer, proposed while grounding this location and not yet confirmed by Ingram -- see his own file's Proposed connection note before treating it as settled, and simply drop him from npcRefs here if he'd rather the connection not exist. The Chief of Staff, not Shucks, actually decides what the party can access, hears about, or gets away with in this building."
+  },
+  "scene": {
+    "hooks": [
+      "A ward that should be empty by the hospital's own paperwork is not, and nobody on staff will say why when asked directly.",
+      "Someone the party needs to speak to is a patient here, and visiting hours don't cover when the party is free.",
+      "The Chief of Staff asks a small, deniable favour of the party in exchange for bending a rule about who gets seen and when."
+    ],
+    "activities": [
+      "Visit or check on an injured ally or contact recovering here, treating recovery time as a real cost the way Treat Wounds and Long-Term Rest already do (design/downtime-activities.md).",
+      "Navigate hospital bureaucracy for a real need -- a records request, a referral, a signature -- played for the same institutional-comedy register as Form 12-B.",
+      "Track down one specific specialist, record or patient somewhere in the wings nobody normally visits.",
+      "Question staff about a patient, an admission, or an incident, and get answers shaped by what the Chief of Staff has and hasn't authorised them to say."
+    ],
+    "history": "Built originally for an entirely different purpose -- the display windows and loading bay never stopped saying so -- and requisitioned wholesale when the island needed a hospital faster than one could be built for the purpose. Nothing about the building was designed for its current job, and the staff have spent longer adapting the fabric of the place than anyone above them has ever been willing to fund properly. It has been the island's main hospital for long enough that nobody currently working there remembers it as anything else.",
+    "consequences": "A ward the party helps clear, or a favour the Chief of Staff is glad to have called in, gets remembered concretely: faster attention on the next visit, a specific name to ask for, something small bent in their favour without being asked twice. A scene caused here -- a fight, a scandal, a rule visibly broken -- makes the next visit harder for everyone wearing the same uniform, not just the people responsible for it."
+  },
+  "realWorld": {},
+  "factionRefs": [
+    "directorate"
+  ],
+  "npcRefs": [
+    "shucks-mordant",
+    "hospital-chief-of-staff"
+  ],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": "locations/general-hospital.md",
+  "assetRefs": [],
+  "playlistRefs": [],
+  "rank": 2
+}

@@ -1,0 +1,124 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-transformer-house",
+  "type": "location",
+  "tier": "site",
+  "name": "The Transformer House",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21775229,
+          34.68000019
+        ],
+        [
+          135.2179311,
+          34.68005536
+        ],
+        [
+          135.2179466,
+          34.68005932
+        ],
+        [
+          135.21804908,
+          34.67983033
+        ],
+        [
+          135.21803358,
+          34.67982638
+        ],
+        [
+          135.21785532,
+          34.67977199
+        ],
+        [
+          135.21775229,
+          34.68000019
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7093.6,
+          5414.9
+        ],
+        [
+          7104.6,
+          5401.3
+        ],
+        [
+          7105.6,
+          5400.2
+        ],
+        [
+          7126.6,
+          5417.3
+        ],
+        [
+          7125.6,
+          5418.4
+        ],
+        [
+          7114.6,
+          5431.9
+        ],
+        [
+          7093.6,
+          5414.9
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7110.07,
+      5416.04
+    ],
+    "cells": [
+      "D3·46"
+    ],
+    "ref": "D3·46",
+    "areaM2": 512.3,
+    "withinRegionRef": "garrison",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-235",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "The compound's power comes ashore here before it goes anywhere else. Fenced, locked, and the only building at this end with no windows at all.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The compound's power comes ashore here before it goes anywhere else. Fenced, locked, and the only building at this end with no windows at all.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

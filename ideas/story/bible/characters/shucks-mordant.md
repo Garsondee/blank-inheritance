@@ -96,7 +96,13 @@ register as everything else already built at Intake Medicals, not a jump-scare.
 - What was his role in "supervising the disgrace" — a direct decision, a signature on someone else's,
   something else?
 - What has he actually done for two hundred years besides staff intake medicals — is that his whole
-  role in the Directorate, or one duty among others?
+  role in the Directorate, or one duty among others? **Proposed, unconfirmed, 2026-09-12:** while
+  grounding `ideas/story/bible/locations/general-hospital.md` (the fortress island's main hospital,
+  a separate building from Intake Medicals), his CMO title was read as plausibly extending to
+  administrative oversight of the island's whole medical apparatus, hospital included, even though
+  he is never there in person. That's an extrapolation made to ground a new location, not a
+  decision — see that file's own Tone section. Undecided until Ingram says
+  otherwise; `data/locations/general-hospital.json`'s `npcRefs` is a one-line change either way.
 - How does founder-Shucks relate to founder-Anabala and founder-Hyuck now, if at all? Rupiah is
   independently confirmed still active (Founding Day appearances) — is Shucks in similar ongoing
   contact with the others, or estranged, or something else entirely?
@@ -115,6 +121,10 @@ register as everything else already built at Intake Medicals, not a jump-scare.
 2. `ideas/story/blank-inheritance-master-timeline.md`, `ideas/story/dossier-cicada.md` §6 — founder
    status and revenge-list placement. Absorbed into this file 2026-09-09, the day the dossiers and
    timeline were first shared.
+3. `data/npcs/shucks-mordant.json` — 2026-09-12, formalized as a real NPC entity for the first time
+   (nothing new added beyond what this file already established). Also the day
+   `ideas/story/bible/locations/general-hospital.md` was written and proposed him as its
+   administrative CMO, unconfirmed -- see the Open Questions entry above.
 
 ## Related
 

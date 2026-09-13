@@ -1,0 +1,128 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-works-canteen",
+  "type": "location",
+  "tier": "site",
+  "name": "The Works Canteen",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [],
+  "classification": null,
+  "depth": "sketch",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20611311,
+          34.66032509
+        ],
+        [
+          135.20613995,
+          34.65988912
+        ],
+        [
+          135.20615384,
+          34.6596709
+        ],
+        [
+          135.2063766,
+          34.6596795
+        ],
+        [
+          135.20636341,
+          34.65988272
+        ],
+        [
+          135.20633494,
+          34.66033415
+        ],
+        [
+          135.20611311,
+          34.66032509
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7284.4,
+          7836.7
+        ],
+        [
+          7311.1,
+          7877.1
+        ],
+        [
+          7324.5,
+          7897.3
+        ],
+        [
+          7341.6,
+          7886.1
+        ],
+        [
+          7329.1,
+          7867.3
+        ],
+        [
+          7301.4,
+          7825.5
+        ],
+        [
+          7284.4,
+          7836.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7312.98,
+      7861.43
+    ],
+    "cells": [
+      "D4·58"
+    ],
+    "ref": "D4·58",
+    "areaM2": 1483.1,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-383",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "Seventy metres of tables, three sittings, and the one building on the strip where rank is a suggestion.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Seventy metres of long tables serving the whole strip in three sittings, and the one building on it where rank is treated as a suggestion. Everybody who makes a Frame eats here, and so does anybody who wants to be told the truth about how the work is actually going.",
+    "playerFacing": "Steam, a very long counter, and a noise level that makes a private conversation easier rather than harder. Somebody will move up to make room without being asked and will then ask who you are, in that order.",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [
+      "What the party is officially told about a job and what the fitters at the next table say about it are not the same account, and the fitters are right."
+    ],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [
+    "directorate"
+  ],
+  "npcRefs": [
+    "canteen-manager"
+  ],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": [],
+  "rank": 3
+}

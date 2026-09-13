@@ -1,0 +1,179 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "south-ridges",
+  "type": "location",
+  "tier": "region",
+  "name": "The South Ridges",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "district",
+  "tags": [
+    "auto-tessellated",
+    "land"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.15155602,
+          34.68299575
+        ],
+        [
+          135.14225196,
+          34.69658708
+        ],
+        [
+          135.12785837,
+          34.67640902
+        ],
+        [
+          135.14675739,
+          34.67627027
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          1700,
+          8210.734985
+        ],
+        [
+          200,
+          7344.709581
+        ],
+        [
+          200,
+          9942.785793
+        ],
+        [
+          1700,
+          9076.760389
+        ]
+      ]
+    ],
+    "centroidPx": [
+      825.0,
+      8643.75
+    ],
+    "cells": [
+      "A4·05",
+      "A4·06",
+      "A4·16",
+      "A4·26",
+      "A4·07",
+      "A4·17",
+      "A4·27",
+      "A4·37",
+      "A4·08",
+      "A4·18",
+      "A4·28",
+      "A4·38",
+      "A4·48",
+      "A4·58",
+      "A4·09",
+      "A4·19",
+      "A4·29",
+      "A4·39",
+      "A4·49",
+      "A4·59",
+      "A4·69",
+      "A4·79",
+      "A5·00",
+      "A5·10",
+      "A5·20",
+      "A5·30",
+      "A5·40",
+      "A5·50",
+      "A5·60",
+      "A5·70",
+      "A5·01",
+      "A5·11",
+      "A5·21",
+      "A5·31",
+      "A5·41",
+      "A5·51",
+      "A5·61",
+      "A5·71",
+      "A5·02",
+      "A5·12",
+      "A5·22",
+      "A5·32",
+      "A5·42",
+      "A5·52",
+      "A5·62",
+      "A5·72",
+      "A5·03",
+      "A5·13",
+      "A5·23",
+      "A5·33",
+      "A5·43",
+      "A5·53",
+      "A5·63",
+      "A5·73",
+      "A5·04",
+      "A5·14",
+      "A5·24",
+      "A5·34",
+      "A5·44",
+      "A5·54",
+      "A5·64",
+      "A5·74",
+      "A5·05",
+      "A5·15",
+      "A5·25",
+      "A5·35",
+      "A5·45",
+      "A5·55",
+      "A5·65",
+      "A5·06",
+      "A5·16",
+      "A5·26",
+      "A5·36",
+      "A5·46",
+      "A5·07",
+      "A5·17",
+      "A5·27",
+      "A5·08",
+      "A5·18"
+    ],
+    "ref": "A4·05",
+    "areaM2": 2598076.2,
+    "withinRegionRef": null,
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-203",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "Wooded hills closing the city in from the south-west, steep enough that the suburbs stop abruptly at their foot.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Wooded hills closing the city in from the south-west, steep enough that the suburbs stop abruptly at their foot.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

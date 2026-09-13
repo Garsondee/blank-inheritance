@@ -1,0 +1,188 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "mainland-platforms",
+  "type": "location",
+  "tier": "site",
+  "name": "Mainland Platforms",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "transport",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20220756,
+          34.68207449
+        ],
+        [
+          135.20198342,
+          34.68278771
+        ],
+        [
+          135.20217022,
+          34.68282749
+        ],
+        [
+          135.20215746,
+          34.68287349
+        ],
+        [
+          135.2022789,
+          34.68289803
+        ],
+        [
+          135.20231679,
+          34.68288898
+        ],
+        [
+          135.20233854,
+          34.68286267
+        ],
+        [
+          135.20284735,
+          34.68123714
+        ],
+        [
+          135.20279952,
+          34.68122696
+        ],
+        [
+          135.20249317,
+          34.68116173
+        ],
+        [
+          135.20228191,
+          34.68183623
+        ],
+        [
+          135.20226958,
+          34.68187573
+        ],
+        [
+          135.2024095,
+          34.68190487
+        ],
+        [
+          135.20234749,
+          34.68210362
+        ],
+        [
+          135.20220756,
+          34.68207449
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          5749.9,
+          5940.8
+        ],
+        [
+          5692,
+          5883.1
+        ],
+        [
+          5704.5,
+          5870.6
+        ],
+        [
+          5700.9,
+          5866.8
+        ],
+        [
+          5709.1,
+          5858.8
+        ],
+        [
+          5712.6,
+          5857.9
+        ],
+        [
+          5715.8,
+          5859.4
+        ],
+        [
+          5847.6,
+          5991
+        ],
+        [
+          5844.4,
+          5994.2
+        ],
+        [
+          5823.9,
+          6014.7
+        ],
+        [
+          5769.2,
+          5960.1
+        ],
+        [
+          5766,
+          5956.9
+        ],
+        [
+          5775.4,
+          5947.6
+        ],
+        [
+          5759.3,
+          5931.5
+        ],
+        [
+          5749.9,
+          5940.8
+        ]
+      ]
+    ],
+    "centroidPx": [
+      5769.39,
+      5935.75
+    ],
+    "cells": [
+      "C3·78",
+      "C3·88",
+      "C3·89"
+    ],
+    "ref": "C3·78",
+    "areaM2": 6021.3,
+    "withinRegionRef": "old-landing",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-160",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Where ordinary passenger trains terminate. Nothing about this end is unusual — full-size rolling stock, standard platforms, and a stationmaster who has run the same timetable for years and will tell anyone who asks that it ran better before the island line went in. Passengers for the island get off here whether they like it or not. The train goes no further.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Where ordinary passenger trains terminate. Nothing about this end is unusual — full-size rolling stock, standard platforms, and a stationmaster who has run the same timetable for years and will tell anyone who asks that it ran better before the island line went in. Passengers for the island get off here whether they like it or not. The train goes no further.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

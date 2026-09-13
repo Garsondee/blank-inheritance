@@ -1,0 +1,133 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "walled-house-no-9-432",
+  "type": "location",
+  "tier": "site",
+  "name": "Walled House No. 9",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "wealthy",
+    "walled"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21295562,
+          34.66755744
+        ],
+        [
+          135.2130699,
+          34.66736981
+        ],
+        [
+          135.21286719,
+          34.66726874
+        ],
+        [
+          135.21285958,
+          34.66728292
+        ],
+        [
+          135.21281822,
+          34.66726226
+        ],
+        [
+          135.21271574,
+          34.66742739
+        ],
+        [
+          135.21274077,
+          34.66747485
+        ],
+        [
+          135.21295562,
+          34.66755744
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7416.7,
+          6827
+        ],
+        [
+          7436.3,
+          6839.6
+        ],
+        [
+          7426,
+          6858.7
+        ],
+        [
+          7424.6,
+          6857.7
+        ],
+        [
+          7422.5,
+          6861.6
+        ],
+        [
+          7405.1,
+          6850.6
+        ],
+        [
+          7404.4,
+          6844.9
+        ],
+        [
+          7416.7,
+          6827
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7419.72,
+      6844.39
+    ],
+    "cells": [
+      "D4·63"
+    ],
+    "ref": "D4·63",
+    "areaM2": 627.7,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-432",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Larger and more expensive houses. Some within walled compounds with gates and expensive looking bodyguards.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "One of a run of walled compounds on the island's better ground -- private gates, private guards, and neighbours who mostly know better than to ask what pays for either.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

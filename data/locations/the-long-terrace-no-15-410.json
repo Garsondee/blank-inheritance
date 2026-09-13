@@ -1,0 +1,220 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-long-terrace-no-15-410",
+  "type": "location",
+  "tier": "site",
+  "name": "The Long Terrace, No. 15",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "",
+  "tags": [
+    "staff-housing"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21281003,
+          34.67031348
+        ],
+        [
+          135.21282255,
+          34.67029376
+        ],
+        [
+          135.21280987,
+          34.67028843
+        ],
+        [
+          135.21292129,
+          34.67010743
+        ],
+        [
+          135.21293751,
+          34.67011418
+        ],
+        [
+          135.2129673,
+          34.6700672
+        ],
+        [
+          135.21294809,
+          34.67005982
+        ],
+        [
+          135.21299707,
+          34.66997941
+        ],
+        [
+          135.21301478,
+          34.66998647
+        ],
+        [
+          135.21302598,
+          34.66996845
+        ],
+        [
+          135.21305433,
+          34.66997975
+        ],
+        [
+          135.21306001,
+          34.66997174
+        ],
+        [
+          135.21309749,
+          34.66998696
+        ],
+        [
+          135.21308971,
+          34.66999913
+        ],
+        [
+          135.21313184,
+          34.67001731
+        ],
+        [
+          135.21293196,
+          34.67034404
+        ],
+        [
+          135.21286912,
+          34.67031816
+        ],
+        [
+          135.21285925,
+          34.67033449
+        ],
+        [
+          135.21281003,
+          34.67031348
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7249.8,
+          6570.5
+        ],
+        [
+          7251.9,
+          6571.8
+        ],
+        [
+          7251.2,
+          6572.9
+        ],
+        [
+          7270.2,
+          6585
+        ],
+        [
+          7271.1,
+          6583.6
+        ],
+        [
+          7276.1,
+          6586.7
+        ],
+        [
+          7275,
+          6588.3
+        ],
+        [
+          7283.4,
+          6593.7
+        ],
+        [
+          7284.4,
+          6592.2
+        ],
+        [
+          7286.3,
+          6593.4
+        ],
+        [
+          7287.9,
+          6591
+        ],
+        [
+          7288.8,
+          6591.5
+        ],
+        [
+          7290.9,
+          6588.3
+        ],
+        [
+          7289.6,
+          6587.5
+        ],
+        [
+          7291.9,
+          6583.8
+        ],
+        [
+          7257.7,
+          6561.9
+        ],
+        [
+          7254.2,
+          6567.3
+        ],
+        [
+          7252.5,
+          6566.2
+        ],
+        [
+          7249.8,
+          6570.5
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7271.17,
+      6578.01
+    ],
+    "cells": [
+      "D4·51"
+    ],
+    "ref": "D4·51",
+    "areaM2": 523.4,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-410",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "All of these are staff accommodation.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A long run of near-identical staff housing built in one pass; residents tell the doors apart by what's hanging in the window, since the numbers wore off years ago.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

@@ -1,0 +1,140 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-noodle-counter-417",
+  "type": "location",
+  "tier": "site",
+  "name": "The Noodle Counter",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "shop"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21204628,
+          34.66692482
+        ],
+        [
+          135.21182989,
+          34.66729937
+        ],
+        [
+          135.21185187,
+          34.66731064
+        ],
+        [
+          135.21181905,
+          34.66736223
+        ],
+        [
+          135.21203074,
+          34.66744218
+        ],
+        [
+          135.21229155,
+          34.66697374
+        ],
+        [
+          135.21210005,
+          34.66689545
+        ],
+        [
+          135.21207834,
+          34.66693954
+        ],
+        [
+          135.21204628,
+          34.66692482
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7380.6,
+          6929.8
+        ],
+        [
+          7342.4,
+          6904.1
+        ],
+        [
+          7343.5,
+          6902
+        ],
+        [
+          7338,
+          6898.6
+        ],
+        [
+          7350.2,
+          6881.1
+        ],
+        [
+          7397.2,
+          6913.7
+        ],
+        [
+          7386.5,
+          6930.1
+        ],
+        [
+          7382.3,
+          6926.9
+        ],
+        [
+          7380.6,
+          6929.8
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7367.2,
+      6906.64
+    ],
+    "cells": [
+      "D4·53"
+    ],
+    "ref": "D4·53",
+    "areaM2": 1294.0,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-417",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Shops",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Standing-room noodles, open early for the staff on the school's morning shift.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

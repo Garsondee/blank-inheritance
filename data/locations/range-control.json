@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "range-control",
+  "type": "location",
+  "tier": "site",
+  "name": "Range Control",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21897116,
+          34.67918071
+        ],
+        [
+          135.21900584,
+          34.67908738
+        ],
+        [
+          135.21930228,
+          34.67917415
+        ],
+        [
+          135.21926346,
+          34.67927055
+        ],
+        [
+          135.21897116,
+          34.67918071
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7236,
+          5436.4
+        ],
+        [
+          7244,
+          5443.7
+        ],
+        [
+          7262.5,
+          5421.6
+        ],
+        [
+          7254,
+          5414.2
+        ],
+        [
+          7236,
+          5436.4
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7249.19,
+      5428.91
+    ],
+    "cells": [
+      "D3·56"
+    ],
+    "ref": "D3·56",
+    "areaM2": 316.9,
+    "withinRegionRef": "the-proving-ground",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-355",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "[real-world: ゼロ神戸]\n\nMidway down the range, with a clear sightline both ways. The Range Safety Officer calls the line hot or safe from here, and nothing fires until they say so out loud, not on a light or a horn.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "[real-world: ゼロ神戸]\n\nMidway down the range, with a clear sightline both ways. The Range Safety Officer calls the line hot or safe from here, and nothing fires until they say so out loud, not on a light or a horn.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

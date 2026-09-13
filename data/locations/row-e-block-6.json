@@ -1,0 +1,138 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "row-e-block-6",
+  "type": "location",
+  "tier": "site",
+  "name": "Row E, Block 6",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21048885,
+          34.67081003
+        ],
+        [
+          135.21057087,
+          34.67067477
+        ],
+        [
+          135.21090648,
+          34.67081468
+        ],
+        [
+          135.21081981,
+          34.67094697
+        ],
+        [
+          135.21076761,
+          34.67092532
+        ],
+        [
+          135.21078145,
+          34.67090391
+        ],
+        [
+          135.21055418,
+          34.67080748
+        ],
+        [
+          135.21053901,
+          34.67083058
+        ],
+        [
+          135.21048885,
+          34.67081003
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7038.6,
+          6631.2
+        ],
+        [
+          7052.7,
+          6640.3
+        ],
+        [
+          7071.3,
+          6611.3
+        ],
+        [
+          7057,
+          6602.7
+        ],
+        [
+          7054.1,
+          6607.2
+        ],
+        [
+          7056.4,
+          6608.6
+        ],
+        [
+          7043.9,
+          6628.4
+        ],
+        [
+          7041.4,
+          6626.9
+        ],
+        [
+          7038.6,
+          6631.2
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7055.7,
+      6621.86
+    ],
+    "cells": [
+      "D4·42"
+    ],
+    "ref": "D4·42",
+    "areaM2": 506.0,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-112",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Smallest of the mid-rise blocks, quiet, mostly older volunteers rather than conscripted seventeen-year-olds. The one block where lights-out is treated as an actual request rather than a suggestion.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Smallest of the mid-rise blocks, quiet, mostly older volunteers rather than conscripted seventeen-year-olds. The one block where lights-out is treated as an actual request rather than a suggestion.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

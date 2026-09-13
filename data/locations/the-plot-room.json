@@ -1,0 +1,149 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-plot-room",
+  "type": "location",
+  "tier": "site",
+  "name": "The Plot Room",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [],
+  "classification": null,
+  "depth": "scene",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20423448,
+          34.66533397
+        ],
+        [
+          135.20416676,
+          34.6653314
+        ],
+        [
+          135.20416794,
+          34.66530466
+        ],
+        [
+          135.20413801,
+          34.66530356
+        ],
+        [
+          135.20414223,
+          34.66524916
+        ],
+        [
+          135.20388299,
+          34.6652374
+        ],
+        [
+          135.20386585,
+          34.6655043
+        ],
+        [
+          135.20422329,
+          34.66552051
+        ],
+        [
+          135.20423448,
+          34.66533397
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6853.7,
+          7445.7
+        ],
+        [
+          6848.5,
+          7449.1
+        ],
+        [
+          6850.1,
+          7451.6
+        ],
+        [
+          6847.8,
+          7453.1
+        ],
+        [
+          6851.2,
+          7458.1
+        ],
+        [
+          6831.4,
+          7471.3
+        ],
+        [
+          6815,
+          7446.6
+        ],
+        [
+          6842.3,
+          7428.4
+        ],
+        [
+          6853.7,
+          7445.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6835.53,
+      7449.69
+    ],
+    "cells": [
+      "D4·36"
+    ],
+    "ref": "D4·36",
+    "areaM2": 899.0,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-376",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "The operations floor: one big table, the whole approach drawn on it, and everything anyone reports pushed into place by hand.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The operations floor for the whole city. A table the size of a room carries the approaches drawn to scale, and everything anyone reports -- a sighting, a siren, a unit moving -- is pushed into place on it by hand with a rake. A gallery above looks down on the table so that the people deciding can see the whole picture at once, and the people maintaining the picture can be spoken to without either group getting in the other's way. Teleprinters and the switchboard feed it continuously. The table is always slightly out of date and everyone in the building knows precisely by how much.",
+    "playerFacing": "Warm from the lamps and much louder than it looks from the door: a dozen people with headsets speaking quietly and constantly, and the soft clatter of markers being moved. From the gallery the whole approach is laid out at once. From the floor, it is a lot of small careful jobs done fast.",
+    "gmOnly": "This is the room where the Contact Pool becomes visible as a thing happening to a city rather than an encounter arriving at the party. Run briefings, debriefs and the moment a contact is first plotted here.\n\nThe lag is the feature. The table shows what was true a few minutes ago, and a party that learns to ask how old a marker is will make better decisions than one that treats the table as truth. That is a real, playable piece of tension and it costs no mechanics.\n\nPlotters hear everything and are junior enough that nobody manages what they say off duty. Use them as a route by which the party can learn something real without anybody senior deciding to tell them."
+  },
+  "scene": {
+    "hooks": [
+      "A marker on the table is being moved on somebody's word alone, and the person whose word it is has not been in the building for an hour.",
+      "The party sees their own last operation replayed on the table by people who were not there, and the reconstruction is wrong in a way only they can correct."
+    ],
+    "activities": [
+      "Take a briefing at the table and ask the questions the table can actually answer.",
+      "Work a plotting shift, and discover how much of the picture is guesswork held together by confident people.",
+      "Get a plotter to tell you, off the record, what the board looked like on a night nobody will discuss."
+    ],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [
+    "directorate"
+  ],
+  "npcRefs": [
+    "plot-room-supervisor"
+  ],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": [],
+  "rank": 2
+}

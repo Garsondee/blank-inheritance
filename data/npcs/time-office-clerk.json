@@ -1,0 +1,14 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "time-office-clerk",
+  "type": "npc",
+  "name": null,
+  "role": "Clerk, The Time Office",
+  "pole": null,
+  "affiliation": "directorate",
+  "description": "Keeps the clocking-in cards for the whole strip. Holds, without anyone thinking of it as records, a minute-by-minute account of where several thousand people were on any given day.",
+  "designNotes": "Created 2026-09-12 with The Time Office. Quietly one of the most useful NPCs here: an alibi, a contradiction, or a pattern, all filed in a rack by somebody nobody thinks to ask. Name and manner open.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "placeholder — not yet named or cast"
+}

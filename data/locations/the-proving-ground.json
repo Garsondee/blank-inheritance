@@ -1,0 +1,177 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-proving-ground",
+  "type": "location",
+  "tier": "region",
+  "name": "The Proving Ground",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [],
+  "classification": null,
+  "depth": "scene",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.22571165,
+          34.67793976
+        ],
+        [
+          135.22550603,
+          34.67834888
+        ],
+        [
+          135.22525131,
+          34.67885419
+        ],
+        [
+          135.22371564,
+          34.67978536
+        ],
+        [
+          135.22287309,
+          34.68046116
+        ],
+        [
+          135.21469162,
+          34.67801524
+        ],
+        [
+          135.21590932,
+          34.67612128
+        ],
+        [
+          135.21867244,
+          34.67699301
+        ],
+        [
+          135.21914667,
+          34.67590646
+        ],
+        [
+          135.22577486,
+          34.67781366
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7837.9,
+          5240.9
+        ],
+        [
+          7798.6,
+          5211.4
+        ],
+        [
+          7750.0,
+          5175.0
+        ],
+        [
+          7576.3,
+          5157.6
+        ],
+        [
+          7471.7,
+          5132.3
+        ],
+        [
+          6964.0,
+          5747.1
+        ],
+        [
+          7166.9,
+          5871.3
+        ],
+        [
+          7335.8,
+          5659.3
+        ],
+        [
+          7434.5,
+          5741.0
+        ],
+        [
+          7850.0,
+          5250.0
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7412.11,
+      5474.73
+    ],
+    "cells": [
+      "D3·64",
+      "D3·74",
+      "D3·55",
+      "D3·65",
+      "D3·75",
+      "D3·85",
+      "D3·46",
+      "D3·56",
+      "D3·66",
+      "D3·76",
+      "D3·37",
+      "D3·47",
+      "D3·57",
+      "D3·67",
+      "D3·48",
+      "D3·58"
+    ],
+    "ref": "D3·64",
+    "areaM2": 279900.0,
+    "withinRegionRef": null,
+    "containsRefs": [
+      "range-control",
+      "the-ready-hut",
+      "the-target-shed"
+    ],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-353",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "\n",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The Proving Ground is where Frame pilots and vehicle crews from the Main Mech Hangar and the Long Store run live-fire and manoeuvre drills, on open ground east of the Gatehouse. A concrete bullet catcher at the north-east corner takes the impact of anything that overshoots a target. It is a separate facility from The Butts, which qualifies personnel on small arms -- this range is built for Frame- and vehicle-scale weapons, and nobody who has actually stood on either confuses them. Three small structures serve it: a ready hut near the gate where crews muster before a run, a control point partway down the range where the Range Safety Officer calls the line hot or safe, and a target shed near the backstop where silhouettes and scoring gear are kept and repaired.",
+    "playerFacing": "Open, flat, scraped ground with worn wheel ruts and a scatter of target frames, some standing and some knocked flat and not yet reset. A concrete wall looms at the far end, pocked and streaked, angled to catch anything that overshoots. A hut by the gate has a chalkboard nobody has wiped since the last rotation. Somewhere down-range, a loudspeaker crackles before anyone actually says anything into it.",
+    "gmOnly": "Treat this as the Frame-scale counterpart to The Butts, not a duplicate of it -- The Butts qualifies personnel on hand weapons, this range is built and rated for Frame and vehicle weapons, and mixing the two up in play will read as a mistake to anyone tracking the base's layout. The Range Safety Officer has real authority here: what a Frame's weapon can plausibly do to the backstop is a question for SF2E's own damage and area-effect rules, not GM fiat, so check before improvising a training accident. A technician-day cost for resetting targets or repairing backstop damage is reasonable and keeps this range competing for the same shared pool as everything else in campaign/config.json's frameEconomy."
+  },
+  "scene": {
+    "hooks": [
+      "A live-fire run goes wrong -- a target rig fails, a shot goes long, or a Frame's weapon does more to the backstop than anyone expected -- and the party is the nearest help.",
+      "The Range Safety Officer refuses to sign off on a Frame or a pilot for reasons they won't fully explain, and the party has to work out why.",
+      "A technician-day dispute over who gets the range this week -- qualification, repair testing, or someone's private practice -- lands on the party to referee or exploit."
+    ],
+    "activities": [
+      "Run a live-fire or manoeuvre qualification, with the Range Safety Officer actually grading it.",
+      "Requisition range time for something off the training schedule -- testing a repaired Frame, or practising a manoeuvre nobody signed off on.",
+      "Help reset targets or assess backstop damage after a hard session, as real work with a real technician-day cost."
+    ],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [
+    "directorate"
+  ],
+  "npcRefs": [
+    "range-safety-officer"
+  ],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": [],
+  "rank": 3
+}

@@ -1,0 +1,136 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-erecting-shop",
+  "type": "location",
+  "tier": "site",
+  "name": "The Erecting Shop",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "industrial",
+  "tags": [],
+  "classification": null,
+  "depth": "scene",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20391276,
+          34.66187541
+        ],
+        [
+          135.20399114,
+          34.66017601
+        ],
+        [
+          135.20478175,
+          34.66020812
+        ],
+        [
+          135.20475267,
+          34.66085558
+        ],
+        [
+          135.2061762,
+          34.66094018
+        ],
+        [
+          135.20612707,
+          34.66197635
+        ],
+        [
+          135.20391276,
+          34.66187541
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7023.3,
+          7791.1
+        ],
+        [
+          7125.3,
+          7949.8
+        ],
+        [
+          7185.9,
+          7909.9
+        ],
+        [
+          7147.1,
+          7849.4
+        ],
+        [
+          7254.7,
+          7775
+        ],
+        [
+          7192.4,
+          7678.3
+        ],
+        [
+          7023.3,
+          7791.1
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7138.58,
+      7804.74
+    ],
+    "cells": [
+      "D4·47",
+      "D4·57",
+      "D4·48",
+      "D4·58"
+    ],
+    "ref": "D4·47",
+    "areaM2": 28889.0,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-365",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "The largest building on the strip, on the water at its southern end. Frames are assembled standing up in here, and leave the same way.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The hall where Frames are actually built. Twenty-nine thousand square metres on the island's south-western waterfront, tall enough to stand a Frame upright indoors and open to the water at its south end so that plate can be landed at the door and finished work taken out the same way. Every other shop on the strip exists to feed this one. Work is organised in bays rather than production lines: a Frame occupies a bay for months, and the bay is named for it while it does. The overhead cranes are the most valuable objects in the building and are booked weeks ahead, which makes the crane schedule the real currency of the works.",
+    "playerFacing": "The doors are the size of a building. Inside, the roof is so far up that the cranes running under it look small, and the noise arrives as one continuous thing rather than separate sounds. A Frame stands in a bay with its chest open and staging built around it like scaffolding around a church, and thirty people are working on it who all seem to know exactly which of the thirty they are.",
+    "gmOnly": "This is the best place on the island to show a Frame as an object that people build and maintain rather than a machine that simply exists. Use it for anything that needs the party to see the labour behind their own equipment.\n\nThe crane schedule is the practical constraint worth playing: a bay cannot move without a crane, cranes are booked well ahead, and bumping somebody else's booking costs goodwill that is tracked nowhere but is remembered by everyone. This is a natural, non-mechanical sibling to the technician-day pool in campaign/config.json -- use it for texture, not as a second economy to balance."
+  },
+  "scene": {
+    "hooks": [
+      "A bay that should be empty is curtained off, and the crane time booked against it is signed for by somebody who does not work in this building.",
+      "A Frame the party knows is in here with its chest open, and the fitters working on it are happy to say things to the pilot's face that no report ever would."
+    ],
+    "activities": [
+      "Watch, or help with, a lift that needs the whole bay to stop and stand clear.",
+      "Argue for crane time against somebody with a better claim to it and a longer memory.",
+      "Walk a Frame's staging with the people who build it and learn what it is actually made of."
+    ],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [
+    "directorate"
+  ],
+  "npcRefs": [
+    "works-manager"
+  ],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": [],
+  "rank": 2
+}

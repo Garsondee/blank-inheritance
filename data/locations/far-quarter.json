@@ -1,0 +1,218 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "far-quarter",
+  "type": "location",
+  "tier": "region",
+  "name": "The Far Quarter",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "district",
+  "tags": [
+    "auto-tessellated",
+    "land"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.14645483,
+          34.65971027
+        ],
+        [
+          135.1215574,
+          34.66757224
+        ],
+        [
+          135.11535881,
+          34.65887692
+        ],
+        [
+          135.14492911,
+          34.64447982
+        ],
+        [
+          135.14710475,
+          34.65027863
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          2608.875072,
+          10673.442313
+        ],
+        [
+          200,
+          11080.519326
+        ],
+        [
+          200,
+          12200
+        ],
+        [
+          3346.247849,
+          12200
+        ],
+        [
+          3191.453559,
+          11544.547778
+        ]
+      ]
+    ],
+    "centroidPx": [
+      1718.42,
+      11554.28
+    ],
+    "cells": [
+      "A6·82",
+      "A6·92",
+      "B6·02",
+      "B6·12",
+      "B6·22",
+      "A6·23",
+      "A6·33",
+      "A6·43",
+      "A6·53",
+      "A6·63",
+      "A6·73",
+      "A6·83",
+      "A6·93",
+      "B6·03",
+      "B6·13",
+      "B6·23",
+      "B6·33",
+      "A6·04",
+      "A6·14",
+      "A6·24",
+      "A6·34",
+      "A6·44",
+      "A6·54",
+      "A6·64",
+      "A6·74",
+      "A6·84",
+      "A6·94",
+      "B6·04",
+      "B6·14",
+      "B6·24",
+      "B6·34",
+      "A6·05",
+      "A6·15",
+      "A6·25",
+      "A6·35",
+      "A6·45",
+      "A6·55",
+      "A6·65",
+      "A6·75",
+      "A6·85",
+      "A6·95",
+      "B6·05",
+      "B6·15",
+      "B6·25",
+      "B6·35",
+      "B6·45",
+      "A6·06",
+      "A6·16",
+      "A6·26",
+      "A6·36",
+      "A6·46",
+      "A6·56",
+      "A6·66",
+      "A6·76",
+      "A6·86",
+      "A6·96",
+      "B6·06",
+      "B6·16",
+      "B6·26",
+      "B6·36",
+      "B6·46",
+      "B6·56",
+      "A6·07",
+      "A6·17",
+      "A6·27",
+      "A6·37",
+      "A6·47",
+      "A6·57",
+      "A6·67",
+      "A6·77",
+      "A6·87",
+      "A6·97",
+      "B6·07",
+      "B6·17",
+      "B6·27",
+      "B6·37",
+      "B6·47",
+      "B6·57",
+      "A6·08",
+      "A6·18",
+      "A6·28",
+      "A6·38",
+      "A6·48",
+      "A6·58",
+      "A6·68",
+      "A6·78",
+      "A6·88",
+      "A6·98",
+      "B6·08",
+      "B6·18",
+      "B6·28",
+      "B6·38",
+      "B6·48",
+      "B6·58",
+      "A6·09",
+      "A6·19",
+      "A6·29",
+      "A6·39",
+      "A6·49",
+      "A6·59",
+      "A6·69",
+      "A6·79",
+      "A6·89",
+      "A6·99",
+      "B6·09",
+      "B6·19",
+      "B6·29",
+      "B6·39",
+      "B6·49",
+      "B6·59"
+    ],
+    "ref": "A6·82",
+    "areaM2": 3873314.1,
+    "withinRegionRef": null,
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-184",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "The south-western corner of the built city, far enough out that sirens arrive late and everyone has made their own arrangements.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The south-western corner of the built city, far enough out that sirens arrive late and everyone has made their own arrangements.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

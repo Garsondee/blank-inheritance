@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "assistants-row-no-3-396",
+  "type": "location",
+  "tier": "site",
+  "name": "Assistants' Row, No. 3",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "",
+  "tags": [
+    "staff-housing"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21118136,
+          34.66997929
+        ],
+        [
+          135.2114704,
+          34.6700948
+        ],
+        [
+          135.2115308,
+          34.66999312
+        ],
+        [
+          135.21124175,
+          34.66987761
+        ],
+        [
+          135.21118136,
+          34.66997929
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7140.1,
+          6678.3
+        ],
+        [
+          7156.4,
+          6653.8
+        ],
+        [
+          7166.9,
+          6660.7
+        ],
+        [
+          7150.6,
+          6685.2
+        ],
+        [
+          7140.1,
+          6678.3
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7153.5,
+      6669.5
+    ],
+    "cells": [
+      "D4·42"
+    ],
+    "ref": "D4·42",
+    "areaM2": 369.7,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-396",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "All of these are staff accommodation.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Smaller housing for junior teaching and administrative staff -- shared kitchens, private rooms.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

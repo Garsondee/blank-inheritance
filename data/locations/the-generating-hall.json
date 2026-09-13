@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-generating-hall",
+  "type": "location",
+  "tier": "site",
+  "name": "The Generating Hall",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "infrastructure",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20295112,
+          34.66173512
+        ],
+        [
+          135.203712,
+          34.66176814
+        ],
+        [
+          135.20383408,
+          34.65990822
+        ],
+        [
+          135.20307361,
+          34.65987396
+        ],
+        [
+          135.20295112,
+          34.66173512
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6955.3,
+          7849.3
+        ],
+        [
+          7013.5,
+          7810.7
+        ],
+        [
+          7128,
+          7982.7
+        ],
+        [
+          7069.9,
+          8021.4
+        ],
+        [
+          6955.3,
+          7849.3
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7041.67,
+      7916.02
+    ],
+    "cells": [
+      "D4·38",
+      "D4·48",
+      "D4·49"
+    ],
+    "ref": "D4·38",
+    "areaM2": 14432.1,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-384",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "The works makes its own power and does not apologise for the noise. Four sets, three running and one always stripped down, and a load chart on the wall that everyone on the strip has learned to read at a glance.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The works makes its own power and does not apologise for the noise. Four sets, three running and one always stripped down, and a load chart on the wall that everyone on the strip has learned to read at a glance.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

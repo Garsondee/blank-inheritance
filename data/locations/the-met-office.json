@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-met-office",
+  "type": "location",
+  "tier": "site",
+  "name": "The Met Office",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.2038566,
+          34.66523771
+        ],
+        [
+          135.20368488,
+          34.66523142
+        ],
+        [
+          135.20367291,
+          34.66544346
+        ],
+        [
+          135.20384557,
+          34.66544929
+        ],
+        [
+          135.2038566,
+          34.66523771
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6829.3,
+          7472.5
+        ],
+        [
+          6816.1,
+          7481.1
+        ],
+        [
+          6803.2,
+          7461.4
+        ],
+        [
+          6816.5,
+          7452.8
+        ],
+        [
+          6829.3,
+          7472.5
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6816.27,
+      7466.94
+    ],
+    "cells": [
+      "D4·36"
+    ],
+    "ref": "D4·36",
+    "areaM2": 371.5,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-371",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Weather, tides and visibility for the whole approach, read off instruments on the roof and chalked up hourly. No operation is ordered without a reading from this building, which its staff enjoy considerably more than they let on.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Weather, tides and visibility for the whole approach, read off instruments on the roof and chalked up hourly. No operation is ordered without a reading from this building, which its staff enjoy considerably more than they let on.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

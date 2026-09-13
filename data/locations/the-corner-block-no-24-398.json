@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-corner-block-no-24-398",
+  "type": "location",
+  "tier": "site",
+  "name": "The Corner Block, No. 24",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "",
+  "tags": [
+    "staff-housing"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21425116,
+          34.66944526
+        ],
+        [
+          135.21445572,
+          34.66952764
+        ],
+        [
+          135.21455505,
+          34.66935987
+        ],
+        [
+          135.21434954,
+          34.66927795
+        ],
+        [
+          135.21425116,
+          34.66944526
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7412.5,
+          6586.3
+        ],
+        [
+          7424,
+          6568.9
+        ],
+        [
+          7441.3,
+          6580.3
+        ],
+        [
+          7429.7,
+          6597.7
+        ],
+        [
+          7412.5,
+          6586.3
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7426.88,
+      6583.3
+    ],
+    "cells": [
+      "D4·61"
+    ],
+    "ref": "D4·61",
+    "areaM2": 431.8,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-398",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "All of these are staff accommodation.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Two larger staff houses at the row's end, usually given to whichever family has been on the island longest.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

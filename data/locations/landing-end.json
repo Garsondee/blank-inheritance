@@ -1,0 +1,395 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "landing-end",
+  "type": "location",
+  "tier": "region",
+  "name": "The Landing End",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "district",
+  "tags": [
+    "auto-tessellated",
+    "land"
+  ],
+  "classification": null,
+  "rank": 2,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21146696,
+          34.68217428
+        ],
+        [
+          135.21012264,
+          34.68073619
+        ],
+        [
+          135.21074265,
+          34.6793871
+        ],
+        [
+          135.21018798,
+          34.67861078
+        ],
+        [
+          135.20916345,
+          34.67806356
+        ],
+        [
+          135.20845865,
+          34.67840721
+        ],
+        [
+          135.20636725,
+          34.67681002
+        ],
+        [
+          135.20415653,
+          34.67814954
+        ],
+        [
+          135.20536205,
+          34.6793936
+        ],
+        [
+          135.20493453,
+          34.68012541
+        ],
+        [
+          135.20334383,
+          34.68011585
+        ],
+        [
+          135.20275413,
+          34.68200579
+        ],
+        [
+          135.20125752,
+          34.68169457
+        ],
+        [
+          135.20223462,
+          34.67856314
+        ],
+        [
+          135.20274686,
+          34.67883678
+        ],
+        [
+          135.20401787,
+          34.67795545
+        ],
+        [
+          135.20332463,
+          34.67698501
+        ],
+        [
+          135.20422202,
+          34.67602413
+        ],
+        [
+          135.20250434,
+          34.67450642
+        ],
+        [
+          135.20255828,
+          34.67369508
+        ],
+        [
+          135.20120264,
+          34.67357096
+        ],
+        [
+          135.20174325,
+          34.66544023
+        ],
+        [
+          135.21420871,
+          34.67032641
+        ],
+        [
+          135.21523863,
+          34.6821052
+        ],
+        [
+          135.21338891,
+          34.68176053
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6475,
+          5500
+        ],
+        [
+          6450,
+          5700
+        ],
+        [
+          6575,
+          5800
+        ],
+        [
+          6575,
+          5900
+        ],
+        [
+          6525,
+          6000
+        ],
+        [
+          6450,
+          6000
+        ],
+        [
+          6375,
+          6250
+        ],
+        [
+          6125,
+          6225
+        ],
+        [
+          6150,
+          6050
+        ],
+        [
+          6075,
+          6000
+        ],
+        [
+          5950,
+          6075
+        ],
+        [
+          5796.908219,
+          5921.908219
+        ],
+        [
+          5696.34175,
+          6021.34175
+        ],
+        [
+          5950,
+          6275
+        ],
+        [
+          5975,
+          6225
+        ],
+        [
+          6125,
+          6250
+        ],
+        [
+          6125,
+          6375
+        ],
+        [
+          6250,
+          6425
+        ],
+        [
+          6200,
+          6650
+        ],
+        [
+          6250,
+          6725
+        ],
+        [
+          6150,
+          6800
+        ],
+        [
+          6651.064525,
+          7551.596788
+        ],
+        [
+          7359.461968,
+          6504.103097
+        ],
+        [
+          6776.533185,
+          5330.909944
+        ],
+        [
+          6650,
+          5450
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6681.9,
+      6444.03
+    ],
+    "cells": [
+      "D3·25",
+      "D3·35",
+      "D3·16",
+      "D3·26",
+      "D3·36",
+      "D3·17",
+      "D3·27",
+      "D3·37",
+      "D3·47",
+      "C3·78",
+      "C3·88",
+      "D3·18",
+      "D3·28",
+      "D3·38",
+      "D3·48",
+      "C3·79",
+      "C3·89",
+      "C3·99",
+      "D3·09",
+      "D3·19",
+      "D3·29",
+      "D3·39",
+      "D3·49",
+      "D3·59",
+      "C4·80",
+      "C4·90",
+      "D4·00",
+      "D4·10",
+      "D4·20",
+      "D4·30",
+      "D4·40",
+      "D4·50",
+      "C4·91",
+      "D4·01",
+      "D4·11",
+      "D4·21",
+      "D4·31",
+      "D4·41",
+      "D4·51",
+      "C4·92",
+      "D4·02",
+      "D4·12",
+      "D4·22",
+      "D4·32",
+      "D4·42",
+      "D4·52",
+      "C4·93",
+      "D4·03",
+      "D4·13",
+      "D4·23",
+      "D4·33",
+      "D4·43",
+      "D4·04",
+      "D4·14",
+      "D4·24",
+      "D4·34",
+      "D4·44",
+      "D4·15",
+      "D4·25",
+      "D4·35",
+      "D4·16",
+      "D4·26"
+    ],
+    "ref": "D3·25",
+    "areaM2": 1507542.6,
+    "withinRegionRef": null,
+    "containsRefs": [
+      "assistants-row-no-3-396",
+      "assistants-row-no-4-397",
+      "assistants-row-no-5-407",
+      "assistants-row-no-6-414",
+      "baggage-inspection",
+      "candidate-gate",
+      "east-tower",
+      "instructors-row-no-2-412",
+      "intake-infirmary",
+      "island-platforms",
+      "junior-staff-row-no-21-403",
+      "junior-staff-row-no-23-409",
+      "long-hall",
+      "main-mech-hangar",
+      "north-tower",
+      "permit-office",
+      "row-a-block-1",
+      "row-a-block-4",
+      "row-a-block-5",
+      "row-a-block-7",
+      "row-b-block-2",
+      "row-b-block-6",
+      "row-b-block-8",
+      "row-c-block-3",
+      "row-c-block-7",
+      "row-d-block-1",
+      "row-d-block-4",
+      "row-d-block-8",
+      "row-e-block-2",
+      "row-e-block-6",
+      "row-e-block-9",
+      "row-f-block-2",
+      "row-f-block-5",
+      "row-f-block-8",
+      "row-g-block-1",
+      "row-g-block-4",
+      "the-bar-store",
+      "the-bonded-store",
+      "the-butts",
+      "the-canteen-window",
+      "the-crew-mess",
+      "the-drawing-office",
+      "the-drum-store",
+      "the-goods-office",
+      "the-haulage-yard",
+      "the-inspection-line",
+      "the-loading-bank",
+      "the-long-shed",
+      "the-long-terrace-no-10-401",
+      "the-long-terrace-no-12-404",
+      "the-long-terrace-no-13-405",
+      "the-long-terrace-no-15-410",
+      "the-long-terrace-no-17-415",
+      "the-long-terrace-no-8-392",
+      "the-north-wicket",
+      "the-plate-shop",
+      "the-quarantine-shed",
+      "the-roadgate",
+      "the-stationers-419",
+      "the-transit-shed",
+      "trackside-casemate",
+      "transfer-hall",
+      "wash-house",
+      "west-tower"
+    ],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-178",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "Where the causeway meets the island. Checkpoints, a taxi rank that is usually empty, and the first blocks any visitor sees. The only part of the island that reliably has a queue.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Where the causeway meets the island. Checkpoints, a taxi rank that is usually empty, and the first blocks any visitor sees. The only part of the island that reliably has a queue.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

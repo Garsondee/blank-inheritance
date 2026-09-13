@@ -1,0 +1,116 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-long-terrace-no-12-404",
+  "type": "location",
+  "tier": "site",
+  "name": "The Long Terrace, No. 12",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "",
+  "tags": [
+    "staff-housing"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21299876,
+          34.67105469
+        ],
+        [
+          135.21305073,
+          34.67097491
+        ],
+        [
+          135.21328352,
+          34.67091059
+        ],
+        [
+          135.2133288,
+          34.6710183
+        ],
+        [
+          135.21308862,
+          34.67109356
+        ],
+        [
+          135.21299876,
+          34.67105469
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7222.9,
+          6490.9
+        ],
+        [
+          7231.5,
+          6496.1
+        ],
+        [
+          7253.5,
+          6491.4
+        ],
+        [
+          7251,
+          6479
+        ],
+        [
+          7227.8,
+          6483
+        ],
+        [
+          7222.9,
+          6490.9
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7239.01,
+      6487.71
+    ],
+    "cells": [
+      "D4·51"
+    ],
+    "ref": "D4·51",
+    "areaM2": 348.3,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-404",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "All of these are staff accommodation.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A long run of near-identical staff housing built in one pass; residents tell the doors apart by what's hanging in the window, since the numbers wore off years ago.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

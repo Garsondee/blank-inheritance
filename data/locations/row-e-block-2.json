@@ -1,0 +1,163 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "row-e-block-2",
+  "type": "location",
+  "tier": "site",
+  "name": "Row E, Block 2",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21078842,
+          34.67167094
+        ],
+        [
+          135.21101657,
+          34.67151677
+        ],
+        [
+          135.21108468,
+          34.67158196
+        ],
+        [
+          135.21111232,
+          34.67156743
+        ],
+        [
+          135.2111602,
+          34.67161317
+        ],
+        [
+          135.2108141,
+          34.67185941
+        ],
+        [
+          135.21076213,
+          34.67187533
+        ],
+        [
+          135.21075027,
+          34.67186227
+        ],
+        [
+          135.21072174,
+          34.671872
+        ],
+        [
+          135.21070511,
+          34.67176182
+        ],
+        [
+          135.21081109,
+          34.67169025
+        ],
+        [
+          135.21078842,
+          34.67167094
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7013.7,
+          6535
+        ],
+        [
+          7040.4,
+          6539.1
+        ],
+        [
+          7042.1,
+          6529.7
+        ],
+        [
+          7045.1,
+          6529.8
+        ],
+        [
+          7046.3,
+          6523.2
+        ],
+        [
+          7005.1,
+          6515.8
+        ],
+        [
+          7000.1,
+          6516.7
+        ],
+        [
+          6999.9,
+          6518.5
+        ],
+        [
+          6997.1,
+          6518.9
+        ],
+        [
+          7002,
+          6530.2
+        ],
+        [
+          7014.4,
+          6532.1
+        ],
+        [
+          7013.7,
+          6535
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7022.16,
+      6526.89
+    ],
+    "cells": [
+      "D4·31",
+      "D4·41"
+    ],
+    "ref": "D4·31",
+    "areaM2": 711.3,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-111",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "South-facing and warmest in winter, which every other block resents with real, if good-natured, feeling. A hand-painted sign over the entrance reading, in a bored second-term hand, \"you're welcome,\" has survived three attempts to remove it.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "South-facing and warmest in winter, which every other block resents with real, if good-natured, feeling. A hand-painted sign over the entrance reading, in a bored second-term hand, \"you're welcome,\" has survived three attempts to remove it.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

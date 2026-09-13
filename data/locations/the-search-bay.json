@@ -1,0 +1,116 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-search-bay",
+  "type": "location",
+  "tier": "site",
+  "name": "The Search Bay",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21662736,
+          34.67982334
+        ],
+        [
+          135.21657413,
+          34.67994037
+        ],
+        [
+          135.21675687,
+          34.67999571
+        ],
+        [
+          135.21703425,
+          34.68003631
+        ],
+        [
+          135.21706974,
+          34.67995829
+        ],
+        [
+          135.21662736,
+          34.67982334
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7014.8,
+          5484.2
+        ],
+        [
+          7004,
+          5475.5
+        ],
+        [
+          7015.3,
+          5461.7
+        ],
+        [
+          7034.9,
+          5444.9
+        ],
+        [
+          7042.1,
+          5450.7
+        ],
+        [
+          7014.8,
+          5484.2
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7022.61,
+      5464.58
+    ],
+    "cells": [
+      "D3·46"
+    ],
+    "ref": "D3·46",
+    "areaM2": 539.7,
+    "withinRegionRef": "garrison",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-223",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "A covered lane vehicles are driven through rather than parked in: inspection pits, mirrors on poles, and a hard standing wide enough to unload a lorry that has failed.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A covered lane vehicles are driven through rather than parked in: inspection pits, mirrors on poles, and a hard standing wide enough to unload a lorry that has failed.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

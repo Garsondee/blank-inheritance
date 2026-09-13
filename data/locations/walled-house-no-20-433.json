@@ -1,0 +1,237 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "walled-house-no-20-433",
+  "type": "location",
+  "tier": "site",
+  "name": "Walled House No. 20",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "wealthy",
+    "walled"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21671362,
+          34.66517605
+        ],
+        [
+          135.21680268,
+          34.66502584
+        ],
+        [
+          135.21683193,
+          34.6650189
+        ],
+        [
+          135.21684539,
+          34.66499873
+        ],
+        [
+          135.21686869,
+          34.6650083
+        ],
+        [
+          135.21688859,
+          34.66500068
+        ],
+        [
+          135.21707539,
+          34.66508125
+        ],
+        [
+          135.21708571,
+          34.66509925
+        ],
+        [
+          135.21710641,
+          34.66510695
+        ],
+        [
+          135.21709428,
+          34.66512543
+        ],
+        [
+          135.21710101,
+          34.66514727
+        ],
+        [
+          135.21701008,
+          34.6652984
+        ],
+        [
+          135.21698305,
+          34.66530844
+        ],
+        [
+          135.2169745,
+          34.66532308
+        ],
+        [
+          135.2169523,
+          34.66531506
+        ],
+        [
+          135.21692378,
+          34.66532479
+        ],
+        [
+          135.21673493,
+          34.66524312
+        ],
+        [
+          135.21673246,
+          34.66522548
+        ],
+        [
+          135.21671215,
+          34.66521655
+        ],
+        [
+          135.21672014,
+          34.66520114
+        ],
+        [
+          135.21671362,
+          34.66517605
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7847.6,
+          6879.4
+        ],
+        [
+          7863.1,
+          6889.6
+        ],
+        [
+          7865.8,
+          6888.9
+        ],
+        [
+          7868,
+          6890.2
+        ],
+        [
+          7869.3,
+          6888.2
+        ],
+        [
+          7871.3,
+          6888
+        ],
+        [
+          7881.5,
+          6871.6
+        ],
+        [
+          7881.3,
+          6869.4
+        ],
+        [
+          7882.5,
+          6867.7
+        ],
+        [
+          7880.5,
+          6866.5
+        ],
+        [
+          7879.8,
+          6864.1
+        ],
+        [
+          7864.1,
+          6853.9
+        ],
+        [
+          7861.4,
+          6854.2
+        ],
+        [
+          7859.9,
+          6853.2
+        ],
+        [
+          7858.6,
+          6855
+        ],
+        [
+          7855.8,
+          6855.4
+        ],
+        [
+          7845.5,
+          6872
+        ],
+        [
+          7846.3,
+          6873.8
+        ],
+        [
+          7845.2,
+          6875.6
+        ],
+        [
+          7846.7,
+          6876.7
+        ],
+        [
+          7847.6,
+          6879.4
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7863.61,
+      6871.69
+    ],
+    "cells": [
+      "D4·83"
+    ],
+    "ref": "D4·83",
+    "areaM2": 868.9,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-433",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Larger and more expensive houses. Some within walled compounds with gates and expensive looking bodyguards.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "One of a run of walled compounds on the island's better ground -- private gates, private guards, and neighbours who mostly know better than to ask what pays for either.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

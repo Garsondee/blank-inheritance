@@ -1,0 +1,117 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-long-shed",
+  "type": "location",
+  "tier": "site",
+  "name": "The Long Shed",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21430559,
+          34.6801652
+        ],
+        [
+          135.21419269,
+          34.68014907
+        ],
+        [
+          135.2140613,
+          34.68075434
+        ],
+        [
+          135.21409446,
+          34.68079365
+        ],
+        [
+          135.21416773,
+          34.68080398
+        ],
+        [
+          135.21430559,
+          34.6801652
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6812.3,
+          5559.7
+        ],
+        [
+          6804.3,
+          5566.5
+        ],
+        [
+          6759.8,
+          5514.8
+        ],
+        [
+          6760.2,
+          5509.5
+        ],
+        [
+          6765.4,
+          5505.1
+        ],
+        [
+          6812.3,
+          5559.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6785.05,
+      5536.0
+    ],
+    "cells": [
+      "D3·26",
+      "D3·36"
+    ],
+    "ref": "D3·26",
+    "areaM2": 751.3,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-234",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Bulk stores: timber, cable, sandbags, the drums nobody has signed for. Everything here is either about to be needed urgently or has been in the same place for four years.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Bulk stores: timber, cable, sandbags, the drums nobody has signed for. Everything here is either about to be needed urgently or has been in the same place for four years.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

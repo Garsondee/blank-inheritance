@@ -1,0 +1,243 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "main-school-complex",
+  "type": "location",
+  "tier": "site",
+  "name": "Main School Complex",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "school",
+    "civic"
+  ],
+  "classification": null,
+  "rank": 2,
+  "depth": "standing",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21929884,
+          34.66530631
+        ],
+        [
+          135.21998904,
+          34.6642065
+        ],
+        [
+          135.21986038,
+          34.6641541
+        ],
+        [
+          135.21939928,
+          34.66396447
+        ],
+        [
+          135.21927416,
+          34.66391349
+        ],
+        [
+          135.21932673,
+          34.6638062
+        ],
+        [
+          135.21876131,
+          34.66356277
+        ],
+        [
+          135.21871568,
+          34.66362481
+        ],
+        [
+          135.21851701,
+          34.66355422
+        ],
+        [
+          135.21834414,
+          34.66381232
+        ],
+        [
+          135.21794652,
+          34.66363883
+        ],
+        [
+          135.21784548,
+          34.66359495
+        ],
+        [
+          135.21772895,
+          34.6635471
+        ],
+        [
+          135.21726287,
+          34.66432403
+        ],
+        [
+          135.21727391,
+          34.66436784
+        ],
+        [
+          135.21736287,
+          34.66440192
+        ],
+        [
+          135.21745891,
+          34.66443882
+        ],
+        [
+          135.21787656,
+          34.66461196
+        ],
+        [
+          135.21783203,
+          34.66469859
+        ],
+        [
+          135.21929884,
+          34.66530631
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          8044.3,
+          6746.5
+        ],
+        [
+          8160.8,
+          6819.4
+        ],
+        [
+          8153.6,
+          6830.4
+        ],
+        [
+          8127.9,
+          6870
+        ],
+        [
+          8120.9,
+          6880.7
+        ],
+        [
+          8131.1,
+          6888.5
+        ],
+        [
+          8100.2,
+          6938.1
+        ],
+        [
+          8093.1,
+          6934.3
+        ],
+        [
+          8081.4,
+          6950.3
+        ],
+        [
+          8053.2,
+          6933.7
+        ],
+        [
+          8031.6,
+          6968.8
+        ],
+        [
+          8026.1,
+          6977.7
+        ],
+        [
+          8019.6,
+          6987.7
+        ],
+        [
+          7939,
+          6935.2
+        ],
+        [
+          7937.4,
+          6930.5
+        ],
+        [
+          7942.5,
+          6923.1
+        ],
+        [
+          7948,
+          6915.1
+        ],
+        [
+          7971.2,
+          6879.1
+        ],
+        [
+          7962.8,
+          6872.9
+        ],
+        [
+          8044.3,
+          6746.5
+        ]
+      ]
+    ],
+    "centroidPx": [
+      8047.79,
+      6868.7
+    ],
+    "cells": [
+      "D4·92",
+      "D4·83",
+      "D4·93"
+    ],
+    "ref": "D4·92",
+    "areaM2": 28183.8,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-458",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "[real-world: IKEA]\n\nDo not mention anything to do with it being a furniture store. It's a Tokyo style dense inner city urban university and high school combination. This is rank 2, second most important structure so far.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The island's combined secondary school and technical college, stacked eight storeys into one block because there was never going to be room to spread it out instead. Every candidate who lives on the island passes through here for ordinary academic streaming, the same as any other school -- the high-school-age students hold the lower floors, and the technical/university tier above trains the specialists the Directorate actually wants. The two tiers share a building and a front door, and otherwise mix as little as the timetable allows.",
+    "playerFacing": "Eight floors on a footprint too small for it, so the building goes up instead of out: covered walkways bridge between wings at the third and sixth floors, the ground-floor entrance is a wall of shoe lockers and posted results sheets, and the roof above the assembly hall carries a running track ringed in chain-link because there was nowhere else to put one. The lower floors sound like any other school -- announcements, a bell, running feet between periods. Higher up it gets quieter, and the corridors start asking for a pass.",
+    "gmOnly": "Every student's placement test is scored here before the results reach the family that raised them. The registrar's office on the second floor keeps the real archive -- not the grades handed back to students, the underlying test data -- and almost nobody who works in this building has ever been told what the Directorate actually does with it afterward. This is the one place on the island where several unusual results turning up in the same cohort would first become visible on paper, if anyone in the registrar's office thought to compare notes across sections. As far as this location's own record goes, nobody currently does -- whether that changes, and when, is a call for whoever is running the table."
+  },
+  "scene": {
+    "hooks": [
+      "A placement result comes back wrong -- not failed, just impossible, matching no profile the registrar's office has a form for.",
+      "A student two years above the party's own section asks careful, specific questions about how the sorting actually works, and won't say why."
+    ],
+    "activities": [
+      "Attend classes -- the ordinary daily grind, with a real chance at a useful contact or a piece of overheard information.",
+      "Sit in on the history class specifically, if the group wants campaign backstory delivered as a lesson rather than an exposition dump.",
+      "Talk your way up into the technical college's floors, which the high-school-age students aren't supposed to visit.",
+      "Dig through the registrar's paper archive for a specific student's placement record.",
+      "Join an after-hours club using the roof-level track or one of the technical wing's workshop bays."
+    ],
+    "history": "Built as two separate institutions on adjoining plots -- an ordinary secondary school and a technical college for the shipyards -- and merged into one block when the island ran out of room to keep expanding sideways instead of up. The join is still visible in the brickwork on the third floor, where the two original buildings' floor levels don't quite line up and a half-flight of stairs corrects the difference.",
+    "consequences": "Whatever happens to a cohort here -- a scandal, a disappearance, a result that doesn't add up -- moves through every family on the island within the week, because everyone's children pass through the same building. A registrar who starts asking questions, or stops asking them, changes what the Directorate can quietly do with a placement result afterward."
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [
+    "school-registrar",
+    "school-history-teacher"
+  ],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

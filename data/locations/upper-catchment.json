@@ -1,0 +1,286 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "upper-catchment",
+  "type": "location",
+  "tier": "region",
+  "name": "The Upper Catchment",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "district",
+  "tags": [
+    "auto-tessellated",
+    "land"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.14225201,
+          34.69658716
+        ],
+        [
+          135.14225201,
+          34.69658716
+        ],
+        [
+          135.15155621,
+          34.68299603
+        ],
+        [
+          135.15155621,
+          34.68299603
+        ],
+        [
+          135.15155621,
+          34.68299603
+        ],
+        [
+          135.16953556,
+          34.68286047
+        ],
+        [
+          135.16953556,
+          34.68286047
+        ],
+        [
+          135.16953556,
+          34.68286047
+        ],
+        [
+          135.1698543,
+          34.68373289
+        ],
+        [
+          135.1698543,
+          34.68373289
+        ],
+        [
+          135.1698543,
+          34.68373289
+        ],
+        [
+          135.1611555,
+          34.69644605
+        ],
+        [
+          135.1611555,
+          34.69644605
+        ],
+        [
+          135.1611555,
+          34.69644605
+        ],
+        [
+          135.14938116,
+          34.6965343
+        ],
+        [
+          135.14225201,
+          34.69658716
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          200.0,
+          7344.7
+        ],
+        [
+          200.0,
+          7344.7
+        ],
+        [
+          1700.0,
+          8210.7
+        ],
+        [
+          1700.0,
+          8210.7
+        ],
+        [
+          1700.0,
+          8210.7
+        ],
+        [
+          3126.9,
+          7386.9
+        ],
+        [
+          3126.9,
+          7386.9
+        ],
+        [
+          3126.9,
+          7386.9
+        ],
+        [
+          3102.9,
+          7288.7
+        ],
+        [
+          3102.9,
+          7288.7
+        ],
+        [
+          3102.9,
+          7288.7
+        ],
+        [
+          1700.0,
+          6478.7
+        ],
+        [
+          1700.0,
+          6478.7
+        ],
+        [
+          1700.0,
+          6478.7
+        ],
+        [
+          765.7,
+          7018.1
+        ],
+        [
+          200.0,
+          7344.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      1697.7,
+      7344.71
+    ],
+    "cells": [
+      "A4·61",
+      "A4·71",
+      "A4·81",
+      "A4·42",
+      "A4·52",
+      "A4·62",
+      "A4·72",
+      "A4·82",
+      "A4·92",
+      "B4·02",
+      "A4·23",
+      "A4·33",
+      "A4·43",
+      "A4·53",
+      "A4·63",
+      "A4·73",
+      "A4·83",
+      "A4·93",
+      "B4·03",
+      "B4·13",
+      "B4·23",
+      "A4·14",
+      "A4·24",
+      "A4·34",
+      "A4·44",
+      "A4·54",
+      "A4·64",
+      "A4·74",
+      "A4·84",
+      "A4·94",
+      "B4·04",
+      "B4·14",
+      "B4·24",
+      "B4·34",
+      "A4·05",
+      "A4·15",
+      "A4·25",
+      "A4·35",
+      "A4·45",
+      "A4·55",
+      "A4·65",
+      "A4·75",
+      "A4·85",
+      "A4·95",
+      "B4·05",
+      "B4·15",
+      "B4·25",
+      "B4·35",
+      "B4·45",
+      "A4·06",
+      "A4·16",
+      "A4·26",
+      "A4·36",
+      "A4·46",
+      "A4·56",
+      "A4·66",
+      "A4·76",
+      "A4·86",
+      "A4·96",
+      "B4·06",
+      "B4·16",
+      "B4·26",
+      "B4·36",
+      "B4·46",
+      "A4·27",
+      "A4·37",
+      "A4·47",
+      "A4·57",
+      "A4·67",
+      "A4·77",
+      "A4·87",
+      "A4·97",
+      "B4·07",
+      "B4·17",
+      "B4·27",
+      "A4·38",
+      "A4·48",
+      "A4·58",
+      "A4·68",
+      "A4·78",
+      "A4·88",
+      "A4·98",
+      "B4·08",
+      "B4·18",
+      "A4·59",
+      "A4·69",
+      "A4·79",
+      "A4·89",
+      "A4·99",
+      "A5·70"
+    ],
+    "ref": "A4·61",
+    "areaM2": 2593859.7,
+    "withinRegionRef": null,
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-201",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "Bare upland where the streams that feed the reservoirs start. Cold, exposed, and the first place the Directorate looks when it needs somewhere with no witnesses.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Bare upland where the streams that feed the reservoirs start. Cold, exposed, and the first place the Directorate looks when it needs somewhere with no witnesses.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

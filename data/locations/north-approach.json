@@ -1,0 +1,180 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "north-approach",
+  "type": "location",
+  "tier": "region",
+  "name": "The North Approach",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "district",
+  "tags": [
+    "auto-tessellated",
+    "land"
+  ],
+  "classification": null,
+  "rank": 4,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.23693163,
+          34.70937448
+        ],
+        [
+          135.22943115,
+          34.72034962
+        ],
+        [
+          135.21696554,
+          34.71107683
+        ],
+        [
+          135.22267198,
+          34.70272859
+        ],
+        [
+          135.23212455,
+          34.70265227
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6950,
+          1715.544457
+        ],
+        [
+          5739.328864,
+          1016.563151
+        ],
+        [
+          5279.03438,
+          2482.862814
+        ],
+        [
+          6200,
+          3014.582562
+        ],
+        [
+          6950,
+          2581.56986
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6152.17,
+      2087.58
+    ],
+    "cells": [
+      "C1·74",
+      "C1·84",
+      "C1·94",
+      "C1·75",
+      "C1·85",
+      "C1·95",
+      "D1·05",
+      "D1·15",
+      "C1·66",
+      "C1·76",
+      "C1·86",
+      "C1·96",
+      "D1·06",
+      "D1·16",
+      "D1·26",
+      "C1·67",
+      "C1·77",
+      "C1·87",
+      "C1·97",
+      "D1·07",
+      "D1·17",
+      "D1·27",
+      "D1·37",
+      "C1·68",
+      "C1·78",
+      "C1·88",
+      "C1·98",
+      "D1·08",
+      "D1·18",
+      "D1·28",
+      "D1·38",
+      "C1·59",
+      "C1·69",
+      "C1·79",
+      "C1·89",
+      "C1·99",
+      "D1·09",
+      "D1·19",
+      "D1·29",
+      "D1·39",
+      "C2·50",
+      "C2·60",
+      "C2·70",
+      "C2·80",
+      "C2·90",
+      "D2·00",
+      "D2·10",
+      "D2·20",
+      "D2·30",
+      "C2·51",
+      "C2·61",
+      "C2·71",
+      "C2·81",
+      "C2·91",
+      "D2·01",
+      "D2·11",
+      "D2·21",
+      "D2·31",
+      "C2·62",
+      "C2·72",
+      "C2·82",
+      "C2·92",
+      "D2·02",
+      "D2·12",
+      "D2·22",
+      "D2·32",
+      "C2·83",
+      "C2·93",
+      "D2·03",
+      "D2·13",
+      "C2·94",
+      "D2·04"
+    ],
+    "ref": "C1·74",
+    "areaM2": 2170811.1,
+    "withinRegionRef": null,
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-189",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "The corridor road and rail share coming into the city from the north, thickening into workshops and goods yards as it descends.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The corridor road and rail share coming into the city from the north, thickening into workshops and goods yards as it descends.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

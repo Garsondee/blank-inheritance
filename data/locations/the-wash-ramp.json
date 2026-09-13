@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-wash-ramp",
+  "type": "location",
+  "tier": "site",
+  "name": "The Wash Ramp",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "infrastructure",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20350448,
+          34.6669973
+        ],
+        [
+          135.20354014,
+          34.667049
+        ],
+        [
+          135.20372403,
+          34.66705459
+        ],
+        [
+          135.20376284,
+          34.66700427
+        ],
+        [
+          135.20350448,
+          34.6669973
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6702.3,
+          7320.8
+        ],
+        [
+          6702.2,
+          7314.2
+        ],
+        [
+          6716.4,
+          7305.1
+        ],
+        [
+          6722.3,
+          7308.1
+        ],
+        [
+          6702.3,
+          7320.8
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6710.9,
+      7312.17
+    ],
+    "cells": [
+      "D4·25"
+    ],
+    "ref": "D4·25",
+    "areaM2": 114.8,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-374",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Every vehicle coming off the causeway is hosed down here before it goes any further in, on a ramp draining to a trap nobody enjoys emptying.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Every vehicle coming off the causeway is hosed down here before it goes any further in, on a ramp draining to a trap nobody enjoys emptying.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

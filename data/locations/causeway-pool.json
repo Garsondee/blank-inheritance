@@ -1,0 +1,263 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "causeway-pool",
+  "type": "location",
+  "tier": "region",
+  "name": "The Causeway Pool",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "water",
+  "tags": [
+    "auto-tessellated",
+    "water"
+  ],
+  "classification": null,
+  "rank": 4,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21115524,
+          34.6857283
+        ],
+        [
+          135.21068533,
+          34.68595741
+        ],
+        [
+          135.20784646,
+          34.68420119
+        ],
+        [
+          135.20403318,
+          34.68684525
+        ],
+        [
+          135.2031049,
+          34.68598935
+        ],
+        [
+          135.20423735,
+          34.68491393
+        ],
+        [
+          135.20396003,
+          34.68452575
+        ],
+        [
+          135.20259261,
+          34.68571571
+        ],
+        [
+          135.20189932,
+          34.68474526
+        ],
+        [
+          135.20334383,
+          34.68011585
+        ],
+        [
+          135.20493453,
+          34.68012541
+        ],
+        [
+          135.20536205,
+          34.6793936
+        ],
+        [
+          135.20415653,
+          34.67814954
+        ],
+        [
+          135.20636725,
+          34.67681002
+        ],
+        [
+          135.20845865,
+          34.67840721
+        ],
+        [
+          135.20916345,
+          34.67806356
+        ],
+        [
+          135.21018798,
+          34.67861078
+        ],
+        [
+          135.21074265,
+          34.6793871
+        ],
+        [
+          135.21012264,
+          34.68073619
+        ],
+        [
+          135.21146696,
+          34.68217428
+        ],
+        [
+          135.21090081,
+          34.68271202
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6250,
+          5175
+        ],
+        [
+          6200,
+          5175
+        ],
+        [
+          6075,
+          5475
+        ],
+        [
+          5625,
+          5400
+        ],
+        [
+          5600,
+          5525
+        ],
+        [
+          5750,
+          5575
+        ],
+        [
+          5750,
+          5625
+        ],
+        [
+          5575,
+          5575
+        ],
+        [
+          5575,
+          5700
+        ],
+        [
+          5950,
+          6075
+        ],
+        [
+          6075,
+          6000
+        ],
+        [
+          6150,
+          6050
+        ],
+        [
+          6125,
+          6225
+        ],
+        [
+          6375,
+          6250
+        ],
+        [
+          6450,
+          6000
+        ],
+        [
+          6525,
+          6000
+        ],
+        [
+          6575,
+          5900
+        ],
+        [
+          6575,
+          5800
+        ],
+        [
+          6450,
+          5700
+        ],
+        [
+          6475,
+          5500
+        ],
+        [
+          6400,
+          5475
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6114.94,
+      5736.05
+    ],
+    "cells": [
+      "C3·94",
+      "D3·04",
+      "C3·95",
+      "D3·05",
+      "C3·66",
+      "C3·76",
+      "C3·86",
+      "C3·96",
+      "D3·06",
+      "D3·16",
+      "C3·67",
+      "C3·77",
+      "C3·87",
+      "C3·97",
+      "D3·07",
+      "D3·17",
+      "C3·78",
+      "C3·88",
+      "C3·98",
+      "D3·08",
+      "D3·18",
+      "C3·89",
+      "C3·99",
+      "D3·09",
+      "D3·19",
+      "C4·90",
+      "D4·00"
+    ],
+    "ref": "C3·94",
+    "areaM2": 582812.5,
+    "withinRegionRef": null,
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-215",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "A small sheltered pocket where the causeway meets the mainland shore. Too shallow for anything serious, which is exactly why the small boats live here.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A small sheltered pocket where the causeway meets the mainland shore. Too shallow for anything serious, which is exactly why the small boats live here.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

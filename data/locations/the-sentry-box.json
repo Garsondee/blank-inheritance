@@ -1,0 +1,124 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-sentry-box",
+  "type": "location",
+  "tier": "site",
+  "name": "The Sentry Box",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21791011,
+          34.68010224
+        ],
+        [
+          135.21790477,
+          34.68011426
+        ],
+        [
+          135.21792287,
+          34.68012009
+        ],
+        [
+          135.21790816,
+          34.68015448
+        ],
+        [
+          135.21799048,
+          34.68017924
+        ],
+        [
+          135.21801147,
+          34.68013236
+        ],
+        [
+          135.21791011,
+          34.68010224
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7100.3,
+          5397.8
+        ],
+        [
+          7099.2,
+          5396.9
+        ],
+        [
+          7100.3,
+          5395.5
+        ],
+        [
+          7097.2,
+          5392.9
+        ],
+        [
+          7102.3,
+          5386.7
+        ],
+        [
+          7106.6,
+          5390.2
+        ],
+        [
+          7100.3,
+          5397.8
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7101.8,
+      5391.84
+    ],
+    "cells": [
+      "D3·45"
+    ],
+    "ref": "D3·45",
+    "areaM2": 47.2,
+    "withinRegionRef": "garrison",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-225",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "One person, one stove, one telephone, and a view straight down the approach road.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "One person, one stove, one telephone, and a view straight down the approach road.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

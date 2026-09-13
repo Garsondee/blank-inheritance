@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-shrine-gate-444",
+  "type": "location",
+  "tier": "site",
+  "name": "The Shrine Gate",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "amenity"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21491491,
+          34.66512693
+        ],
+        [
+          135.21489974,
+          34.66515003
+        ],
+        [
+          135.21494225,
+          34.66516698
+        ],
+        [
+          135.21495593,
+          34.66514356
+        ],
+        [
+          135.21491491,
+          34.66512693
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7708.4,
+          6967.9
+        ],
+        [
+          7705.9,
+          6966.4
+        ],
+        [
+          7708.3,
+          6962.8
+        ],
+        [
+          7710.7,
+          6964.4
+        ],
+        [
+          7708.4,
+          6967.9
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7708.32,
+      6965.37
+    ],
+    "cells": [
+      "D4·73"
+    ],
+    "ref": "D4·73",
+    "areaM2": 12.3,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-444",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "amenities and other general city supporting functions and administration.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A small roadside shrine, the kind nobody built on purpose so much as let stay.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

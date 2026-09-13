@@ -1,0 +1,170 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "row-f-block-8",
+  "type": "location",
+  "tier": "site",
+  "name": "Row F, Block 8",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21190348,
+          34.67320506
+        ],
+        [
+          135.21235166,
+          34.67245264
+        ],
+        [
+          135.21242009,
+          34.67248103
+        ],
+        [
+          135.21244069,
+          34.67245842
+        ],
+        [
+          135.21250254,
+          34.67249002
+        ],
+        [
+          135.21248759,
+          34.67250988
+        ],
+        [
+          135.21250026,
+          34.67251521
+        ],
+        [
+          135.21204998,
+          34.67327179
+        ],
+        [
+          135.21203321,
+          34.67326427
+        ],
+        [
+          135.21202035,
+          34.67327997
+        ],
+        [
+          135.21196216,
+          34.67325705
+        ],
+        [
+          135.21197396,
+          34.67323455
+        ],
+        [
+          135.21190348,
+          34.67320506
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7015.2,
+          6336.5
+        ],
+        [
+          7093,
+          6387.5
+        ],
+        [
+          7096.8,
+          6381.6
+        ],
+        [
+          7099.7,
+          6382.8
+        ],
+        [
+          7102.8,
+          6376.9
+        ],
+        [
+          7100.5,
+          6375.7
+        ],
+        [
+          7101.2,
+          6374.6
+        ],
+        [
+          7023,
+          6323.3
+        ],
+        [
+          7022.1,
+          6324.8
+        ],
+        [
+          7020.2,
+          6323.9
+        ],
+        [
+          7016.9,
+          6328.8
+        ],
+        [
+          7019.1,
+          6330.4
+        ],
+        [
+          7015.2,
+          6336.5
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7058.31,
+      6355.53
+    ],
+    "cells": [
+      "D4·40"
+    ],
+    "ref": "D4·40",
+    "areaM2": 1459.8,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-134",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Practical and thoroughly unremarkable inside, but its stairwell window happens to frame the cliff-top campus almost perfectly at sunrise. New intake are told about it by whoever bunked there before them, and almost always go and look, at least once.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Practical and thoroughly unremarkable inside, but its stairwell window happens to frame the cliff-top campus almost perfectly at sunrise. New intake are told about it by whoever bunked there before them, and almost always go and look, at least once.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

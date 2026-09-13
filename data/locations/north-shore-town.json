@@ -1,0 +1,230 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "north-shore-town",
+  "type": "location",
+  "tier": "region",
+  "name": "The North Shore Town",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "district",
+  "tags": [
+    "auto-tessellated",
+    "land"
+  ],
+  "classification": null,
+  "rank": 4,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.27307246,
+          34.70760959
+        ],
+        [
+          135.27240459,
+          34.70793558
+        ],
+        [
+          135.25679031,
+          34.71555526
+        ],
+        [
+          135.25350366,
+          34.70923828
+        ],
+        [
+          135.25410124,
+          34.706791
+        ],
+        [
+          135.26188172,
+          34.70113623
+        ],
+        [
+          135.26815937,
+          34.7016305
+        ],
+        [
+          135.26826652,
+          34.70576674
+        ],
+        [
+          135.26526567,
+          34.70644596
+        ],
+        [
+          135.26446475,
+          34.70709862
+        ],
+        [
+          135.26746562,
+          34.70641941
+        ],
+        [
+          135.2681171,
+          34.7068868
+        ],
+        [
+          135.26915293,
+          34.70611945
+        ],
+        [
+          135.27188758,
+          34.70715914
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          9900,
+          200
+        ],
+        [
+          9828.92948,
+          200
+        ],
+        [
+          8167.526749,
+          200
+        ],
+        [
+          8264.776468,
+          956.457909
+        ],
+        [
+          8450,
+          1162.344969
+        ],
+        [
+          9382.768323,
+          1339.804856
+        ],
+        [
+          9850,
+          1000
+        ],
+        [
+          9625,
+          600
+        ],
+        [
+          9350,
+          675
+        ],
+        [
+          9250,
+          650
+        ],
+        [
+          9525,
+          575
+        ],
+        [
+          9550,
+          500
+        ],
+        [
+          9675,
+          525
+        ],
+        [
+          9831.982956,
+          298.246842
+        ]
+      ]
+    ],
+    "centroidPx": [
+      9000.11,
+      706.31
+    ],
+    "cells": [
+      "D1·90",
+      "E1·00",
+      "E1·10",
+      "E1·20",
+      "E1·30",
+      "E1·40",
+      "E1·50",
+      "E1·60",
+      "E1·70",
+      "E1·80",
+      "D1·91",
+      "E1·01",
+      "E1·11",
+      "E1·21",
+      "E1·31",
+      "E1·41",
+      "E1·51",
+      "E1·61",
+      "E1·71",
+      "E1·02",
+      "E1·12",
+      "E1·22",
+      "E1·32",
+      "E1·42",
+      "E1·52",
+      "E1·62",
+      "E1·72",
+      "E1·03",
+      "E1·13",
+      "E1·23",
+      "E1·33",
+      "E1·43",
+      "E1·53",
+      "E1·63",
+      "E1·73",
+      "E1·83",
+      "E1·04",
+      "E1·14",
+      "E1·24",
+      "E1·34",
+      "E1·44",
+      "E1·54",
+      "E1·64",
+      "E1·74",
+      "E1·84",
+      "E1·25",
+      "E1·35",
+      "E1·45",
+      "E1·55",
+      "E1·65"
+    ],
+    "ref": "D1·90",
+    "areaM2": 1525480.1,
+    "withinRegionRef": null,
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-183",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "A coastal settlement on the far side of the headland, joined to the city by one road and one timetable. It considers itself older than the city and is probably right.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A coastal settlement on the far side of the headland, joined to the city by one road and one timetable. It considers itself older than the city and is probably right.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

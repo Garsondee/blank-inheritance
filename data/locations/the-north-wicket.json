@@ -1,0 +1,122 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-north-wicket",
+  "type": "location",
+  "tier": "site",
+  "name": "The North Wicket",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20330114,
+          34.67119651
+        ],
+        [
+          135.20320178,
+          34.67119576
+        ],
+        [
+          135.20320066,
+          34.67121724
+        ],
+        [
+          135.20315087,
+          34.67121849
+        ],
+        [
+          135.20316056,
+          34.67103163
+        ],
+        [
+          135.20331282,
+          34.67103904
+        ],
+        [
+          135.20330114,
+          34.67119651
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6449.5,
+          6929.1
+        ],
+        [
+          6441.7,
+          6933.8
+        ],
+        [
+          6440.4,
+          6931.8
+        ],
+        [
+          6436.4,
+          6934
+        ],
+        [
+          6447.7,
+          6951.4
+        ],
+        [
+          6459.3,
+          6943.6
+        ],
+        [
+          6449.5,
+          6929.1
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6448.14,
+      6939.85
+    ],
+    "cells": [
+      "D4·13"
+    ],
+    "ref": "D4·13",
+    "areaM2": 257.7,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-380",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "The foot gate beside the vehicle barrier, for the several hundred people who arrive on the works' own shift and have no business with a lorry. Two turnstiles, a pass window, and a queue that is a different length every hour of the day.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The foot gate beside the vehicle barrier, for the several hundred people who arrive on the works' own shift and have no business with a lorry. Two turnstiles, a pass window, and a queue that is a different length every hour of the day.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

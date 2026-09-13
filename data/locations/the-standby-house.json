@@ -1,0 +1,109 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-standby-house",
+  "type": "location",
+  "tier": "site",
+  "name": "The Standby House",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21742546,
+          34.68035324
+        ],
+        [
+          135.21763051,
+          34.68038305
+        ],
+        [
+          135.21767944,
+          34.68015715
+        ],
+        [
+          135.21747345,
+          34.6801278
+        ],
+        [
+          135.21742546,
+          34.68035324
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7047.9,
+          5396.4
+        ],
+        [
+          7062.4,
+          5384
+        ],
+        [
+          7079,
+          5403.3
+        ],
+        [
+          7064.4,
+          5415.7
+        ],
+        [
+          7047.9,
+          5396.4
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7063.43,
+      5399.85
+    ],
+    "cells": [
+      "D3·45",
+      "D3·46"
+    ],
+    "ref": "D3·45",
+    "areaM2": 486.0,
+    "withinRegionRef": "garrison",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-237",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Generators for when the island's supply drops, which it does. Tested every Thursday at eleven, loudly, whatever else is happening.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Generators for when the island's supply drops, which it does. Tested every Thursday at eleven, loudly, whatever else is happening.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}
