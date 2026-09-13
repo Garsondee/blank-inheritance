@@ -58,7 +58,7 @@ export function polyLatLngs(g) {
 export function createDrawController(opts) {
   const {
     map, grid, onComplete, onSelect, onGeometryChange, onMarquee, onPick, onStatus,
-    onAreaSelect,
+    onAreaSelect, onBisect,
   } = opts;
 
   const shapeLayer = L.layerGroup().addTo(map);
@@ -176,7 +176,7 @@ export function createDrawController(opts) {
    *  AFTER snapping, and a snapped vertex is copied through unrounded, or
    *  round1 would reintroduce the very sub-pixel mismatch this prevents. */
   function placeDraftPoint(p) {
-    if (tool !== "region") return [round1(p[0]), round1(p[1])];
+    if (tool !== "region" && tool !== "bisect") return [round1(p[0]), round1(p[1])];
     const snapped = snapRegionPoint(p[0], p[1]);
     if (!snapped) return [round1(p[0]), round1(p[1])];
     report(snapped.kind === "vertex"
@@ -216,7 +216,7 @@ export function createDrawController(opts) {
 
   function showSnapHint(p) {
     snapLayer.clearLayers();
-    if (tool !== "region") return;
+    if (tool !== "region" && tool !== "bisect") return;
     const snapped = snapRegionPoint(p[0], p[1]);
     if (!snapped) return;
     snapLayer.addLayer(L.marker(ll(snapped.x, snapped.y), {
@@ -237,12 +237,19 @@ export function createDrawController(opts) {
     redrawDraft();
   }
 
+  // A bisect cut is a LINE with two open ends, never a closed shape -- the
+  // one draft tool that draws something other than a polygon/lasso area.
+  function isLineTool() { return tool === "bisect"; }
+
   function redrawDraft() {
     draftLayer.clearLayers();
     if (!drafting) return;
     const pts = drafting.points;
+    const minPoints = isLineTool() ? 2 : 3;
     if (pts.length >= 2) {
-      draftLayer.addLayer(L.polygon(ringToLatLngs(pts), DRAFT_STYLE));
+      draftLayer.addLayer(isLineTool()
+        ? L.polyline(ringToLatLngs(pts), DRAFT_STYLE)
+        : L.polygon(ringToLatLngs(pts), DRAFT_STYLE));
     }
     pts.forEach(([x, y], i) => {
       draftLayer.addLayer(L.marker(ll(x, y), {
@@ -252,21 +259,27 @@ export function createDrawController(opts) {
         zIndexOffset: 900 + i,
       }));
     });
-    if (pts.length >= 3) {
+    if (pts.length >= minPoints) {
       const refs = refsTouched(pts, grid);
-      const verb = tool === "lasso" ? "select + adopt everything inside" : "finish";
+      const verb = tool === "lasso" ? "select + adopt everything inside"
+        : isLineTool() ? "cut" : "finish";
+      const measure = isLineTool() ? "" : ` · ${fmtArea(polygonAreaPx(pts))}`;
       report(`${pts.length} points · ${refs.length} cell${refs.length === 1 ? "" : "s"}`
-        + ` · ${fmtArea(polygonAreaPx(pts))} — Enter to ${verb}, Esc to cancel, Backspace to undo a point`);
+        + `${measure} — Enter to ${verb}, Esc to cancel, Backspace to undo a point`);
     } else {
       const hint = tool === "lasso"
-        ? "draw a lasso around drawn AND real buildings — both get selected" : "need at least 3";
+        ? "draw a lasso around drawn AND real buildings — both get selected"
+        : isLineTool() ? "click along the region's own edge to start the cut"
+        : "need at least 3";
       report(`${pts.length} point${pts.length === 1 ? "" : "s"} — ${hint}`);
     }
   }
 
   function finishDraft() {
-    if (!drafting || drafting.points.length < 3) {
-      report("a polygon needs at least three points");
+    const minPoints = isLineTool() ? 2 : 3;
+    if (!drafting || drafting.points.length < minPoints) {
+      report(isLineTool() ? "a cut needs at least two points, both on the region's own edge"
+        : "a polygon needs at least three points");
       return;
     }
     const ring = drafting.points.slice();
@@ -277,6 +290,16 @@ export function createDrawController(opts) {
       // separate "mass adopt" mode. onAreaSelect owns both halves; draw.js
       // hands off only the geometry.
       onAreaSelect({ kind: "polygon", ring }, false);
+      return;
+    }
+    if (isLineTool()) {
+      // Which region gets cut is deliberately NOT inferred from which
+      // border the line's ends happen to touch -- onBisect owns that
+      // decision (the currently-selected region), so a cut drawn a few
+      // pixels short of the boundary still applies to the shape the
+      // person clearly meant, not silently to whichever different region
+      // the snap radius happened to reach instead.
+      onBisect(ring);
       return;
     }
     onComplete({ tier: tool === "region" ? "region" : "site", ringPx: ring, source: "drawn" });
@@ -856,9 +879,14 @@ export function createDrawController(opts) {
   // tool gets a crosshair, matching the precision-placement feel those need.
   const CURSOR = {
     pan: "default", region: "crosshair", site: "crosshair", point: "crosshair",
-    adopt: "crosshair", remove: "crosshair", lasso: "crosshair",
+    adopt: "crosshair", remove: "crosshair", lasso: "crosshair", bisect: "crosshair",
   };
-  const POLYGON_DRAFT_TOOLS = new Set(["region", "site", "lasso"]);
+  // Every click-to-add-point drafting tool, not literally every polygon --
+  // "bisect" belongs here too (its own line-vs-polygon rendering is
+  // isLineTool()'s job, not this set's), since what this set actually
+  // gates is "does clicking the map add a draft point" and "does
+  // double-click-zoom need to get out of the way while drafting."
+  const POLYGON_DRAFT_TOOLS = new Set(["region", "site", "lasso", "bisect"]);
 
   function setTool(next) {
     if (drafting) cancelDraft();

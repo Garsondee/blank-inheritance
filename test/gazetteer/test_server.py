@@ -1410,6 +1410,50 @@ class TestServer(unittest.TestCase):
             post(self.base + "/api/regions/merge", {"localIds": ["far-a", "far-b"]})
         self.assertEqual(ctx.exception.code, 409)
 
+    def test_bisect_region_end_to_end_through_the_real_http_surface(self):
+        """Ingram, 2026-09-13: "draw a line from one point on an existing
+        line... to split an existing region into two." """
+        self._seed_item()
+        post(self.base + "/api/session", {"items": [{
+            "localId": "bisect-a", "tier": "region", "name": "Whole District", "kind": "",
+            "note": "", "tags": [], "source": "drawn", "sourceFeatureIds": [],
+            "geometry": {"kind": "polygon",
+                        "ringPx": [[2000, 2000], [2100, 2000], [2100, 2100], [2000, 2100]]},
+            "derived": {},
+        }]})
+
+        result = post(self.base + "/api/regions/bisect",
+                      {"localId": "bisect-a", "cutPoints": [[2050, 2000], [2050, 2100]]})
+        self.assertEqual(result["survivorLocalId"], "bisect-a")
+        new_id = result["newLocalId"]
+        self.assertNotEqual(new_id, "bisect-a")
+
+        after = get(self.base + "/api/session")["draft"]["items"]
+        by_id = {it["localId"]: it for it in after}
+        self.assertIn(new_id, by_id)
+        self.assertEqual(by_id["bisect-a"]["name"], "Whole District",
+                         "the surviving half keeps the original name")
+        self.assertEqual(by_id[new_id]["name"], "", "the new half is a blank draft")
+
+        from shapely.geometry import Polygon
+        total = (Polygon(by_id["bisect-a"]["geometry"]["ringPx"]).area
+                + Polygon(by_id[new_id]["geometry"]["ringPx"]).area)
+        self.assertAlmostEqual(total, 100 * 100, delta=0.5)
+
+    def test_bisect_region_refuses_and_reports_409_for_a_line_that_misses(self):
+        self._seed_item()
+        post(self.base + "/api/session", {"items": [{
+            "localId": "bisect-miss", "tier": "region", "name": "", "kind": "",
+            "note": "", "tags": [], "source": "drawn", "sourceFeatureIds": [],
+            "geometry": {"kind": "polygon",
+                        "ringPx": [[3000, 3000], [3100, 3000], [3100, 3100], [3000, 3100]]},
+            "derived": {},
+        }]})
+        with self.assertRaises(urllib.error.HTTPError) as ctx:
+            post(self.base + "/api/regions/bisect",
+                {"localId": "bisect-miss", "cutPoints": [[9000, 9000], [9100, 9100]]})
+        self.assertEqual(ctx.exception.code, 409)
+
 
 if __name__ == "__main__":
     unittest.main()

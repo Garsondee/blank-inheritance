@@ -768,6 +768,7 @@ async function boot() {
     onGeometryChange: () => { markDirty(); renderList(); renderInspector(state.draw.selected()); },
     onMarquee: onMarquee,
     onAreaSelect,
+    onBisect,
     onPick: onPick,
     onStatus: (text) => setStatus(text || defaultStatus()),
   });
@@ -831,7 +832,7 @@ async function boot() {
   // surface anyone else can reach.
   window.__gz = {
     state, api, setTool, save, refreshFeatures, refreshPublished,
-    onShapeDrawn, onMarquee, onPick, onAreaSelect, handleSelectionChange,
+    onShapeDrawn, onMarquee, onPick, onAreaSelect, onBisect, handleSelectionChange,
     refreshCoverage, refreshOverview, setFocusRegion, recomputeContainment,
     copyForClaude,
   };
@@ -1142,6 +1143,42 @@ function onShapeDrawn(shape) {
   // its one-shot use cannot repeat that.
   if (item.tier === "region") setTool("pan");
   $("f-note").focus();
+}
+
+/**
+ * A bisect cut applies to whichever region was selected BEFORE the Bisect
+ * tool was armed -- not inferred from which border the line happened to
+ * touch, so a cut drawn a little short of the edge still lands on the
+ * region the person clearly meant. The actual split (does this line divide
+ * the region into exactly two pieces, which half keeps the identity) is
+ * core/reconcile.py#bisect_region's job entirely; this is just the round
+ * trip and the same full-state-replace `undo()` already uses, since a
+ * bisect can both change an existing item's geometry and add a brand-new
+ * one in the same response.
+ */
+async function onBisect(points) {
+  const targetId = state.draw.selected();
+  setTool("pan"); // one-shot, same reasoning as the region tool above
+  if (!targetId || itemById(targetId).tier !== "region") {
+    setStatus("select a region first, then draw the cut across it", "error");
+    return;
+  }
+  try {
+    const data = await api("/api/regions/bisect", { localId: targetId, cutPoints: points });
+    state.items = data.draft.items || [];
+    state.draw.clearShapes();
+    state.items.forEach((it) => state.draw.addShape(it));
+    state.draw.selectMany([data.newLocalId]);
+    renderList();
+    setStatus(`split into two — the new half (${data.newLocalId}) is ready to name`
+      + (data.resyncedLocations.length
+         ? `; resynced ${data.resyncedLocations.join(", ")}` : ""));
+    refreshCoverage();
+    refreshOverview();
+  } catch (err) {
+    const message = (err.payload && err.payload.error) || err.message;
+    setStatus("could not cut: " + message, "error");
+  }
 }
 
 /**
@@ -3054,7 +3091,7 @@ function wireKeys() {
     }
     const tools = {
       v: "pan", l: "lasso", r: "region", s: "site", p: "point",
-      b: "adopt", x: "remove",
+      b: "adopt", x: "remove", c: "bisect",
     };
     if (tools[e.key.toLowerCase()] && !e.ctrlKey && !e.metaKey) {
       setTool(tools[e.key.toLowerCase()]);

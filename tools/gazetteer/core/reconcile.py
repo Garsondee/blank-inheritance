@@ -44,7 +44,7 @@ see its own docstring for that half.
 
 from __future__ import annotations
 
-from shapely.geometry import Polygon
+from shapely.geometry import Point, Polygon
 from shapely.ops import unary_union
 
 from .containment import PROXIMATE_TOLERANCE_PX
@@ -62,6 +62,14 @@ MIN_OVERLAP_PX2 = 100.0
 #: px2 in this session's own first real case) folds into its neighbour
 #: silently, while anything bigger is still merged, just reported.
 NEGLIGIBLE_PIECE_FRACTION = 0.02
+
+#: How wide a hairline `bisect_region` buffers its cut line out to before
+#: subtracting it, in image px. Two orders of magnitude below
+#: MIN_OVERLAP_PX2 (a 0.01px-wide strip has to run 10,000px long before it
+#: covers 100px2) so the sliver it removes is never mistakable for real
+#: ground, only large enough to make the cut a genuine DIFFERENCE rather
+#: than a knife-edge shapely.ops.split can decline to recognise.
+BISECT_KERF_PX = 0.01
 
 
 def _polygon(item):
@@ -280,3 +288,102 @@ def merge_regions(items, local_ids):
             continue
         new_items.append(it)
     return new_items, survivor_id
+
+
+class BisectError(ValueError):
+    """The requested cut does not split this region into two."""
+
+
+def bisect_region(items, local_id, cut_points, new_local_id):
+    """Ingram, 2026-09-13: "draw a line from one point on an existing line
+    and then describe a complex line and then terminate it on another
+    region's line... to split an existing region into two." `cut_points`
+    is the drawn line, image-px, in order -- as complex or as straight as
+    the two ends and whatever is drawn between them; both ends need to
+    land on (or very close to) the target region's own boundary, or there
+    is nothing for shapely to divide.
+
+    The larger of the two resulting pieces keeps the original item's
+    identity entirely (name, note, locationRef, every cross-reference) --
+    only its geometry changes. The smaller piece becomes a brand-new,
+    completely blank draft region at `new_local_id` (a real name/note is
+    for Ingram to write, the same as any other freshly-drawn region),
+    never a copy of the original's lore, which almost never describes
+    both halves once the cut is real.
+
+    Refuses rather than guesses when the cut does not actually produce
+    two pieces -- not on the region's own boundary at both ends, glancing
+    off it without truly crossing, or crossing more than once each way
+    (which needs `new_local_id` for a THIRD piece this function does not
+    invent one for).
+    """
+    by_id = {it["localId"]: it for it in items}
+    target = by_id.get(local_id)
+    if target is None:
+        raise BisectError("no item %r in this session" % local_id)
+    if target.get("tier") != "region":
+        raise BisectError("%r is not a region" % local_id)
+    poly = _polygon(target)
+    if poly is None:
+        raise BisectError("%r has no usable polygon geometry" % local_id)
+    if len(cut_points) < 2:
+        raise BisectError("a cut needs at least two points")
+
+    from shapely.geometry import LineString
+
+    # Snap each end onto the boundary if it is already close -- the same
+    # tolerance PROXIMATE_TOLERANCE_PX already uses for "is this actually
+    # touching" -- so a cut drawn a hair short of the edge (an entirely
+    # ordinary amount of residue for a real snapped click to carry) still
+    # reads as landing exactly on it. A point well outside tolerance is
+    # left alone; the intersects check below refuses it same as ever.
+    points = [list(p) for p in cut_points]
+    for i in (0, -1):
+        p = Point(points[i])
+        if poly.exterior.distance(p) <= PROXIMATE_TOLERANCE_PX:
+            snapped = poly.exterior.interpolate(poly.exterior.project(p))
+            points[i] = [snapped.x, snapped.y]
+
+    line = LineString(points)
+    if not line.intersects(poly):
+        raise BisectError("this line does not cross %r at all" % local_id)
+
+    # shapely.ops.split, tried first, turned out to need the line's ends to
+    # touch the boundary at a precision tighter than the snap above can
+    # promise -- found live, it silently returned the WHOLE region
+    # unchanged for a real cut whose endpoint was a few hundredths of a
+    # pixel off. Cutting by DIFFERENCE against the line buffered out to a
+    # hairline sliver is the same technique trim_overlapping_regions
+    # already relies on elsewhere in this module, and is robust to exactly
+    # that residue: the sliver itself is far too thin to matter against any
+    # region worth drawing (BISECT_KERF_PX is two orders of magnitude
+    # below the smallest overlap this module ever acts on).
+    kerf = line.buffer(BISECT_KERF_PX, cap_style=2)
+    result = poly.difference(kerf)
+    parts = [g for g in getattr(result, "geoms", [result])
+            if g.geom_type == "Polygon" and g.area > BISECT_KERF_PX]
+    if len(parts) < 2:
+        raise BisectError(
+            "this line does not actually divide the region into two pieces -- "
+            "both ends need to land on (or very close to) its own boundary")
+    if len(parts) > 2:
+        raise BisectError(
+            "this line divides the region into %d pieces, not two -- a "
+            "bisecting cut may only cross the boundary at its two ends" % len(parts))
+
+    parts.sort(key=lambda p: -p.area)
+    survivor_shell, survivor_holes = _rings_from_polygon(parts[0])
+    new_shell, new_holes = _rings_from_polygon(parts[1])
+
+    survivor = dict(target,
+                    geometry=dict(target["geometry"], ringPx=survivor_shell, holesPx=survivor_holes))
+    new_item = {
+        "localId": new_local_id, "tier": "region", "name": "", "kind": target.get("kind") or "",
+        "note": "", "tags": [], "source": "drawn", "sourceFeatureIds": [],
+        "geometry": {"kind": "polygon", "ringPx": new_shell, "holesPx": new_holes},
+        "derived": {},
+    }
+
+    new_items = [survivor if it["localId"] == local_id else it for it in items]
+    new_items.append(new_item)
+    return new_items, survivor["localId"], new_local_id

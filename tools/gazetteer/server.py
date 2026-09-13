@@ -314,6 +314,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._api_reconcile_regions()
             if path == "/api/regions/merge":
                 return self._api_merge_regions()
+            if path == "/api/regions/bisect":
+                return self._api_bisect_region()
             if path.startswith("/api/location/") and path.endswith("/approve"):
                 location_id = path[len("/api/location/"):-len("/approve")]
                 return self._api_approve_location(location_id)
@@ -1005,6 +1007,58 @@ class Handler(BaseHTTPRequestHandler):
 
         self._send(200, {"survivorLocalId": survivor_id, "resyncedLocations": resynced,
                          "draft": STATE.draft})
+
+    def _api_bisect_region(self):
+        """Ingram, 2026-09-13: "draw a line from one point on an existing
+        line and then describe a complex line and then terminate it on
+        another regions line... to split an existing region into two."
+        core/reconcile.py#bisect_region does the actual geometry; this is
+        the HTTP wrapping -- minting the new region's localId (the one
+        thing the pure core module cannot do for itself, since handing out
+        ids is session state), then the same undo protection, stale-draft
+        guard and promoted-file resync every other region write already
+        gets.
+        """
+        from core import reconcile as reconcile_mod
+
+        body = self._body()
+        local_id = body.get("localId")
+        cut_points = body.get("cutPoints") or []
+        if not local_id:
+            return self._error(400, "need localId")
+
+        with STATE.lock:
+            if STATE.draft_changed_underneath():
+                fresh = STATE.reload_draft()
+                return self._send(409, {
+                    "error": "the draft changed on disk since this session loaded it "
+                             "-- reload before bisecting",
+                    "draft": fresh,
+                })
+
+            next_id = int(STATE.draft.get("nextLocalId") or 1)
+            new_local_id = "item-%d" % next_id
+
+            try:
+                new_items, survivor_id, new_id = reconcile_mod.bisect_region(
+                    STATE.draft["items"], local_id, cut_points, new_local_id)
+            except reconcile_mod.BisectError as exc:
+                return self._error(409, str(exc))
+
+            STATE.undo_stack.push({
+                "items": STATE.draft["items"],
+                "nextLocalId": STATE.draft.get("nextLocalId"),
+                "description": "split a region into two",
+                "at": datetime.datetime.now().isoformat(timespec="seconds"),
+            })
+
+            STATE.draft["items"] = new_items
+            STATE.draft["nextLocalId"] = next_id + 1
+            STATE.save_draft()
+            resynced = _resync_promoted_region_geometry(STATE.draft["items"])
+
+        self._send(200, {"survivorLocalId": survivor_id, "newLocalId": new_id,
+                         "resyncedLocations": resynced, "draft": STATE.draft})
 
     def _api_crop(self, rel):
         """A labelled PNG of the painted map around one item -- see crop.py's

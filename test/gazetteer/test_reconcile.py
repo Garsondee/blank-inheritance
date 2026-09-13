@@ -253,5 +253,89 @@ class TestMergeRegions(unittest.TestCase):
         self.assertIn(bystander, new_items)
 
 
+class TestBisectRegion(unittest.TestCase):
+
+    def test_a_straight_cut_down_the_middle_makes_two_equal_regions(self):
+        a = region("a", square(0, 0, 100, 100), name="Original District")
+        new_items, survivor_id, new_id = reconcile.bisect_region(
+            [a], "a", [[50, 0], [50, 100]], "b")
+
+        self.assertEqual(len(new_items), 2)
+        by_id = {it["localId"]: it for it in new_items}
+        self.assertAlmostEqual(ring_of(by_id[survivor_id]).area, 5000, delta=0.5)
+        self.assertAlmostEqual(ring_of(by_id[new_id]).area, 5000, delta=0.5)
+        self.assertEqual(by_id[survivor_id].get("name"), "Original District",
+                         "the surviving half keeps the original's identity")
+        self.assertEqual(by_id[new_id].get("name"), "",
+                         "the new half is a blank draft, never a copy of the original's lore")
+
+    def test_a_complex_cut_line_works_the_same_as_a_straight_one(self):
+        a = region("a", square(0, 0, 100, 100))
+        new_items, survivor_id, new_id = reconcile.bisect_region(
+            [a], "a", [[50, 0], [30, 30], [70, 50], [30, 70], [50, 100]], "b")
+        by_id = {it["localId"]: it for it in new_items}
+        total = ring_of(by_id[survivor_id]).area + ring_of(by_id[new_id]).area
+        self.assertAlmostEqual(total, 10000, delta=0.5, msg="no ground gained or lost")
+
+    def test_a_cut_point_a_few_hundredths_of_a_pixel_off_the_boundary_still_works(self):
+        # A live regression: driving this from the real UI, an edge
+        # midpoint computed by hand (not shapely's own boundary.interpolate)
+        # landed 0.03px off the true boundary -- an entirely ordinary amount
+        # of residue for a real snapped click to carry -- and
+        # shapely.ops.split silently returned the WHOLE region unchanged,
+        # not two pieces. bisect_region must snap each end onto the
+        # boundary itself before splitting, not trust the caller's point to
+        # already be exact.
+        a = region("a", [[7232, 4979.8], [7172, 5052.9],
+                         [7486.934769760508, 5141.828460238905], [7497, 5040.8]])
+        new_items, survivor_id, new_id = reconcile.bisect_region(
+            [a], "a", [[7202, 5016.35], [7492, 5091.3]], "b")
+        by_id = {it["localId"]: it for it in new_items}
+        total = ring_of(by_id[survivor_id]).area + ring_of(by_id[new_id]).area
+        # Not a tight area-conservation check -- see the other cases in this
+        # class for that, on clean input. The point here is specifically
+        # that an imprecise real click still produces a genuine two-way
+        # split at all, so a generous bound (the hairline kerf on
+        # imprecise input, not the tight synthetic cases) is deliberate.
+        self.assertAlmostEqual(total, ring_of(a).area, delta=50)
+        self.assertGreater(ring_of(by_id[survivor_id]).area, 0)
+        self.assertGreater(ring_of(by_id[new_id]).area, 0)
+
+    def test_the_larger_piece_keeps_the_locationRef_the_smaller_does_not(self):
+        a = dict(region("a", square(0, 0, 100, 100)), locationRef="real-district")
+        new_items, survivor_id, new_id = reconcile.bisect_region(
+            [a], "a", [[30, 0], [30, 100]], "b")
+        by_id = {it["localId"]: it for it in new_items}
+        self.assertEqual(by_id[survivor_id]["locationRef"], "real-district")
+        self.assertNotIn("locationRef", by_id[new_id])
+
+    def test_a_line_that_does_not_touch_the_region_is_refused(self):
+        a = region("a", square(0, 0, 100, 100))
+        with self.assertRaises(reconcile.BisectError):
+            reconcile.bisect_region([a], "a", [[500, 500], [600, 600]], "b")
+
+    def test_a_line_that_only_grazes_the_boundary_is_refused(self):
+        a = region("a", square(0, 0, 100, 100))
+        with self.assertRaises(reconcile.BisectError):
+            reconcile.bisect_region([a], "a", [[0, 50], [-10, 50]], "b")
+
+    def test_a_line_that_crosses_the_boundary_more_than_twice_is_refused(self):
+        a = region("a", square(0, 0, 100, 100))
+        with self.assertRaises(reconcile.BisectError):
+            reconcile.bisect_region([a], "a", [[50, 0], [150, 50], [50, 100]], "b")
+
+    def test_bisecting_a_site_is_refused(self):
+        a = site("a", point=(50, 50))
+        with self.assertRaises(reconcile.BisectError):
+            reconcile.bisect_region([a], "a", [[0, 0], [100, 100]], "b")
+
+    def test_other_items_pass_through_untouched(self):
+        a = region("a", square(0, 0, 100, 100))
+        bystander = region("bystander", square(500, 500, 600, 600))
+        new_items, _, _ = reconcile.bisect_region(
+            [a, bystander], "a", [[50, 0], [50, 100]], "b")
+        self.assertIn(bystander, new_items)
+
+
 if __name__ == "__main__":
     unittest.main()
