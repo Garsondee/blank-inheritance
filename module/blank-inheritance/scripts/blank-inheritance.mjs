@@ -43,6 +43,7 @@ import {
   resetSceneRunnerCache
 } from "./foundry/scene-runner.mjs";
 import { openInductionTerminal } from "./foundry/induction-terminal.mjs";
+import { registerInductionSocket } from "./foundry/induction-relay.mjs";
 import {
   advanceSegment,
   ensureDowntimeVault,
@@ -201,6 +202,17 @@ Hooks.once("ready", async () => {
     registerEquipmentSocket();
   } catch (err) {
     console.error("Blank Inheritance | Could not open the equipment locker socket:", err);
+  }
+
+  // A player's Page 9 confirm needs an Actor created on their behalf by the
+  // GM's client (Foundry's default ACTOR_CREATE permission excludes plain
+  // Players -- see foundry/induction-relay.mjs's header). Same registration
+  // shape as the two sockets just above, for the same reason: every client
+  // is one of the two possible sides of this conversation.
+  try {
+    registerInductionSocket();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not open the induction terminal socket:", err);
   }
 
   // The console. Every client, both seats -- the class is picked here once and

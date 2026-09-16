@@ -16,6 +16,13 @@
  * writes to this.state. The Page 5→6→7 chain is real now too; no page's
  * Continue temporarily skips another one anymore.
  *
+ * #createCharacterActor's own Actor.create call goes through
+ * ./induction-relay.mjs, not a bare Actor.create -- a plain Player does not
+ * have Foundry's ACTOR_CREATE permission by default, so a real player's own
+ * client cannot perform that one call directly. See that file's header for
+ * the full live-verified permission trail and why the fix is a GM relay
+ * rather than a permission-config change.
+ *
  * PLAYER-FACING BY CONSTRUCTION, unlike the scene runner (GM-only) and the
  * command bar (seat-dependent) -- any user may open this, including a GM
  * previewing it, so there is no isGM guard anywhere in this file. The
@@ -66,6 +73,7 @@ import {
   summarizeIntakeAnswers
 } from "../core/induction-intake.mjs";
 import { getPath, setPath } from "../core/state-path.mjs";
+import { requestActorCreation, requestActorDeletion } from "./induction-relay.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -1418,7 +1426,14 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       this.#resolveCompendiumUuid("classes", cls.id)
     ]);
 
-    const actor = await Actor.create({
+    // Actor.create needs the Assistant/GM role by Foundry's own default
+    // permission configuration (confirmed live against this project's own
+    // test world, not assumed -- see foundry/induction-relay.mjs's header),
+    // which a real player will not have. requestActorCreation runs this
+    // directly when called from the GM's own client (unchanged from before);
+    // for anyone else it travels to the GM's client and grants ownership to
+    // the requesting player as part of that same create.
+    const actor = await requestActorCreation({
       name: this.state.finishing.name.trim(),
       type: "character",
       // Omitted entirely when no portrait was uploaded -- Foundry's own
@@ -1426,7 +1441,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       // Page 6's own "optional" framing, not a gap this has to fill in.
       ...(this.state.portrait.path ? { img: this.state.portrait.path } : {}),
       system: { abilities: null, details: { level: { value: 1 } } }
-    }, { render: false });
+    });
 
     try {
       const [ancestrySrc, backgroundSrc, classSrc] = await Promise.all([
@@ -1460,9 +1475,25 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
         console.error("Blank Inheritance | Could not persist this character's intake answers:", err);
       }
 
+      // The other half of the same permission gap requestActorCreation works
+      // around: a plain Player CAN update their own User document's
+      // `character` field directly (confirmed in common/documents/user.mjs's
+      // own #canUpdate -- only permissions/passwordSalt/name/role are
+      // restricted, and name/role only for non-Assistants), so this needs no
+      // relay. Attempted after everything else succeeds and never fatal --
+      // same "don't lose the whole character over one non-essential write"
+      // reasoning as #persistIntakeAnswers just above. Without this the rest
+      // of the console (the command bar, the equipment locker's "acting as
+      // self") has no way to know which Actor is this player's own.
+      try {
+        await game.user.update({ character: actor.id });
+      } catch (err) {
+        console.error("Blank Inheritance | Could not set this as your own character:", err);
+      }
+
       return actor;
     } catch (err) {
-      await actor.delete().catch(() => {});
+      await requestActorDeletion(actor.id).catch(() => {});
       throw err;
     }
   }

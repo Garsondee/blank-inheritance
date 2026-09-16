@@ -28,13 +28,21 @@ function makeId(counter) {
   return `mock${String(counter.n++).padStart(12, "0")}`;
 }
 
-function makeDocumentClass(collection, counter, { validateOnCreate } = {}) {
+function makeDocumentClass(collection, counter, { validateOnCreate, documentName } = {}) {
   return class MockDocument {
     static async create(data, options = {}) {
       if (validateOnCreate) validateOnCreate(data);
       const id = options.keepId && data._id ? data._id : makeId(counter);
       const doc = new MockDocument({ ...data, _id: id, id });
       collection.set(id, doc);
+      // Real Foundry fires this from data/client-backend.mjs's own
+      // #createDocuments, confirmed directly against that source:
+      // `Hooks.callAll(\`create${type}\`, doc, options, userId)` -- callAll,
+      // not call, so every listener runs regardless of any one's return
+      // value. Only fired when the caller names a documentName (every
+      // built-in call site below does); a test that never registers a
+      // createX listener pays nothing extra for this.
+      if (documentName) Hooks.callAll(`create${documentName}`, doc, options, globalThis.game?.user?.id);
       return doc;
     }
 
@@ -144,6 +152,70 @@ function makeMockDialogV2(world) {
   };
 }
 
+/**
+ * A real, minimal Hooks -- on/off/once/call/callAll -- not the no-op stub
+ * this used to be. Verified against client/helpers/hooks.mjs and every real
+ * call site cited alongside makeDocumentClass above: `call` stops at the
+ * first listener that returns exactly `false` and reports whether it was
+ * allowed to proceed; `callAll` always runs every listener and reports
+ * nothing. Synchronous throughout, same as the real one.
+ */
+function makeMockHooks() {
+  const listeners = new Map();
+  const on = (name, fn) => {
+    if (!listeners.has(name)) listeners.set(name, new Set());
+    listeners.get(name).add(fn);
+    return fn;
+  };
+  const off = (name, fn) => listeners.get(name)?.delete(fn);
+  const once = (name, fn) => {
+    const wrapped = (...args) => {
+      off(name, wrapped);
+      return fn(...args);
+    };
+    on(name, wrapped);
+    return wrapped;
+  };
+  const call = (name, ...args) => {
+    for (const fn of listeners.get(name) ?? []) {
+      if (fn(...args) === false) return false;
+    }
+    return true;
+  };
+  const callAll = (name, ...args) => {
+    for (const fn of listeners.get(name) ?? []) fn(...args);
+  };
+  return { on, off, once, call, callAll };
+}
+
+/**
+ * A real, in-process game.socket -- on/off/emit -- standing in for the
+ * socket.io client Foundry actually uses. emit() delivers synchronously to
+ * every listener registered on this SAME mock, collapsing "broadcast to
+ * every connected client" onto one process; that's the right level of
+ * fidelity for testing OUR OWN dispatch logic (does the right handler act on
+ * the right payload, does a GM-only guard actually gate it), not Foundry's
+ * real network layer -- module socket events are confirmed fire-and-forget
+ * (this project's own live test, 2026-09-16: a second connection's
+ * game.socket.emitWithAck across this exact channel never resolved), so this
+ * mock deliberately has no ack support either.
+ */
+function makeMockSocket() {
+  const listeners = new Map();
+  return {
+    on(event, fn) {
+      if (!listeners.has(event)) listeners.set(event, new Set());
+      listeners.get(event).add(fn);
+    },
+    off(event, fn) {
+      listeners.get(event)?.delete(fn);
+    },
+    emit(event, payload) {
+      for (const fn of listeners.get(event) ?? []) fn(payload);
+    }
+  };
+}
+
 export function installMockFoundry({ moduleFiles = {}, templateJson = null, moduleManifest = null } = {}) {
   if (!globalThis.crypto) globalThis.crypto = webcrypto;
   if (!globalThis.File) globalThis.File = NodeFile;
@@ -179,6 +251,7 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
     game: globalThis.game,
     ui: globalThis.ui,
     Hooks: globalThis.Hooks,
+    CONST: globalThis.CONST,
     Actor: globalThis.Actor,
     Scene: globalThis.Scene,
     Macro: globalThis.Macro,
@@ -208,6 +281,14 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
 
   globalThis.game = {
     user: { id: "mock-gm-user", isGM: true },
+    // .activeGM is a plain settable stand-in, not a reimplementation of
+    // Foundry's real "lowest-id connected GM" selection -- every consumer in
+    // this codebase only ever reads `.activeGM?.isSelf` (the GM-relay guard
+    // shared by campaign-state.mjs/equipment-state.mjs/induction-relay.mjs),
+    // never anything about how that GM was chosen. Defaults to "yes, acting
+    // as the one active GM" to match game.user's own isGM: true default.
+    users: { activeGM: { isSelf: true } },
+    socket: makeMockSocket(),
     actors: world.actors,
     scenes: world.scenes,
     macros: world.macros,
@@ -228,14 +309,20 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
     }
   };
 
-  globalThis.Hooks = {
-    once: (_name, _fn) => {}
+  globalThis.Hooks = makeMockHooks();
+
+  // Verified against common/constants.mjs directly -- OWNER's own doc
+  // comment there is the exact citation for why Actor delete needs the GM
+  // relay too: "Owned documents cannot be deleted by anyone other than a
+  // gamemaster level User."
+  globalThis.CONST = {
+    DOCUMENT_OWNERSHIP_LEVELS: Object.freeze({ INHERIT: -1, NONE: 0, LIMITED: 1, OBSERVER: 2, OWNER: 3 })
   };
 
-  globalThis.Actor = makeDocumentClass(world.actors, counter, { validateOnCreate: validateActorOnCreate });
-  globalThis.Scene = makeDocumentClass(world.scenes, counter);
-  globalThis.Macro = makeDocumentClass(world.macros, counter);
-  globalThis.JournalEntry = makeDocumentClass(world.journal, counter);
+  globalThis.Actor = makeDocumentClass(world.actors, counter, { validateOnCreate: validateActorOnCreate, documentName: "Actor" });
+  globalThis.Scene = makeDocumentClass(world.scenes, counter, { documentName: "Scene" });
+  globalThis.Macro = makeDocumentClass(world.macros, counter, { documentName: "Macro" });
+  globalThis.JournalEntry = makeDocumentClass(world.journal, counter, { documentName: "JournalEntry" });
   globalThis.ChatMessage = {
     create: async (data) => {
       world.chatMessages.push(data);
@@ -244,7 +331,18 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
   };
 
   globalThis.foundry = {
-    utils: { getRoute: (p) => `/${p}` },
+    utils: {
+      getRoute: (p) => `/${p}`,
+      // Same alphabet/length as common/utils/helpers.mjs's real randomID --
+      // cryptographic quality doesn't matter for a test id, uniqueness and
+      // shape do.
+      randomID: (length = 16) => {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        let id = "";
+        for (let i = 0; i < length; i++) id += chars[Math.floor(Math.random() * chars.length)];
+        return id;
+      }
+    },
     applications: {
       apps: { FilePicker: makeMockFilePicker(world) },
       api: { DialogV2: makeMockDialogV2(world) }
