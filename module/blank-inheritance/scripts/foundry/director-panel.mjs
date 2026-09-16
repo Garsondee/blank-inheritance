@@ -24,6 +24,7 @@
 
 import { sceneRows, transitionOptions, TRANSITION_TYPES } from "../core/director-panel.mjs";
 import { deriveFoundryId } from "../core/ids.mjs";
+import { openSceneCloseDialogue } from "./scene-close.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const MODULE_ID = "blank-inheritance";
@@ -60,7 +61,8 @@ export class DirectorPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     actions: {
       cue: DirectorPanel.#onCue,
       pullEveryone: DirectorPanel.#onPullEveryone,
-      setTransition: DirectorPanel.#onSetTransition
+      setTransition: DirectorPanel.#onSetTransition,
+      closeScene: DirectorPanel.#onCloseScene
     }
   };
 
@@ -90,6 +92,17 @@ export class DirectorPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   static #onSetTransition(event, target) {
     this.#transitionType = target.dataset.transitionType || "";
     this.render();
+  }
+
+  /**
+   * design/ux-doctrine.md §10.3a: the scene-close dialogue belongs at a
+   * scene boundary, which this panel already is. A distinct button rather
+   * than auto-opening on every Cue click -- §10.3a's own "not complete" path
+   * means closing is a real, separate decision from moving on, not a gate
+   * in front of it.
+   */
+  static #onCloseScene() {
+    openSceneCloseDialogue();
   }
 }
 

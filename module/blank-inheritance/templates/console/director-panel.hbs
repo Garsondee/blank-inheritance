@@ -19,9 +19,14 @@
         </div>
     </section>
 
-    <button type="button" class="bi-director-panel__pull" data-action="pullEveryone">
-        {{localize "BLANKINHERITANCE.Director.PullEveryone"}}
-    </button>
+    <div class="bi-director-panel__row">
+        <button type="button" class="bi-director-panel__pull" data-action="pullEveryone">
+            {{localize "BLANKINHERITANCE.Director.PullEveryone"}}
+        </button>
+        <button type="button" class="bi-director-panel__pull" data-action="closeScene">
+            {{localize "BLANKINHERITANCE.SceneClose.Title"}}
+        </button>
+    </div>
 
     <ul class="bi-director-panel__scenes">
         {{#each scenes}}

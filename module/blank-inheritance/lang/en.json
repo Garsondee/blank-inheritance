@@ -141,6 +141,33 @@
         "Dots": "Dots"
       }
     },
+    "SceneClose": {
+      "Title": "Close Scene",
+      "IsComplete": "This scene is complete",
+      "EndingLabel": "How did it end?",
+      "CostLabel": "What did it cost?",
+      "NotesLabel": "Notes",
+      "NotesPlaceholder": "Optional -- goes into the session log.",
+      "CarriesForward": "Left open. This scene carries forward to next time.",
+      "Counters": "Casualties so far: {casualties} · Anchors violated so far: {anchors}",
+      "Confirm": "Confirm",
+      "Confirmed": "Scene closed.",
+      "Ending": {
+        "Resolved": "Resolved",
+        "ResolvedWithComplications": "Resolved, with complications",
+        "Interrupted": "Interrupted",
+        "Abandoned": "Abandoned"
+      },
+      "Cost": {
+        "Nothing": "Nothing",
+        "Casualties": "Casualties",
+        "FrameDamage": "Frame damage",
+        "Bleed": "Bleed",
+        "TechnicianDays": "Technician-days",
+        "Time": "Time",
+        "AnchorViolated": "Anchor violated"
+      }
+    },
     "Settings": {
       "ThemeEnabled": {
         "Name": "Directorate interface theme",

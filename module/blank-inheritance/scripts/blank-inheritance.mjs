@@ -58,6 +58,7 @@ import {
 import { openEquipmentPanel, refreshEquipmentPanel } from "./foundry/equipment-panel.mjs";
 import { mountPhone } from "./foundry/phone.mjs";
 import { createDirectorPanelMacroIfMissing, openDirectorPanel, refreshDirectorPanel } from "./foundry/director-panel.mjs";
+import { registerSceneCloseSettings, openSceneCloseDialogue } from "./foundry/scene-close.mjs";
 
 const MODULE_ID = "blank-inheritance";
 
@@ -104,7 +105,12 @@ Hooks.once("init", () => {
       openEquipmentPanel,
       // Scene cueing (design/foundry-module-design.md §7). GM-only, enforced
       // inside openDirectorPanel itself.
-      openDirectorPanel
+      openDirectorPanel,
+      // The scene-close dialogue (design/ux-doctrine.md §10.3a). Reachable
+      // from the Director's panel's own button; exposed here too for the
+      // same "console access alongside the UI trigger" reason every other
+      // panel on this API already is.
+      openSceneCloseDialogue
     };
   }
 
@@ -132,6 +138,10 @@ Hooks.once("init", () => {
   // Equipment Locker on every client the instant one lands, from whichever
   // client actually caused it.
   registerEquipmentSettings(() => refreshEquipmentPanel());
+
+  // The two mocked scene-close counters (design/ux-doctrine.md §10.3a).
+  // World-scoped and GM-only to write, same as everything else here.
+  registerSceneCloseSettings();
 });
 
 Hooks.once("ready", async () => {

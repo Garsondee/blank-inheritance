@@ -1,0 +1,50 @@
+{{!--
+    The scene-close dialogue (design/ux-doctrine.md §10.3a). The one place in
+    the whole console where friction is deliberate -- Ingram's own word is
+    "forced". Complete + both dropdowns confirmed is the ONLY way Confirm
+    enables; there is no way to skip the dropdowns for a scene marked complete.
+--}}
+<div class="bi-scene-close">
+    <label class="bi-scene-close__complete">
+        <input type="checkbox" data-action="toggleComplete" {{#if complete}}checked{{/if}}>
+        {{localize "BLANKINHERITANCE.SceneClose.IsComplete"}}
+    </label>
+
+    {{#if complete}}
+    <section class="bi-scene-close__block">
+        <div class="bi-bank__label">{{localize "BLANKINHERITANCE.SceneClose.EndingLabel"}}</div>
+        <div class="bi-scene-close__scale">
+            {{#each endings}}
+            <button type="button" class="bi-scene-close__option{{#if this.current}} bi-scene-close__option--current{{/if}}"
+                data-action="setEnding" data-ending-id="{{this.id}}">{{localize this.labelKey}}</button>
+            {{/each}}
+        </div>
+    </section>
+
+    <section class="bi-scene-close__block">
+        <div class="bi-bank__label">{{localize "BLANKINHERITANCE.SceneClose.CostLabel"}}</div>
+        <div class="bi-scene-close__scale">
+            {{#each costs}}
+            <button type="button" class="bi-scene-close__option{{#if this.current}} bi-scene-close__option--current{{/if}}"
+                data-action="setCost" data-cost-id="{{this.id}}">{{localize this.labelKey}}</button>
+            {{/each}}
+        </div>
+    </section>
+    {{else}}
+    <p class="bi-legend">{{localize "BLANKINHERITANCE.SceneClose.CarriesForward"}}</p>
+    {{/if}}
+
+    <section class="bi-scene-close__block">
+        <div class="bi-bank__label">{{localize "BLANKINHERITANCE.SceneClose.NotesLabel"}}</div>
+        <textarea class="bi-scene-close__notes" data-scene-close-notes rows="2"
+            placeholder="{{localize 'BLANKINHERITANCE.SceneClose.NotesPlaceholder'}}"></textarea>
+    </section>
+
+    <p class="bi-scene-close__counters">
+        {{localize "BLANKINHERITANCE.SceneClose.Counters" casualties=counters.casualties anchors=counters.anchorViolations}}
+    </p>
+
+    <button type="button" class="bi-scene-close__confirm" data-action="confirm" {{#unless canConfirm}}disabled{{/unless}}>
+        {{localize "BLANKINHERITANCE.SceneClose.Confirm"}}
+    </button>
+</div>
