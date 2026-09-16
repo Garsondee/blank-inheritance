@@ -116,6 +116,31 @@
         "Restart": "Restart"
       }
     },
+    "Director": {
+      "PanelTitle": "Director's Panel",
+      "MacroName": "Blank Inheritance: Open Director's Panel",
+      "TransitionLabel": "Transition",
+      "PullEveryone": "Pull everyone to my view",
+      "Cue": "Cue",
+      "NowActive": "Now active",
+      "NoScenes": "No scenes exist yet.",
+      "Transition": {
+        "None": "None",
+        "Fade": "Fade",
+        "Swirl": "Swirl",
+        "WaterDrop": "Water Drop",
+        "Morph": "Morph",
+        "Crosshatch": "Crosshatch",
+        "Wind": "Wind",
+        "Waves": "Waves",
+        "WhiteNoise": "White Noise",
+        "Hologram": "Hologram",
+        "Hole": "Hole",
+        "HoleSwirl": "Hole Swirl",
+        "Glitch": "Glitch",
+        "Dots": "Dots"
+      }
+    },
     "Settings": {
       "ThemeEnabled": {
         "Name": "Directorate interface theme",

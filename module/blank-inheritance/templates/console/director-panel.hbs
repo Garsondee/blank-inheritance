@@ -1,0 +1,42 @@
+{{!--
+    The Director's panel. Cueing a scene is scene.activate() (every other
+    client already auto-navigates -- core Foundry behaviour, not something
+    this template or its script re-implements); "Pull everyone here" is
+    scene.pullUsers() on whatever the GM is currently looking at, which does
+    NOT change the world's active scene. See foundry/director-panel.mjs's
+    header for both, confirmed against Foundry's own source.
+--}}
+<div class="bi-director-panel">
+    <section class="bi-director-panel__block">
+        <div class="bi-bank__label">{{localize "BLANKINHERITANCE.Director.TransitionLabel"}}</div>
+        <div class="bi-director-panel__transitions">
+            <button type="button" class="bi-director-panel__transition{{#unless transitionType}} bi-director-panel__transition--current{{/unless}}"
+                data-action="setTransition" data-transition-type="">{{localize "BLANKINHERITANCE.Director.Transition.None"}}</button>
+            {{#each transitions}}
+            <button type="button" class="bi-director-panel__transition{{#if this.current}} bi-director-panel__transition--current{{/if}}"
+                data-action="setTransition" data-transition-type="{{this.id}}">{{localize this.labelKey}}</button>
+            {{/each}}
+        </div>
+    </section>
+
+    <button type="button" class="bi-director-panel__pull" data-action="pullEveryone">
+        {{localize "BLANKINHERITANCE.Director.PullEveryone"}}
+    </button>
+
+    <ul class="bi-director-panel__scenes">
+        {{#each scenes}}
+        <li class="bi-director-panel__scene{{#if this.active}} bi-director-panel__scene--active{{/if}}">
+            {{#if this.thumbUrl}}
+            <img class="bi-director-panel__thumb" src="{{this.thumbUrl}}" alt="">
+            {{else}}
+            <span class="bi-director-panel__thumb bi-director-panel__thumb--empty"></span>
+            {{/if}}
+            <span class="bi-director-panel__scene-name">{{this.name}}</span>
+            {{#if this.active}}<span class="bi-director-panel__now">{{localize "BLANKINHERITANCE.Director.NowActive"}}</span>{{/if}}
+            <button type="button" class="bi-director-panel__cue" data-action="cue" data-scene-id="{{this.id}}">{{localize "BLANKINHERITANCE.Director.Cue"}}</button>
+        </li>
+        {{else}}
+        <li class="bi-director-panel__scene bi-director-panel__scene--empty">{{localize "BLANKINHERITANCE.Director.NoScenes"}}</li>
+        {{/each}}
+    </ul>
+</div>

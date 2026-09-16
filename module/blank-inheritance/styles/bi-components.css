@@ -6047,3 +6047,111 @@
   color: var(--bi-bone-dim);
 }
 .bi-runner__stamp--insight:hover { opacity: 1; }
+
+/* ------------------------------------------------------------------ *
+ * The Director's panel (GitHub #90-adjacent, design doc §7) -- same
+ * standalone-popup chassis as .bi-card/.bi-equipment.
+ * ------------------------------------------------------------------ */
+
+.bi-director-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 12px 12px;
+  background: var(--bi-mat-steel);
+  color: var(--bi-bone);
+}
+
+.bi-director-panel__block { display: flex; flex-direction: column; gap: 5px; }
+
+.bi-director-panel__transitions { display: flex; flex-wrap: wrap; gap: 2px; }
+.bi-director-panel__transition {
+  padding: 4px 7px;
+  border: none;
+  border-radius: 2px;
+  background: var(--bi-mat-pod);
+  color: var(--bi-bone-dim);
+  font-family: var(--bi-font-legend);
+  font-size: 9px;
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.bi-director-panel__transition:hover { background: var(--bi-steel-600); color: var(--bi-bone); }
+.bi-director-panel__transition--current {
+  background: var(--bi-steel-600);
+  color: var(--bi-amber);
+  box-shadow: inset 0 0 0 1px var(--bi-amber);
+}
+
+.bi-director-panel__pull {
+  border: none;
+  border-radius: 2px;
+  padding: 6px 10px;
+  background: var(--bi-brass-dark);
+  color: var(--bi-void);
+  font-family: var(--bi-font-legend);
+  font-size: 10px;
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.bi-director-panel__pull:hover { background: var(--bi-brass); }
+
+.bi-director-panel__scenes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.bi-director-panel__scene {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 2px;
+  background: var(--bi-mat-pod);
+}
+.bi-director-panel__scene--active { box-shadow: inset 0 0 0 1px var(--bi-amber); }
+.bi-director-panel__scene--empty { color: var(--bi-bone-dim); font-style: italic; justify-content: center; }
+
+.bi-director-panel__thumb {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 2px;
+  background: var(--bi-void);
+}
+.bi-director-panel__thumb--empty { box-shadow: inset 0 0 0 1px var(--bi-steel-600); }
+
+.bi-director-panel__scene-name { flex: 1; min-width: 0; font-family: var(--bi-font-readout); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.bi-director-panel__now {
+  flex: none;
+  font-family: var(--bi-font-legend);
+  font-size: 9px;
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  color: var(--bi-amber);
+}
+
+.bi-director-panel__cue {
+  flex: none;
+  border: none;
+  border-radius: 2px;
+  padding: 3px 8px;
+  background: var(--bi-brass-dark);
+  color: var(--bi-void);
+  font-family: var(--bi-font-legend);
+  font-size: 9px;
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.bi-director-panel__cue:hover { background: var(--bi-brass); }

@@ -57,6 +57,7 @@ import {
 } from "./foundry/equipment-state.mjs";
 import { openEquipmentPanel, refreshEquipmentPanel } from "./foundry/equipment-panel.mjs";
 import { mountPhone } from "./foundry/phone.mjs";
+import { createDirectorPanelMacroIfMissing, openDirectorPanel, refreshDirectorPanel } from "./foundry/director-panel.mjs";
 
 const MODULE_ID = "blank-inheritance";
 
@@ -100,7 +101,10 @@ Hooks.once("init", () => {
       // foundry/equipment-state.mjs creates and from a content link on the
       // Kit Issue journal page -- see that file's MACRO_SOURCE_ID comment.
       // No isGM gate: every player opens the same panel, acting as themselves.
-      openEquipmentPanel
+      openEquipmentPanel,
+      // Scene cueing (design/foundry-module-design.md §7). GM-only, enforced
+      // inside openDirectorPanel itself.
+      openDirectorPanel
     };
   }
 
@@ -213,6 +217,7 @@ Hooks.once("ready", async () => {
     await createRealSyncMacroIfMissing();
     await createStageDemoMacroIfMissing();
     await createEquipmentPanelMacroIfMissing();
+    await createDirectorPanelMacroIfMissing();
   } catch (err) {
     console.error("Blank Inheritance | Could not create a sync macro (you can still run it from the console):", err);
   }
@@ -337,5 +342,14 @@ Hooks.on("controlToken", () => {
 for (const hook of ["combatStart", "combatRound", "combatTurn", "combatTurnChange", "deleteCombat"]) {
   Hooks.on(hook, () => {
     refreshCommandBar();
+  });
+}
+
+// An open Director's panel needs to know when a scene is cued from ANOTHER
+// client (its own "now active" marker), or when a Scene is created/deleted
+// entirely -- both cheap, both no-ops if the panel isn't open.
+for (const hook of ["createScene", "deleteScene", "updateScene"]) {
+  Hooks.on(hook, () => {
+    refreshDirectorPanel();
   });
 }
