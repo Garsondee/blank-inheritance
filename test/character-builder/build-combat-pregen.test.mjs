@@ -12,7 +12,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { listLevel1Pregens, toIngredients } from "../../tools/character-builder/extract-pregen.mjs";
 import { deriveAbilityModifiers } from "../../tools/character-builder/derive.mjs";
-import { deriveStrikes, deriveSpells, deriveTransferVitality, deriveHealSpellVariants, deriveSaveAttacks, deriveSaveSpells, deriveSkillModifier } from "../../tools/character-builder/build-combat-pregen.mjs";
+import { deriveStrikes, deriveSpells, deriveTransferVitality, deriveHealSpellVariants, deriveSaveAttacks, deriveSaveSpells, deriveAreaAttacks, deriveSkillModifier } from "../../tools/character-builder/build-combat-pregen.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..", "..");
@@ -231,6 +231,28 @@ test("deriveSaveAttacks: throws a clear error for a weapon name that doesn't exi
   const ingredients = lunar17Ingredients();
   const mods = deriveAbilityModifiers(ingredients);
   assert.throws(() => deriveSaveAttacks(ingredients, [{ name: "Not A Real Grenade", saveType: "ref" }], mods), /No weapon named/);
+});
+
+// GH #65: the same real Incendiary Grenade deriveSaveAttacks' own test above already verified
+// (DC 17/range 70/1d8 fire/usesRemaining 1) — deriveAreaAttacks must produce those SAME numbers,
+// plus a real radius, since it's the same real weapon read a different, area-shaped way.
+test("deriveAreaAttacks: her real Incendiary Grenade — DC 17 (her real Class DC), real 70ft range, real 5ft burst radius, real 1d8 fire damage, real usesRemaining", () => {
+  const ingredients = lunar17Ingredients();
+  const mods = deriveAbilityModifiers(ingredients);
+  const [grenade] = deriveAreaAttacks(ingredients, [{ name: "Incendiary Grenade (Commercial)", saveType: "ref", radius: 5 }], mods);
+  assert.equal(grenade.saveType, "ref");
+  assert.equal(grenade.dc, 17, "her Class DC (Mystic, wis+4, trained, level 1): 10 + 3 + 4 — identical to deriveSaveAttacks' own already-verified number for the same weapon");
+  assert.equal(grenade.range, 70);
+  assert.equal(grenade.radius, 5, "hand-supplied, matching the real @Template[burst|distance:5] confirmed in her own raw description text");
+  assert.deepEqual(grenade.damage, [{ dice: "1d8", bonus: 0, damageType: "fire" }]);
+  assert.ok(grenade.traits.includes("grenade"));
+  assert.equal(grenade.usesRemaining, 1, "her real sheet carries exactly system.quantity:1 of this consumable — not infinite");
+});
+
+test("deriveAreaAttacks: throws a clear error for a weapon name that doesn't exist", () => {
+  const ingredients = lunar17Ingredients();
+  const mods = deriveAbilityModifiers(ingredients);
+  assert.throws(() => deriveAreaAttacks(ingredients, [{ name: "Not A Real Grenade", saveType: "ref", radius: 5 }], mods), /No weapon named/);
 });
 
 test("deriveSkillModifier: Lunar-17's real Intimidation is untrained (+0) — her cha modifier is +0 and intimidation isn't in her real skillRanks at all", () => {

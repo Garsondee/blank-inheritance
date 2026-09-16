@@ -320,7 +320,11 @@ function makeTripPileOnState() {
   const tough = loadFixture("tough.json");
   const xeno = loadFixture("xenowarden-greenhorn.json");
   const me = {
-    ...lunar17, id: "me", side: "party", strikes: [], spells: [], healAbilities: [], intimidationModifier: null,
+    // GH #65: lunar-17.json gained a real areaAttacks entry (her Incendiary Grenade) — stripped here
+    // too, or this "move-only" isolation would silently stop being move-only the moment any real PC
+    // fixture gained a real area attack, exactly the kind of leak this test's own comment (above)
+    // already promises isn't happening ("its attack kit stripped to move-only").
+    ...lunar17, id: "me", side: "party", strikes: [], spells: [], healAbilities: [], areaAttacks: [], intimidationModifier: null,
     objective: { col: 12, row: 10 }, position: { col: 10, row: 10 }
   };
   const enemyA = { ...tough, id: "enemyA", side: "opposition", position: { col: 12, row: 10 } };

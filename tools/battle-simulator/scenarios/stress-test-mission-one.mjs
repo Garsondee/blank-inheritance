@@ -3,10 +3,12 @@
  *
  * Built on explicit direction: "Build a new mission 1, maximum complexity, with the goal of
  * stress testing your AI to find out what it fails at and then patching the system to try and
- * fill that gap... That comes first, then the fun lore/story." The real Day 1
- * (data/episodes/episode-01-contact-unclassified.json) stays exactly as designed — simple,
- * tutorial-shaped, one Frame. This is deliberately the opposite: everything the engine currently
- * supports, in one battle, on purpose.
+ * fill that gap... That comes first, then the fun lore/story." The real Day 1 episode stayed
+ * exactly as designed — simple, tutorial-shaped, one Frame — and this is deliberately the
+ * opposite: everything the engine currently supports, in one battle, on purpose. (That episode
+ * was deleted 2026-09-13 with every drafted beat beyond Session 0/1; this file is unaffected,
+ * being an engineering construct rather than campaign content, and the encounter/subsystem it
+ * leans on survive as simulator fixtures.)
  *
  * Four factions on one map, engine/factions.mjs's new relations doing real work for the first
  * time outside a unit test:

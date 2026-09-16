@@ -1,0 +1,82 @@
+{
+  "id": "raw-validation-iseph",
+  "name": "Iseph (level-1 Operative pregen, design doc §76 Phase 4 — real Paizo iconic pregen, NOT one of the six real campaign kids)",
+  "side": "party",
+  "level": 1,
+  "initiativeModifier": 7,
+  "maxHP": 18,
+  "currentHP": 18,
+  "ac": 18,
+  "saves": {
+    "fort": 5,
+    "ref": 9,
+    "will": 7
+  },
+  "perception": 7,
+  "speed": 25,
+  "strikes": [
+    {
+      "name": "Zero Knife",
+      "strikeType": "melee",
+      "attackBonus": 7,
+      "traits": [
+        "agile",
+        "finesse",
+        "powered",
+        "tech",
+        "versatile-p"
+      ],
+      "damage": [
+        {
+          "dice": "1d4",
+          "bonus": 1,
+          "damageType": "cold"
+        }
+      ]
+    },
+    {
+      "name": "Semi-Auto Pistol",
+      "strikeType": "ranged",
+      "attackBonus": 7,
+      "rangeIncrement": 60,
+      "traits": [
+        "analog"
+      ],
+      "damage": [
+        {
+          "dice": "1d6",
+          "bonus": 0,
+          "damageType": "piercing"
+        }
+      ]
+    }
+  ],
+  "areaAttacks": [
+    {
+      "name": "Incendiary Grenade (Commercial)",
+      "saveType": "ref",
+      "dc": 17,
+      "range": 70,
+      "radius": 5,
+      "actions": 1,
+      "traits": [
+        "consumable",
+        "fire",
+        "grenade",
+        "tech"
+      ],
+      "damage": [
+        {
+          "dice": "1d8",
+          "bonus": 0,
+          "damageType": "fire"
+        }
+      ],
+      "usesRemaining": 1
+    }
+  ],
+  "intimidationModifier": -1,
+  "athleticsModifier": 4,
+  "heroPoints": 1,
+  "notes": "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against their own raw pack data (gamesystems/sf2e/packs/iconics) — their derived HP (18) matches the pregen's own referenceHP field exactly (the raw data's own system.details.gender.value is blank — no published pronoun to cite, so this note uses they/them throughout rather than guessing). GH #65 (design doc §76 Phase 4): the roster's first flanking-rogue-shaped PC — Zero Knife (agile/finesse/versatile-p, real 1d4+1 cold) and Semi-Auto Pistol (analog, real 1d6 piercing) both derive unmodified through deriveStrikes. Their real Incendiary Grenade (Commercial) is wired as a real areaAttack from the start (deriveAreaAttacks, GH #61's own area-effect mechanism) rather than shipping unwired-then-fixed like the other four PCs' own grenades — the same real DC 17 Class DC every other level-1 PC in this roster with a +4 key ability modifier also has."
+}

@@ -135,6 +135,83 @@ test("applyActionToSnapshot: an unknown targetId (shouldn't happen, but never th
   assert.equal(applyActionToSnapshot(snapshot, { legal: true, targetId: "ghost", targetHPAfter: 3 }), snapshot);
 });
 
+// design doc §38 — a thrown grenade's real burst: no single targetId/targetHPAfter of its own,
+// only an `affected` array (engine.mjs's areaAttack dispatch), one entry per creature the blast
+// radius actually caught. Before this fix, applyActionToSnapshot only ever read action.targetId
+// (always undefined for this action type) and silently no-opped every areaAttack beat.
+test("applyActionToSnapshot: an areaAttack's affected[] array updates every caught target, not just one", () => {
+  const snapshot = {
+    ally: { currentHP: 20, maxHP: 20 },
+    foe: { currentHP: 15, maxHP: 20 }
+  };
+  const next = applyActionToSnapshot(snapshot, {
+    type: "areaAttack", legal: true, targetId: undefined,
+    affected: [
+      { targetId: "ally", appliedDamage: 8, targetHPAfter: 12 },
+      { targetId: "foe", appliedDamage: 8, targetHPAfter: 7 }
+    ]
+  });
+  assert.equal(next.ally.currentHP, 12);
+  assert.equal(next.foe.currentHP, 7);
+});
+
+test("applyActionToSnapshot: a grenade knockout carries dyingValue/prone/unconscious through per affected[] entry, same fields as a single-target hit", () => {
+  const snapshot = {
+    lunar17: { currentHP: 8, maxHP: 20, dyingValue: 0, prone: false, unconscious: false },
+    vorza: { currentHP: 19, maxHP: 20, dyingValue: 0, prone: false, unconscious: false }
+  };
+  const next = applyActionToSnapshot(snapshot, {
+    type: "areaAttack", legal: true,
+    affected: [
+      { targetId: "lunar17", targetHPAfter: 0, targetDyingValueAfter: 1, targetProneAfter: true, targetUnconsciousAfter: true, targetDeadAfter: false },
+      { targetId: "vorza", targetHPAfter: 11, targetDyingValueAfter: 0, targetProneAfter: false, targetUnconsciousAfter: false, targetDeadAfter: false }
+    ]
+  });
+  assert.equal(next.lunar17.currentHP, 0);
+  assert.equal(next.lunar17.dyingValue, 1);
+  assert.equal(next.lunar17.prone, true);
+  assert.equal(next.lunar17.unconscious, true);
+  assert.equal(next.vorza.currentHP, 11);
+  assert.equal(next.vorza.unconscious, false);
+});
+
+test("applyActionToSnapshot: a rejected (illegal) areaAttack proposal never touches any of its listed affected[] targets", () => {
+  const snapshot = { foe: { currentHP: 15, maxHP: 20 } };
+  const next = applyActionToSnapshot(snapshot, {
+    type: "areaAttack", legal: false, reason: "no legal aim point",
+    affected: [{ targetId: "foe", targetHPAfter: 3 }]
+  });
+  assert.equal(next, snapshot);
+});
+
+test("applyActionToSnapshot: an affected[] entry naming an unknown targetId is skipped without throwing, while the rest of the array still applies", () => {
+  const snapshot = { foe: { currentHP: 15, maxHP: 20 } };
+  const next = applyActionToSnapshot(snapshot, {
+    type: "areaAttack", legal: true,
+    affected: [{ targetId: "ghost", targetHPAfter: 1 }, { targetId: "foe", targetHPAfter: 9 }]
+  });
+  assert.equal(next.foe.currentHP, 9);
+});
+
+// design doc §38's OTHER multi-target action type: healAbility with areaOrigin: "self" (a
+// self-centered healing emanation) — targetId: null at the top level, its own affected[] array
+// shaped the same way. Confirms the fix isn't overfit to areaAttack's specific field names.
+test("applyActionToSnapshot: a self-centered heal emanation's affected[] array updates every healed ally, with targetId: null at the top level", () => {
+  const snapshot = {
+    healer: { currentHP: 10, maxHP: 20 },
+    ally: { currentHP: 5, maxHP: 20 }
+  };
+  const next = applyActionToSnapshot(snapshot, {
+    type: "healAbility", legal: true, targetId: null, areaOrigin: "self",
+    affected: [
+      { targetId: "healer", healing: 6, targetHPAfter: 16 },
+      { targetId: "ally", healing: 6, targetHPAfter: 11 }
+    ]
+  });
+  assert.equal(next.healer.currentHP, 16);
+  assert.equal(next.ally.currentHP, 11);
+});
+
 test("isContactAction: strike/spellAttack/saveAttack/conditionSave/demoralize all count, healAbility and movement don't", () => {
   for (const type of ["strike", "spellAttack", "saveAttack", "conditionSave", "demoralize"]) {
     assert.equal(isContactAction({ type, legal: true }), true, `${type} should be contact`);

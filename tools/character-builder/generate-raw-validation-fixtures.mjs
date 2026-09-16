@@ -19,7 +19,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { listLevel1Pregens, toIngredients, findEquipmentItem } from "./extract-pregen.mjs";
 import { deriveAbilityModifiers, deriveHP, derivePerception, deriveSavingThrows, deriveArmorClass } from "./derive.mjs";
-import { deriveStrikes, deriveSpells, deriveSaveSpells, deriveTransferVitality, deriveHealSpellVariants, deriveSkillModifier } from "./build-combat-pregen.mjs";
+import { deriveStrikes, deriveSpells, deriveSaveSpells, deriveTransferVitality, deriveHealSpellVariants, deriveAreaAttacks, deriveSkillModifier } from "./build-combat-pregen.mjs";
 import { findNPC, toCombatant, deriveSpellAttacks, deriveConditionSave, deriveAreaAttack } from "../pack-extractor/extract-npc.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -59,6 +59,12 @@ function buildLunar17() {
   const healAbilities = [transferVitality, ...deriveHealSpellVariants(ingredients, "Heal")];
   const occultEntry = ingredients.spellcastingEntries.find((e) => e.name === "Occult Spontaneous Spells");
   const spellSlots = { 1: occultEntry.system.slots.slot1.max };
+  // GH #65 (design doc §76 Phase 4): her real Incendiary Grenade, previously extracted-but-unwired
+  // (see this fixture's own notes field for the full history) — now a real areaAttack, using the
+  // area-effect mechanism GH #61 built. radius:5 is hand-supplied, matching her own real raw
+  // description text's @Template[burst|distance:5] (deriveAreaAttacks' own header explains why this
+  // isn't auto-parsed).
+  const areaAttacks = deriveAreaAttacks(ingredients, [{ name: "Incendiary Grenade (Commercial)", saveType: "ref", radius: 5 }], mods);
   const intimidationModifier = deriveSkillModifier(ingredients, "intimidation", mods);
   const athleticsModifier = deriveSkillModifier(ingredients, "athletics", mods);
 
@@ -78,10 +84,11 @@ function buildLunar17() {
     spells,
     healAbilities,
     spellSlots,
+    areaAttacks,
     intimidationModifier, // real, untrained (+0) — her cha modifier is +0 and Intimidation isn't one of her trained skills
     athleticsModifier, // real, derived the same way (design doc §31's Trip/Shove/Grapple gap-fill) — untrained, her Str modifier
     heroPoints: 1, // Player Core pg. 405 — "each character gets 1 Hero Point at the start of a session" (design doc §42)
-    notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §19/§21. Transfer Vitality's healing amount (10, minimum 1) is hand-transcribed from real rule prose since no structured field exists for it — see build-combat-pregen.mjs's own citation. GH #55: usesRemaining/usesPerEncounter (2) are hand-authored here, NOT derived — the real limit isn't a per-day slot count but the Mystic's own 'vitality network' resource pool (Vitality Network feat, Player Core: capacity 6+4/level = 10 at level 1, regenerating 4 HP at the start of each of the caster's turns in combat — more if master/legendary in spell DC, refilling fully on Refocus), a mechanic this single-encounter simulator doesn't simulate HP-for-HP. At level 1 the pool's capacity exactly equals one use's cost (10=10), so a flat 2-per-encounter cap ('usable once at full charge, once more after a few turns' partial regen') is the same approximation already shipped for the level-12 Frame-scale Mystic (data/combatants.mjs's makeMysticFrame, pool 54 / cost 30 / same regen rate — also capped at 2 for the identical reason). The caster's own currentHP is correctly UNTOUCHED by this ability — Transfer Vitality draws from the network, never the caster's own HP total, confirmed directly against the real extracted rule text (not assumed from the ability's name). Her Incendiary Grenade (Commercial) is real but NOT wired as a usable action: its raw description reads \"Activate 1 Area Fire ... (@Template[burst|distance:5])\" — a 5ft-burst AREA effect, not a single-target attack, structurally identical to Frag Grenade/Electromag Grenade (already excluded for other pregens for the same reason). personnel-engine's saveAttack action is single-target only; wiring a burst weapon through it would have hit exactly one creature with none of the real friendly-fire risk an area weapon actually carries, and was in fact caught doing exactly that (see design doc §21's grenade-modeling correction). GH #60 (design doc §60 Part 1): Heal (touch)/Heal (30ft) are her real rank-1 spell, confirmed on her own raw spell list (gamesystems/sf2e/packs/spells) — both entries share one real spellSlots pool (spellSlots.1, her actual rank-1 slot count from Occult Spontaneous Spells' own system.slots.slot1.max), separate from Transfer Vitality's own network-pool uses. Only the two single-target, living-target variants are wired — the 3-action emanation and the vs.-Undead variant are Part 1b, a deferred follow-on (see the design's own \"Explicitly deferred\" section)."
+    notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §19/§21. Transfer Vitality's healing amount (10, minimum 1) is hand-transcribed from real rule prose since no structured field exists for it — see build-combat-pregen.mjs's own citation. GH #55: usesRemaining/usesPerEncounter (2) are hand-authored here, NOT derived — the real limit isn't a per-day slot count but the Mystic's own 'vitality network' resource pool (Vitality Network feat, Player Core: capacity 6+4/level = 10 at level 1, regenerating 4 HP at the start of each of the caster's turns in combat — more if master/legendary in spell DC, refilling fully on Refocus), a mechanic this single-encounter simulator doesn't simulate HP-for-HP. At level 1 the pool's capacity exactly equals one use's cost (10=10), so a flat 2-per-encounter cap ('usable once at full charge, once more after a few turns' partial regen') is the same approximation already shipped for the level-12 Frame-scale Mystic (data/combatants.mjs's makeMysticFrame, pool 54 / cost 30 / also capped at 2 for the identical reason). The caster's own currentHP is correctly UNTOUCHED by this ability — Transfer Vitality draws from the network, never the caster's own HP total, confirmed directly against the real extracted rule text (not assumed from the ability's name). GH #65 (design doc §76 Phase 4): her Incendiary Grenade (Commercial) — real, extracted, but left UNWIRED from GH #55 through GH #64 (\"a 5ft-burst AREA effect, not a single-target attack... personnel-engine's saveAttack action is single-target only\") — is now a real areaAttack, using GH #61's own area-effect mechanism (deriveAreaAttacks, build-combat-pregen.mjs). GH #60 (design doc §60 Part 1): Heal (touch)/Heal (30ft) are her real rank-1 spell, confirmed on her own raw spell list (gamesystems/sf2e/packs/spells) — both entries share one real spellSlots pool (spellSlots.1, her actual rank-1 slot count from Occult Spontaneous Spells' own system.slots.slot1.max), separate from Transfer Vitality's own network-pool uses. Only the two single-target, living-target variants are wired — the 3-action emanation and the vs.-Undead variant are Part 1b, a deferred follow-on (see the design's own \"Explicitly deferred\" section)."
   };
 }
 
@@ -126,6 +133,7 @@ function buildTapkey() {
   });
 
   const strikes = deriveStrikes(ingredients, ["Nano-edge Rapier", "Boom Pistol"], mods);
+  const areaAttacks = deriveAreaAttacks(ingredients, [{ name: "Incendiary Grenade (Commercial)", saveType: "ref", radius: 5 }], mods); // GH #65
   const intimidationModifier = deriveSkillModifier(ingredients, "intimidation", mods);
   const athleticsModifier = deriveSkillModifier(ingredients, "athletics", mods);
 
@@ -142,10 +150,11 @@ function buildTapkey() {
     perception: perception.proficiency.modifier,
     speed: ingredients.speed,
     strikes,
+    areaAttacks,
     intimidationModifier, // real, untrained (+4) — pure Charisma; Intimidation isn't one of her trained skills either, but her cha modifier (+4) is the roster's highest
     athleticsModifier, // real, derived the same way (design doc §31's Trip/Shove/Grapple gap-fill)
     heroPoints: 1, // Player Core pg. 405 — "each character gets 1 Hero Point at the start of a session" (design doc §42)
-    notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §21. Nano-edge Rapier and Boom Pistol both derive through the existing deriveStrikes unmodified — Tapkey needed zero new engine or extraction code, per the design doc §21 research survey of the 5 remaining Player Core pregens. Her Incendiary Grenade (Commercial) is real but NOT wired as a usable action, for the same reason as Lunar-17's own grenade: its raw description is a 5ft-burst AREA effect (\"Activate 1 Area Fire ... @Template[burst|distance:5]\"), not a single-target attack personnel-engine's saveAttack action can correctly represent — see design doc §21."
+    notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §21. Nano-edge Rapier and Boom Pistol both derive through the existing deriveStrikes unmodified — Tapkey needed zero new engine or extraction code, per the design doc §21 research survey of the 5 remaining Player Core pregens. GH #65 (design doc §76 Phase 4): her Incendiary Grenade (Commercial) — real, extracted, but left unwired through GH #64 (\"a 5ft-burst AREA effect, not a single-target attack\") — is now a real areaAttack via deriveAreaAttacks, using GH #61's own area-effect mechanism."
   };
 }
 
@@ -215,6 +224,7 @@ function buildBennit() {
 
   const strikes = deriveStrikes(ingredients, ["Laser Pistol", "Semi-Auto Pistol"], mods);
   const saveAttacks = deriveSaveSpells(ingredients, ["Thunderstrike"], mods);
+  const areaAttacks = deriveAreaAttacks(ingredients, [{ name: "Frag Grenade (Commercial)", saveType: "ref", radius: 5 }], mods); // GH #65
   const intimidationModifier = deriveSkillModifier(ingredients, "intimidation", mods);
   const athleticsModifier = deriveSkillModifier(ingredients, "athletics", mods);
 
@@ -232,10 +242,11 @@ function buildBennit() {
     speed: ingredients.speed,
     strikes,
     saveAttacks,
+    areaAttacks,
     intimidationModifier,
     athleticsModifier, // real, derived the same way (design doc §31's Trip/Shove/Grapple gap-fill)
     heroPoints: 1, // Player Core pg. 405 — "each character gets 1 Hero Point at the start of a session" (design doc §42)
-    notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §22. Thunderstrike (a real basic-Reflex-save spell, 1d12 electricity + 1d4 sonic) is this project's first save-based SPELL — deriveSaveSpells reads its save type directly off the spell's own structured system.defense.save.statistic field (not hand-supplied prose-reading, unlike a weapon's save-based effect), and its DC from her real spellcasting DC (deriveSpellDC), not Class DC. usesRemaining (3) is her real spell-slot count (system.slots.slot1.max), not an invented number. Her Frag Grenade (Commercial) is real but NOT wired as a usable action, for the same reason as every other grenade in this project: its raw description is a 5ft-burst AREA effect, not a single-target attack — see design doc §22."
+    notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §22. Thunderstrike (a real basic-Reflex-save spell, 1d12 electricity + 1d4 sonic) is this project's first save-based SPELL — deriveSaveSpells reads its save type directly off the spell's own structured system.defense.save.statistic field (not hand-supplied prose-reading, unlike a weapon's save-based effect), and its DC from her real spellcasting DC (deriveSpellDC), not Class DC. usesRemaining (3) is her real spell-slot count (system.slots.slot1.max), not an invented number. GH #65 (design doc §76 Phase 4): her Frag Grenade (Commercial) — real, extracted, but left unwired through GH #64 (\"a 5ft-burst AREA effect, not a single-target attack\") — is now a real areaAttack via deriveAreaAttacks, using GH #61's own area-effect mechanism and her real Class DC (NOT deriveSpellDC — a weapon's DC is never her spellcasting DC, unlike Thunderstrike above)."
   };
 }
 
@@ -310,6 +321,7 @@ function buildVorzaMoonshot() {
   });
 
   const strikes = deriveStrikes(ingredients, ["Zero Pistol"], mods);
+  const areaAttacks = deriveAreaAttacks(ingredients, [{ name: "Electromag Grenade (Commercial)", saveType: "ref", radius: 5 }], mods); // GH #65
   const intimidationModifier = deriveSkillModifier(ingredients, "intimidation", mods);
   const athleticsModifier = deriveSkillModifier(ingredients, "athletics", mods);
 
@@ -326,10 +338,11 @@ function buildVorzaMoonshot() {
     perception: perception.proficiency.modifier,
     speed: ingredients.speed,
     strikes,
+    areaAttacks,
     intimidationModifier, // real, untrained (+0) — her Charisma modifier is +0, same flat number as Lunar-17's, not the roster's highest like Tapkey's
     athleticsModifier, // real, derived the same way (design doc §31's Trip/Shove/Grapple gap-fill)
     heroPoints: 1, // Player Core pg. 405 — "each character gets 1 Hero Point at the start of a session" (design doc §42)
-    notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — her derived HP (23) matches the pregen's own referenceHP field exactly. design doc §38: a Solarian's whole class fantasy (a Solar Weapon, manifested only while attuned) has NO static item representation on her real sheet at all — unlike every other PC's melee option, there is nothing to extract a Strike from, so she's ranged-only (Zero Pistol) by the real shape of her own kit, not an extraction shortfall. Her Electromag Grenade (Commercial) is real but NOT wired, for the same reason as every other grenade in this project (see Lunar-17/Tapkey/Bennit's own notes) — PLUS one more: even with design doc §38's new areaAttack mechanism now built, a PC's own basic-save DC for an area weapon is 10 + their CLASS DC (Player Core: '@Check[reflex|against:class|basic]'), and this project has never derived a PC's Class DC (only Spell DC, via deriveSpellDC) — an NPC's grenade sidesteps this because NPCs store a final precomputed attack-row bonus directly (see extract-npc.mjs's deriveAreaAttack), a PC does not. Flagged as the natural next gap, not invented around here."
+    notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — her derived HP (23) matches the pregen's own referenceHP field exactly. design doc §38: a Solarian's whole class fantasy (a Solar Weapon, manifested only while attuned) has NO static item representation on her real sheet at all — unlike every other PC's melee option, there is nothing to extract a Strike from, so she's ranged-only (Zero Pistol) by the real shape of her own kit, not an extraction shortfall. GH #65 (design doc §76 Phase 4, fixing a stale claim in this very note): her Electromag Grenade (Commercial) — real, extracted, but left unwired through GH #64 (\"a 5ft-burst AREA effect, not a single-target attack\") — is now a real areaAttack via deriveAreaAttacks, using GH #61's own area-effect mechanism. The DC is her real Class DC directly (deriveClassDC already includes SF2E's standard +10 baseline — Player Core's own '@Check[reflex|against:class|basic]' tag means exactly \"her Class DC,\" not \"10 plus her Class DC\") — CORRECTED here: this note previously claimed \"this project has never derived a PC's Class DC (only Spell DC)\", which was already stale by the time it was read for #65 — deriveClassDC has been called inside deriveSaveAttacks (build-combat-pregen.mjs) since design doc §19's own skill-actions-in-combat expansion, just never wired into a real fixture until now."
   };
 }
 
@@ -418,6 +431,62 @@ function buildObozaya() {
     athleticsModifier, // real, derived the same way (design doc §31's Trip/Shove/Grapple gap-fill) — her Strength modifier, trained (Soldier class)
     heroPoints: 1, // Player Core pg. 405 — "each character gets 1 Hero Point at the start of a session" (design doc §42)
     notes: "HP/AC/saves/Doshko are every bit as real and derived as every other fixture (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/iconics) — her derived HP (24) matches the pregen's own referenceHP field exactly. Her Laser Rifle is a real catalog item (gamesystems/sf2e/packs/equipment, level 0, 45sp) pushed into her own ingredients before deriving — see extract-pregen.mjs's findEquipmentItem — rather than her own as-published loadout (her real sheet carries an Auto-Fire-only Machine Gun, the same out-of-scope weapon type already flagged on Old-Growth Wildfire, design doc §21). Every number on the resulting Strike (attack bonus, damage, range) is exactly what deriveStrikes would produce for any OTHER weapon her real Simple-weapon proficiency covers — the substitution is which item she's holding, not an invented bonus."
+  };
+}
+
+/**
+ * Sixth PC (GH #65, design doc §76 Phase 4) — the roster's first flanking rogue, the last of the
+ * six tactical roles still missing a real PC-side exemplar. The design doc rules Operatives out
+ * TWICE (`:1061`, `:1922`) on the basis that Jaedana throws on an ambiguous ability boost — but that
+ * ONLY rules out Jaedana; re-checked directly against the real iconics pack (not re-trusted from
+ * that old survey): "Iseph (Level 1)" is a SECOND, distinct Operative pregen that derives completely
+ * clean, HP 18 matching their own real referenceHP exactly (their own raw system.details.gender.value
+ * is blank, so this file uses they/them throughout — no published pronoun to cite). Their Zero Knife
+ * (agile + finesse — exactly a flanker's weapon shape) and Semi-Auto Pistol both derive unmodified
+ * through the existing deriveStrikes, needing zero new engine or extraction code, same as every
+ * other "zero new code" pick in this roster (Tapkey, Akata, etc.).
+ */
+function buildIseph() {
+  const packDir = path.join(repoRoot, "gamesystems", "sf2e", "packs", "iconics");
+  const pregen = listLevel1Pregens(packDir).find((p) => p.name === "Iseph (Level 1)");
+  if (!pregen) throw new Error("Iseph (Level 1) not found in iconics — Paizo may have renamed the pregen.");
+  const ingredients = toIngredients(pregen);
+  const mods = deriveAbilityModifiers(ingredients);
+
+  const hp = deriveHP({ ancestryHP: ingredients.ancestryHP, classHP: ingredients.classHP, conModifier: mods.con });
+  const perception = derivePerception({ rankIndex: ingredients.perceptionRank, level: 1, wisModifier: mods.wis });
+  const saves = deriveSavingThrows({
+    fortitudeRank: ingredients.saveRanks.fortitude, reflexRank: ingredients.saveRanks.reflex, willRank: ingredients.saveRanks.will,
+    level: 1, conModifier: mods.con, dexModifier: mods.dex, wisModifier: mods.wis
+  });
+  const ac = deriveArmorClass({
+    armorCategoryRank: ingredients.armorCategoryRank, level: 1, dexModifier: mods.dex,
+    dexCap: ingredients.armor?.dexCap ?? null, itemBonus: ingredients.armor?.acBonus ?? 0, armorProficiency: ingredients.armor?.name ?? null
+  });
+
+  const strikes = deriveStrikes(ingredients, ["Zero Knife", "Semi-Auto Pistol"], mods);
+  const areaAttacks = deriveAreaAttacks(ingredients, [{ name: "Incendiary Grenade (Commercial)", saveType: "ref", radius: 5 }], mods);
+  const intimidationModifier = deriveSkillModifier(ingredients, "intimidation", mods);
+  const athleticsModifier = deriveSkillModifier(ingredients, "athletics", mods);
+
+  return {
+    id: "raw-validation-iseph",
+    name: "Iseph (level-1 Operative pregen, design doc §76 Phase 4 — real Paizo iconic pregen, NOT one of the six real campaign kids)",
+    side: "party",
+    level: 1, // GH #63 — real; every pregen this project uses is explicitly level 1 by design
+    initiativeModifier: perception.proficiency.modifier, // GH #63 — Player Core pg. 427: initiative is a Perception check
+    maxHP: hp.max,
+    currentHP: hp.max,
+    ac: ac.value,
+    saves: { fort: saves.fortitude.modifier, ref: saves.reflex.modifier, will: saves.will.modifier },
+    perception: perception.proficiency.modifier,
+    speed: ingredients.speed,
+    strikes,
+    areaAttacks,
+    intimidationModifier, // real, UNTRAINED and NEGATIVE (-1) — their Charisma modifier is negative and Intimidation isn't one of their trained skills; the roster's first negative skill modifier, a real, honest number, not clamped to 0
+    athleticsModifier, // real, trained (design doc §31's Trip/Shove/Grapple gap-fill) — IS one of their real trained skills
+    heroPoints: 1, // Player Core pg. 405 — "each character gets 1 Hero Point at the start of a session" (design doc §42)
+    notes: "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against their own raw pack data (gamesystems/sf2e/packs/iconics) — their derived HP (18) matches the pregen's own referenceHP field exactly (the raw data's own system.details.gender.value is blank — no published pronoun to cite, so this note uses they/them throughout rather than guessing). GH #65 (design doc §76 Phase 4): the roster's first flanking-rogue-shaped PC — Zero Knife (agile/finesse/versatile-p, real 1d4+1 cold) and Semi-Auto Pistol (analog, real 1d6 piercing) both derive unmodified through deriveStrikes. Their real Incendiary Grenade (Commercial) is wired as a real areaAttack from the start (deriveAreaAttacks, GH #61's own area-effect mechanism) rather than shipping unwired-then-fixed like the other four PCs' own grenades — the same real DC 17 Class DC every other level-1 PC in this roster with a +4 key ability modifier also has."
   };
 }
 
@@ -627,6 +696,7 @@ const erabryth = buildErabryth();
 const vorzaMoonshot = buildVorzaMoonshot();
 const tough = buildTough();
 const obozaya = buildObozaya();
+const iseph = buildIseph();
 const kuriaku = buildKuriaku();
 const khefak = buildKhefak();
 const scrapRat = buildScrapRat();
@@ -648,6 +718,7 @@ writeFileSync(path.join(outDir, "erabryth.json"), JSON.stringify(erabryth, null,
 writeFileSync(path.join(outDir, "vorza-moonshot.json"), JSON.stringify(vorzaMoonshot, null, 2) + "\n");
 writeFileSync(path.join(outDir, "tough.json"), JSON.stringify(tough, null, 2) + "\n");
 writeFileSync(path.join(outDir, "obozaya.json"), JSON.stringify(obozaya, null, 2) + "\n");
+writeFileSync(path.join(outDir, "iseph.json"), JSON.stringify(iseph, null, 2) + "\n");
 writeFileSync(path.join(outDir, "kuriaku.json"), JSON.stringify(kuriaku, null, 2) + "\n");
 writeFileSync(path.join(outDir, "khefak.json"), JSON.stringify(khefak, null, 2) + "\n");
 writeFileSync(path.join(outDir, "scrap-rat.json"), JSON.stringify(scrapRat, null, 2) + "\n");
@@ -669,6 +740,7 @@ console.log(`wrote erabryth.json (AC ${erabryth.ac}, HP ${erabryth.maxHP}, ${era
 console.log(`wrote vorza-moonshot.json (AC ${vorzaMoonshot.ac}, HP ${vorzaMoonshot.maxHP}, ${vorzaMoonshot.strikes.length} strikes, intimidation +${vorzaMoonshot.intimidationModifier})`);
 console.log(`wrote tough.json (AC ${tough.ac}, HP ${tough.maxHP}, ${tough.strikes.length} strikes, ${tough.areaAttacks.length} areaAttack, intimidation +${tough.intimidationModifier})`);
 console.log(`wrote obozaya.json (AC ${obozaya.ac}, HP ${obozaya.maxHP}, ${obozaya.strikes.length} strikes incl. a ${obozaya.strikes.find((s) => s.name === "Laser Rifle")?.rangeIncrement}ft rifle, intimidation +${obozaya.intimidationModifier})`);
+console.log(`wrote iseph.json (AC ${iseph.ac}, HP ${iseph.maxHP}, ${iseph.strikes.length} strikes, ${iseph.areaAttacks.length} areaAttack, intimidation ${iseph.intimidationModifier})`);
 console.log(`wrote kuriaku.json (AC ${kuriaku.ac}, HP ${kuriaku.maxHP}, ${kuriaku.strikes.length} strikes incl. a ${kuriaku.strikes.find((s) => s.name === "Shobhad Longrifle")?.rangeIncrement}ft rifle, intimidation ${kuriaku.intimidationModifier})`);
 console.log(`wrote khefak.json (level ${khefak.level}, AC ${khefak.ac}, HP ${khefak.maxHP}, ${khefak.strikes.length} strikes, initiative +${khefak.initiativeModifier})`);
 console.log(`wrote scrap-rat.json (level ${scrapRat.level}, AC ${scrapRat.ac}, HP ${scrapRat.maxHP}, ${scrapRat.strikes.length} strikes, ${scrapRat.areaAttacks.length} areaAttack, initiative +${scrapRat.initiativeModifier})`);

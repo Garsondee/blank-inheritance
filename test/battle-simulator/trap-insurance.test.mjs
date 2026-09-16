@@ -33,7 +33,9 @@ function makeTripPileOnState() {
   const tough = loadFixture("tough.json");
   const xeno = loadFixture("xenowarden-greenhorn.json");
   const me = {
-    ...lunar17, id: "me", side: "party", strikes: [], spells: [], healAbilities: [], intimidationModifier: null,
+    // GH #65: lunar-17.json gained a real areaAttacks entry (her Incendiary Grenade) — stripped here
+    // too, or this "move-only" isolation would silently stop being move-only.
+    ...lunar17, id: "me", side: "party", strikes: [], spells: [], healAbilities: [], areaAttacks: [], intimidationModifier: null,
     objective: { col: 12, row: 10 }, position: { col: 10, row: 10 }
   };
   // GH #18: Tough's own real "Reactive Strike" is stripped here — this fixture borrows Tough purely

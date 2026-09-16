@@ -30,8 +30,25 @@ function resolve(entry, override) {
   throw new Error(`Ambiguous boost — "selected" is absent and value lists ${entry.value.length} candidates (${entry.value.join("/")}): supply an override.`);
 }
 
+/**
+ * An actor's own embedded items, in Foundry's real authored display order — a deliberately separate
+ * copy of tools/pack-extractor/extract-npc.mjs's own identically-named function (this file's own
+ * established self-containment convention, see this file's header), not a shared import, but the
+ * same real bug applies here: `documents` comes back in raw LevelDB storage order (ascending
+ * internal-key once compacted, write order while still in the WAL — two orderings with nothing to
+ * do with each other or with authoring intent), which is what silently reordered erabryth.json's/
+ * kuriaku.json's arrays on the NPC side after gamesystems/sf2e's packs compacted (see extract-npc.mjs's
+ * own itemsFor for the full account). Sorting by each item's real Foundry `sort` field — the field
+ * Foundry's own sheet UI persists for exactly this purpose — makes weapons/spells/feats/actions below
+ * immune to the same drift, even though nothing here currently serializes those arrays' order
+ * directly (deriveStrikes/deriveSpells etc. all look items up by explicit name); the idPart tiebreak
+ * only matters on a hypothetical shared `sort` value, keeping the order a function of content, never
+ * of storage layout, even then.
+ */
 function itemsFor(documents, actorIdPart) {
-  return documents.filter((e) => e.embedded && e.collection === "actors.items" && e.idPart.startsWith(actorIdPart + "."));
+  return documents
+    .filter((e) => e.embedded && e.collection === "actors.items" && e.idPart.startsWith(actorIdPart + "."))
+    .sort((a, b) => (a.doc.sort ?? 0) - (b.doc.sort ?? 0) || (a.idPart < b.idPart ? -1 : a.idPart > b.idPart ? 1 : 0));
 }
 
 /** Every level-1 `character`-type actor in a pack, with its ancestry/heritage/background/class items attached. */

@@ -11,7 +11,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { listLevel1Pregens, toIngredients, findEquipmentItem } from "../../tools/character-builder/extract-pregen.mjs";
 import { deriveAbilityModifiers, deriveHP, deriveArmorClass } from "../../tools/character-builder/derive.mjs";
-import { deriveStrikes, deriveSpells, deriveSaveSpells, deriveTransferVitality, deriveHealSpellVariants, deriveSkillModifier } from "../../tools/character-builder/build-combat-pregen.mjs";
+import { deriveStrikes, deriveSpells, deriveSaveSpells, deriveTransferVitality, deriveHealSpellVariants, deriveAreaAttacks, deriveSkillModifier } from "../../tools/character-builder/build-combat-pregen.mjs";
 import { findNPC, toCombatant, deriveSpellAttacks, deriveConditionSave, deriveAreaAttack } from "../../tools/pack-extractor/extract-npc.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -159,7 +159,13 @@ test("vorza-moonshot.json: checked-in strikes match a fresh live re-derivation e
   }).value);
   assert.deepEqual(fixture.strikes, deriveStrikes(ingredients, ["Zero Pistol"], mods));
   assert.equal(fixture.strikes.length, 1, "her melee weapon is entirely a stance (Solar Manifestations) with no static item to extract — real, not a shortfall");
-  assert.equal(fixture.areaAttacks, undefined, "her Electromag Grenade is real but NOT wired — PC-side area attacks additionally need a Class DC derivation this project doesn't have yet, see her own notes field");
+  // GH #65: this assertion used to pin the ABSENCE of areaAttacks ("needs a Class DC derivation this
+  // project doesn't have yet") — that gap is now closed (deriveClassDC existed all along, inside
+  // deriveSaveAttacks, just never wired into a real fixture; see vorza-moonshot.json's own notes
+  // field for the full, corrected history). A real areaAttacks array now exists — the CONFORMANCE
+  // sweep above already re-derives it fresh; this direct assertion is the "the known gap is gone"
+  // signal, matching this project's own standing discipline for exactly this situation.
+  assert.equal(fixture.areaAttacks.length, 1, "her Electromag Grenade — GH #65 finally gave PC-side area attacks a real home");
   assert.equal(fixture.intimidationModifier, deriveSkillModifier(ingredients, "intimidation", mods));
   assert.equal(fixture.side, "party");
 });
@@ -248,7 +254,9 @@ const ALL_FIXTURE_NAMES = [
   // GH #64
   "khefak.json", "scrap-rat.json", "cybernetic-zombie.json", "jinsul-trooper.json",
   "space-goblin-miscreant.json", "akata.json", "void-zombie.json",
-  "observer-class-security-robot.json", "corpse-fleet-infantry.json", "assembly-ooze.json"
+  "observer-class-security-robot.json", "corpse-fleet-infantry.json", "assembly-ooze.json",
+  // GH #65
+  "iseph.json"
 ];
 
 /**
@@ -306,6 +314,10 @@ const voidZombieNPC = loadNPC("alien-core-bestiary", "Void Zombie");
 const observerClassSecurityRobotNPC = loadNPC("alien-core-bestiary", "Observer-Class Security Robot");
 const corpseFleetInfantryNPC = loadNPC("alien-core-bestiary", "Corpse Fleet Infantry");
 const assemblyOozeNPC = loadNPC("alien-core-bestiary", "Assembly Ooze");
+// GH #65
+const { ingredients: tapkeyIngredients, mods: tapkeyMods } = loadPregenIngredients("paizo-pregens", "Tapkey");
+const { ingredients: vorzaIngredients, mods: vorzaMods } = loadPregenIngredients("paizo-pregens", "Vorza Moonshot");
+const { ingredients: isephIngredients, mods: isephMods } = loadPregenIngredients("iconics", "Iseph (Level 1)");
 
 const CONFORMANCE_CASES = [
   { file: "lunar-17.json", array: "spells", derive: () => deriveSpells(lunar17Ingredients, ["Eldritch Lance"], lunar17Mods) },
@@ -328,6 +340,14 @@ const CONFORMANCE_CASES = [
     })]
   },
   { file: "tough.json", array: "areaAttacks", derive: () => [deriveAreaAttack(toughNPC, { name: "Frag Grenade (Commercial)", saveType: "ref", actions: 1 })] },
+  // GH #65 — the PC-side counterpart, five real grenades across five PCs, all sharing radius:5
+  // (real, hand-verified against each one's own raw @Template[burst|distance:5] description text).
+  { file: "lunar-17.json", array: "areaAttacks", derive: () => deriveAreaAttacks(lunar17Ingredients, [{ name: "Incendiary Grenade (Commercial)", saveType: "ref", radius: 5 }], lunar17Mods) },
+  { file: "tapkey.json", array: "areaAttacks", derive: () => deriveAreaAttacks(tapkeyIngredients, [{ name: "Incendiary Grenade (Commercial)", saveType: "ref", radius: 5 }], tapkeyMods) },
+  { file: "bennit.json", array: "areaAttacks", derive: () => deriveAreaAttacks(bennitIngredients, [{ name: "Frag Grenade (Commercial)", saveType: "ref", radius: 5 }], bennitMods) },
+  { file: "vorza-moonshot.json", array: "areaAttacks", derive: () => deriveAreaAttacks(vorzaIngredients, [{ name: "Electromag Grenade (Commercial)", saveType: "ref", radius: 5 }], vorzaMods) },
+  { file: "iseph.json", array: "areaAttacks", derive: () => deriveAreaAttacks(isephIngredients, [{ name: "Incendiary Grenade (Commercial)", saveType: "ref", radius: 5 }], isephMods) },
+  { file: "iseph.json", array: "strikes", derive: () => deriveStrikes(isephIngredients, ["Zero Knife", "Semi-Auto Pistol"], isephMods) },
   // GH #148 — correction of GH #64's own closing comment: Scrap Rat's real Frag Grenade is a genuine
   // area-fire burst (identical shape to Tough's own), not a single-target Strike as originally
   // claimed. Her melee attack-row item ("Frag Grenade") and weapon-type carried item ("Frag Grenade
@@ -360,7 +380,7 @@ test("CONFORMANCE (GH #63): every fixture's level matches its real, expected val
     assert.equal(readFixture(name).level, EXPECTED_LEVEL[name] ?? 1, `${name}: level no longer matches its expected value`);
   }
 
-  for (const name of ["lunar-17.json", "tapkey.json", "bennit.json", "vorza-moonshot.json", "obozaya.json"]) {
+  for (const name of ["lunar-17.json", "tapkey.json", "bennit.json", "vorza-moonshot.json", "obozaya.json", "iseph.json"]) {
     const fixture = readFixture(name);
     assert.equal(fixture.initiativeModifier, fixture.perception, `${name}: initiativeModifier must equal this PC's own perception field — Player Core pg. 427, initiative is a Perception check`);
   }

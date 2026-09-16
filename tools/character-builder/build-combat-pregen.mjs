@@ -9,8 +9,10 @@
  *
  * SCOPE (updated for design doc §19's skill-actions-in-combat expansion — saving throws are no
  * longer unsupported): derives ATTACK-ROLL Strikes, attack-roll spells, save-based attacks (once
- * personnel-engine gained a real saving-throw mechanism), one hand-identified heal ability, and
- * skill-check modifiers for skill actions (Demoralize). What's still deliberately SKIPPED: a
+ * personnel-engine gained a real saving-throw mechanism), area attacks (GH #65, once GH #61 gave
+ * personnel-engine a real area-effect mechanism — grenades, previously unwired for lacking one), one
+ * hand-identified heal ability, and skill-check modifiers for skill actions (Demoralize). What's
+ * still deliberately SKIPPED: a
  * Fortitude-save special action requiring a prerequisite condition this project doesn't model
  * (Prone) — that's a genuinely different kind of gap (a missing prerequisite mechanism, not a
  * missing resolution mechanism) and stays out of scope on its own terms.
@@ -222,10 +224,9 @@ export function deriveSaveSpells(ingredients, spellNames, abilityModifiers) {
  * a single-target attack (confirmed directly against the Incendiary Grenade's raw description:
  * "Activate 1 Area Fire ... @Template[burst|distance:5]"). Wiring an area weapon through this
  * single-target mechanism silently drops its real friendly-fire risk, which is likely why the AI
- * used it far more liberally than a rules-correct implementation ever would have. Grenades stay
- * unwired — same "out of scope" treatment already applied to every other area/multi-target weapon
- * (Auto-Fire, Suppressing Fire) — until this engine has a real area-effect mechanism to build them
- * against.
+ * used it far more liberally than a rules-correct implementation ever would have. Grenades went
+ * unwired for a long time — GH #65 (design doc §76 Phase 4) finally gave them a real home,
+ * `deriveAreaAttacks` below, once GH #61 built the real area-effect mechanism to build them against.
  *
  * `actions: 1` is NOT read from any raw field — no explicit action-cost field exists on this raw
  * weapon item to read instead. A thrown weapon Strike is a real, single-action SF2E activity, so
@@ -251,6 +252,50 @@ export function deriveSaveAttacks(ingredients, items, abilityModifiers) {
       // (system.quantity was never read), which skewed a real 10-seed behavior sample so hard the
       // grenade outnumbered Eldritch Lance 31-to-4 despite Lunar-17's real sheet carrying exactly
       // ONE (system.quantity: 1, confirmed directly against her raw pack data).
+      usesRemaining: weapon.system.quantity ?? 1
+    };
+  });
+}
+
+/**
+ * Derive real PC-side area attacks (GH #65, design doc §76 Phase 4) — grenades, the exact case
+ * deriveSaveAttacks' own header above disclaims ("NOT A VALID FIT FOR GRENADES... every grenade
+ * checked so far is a @Template[burst] AREA effect"). That disclaimer's own reasoning is now stale:
+ * it said grenades stay unwired "until this engine has a real area-effect mechanism to build them
+ * against" — GH #61 built exactly that (checkAreaAttackLegal, both outcome tables, candidate
+ * generation, friendly-fire pricing), already shipped and proven via the NPC side's own sibling
+ * deriveAreaAttack (extract-npc.mjs). This is the PC-side counterpart, reading from a genuinely
+ * DIFFERENT raw shape than that sibling: an NPC's own area-fire item is a `melee`-type attack-row
+ * entry with a real, structured `system.area.value` radius and a precomputed `system.bonus.value`
+ * attack bonus (NPCs store final numbers); a PC's own grenade is a plain `weapon`-type item —
+ * confirmed directly against real pack data (Iseph's Incendiary Grenade, Lunar-17's own, etc.) to
+ * have NO structured area/radius field at all, only a flat `range` (max throw distance) and the
+ * burst radius mentioned solely in free-text description prose (`@Template[burst|distance:5]`).
+ * `radius` is therefore a caller-supplied parameter, same "hand-read from that same prose" discipline
+ * `saveType` already uses one function above — not auto-parsed out of the HTML, which would be
+ * fragile ceremony for a value that's been checked and found identical (5ft) on every real grenade
+ * in this project's roster so far. DC is the wielder's real Class DC (deriveClassDC) — NOT the NPC
+ * side's own "10 + attack-row bonus" convention, which only exists because NPCs have no separate
+ * Class DC concept at all; a PC's own basic-save DC for an area weapon really is just their Class DC,
+ * confirmed directly against Player Core's own '@Check[reflex|against:class|basic]' embedded tag.
+ */
+export function deriveAreaAttacks(ingredients, items, abilityModifiers) {
+  const { weapons, level, classKeyAbility } = ingredients;
+  const dc = deriveClassDC({ level, keyAbilityModifier: abilityModifiers[classKeyAbility] }).modifier;
+  return items.map(({ name: wantedName, saveType, radius }) => {
+    const weapon = weapons.find((w) => w.name === wantedName);
+    if (!weapon) throw new Error(`No weapon named "${wantedName}" in this pregen's raw weapon list.`);
+    return {
+      name: weapon.name,
+      saveType,
+      dc,
+      range: weapon.system.range,
+      radius,
+      actions: 1,
+      traits: weapon.system.traits?.value ?? [],
+      damage: [{ dice: diceString(weapon.system.damage), bonus: 0, damageType: weapon.system.damage.damageType }],
+      // Same real regression deriveSaveAttacks' own header already names for the identical
+      // consumable-quantity shape — a grenade is a real, finite, carried item, not infinite ordnance.
       usesRemaining: weapon.system.quantity ?? 1
     };
   });

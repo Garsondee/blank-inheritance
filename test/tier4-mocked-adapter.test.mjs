@@ -55,7 +55,10 @@ function loadRealCampaignModuleFiles() {
   moduleFiles["data/campaign/antagonists/claimants/contact-unclassified.json"] = JSON.parse(
     readFileSync(path.join(dataRoot, "antagonists", "claimants", "contact-unclassified.json"), "utf8")
   );
-  for (const name of ["episode-01-contact-unclassified.json", "episode-02-second-contact.json", "interlude-days-2-5-the-squeeze.json"]) {
+  // Session One is the only episode left in the repo -- every other drafted beat
+  // beyond Session 0/1 was deleted 2026-09-13. Keep this list in step with
+  // REAL_EPISODE_PATHS in scripts/foundry/sync.mjs.
+  for (const name of ["episode-c1s1-mothers-maiden-name.json"]) {
     moduleFiles[`data/campaign/episodes/${name}`] = JSON.parse(readFileSync(path.join(dataRoot, "episodes", name), "utf8"));
   }
   return moduleFiles;
@@ -372,7 +375,7 @@ test("runDiagnosticTestSync: one case throwing does not prevent the other three 
   }
 });
 
-test("runRealContentSync: the real Claimant and all three real episodes sync cleanly against actual campaign data", async (t) => {
+test("runRealContentSync: the real Claimant and Session One sync cleanly against actual campaign data", async (t) => {
   if (!templateJson) {
     t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
     return;
@@ -382,7 +385,7 @@ test("runRealContentSync: the real Claimant and all three real episodes sync cle
     const report = await runRealContentSync();
 
     assert.equal(report.fatalError, null);
-    assert.equal(report.results.length, 4, "1 claimant + 3 episodes");
+    assert.equal(report.results.length, 2, "1 claimant + 1 episode (Session One is the only one left)");
     for (const result of report.results) {
       const failed = result.checks.filter((c) => !c.pass);
       assert.deepEqual(failed, [], `expected all checks to pass for ${result.sourceId}: ${JSON.stringify(failed)}`);
@@ -395,14 +398,14 @@ test("runRealContentSync: the real Claimant and all three real episodes sync cle
     assert.equal(claimant.name, "Contact, Unclassified");
     assert.equal(claimant.system.attributes.hp.max, 165);
 
-    const episode1Id = await deriveFoundryId("episode-01-contact-unclassified");
-    const episode1Journal = world.journal.get(episode1Id);
-    assert.ok(episode1Journal, "episode-01's JournalEntry must exist");
-    assert.equal(episode1Journal.pages.length, 10, "1 overview page + 9 authored scenes");
+    const sessionOneId = await deriveFoundryId("episode-c1s1-mothers-maiden-name");
+    const sessionOneJournal = world.journal.get(sessionOneId);
+    assert.ok(sessionOneJournal, "Session One's JournalEntry must exist");
+    assert.equal(sessionOneJournal.pages.length, 7, "1 overview page + 6 authored scenes");
 
     // Real content must not touch the diagnostic path's documents or vice versa.
     assert.equal(world.actors.size, 1, "only the claimant -- no test-fixture actors from this run");
-    assert.equal(world.journal.size, 3, "one JournalEntry per real episode file");
+    assert.equal(world.journal.size, 1, "one JournalEntry per real episode file");
   } finally {
     uninstall();
   }
@@ -472,7 +475,7 @@ test("promptToRunSync: the GM confirming the dialog runs the real content sync (
 
     assert.equal(world.dialogConfirmCalls.length, 1, "expected exactly one confirmation dialog to have been shown");
     assert.equal(world.actors.size, 1, "confirming must actually run the REAL sync -- the real Claimant, not test fixtures");
-    assert.equal(world.journal.size, 3, "one JournalEntry per real episode");
+    assert.equal(world.journal.size, 1, "one JournalEntry per real episode");
     assert.equal(world.chatMessages.length, 1, "the sync's own whispered report must still show up");
   } finally {
     uninstall();

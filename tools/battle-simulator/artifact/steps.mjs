@@ -69,16 +69,33 @@ const SNAPSHOT_FIELD_FROM_ACTION = {
  * through unchanged — `targetHPAfter == null` is the one universal signal every HP-affecting action
  * type (strike/spellAttack/saveAttack/healAbility) already sets, so it doubles as "did this action
  * change its target's condition state at all" without needing a separate flag.
+ *
+ * design doc §38's multi-target actions — areaAttack (a thrown grenade's real burst) and
+ * healAbility's self-centered emanation variant — carry no single targetId/targetHPAfter of their
+ * own at all; instead an `affected` array, one entry per creature the burst actually caught, each
+ * entry shaped exactly like a single-target action's own targetId/targetHPAfter/targetDyingValueAfter/
+ * etc (engine.mjs's targetConditionAfter() builds both, so the field names are identical). Folding
+ * the same per-entry update over that array is what actually applies a grenade's real, multi-victim
+ * result to the live snapshot — before this, `action.targetId` was always undefined/null for these
+ * two action types, so the single-target path above silently no-opped every one of their beats.
  */
 export function applyActionToSnapshot(snapshot, action) {
-  if (!action || action.legal === false || !action.targetId || action.targetHPAfter == null) return snapshot;
-  const prior = snapshot[action.targetId];
+  if (!action || action.legal === false) return snapshot;
+  if (Array.isArray(action.affected)) {
+    return action.affected.reduce((acc, entry) => applyOneTargetUpdate(acc, entry), snapshot);
+  }
+  return applyOneTargetUpdate(snapshot, action);
+}
+
+function applyOneTargetUpdate(snapshot, entry) {
+  if (!entry || !entry.targetId || entry.targetHPAfter == null) return snapshot;
+  const prior = snapshot[entry.targetId];
   if (!prior) return snapshot;
   const next = { ...prior };
   for (const [field, actionKey] of Object.entries(SNAPSHOT_FIELD_FROM_ACTION)) {
-    if (action[actionKey] != null) next[field] = action[actionKey];
+    if (entry[actionKey] != null) next[field] = entry[actionKey];
   }
-  return { ...snapshot, [action.targetId]: next };
+  return { ...snapshot, [entry.targetId]: next };
 }
 
 /** Which action types read as "shots fired" — a real, targeted, hostile act against an enemy.

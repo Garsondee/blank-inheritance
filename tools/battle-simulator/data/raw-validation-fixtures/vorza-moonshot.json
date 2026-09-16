@@ -32,8 +32,32 @@
       ]
     }
   ],
+  "areaAttacks": [
+    {
+      "name": "Electromag Grenade (Commercial)",
+      "saveType": "ref",
+      "dc": 17,
+      "range": 70,
+      "radius": 5,
+      "actions": 1,
+      "traits": [
+        "consumable",
+        "electricity",
+        "grenade",
+        "tech"
+      ],
+      "damage": [
+        {
+          "dice": "1d8",
+          "bonus": 0,
+          "damageType": "electricity"
+        }
+      ],
+      "usesRemaining": 3
+    }
+  ],
   "intimidationModifier": 0,
   "athleticsModifier": 4,
   "heroPoints": 1,
-  "notes": "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — her derived HP (23) matches the pregen's own referenceHP field exactly. design doc §38: a Solarian's whole class fantasy (a Solar Weapon, manifested only while attuned) has NO static item representation on her real sheet at all — unlike every other PC's melee option, there is nothing to extract a Strike from, so she's ranged-only (Zero Pistol) by the real shape of her own kit, not an extraction shortfall. Her Electromag Grenade (Commercial) is real but NOT wired, for the same reason as every other grenade in this project (see Lunar-17/Tapkey/Bennit's own notes) — PLUS one more: even with design doc §38's new areaAttack mechanism now built, a PC's own basic-save DC for an area weapon is 10 + their CLASS DC (Player Core: '@Check[reflex|against:class|basic]'), and this project has never derived a PC's Class DC (only Spell DC, via deriveSpellDC) — an NPC's grenade sidesteps this because NPCs store a final precomputed attack-row bonus directly (see extract-npc.mjs's deriveAreaAttack), a PC does not. Flagged as the natural next gap, not invented around here."
+  "notes": "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — her derived HP (23) matches the pregen's own referenceHP field exactly. design doc §38: a Solarian's whole class fantasy (a Solar Weapon, manifested only while attuned) has NO static item representation on her real sheet at all — unlike every other PC's melee option, there is nothing to extract a Strike from, so she's ranged-only (Zero Pistol) by the real shape of her own kit, not an extraction shortfall. GH #65 (design doc §76 Phase 4, fixing a stale claim in this very note): her Electromag Grenade (Commercial) — real, extracted, but left unwired through GH #64 (\"a 5ft-burst AREA effect, not a single-target attack\") — is now a real areaAttack via deriveAreaAttacks, using GH #61's own area-effect mechanism. The DC is her real Class DC directly (deriveClassDC already includes SF2E's standard +10 baseline — Player Core's own '@Check[reflex|against:class|basic]' tag means exactly \"her Class DC,\" not \"10 plus her Class DC\") — CORRECTED here: this note previously claimed \"this project has never derived a PC's Class DC (only Spell DC)\", which was already stale by the time it was read for #65 — deriveClassDC has been called inside deriveSaveAttacks (build-combat-pregen.mjs) since design doc §19's own skill-actions-in-combat expansion, just never wired into a real fixture until now."
 }
