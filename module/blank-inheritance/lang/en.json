@@ -410,7 +410,7 @@
         "Confirm": "Confirm",
         "Confirming": "Creating your character…",
         "SuccessTitle": "Done. You're in the system now.",
-        "SuccessBody": "{actorName} exists. Find your token once your GM places it, and finish the rest — feats, spells, the last few skills — on your own character sheet.",
+        "SuccessBody": "{actorName} exists, and your token is already waiting on the landing scene. Finish the rest — feats, spells, the last few skills — on your own character sheet.",
         "Back": "Back"
       }
     }

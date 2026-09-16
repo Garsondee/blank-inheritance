@@ -21,6 +21,24 @@ import {
 
 const SOCKET = "module.blank-inheritance";
 
+/**
+ * Polls until `predicate()` is true, instead of guessing a fixed number of
+ * ticks or a fixed macrotask delay. Needed here (and nowhere else in this
+ * file) because resolveActorDeleteRequest's chain now runs
+ * removeActorTokenFromLandingScene BEFORE the actor delete, which calls
+ * deriveFoundryId -- a REAL crypto.subtle.digest call, not a synchronous
+ * microtask chain. Found live 2026-09-16: a single `setTimeout(fn, 0)` flush
+ * (correct for a plain microtask chain) still flaked roughly 1 run in 3,
+ * because a real digest can take longer than one macrotask tick under load.
+ */
+async function waitFor(predicate, { timeoutMs = 2000, intervalMs = 5 } = {}) {
+  const start = Date.now();
+  while (!predicate()) {
+    if (Date.now() - start > timeoutMs) throw new Error("waitFor: condition never became true");
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+  }
+}
+
 test("requestActorCreation: a GM creates directly, with no socket traffic at all", async () => {
   const { world, uninstall } = installMockFoundry({});
   try {
@@ -281,11 +299,7 @@ test("registerInductionSocket: relays a delete request to the active GM's client
     registerInductionSocket();
 
     world.game.socket.emit(SOCKET, { type: "induction-actor-delete-request", actorId: actor.id });
-    // A macrotask flush, not a fixed count of microtask ticks -- the handler's
-    // own await chain (now: remove any landing-scene token, then delete the
-    // actor) is free to grow a step without this test needing to track how
-    // many ticks that now takes.
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await waitFor(() => !world.actors.has(actor.id));
 
     assert.equal(world.actors.has(actor.id), false, "the GM-relayed delete must actually remove the orphaned Actor");
   } finally {

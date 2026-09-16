@@ -380,6 +380,19 @@ Hooks.on("controlToken", () => {
   refreshCommandBar(["right"]);
 });
 
+// A player's own character gets assigned well after the bar first mounts --
+// the induction terminal self-assigns user.character once creation
+// succeeds (foundry/induction-terminal.mjs), long after Page 1's opening
+// render. Found live 2026-09-16: the checks panel kept showing "no
+// character assigned" for a freshly-created player until a manual reload,
+// because nothing told the bar this had changed. Every client gets this
+// update (updateUser fires everywhere a User document changes), but only
+// the affected user's own `character` field is worth a repaint here.
+Hooks.on("updateUser", (user, changes) => {
+  if (user.id !== game.user.id || !("character" in changes)) return;
+  refreshCommandBar();
+});
+
 // The mode is derived from combat state rather than stored, so these are
 // exactly the moments it can change underneath us.
 for (const hook of ["combatStart", "combatRound", "combatTurn", "combatTurnChange", "deleteCombat"]) {
