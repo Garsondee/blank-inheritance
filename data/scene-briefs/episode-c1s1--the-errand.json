@@ -1,0 +1,203 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1s1--the-errand",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1s1-mothers-maiden-name",
+  "sceneRef": "the-errand",
+  "title": "The Errand",
+  "goal": "Section Nine is sent into the city on a fool's errand by a superior who is hazing them, works out that they have been made idiots of, and is rescued by a kind old man who shows them how to complete it *properly* and embarrass the man who sent them. They come back having won. At least one player leaves with a way to contact him again.",
+  "howToPlay": "Warm, unhurried, and completely safe. This is the session's only outdoor scene and the only time all six of them are in the city together -- give it air, let them look at things, and resist adding jeopardy. The scene is a conversation with a stranger, and the stranger is the most important NPC in the campaign.\n\nPlay him as exactly what he appears to be: a retired chemist with time on his hands who is delighted to be asked a good question. Do not make him mysterious. Do not have him watch them leave. Do not give him a significant pause. **He is not hiding anything in this scene, because in this scene he genuinely wants nothing from them** -- everything he says is sincere, and everything he says is true. The horror is retroactive and arrives in a later chapter; tonight he is just nice.",
+  "runsAbout": "20-25 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "The quarter around The General Store (`the-general-store-416`) -- the biggest general store in the district, and if it isn't in stock here it isn't in stock nearby. The Tea House (`the-tea-house-420`) is a few doors down, quiet, mostly trade from people avoiding the walk home at lunch.",
+    "firstThing": "The city, at last. Everything today has been corridors and counters; this is weather, noise, strangers, and a smell of the harbour two streets over.",
+    "readAloud": "Outside, finally. The afternoon is grey and busy. Cranes working somewhere behind the roofline, a tram grinding past, a man arguing with a delivery. Your new boots are extremely obviously new.\n\nThe docket reads: COMPOUND, LEVELLING, BUBBLE, ONE (1). Collect from stores, quarter four. Sign here, here, and on the reverse. You have until nineteen-hundred and he'd like it before he goes home.",
+    "carriesIn": [
+      { "when": "Kit Issue was played first (it should be)", "then": "They are wearing their brand-new kit in public for the first time, and it shows -- the storekeeper clocks it instantly and treats them accordingly." },
+      { "when": "Anyone spotted a violet mark on The Road In", "then": "the-mark-again is the same mark, in the same shade, in a second place. Say nothing about it; the repetition IS the clue and pointing at it spends it." }
+    ]
+  },
+  "cast": [
+    {
+      "id": "manako",
+      "npcRef": null,
+      "label": "Manako (the old man in the tea house)",
+      "role": "A retired chemist. GM-ONLY: the founder of Cicada and the campaign's primary antagonist -- see ideas/story/dossier-cicada.md before running this.",
+      "arrival": "quiet",
+      "brief": {
+        "wants": "Nothing from them. He wants a good question, and they have brought him one -- and more than that, he has recognised the situation on sight and it has made him furious in a way he will not show. Underneath all of it, and never stated: he wants to be believed, and has wanted it for forty years, and six children treating him as an authority is the closest he has come in decades.",
+        "opensWith": "Not speaking. He lets them struggle for a moment, and then offers, apologetically, as though interrupting.",
+        "willDiscuss": [
+          { "topic": "The docket, and the joke that has been played on them", "note": "He recognises it instantly -- he is not working it out, he is remembering it. Matter-of-fact, not pitying. He tells them it is a very old joke and that it was old when it was played on him." },
+          { "topic": "How to actually win", "note": "THE HEART OF THE SCENE. There is a real stores item that satisfies a literal reading of the docket, and requisitioning it correctly costs the man who sent them. He explains the process precisely, because he has used it." },
+          { "topic": "Chemistry, storage, old catalogue conventions", "note": "At length, happily, and he will apologise for going on and then go on." },
+          { "topic": "Himself, if asked", "note": "Sparingly and without self-pity. He was a chemist. He is not one now. He does not explain the gap and does not make a mystery of it either -- he changes the subject the way people do about a job they lost." },
+          { "topic": "The Directorate", "note": "THE IMPORTANT ONE -- see the beat what-he-thinks-of-your-employer. Scrupulously polite, entirely without warmth, and everything he says is TRUE." }
+        ],
+        "willNotDiscuss": [
+          { "topic": "Cicada, the demonstrations, the stencils, anything in the sky", "why": "Not evasion -- the subject does not come up, because the campaign has not started. Nothing has happened in this city yet. If a player somehow raises it, he is politely baffled, and he is not acting." }
+        ],
+        "coercible": [],
+        "voice": {
+          "register": "Unhurried, precise, warm. An academic's diction worn soft by decades out of academia. Delighted by a good question and visibly out of practice at being asked one.",
+          "tics": [
+            "Handles the object before he speaks -- turns the docket over, holds it to the light, reads the back",
+            "Answers the question asked, then the better question they should have asked",
+            "Apologises for talking too much, and then carries on talking",
+            "Refers to the Directorate with perfect courtesy and no warmth at all"
+          ],
+          "samples": [
+            "\"Ah. Yes. May I? -- Mm. They've sent you for a bubble.\" (He hands it back, not unkindly.) \"That's not a new joke. That one's older than the shop.\"",
+            "\"I was a chemist. Past tense's doing a good deal of work in that sentence. Let me see it again?\"",
+            "\"Now. Don't go back empty-handed, that's what it's for. There IS a thing you can requisition that answers what he's actually written down, and it is neither cheap nor quiet.\"",
+            "\"Sorry. You asked one question and I've given you four. Old habit, and not a good one.\"",
+            "\"They did this to me, you know. Forty years ago, near enough.\" (A moment, and then on, quite lightly.) \"I came back with the vial.\"",
+            "\"If they send you out with another of those, bring it here. It's a kindness to me, mind, not the other way about. Nobody's asked me anything in a very long time.\""
+          ]
+        }
+      }
+    },
+    {
+      "id": "storekeeper",
+      "label": "The storekeeper",
+      "role": "Texture, and the obstacle",
+      "walkOn": true,
+      "arrival": "quiet",
+      "brief": {
+        "wants": "To serve the queue behind these six children and get to the end of her shift.",
+        "opensWith": "Reading the docket, twice, and turning it round as though that will help.",
+        "willDiscuss": [{ "topic": "Anything in stock, which is everything", "note": "Genuinely helpful and completely unable to help, which is the joke." }],
+        "willNotDiscuss": [],
+        "coercible": [],
+        "voice": {
+          "register": "Brisk, unbothered, faintly amused by uniforms.",
+          "tics": ["Answers the person behind them mid-sentence"],
+          "samples": ["\"That's not a thing. I've been here nineteen years and that's not a thing. Next?\""]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "into-the-city",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Let them walk across the city. Weather, noise, strangers, the harbour two streets over. Do not rush this.",
+      "direction": "This is the only exterior scene in Session One and the only time all six are outdoors together -- everything before it was an office, a counter or a queue, and everything after it is a canteen and a drain. It is doing real work: the extraordinary only reads as extraordinary against an ordinary city, and this is the city they will spend eight chapters defending. Spend a minute on the gnoll statue in the harbour square if the route passes it (pigeons, a plaque worn past reading, children climbing it) and say nothing about it."
+    },
+    {
+      "id": "the-store",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The storekeeper reads the docket twice, turns it round, and starts laughing.",
+      "challengeRef": "c1s1-the-errand",
+      "checkRef": "the-storekeeper",
+      "npcRef": "storekeeper",
+      "readAloud": "She reads it. She reads it again. She turns it over, reads the back, and looks up at six people in brand-new uniforms.\n\n\"A bubble. They've sent you for a *bubble*.\" She hands it back. \"Love, there's nothing in the bubble. That's the whole point of the bubble. It's the bit that isn't there.\"",
+      "direction": "**This is a hazing and the scene should land it as one.** They have been sent for the equivalent of a long weight or a tin of striped paint, by a superior who thought it was funny, and a stranger has just explained it to them in front of each other. Play the storekeeper as kind about it -- she is not mocking them, she has seen new intakes sent for this specific thing for twenty years -- and let the table sit in the small, real humiliation of it for a moment before anyone starts problem-solving.\n\nThe old nomenclature is what made it credible. COMPOUND, LEVELLING, BUBBLE, ONE (1) is exactly how the Directorate's stores catalogue writes a real item, which is why six intelligent people carried it across a city without questioning it.",
+      "note": "The Directorate in one piece of paper, second time today -- Form 12-B asked for mother's maiden name twice this morning, and this afternoon a superior spent departmental time and six people's afternoon on a joke. Do not draw the line between the two; let the table do it.\n\nWHO SENT THEM: see ideas/story/bible/characters/the-section-officer.md. He is the party's own immediate superior and the campaign's in-house petty tyrant. He did this because it was done to him."
+    },
+    {
+      "id": "ask-around",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If they go looking for somebody who can read it, offer the check.",
+      "challengeRef": "c1s1-the-errand",
+      "checkRef": "ask-around",
+      "when": { "condition": "if the party tries to find help rather than giving up or going back" },
+      "note": "They find him on any result, including a critical failure -- this check sets how long it takes and how good the introduction is, never whether the scene happens."
+    },
+    {
+      "id": "the-mark-again",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "A cicada stencil, deep violet, at head height, on the wall the queue faces. Describe it before anyone rolls.",
+      "challengeRef": "c1s1-the-errand",
+      "checkRef": "the-mark-again",
+      "when": { "condition": "at any point in the scene, if anyone looks at the walls" },
+      "direction": "Second sighting. Same shade, same height, and this time on a wall people stand and face rather than one traffic passes. Never explain it. The repetition across two scenes is the hook.",
+      "note": "Mystery Ledger #6. Payoff chapter is currently unassigned -- see ideas/story/blank-inheritance-ch1-v2.md §5."
+    },
+    {
+      "id": "the-old-man",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "He recognises the joke on sight, tells them so plainly, and says the thing that changes the scene: don't go back empty-handed.",
+      "npcRef": "manako",
+      "direction": "He offers, apologetically, the way a person interrupts strangers. He does not approach them; they should end up at his table, or he should be within earshot of their argument. **He is genuinely, uncomplicatedly useful.** The party's humiliation is turned into a win by a stranger's kindness, and that is the whole first impression.\n\nHe is not working the docket out. He is *remembering* it. Play the difference -- he barely looks at the paper.\n\nDo not make him interesting. Make him helpful, and let the players find him interesting on their own -- which, in play, they reliably will, because he is the first adult all day who has treated them as people with a problem rather than as intake.",
+      "note": "⚠ HE IS THE CAMPAIGN'S PRIMARY ANTAGONIST AND NOTHING IN THIS SCENE MAY SUGGEST IT. No pause, no significant look, no watching them leave, no ominous line on the way out. Read ideas/story/dossier-cicada.md §3 and §4 before running this. The reveal is chapters away and its entire force depends on this scene being exactly what it looks like."
+    },
+    {
+      "id": "read-the-old-man",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If a player actually looks at him rather than at the docket, offer the check.",
+      "challengeRef": "c1s1-the-errand",
+      "checkRef": "read-the-old-man",
+      "npcRef": "manako",
+      "when": { "condition": "if a player pays attention to the man rather than the problem" },
+      "direction": "Everything this check returns is true, harmless and humanising: a chemist, long out of the trade, poor, careful about not looking poor, a coat mended by hand more than once. On a critical success add the thing that matters and do not explain it -- **he notices being looked at, and he is not used to it.**",
+      "note": "This is the single most important optional check in Session One. The man nobody would look at, looked at, by a seventeen-year-old, on an ordinary Tuesday."
+    },
+    {
+      "id": "the-vial",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "He tells them how to win: there is a real stores item that satisfies a literal reading of the docket, and getting it costs the man who sent them.",
+      "npcRef": "manako",
+      "readAloud": "\"Right. He's written BUBBLE, ONE. So you don't argue with him -- you take him at his word.\" He taps the docket. \"The bubble lives in a sealed vial. The vial is a real part, it has a real number, and it is *not* cheap. You requisition a replacement vial against that docket, exactly as written. It needs a senior countersignature, which means it crosses a desk above his, and it generates a form that says who asked for it and why.\"\n\nHe slides it back across the table.\n\n\"You'll be entirely correct. That's the important bit. You'll have done precisely what you were told, to the letter, and somebody upstairs will spend four minutes of their afternoon working out why.\"",
+      "direction": "**This is the scene's actual climax and the players should feel it.** They arrive humiliated and they leave having won -- not by being clever, but because a stranger handed them the institution's own procedure and showed them where the sharp end was.\n\nLet them enjoy it. If a player wants to dress it up further -- delivering it formally, a straight face, a receipt -- encourage it. The correct table energy here is conspiratorial glee.\n\nDo NOT resolve the consequence tonight. Whether the countersignature lands, who reads the form, and what the officer does about it is next session's business.",
+      "note": "⚠ THE MOST IMPORTANT LINE IN THE SCENE, and it must be thrown away rather than landed: *\"They did this to me, you know. Forty years ago, near enough. I came back with the vial.\"*\n\nHe is not being wistful and he is not hinting. He is a man mentioning something. **Say it lightly and move straight on to the tea.**\n\nWhat it is actually doing, none of which is available to the party tonight: he worked in a Directorate lab as a junior. He was hazed exactly like this. He beat it exactly like this. And the same institutional shrug that gives a new kid a fool's errand is the shrug that later handed a junior nobody a two-century-old shelved sample **because nobody senior considered it worth their time** -- which is the accident that ruined him, created Cicada, and started the war. The party is watching the origin of the entire campaign happen to them in miniature, narrated by the man it broke, and they will not understand that for chapters. See ideas/story/dossier-cicada.md §3."
+    },
+    {
+      "id": "what-he-thinks-of-your-employer",
+      "kind": "action",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If the conversation gets as far as who they are and who they work for, he says one true, unsettling thing about the Directorate -- gently, once, and does not push it.",
+      "npcRef": "manako",
+      "readAloud": "\"Can I say something, and you needn't do anything with it? They'll tell you what you're for. Everyone does that to the young, it's not a crime. But that lot wrote theirs down, and then they painted over it, and I've always thought that was worth knowing about the people who feed you.\"",
+      "direction": "He is talking about the founding charter in the lobby -- the framed original with one paragraph blacked out since before anyone alive was born. He does not know what it says either. He is not recruiting, not warning them off, and not building to anything: he says it, he lets it sit, and then he asks whether they want more tea.\n\n**Every word of it is true**, which is the point and the problem. The Directorate conscripts children, wrote down that it knew, and buried the admission. If the players start to conclude the Directorate might be the villains of this story, they are half right and should be allowed to think so.",
+      "note": "This is his thesis, delivered before a single attack has happened anywhere in the city -- which is what makes it land as an old man's opinion rather than a manifesto. It costs him nothing and it is the first brick in the party's eventual, correct distrust of their own employer. See ideas/story/dossier-the-directorate.md."
+    },
+    {
+      "id": "the-way-to-reach-him",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "He offers a way to contact him again. The Tea House takes messages for him -- he has no telephone of his own.",
+      "npcRef": "manako",
+      "readAloud": "\"If they send you out with another of those, bring it here. They'll take a message for me downstairs -- I'm always in on a Thursday and most other days if I'm honest. It's a kindness to me, mind, not the other way about. Nobody's asked me anything in a very long time.\"",
+      "direction": "**Not gated on any check.** It is earned by treating him like a person, and a table that rolled badly and was kind still gets it. Offer it to whoever talked to him most; if that is nobody, he offers it to the group as they leave, slightly awkwardly, and it lands flatter -- which is a real and acceptable outcome.\n\nWrite down which PC holds it. That player now has a private line to the campaign's antagonist and does not know it.",
+      "note": "⚠ TWO PLANTS IN ONE BEAT, neither resolved here.\n\n(1) THE CHANNEL. This is the party's route to Manako for the whole campaign, and it is deliberately slow, public and written -- a message book in a tea house, not a private line. He is sincere in offering it: this is what he does with anyone he thinks might actually look, and it aligns with a forty-year crusade whose entire object is to be asked a question.\n\n(2) THE INTERCEPT. Directorate trainee communications are monitored as routine policy, and the party consented to it this morning in the intake paperwork nobody read (see episode-c1s1--intake-medicals, beats form-12b and the-form-itself). Nobody is spying on them; a clerk is doing a filing job. **Later in the campaign the Directorate acts on these intercepts -- moving on Manako or a cult site at a moment the players did not choose, using information the players themselves generated, and wrecking a plan the players had.** It is not malice and it is not a betrayal by any individual. It is an institution using a policy exactly as written. Do not foreshadow it tonight."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "They have the requisition in hand and a plan for delivering it. Let them decide how formally they want to do that.",
+    "readAloud": "The light's going by the time you're back on the tram, with a requisition slip in somebody's pocket that is going to cost a man four minutes of his afternoon and possibly rather more. Somewhere behind you a shop is closing up, and an old man is finishing his tea and not thinking about you at all.",
+    "artefactRefs": [],
+    "tracks": [],
+    "onwards": "Back to campus for the evening meal. Straight into Canteen, where Taka is waiting. **Do not resolve the requisition tonight** -- the officer's reaction is next session's business.",
+    "writeDown": [
+      "WHICH PC HOLDS THE CONTACT ROUTE. This is the single most important thing to record in Session One.",
+      "How they chose to deliver the requisition, and how much they enjoyed it. That is the first thing this party did together as a unit, and it was insubordination.",
+      "Who talked to him, who ignored him, and whether anyone rolled read-the-old-man.",
+      "Whether the party heard what-he-thinks-of-your-employer, and how they took it.",
+      "Whether anyone spotted the second violet mark, and whether they connected it to the first."
+    ]
+  },
+  "carryForward": [],
+  "notes": "ADDED 2026-09-13 on Ingram's instruction, to put the campaign's primary antagonist in front of the players in the first session. His constraint: Manako does not work inside the Directorate, so the meeting has to be a task that takes the party into the city, where they mistake him for a knowledgeable local. The docket's obsolete catalogue name is the device that makes an old chemist genuinely necessary rather than conveniently present.\n\nRUNTIME. Not a consideration. Standing order 2026-09-13: sessions are units of content, not units of time -- play until the content runs out, and never cut or compress to fit a clock.\n\nHIS NAME, AND WHY A RECORDS SEARCH FINDS NOTHING (resolved 2026-09-13, LEDGER #17). **The Directorate has never identified Cicada's founder.** They have a cult, demonstrations, arrests and a filing cabinet of detained believers, and no name at the top -- so a trainee who runs a search on this old man on day one gets back a disgraced chemist from decades ago and nothing else, because that is genuinely all the institution has.\n\nHe is labelled Manako in this file for the GM's benefit. Give the table his name freely if a player asks -- it is safe, it means nothing yet, and it is *supposed* to be sitting in their notes when it turns up again later in a discredited paper. That recognition is the gut-punch and it only works if they had it all along.\n\n**THE DISCOVERY BELONGS TO THE PLAYERS.** No NPC ever tells them Cicada has a founder, that he matters, or who he is. The party must work out on their own that there is a key figure behind the organisation, and the party must be the ones to connect that figure to the kind old man from their first afternoon in the city. Neither half may be handed to them. See dossier-cicada.md.\n\nTONE. Read the whole scene against the campaign's register (warm, funny, Giant Robo not EVA). The correct table reaction on the walk home is 'that was nice', and the correct table reaction in Chapter Seven is silence."
+}

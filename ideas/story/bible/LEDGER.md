@@ -54,8 +54,17 @@ guessing at it again.
 | 10 | 2026-09-10 | "Nothing you cannot leave" — intended meaning | Answered |
 | 11 | 2026-09-10 | Does the party's early activation ever surface | Answered |
 | 12 | 2026-09-10 | The campus's first-look register | Answered |
+| 13 | 2026-09-13 | Where the military end stops and the school begins | Answered |
+| 14 | 2026-09-13 | The residual "vermin" line in v4 §24 | Answered |
+| 15 | 2026-09-13 | Wild and ascended forms, the nuisance, young pilots, and who knows the truth | Answered |
+| 16 | 2026-09-13 | Manako as the campaign's linchpin — eight decisions | Answered |
+| 17 | 2026-09-13 | Who knows who the Original Cultist is, and session length | Answered |
+| 18 | 2026-09-13 | The hazing, the Section Officer, and how the Cadre scale | Answered |
+| 19 | 2026-09-13 | The Young One is a disguised pilot; the Cadre must actually fight | Answered |
 
 *(Continues below as new entries are added — keep this index in sync, in order, every time.)*
+
+*(Index rows 13–15 were added 2026-09-13 during entry 16's filing — those three entries existed below but had never been indexed. Dates inferred from their position in the file; correct them if wrong.)*
 
 ---
 
@@ -141,9 +150,11 @@ her intended role?"*
 Witness)" — full text filed verbatim as its own document.)*
 
 **Filed to:** `ideas/story/dossier-shinobu.md` (new file, the full dossier). Cross-checked against
-already-built content: her father Kudo and Satoru (the Transparency Advocate) are already fully voiced
-and live in `data/scene-briefs/episode-05-head-height--noon-the-hall.json` — confirmed fully consistent,
-no contradictions found.
+already-built content: her father Kudo and Satoru (the Transparency Advocate) were fully voiced and
+live in `data/scene-briefs/episode-05-head-height--noon-the-hall.json` — confirmed fully consistent,
+no contradictions found. **That scene brief was deleted 2026-09-13** with every other drafted beat
+beyond Session 0/1; the consistency check stands, and both characters' voices survive in
+`dossier-shinobu.md` and `data/npcs/transparency-advocate.json`. The scene does not.
 
 ---
 
@@ -403,3 +414,322 @@ This is a refinement of entry 12, not a contradiction of it, and entry 12 stands
 one campus on one island but are NOT co-sited); the 22 lore entries in
 `tools/gazetteer/_base_names.py`, rewritten with every domestic and civic building removed; this
 ledger.
+
+---
+
+### 14 — The residual "vermin" line in v4 §24
+
+**Asked because:** while writing `design/worldbuilding-craft.md` for the craft library, a pass over
+the tier-1 sources found that `ideas/story/blank-inheritance-v4.md` §24 (Register Notes) still
+carried the exact framing corrected on 2026-09-09. The line read:
+
+> **And the last word on register:** this is a story where six teenagers, *a species everyone treats
+> as vermin*, a disgraced doctor's severed hand, and a frightened cloud of broken machinery all turn
+> out to have been doing their best the whole time.
+
+This contradicts settled canon in `ideas/story/bible/species/mitflits.md`, which records Ingram's own
+direct confirmation that **mitflits have never been exterminated or treated as vermin at any point in
+this setting's actual history** — "a nuisance, considered rude at worst — never hunted, never
+bountied." It was the only occurrence of the word "vermin" in the v4 bible, a residual line missed
+when the rest of the correction was applied. The replacement wording was asked rather than inferred,
+because §24 is the campaign's tone-defining passage in a tier-1 document.
+
+**Q:** v4 §24's mitflit clause contradicts settled canon. How should it read — "everyone finds a
+nuisance", "nobody takes seriously", "everyone finds rude", or left for Ingram to word himself?
+
+**A:** *"everyone finds a nuisance"* — the option closest to the bible's own phrasing.
+
+The line now reads "six teenagers, a species everyone finds a nuisance, a disgraced doctor's severed
+hand…". The rhetorical shape of §24 is unchanged: a list of things the setting underestimates, all of
+which turn out to have been doing their best. Only the factual claim about how mitflits are treated
+was wrong, and "a nuisance" is what canon actually says.
+
+**Filed to:** `ideas/story/blank-inheritance-v4.md` §24 (line corrected);
+`ideas/story/bible/species/mitflits.md` (changelog entry added); this ledger.
+
+---
+
+### 15 — Wild and ascended forms, the nuisance, young pilots, and who knows the truth
+
+**Asked because:** four questions put to Ingram on 2026-09-13 after a full re-read of
+`bible/species/mitflits.md`, `blank-inheritance-v4.md` §9 and `dossier-first-impact.md`, targeting
+things those files leave explicitly unrecorded. Question 1 (the Frame core's relationship to the
+mitflits) is **not resolved — see the open item at the end of this entry.**
+
+**Q2: What are "wild" and "ascended"? The file records the two names and nothing else. Also: what
+does a wild mitflit actually *do* that annoys people?**
+
+**A:** *"I have artwork and the wild versions look like the Mitflits of my adventure, they look like
+blue skinned elfin goblin people but they look cute rather than gruesome and they have bright
+intelligent eyes. The ascended look like high fantasy elves with blue skin, they are elegant and
+androgenous and they seem like a perfect candidate for what the Mitflits might have been like as a
+star faring race. Perhaps this species special ability is a rapid evolutionary adaptation to their
+situation allowing them to revert into a form more likely to survive but with the capacity to regrow
+their original features when required. As to why Mitflits annoy people, think about an actual rude
+goblinoid with little respect for authority in a 1950's ish Japanese setting. They upset people
+because they don't respect the same traditions and they are weird outsiders."*
+
+Note the hedge: the rapid-adaptation ability is introduced with "Perhaps" and is recorded as
+**Ingram's working direction, not locked canon**. The appearances are locked — they come from
+artwork that exists.
+
+**Q3: What are the young volunteering for?**
+
+**A:** *"Some of the young Mitflits will volunteer to fight using the mechs. Some Mitflits consider
+this abhorrent. Lots of Mitflit communities are essentially pacifist but the younger members of clans
+are their own spirits and are willing to fight to protect the city directly."*
+
+Mitflits **pilot Frames**. This settles a question the files had left ambiguous and it cuts against
+reading the Frame core as a mitflit — mitflits sit in cockpits.
+
+**Q4: Do they know what they are, and is the silence refusal or amnesia?**
+
+**A:** *"Anabala knows everything, a very small number of her high priestesses know. Everyone else
+gets their own appropriately sized chunk of the picture. Many wouldn't be ready to hear or believe
+that they came from beyond the stars. All of them will be keen for the adventure though."*
+
+So the silence is **tiered knowledge, deliberately administered**, not a uniform taboo and not simple
+amnesia. Anabala is the only complete source. The closing line matters for register: mitflits are not
+a tragic people sitting on a sad secret — they are up for it.
+
+**STILL OPEN — Q1, the Frame core and the mitflits.** `dossier-first-impact.md` establishes the core
+as biomechanical, "mitflit-scale and alive," making a seat for its pilot; the Thread Grid has a
+captured mitflit weeping at the sight of a Frame's hand; §9 has Bobbin's people entering a Frame
+un-extractably. Ingram's response: *"I do and don't like parts of the idea that Mitflits are mechs and
+vice versa. It feels like a way to cheapen the race by saying that you can also ride into battle
+inside them. We need to brainstorm this to try and decide on a solution that feels authentically
+Evangelion whilst also mixing in the Mitflit origin lore."* **Under active discussion. Do not write
+any content that assumes an answer either way.**
+
+**Filed to:** `ideas/story/bible/species/mitflits.md` (What's established, Tone and register,
+changelog #12); this ledger.
+
+---
+
+### 16 — Manako as the campaign's linchpin — eight decisions
+
+**Asked, 2026-09-13:** eight numbered proposals for turning Manako from a shape behind decades of
+consequence into the structural centre of the campaign — meet him early; open a correspondence;
+give the party something they can give him; define the line his own people cross; three
+demonstrations rather than one; Claimants as his psychology; a four-pass reveal; one speech.
+
+**Ingram's answers, verbatim:**
+
+> 1.) Yes, we have them meet the character early, we have them cross paths with them occasionally, we
+> prevent the group from being able to kill or capture them early on. The first meeting is sympathetic
+> and meaningful, demonstrating that they aren't an insane evil bad guy. We get to have fun with their
+> main henchmen instead who can lean much more cleanly into the Shocking Alberto and Ivan character
+> archetypes. Recurring baddies who turn up, mess things up, fight a bit and then exit the fight is fun
+> and typical anime. The players can defeat them only when the moment is right in the story.
+>
+> 2.) You need to develop this concept and sell it to me more cleanly, I don't know exactly what you
+> are proposing and remember that if the group spends too much time with the main baddie they might
+> work out what is happening too early on.
+>
+> 3.) I like the idea of this baddie once first being introduced giving the PCs or one PC a way to get
+> in contact. But we have to align this with their now decades long crusade and their overall campaign
+> actions.
+>
+> 4.) We have a ramp of escalation and we make part of the reason for it that the Directorate's actions
+> start to make him desperate. Desperate people make mistakes which risk lives in aid of their
+> objective. A random killing in a heist is a great escalation because it's very believable.
+>
+> 5.) I think it's too early to work out the climax of the whole story. We need to start with a blank
+> slate as far as the story is concerned and build our way towards it.
+>
+> 6.) A very interesting idea.
+>
+> 7.) Depth is important, history is important, we need to build a believable world.
+>
+> 8.) Perfect. He can deliver his thesis to the players during that first meeting, but this will be
+> before the attacks start happening. He can warn the players about the Directorate, which he's right
+> to do so since they are a long way from innocent and they are doing all sorts of things in secret
+> which aren't good. The players may start to believe that the Directorate are actually the bad guys
+> and they will be half right.
+
+**And on the follow-up pitch:** *"Okay. I like what you've written so far, it's solid enough to record
+as fact."* Plus the Session One instruction: *"Manako doesn't work inside the directorate, needs to
+operate within the city, so we can make this a task which the group is given where they meet Manako
+and mistake him for an knowledgeable NPC. A PC may even befriend them and be given a way to contact
+them in future... We could even add a fun plot turn where the Directorate are listening in on these
+messages and later on use that eaves dropping to the advantage of the Directorate but against the
+wishes or plans of the players. Your four henchmen seems perfect to me as a starting point."*
+
+**What this settles:**
+
+- **He is met in Session One**, in the city (not inside the Directorate), as a knowledgeable stranger.
+  He cannot be killed or captured early. The first meeting is sympathetic and he is not insane or evil.
+- **The four henchmen carry the recurring-villain load** — arrive, wreck, fight, exit — and are
+  defeatable only when the story is ready. Kiri, the Soldier, the Fixer, the Young One.
+- **A contact channel opens at the first meeting**, aligned to his forty-year crusade (it is what he
+  does with anyone he thinks might actually look), and **the Directorate reads it** — later acting on
+  those intercepts against the players' plans.
+- **The escalation ramp is desperation caused by the Directorate winning**, not ambition. The killing
+  during a heist is the confirmed escalation beat.
+- **The climax is deliberately NOT decided.** Blank slate; build toward it.
+- **The Claimant-as-psychology model is approved as interesting** and is recorded in
+  `dossier-cicada.md` §13.2 as the mood-ring.
+- **Manako's warning about the Directorate is TRUE**, delivered before any attack, and the players are
+  meant to half-conclude the Directorate are the villains.
+
+**Filed to:** `ideas/story/dossier-cicada.md` (§9 the four henchmen, §13 the arc, the mood ring, the
+escalation engine, the channel); `ideas/story/dossier-the-directorate.md` (new file, the seven faults
+and the mirror); `data/scene-briefs/episode-c1s1--the-errand.json` and `data/challenges/c1s1-the-errand.json`
+(the first meeting); `data/episodes/episode-c1s1-mothers-maiden-name.json`; this ledger.
+
+**STILL OPEN:** whether a day-one Directorate records search finds him, and under what name —
+`data/campaign/open-questions.json#manako-records-visibility`. It decides whether a curious party can
+shortcut the campaign the same afternoon they meet him.
+
+---
+
+### 17 — Who knows who the Original Cultist is, and session length
+
+**Date:** 2026-09-13
+**Asked because:** writing The Errand raised a real risk — if the Directorate has Manako on file as a
+terrorist and trainees can search it, a curious party can shortcut the whole campaign the same
+afternoon they meet him. Three options were put to Ingram; he took one and then went further.
+
+**Q:** *"Does a Directorate records search on day one find him, and under what name? ... (a) the
+Directorate has never identified Cicada's founder at all; (b) he is on file under the name he was
+disgraced under, which is not the name the tea house knows him by; (c) the file exists and trainees
+have no access to it on day one."*
+
+**A:** *"the Directorate has never identified Cicada's founder — go with option (a) - better yet the
+rule should be that it is the player characters who must first identify that 'The Original Cultist'
+(working name, not married to it) is a key figure in the organisation and they must be the ones to
+find out it's the kindly man they met during the first session."*
+
+**And, unprompted, on session length:** *"As to the session length, standing order is not to worry
+about it. Sessions aren't meant to be played in one go, a single combat can take a whole session, we
+play until we run out of content. The idea behind sessions is to organise mini arcs or organise
+content together into complimentary encounters."*
+
+**What this settles:**
+
+- **The Directorate has never identified Cicada's founder.** No sealed file, no redaction, no
+  restricted record — the gap is genuine. They have a movement, demonstrations, arrests and a cabinet
+  of detained believers, and no name at the top.
+- **His name is therefore safe to give the table freely**, and should be, because the later
+  recognition only lands if it was already in the players' notes.
+- **Both halves of the discovery belong to the players**, as a standing rule: that Cicada has an
+  author at all, and that the author is the old man from the tea house. No NPC supplies either.
+- **"The Original Cultist" is a working label, explicitly not final** — registered at
+  `data/campaign/naming-placeholders.json#the-original-cultist`.
+- **Session length is never a design constraint.** A session is a unit of content organisation, not
+  table time.
+
+**Filed to:** `ideas/story/dossier-cicada.md` (new §13.5, and §5's terrorist line corrected — it
+contradicted this and per rule 6 the other file loses); `ideas/story/dossier-the-directorate.md` §7;
+`ideas/story/bible/characters/manako.md` (open question 1 and rule 7);
+`data/scene-briefs/episode-c1s1--the-errand.json`; `data/campaign/open-questions.json`
+(`manako-records-visibility` resolved); `data/campaign/naming-placeholders.json`;
+`ideas/story/blank-inheritance-ch1-v2.md` §7 (the two-hour rule replaced, and a runtime warning
+removed); this ledger.
+
+---
+
+### 18 — The hazing, the Section Officer, and how the Cadre scale
+
+**Date:** 2026-09-13
+**Asked because:** Ingram proposed reframing The Errand as a hazing, which implied a new NPC, and
+separately asked for the four henchmen to be built out as real SF2E enemies.
+
+**Ingram, verbatim:**
+
+> A fun addition. The players are being hazed. They are sent to get the equivalent of more bubbles for
+> a spirit level. They are being demeaned and sent on a pointless errand. The best outcome? Manako
+> tells them to requisition X using Y process and bring it back to the person who sent them. Mission
+> complete AND they can thumb it in the nose of the person who sent them thanks to Manako's
+> conspiratorial help. Why does he know and why does he help? Because they were doing the same crap to
+> him when he started there. The PCs feel like they've gained a wise and helpful ally against the
+> Directorate who now seem worse by comparison. This rather suggests that we need to put someone in
+> charge of the PC group, someone who isn't a great or nice person, an antagonist from within the
+> system who the players will eventually defeat by proving them wrong, out performing their
+> expectations and eventually they'll be promoted out of that petty tyrants clutches.
+
+> Also something worth bearing in mind, the plan is to give these recurring baddies a statblock
+> appropriate to the level we want them to be for each encounter, they learn new tricks as the group
+> fights them so that they stay a challenge and keep surprising the group.
+
+**What this settles:**
+
+- **The Errand is a hazing.** The docket reads COMPOUND, LEVELLING, BUBBLE, ONE (1). The storekeeper
+  laughs. **Manako's solution:** requisition a replacement *vial* against the docket exactly as
+  written — a real part, not cheap, needing a senior countersignature from a desk above the sender's,
+  generating a form that records who asked and why. The party completes the task correctly *and*
+  embarrasses the man who sent them.
+- **Manako helps because it was done to him.** This is consistent with established canon, not a new
+  claim: the last remaining sample walked out of a *Directorate* lab in his pocket, and Shucks
+  Mordant supervised his disgrace. He was a junior there. His throwaway line — *"They did this to me,
+  you know. Forty years ago, near enough. I came back with the vial."* — is the campaign's origin in
+  miniature, and must be tossed away rather than landed.
+- **The same institutional shrug operates at both scales.** The hand that sends a new kid for a bubble
+  is the hand that gave a junior nobody a two-century-old shelved sample *because nobody senior
+  considered it worth their time*. The party experiences the origin of the war as a prank.
+- **New NPC: the Section Officer** — the party's immediate superior and the campaign's in-house petty
+  tyrant. Hazes because he was hazed, believes it builds character, never wrong in his own account.
+  Five-stage arc ending in the party being **promoted out of his section while he stays exactly as he
+  is.** Not cruel, not dangerous, never redeemed.
+- **The transmission chain** (never stated aloud in play): it was done to Manako, it was done to the
+  Section Officer, he does it to the party. Three people, the same shrug, and it broke one of them.
+- **The Cadre are rebuilt per encounter, not levelled.** Constant across every version: the signature
+  ability, the escape, **the counter** (which never moves — that is the promise), and the voice.
+  Variable: level and stats, plus **exactly one new named ability per appearance**.
+
+**Filed to:** `data/scene-briefs/episode-c1s1--the-errand.json` (rewritten around the hazing; new
+`the-vial` beat); `ideas/story/bible/characters/the-section-officer.md` (new);
+`data/npcs/section-officer.json` (new stub); `data/campaign/naming-placeholders.json`
+(`section-officer-name`); `ideas/story/dossier-cicada.md` §9 (scaling method + the four in full, each
+with an SF2E signature ability, escape, counter and four-step ladder); this ledger.
+
+**STILL OPEN:** what actually happens when the vial requisition lands — Session Two's business.
+
+---
+
+### 19 — The Young One is a disguised Directorate pilot, and the Cadre must actually fight
+
+**Date:** 2026-09-13
+**Asked because:** the first Cadre writeup made the Fixer a non-combatant with no attacks and treated
+that as clever, and leaned on stat-block mechanics instead of character.
+
+**Ingram, verbatim:**
+
+> But also... you can't build four bad guys for a SF2E campaign and be gleeful that they don't have
+> attacks. They need to be practical, interesting, flavoured SF2E bad guys and we can't get so wrapped
+> up in the story that we make NPCs that are too weird to fight properly. At the moment we don't
+> really need a stat block either, we need motivations, we need ideas and plans and character and
+> catch phrases and ways of speaking and something to make them fun recurring baddies. How do they
+> know Manako? Do they have any ulterior motives? The Young One should be a disguised fellow NPC mech
+> pilot, turned to the Cultists by seeing a magic show, seeing the truth and coming to accept it.
+
+**What this settles:**
+
+- **All four Cadre fight, properly.** The Fixer is rebuilt as twenty-five years of moving heavy things
+  for a living — cargo hook, chain, crowbar, shoves and trips and grapples, on ground he has worked
+  since he was sixteen. He still reshapes the battlefield; he now does it *while* hitting people.
+- **Character before mechanics.** Stat blocks are not needed yet. Each of the four now carries how
+  they met Manako, what they want, an ulterior motive, a catchphrase and a way of speaking.
+- **THE YOUNG ONE IS A DIRECTORATE FRAME PILOT**, a pilot-track student a year or two ahead of the
+  party, who they know socially and eat in the same canteen as. Turned by a magic show. Fights them
+  masked, repeatedly, unrecognised. His value to Cicada is **intelligence**, not muscle — rosters,
+  deployments, which sites are watched. He is why the heists work. **And he has a Frame**, which is a
+  card held in reserve.
+- **He is the Nozomi mirror.** Same kind of show, same undeniable revelation, opposite choice: she
+  walked out and refused the draft; he stayed inside and kept flying. The party exists because of her
+  decision.
+- **The killing is a panic, not a doctrine.** He is twenty, guiding a heist, untrained for it, and he
+  kills somebody by accident — and then has to become a person who meant to. The zealotry is
+  constructed *afterwards* to survive having done it. **The campaign's thesis in a third generation:**
+  Manako panicked in a lab and built a religion; the Section Officer was hazed and passes it down;
+  this boy panics in a warehouse and builds a belief on it.
+- **His ulterior motive is permission** — he wants somebody to tell him it was all right. Manako will
+  not and is visibly embarrassed by him. The party might, which is dangerous to hand them.
+
+**The ulterior motives, recorded because each is a lever:** Kiri is quietly planning the succession
+Manako does not know he needs. The Soldier helped file the report that made Aoi nameless (he never
+knew the name — Hori remains the only person alive who does) and is serving the man he helped ruin as
+unconfessed penance. The Fixer is embezzling cult money to the families of a crew who died in an
+accident the Directorate filed away. The Young One wants permission.
+
+**Filed to:** `ideas/story/dossier-cicada.md` §9 (all four rebuilt in full); this ledger.

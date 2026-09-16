@@ -148,7 +148,9 @@ Hori drove them to hospital himself. They died anyway. And he was still standing
 **Before:** Cicada demonstrated. They wanted the city to see.
 **After:** Manako wanted the city to pay.
 
-**HORI is the only person alive who knows AOI's name.** The Directorate filed the death as an unnamed cultist casualty in a public-order incident — no inquest, no record. Decades of Manako appearing in every document as a terrorist, and not one line anywhere about what he lost.
+**HORI is the only person alive who knows AOI's name.** The Directorate filed the death as an unnamed cultist casualty in a public-order incident — no inquest, no record. Decades of documents calling his movement terrorism, and not one line anywhere about what he lost.
+
+*(Corrected 2026-09-13 per LEDGER #17: this line used to read "decades of Manako appearing in every document as a terrorist," which contradicts §13.5 — the Directorate has never identified Cicada's founder and has no name for him at all. The record damns the movement and does not know he exists, which is worse and closer to the point: the man who wanted to be seen is not in the file even as a villain.)*
 
 **The party's route to understanding their antagonist runs through the man who caused it, and what he gives them is a name.** He has been waiting decades for somebody to ask.
 
@@ -254,6 +256,158 @@ Correlate demonstration timings against unsolved warehouse thefts → follow the
 
 **MANAKO (the Chemist)** — founder, operator, elderly, physically frail, tactically irreplaceable.
 
+### The four who actually turn up
+
+*Approved as a starting point 2026-09-13. Manako appears in person perhaps four times in the whole campaign; **these four carry the contact frequency.** They are built to the recurring-antagonist pattern in `design/research/giant-robo/the-recurring-antagonist-engine.md`: each has one gimmick, one want, a **disclosed** escape the party watches happen, and a counter **written down before the first appearance** so they are a locked door with a keyhole rather than an authorial veto. They arrive, announce themselves, wreck something, fight a little, and leave. The party defeats them when the story is ready and not before.*
+
+| | Gimmick | How they leave | The counter (decided now) | What they want |
+|---|---|---|---|---|
+| **KIRI** (the Magician) | Misdirection. You are never fighting what you think you are fighting | The person they were fighting turns out to be a bystander; Kiri was never in the room | **Stagecraft needs a stage.** Somewhere unprepared, Kiri is an elderly performer with a knife | Loves Manako. Will kill *for him*, not for the cause — which is the difference that eventually matters |
+| **THE SOLDIER** *(placeholder name)* | Ex-Directorate. Better trained than all six of them, and knows the ground because he used to teach it | A professional withdrawal, covered, entirely by the book — the institution's own doctrine, used against it | **He will not fire on children.** His code is his weakness and it is what eventually costs him | To get them out. Every fight is a recruitment pitch conducted with weapons |
+| **THE FIXER** *(placeholder name)* | Does not fight. Everything the cult does works because of him — venues, crates, permits, the crime partners | He left an hour ago | **Paper.** He is beaten by an audit, not a fight | The district the Directorate wrote off. He will explain it to a kid, once, calmly |
+| **THE YOUNG ONE** *(placeholder name)* | The only one who will kill | Walks off wounds that should stop him, because he genuinely does not care | **He is alone.** Nobody in the Cadre likes him and nobody will cover him | Took "witness is the goal" to its logical end and concluded it needs a body count to be taken seriously |
+
+**The Soldier is the Worthy Opponent and the Fixer is the aide with the real complaint** — the two archetypes from the Giant Robo sweep that this campaign's register can carry without strain. **The Young One is the escalation** (see §13), and he works precisely because the other three have a code and he does not, and Manako keeps him anyway.
+
+### How they scale
+
+*Confirmed 2026-09-13: each of them is rebuilt at whatever level the encounter needs, and gains a new trick each time the party meets them, so they stay a challenge and keep surprising the table.*
+
+**Rebuild, do not level up.** Take GM Core's creature-building bands for the level you want (`reference/tables/dc-and-check-math.json`) and restat them from scratch. A recurring antagonist met at party level +1 four times across a campaign is four different stat blocks and one character.
+
+**Constant in every version, without exception:**
+
+- The **signature ability** — the thing that makes them *them*. It gets better; it never changes shape.
+- The **escape**, and the fact that the party watches it work.
+- The **counter**. This is the promise. Once it is written down it does not move, and a party that works it out has genuinely solved them.
+- The **voice**.
+
+**Variable:** level, AC, HP, attack, damage, saves — and **exactly one new named ability per appearance.** One. The new trick is both the difficulty increase and the thing the party takes away from the fight, and two at once means they learn neither.
+
+**File convention** when these get statted: `data/antagonists/cadre/<name>--l<N>.json` against `creature.schema.json`, one file per appearance-level.
+
+---
+
+### The four, in full
+
+*Rebuilt 2026-09-13 after a correction from Ingram: **"you can't build four bad guys for a SF2E campaign and be gleeful that they don't have attacks. They need to be practical, interesting, flavoured SF2E bad guys and we can't get so wrapped up in the story that we make NPCs that are too weird to fight properly. At the moment we don't really need a stat block either, we need motivations, we need ideas and plans and character and catch phrases and ways of speaking and something to make them fun recurring baddies."** All four now fight, properly, in ways a table will enjoy. No stat blocks here on purpose — what follows is who they are, what they want, what they are secretly doing, and how they sound.*
+
+**All four came to Cicada the same way: somebody showed them something true and they could not un-see it.** That is the recruitment mechanism (§7) and it is why none of them are fanatics in the ordinary sense. They are not believers. They are witnesses.
+
+---
+
+#### KIRI — the Magician
+
+**How she knows Manako: he came to one of her shows.** She was a working illusionist on the guilty-pleasure circuit — small rooms, paying audiences, a career spent making people see things that were not there. He sat through it, and afterwards he showed her the lens and asked her to look. She looked.
+
+**A professional deceiver, shown something real, by a man who had been telling the truth for forty years and being called a liar for it.** They are mirror images and she has loved him ever since.
+
+**What she wants:** the shows to be *good*. She is the only person in Cicada who cares about the craft, and she is quietly insulted that the movement thinks of her work as a recruitment mechanism rather than as a performance that happens to be true.
+
+**Ulterior motive — succession.** She knows he is dying. He is old, he is frail, and nobody else in the Cadre has done the arithmetic. **She is quietly building something that survives him, and he does not know.** It is entirely loyal and it is also a betrayal in embryo, and if the party ever works it out they have a lever on the most dangerous person in the organisation.
+
+**How she fights:** an illusionist with a knife and no scruples about either. Misdirection first — figures that are not there, a room that is not the shape they think, a door where a wall is. Then mental damage, because what she does to people's perception genuinely hurts them. And when it comes to it she is very good with a blade, close, quickly, and apologetically. **She is not a support caster. She is a duellist who fights on a stage she built.**
+
+**Signature — The Understudy (reaction).** When she is hit, the figure struck is revealed to be somebody else: a local, paid or charmed, standing in since before the party arrived. The party now has an injured bystander on the floor and no idea where Kiri is.
+
+**Escape — Curtain.** The lights go. When they come back, the person on the ground is the stand-in.
+
+**Counter — stagecraft needs a stage.** Both require an accomplice placed in advance. **If the party picks the ground, she has neither.**
+
+**Voice.** She addresses everybody as an audience — "ladies and gentlemen" to six teenagers in a drain, entirely sincerely. She announces what she is about to do before she does it, which is stage patter and also a genuine tell the party can learn to read. She compliments them, meaning every word, while trying to kill them.
+
+> **"Watch my hands."** *(A courtesy. She means it. It has never once helped anybody.)*
+
+**Her tell: she stops performing.** Insult Manako in front of her and the theatre drops out of her voice completely. It is the most frightening thing she does and it takes one sentence.
+
+---
+
+#### THE SOLDIER
+
+**How he knows Manako: he was on the cordon the day it happened.** He was a young Directorate officer at the Envoy incident — the day Hori fired in fear and the round went through the Envoy and into a bystander. He helped secure the scene. **He helped file the report that recorded one deceased, unidentified.**
+
+He never knew the name. Nobody told him and he never asked, and that is the part he cannot put down. Years later somebody took him to a show, and he saw what had actually been standing in that street, and he understood exactly what he had helped bury.
+
+**What he wants:** for the count to stay at zero. Cicada's demonstrations have never killed anybody, that is doctrine, and he has appointed himself its enforcement. It is the only clean thing in his life.
+
+**Ulterior motive — he wants to be caught.** Not consciously, and he would deny it flatly. But he keeps letting them live, keeps talking instead of shooting, keeps turning up where they can find him. **He is serving the man whose life he helped ruin, as penance, and he has never confessed to anybody.** A man quietly arranging his own arrest.
+
+**How he fights:** like a professional, which in SF2E means he plays the system properly and beats them with it. Suppressive fire and area denial. Smoke and flashbangs rather than frag. Grapples, disarms, takes cover, Aids his own people, and disengages the moment the maths turns against him. **He is the enemy who teaches the party how the game is actually played.** Being knocked unconscious by him in a flooded drain is a real, frightening loss even though nobody dies.
+
+**Signature — he will not kill them.** Every Strike he makes against a PC is nonlethal. He can drop them; he never tries for more. They will work it out after the first fight, when they notice nobody was dying.
+
+**Escape — Withdraw by the Book.** Announced out loud, executed on a covered route he picked before the fight started, by the doctrine the Directorate taught him.
+
+**Counter — he will not fire on children.** The party can walk straight at him. It works. It should feel bad. And it only works while he still believes they are children.
+
+**Voice.** Instructional, because he was an instructor and cannot stop. He critiques their tactics mid-fight, helpfully. He calls them "Section Nine" — the same thing their own officer calls them, which the party should notice and nobody should explain. And he is sincerely recruiting them the entire time, without a trace of a trick in it.
+
+> **"Again."** *(What he says when they get it wrong. Also what he says before making them do it again.)*
+
+---
+
+#### THE FIXER
+
+**How he knows Manako: his crew died and nobody would read the file.** An industrial accident on the waterfront, signed off and filed by the Directorate inside a fortnight. He spent years trying to get an inquest — letters, forms, the correct channels, all of it, for years, to no reply.
+
+Then a shabby old chemist read all of it, start to finish, in one sitting, and asked him three questions about the third page.
+
+> **"He's the first man who ever read my paperwork."**
+
+**What he wants:** the movement to keep working. He is the reason it does — venues, crates, permits, the crime partners, the timing. He takes no pleasure in any of it and he is exceptionally good at it.
+
+**Ulterior motive — he is stealing.** Not for himself. He has been quietly diverting cult money to the families of his dead crew for years, through routes he built and audits himself. Manako does not know. **It is embezzlement in the service of decency and it will look appalling when it surfaces**, which it will, probably at the worst possible moment and probably to people who are inclined to be sympathetic right up until they see the numbers.
+
+**How he fights:** he is not a soldier and he is not a caster. **He is twenty-five years of moving heavy things for a living**, and he fights exactly like that — a cargo hook, a length of chain, a crowbar, and a complete working knowledge of how much everything in the room weighs. Shoves, trips, grapples. He puts people into the floor and the floor into people. And he does it on ground he has worked on since he was sixteen, so the winch, the shutter, the stacked crates and the gantry are all things he can reach.
+
+**He changes the battlefield *while* hitting people**, which is the correction: the environment is how he fights, not a replacement for fighting.
+
+**Escape — he leaves through a door that was always going to be there.** No trick. He knows the building.
+
+**Counter — an audit.** Beat him with bookkeeping and the whole network unravels without a fight. **Tell the players that is a legitimate way to win**, because a party that takes down a recurring antagonist with paperwork will talk about it for years.
+
+**Voice.** Unfailingly polite, faintly apologetic, and completely unhurried even mid-fight. He knows everybody's name, asks after their families, and means it. He is the only person in this campaign who has read the regulations — all of them.
+
+> **"It's already been signed for."** *(About anything he has arranged. Usually true.)*
+
+---
+
+#### THE YOUNG ONE
+
+**He is a Directorate Frame pilot, and the party knows him.**
+
+*Established 2026-09-13, Ingram: "The Young One should be a disguised fellow NPC mech pilot, turned to the Cultists by seeing a magic show, seeing the truth and coming to accept it."*
+
+A pilot-track student a year or two ahead of Section Nine. They eat in the same canteen. He has an opinion about their assignment. **And when they fight a masked cultist in a warehouse at two in the morning, they are fighting him, and they will not know for a long time.**
+
+**How he knows Manako: he went to a show.** He was shown the Watcher undeniably, given the honest choice the cult always gives, and he accepted what he had seen.
+
+**And this is the mirror that matters: Nozomi went to the same kind of show and walked out.** She was told she was working for the wrong side, and the next day she turned off her beeper and refused the draft. **He was shown the same thing and stayed inside.** Two people, one revelation, opposite choices — and the party's entire existence is a consequence of hers.
+
+Why he stayed: because he was useful where he was, because he told himself he could do more from inside, and because he was frightened. He has never worked out which of those is the real one.
+
+**What Cicada actually gets from him: intelligence.** Directorate movements, rosters, deployments, which sites are watched and when. He is not muscle. **He is why the heists work.**
+
+**The killing, and what it does to him.** He is at a heist because he is guiding it. Something goes wrong. He is twenty, he is not trained for this, and he kills somebody — panicked, fumbled, unintended. **And then he has to become a person who meant to.** The doctrine comes *afterwards*: the certainty, the talk about witness requiring a real cost, all of it constructed backwards to survive having done it.
+
+> **That is the campaign's thesis running in a third generation.** Manako panicked in a lab and built a religion on it. The Section Officer was hazed and passes it down. This boy panics in a warehouse and builds a belief on it. Nobody in this story has ever done anything evil; they flinch, and then they spend a life justifying the flinch.
+
+**Ulterior motive — he wants permission.** Somebody to tell him it was all right. Manako will not, and cannot, and is visibly embarrassed by him. **The party might**, which is a genuinely dangerous thing to put in their hands.
+
+**How he fights:** young, fast, athletic and reckless. Pilot-trained, so competent but not a specialist — he closes, he commits, and he does not manage his action economy because he is not thinking about it. **He gets more dangerous as he is hurt**, and the reason is not conviction: he has already done the worst thing he will ever do, and there is nothing left to frighten him with.
+
+**Escape — none.** He leaves when he is finished or he is dragged off by people who cannot stand him. **He is the one who can genuinely be beaten**, and he is meant to be.
+
+**Counter — he is alone.** No Aid, no flanking partner, no covering fire. The Cadre will not support him and it shows. Focus him and he goes down.
+
+**And the card held in reserve: he has a Frame.** At some point, if the campaign wants it, the party fights a Claimant and a Directorate Frame on the same field, and the Frame is on the wrong side, and it is somebody they have had lunch with.
+
+**Voice.** Over-formal when masked — he is performing a role he has only seen in his head, and the register is slightly too big for him. Completely ordinary out of it. **The party should be able to recognise the voice before they are told**, and the GM should let them.
+
+> **He quotes Manako, slightly wrong.** Always. The way a fan misquotes a favourite line — close enough that it is clearly the source, off enough that it means something different. Manako has noticed. It is one of the very few things that makes him wince.
+
+---
+
 **KIRI (the Magician)** — stage name; *mist*. Runs the recruitment shows, which puts them among the Faithful publicly. **Privately, inner circle** — combat-capable, and volunteers for the missions where Manako settles old scores. Has a dull real name in a Directorate file somewhere. **Shares a craft and possibly a teacher with RUPIAH**, who can identify Kiri's technique from a witness description — which makes the Directorate's public face useful and implicates his own past in the same breath. Kiri is the cleanest illustration in the cast that the Faithful/Cadre line runs through individual people, not just through separate groups.
 
 **NAO (the Classmate)** — a kid at the party's own school. **Not a spy, not hostile, never watched anyone, betrayed nobody.** Went to a strange magic show because a stranger in a bar asked. Their dossier is the one that lands.
@@ -301,7 +455,89 @@ The drift must be gradual enough that nobody spots the pattern until it is alrea
 
 ---
 
-## 13. Open Questions
+## 13. The Arc — and why it is the campaign's arc
+
+*Recorded as fact 2026-09-13. If defeating him — which does not mean killing him — is what ends the threat to the city, then his arc is the adventure's arc. This section is the spine.*
+
+### 13.1 The five movements
+
+**Each turn is caused by the party.** He does not escalate on a schedule; he escalates because of things they do.
+
+| | State | What he wants | What turns it |
+|---|---|---|---|
+| **I. The Patient Man** | Serene, kind, forty years in, in no hurry. He has time, and he has been right all along | To be believed | Somebody finally takes him seriously |
+| **II. The Delighted Man** | Energised, generous, dangerously flattered. He helps them. He corrects their mistakes. He is enjoying himself enormously | To be *understood*, which is more than believed | They start winning. Assets fall. Someone talks |
+| **III. The Cornered Man** | Brittle. The patience is gone. Old, out of time, and noticed by the wrong audience | To finish before he dies | The humiliation — he learns he is a subcontractor, not a prophet (§8) |
+| **IV. The Frightened Man** | He has begun to suspect the echo. Not calculating any more — *avoiding* | For it not to be true | He is shown. Not told, not argued with, not beaten |
+| **V. The Useful Man** | Broken, then conscripted | Nothing. He is past wanting things | — |
+
+**Movement IV is the dangerous one**, and in a new way: he does large, loud, expensive things specifically to make the question unaskable. That is not a plan. It is a man shouting.
+
+**Movement V is redemption as labour** (§4), performed in front of everyone he hurt. Not forgiveness.
+
+### 13.2 The Claimants are his mood ring
+
+**This is the mechanism that makes him structurally rather than thematically load-bearing.**
+
+The Observer has no personality; it has his (§4, and `dossier-observer.md` §4). Its targeting is his grief doing the choosing. So **the Claimants are downstream of his emotional state**, and the escalation curve and his arc are the same curve:
+
+| Movement | What manifests |
+|---|---|
+| **Patient** | Aimless, near-random, almost gentle. It does not know what it is for |
+| **Delighted** | **Demonstrative.** Showy, theatrical, arriving where crowds are, performing to be seen |
+| **Cornered** | Panicked and wasteful. Destruction without shape |
+| **Frightened** | Enormous and incoherent — the same shouting, at scale |
+
+The party spends the campaign reading one man's psychological deterioration in the shape of the monsters, and does not know that is what they are doing.
+
+**And it gives the puzzle-combat model its content.** *What is it doing?* has a real answer that is not monster biology — it is trying to make the loudest thing stop, or it has come where people gather to be looked at. *What must we not do?* has a real answer — **hit it harder**, because every dispersal confirms *manifest, and they attack*. *How do we beat it?* becomes: answer the sentence. Each Claimant's counter is a fact about a man, and the party assembles a portrait by fighting his moods.
+
+### 13.3 The escalation engine — the party corners him
+
+**The ramp is not ambition. It is desperation, and the Directorate causes it.**
+
+> The party finds a stencil → traces a supplier → catches a courier → the Directorate starts genuinely winning → **his timeline compresses**, because he is old and cannot replace what he loses → riskier sites, bigger doses, assets he would never have spent a year ago → **he stops asking the Cadre how they got the precursors** → the Young One kills someone during a heist → he finds out afterwards and does nothing, **and that is the moment he becomes culpable** → and every extra dose advances the Mass Clock, which is the actual deadline.
+
+**The party's competence is what creates the danger.** Which rhymes exactly with the Observer, where every victory teaches it that fighting was correct. Both halves of the campaign punish force, for different reasons, and in neither case is it the GM saying no.
+
+### 13.4 He is a reliable narrator of everything except the only thing that matters
+
+**Why unlimited contact with him is safe.** The secret is not that he runs Cicada — the party should get that reasonably early and it costs nothing. The secret is that the thing has no will and is echoing him. **He cannot leak it, because he does not know it**, and his entire identity depends on not knowing it (§4).
+
+So he talks freely, sincerely, accurately — and everything he says builds the *wrong model*, held more confidently the more time they spend with him. **Intimacy deepens the error.** The truth lives elsewhere: in Hori, in the museum fragment, in the sceptics, and in the cloud's own behaviour.
+
+He will not tell them it is wreckage. He would deny it, and mean it.
+
+### 13.5 Nobody knows who he is, and the discovery belongs to the players
+
+*Resolved 2026-09-13, LEDGER #17.*
+
+**The Directorate has never identified Cicada's founder.** They have a movement, demonstrations, stencils, arrests and a filing cabinet of detained believers — and **no name at the top.** There is no sealed file, no restricted record, no redaction. The gap is real: the institution genuinely does not know, and has never known.
+
+Two consequences, and they matter more than they look.
+
+**His name is safe to give the table.** A day-one records search on the old man in the tea house returns a chemist disgraced decades ago and nothing else. Give a player his name the moment they ask for it, plainly and without weight — the later recognition, when it turns up in a discredited paper, **only lands if it was in their notes all along.**
+
+**And both halves of the discovery belong to the players.** This is a standing rule, not a preference:
+
+1. **The party must be the ones to work out that there is a key figure behind Cicada at all** — that the movement has an author. No NPC tells them. No file says so. The Directorate cannot tell them because the Directorate does not know.
+2. **The party must be the ones to connect that figure to the kind old man from their first afternoon in the city.** Nobody points at him. Nobody hands them the photograph.
+
+*The Original Cultist* is the working label for the unidentified founder (`data/campaign/naming-placeholders.json#the-original-cultist`, not final). It is worth noticing that any such label is one the party or the institution **invented for a gap in a file** — a case number for a man nobody has a name for, which is its own quiet piece of characterisation.
+
+**Why this is the right rule.** A reveal that is delivered is information. A reveal the players assemble is an accusation they have to make themselves, about someone they liked, using evidence they gathered — and then they have to decide what to do about it. That is the difference between being told a twist and being responsible for one.
+
+### 13.6 The channel
+
+**First met in Session One**, in the city, as a retired chemist who reads a two-century-old catalogue name off a Directorate docket in nine seconds (`data/scene-briefs/episode-c1s1--the-errand.json`). He is kind, useful, and says one true thing about the Directorate (`dossier-the-directorate.md` §5).
+
+**He leaves them a way to reach him**, and it is sincere: this is what he does with anyone he thinks might actually look, and it aligns exactly with a forty-year crusade whose entire object is to be asked a question. It is deliberately slow, public and written — a message book in a tea house, not a private line.
+
+**And the Directorate reads it**, as routine policy the party consented to on their first morning without reading the form. Later in the campaign the institution acts on those intercepts, at a moment the players did not choose, using information the players generated, wrecking a plan the players had. Nobody betrays anybody; a clerk does a filing job. See `dossier-the-directorate.md` §2.7.
+
+---
+
+## 14. Open Questions
 
 1. Does Manako learn about the heist loop before or after the party stops him — and does he learn about Nobu in the same conversation or a different one?
 2. **AOI's ancestry and history.** They exist so far only as a death and a name.
