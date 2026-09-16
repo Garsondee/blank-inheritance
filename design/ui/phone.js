@@ -201,8 +201,12 @@ const bleedState = Object.fromEntries(FRAME_NUMBERS.map((n) => [n, 0]));
 // duration every time any other pilot's Bleed changed.
 const bleedBerserkDuration = {};
 
-// data/episodes/episode-01-contact-unclassified.json's own scenes,
-// verbatim order and titles — the concrete case terminal-login-landing-
+// Demo scene data for the director's panel. These nine were lifted verbatim
+// from episode-01-contact-unclassified, an episode deleted 2026-09-13 along
+// with every drafted beat beyond Session 0/1 — the beats themselves are still
+// good and are kept here as prototype fixture data, but they are NOT campaign
+// content any more and nothing should be built from them as if they were.
+// The concrete case terminal-login-landing-
 // page's own director's-panel design (§7) describes: a scene list, each
 // with a Cue action. Real Scene#activate() needs a live Foundry world;
 // this mocks the interaction (a banner + a brief scene-image swap) so

@@ -3,6 +3,7 @@
   "id": "config",
   "twoTracksPrinciple": "Every pilot runs on two independent numbers, Resonance and Bleed. Neither ever produces a numeric combat bonus larger than +2 — the difference between a well-synced and poorly-synced pilot is what they're allowed to do, not how good they are at doing it.",
   "resonance": {
+    "status": "NEEDS REWORK - not playable as written. Flagged by Ingram 2026-09-13: Resonance requires substantial work before it is functional, interesting or playable. The numbers below are the existing draft, retained so the rebuild has a starting point; they are NOT authoritative and nothing new should be built on top of them. See open-questions.json#resonance-playability and design/resonance-and-bleed.md.",
     "range": { "min": 0, "max": 100 },
     "bands": [
       {
@@ -60,6 +61,7 @@
     }
   },
   "bleed": {
+    "status": "NEEDS REWORK - not playable as written. Flagged by Ingram 2026-09-13 alongside Resonance. The existing investigation already found why: four inflows, one undefined outflow, one threshold across ten points, so points 1-9 do nothing. The numbers below are the existing draft, retained as a starting point; they are NOT authoritative. See open-questions.json#bleed-playability and design/resonance-and-bleed.md.",
     "min": 0,
     "max": 10,
     "sources": [

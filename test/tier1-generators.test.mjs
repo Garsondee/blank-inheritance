@@ -169,37 +169,55 @@ test("validateJournalEntry: a missing page is reported as a failed check, not si
   assert.ok(failed.length > 0, "dropping a page must surface at least one failed check");
 });
 
-test("episodeToJournalSource: a real episode with authored scenes (episode-01) produces one overview page plus one page per scene", async () => {
-  const episode = readRealData("episodes/episode-01-contact-unclassified.json");
+test("episodeToJournalSource: a real episode with authored scenes (Session One) produces one overview page plus one page per scene", async () => {
+  // Repointed 2026-09-13 from episode-01-contact-unclassified, which was deleted
+  // along with every other drafted beat beyond Session 0/1. Session One is now
+  // the only real episode in the repo, and is the better fixture anyway: it is
+  // the one we actually intend to run.
+  const episode = readRealData("episodes/episode-c1s1-mothers-maiden-name.json");
   const source = episodeToJournalSource(episode);
 
-  assert.equal(source.id, "episode-01-contact-unclassified");
-  assert.equal(source.name, "Contact, Unclassified");
+  assert.equal(source.id, "episode-c1s1-mothers-maiden-name");
+  assert.equal(source.name, "Mother's Maiden Name (Again)");
   assert.equal(source.pages.length, 1 + episode.scenes.length, "one overview page plus one per authored scene");
   assert.equal(source.pages[0].id, "overview");
-  assert.match(source.pages[0].content, /Only one Frame launches/, "overview page must include the episode summary");
-  assert.match(source.pages[0].content, /Hand the pilot role/, "overview page must include the casting note");
+  assert.match(source.pages[0].content, /Six volunteers/, "overview page must include the episode summary");
+  assert.match(source.pages[0].content, /Make the table love Taka/, "overview page must include the casting note");
 
-  const fightPage = source.pages.find((p) => p.id === "scene-7");
-  assert.ok(fightPage, "expected a page for scene 7 (the fight)");
-  assert.equal(fightPage.name, "7. The fight");
-  assert.match(fightPage.content, /Bleed hits 10/, "scene page must include the scene's own description");
-  assert.match(fightPage.content, /day-1-the-fight/, "scene page must surface its encounterRef");
-  assert.match(fightPage.content, /day-1-ground-layer/, "scene page must surface its subsystemRef");
+  // Session One's scenes carry their own `id`, so the page is keyed on that
+  // rather than falling back to `scene-${order}`. The old fixture had no scene
+  // ids at all, so this branch of journal.mjs was never actually covered.
+  const fightPage = source.pages.find((p) => p.id === "flood-tunnel");
+  assert.ok(fightPage, "expected a page for the flood tunnel scene, keyed on the scene's own id");
+  assert.equal(fightPage.name, "6. Flood Tunnel Clearance");
+  assert.match(fightPage.content, /Giant Centipedes/, "scene page must include the scene's own description");
+  assert.match(fightPage.content, /c1s1-flood-tunnel/, "scene page must surface its encounterRef");
+  assert.match(fightPage.content, /c1s1-compactor-cycle/, "scene page must surface its subsystemRef");
 
   // This is real prose, so it must actually build into a valid JournalEntry, not just look right.
   const data = await buildJournalEntryData(source);
   assert.equal(data.pages.length, source.pages.length);
 });
 
-test("episodeToJournalSource: an episode with no authored scenes yet (the interlude) still produces a real overview page, not an empty journal", () => {
-  const episode = readRealData("episodes/interlude-days-2-5-the-squeeze.json");
-  const source = episodeToJournalSource(episode);
+test("episodeToJournalSource: an episode with no authored scenes yet still produces a real overview page, not an empty journal", () => {
+  // Was the Days 2-5 interlude until 2026-09-13, when every drafted beat beyond
+  // Session 0/1 was deleted. The behaviour is still worth pinning -- an episode
+  // stub must render honestly rather than fabricating scenes -- so it keeps a
+  // synthetic fixture instead of borrowing whichever real file happens to be
+  // half-written. requiredBeats is GM-facing prose and must render;
+  // danglingThreads is a bare cross-reference id list and must not.
+  const source = episodeToJournalSource({
+    id: "episode-stub",
+    title: "A Stub",
+    summary: "Mandatory school and training eat most of each day.",
+    requiredBeats: ["Seed exactly one dangling thread. Don't resolve it yet."],
+    danglingThreads: ["who-was-meant-to-pilot"],
+  });
 
   assert.equal(source.pages.length, 1, "no scenes authored yet -- exactly the overview page, honestly, not a fabricated one");
   assert.match(source.pages[0].content, /Mandatory school/);
   assert.match(source.pages[0].content, /Seed exactly one dangling thread/, "requiredBeats must be rendered as prose, since they're real GM-facing content, not just a cross-reference id");
-  assert.doesNotMatch(source.pages[0].content, /who-was-meant-to-pilot-day-1/, "danglingThreads is a bare cross-reference id list, not prose -- must not be dumped into the journal as if it were");
+  assert.doesNotMatch(source.pages[0].content, /who-was-meant-to-pilot/, "danglingThreads is a bare cross-reference id list, not prose -- must not be dumped into the journal as if it were");
 });
 
 test("episodeToJournalSource: HTML-special characters in prose are escaped, not injected as markup", () => {

@@ -18,7 +18,8 @@
       "question": "Does the Day 1 pilot get a genuine, viable option to sit out the second Contact? If yes, what does refusal actually cost — and is it survivable as a choice, or does the story punish it into a non-choice?",
       "status": "open",
       "resolution": null,
-      "relatedRefs": ["episodes/episode-02-second-contact.json"]
+      "relatedRefs": [],
+      "notes": "STALE FRAMING, 2026-09-13: this question was written about a specific deleted beat (the 'second Contact' on Day 6, episodes/episode-02-second-contact.json, removed along with every drafted beat beyond Session 0/1). The underlying question is still a good one and is now MORE live, not less - can a player decline a deployment, and does the campaign punish that into a non-choice - but it needs re-framing against whatever replaces it. Do not answer it in terms of Day 6."
     },
     {
       "id": "frame-class-assignment",
@@ -59,7 +60,8 @@
       "question": "Do the other five know the pilot in scene 7 (Episode One) is one of their own, or do they just see a machine? Ignorance is more frightening; knowledge is more binding.",
       "status": "open",
       "resolution": null,
-      "relatedRefs": ["episodes/episode-01-contact-unclassified.json"]
+      "relatedRefs": [],
+      "notes": "STALE FRAMING, 2026-09-13: 'scene 7 (Episode One)' was a beat in episodes/episode-01-contact-unclassified.json, deleted along with every drafted beat beyond Session 0/1. The question itself - do the kids on the ground know the pilot is one of their own - survives the deletion and should be asked again of whatever the first Frame-scale encounter turns out to be (open-questions.json#session-two-shape). It is also entangled with ground-roles-viability, since 'the other five' presumes ground roles exist."
     },
     {
       "id": "ancestry-reveal-justification",
@@ -95,8 +97,8 @@
       "question": "Confirmed (2026-09-06) that resting is a real, encouraged, multi-typed choice with different SF2E-relevant bonuses per type — a quiet option weighted toward HP recovery, hospital care targeting HP and debuffs, a social outing (clubbing/karaoke) for a different kind of bonus, and more. The structure is settled; the actual roster of named rest activities and their specific mechanical bonuses is explicitly future collaborative design, not something to invent to look complete.",
       "status": "open",
       "resolution": null,
-      "relatedRefs": ["campaign/config.json#timeEconomy.options", "design/ux-doctrine.md#downtime-is-the-segment-mechanic", "design/downtime-activities.md"],
-      "notes": "Closely linked to fatigue-escalation-formula. A concrete proposal exists (2026-09-06, design/downtime-activities.md §2): Lights Out (Long-Term Rest's real doubled HP recovery), Sick Bay (real Treat Wounds numbers), Night Out (−1 Bleed + a circumstance bonus, since Bleed's own sources already include psychological distress), plus Workshop offered as a fourth illustrative option. Not confirmed — a researched suggestion, not a decision."
+      "relatedRefs": ["campaign/config.json#timeEconomy.options", "design/ux-doctrine.md#downtime-is-the-segment-mechanic", "design/downtime-activities.md", "ideas/entries/group-downtime-activity-voting.json", "ideas/entries/location-discovery-and-recovery-risk.json"],
+      "notes": "Closely linked to fatigue-escalation-formula. A concrete proposal exists (2026-09-06, design/downtime-activities.md §2): Lights Out (Long-Term Rest's real doubled HP recovery), Sick Bay (real Treat Wounds numbers), Night Out (−1 Bleed + a circumstance bonus, since Bleed's own sources already include psychological distress), plus Workshop offered as a fourth illustrative option. Not confirmed — a researched suggestion, not a decision. A 2026-09-13 wishlist idea (ideas/entries/group-downtime-activity-voting.json) proposes what happens when several players pick Night Out the same evening: a shared venue vote plus cross-session prerequisite gating between venues — unbuilt, not yet reflected in the roster above. A 2026-09-14 follow-up (ideas/entries/location-discovery-and-recovery-risk.json) proposes the roster's venues aren't fully known upfront — better destinations get discovered through play, plus a purchasable random-location item — and that some recovery picks should carry real risk instead of pure upside. Both wishlist, both unbuilt."
     },
     {
       "id": "bleed-intermediate-thresholds",
@@ -207,8 +209,48 @@
       "question": "The Day 1 pilot's injury is now reduced starting Hit Points at personnel scale (resolved 2026-09-06, see day1-pilot-slice-penalty-scaling). The shape is decided; the number is not \u2014 how much HP, and is it a flat reduction, a percentage, or a specific ability-score/class-feature change?",
       "status": "open",
       "resolution": null,
-      "relatedRefs": ["design/campaign-arc.md#design-principle-penalties-cost-risk-never-choice", "data/episodes/episode-01-contact-unclassified.json", "ideas/story/bible/LEDGER.md#10", "design/induction-terminal.md"],
+      "relatedRefs": ["design/campaign-arc.md#design-principle-penalties-cost-risk-never-choice", "ideas/story/bible/LEDGER.md#10", "design/induction-terminal.md"],
       "notes": "Deliberately not invented here \u2014 this is a real balance number for a specific named character beat, not something to guess at. Confirmed 2026-09-10 (LEDGER.md #10): this is a player-CHOSEN chargen option (\"the Day 1 pilot\"/\"veteran\" start), not an assigned narrative role, and the pilot also starts exhausted from their duties on top of the reduced HP \u2014 a plausible fit for the Exhaustion track (design/downtime-activities.md \u00a71, itself still a proposal). The induction terminal has no branch for this path yet; still needs this number before that branch can be built."
+    },
+    {
+      "id": "manako-records-visibility",
+      "question": "Does a Directorate records search on day one find Manako, and under what name? dossier-cicada.json section 5 says he appears in every document as a terrorist, which - if true and searchable by trainees - lets a curious party shortcut the entire campaign in Session One, the same afternoon they meet him.",
+      "status": "resolved",
+      "resolution": "Resolved 2026-09-13 (LEDGER #17), option (a) and then strengthened. THE DIRECTORATE HAS NEVER IDENTIFIED CICADA'S FOUNDER. They have a cult, demonstrations, arrests and a cabinet of detained believers, and no name at the top. A day-one search on the old man returns a chemist disgraced decades ago and nothing else, because that is genuinely all the institution has - not because the file is restricted. His name is therefore SAFE to give the table freely, and should be, since the later recognition depends on it having been in their notes all along. Ingram then went further and made it a standing rule: 'the rule should be that it is the player characters who must first identify that The Original Cultist is a key figure in the organisation and they must be the ones to find out it's the kindly man they met during the first session.' Both halves of that discovery belong to the players. No NPC hands them either one.",
+      "relatedRefs": ["ideas/story/dossier-cicada.md", "ideas/story/dossier-the-directorate.md", "data/scene-briefs/episode-c1s1--the-errand.json"],
+      "notes": "Raised 2026-09-13 while writing The Errand, the Session One scene where the party meets him. The four-pass reveal is designed so his name turns up later in a discredited paper and is ALREADY FAMILIAR, which is the gut-punch - that only works if a day-one search returns nothing useful. Three ways out, not chosen here: (a) the Directorate has never identified Cicada's founder at all, and 'appears as a terrorist' describes the movement rather than the man; (b) he is on file under the name he was disgraced under, which is not the name the tea house knows him by; (c) the file exists and trainees have no access to it on day one, which is true of almost everything else they will want. Option (a) is the cleanest and has knock-on effects for what the Directorate knows in later chapters, so it is Ingram's call rather than a detail to settle in a scene brief."
+    },
+    {
+      "id": "ground-roles-viability",
+      "question": "Do the five ground roles survive at all, and if so in what form? Raised by Ingram 2026-09-13: 'Umbilical Control as an idea sounds like a player not getting involved and having fun, ground-roles may need completely removing or at least realigning with a SF2E campaign's need to give each player agency over their role and actions.'",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/ground-roles.json", "data/schema/ground-roles.schema.json", "design/scale-and-chassis.md", "ideas/story/blank-inheritance-ch1-v2.md#8", "data/subsystems/day-1-ground-layer.json"],
+      "notes": "Three separate problems, worth keeping distinct. (1) AGENCY: Umbilical Control converts a kid's successful check into a resource for somebody else's Frame, and Signals Liaison spends a turn adjusting another player's track - both are a player taking an action whose entire payoff lands on a different player's sheet. That is the specific complaint. (2) DEPENDENCY: two of the five (Umbilical Control, Signals Liaison) only exist when a Frame is on the field, so a player who picks one has a job that cannot come up in a personnel-scale session at all. (3) REACH: 'ground role' appears across 84 files as of 2026-09-13, including the kid schema, the equipment catalogue, the six draft kids, the induction prompts, the battle simulator's whole ground-layer and its six kid fixtures, and data/subsystems/day-1-ground-layer.json. Removing them is not a delete, it is a project. Nothing has been removed; the concept is flagged only. THE STANDING REQUIREMENT, from the same message: this is a heavily modified SF2E campaign first, so every player must have real agency over their own role and actions, and no design should stray from what makes a good SF2E table experience."
+    },
+    {
+      "id": "resonance-playability",
+      "question": "Resonance needs substantial work before it is functional, interesting or playable. What does it actually become? Flagged by Ingram 2026-09-13 alongside Bleed.",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["design/resonance-and-bleed.md", "campaign/config.json#resonance", "design/research/evangelion/the-machine-and-the-pilot.md#5"],
+      "notes": "Supersedes the previous framing in which Resonance was treated as locked and authoritative (CLAUDE.md carried that claim until 2026-09-13, when it was corrected). The existing investigation already found the hard numbers: a 5.7x spread in total combat contribution from the lowest band to the highest before ability tiers count, and 'most of the campaign is played at 2 actions' inside a system architecturally built for three. Those findings stand and are the starting point, not the conclusion. Do NOT import Evangelion's answers here - see the standing warning in design/research/evangelion/the-machine-and-the-pilot.md section 5. The existing open questions two-action-default and resonance-band-spread are recorded as resolved; re-read them before assuming any part of this is settled, since a rebuild may reopen them."
+    },
+    {
+      "id": "bleed-playability",
+      "question": "Bleed needs substantial work before it is functional, interesting or playable. What does it actually become? Flagged by Ingram 2026-09-13 alongside Resonance.",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["design/resonance-and-bleed.md", "campaign/config.json#bleed", "design/campaign-arc.md#design-principle-penalties-cost-risk-never-choice", "ideas/entries/location-discovery-and-recovery-risk.json"],
+      "notes": "The existing investigation's finding stands as the starting point: four inflows, one undefined outflow, and a single threshold across ten points, so points 1-9 currently do nothing and the berserk state arrives on a schedule rather than as a managed risk. Four older Bleed questions are still open underneath this one (bleed-intermediate-thresholds, bleed-recovery-sinks, suppression-intent-vs-pattern, hero-points-vs-berserk) and should be answered as part of the same rebuild rather than separately. Check any proposal against 'penalties cost risk, never choice'. A 2026-09-14 wishlist idea (ideas/entries/location-discovery-and-recovery-risk.json) wants some recovery activities to carry real risk rather than pure upside — deliberately written currency-agnostic rather than assuming Bleed survives this rework; worth checking once this question resolves."
+    },
+    {
+      "id": "session-two-shape",
+      "question": "Session Two is agreed in shape and unwritten: a Frame/vehicle-scale training exercise interrupted by a real call-out, the team sent to something live part-way through a safe scheduled drill, before they are ready. What is the actual encounter, and what is the enemy?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["ideas/story/blank-inheritance-ch1-v2.md#8", "design/scale-and-chassis.md", "design/research/evangelion/the-enemy-as-puzzle.md"],
+      "notes": "Direction given by Ingram 2026-09-13 ('a classic trope'). Blocked on ground-roles-viability: a Frame-scale encounter is exactly where ground roles either earn their place or get cut, so writing the encounter first would bake in a system that may not survive. Ingram also stated a preference, 2026-09-13, for enemies built as puzzles - work out what it is doing, what it is strong at, what not to do against it, then beat it by out-thinking it and through teamwork rather than brute force. The worked catalogue for that shape is design/research/evangelion/the-enemy-as-puzzle.md."
     }
   ]
 }

@@ -1,5 +1,17 @@
 # Resonance and Bleed — a design investigation
 
+> ## ⚠ Both systems are flagged NEEDS REWORK, 2026-09-13
+>
+> Ingram: *"Bleed and resonance should be marked as concepts which need a lot of work doing to them to make them functional/interesting or playable."*
+>
+> **Neither is playable as written, and neither is authoritative.** CLAUDE.md carried a claim that this material was "locked and safe to treat as authoritative" until 2026-09-13; that claim was wrong and has been corrected. Nothing new should be built on these numbers, and the drafted Chapter One sessions that were built on them have been deleted rather than patched.
+>
+> **This document keeps its full value as the starting point for the rebuild** — its findings are the clearest statement of what is wrong, and they were arrived at by running arithmetic nobody had run. Read it as a diagnosis, not as a specification.
+>
+> Tracked as `open-questions.json#resonance-playability` and `#bleed-playability`. The four older Bleed questions (`bleed-intermediate-thresholds`, `bleed-recovery-sinks`, `suppression-intent-vs-pattern`, `hero-points-vs-berserk`) should be answered as part of the same rebuild rather than separately.
+>
+> **One standing warning carried over from the research shelves:** do not import Evangelion's answers here. See `design/research/evangelion/the-machine-and-the-pilot.md` §5 — its synchronisation ratio and its berserk state look like ours and are a different design.
+
 **Status: analysis, with three recommendations since adopted.** Requested 2026-09-06: work out
 whether these two are a good fit, how they fit, what needs reconsidering, what they do to the story,
 and whether they produce interesting decisions. Everything critical below is offered in that spirit
@@ -22,8 +34,9 @@ and whether they produce interesting decisions. Everything critical below is off
 
 Sources read: `design/design-bible.md` (the original two-tracks pitch), `data/campaign/config.json`,
 `data/campaign/ground-roles.json`, `data/campaign/gm-notes.json`,
-`data/episodes/episode-01-contact-unclassified.json`, `design/scale-and-chassis.md` §7, and SF2E's
-own Hero Points and dying/wounded rules for comparison.
+`design/scale-and-chassis.md` §7, and SF2E's own Hero Points and dying/wounded rules for
+comparison. *(A fifth source, the Day 1 episode file, was deleted 2026-09-13 with every other
+drafted beat beyond Session 0/1; the readings taken from it stand.)*
 
 ---
 

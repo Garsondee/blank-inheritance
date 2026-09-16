@@ -398,63 +398,27 @@ test("every handoutRef resolves, so a reveal control is never wired to nothing",
   }
 });
 
-test("the morning's docket really does read twelve, and really does fall when spent", () => {
-  const brief = realBrief("episode-05-head-height--morning-the-sweep");
-  const docket = readJson(new URL("../data/subsystems/head-height-docket.json", import.meta.url));
-  assert.equal(brief.clockRef, docket.id, "the brief points at the subsystem that carries its clock");
+// Four tests were removed here on 2026-09-13: the morning docket's clock, the
+// hall's authored fork, the lens's per-location hidden modifier, and the drift
+// guard between the two copies of that lens table. All four asserted against
+// the Session Five "Head Height" scene briefs, which were deleted along with
+// every other drafted beat beyond Session 0/1. The engine behaviour each one
+// exercised is still covered above by the inline-fixture tests -- clocks and
+// thresholds, fork resolution, and hiddenAdjustment's per-location precedence.
+// What was lost with them is real-data coverage, and it comes back the moment
+// there is real data again to point at.
 
-  const fresh = sceneRunnerState({ brief, subsystem: docket, runState: emptyRunState() });
-  assert.equal(fresh.clock.current, 12);
-  assert.ok(fresh.spends.length >= 4, "the authored ways to spend a wall are offered as controls");
-
-  const after = sceneRunnerState({
-    brief,
-    subsystem: docket,
-    runState: { ...emptyRunState(), spent: ["map-the-sightings", "chase-the-supplier", "interview-a-shopkeeper"] }
-  });
-  assert.equal(after.clock.current, 6, "12 - 2 - 3 - 1");
-  assert.equal(after.clock.crossed.length, 1, "half the shift gone is an authored threshold at 6");
-});
-
-test("the bike shed is solo, and nothing else in the morning is", () => {
-  // The one beat in the session that must not reach the table. If this ever
-  // becomes `table`, six people read a secret meant for one.
-  const brief = realBrief("episode-05-head-height--morning-the-sweep");
+test("the flag is solo, and nothing else in Intake Medicals is", () => {
+  // Repointed 2026-09-13 from the deleted Head Height morning brief to Session
+  // One, which carries the only solo beat left in the repo -- and a much more
+  // load-bearing one. Each kid is told privately that their blood screen came
+  // back irregular; the whole session turns on them working out afterwards
+  // that it happened to all six. If this beat ever becomes `table`, six people
+  // read at once what each of them was supposed to hear alone, and the scene's
+  // own climax is spent before it starts.
+  const brief = realBrief("episode-c1s1--intake-medicals");
   const solo = brief.beats.filter((b) => b.delivery === DELIVERY.SOLO);
-  assert.deepEqual(solo.map((b) => b.id), ["the-bike-shed"]);
-});
-
-test("the hall's fork opens exactly one way per outcome, against the real authored data", () => {
-  const brief = realBrief("episode-05-head-height--noon-the-hall");
-  const onSuccess = beatsWithState(brief, { ...emptyRunState(), ticked: { "engage-kudo": { degree: "success" } } });
-  const byId = Object.fromEntries(onSuccess.map((b) => [b.id, b.state]));
-  assert.equal(byId["kudo-gives-the-name"], BEAT_STATES.ACTIVE);
-  assert.equal(byId["kudo-brushes-them-off"], BEAT_STATES.NOT_TAKEN);
-});
-
-test("the lens's hidden modifier is authored per location and never flat", () => {
-  const evening = realBrief("episode-05-head-height--evening-what-to-do-with-it");
-  const [lens] = evening.gmModifiers;
-  const base = 18; // head-height-the-lens's authored DC
-
-  const here = hiddenAdjustment(evening.gmModifiers, { challengeRef: "head-height-the-lens", locationKey: "evening-what-to-do-with-it" });
-  const row = hiddenAdjustment(evening.gmModifiers, { challengeRef: "head-height-the-lens", locationKey: "night-cannery-row" });
-  const square = hiddenAdjustment(evening.gmModifiers, { challengeRef: "head-height-the-lens", locationKey: "founding-day-square" });
-
-  assert.equal(postedDc(base, here), 17);
-  assert.equal(postedDc(base, row), 15, "Cannery Row is the +3 the script calls for");
-  assert.equal(postedDc(base, square), 10, "Founding Day is +8 and they will not have brought it");
-  assert.ok(lens.note.includes("NEVER"), "the modifier carries its own do-not-show warning");
-});
-
-test("the night scene carries the same lens table as the evening, id for id", () => {
-  // Duplicated on purpose today — a modifier spanning scenes has no
-  // campaign-level home yet. This test is what makes the duplication safe:
-  // the two copies cannot drift without going red.
-  const evening = realBrief("episode-05-head-height--evening-what-to-do-with-it").gmModifiers.find((m) => m.id === "lens-density");
-  const night = realBrief("episode-05-head-height--night-cannery-row").gmModifiers.find((m) => m.id === "lens-density");
-  assert.ok(evening && night);
-  assert.deepEqual(night.byLocation, evening.byLocation, "the two copies of the lens table have drifted apart");
+  assert.deepEqual(solo.map((b) => b.id), ["the-flag"]);
 });
 
 test("an artefact is not held until it is granted, and granting is one-way", () => {

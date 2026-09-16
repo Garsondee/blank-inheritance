@@ -951,9 +951,11 @@ stepping including the hulked/operational caps, Bleed clamping and berserk, all 
 - **Bleed Board** — explicitly marked GM-only in its own UI (`config.json`'s `pilotVisibility` for
   Bleed is still `null`, an open question this pass does not resolve), 0–10 per pilot, berserk at
   10 with a real rolled 1d4-round duration held steady until the pilot steps back down.
-- **Scene Cues** — Episode 1's real nine scenes (`data/episodes/episode-01-contact-unclassified
-  .json`), mocking the cue action a live Foundry `Scene#activate()` will eventually perform for
-  real (`design/foundry-module-design.md` §7).
+- **Scene Cues** — a real episode's scene list (originally Episode 1's nine; that episode was
+  deleted 2026-09-13 and the prototype's copy is now fixture data — Session One,
+  `data/episodes/episode-c1s1-mothers-maiden-name.json`, is the live equivalent), mocking the cue
+  action a live Foundry `Scene#activate()` will eventually perform for real
+  (`design/foundry-module-design.md` §7).
 
 **One real bug found live, not a screenshot artifact this time.** The first version of this pass
 added "False Contact" as a third chassis-panel bank (three lettered buttons, next to the existing

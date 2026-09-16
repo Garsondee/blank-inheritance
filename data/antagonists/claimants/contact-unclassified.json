@@ -2,6 +2,7 @@
   "$schema": "../../schema/creature.schema.json",
   "id": "contact-unclassified",
   "type": "creature",
+  "provenance": "KEPT as a real entity, 2026-09-13. This Claimant was built for episode-01-contact-unclassified, which was deleted along with every other drafted beat beyond Session 0/1. A stat block is content rather than a beat, so it stays - it is still the only fully statted Claimant in the repo, and it remains the one real Claimant the Foundry content sync pushes. It is NOT attached to any current scene, and the first Frame-scale encounter the campaign intends to run is unwritten (open-questions.json#session-two-shape). Re-read it against that encounter before reusing it, rather than assuming it still fits.",
   "name": "Contact, Unclassified",
   "level": 12,
   "traits": ["aberration", "claimant"],
@@ -57,7 +58,6 @@
   ],
   "notes": "Day 1's Claimant, for episode-01-contact-unclassified scene 7. Built from the GM Core creature-building tables at level 12: AC High (33), Fort High (+25), Ref Low (+19), Will Moderate (+22), Perception High (+25), Strike attack Moderate (+24), Strike damage Moderate (3d8+12). HP is deliberately Low for its level (165, band 165-157) rather than High: its real defence is the Interdiction Field, and the fight is scripted for the Frame to win, so the HP number's job is to decide HOW LONG the berserk rampage lasts, not whether the Frame survives. Attack and damage are Moderate rather than High for the same reason — it is not trying to kill the Frame, it is trying to get past it, which is both the lore ('a property dispute humanity is losing') and the thing that keeps a scripted first fight from accidentally killing the party's only launched Frame. Not yet named or numbered: it is classified as Claimant One in scene 9's debrief, which is what the episode title refers to.\n\nspeed.land and Sweep's reach trait were rescaled 10x on 2026-08-22 (40->400, reach-30->reach-300) alongside every other distance in design/scale-and-chassis.md's battlefield — a reskin of the same numbers onto 50ft squares, not a redesign; see design/scale-and-chassis.md §14f.",
   "relatedRefs": [
-    "episode-01-contact-unclassified",
     "day-1-the-fight",
     "day-1-ground-layer",
     "claimant-guidelines",

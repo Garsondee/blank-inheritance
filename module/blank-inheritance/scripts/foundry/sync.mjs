@@ -289,10 +289,12 @@ async function runRealJournalCase(fetchPath, transform) {
 // it -- see CLAUDE.md's "don't invent/finalize the six kids/Frames" rule.
 // The real Claimant and the episode outlines have no such open-question flag.
 const REAL_CLAIMANT_PATH = "data/campaign/antagonists/claimants/contact-unclassified.json";
+// Narrowed 2026-09-13: the three episodes this used to list were deleted along
+// with every other drafted beat beyond Session 0/1 (see CLAUDE.md's data/episodes
+// entry). Session One is now the only episode in the repo, and the only one this
+// pipeline has anything real to push.
 const REAL_EPISODE_PATHS = [
-  "data/campaign/episodes/episode-01-contact-unclassified.json",
-  "data/campaign/episodes/episode-02-second-contact.json",
-  "data/campaign/episodes/interlude-days-2-5-the-squeeze.json"
+  "data/campaign/episodes/episode-c1s1-mothers-maiden-name.json"
 ];
 
 export async function runRealContentSync() {

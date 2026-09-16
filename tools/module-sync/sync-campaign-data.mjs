@@ -23,7 +23,7 @@
  * Lands under the module's own directory tree (Data/modules/blank-inheritance/data/campaign/)
  * so scripts/foundry/io.mjs's existing fetchModuleJson (relative to the
  * module root) can reach it with zero changes -- e.g.
- * fetchModuleJson("data/campaign/episodes/episode-01-contact-unclassified.json").
+ * fetchModuleJson("data/campaign/episodes/episode-c1s1-mothers-maiden-name.json").
  *
  * Usage: node tools/module-sync/sync-campaign-data.mjs [--dry-run] [--local-dir ...] [--remote-dir ...] [--remote-host ...] [--key-path ...] [--host-key ...]
  */
