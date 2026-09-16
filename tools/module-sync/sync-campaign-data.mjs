@@ -50,31 +50,43 @@ const { values } = parseArgs({
 });
 
 const config = {
+  dataRoot: values["local-dir"],
+  dryRun: values["dry-run"],
   remoteDir: values["remote-dir"],
   remoteHost: values["remote-host"],
   keyPath: values["key-path"],
   hostKey: values["host-key"],
 };
 
-async function main() {
-  const stagingDir = await stageCampaignData(values["local-dir"]);
+/**
+ * The actual push logic, pulled out of the CLI entry point below so it's
+ * testable without a real server -- see test/support/mock-remote.mjs and
+ * test/module-sync/sync-campaign-data.test.mjs. `remote` defaults to the
+ * real remote.mjs functions; a test passes a mock instead (parameter
+ * injection, not `node:test`'s `mock.module()` -- see sync-harvest.mjs's
+ * runHarvest for why that isn't available on this project's Node 18.16
+ * target). Builds its own `runConfig` (config + the staging dir as
+ * `localDir`) rather than mutating the `config` object a caller passed in.
+ */
+export async function runCampaignDataSync(config, remote = { uploadDirectory, remoteChecksums }) {
+  const stagingDir = await stageCampaignData(config.dataRoot);
   console.log(`=== Staged sync content into ${stagingDir} ===`);
   try {
-    config.localDir = stagingDir;
+    const runConfig = { ...config, localDir: stagingDir };
 
     console.log(`=== 1. Local checksums (${stagingDir}) ===`);
     const localMap = await computeLocalChecksums(stagingDir);
     console.log(`${localMap.size} files staged`);
 
-    if (values["dry-run"]) {
+    if (config.dryRun) {
       console.log("=== --dry-run: comparing against remote WITHOUT uploading ===");
     } else {
       console.log(`=== 2. Uploading to ${config.remoteHost}:${config.remoteDir} (${localMap.size} files, one at a time) ===`);
-      await uploadDirectory({ ...config, localMap });
+      await remote.uploadDirectory({ ...runConfig, localMap });
     }
 
     console.log("=== 3. Remote checksums ===");
-    const remoteMap = await remoteChecksums(config);
+    const remoteMap = await remote.remoteChecksums(runConfig);
     console.log(`${remoteMap.size} files remotely`);
 
     console.log("=== 4. Comparing (path + content hash together, not hashes alone) ===");
@@ -90,7 +102,17 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  console.error("sync-campaign-data failed:", err);
-  process.exitCode = 1;
-});
+async function main() {
+  await runCampaignDataSync(config);
+}
+
+// Only run when this file is executed directly, never when imported (e.g. by a test importing
+// runCampaignDataSync above) -- see sync-harvest.mjs's identical guard for the reasoning and how
+// it was verified on this project's actual Node/Windows setup.
+const isMainModule = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+if (isMainModule) {
+  main().catch((err) => {
+    console.error("sync-campaign-data failed:", err);
+    process.exitCode = 1;
+  });
+}

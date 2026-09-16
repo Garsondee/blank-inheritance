@@ -51,18 +51,30 @@ const config = {
   hostKey: values["host-key"],
 };
 
-async function main() {
+/**
+ * The actual harvest logic, pulled out of the CLI entry point below so it's
+ * testable without a real server -- see test/support/mock-remote.mjs and
+ * test/module-sync/sync-harvest.test.mjs. `remote` defaults to the real
+ * remote.mjs functions; a test passes a mock instead. This is parameter
+ * injection, not `node:test`'s `mock.module()` -- checked directly (Node
+ * 18.16, this project's target per package.json/design/testing-strategy.md
+ * §2): `mock.module` doesn't exist until Node 22.3, so it's not an option
+ * here. Same spirit as the core/adapter split elsewhere in this repo: the
+ * orchestration logic becomes a plain function of its inputs, callable from
+ * a test exactly like production code calls it.
+ */
+export async function runHarvest(config, remote = { downloadDirectory, remoteChecksums, remoteDirectoryExists }) {
   console.log(`=== 1. Looking for ${config.remoteHost}:${config.remoteDir} ===`);
   // A missing storage/ is an ordinary state, not a failure: Foundry only
   // creates it once something has written there. Distinguished from a real
   // connection problem before anything tries to cd into it.
-  if (!(await remoteDirectoryExists(config))) {
+  if (!(await remote.remoteDirectoryExists(config))) {
     console.log("No storage/ on the server yet — nothing has been written there. Nothing to harvest.");
     return;
   }
 
   console.log("=== 2. Remote checksums ===");
-  const remoteMap = await remoteChecksums(config);
+  const remoteMap = await remote.remoteChecksums(config);
   console.log(`${remoteMap.size} files remotely`);
   if (remoteMap.size === 0) {
     console.log("storage/ exists but is empty. Nothing to harvest.");
@@ -71,7 +83,7 @@ async function main() {
 
   console.log(`=== 3. Downloading into ${config.localDir} (${remoteMap.size} files, one at a time) ===`);
   await mkdir(config.localDir, { recursive: true });
-  await downloadDirectory({ ...config, remoteMap });
+  await remote.downloadDirectory({ ...config, remoteMap });
 
   console.log("=== 4. Local checksums ===");
   const localMap = await computeLocalChecksums(config.localDir);
@@ -105,7 +117,20 @@ async function main() {
   if (diff.changed.length || missed.length) process.exitCode = 1;
 }
 
-main().catch((err) => {
-  console.error("sync-harvest failed:", err);
-  process.exitCode = 1;
-});
+async function main() {
+  await runHarvest(config);
+}
+
+// Only run when this file is executed directly (`node tools/module-sync/sync-harvest.mjs`),
+// never when it's imported -- e.g. by a test importing runHarvest above. Without this guard,
+// importing this module for its export would also fire off a real SSH connection via main()'s
+// default (real) remote.mjs functions. Verified on this project's actual Node/Windows setup
+// (both `node sync-harvest.mjs` and `node ./sync-harvest.mjs` resolve isMainModule true; an
+// `import` from another module resolves it false) before relying on it here.
+const isMainModule = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+if (isMainModule) {
+  main().catch((err) => {
+    console.error("sync-harvest failed:", err);
+    process.exitCode = 1;
+  });
+}

@@ -43,6 +43,7 @@ const { values } = parseArgs({
 });
 
 const config = {
+  dryRun: values["dry-run"],
   localDir: values["local-dir"],
   remoteDir: values["remote-dir"],
   remoteHost: values["remote-host"],
@@ -50,20 +51,28 @@ const config = {
   hostKey: values["host-key"],
 };
 
-async function main() {
+/**
+ * The actual push logic, pulled out of the CLI entry point below so it's
+ * testable without a real server -- see test/support/mock-remote.mjs and
+ * test/module-sync/sync-module.test.mjs. `remote` defaults to the real
+ * remote.mjs functions; a test passes a mock instead (parameter injection,
+ * not `node:test`'s `mock.module()` -- see sync-harvest.mjs's runHarvest for
+ * why that isn't available on this project's Node 18.16 target).
+ */
+export async function runModuleSync(config, remote = { uploadDirectory, remoteChecksums }) {
   console.log(`=== 1. Local checksums (${config.localDir}) ===`);
   const localMap = await computeLocalChecksums(config.localDir);
   console.log(`${localMap.size} files locally`);
 
-  if (values["dry-run"]) {
+  if (config.dryRun) {
     console.log("=== --dry-run: comparing against remote WITHOUT uploading ===");
   } else {
     console.log(`=== 2. Uploading to ${config.remoteHost}:${config.remoteDir} (${localMap.size} files, one at a time -- see remote.mjs for why) ===`);
-    await uploadDirectory({ ...config, localMap });
+    await remote.uploadDirectory({ ...config, localMap });
   }
 
   console.log("=== 3. Remote checksums ===");
-  const remoteMap = await remoteChecksums(config);
+  const remoteMap = await remote.remoteChecksums(config);
   for (const relativePath of [...remoteMap.keys()]) {
     // storage/ is Foundry's own write channel (test reports, harvested GM
     // edits) -- never part of this git-tracked folder, never pushed FROM
@@ -85,7 +94,17 @@ async function main() {
   if (!diff.isVerified) process.exitCode = 1;
 }
 
-main().catch((err) => {
-  console.error("module-sync failed:", err);
-  process.exitCode = 1;
-});
+async function main() {
+  await runModuleSync(config);
+}
+
+// Only run when this file is executed directly, never when imported (e.g. by a test importing
+// runModuleSync above) -- see sync-harvest.mjs's identical guard for the reasoning and how it
+// was verified on this project's actual Node/Windows setup.
+const isMainModule = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+if (isMainModule) {
+  main().catch((err) => {
+    console.error("module-sync failed:", err);
+    process.exitCode = 1;
+  });
+}

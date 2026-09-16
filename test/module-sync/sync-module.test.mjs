@@ -1,0 +1,107 @@
+// Tests tools/module-sync/sync-module.mjs's runModuleSync() -- entirely
+// offline, via test/support/mock-remote.mjs and test/support/capture-console.mjs.
+// See sync-harvest.test.mjs's header for the shared reasoning (parameter
+// injection instead of `node:test`'s `mock.module()`, why the mock isn't a
+// simulation of SSH/SCP).
+//
+// Reuses fixtures/local-hash-sample/ (already committed for
+// local-hash.test.mjs) as the "module directory" being pushed, rather than
+// adding a second near-identical fixture -- it's just two real files with
+// known real hashes, which is all a push needs on the local side.
+
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { runModuleSync } from "../../tools/module-sync/sync-module.mjs";
+import { computeLocalChecksums } from "../../tools/module-sync/local-hash.mjs";
+import { createMockRemote } from "../support/mock-remote.mjs";
+import { captureConsole } from "../support/capture-console.mjs";
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const fixtureDir = path.join(here, "fixtures", "local-hash-sample");
+
+async function runModuleSyncCaptured(config, remote) {
+  const capture = captureConsole();
+  const savedExitCode = process.exitCode;
+  process.exitCode = undefined;
+  try {
+    await runModuleSync(config, remote);
+    return { lines: capture.lines, exitCode: process.exitCode };
+  } finally {
+    capture.restore();
+    process.exitCode = savedExitCode;
+  }
+}
+
+function baseConfig(overrides = {}) {
+  return {
+    dryRun: false,
+    localDir: fixtureDir,
+    remoteDir: "/home/ubuntu/foundrydata/Data/modules/blank-inheritance",
+    remoteHost: "ubuntu@test-host",
+    keyPath: "unused-in-tests.ppk",
+    hostKey: "SHA256:unused",
+    ...overrides,
+  };
+}
+
+test("runModuleSync: --dry-run compares without uploading, and a matching remote is VERIFIED", async () => {
+  const localMap = await computeLocalChecksums(fixtureDir);
+  const { remote, calls } = createMockRemote({ remoteChecksums: new Map(localMap) });
+
+  const { lines, exitCode } = await runModuleSyncCaptured(baseConfig({ dryRun: true }), remote);
+
+  assert.equal(calls.uploadDirectory.length, 0, "--dry-run must never call uploadDirectory");
+  assert.ok(lines.some((l) => l.includes("--dry-run")));
+  assert.ok(lines.some((l) => l.includes("VERIFIED")));
+  assert.equal(exitCode, undefined);
+});
+
+test("runModuleSync: a normal push uploads exactly the local files, and a matching remote afterward is VERIFIED", async () => {
+  const localMap = await computeLocalChecksums(fixtureDir);
+  const { remote, calls } = createMockRemote({ remoteChecksums: new Map(localMap) });
+
+  const { lines, exitCode } = await runModuleSyncCaptured(baseConfig({ dryRun: false }), remote);
+
+  assert.equal(calls.uploadDirectory.length, 1);
+  assert.deepEqual(
+    [...calls.uploadDirectory[0].localMap.keys()].sort(),
+    ["greeting.txt", "subdir/nested.json"],
+    "uploadDirectory must be called with exactly the local fixture's files"
+  );
+  assert.ok(lines.some((l) => l.includes("VERIFIED")));
+  assert.equal(exitCode, undefined);
+});
+
+test("runModuleSync: a remote-only storage/ entry is excluded before comparing (regression guard, see the script's own comment)", async () => {
+  const localMap = await computeLocalChecksums(fixtureDir);
+  const remoteMap = new Map(localMap);
+  // Foundry's own write channel -- never pushed from local, must never count
+  // as an "only remote" mismatch just because it exists on the server.
+  remoteMap.set("storage/sessions/2026-09-09.json", "irrelevant-hash-never-compared");
+
+  const { remote } = createMockRemote({ remoteChecksums: remoteMap });
+  const { lines, exitCode } = await runModuleSyncCaptured(baseConfig(), remote);
+
+  assert.ok(
+    lines.some((l) => l.includes("2 files remotely (excluding storage/")),
+    "expected the storage/ entry to be excluded from the reported remote count"
+  );
+  assert.ok(lines.some((l) => l.includes("VERIFIED")), "a storage/-only difference must not break verification");
+  assert.equal(exitCode, undefined);
+});
+
+test("runModuleSync: a real mismatch (remote missing a file) is reported and fails the exit code", async () => {
+  const localMap = await computeLocalChecksums(fixtureDir);
+  const remoteMap = new Map(localMap);
+  remoteMap.delete("subdir/nested.json"); // never made it to the server
+
+  const { remote } = createMockRemote({ remoteChecksums: remoteMap });
+  const { lines, exitCode } = await runModuleSyncCaptured(baseConfig(), remote);
+
+  assert.equal(exitCode, 1);
+  assert.ok(lines.some((l) => l.includes("only local:") && l.includes("subdir/nested.json")));
+  assert.ok(lines.some((l) => l.includes("MISMATCH")));
+});
