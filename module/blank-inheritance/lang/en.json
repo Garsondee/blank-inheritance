@@ -242,6 +242,7 @@
       "Insight": "Free to ask"
     },
     "Induction": {
+      "MacroName": "Blank Inheritance: Begin Induction",
       "Tracker": {
         "Label": "Induction progress"
       },

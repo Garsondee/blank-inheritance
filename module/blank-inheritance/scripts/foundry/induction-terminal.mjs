@@ -25,11 +25,17 @@
  *
  * PLAYER-FACING BY CONSTRUCTION, unlike the scene runner (GM-only) and the
  * command bar (seat-dependent) -- any user may open this, including a GM
- * previewing it, so there is no isGM guard anywhere in this file. The
- * eventual "opens automatically for a characterless user" trigger is NOT
- * built yet (design doc §8) -- for now this is opened deliberately, the
- * same "once-per-session action, lives on the API" idiom openSceneRunner
- * already uses.
+ * previewing it, so there is no isGM guard anywhere in this file. Design
+ * doc §6/§8's own "opens automatically for a user with no character yet, on
+ * login" is now built too (blank-inheritance.mjs's own ready hook, non-GM
+ * only) -- found live 2026-09-16, running a full session-0 walkthrough as a
+ * genuine new player: with only the manual API entry point, nothing at all
+ * told a real player how to reach this terminal (no macro, no journal
+ * content-link visible to a fresh Player-role account -- the module's own
+ * macros are all GM-owned, and the one player-visible journal page is a
+ * narrative prop, not a way in). createInductionTerminalMacroIfMissing
+ * below is the backup manual path, same shape as every other panel's own
+ * macro, for a player who closes this before finishing.
  *
  * PAGE SWAPPING: static PARTS declares one template per page, but only ONE
  * of them is ever the active render target at a time, under a constant
@@ -74,6 +80,7 @@ import {
 } from "../core/induction-intake.mjs";
 import { getPath, setPath } from "../core/state-path.mjs";
 import { requestActorCreation, requestActorDeletion } from "./induction-relay.mjs";
+import { deriveFoundryId } from "../core/ids.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -1633,4 +1640,31 @@ export function unmountInductionTerminal() {
  */
 export function openInductionTerminal() {
   return mountInductionTerminal();
+}
+
+const MACRO_SOURCE_ID = "blank-inheritance-induction-terminal-macro";
+
+/**
+ * The manual way in, alongside the automatic one (blank-inheritance.mjs's
+ * own ready hook) -- same "macro as backup for the trigger that opens this
+ * automatically" shape as every other panel's own createXMacroIfMissing.
+ * Needed for real: a player who closes the terminal before finishing (or
+ * whose auto-open never fired, e.g. a GM manually clearing their character)
+ * has no other way back in, since nothing else in this world links to it.
+ */
+export async function createInductionTerminalMacroIfMissing() {
+  if (!game.user?.isGM) return;
+  const macroId = await deriveFoundryId(MACRO_SOURCE_ID);
+  if (game.macros.get(macroId)) return;
+  await Macro.create(
+    {
+      _id: macroId,
+      name: game.i18n.localize("BLANKINHERITANCE.Induction.MacroName"),
+      type: "script",
+      img: "icons/svg/vault.svg",
+      command: `await game.modules.get("${MODULE_ID}").api.openInductionTerminal();`
+    },
+    { keepId: true }
+  );
+  console.log("Blank Inheritance | Created the induction terminal macro.");
 }

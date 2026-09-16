@@ -42,7 +42,7 @@ import {
   registerSceneRunnerSettings,
   resetSceneRunnerCache
 } from "./foundry/scene-runner.mjs";
-import { openInductionTerminal } from "./foundry/induction-terminal.mjs";
+import { openInductionTerminal, createInductionTerminalMacroIfMissing } from "./foundry/induction-terminal.mjs";
 import { registerInductionSocket } from "./foundry/induction-relay.mjs";
 import { ensureLandingScene } from "./foundry/landing-scene.mjs";
 import {
@@ -254,6 +254,20 @@ Hooks.once("ready", async () => {
     console.error("Blank Inheritance | Could not mount the phone:", err);
   }
 
+  // A characterless Player is a real player who hasn't finished session
+  // zero yet -- the whole point of the terminal. Found live 2026-09-16,
+  // running a full walkthrough as a genuine new player: without this,
+  // nothing at all told them how to reach it (see induction-terminal.mjs's
+  // own header). GM-excluded on purpose -- a GM doing prep work with no
+  // character of their own must never have this forced open on every reload.
+  if (!game.user.isGM && !game.user.character) {
+    try {
+      openInductionTerminal();
+    } catch (err) {
+      console.error("Blank Inheritance | Could not auto-open the induction terminal:", err);
+    }
+  }
+
   if (!game.user.isGM) return;
   try {
     await createTestSyncMacroIfMissing();
@@ -261,6 +275,7 @@ Hooks.once("ready", async () => {
     await createStageDemoMacroIfMissing();
     await createEquipmentPanelMacroIfMissing();
     await createDirectorPanelMacroIfMissing();
+    await createInductionTerminalMacroIfMissing();
   } catch (err) {
     console.error("Blank Inheritance | Could not create a sync macro (you can still run it from the console):", err);
   }
