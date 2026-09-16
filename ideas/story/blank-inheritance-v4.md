@@ -488,6 +488,8 @@ Six recurring lines, running in parallel through every chapter rather than one p
 
 ## 17. The Thread Grid
 
+> **⚠ Demoted 2026-09-13.** Its own line says it: *cells are beats*. Every other drafted beat beyond Session 0/1 has been deleted, and this grid is kept only because the cells name real lore — the stray, Anabala, Shinobu and the lorry, the column, the sit-in, the two flashbacks. **Read it as a list of things that exist, not as a running order.** The chapter columns no longer correspond to anything written.
+
 A working reference, not a script. Cells are beats, not scenes. **School is now live in every chapter** — it is the thread most likely to quietly atrophy under table pressure, and the one that makes the other half of the game matter.
 
 | Ch | War | Observed | Cult | Mitflits | Founders | School |
@@ -545,7 +547,13 @@ Days 1–6 (Ch 1, *Contact, Unclassified*) → Ch 2 (*A Census of the Living*) �
 
 ---
 
-## 19. The Eight Chapters
+## 19. Chapter Material — mine it for facts, not for a schedule
+
+> **⚠ Demoted 2026-09-13, deliberately not deleted.** This was "The Eight Chapters", a chapter-by-chapter plan. Every drafted adventure beat beyond Session 0/1 has been thrown out elsewhere in the repo — but **this section is roughly half lore by volume** (the statue is Hyuck; contact time-stamped before the alert; the museum fragment; the stray, grown; the graduation), and deleting it would have destroyed real canon to remove a schedule.
+>
+> **So: the facts, images and character truths below are canon and stay. The chapter assignments, the running order, and the encounter beats are not a plan any more.** Do not build a session from this section. When the campaign is rebuilt, mine it for material and assign it deliberately.
+>
+> Also note it assumes systems that are now under review — Chapter One's entry opens with five kids on ground roles, and ground roles may not survive. See `ideas/story/blank-inheritance-ch1-v2.md` §8.
 
 ### Chapter One — "The Alarm Nobody Had Rehearsed" (L1→2)
 *Days 1–6, hand-placed. Slices: generous. Rung: what exists.*
@@ -780,4 +788,4 @@ Places where the plot genuinely forks. Each needs a *what changes downstream* no
 
 **The comic-to-poignant gradient.** The Watcher's incompetence in Ch 1–2 is not a joke at the audience's expense, and it is not a trap either. It is the setup for the kindest payoff available: **it was never stupid. It was new, and it was drowning, and nobody had ever spoken to it.**
 
-**And the last word on register:** this is a story where six teenagers, a species everyone treats as vermin, a disgraced doctor's severed hand, and a frightened cloud of broken machinery all turn out to have been doing their best the whole time. Play it warm. Let them joke. Let them win something.
+**And the last word on register:** this is a story where six teenagers, a species everyone finds a nuisance, a disgraced doctor's severed hand, and a frightened cloud of broken machinery all turn out to have been doing their best the whole time. Play it warm. Let them joke. Let them win something.

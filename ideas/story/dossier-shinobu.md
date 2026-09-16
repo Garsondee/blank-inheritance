@@ -93,9 +93,11 @@ simply visit.
 ## 8. The People Around Her
 
 **Kudo (the Lawyer), her father.** Fought her out of military detention once and will do it louder the
-second time. **Already built and live in Session Five's own scene data**
-(`data/scene-briefs/episode-05-head-height--noon-the-hall.json`, cast id `kudo`) — he confronts a
-Directorate information officer in public, unprompted, over her treatment:
+second time. He was once built as live scene data — a Session Five brief in which he confronts a
+Directorate information officer in public, unprompted, over her treatment. **That brief was deleted
+2026-09-13** along with every drafted beat beyond Session 0/1, so the scene no longer exists anywhere
+in the repo. **His voice, his relationship to Shinobu, and the speech below are lore and survive here
+unchanged** — they are the character, not the beat, and should be re-staged wherever this thread lands:
 
 > *"My daughter was standing eleven feet from a canister. She has been in a cell for four months. She
 > is not charged. She is not ill. Your own physicians say she is not ill. So I'll put it plainly, and

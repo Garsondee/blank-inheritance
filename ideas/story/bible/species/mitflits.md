@@ -113,6 +113,60 @@ silent, that divergence is real and simply not written down yet. Ask; don't defa
   violence, **Rupiah used diplomacy** — and started them down the actual path toward getting home.
   This directly connects one of the Directorate's own founders to the campaign's central ongoing
   mitflit thread, not just to the founding/Kortos incident. *(Elf, elf nobility — `LEDGER.md` #8.)*
+- **The two forms, confirmed 2026-09-13 (`LEDGER.md` #15) — these come from artwork that exists, so
+  they are locked, not sketches.** **Wild** mitflits are blue-skinned elfin goblin people who read as
+  **cute rather than gruesome**, with bright, intelligent eyes. **Ascended** mitflits look like high
+  fantasy elves with blue skin — elegant, androgynous, and plainly the shape of a star-faring people.
+  Ingram's framing: the ascended form "seem[s] like a perfect candidate for what the Mitflits might
+  have been like as a star faring race." **Never draw or describe a wild mitflit as ugly, ghoulish or
+  goblin-monstrous** — cute and bright-eyed is the brief, and it is what makes the sympathetic reveal
+  work at all.
+- **PROPOSED, not locked (Ingram's own word was "Perhaps", 2026-09-13):** the species' special ability
+  is **rapid evolutionary adaptation** — they can revert into whatever form is likeliest to survive
+  their circumstances, while retaining the capacity to regrow their original features when required.
+  If adopted this reframes the entire decline: they did not merely degrade, they **adapted downward on
+  purpose to survive**, and "ascended" is recovery rather than transcendence. Treat as direction of
+  travel; confirm before building any mechanic on it.
+- **Why they actually annoy people, confirmed 2026-09-13 (`LEDGER.md` #15).** Ingram's framing: "an
+  actual rude goblinoid with little respect for authority in a 1950's ish Japanese setting. They upset
+  people because they don't respect the same traditions and they are weird outsiders." This is the
+  concrete behaviour behind "a nuisance, considered rude at worst" — **the offence is social, not
+  criminal.** They skip the forms, ignore seniority, address people wrongly, and do not observe what
+  everyone else observes. In a setting with real register and hierarchy (see
+  `design/japanese-narrative-conventions.md` §6 on honorifics, where the *shift* is the payload) that
+  is genuinely irritating without ever justifying harm. Write the friction as manners, never as menace.
+- **Mitflits pilot Frames, and it splits them, confirmed 2026-09-13 (`LEDGER.md` #15).** "Some of the
+  young Mitflits will volunteer to fight using the mechs. Some Mitflits consider this abhorrent. Lots
+  of Mitflit communities are essentially pacifist but the younger members of clans are their own
+  spirits and are willing to fight to protect the city directly." Note what this settles: **mitflits
+  sit in cockpits.** They are on the same side of the cockpit door as the kids, which is the single
+  strongest guard against reading them as equipment. It also gives §9's generational split a concrete
+  form — the elders' pacifism is a position, not an incapacity, and the young are not dupes but
+  volunteers with their own reasons.
+- **Who knows the truth, confirmed 2026-09-13 (`LEDGER.md` #15).** "Anabala knows everything, a very
+  small number of her high priestesses know. Everyone else gets their own appropriately sized chunk of
+  the picture. Many wouldn't be ready to hear or believe that they came from beyond the stars. All of
+  them will be keen for the adventure though." So the silence is **tiered knowledge, deliberately
+  administered** — not a uniform taboo and not simple amnesia. Anabala is the only complete source,
+  which makes her placement a structural decision and not just a casting one. **The last clause is a
+  register instruction:** mitflits are not a tragic people guarding a sad secret. They are up for it.
+
+## OPEN — the Frame core's relationship to the mitflits
+
+**Do not write content that assumes an answer either way.** `ideas/story/dossier-first-impact.md`
+establishes each Frame's core as biomechanical, "mitflit-scale and alive," making a seat for whoever
+pilots it; the Thread Grid has a captured mitflit weeping at the sight of a Frame's hand; §9 has
+Bobbin's people entering a Frame and being un-extractable without killing them. Those facts point at a
+connection the files have never closed.
+
+Ingram, 2026-09-13: *"I do and don't like parts of the idea that Mitflits are mechs and vice versa. It
+feels like a way to cheapen the race by saying that you can also ride into battle inside them. We need
+to brainstorm this to try and decide on a solution that feels authentically Evangelion whilst also
+mixing in the Mitflit origin lore."*
+
+**The constraint to design against: a mitflit must never read as a vehicle.** Any solution has to keep
+them people. Note that the mitflit-pilot fact above already does a lot of that work. Under active
+discussion — see `LEDGER.md` #15.
 
 ## Ingram's own take, and how it diverges from any real-world source
 
@@ -237,6 +291,22 @@ from Paizo defaults or from the §4 texture line in isolation.
     high priestess/prophet); Rupiah's role starting the return-home path via diplomacy. Also touched:
     `ideas/story/dossier-first-impact.md` §2 (corrected to match), `ideas/story/blank-inheritance-
     master-timeline.md` (new pre-Kortos row for the siege).
+11. `ideas/story/blank-inheritance-v4.md` §24 — the last residual "vermin" line in any tier-1 source,
+    missed when the rest of the 2026-09-09 correction was applied. §24's closing register note called
+    the mitflits "a species everyone treats as vermin"; corrected **2026-09-13** to "a species
+    everyone finds a nuisance", the wording closest to this file's own canon. Found by a sweep of the
+    tier-1 documents while writing `design/worldbuilding-craft.md`. Wording confirmed by Ingram rather
+    than inferred, since §24 is the campaign's tone-defining passage — see `LEDGER.md` #14.
+12. **2026-09-13, `LEDGER.md` #15 — four direct answers.** The wild/ascended forms described from
+    existing artwork (cute blue elfin goblins with bright eyes; elegant androgynous blue elves) and
+    locked; rapid evolutionary adaptation proposed as the species ability but explicitly hedged
+    ("Perhaps") and NOT locked; the concrete nuisance behaviour settled as social offence in a
+    1950s-Japanese-inflected setting rather than anything criminal; **mitflits confirmed as Frame
+    pilots**, with the practice splitting the species between pacifist communities and volunteering
+    young; and knowledge of the star origin confirmed as tiered — Anabala complete, a few high
+    priestesses partial, everyone else an appropriately sized chunk, and all of them keen for the
+    adventure. Question 1 of that set — the Frame core's relationship to the mitflits — was **not**
+    answered and is under active discussion; see the OPEN section above.
 
 ## Related
 
