@@ -567,8 +567,73 @@ Genuine ones — not rhetorical, and not for me to settle alone.
 
 ---
 
+## 11. The episode title card (addendum, 2026-09-14)
+
+Answers the gap §9 step 7 named and deliberately left alone: *"Not built: shared machinery with a
+cold-open title card (`#99`, stage 6 of `foundry-module-design.md`) — a real future opportunity, not
+attempted here."* Ingram's own description of the real table ritual, verbatim:
+
+> *"We start every play session with a landing page -> an intro sequence and part of that intro
+> sequence is me reading out the title of the 'episode' and then bam I press a button and it should
+> appear in wonderful bold typeface for the players to see. We organise the name of each episode in
+> advance. I'm reading from a script and when I get to a certain point I press the button which
+> reveals the graphics to all players. We also take the players' ability to move the camera, look at
+> UI or things like that from them for the intro sequence."*
+
+**The data half is already there.** `episode.schema.json`'s `title` field is exactly "the name of
+each episode organised in advance" — `data/episodes/episode-c1s1-mothers-maiden-name.json` already
+carries one ("Mother's Maiden Name (Again)"). Nothing new to author; this is a rendering problem, not
+a data problem.
+
+**The visual grammar is the Splash tier, §5, reused for a different subject.** GM-cued, full-screen,
+bold display typography, Take → Hold → Dip → Resolve — built, live-verified, and exactly what "press
+a button, wonderful bold typeface, all players" already describes for an NPC. Reusing it for an
+episode title is small in isolation: swap the character's name/affiliation/portrait for the episode's
+title (and, if wanted, a subtitle), and it works today. The Resolve beat is the genuine open question,
+not a detail — a character's Splash lands *somewhere* (the frame they now occupy on stage); an episode
+title has nothing to collapse into. Candidates: fade straight through into the episode's first scene
+(Resolve becomes "the scene arrives"), or resolve to nothing and let the next scene transition (§6)
+carry the handoff. This is a creative call, not an implementation one — flagged, not decided here.
+
+**The named tension: Splash was built deliberately non-blocking, and this ritual wants the opposite.**
+§5 is explicit — *"Never blocking. It must not eat a roll in progress or swallow input aimed at the
+console. It is a scrim and a picture, not a modal."* Ingram's intro sequence asks for the reverse: for
+its duration, players lose camera control **and** UI interaction entirely, not just attention. Two
+different things, and only one is built:
+
+- **Camera lock** — real, shipped (§9: `foundry/stage-camera.mjs` replacing `Canvas#_constrainView`,
+  undocumented API, a contract test standing canary for it moving). Already used to pin a staged
+  scene's framing; extending it to the intro moment specifically is very likely the same mechanism,
+  not new research.
+- **UI/interaction lock** — genuinely new, unbuilt, and not the same problem as the camera. Nothing
+  in this module currently prevents a player from clicking the console, opening a sheet, or otherwise
+  interacting with Foundry's chrome while a full-screen moment plays over it. Given the camera lock
+  needed undocumented API and careful live measurement to get right (§9's own account of it), this
+  should be assumed to need the same treatment rather than a quick CSS overlay — a `pointer-events`
+  scrim may be enough, or may not cover keyboard shortcuts and macro-bar hotkeys; genuinely unverified.
+  Filed as its own issue (#155) rather than folded into #99, since it's a distinct technical unknown.
+
+**The transition rule, hardened from a guideline to a floor.** §6 already argues a transition should
+mean something — *"ordinary travel fades, Directorate business shutters, anything touching Resonance
+glitches... rather than varying them for novelty."* Ingram's "we ALWAYS use transitions" confirms that
+as firm production practice, not a suggestion, and closes off the specific failure mode §6 already
+found by reading the real shader source: a Scene with no `transition` set doesn't fail loudly, it
+silently hard-cuts with zero console output. "Always" means every Scene document declares one — the
+missing-key path should never be reached in real play, not just avoided by habit. Which transition
+means what (beyond the three worked examples already in §6) is Ingram's own vocabulary to build over
+time, the same way the four entrance stings (§5) became a language rather than a novelty — not
+something to pre-invent a full table for here.
+
+**Not decided here, tracked instead:** whether the title-card Resolve beat hands off into a scene
+transition or the scene transition IS effectively suppressed for that one cut (they would otherwise
+both fire within the same moment, which §6 already says not to do for stings vs. scene transitions —
+the same "don't fire together" rule plausibly applies to a title card vs. the episode's first scene).
+
+---
+
 *Related: [`ux-doctrine.md`](ux-doctrine.md) §5 (theatre of the mind), §10 (the Director's console);
 [`npc-social-intel.md`](npc-social-intel.md) (the Character Card this opens);
 `ideas/entries/in-scene-character-portrait-frames.json` (the original idea, now specified);
 `ideas/entries/asset-review-pipeline.json` (the art dependency);
-`design/foundry-technical-reference.md` §3 (scenes, transitions, the missing transition hook).*
+`design/foundry-technical-reference.md` §3 (scenes, transitions, the missing transition hook);
+`design/foundry-module-design.md` §7 and §9 stage 6 (the original cold-open/outro scope, GitHub #99).*
