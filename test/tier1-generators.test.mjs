@@ -16,6 +16,7 @@ import { fileURLToPath } from "node:url";
 
 import { deriveFoundryId, contentHash } from "../module/blank-inheritance/scripts/core/ids.mjs";
 import { buildCreatureActorData } from "../module/blank-inheritance/scripts/core/generators/creature.mjs";
+import { buildNpcActorData } from "../module/blank-inheritance/scripts/core/generators/npc.mjs";
 import { buildCharacterActorData } from "../module/blank-inheritance/scripts/core/generators/character.mjs";
 import { buildSceneData } from "../module/blank-inheritance/scripts/core/generators/scene.mjs";
 import { buildJournalEntryData, episodeToJournalSource } from "../module/blank-inheritance/scripts/core/generators/journal.mjs";
@@ -84,6 +85,52 @@ test("buildCreatureActorData: sensible defaults when optional fields are absent"
   assert.equal(data.system.attributes.hp.max, 1);
   assert.equal(data.system.traits.size.value, "med", "unrecognized/missing size must fall back to medium");
   assert.deepEqual(data.items, [], "no strikes in source must produce an empty items array, not throw");
+});
+
+test("buildNpcActorData: statblock-less branch matches golden output", async () => {
+  const source = readFixture("test-npc.json");
+  const actual = await buildNpcActorData(source);
+  const expected = readGolden("npc-actor.json");
+  assert.deepEqual(actual, expected);
+});
+
+test("buildNpcActorData: statblock branch matches golden output", async () => {
+  const source = readFixture("test-npc-with-statblock.json");
+  const actual = await buildNpcActorData(source);
+  const expected = readGolden("npc-actor-with-statblock.json");
+  assert.deepEqual(actual, expected);
+});
+
+test("buildNpcActorData: statblock-less branch produces the exact same 'bare' defaults as buildCreatureActorData does for an absent statblock (AC 10, 1 HP not 0, level 0, zero items)", async () => {
+  const data = await buildNpcActorData({ id: "bare-npc", name: "Bare NPC" });
+  assert.equal(data.type, "npc");
+  assert.equal(data.system.attributes.ac.value, 10);
+  assert.equal(data.system.attributes.hp.value, 1, "1 HP, not 0 -- 0 reads as dead/defeated on an npc-type Actor's sheet, wrong for a living statblock-less NPC");
+  assert.equal(data.system.attributes.hp.max, 1);
+  assert.equal(data.system.details.level.value, 0);
+  assert.deepEqual(data.items, []);
+});
+
+test("buildNpcActorData: statblock-less branch populates BOTH details.blurb and details.publicNotes from source.description", async () => {
+  const data = await buildNpcActorData({ id: "x", name: "X", description: "A quiet clerk who wants the form filled in correctly." });
+  assert.equal(data.system.details.blurb, "A quiet clerk who wants the form filled in correctly.");
+  assert.equal(data.system.details.publicNotes, "A quiet clerk who wants the form filled in correctly.");
+});
+
+test("buildNpcActorData: statblock branch produces the IDENTICAL {system, items} shape buildCreatureActorData would for the same combatStatblock", async () => {
+  // npc.schema.json's `statblock` and creature.schema.json both $ref the exact
+  // same combatStatblock def (sf2e-common.schema.json) -- the two generators
+  // must not silently drift apart on how they map it.
+  const statblock = {
+    level: 5, ac: 20, traits: ["humanoid"], size: "medium",
+    abilityModifiers: { str: 2, dex: 1, con: 2, int: 0, wis: 1, cha: 0 },
+    hitPoints: { max: 60, current: 60 },
+    strikes: [{ name: "Fist", strikeType: "melee", attackBonus: 12, traits: [], damage: [{ dice: "1d6", bonus: 4, damageType: "bludgeoning" }] }]
+  };
+  const npcData = await buildNpcActorData({ id: "npc-parity-check", name: "NPC Parity Check", statblock });
+  const creatureData = await buildCreatureActorData({ id: "creature-parity-check", name: "NPC Parity Check", ...statblock });
+  assert.deepEqual(npcData.system, creatureData.system);
+  assert.deepEqual(npcData.items, creatureData.items);
 });
 
 test("buildCharacterActorData matches golden output", async () => {
@@ -233,6 +280,35 @@ test("validateActor + summarizeReport: a matching Actor passes every check", asy
   const result = await validateActor(created, source, data._id, "creature");
   const summary = summarizeReport({ results: [result] });
   assert.equal(summary.failed, 0, `expected all checks to pass, got: ${JSON.stringify(result.checks.filter((c) => !c.pass))}`);
+});
+
+test("validateActor: entityLabel 'npc' passes every check for a matching statblock-less Actor, checked against source.description-derived defaults rather than a top-level source.ac/hitPoints/level", async () => {
+  const source = readFixture("test-npc.json");
+  const data = await buildNpcActorData(source);
+  const created = { ...data, id: data._id };
+  const result = await validateActor(created, source, data._id, "npc");
+  const summary = summarizeReport({ results: [result] });
+  assert.equal(summary.failed, 0, `expected all checks to pass, got: ${JSON.stringify(result.checks.filter((c) => !c.pass))}`);
+  const typeCheck = result.checks.find((c) => c.label === "actor type");
+  assert.equal(typeCheck.expected, "npc");
+});
+
+test("validateActor: entityLabel 'npc' passes every check for a matching statblock-carrying Actor, reading ac/hitPoints/level off source.statblock", async () => {
+  const source = readFixture("test-npc-with-statblock.json");
+  const data = await buildNpcActorData(source);
+  const created = { ...data, id: data._id };
+  const result = await validateActor(created, source, data._id, "npc");
+  const summary = summarizeReport({ results: [result] });
+  assert.equal(summary.failed, 0, `expected all checks to pass, got: ${JSON.stringify(result.checks.filter((c) => !c.pass))}`);
+});
+
+test("validateActor: entityLabel 'npc' reports a mismatched AC as a failed check, not silently accepted", async () => {
+  const source = readFixture("test-npc-with-statblock.json");
+  const data = await buildNpcActorData(source);
+  const created = { ...data, id: data._id, system: { ...data.system, attributes: { ...data.system.attributes, ac: { value: 1 } } } };
+  const result = await validateActor(created, source, data._id, "npc");
+  const acCheck = result.checks.find((c) => c.label === "system.attributes.ac.value matches source");
+  assert.equal(acCheck.pass, false);
 });
 
 test("summarizeReport: counts skipped results separately from pass/fail, without affecting the check totals", () => {

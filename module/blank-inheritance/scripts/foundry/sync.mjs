@@ -1,5 +1,6 @@
 import { deriveFoundryId, contentHash } from "../core/ids.mjs";
 import { buildCreatureActorData } from "../core/generators/creature.mjs";
+import { buildNpcActorData } from "../core/generators/npc.mjs";
 import { buildCharacterActorData } from "../core/generators/character.mjs";
 import { buildSceneData } from "../core/generators/scene.mjs";
 import { buildJournalEntryData, episodeToJournalSource } from "../core/generators/journal.mjs";
@@ -252,6 +253,25 @@ async function runRealCreatureCase(fetchPath) {
   return { ...(await validateActor(created, source, data._id, "creature")), skipped: false };
 }
 
+async function runRealNpcCase(fetchPath) {
+  const source = await fetchModuleJson(fetchPath);
+  const data = await buildNpcActorData(source);
+  const hash = await contentHash(source);
+
+  const existing = game.actors.get(data._id);
+  if (shouldSkip(existing, hash)) {
+    return { ...(await validateActor(existing, source, data._id, "npc")), skipped: true };
+  }
+
+  await teardown(game.actors, data._id);
+  const created = await Actor.create(data, { keepId: true });
+  if (created) {
+    await created.setFlag(FLAG_SCOPE, "sourceId", source.id);
+    await created.setFlag(FLAG_SCOPE, "sourceHash", hash);
+  }
+  return { ...(await validateActor(created, source, data._id, "npc")), skipped: false };
+}
+
 /**
  * `transform` adapts whatever real data/*.json shape lives at `fetchPath`
  * into buildJournalEntryData's {id, name, pages} input shape -- e.g.
@@ -281,14 +301,25 @@ async function runRealJournalCase(fetchPath, transform) {
 }
 
 // Real content synced so far -- deliberately NOT the kids/Frames (still
-// marked DRAFT/not confirmed in data/characters/) or the NPCs (Commander/
-// Caretaker/Transparency Advocate are still "placeholder — not yet named or
-// cast"). Syncing draft/placeholder identity content into a live world reads
-// as finalizing it, which is the user's collaborative creative call to make,
-// not something to do just because the pipeline can now technically reach
-// it -- see CLAUDE.md's "don't invent/finalize the six kids/Frames" rule.
-// The real Claimant and the episode outlines have no such open-question flag.
+// marked DRAFT/not confirmed in data/characters/) or the three Directorate
+// poles (Commander/Caretaker/Transparency Advocate are still "placeholder —
+// not yet named or cast"). Syncing draft/placeholder identity content into a
+// live world reads as finalizing it, which is the user's collaborative
+// creative call to make, not something to do just because the pipeline can
+// now technically reach it -- see CLAUDE.md's "don't invent/finalize the six
+// kids/Frames" rule. The real Claimant, the episode outlines, and the three
+// NPCs below all have no such open-question flag -- each is "established and
+// voiced" per its own data/npcs/*.json status field, not a placeholder.
 const REAL_CLAIMANT_PATH = "data/campaign/antagonists/claimants/contact-unclassified.json";
+// Statblock-less social NPCs, already fully written in ideas/story/bible/ and
+// voiced in real scene briefs -- see GitHub epic #140's Session 0/1 audit.
+// Pushed via buildNpcActorData (core/generators/npc.mjs), not
+// buildCreatureActorData: none of the three carry a combat statblock.
+const REAL_NPC_PATHS = [
+  "data/campaign/npcs/shucks-mordant.json",
+  "data/campaign/npcs/nobu.json",
+  "data/campaign/npcs/intake-medicals-clerk.json"
+];
 // Narrowed 2026-09-13: the three episodes this used to list were deleted along
 // with every other drafted beat beyond Session 0/1 (see CLAUDE.md's data/episodes
 // entry). Session One is now the only episode in the repo, and the only one this
@@ -317,6 +348,10 @@ export async function runRealContentSync() {
 
   try {
     report.results.push(await runCase("claimant:contact-unclassified", () => runRealCreatureCase(REAL_CLAIMANT_PATH)));
+    for (const path of REAL_NPC_PATHS) {
+      const label = path.split("/").pop().replace(/\.json$/, "");
+      report.results.push(await runCase(`npc:${label}`, () => runRealNpcCase(path)));
+    }
     for (const path of REAL_EPISODE_PATHS) {
       const label = path.split("/").pop().replace(/\.json$/, "");
       report.results.push(await runCase(`episode:${label}`, () => runRealJournalCase(path, episodeToJournalSource)));

@@ -1,0 +1,14 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "nobu",
+  "type": "npc",
+  "name": "Nobu",
+  "role": "Quartermaster",
+  "pole": null,
+  "affiliation": "directorate",
+  "description": "Runs Kit Issue on the combined campus (data/scene-briefs/episode-c1s1--kit-issue.json) and chairs the Sizing Board the following session: quartermaster for the whole intake cohort, kitting and rostering forty kids in a day and clearly enjoying the pace of it. Harried, fast, visibly doing three things at once -- talks in run-ons, interrupts himself, starts the next thought before finishing the last. Signs the slips personally and is oddly generous with the allowance: every candidate leaves with one extra item on top of what their budget bought, handed over so fast and so lightly it never reads as anything but a busy man already moving on to the next person. Warm and impulsive, and looks away while doing the kind thing rather than watching it land -- the deliberate opposite of how Shucks Mordant does the same thing at Intake Medicals that same morning.",
+  "designNotes": "Full history, voice notes and open questions live in ideas/story/bible/characters/nobu.md -- read that in full before writing any scene with him. THIS FILE FORMALIZES HIM AS A REAL ENTITY for the first time (data/npcs/ previously had no file for him at all); it adds nothing his bible file doesn't already establish.\n\nTone, load-bearing: he was Manako's lab assistant at the original accident, saw the tentacle, said nothing, and now secretly funds Cicada's industrial Sap production as private amends for that silence -- this is dossier-cicada.md's own Chapter Six reveal (ideas/story/dossier-cicada.md §8) and puts him on Manako's revenge list alongside Shucks (§6). This is LATER-CAMPAIGN information and must not leak backward into how he plays in Session One/Two or any early scene -- same discipline as Shucks' own founder-status/revenge-list secret in his file. He reads as warm, harried and generous, full stop -- nobu.md's own explicit correction: 'he isn't hiding badly, he's hiding well -- decades of practice,' never nervous, evasive or cagey. The Kit Issue scene's own mandatory 'the-extra-thing' beat is this same plant in miniature (PLANT, do not resolve -- see that scene brief's own note) and this file must not go anywhere near resolving it either.\n\nOpen, not invented here: surname, age, and how long he's actually served are all unrecorded (nobu.md's own Open Questions). The food/drink-at-the-desk physical tic is PROPOSED, NOT YET CONFIRMED BY INGRAM (nobu.md) -- deliberately left out of the description above until it is.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "established and voiced (Kit Issue is built and playable; he also chairs the Sizing Board in Session Two, not yet built); the reason for his generosity is known but not yet played -- see his bible file's Open Questions for what else is still undecided"
+}

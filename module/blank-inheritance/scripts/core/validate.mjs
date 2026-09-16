@@ -16,11 +16,20 @@ export async function validateActor(created, source, expectedId, entityLabel) {
   const checks = [];
   check(checks, "document id === deterministic hash of source id", created?.id, expectedId);
   check(checks, "name matches source", created?.name, source.name ?? source.id);
-  check(checks, "actor type", created?.type, entityLabel === "creature" ? "npc" : "character");
+  const isNpcTypeActor = entityLabel === "creature" || entityLabel === "npc";
+  check(checks, "actor type", created?.type, isNpcTypeActor ? "npc" : "character");
   if (entityLabel === "creature") {
     check(checks, "system.attributes.ac.value matches source", created?.system?.attributes?.ac?.value, source.ac ?? 10);
     check(checks, "system.attributes.hp.max matches source", created?.system?.attributes?.hp?.max, source.hitPoints?.max ?? 1);
     check(checks, "system.details.level.value matches source", created?.system?.details?.level?.value, source.level ?? 0);
+  } else if (entityLabel === "npc") {
+    // npc.schema.json sources keep their combat numbers (if any) nested
+    // under `statblock` rather than at the top level -- unlike a creature,
+    // whose whole file IS a combatStatblock. See generators/npc.mjs.
+    const statblock = source.statblock ?? null;
+    check(checks, "system.attributes.ac.value matches source", created?.system?.attributes?.ac?.value, statblock?.ac ?? 10);
+    check(checks, "system.attributes.hp.max matches source", created?.system?.attributes?.hp?.max, statblock?.hitPoints?.max ?? 1);
+    check(checks, "system.details.level.value matches source", created?.system?.details?.level?.value, statblock?.level ?? 0);
   } else {
     check(checks, "system.details.level.value matches source (character)", created?.system?.details?.level?.value, source.level ?? 1);
   }

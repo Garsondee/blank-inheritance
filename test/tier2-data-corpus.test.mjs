@@ -17,6 +17,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { buildCreatureActorData } from "../module/blank-inheritance/scripts/core/generators/creature.mjs";
+import { buildNpcActorData } from "../module/blank-inheritance/scripts/core/generators/npc.mjs";
 import { buildCharacterActorData } from "../module/blank-inheritance/scripts/core/generators/character.mjs";
 import { ALL_PROFILES } from "../tools/battle-simulator/personnel-engine/archetypes.mjs";
 
@@ -149,6 +150,11 @@ test("combatStatblock's new profileRef field (design doc §50, Archetype Ladder 
 
 const GENERATORS_BY_TYPE = {
   creature: buildCreatureActorData,
+  // buildNpcActorData (unlike the old inline npc handling below it replaced)
+  // takes the WHOLE npc.schema.json object and branches internally on
+  // whether `statblock` is present -- so every real data/npcs/*.json file is
+  // generator-applicable now, not just the ones with real combat stats.
+  npc: buildNpcActorData,
   kid: buildCharacterActorData,
   frame: buildCharacterActorData
 };
@@ -156,28 +162,63 @@ const GENERATORS_BY_TYPE = {
 test("every data/ file with a generator-applicable type runs through its generator without throwing", async () => {
   const applicable = dataFiles
     .map((file) => ({ file, content: JSON.parse(readFileSync(file, "utf8")) }))
-    .filter(({ content }) => {
-      if (GENERATORS_BY_TYPE[content.type]) return true;
-      // npc.schema.json's statblock is optional (most NPCs are narrative-only,
-      // see npc.schema.json) — only the ones with real combat stats are generator-applicable.
-      if (content.type === "npc" && content.statblock) return true;
-      return false;
-    });
+    .filter(({ content }) => Boolean(GENERATORS_BY_TYPE[content.type]));
 
-  // Currently expected to be empty: no real Claimant instances, no kid/Frame
-  // files exist yet (character creation hasn't happened), and none of the
-  // three current NPCs carry a statblock. This assertion documents that as
-  // a known, current state rather than a silent zero-test pass — it must be
-  // updated (not just left green) the day the first real kid/Frame/Claimant
-  // file is added, per design/testing-strategy.md's "no silent caps" rule.
+  // Currently expected to cover every real data/npcs/*.json file (29 as of
+  // 2026-09-16, most with no statblock at all) plus zero kid/Frame/creature
+  // files -- character creation hasn't happened yet and no real Claimant
+  // instances exist. This assertion documents that as a known, current state
+  // rather than a silent zero-test pass — it must be updated (not just left
+  // green) the day the first real kid/Frame/Claimant file is added, per
+  // design/testing-strategy.md's "no silent caps" rule.
   console.log(`Blank Inheritance test | ${applicable.length} generator-applicable real data file(s) found.`);
 
   for (const { file, content } of applicable) {
-    const generator = GENERATORS_BY_TYPE[content.type] ?? buildCreatureActorData;
-    const source = content.type === "npc" ? content.statblock : content;
+    const generator = GENERATORS_BY_TYPE[content.type];
     await assert.doesNotReject(
-      () => generator({ ...source, id: content.id, name: content.name }),
+      () => generator(content),
       `${path.relative(repoRoot, file)} (type "${content.type}") threw when run through its generator`
     );
   }
+});
+
+// Tier 2's own narrow reference-integrity check for npcRef specifically (not
+// a general *Ref/*Refs cross-reference graph -- different ref fields point at
+// different collections, and doing that properly for all of them is a
+// separate, bigger task). Deliberately scoped to CAST-entry npcRef only:
+// scene-brief.schema.json overloads the literal key name "npcRef" for two
+// different things — a cast entry's npcRef points at a real data/npcs/*.json
+// id (schema's own words: "id of a data/npcs/*.json file"), but a BEAT's
+// npcRef points at a scene-LOCAL cast entry id instead ("The `id` of a cast
+// entry above"). Confirmed live in the corpus, 2026-09-16: the Intake
+// Medicals clerk's cast-local id is "clerk", but her real data/npcs/ id is
+// "intake-medicals-clerk" — a beat referencing npcRef: "clerk" is correct
+// and must not be flagged, even though "clerk" is not a real npc id. Walking
+// every occurrence of the key regardless of position would misreport that
+// (and similar cases, e.g. the-errand.json's beat-level npcRef: "storekeeper",
+// a cast-local id with no data/npcs/ file at all) as dangling.
+test("every non-null CAST-entry npcRef under data/ resolves to a real id in data/npcs/*.json", () => {
+  const npcFiles = dataFiles.filter((f) => f.includes(`${path.sep}npcs${path.sep}`));
+  const realNpcIds = new Set(npcFiles.map((f) => JSON.parse(readFileSync(f, "utf8")).id));
+  assert.ok(realNpcIds.size > 0, "expected at least one real file under data/npcs/ for this check to mean anything");
+
+  const refs = [];
+  for (const file of dataFiles) {
+    const content = JSON.parse(readFileSync(file, "utf8"));
+    if (!Array.isArray(content.cast)) continue;
+    for (const castEntry of content.cast) {
+      if (castEntry && typeof castEntry.npcRef === "string") {
+        refs.push({ npcRef: castEntry.npcRef, castId: castEntry.id, file });
+      }
+    }
+  }
+  assert.ok(refs.length > 0, "expected at least one real cast-entry npcRef somewhere under data/ for this check to mean anything");
+
+  const dangling = refs.filter((r) => !realNpcIds.has(r.npcRef));
+  assert.deepEqual(
+    dangling.map((d) => `${path.relative(repoRoot, d.file)}: cast entry "${d.castId}" -> npcRef "${d.npcRef}"`),
+    [],
+    "every cast-entry npcRef must resolve to a real id in data/npcs/*.json -- a dangling one silently breaks anything " +
+      "that resolves it later (e.g. the Character Card system, foundry/social-store.mjs, which needs a real Actor per NPC)."
+  );
 });

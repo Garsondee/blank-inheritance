@@ -1,0 +1,97 @@
+{
+  "_id": "9b0f06405c31c36c",
+  "name": "TEST FIXTURE — Diagnostic NPC (Statblock)",
+  "type": "npc",
+  "system": {
+    "abilities": {
+      "str": {
+        "mod": 1
+      },
+      "dex": {
+        "mod": 2
+      },
+      "con": {
+        "mod": 1
+      },
+      "int": {
+        "mod": 0
+      },
+      "wis": {
+        "mod": 2
+      },
+      "cha": {
+        "mod": 3
+      }
+    },
+    "attributes": {
+      "ac": {
+        "value": 18
+      },
+      "hp": {
+        "value": 35,
+        "max": 35
+      },
+      "speed": {
+        "value": 25
+      }
+    },
+    "perception": {
+      "mod": 8
+    },
+    "saves": {
+      "fortitude": {
+        "value": 7
+      },
+      "reflex": {
+        "value": 8
+      },
+      "will": {
+        "value": 10
+      }
+    },
+    "skills": {
+      "diplomacy": {
+        "base": 11
+      }
+    },
+    "traits": {
+      "value": [
+        "humanoid"
+      ],
+      "size": {
+        "value": "med"
+      }
+    },
+    "details": {
+      "level": {
+        "value": 3
+      },
+      "blurb": "",
+      "publicNotes": ""
+    }
+  },
+  "items": [
+    {
+      "name": "Baton",
+      "type": "melee",
+      "system": {
+        "action": "strike",
+        "bonus": {
+          "value": 10
+        },
+        "damageRolls": {
+          "blankinh00": {
+            "damage": "1d6+3",
+            "damageType": "bludgeoning"
+          }
+        },
+        "range": null,
+        "traits": {
+          "value": [
+            "nonlethal"
+          ]
+        }
+      }
+    }
+  ]
+}

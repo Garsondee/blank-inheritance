@@ -1,0 +1,38 @@
+{
+  "$schema": "../../../../data/schema/npc.schema.json",
+  "id": "test-fixture-npc-002",
+  "type": "npc",
+  "name": "TEST FIXTURE — Diagnostic NPC (Statblock)",
+  "role": "Diagnostic Fixture",
+  "pole": null,
+  "affiliation": null,
+  "description": "SYNTHETIC TEST FIXTURE for validating the Foundry sync pipeline's statblock-carrying NPC path only. Not a real NPC, not canon — do not use as campaign content.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "test fixture",
+  "statblock": {
+    "level": 3,
+    "traits": ["humanoid"],
+    "size": "medium",
+    "abilityModifiers": { "str": 1, "dex": 2, "con": 1, "int": 0, "wis": 2, "cha": 3 },
+    "perception": { "proficiency": { "rank": "trained", "modifier": 8 } },
+    "skills": { "diplomacy": { "rank": "expert", "modifier": 11 } },
+    "ac": 18,
+    "savingThrows": {
+      "fortitude": { "rank": "trained", "modifier": 7 },
+      "reflex": { "rank": "trained", "modifier": 8 },
+      "will": { "rank": "expert", "modifier": 10 }
+    },
+    "hitPoints": { "max": 35, "current": 35 },
+    "speed": { "land": 25 },
+    "strikes": [
+      {
+        "name": "Baton",
+        "strikeType": "melee",
+        "attackBonus": 10,
+        "traits": ["nonlethal"],
+        "damage": [{ "dice": "1d6", "bonus": 3, "damageType": "bludgeoning" }]
+      }
+    ]
+  }
+}

@@ -23,6 +23,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { buildCreatureActorData } from "../module/blank-inheritance/scripts/core/generators/creature.mjs";
+import { buildNpcActorData } from "../module/blank-inheritance/scripts/core/generators/npc.mjs";
 import { buildCharacterActorData } from "../module/blank-inheritance/scripts/core/generators/character.mjs";
 import { buildJournalEntryData } from "../module/blank-inheritance/scripts/core/generators/journal.mjs";
 import { resolveActorTemplate, hasPath, flattenPaths, findInvalidActorFieldPaths } from "./support/sf2e-template.mjs";
@@ -97,6 +98,55 @@ test("buildCreatureActorData: every field path it writes exists on sf2e's real n
       `either the generator is writing a field sf2e doesn't have, or sf2e renamed/removed it since this was last verified.`
   );
   assert.ok(hasPath(resolved, "skills"), "system.skills container itself must exist on the npc template");
+});
+
+test("buildNpcActorData: every field path it writes exists on sf2e's real npc Actor template, for BOTH the statblock and statblock-less branches", async (t) => {
+  if (!existsSync(templateJsonPath)) {
+    t.skip("gamesystems/sf2e/template.json not present locally (gitignored) — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const templateJson = JSON.parse(readFileSync(templateJsonPath, "utf8"));
+
+  // Branch 1: a real combatStatblock, same shape the creature contract test
+  // above already verifies -- buildNpcActorData must write the identical
+  // field set via the shared combat-statblock.mjs mapping.
+  const withStatblock = await buildNpcActorData({
+    id: "contract-check-npc-statblock",
+    name: "Contract Check NPC (statblock)",
+    description: "Has a description too, but a statblock branch never reads it for blurb/publicNotes.",
+    statblock: {
+      abilityModifiers: { str: 1 },
+      ac: 10,
+      hitPoints: { max: 1 },
+      speed: { land: 1 },
+      perception: { proficiency: { modifier: 1 } },
+      savingThrows: { fortitude: { modifier: 1 }, reflex: { modifier: 1 }, will: { modifier: 1 } },
+      traits: ["x"],
+      size: "medium",
+      skills: { athletics: { modifier: 1 } }
+    }
+  });
+  const invalidWithStatblock = findInvalidActorFieldPaths(templateJson, "npc", withStatblock.system);
+  assert.deepEqual(
+    invalidWithStatblock,
+    [],
+    "buildNpcActorData's statblock branch writes system.* paths that don't exist on sf2e's real npc Actor template."
+  );
+
+  // Branch 2: no statblock at all -- most Directorate NPCs (npc.schema.json's
+  // own doc comment). The "minimal but real" defaults must be just as valid
+  // as a fully-authored statblock, not a special case the template doesn't recognize.
+  const withoutStatblock = await buildNpcActorData({
+    id: "contract-check-npc-bare",
+    name: "Contract Check NPC (no statblock)",
+    description: "A purely social NPC with no combat stats at all."
+  });
+  const invalidWithoutStatblock = findInvalidActorFieldPaths(templateJson, "npc", withoutStatblock.system);
+  assert.deepEqual(
+    invalidWithoutStatblock,
+    [],
+    "buildNpcActorData's statblock-less branch writes system.* paths that don't exist on sf2e's real npc Actor template."
+  );
 });
 
 test("buildCharacterActorData: the one field it writes (details.level.value) exists only via template inheritance", async (t) => {

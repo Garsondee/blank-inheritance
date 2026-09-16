@@ -28,7 +28,7 @@
   "cast": [
     {
       "id": "shucks-mordant",
-      "npcRef": null,
+      "npcRef": "shucks-mordant",
       "label": "Shucks Mordant",
       "role": "Chief Medical Officer",
       "arrival": "quiet",
@@ -86,6 +86,7 @@
     },
     {
       "id": "clerk",
+      "npcRef": "intake-medicals-clerk",
       "label": "The clerk",
       "role": "Records, and unbothered by everything",
       "walkOn": true,

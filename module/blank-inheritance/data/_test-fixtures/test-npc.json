@@ -1,0 +1,13 @@
+{
+  "$schema": "../../../../data/schema/npc.schema.json",
+  "id": "test-fixture-npc-001",
+  "type": "npc",
+  "name": "TEST FIXTURE — Diagnostic NPC",
+  "role": "Diagnostic Fixture",
+  "pole": null,
+  "affiliation": null,
+  "description": "SYNTHETIC TEST FIXTURE for validating the Foundry sync pipeline's statblock-less NPC path only. Not a real NPC, not canon — do not use as campaign content. See ideas/entries and the module's diagnostic test sync.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "test fixture"
+}

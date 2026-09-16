@@ -20,7 +20,7 @@
   "cast": [
     {
       "id": "nobu",
-      "npcRef": null,
+      "npcRef": "nobu",
       "label": "Nobu",
       "role": "Quartermaster",
       "arrival": "announced",

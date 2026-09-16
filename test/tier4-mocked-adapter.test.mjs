@@ -55,6 +55,10 @@ function loadRealCampaignModuleFiles() {
   moduleFiles["data/campaign/antagonists/claimants/contact-unclassified.json"] = JSON.parse(
     readFileSync(path.join(dataRoot, "antagonists", "claimants", "contact-unclassified.json"), "utf8")
   );
+  // Keep this list in step with REAL_NPC_PATHS in scripts/foundry/sync.mjs.
+  for (const id of ["shucks-mordant", "nobu", "intake-medicals-clerk"]) {
+    moduleFiles[`data/campaign/npcs/${id}.json`] = JSON.parse(readFileSync(path.join(dataRoot, "npcs", `${id}.json`), "utf8"));
+  }
   // Session One is the only episode left in the repo -- every other drafted beat
   // beyond Session 0/1 was deleted 2026-09-13. Keep this list in step with
   // REAL_EPISODE_PATHS in scripts/foundry/sync.mjs.
@@ -385,7 +389,7 @@ test("runRealContentSync: the real Claimant and Session One sync cleanly against
     const report = await runRealContentSync();
 
     assert.equal(report.fatalError, null);
-    assert.equal(report.results.length, 2, "1 claimant + 1 episode (Session One is the only one left)");
+    assert.equal(report.results.length, 5, "1 claimant + 3 npcs (Shucks Mordant, Nobu, the Intake Medicals clerk) + 1 episode (Session One is the only one left)");
     for (const result of report.results) {
       const failed = result.checks.filter((c) => !c.pass);
       assert.deepEqual(failed, [], `expected all checks to pass for ${result.sourceId}: ${JSON.stringify(failed)}`);
@@ -398,13 +402,29 @@ test("runRealContentSync: the real Claimant and Session One sync cleanly against
     assert.equal(claimant.name, "Contact, Unclassified");
     assert.equal(claimant.system.attributes.hp.max, 165);
 
+    const shucksId = await deriveFoundryId("shucks-mordant");
+    const shucks = world.actors.get(shucksId);
+    assert.ok(shucks, "Shucks Mordant's Actor must actually exist in the mock world");
+    assert.equal(shucks.type, "npc");
+    assert.equal(shucks.name, "Shucks Mordant");
+
+    const nobuId = await deriveFoundryId("nobu");
+    const nobu = world.actors.get(nobuId);
+    assert.ok(nobu, "Nobu's Actor must actually exist in the mock world");
+    assert.equal(nobu.name, "Nobu");
+
+    const clerkId = await deriveFoundryId("intake-medicals-clerk");
+    const clerk = world.actors.get(clerkId);
+    assert.ok(clerk, "the Intake Medicals clerk's Actor must actually exist in the mock world");
+    assert.equal(clerk.system.attributes.hp.value, 1, "a statblock-less NPC gets the 1-HP non-combat default, not 0");
+
     const sessionOneId = await deriveFoundryId("episode-c1s1-mothers-maiden-name");
     const sessionOneJournal = world.journal.get(sessionOneId);
     assert.ok(sessionOneJournal, "Session One's JournalEntry must exist");
     assert.equal(sessionOneJournal.pages.length, 7, "1 overview page + 6 authored scenes");
 
     // Real content must not touch the diagnostic path's documents or vice versa.
-    assert.equal(world.actors.size, 1, "only the claimant -- no test-fixture actors from this run");
+    assert.equal(world.actors.size, 4, "the claimant + the three established/voiced NPCs -- no test-fixture actors from this run");
     assert.equal(world.journal.size, 1, "one JournalEntry per real episode file");
   } finally {
     uninstall();
@@ -421,18 +441,21 @@ test("runRealContentSync: a second run against unchanged real data skips everyth
     await runRealContentSync();
     const claimantId = await deriveFoundryId("contact-unclassified");
     const claimantRef = world.actors.get(claimantId);
+    const shucksId = await deriveFoundryId("shucks-mordant");
+    const shucksRef = world.actors.get(shucksId);
 
     const secondRun = await runRealContentSync();
     for (const result of secondRun.results) {
       assert.equal(result.skipped, true, `expected ${result.sourceId} to be skipped on an unchanged second run`);
     }
     assert.strictEqual(world.actors.get(claimantId), claimantRef, "unchanged real data must never be torn down and recreated");
+    assert.strictEqual(world.actors.get(shucksId), shucksRef, "the hash-skip mechanism must apply to the npc case type too, not just creature");
   } finally {
     uninstall();
   }
 });
 
-test("runRealContentSync: does not touch the six kids/Frames or the NPCs -- they're still draft/placeholder, not this pipeline's call to finalize", async (t) => {
+test("runRealContentSync: still does not touch the six kids/Frames or the three still-placeholder Directorate poles -- Shucks/Nobu/the clerk are the only NPCs real enough to sync", async (t) => {
   if (!templateJson) {
     t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
     return;
@@ -440,11 +463,18 @@ test("runRealContentSync: does not touch the six kids/Frames or the NPCs -- they
   const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadRealCampaignModuleFiles(), templateJson });
   try {
     await runRealContentSync();
-    // Only the one real Actor (the Claimant) may exist -- none of the
-    // draft kid/Frame characters, which would also be type "character"
+    // No draft kid/Frame characters, which would also be type "character"
     // Actors if this pipeline ever created them.
     const characterActors = [...world.actors.values()].filter((a) => a.type === "character");
     assert.deepEqual(characterActors, [], "no draft kid/Frame character should be synced without explicit confirmation");
+    // Exactly 4 npc-type Actors (claimant + 3 NPCs) -- see the "syncs cleanly"
+    // test above for the precise identity/count assertions. Combined with the
+    // character-type assertion above, this pins down that REAL_NPC_PATHS
+    // still deliberately excludes the Commander/Caretaker/Transparency
+    // Advocate placeholders (loadRealCampaignModuleFiles above doesn't even
+    // provide mock data for them, so sync.mjs asking for them would surface
+    // here as a failed/thrown case, not a silently-passing one).
+    assert.equal(world.actors.size, 4);
   } finally {
     uninstall();
   }
@@ -474,7 +504,7 @@ test("promptToRunSync: the GM confirming the dialog runs the real content sync (
     await promptToRunSync();
 
     assert.equal(world.dialogConfirmCalls.length, 1, "expected exactly one confirmation dialog to have been shown");
-    assert.equal(world.actors.size, 1, "confirming must actually run the REAL sync -- the real Claimant, not test fixtures");
+    assert.equal(world.actors.size, 4, "confirming must actually run the REAL sync -- the real Claimant + 3 NPCs, not test fixtures");
     assert.equal(world.journal.size, 1, "one JournalEntry per real episode");
     assert.equal(world.chatMessages.length, 1, "the sync's own whispered report must still show up");
   } finally {
