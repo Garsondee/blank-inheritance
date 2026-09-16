@@ -110,6 +110,44 @@ feels like escalation rather than promotion.
 
 Rungs are gated by chapter as well as cost, so nobody buys Prodigies in Chapter 2.
 
+### SITE CLASSIFICATION — a second, different axis *(new, 2026-09-12)*
+
+Clearance rungs answer one question: given a party already knows a place exists, how far inside
+may they go? They do not answer a different one Ingram raised while a new location (The Rock,
+`data/locations/the-rock.json`) was being written: **does a place's existence get seen by anyone
+who isn't specifically read into it at all** — not "how deep," but "is this on the map anyone
+gets to look at in the first place."
+
+**Classification is the property of the PLACE; Clearance is the standing of the PARTY.** A site's
+`classification` field (`location.schema.json`) answers the first question; a party's Clearance
+rung, checked against it, answers whether they currently get to know the place exists at all —
+that check is a GM judgement call for now, not a formula, since only one site uses this so far.
+
+Five tiers reuse the real Japanese document-classification ladder `redacted-document-chain`
+(`ideas/entries/redacted-document-chain.json`) already built for text, generalised from documents
+to places:
+
+| Tier | | Meaning for a place |
+|---|---|---|
+| `public` | 公開 | Shown on any ordinary map, discussed freely. |
+| `internal` | 部外秘 | Directorate business, not published outward, but an ordinary cadet knows it exists. |
+| `secret` | 秘 | Existence known Directorate-wide; business inside it is not. |
+| `classified` | 機密 | Existence known only above a working Clearance rung. |
+| `top-secret` | 極秘 | Existence known to a short, specific list of people. |
+
+**`omega-zero` sits above that ladder rather than extending it.** It is not "more top-secret" —
+it is a different kind of secret, reserved for the vanishingly rare site whose existence is
+unknown even to most Directorate *staff*, not merely restricted from outsiders. The Rock is the
+first and, for now, the only site classified this way: "students and most staff being unaware of
+its purpose and completely unaware of its secrets" (Ingram's own note). Spend this tier rarely —
+if every interesting building turns out to be Omega-Zero, the word stops meaning anything, which
+is the same failure mode the Resonance bands document already found once (`design/resonance-and-bleed.md`).
+
+Undeclared (`null`) is correct for nearly everything, including every location promoted before
+2026-09-12 — this is an opt-in field, not a retrofit, and nothing currently promoted has been
+assigned a tier. Most named districts and buildings have no reason to ever need one; the whole
+point of most of the map is that it's the kind of place that shows up on a map.
+
 ### BONDS — the reward currency *(new, and load-bearing against tone drift)*
 
 The bible says plainly: *"The reward is bonds. Not survival, not victory. What the players should
