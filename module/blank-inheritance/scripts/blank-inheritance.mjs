@@ -59,6 +59,7 @@ import { openEquipmentPanel, refreshEquipmentPanel } from "./foundry/equipment-p
 import { mountPhone } from "./foundry/phone.mjs";
 import { createDirectorPanelMacroIfMissing, openDirectorPanel, refreshDirectorPanel } from "./foundry/director-panel.mjs";
 import { registerSceneCloseSettings, openSceneCloseDialogue } from "./foundry/scene-close.mjs";
+import { registerChatExportHooks } from "./foundry/chat-export.mjs";
 
 const MODULE_ID = "blank-inheritance";
 
@@ -170,6 +171,16 @@ Hooks.once("ready", async () => {
       await ensureStageVault();
     } catch (err) {
       console.error("Blank Inheritance | Could not open the staged-cast vault:", err);
+    }
+    // design/harvest-inference.md: nothing exported the chat log for
+    // sync-harvest.mjs to pull down until now. Its own internal GM check
+    // makes this redundant with the surrounding `if`, kept anyway so this
+    // block reads as a complete, self-contained list of what a GM's ready
+    // hook sets up.
+    try {
+      registerChatExportHooks();
+    } catch (err) {
+      console.error("Blank Inheritance | Could not register the chat export:", err);
     }
   }
 

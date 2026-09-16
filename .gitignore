@@ -111,6 +111,12 @@ module/blank-inheritance/assets/stage/
 # test reports are pure diagnostics, regenerated on every run, and are not.
 harvest/test-reports/
 
+# tools/module-sync/review-harvest.mjs's own output -- a reproducible
+# summary derived FROM harvest/sessions/ and harvest/chat-*.json, same
+# "regenerate on demand" category as test-reports/ above, not a second copy
+# of source data worth tracking.
+harvest/inference/
+
 # Gazetteer: calibration overlays and crops are regenerable working images,
 # not project content. Same treatment as tools/city-map/_out/.
 /tools/gazetteer/_calibration/

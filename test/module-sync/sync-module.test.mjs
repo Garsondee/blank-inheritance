@@ -13,6 +13,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
+import os from "node:os";
 
 import { runModuleSync } from "../../tools/module-sync/sync-module.mjs";
 import { computeLocalChecksums } from "../../tools/module-sync/local-hash.mjs";
@@ -91,6 +93,44 @@ test("runModuleSync: a remote-only storage/ entry is excluded before comparing (
   );
   assert.ok(lines.some((l) => l.includes("VERIFIED")), "a storage/-only difference must not break verification");
   assert.equal(exitCode, undefined);
+});
+
+test("runModuleSync: a LOCAL storage/ file is excluded from the upload itself, not just from the comparison (regression, found live 2026-09-16)", async () => {
+  // The bug this guards: computeLocalChecksums's own contract is "hash
+  // everything, skip nothing" (local-hash.mjs), and the ONLY storage/
+  // exclusion that existed before this fix was applied to the REMOTE map,
+  // for the comparison step -- nothing stopped a local storage/ file (e.g.
+  // one reachable through the same junction a developer uses for local
+  // Foundry testing) from being handed to uploadDirectory and genuinely
+  // sent to the server. Confirmed live: a local scene-close-dialogue test
+  // session log leaked into the production server's storage/sessions/ this
+  // exact way.
+  const tempDir = await mkdtemp(path.join(os.tmpdir(), "bi-sync-module-storage-test-"));
+  try {
+    await writeFile(path.join(tempDir, "module.json"), "{}");
+    await mkdir(path.join(tempDir, "storage", "sessions"), { recursive: true });
+    await writeFile(path.join(tempDir, "storage", "sessions", "2026-09-16.json"), '{"entries":["local test junk"]}');
+
+    const localMap = await computeLocalChecksums(tempDir);
+    assert.ok(localMap.has("storage/sessions/2026-09-16.json"), "sanity check: the raw local map (pre-fix input) really does contain the storage/ file");
+
+    const { remote, calls } = createMockRemote({ remoteChecksums: new Map() });
+    const { lines } = await runModuleSyncCaptured(baseConfig({ localDir: tempDir }), remote);
+
+    assert.equal(calls.uploadDirectory.length, 1);
+    assert.equal(
+      calls.uploadDirectory[0].localMap.has("storage/sessions/2026-09-16.json"),
+      false,
+      "the storage/ file must never reach uploadDirectory's localMap"
+    );
+    assert.deepEqual([...calls.uploadDirectory[0].localMap.keys()], ["module.json"]);
+    assert.ok(
+      lines.some((l) => l.includes("1 files locally") && l.includes("1 under storage/ excluded")),
+      "the local-file-count line should say so plainly, not just silently drop it"
+    );
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
 });
 
 test("runModuleSync: a real mismatch (remote missing a file) is reported and fails the exit code", async () => {

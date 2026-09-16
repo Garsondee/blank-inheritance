@@ -1,0 +1,28 @@
+{
+  "date": "2026-09-16",
+  "world": "bi-console-test",
+  "entries": [
+    {
+      "at": "2026-09-16T16:39:16.539Z",
+      "tag": "anchor",
+      "text": "Scene closed -- Interrupted / Anchor violated. Kimura pushed past the line we set in session zero.",
+      "context": {
+        "scene": null,
+        "mode": null,
+        "subject": null,
+        "author": "Gamemaster"
+      }
+    },
+    {
+      "at": "2026-09-16T16:39:41.898Z",
+      "tag": null,
+      "text": "Scene left open, carries forward.",
+      "context": {
+        "scene": null,
+        "mode": null,
+        "subject": null,
+        "author": "Gamemaster"
+      }
+    }
+  ]
+}

@@ -61,8 +61,27 @@ const config = {
  */
 export async function runModuleSync(config, remote = { uploadDirectory, remoteChecksums }) {
   console.log(`=== 1. Local checksums (${config.localDir}) ===`);
-  const localMap = await computeLocalChecksums(config.localDir);
-  console.log(`${localMap.size} files locally`);
+  const rawLocalMap = await computeLocalChecksums(config.localDir);
+  // storage/ is Foundry's own write channel (test reports, harvested GM
+  // edits) -- never part of this git-tracked folder, never meant to be
+  // pushed FROM local, per the module README's own table. This EXCLUSION,
+  // not just the remote-side one below, is what actually enforces that:
+  // computeLocalChecksums's own contract is "hash everything found, skip
+  // nothing" (see local-hash.mjs), so a local Foundry install's storage/
+  // directory -- reachable here through the same junction a developer uses
+  // for local testing (see reference_local_foundry_test_environment) -- was
+  // being uploaded right alongside real module code with nothing to stop
+  // it. Found live 2026-09-16: a local scene-close-dialogue test session
+  // log leaked onto the production server's storage/sessions/ this way,
+  // silently, because the comparison step's OWN storage/ exclusion (below)
+  // made the false "only local" result LOOK like confirmation nothing had
+  // been sent, when the upload step had already sent it minutes earlier.
+  const localMap = new Map([...rawLocalMap].filter(([relativePath]) => !relativePath.startsWith("storage/")));
+  const skippedLocalStorage = rawLocalMap.size - localMap.size;
+  console.log(
+    `${localMap.size} files locally` +
+      (skippedLocalStorage > 0 ? ` (${skippedLocalStorage} under storage/ excluded -- never pushed from local)` : "")
+  );
 
   if (config.dryRun) {
     console.log("=== --dry-run: comparing against remote WITHOUT uploading ===");
@@ -74,12 +93,11 @@ export async function runModuleSync(config, remote = { uploadDirectory, remoteCh
   console.log("=== 3. Remote checksums ===");
   const remoteMap = await remote.remoteChecksums(config);
   for (const relativePath of [...remoteMap.keys()]) {
-    // storage/ is Foundry's own write channel (test reports, harvested GM
-    // edits) -- never part of this git-tracked folder, never pushed FROM
-    // local, per the module README's own table. Without this exclusion,
-    // the very first report Foundry ever writes makes every push from then
-    // on permanently report a false "only remote" mismatch, since nothing
-    // local can ever match a directory that's never supposed to exist here.
+    // The comparison must ALSO ignore storage/ on the remote side: Foundry
+    // itself writes there independently of anything this script pushes (its
+    // own session logs, harvested content), so a real remote-only file under
+    // storage/ is expected and not a "missing from local" fault the way an
+    // unexplained one anywhere else in the module tree would be.
     if (relativePath.startsWith("storage/")) remoteMap.delete(relativePath);
   }
   console.log(`${remoteMap.size} files remotely (excluding storage/, Foundry's own write channel)`);
