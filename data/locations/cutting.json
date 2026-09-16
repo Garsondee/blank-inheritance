@@ -1,0 +1,193 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "cutting",
+  "type": "location",
+  "tier": "region",
+  "name": "The Cutting",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "district",
+  "tags": [
+    "auto-tessellated",
+    "land"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.14675716961793,
+          34.676269960751476
+        ],
+        [
+          135.15389931716814,
+          34.66583330935431
+        ],
+        [
+          135.15854776384353,
+          34.666167466959976
+        ],
+        [
+          135.16982359573112,
+          34.681966664582944
+        ],
+        [
+          135.16953555942357,
+          34.68286046800524
+        ],
+        [
+          135.15155621308037,
+          34.68299602503616
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          1700.0,
+          9076.8
+        ],
+        [
+          2851.8,
+          9741.8
+        ],
+        [
+          3200.0,
+          9493.5
+        ],
+        [
+          3200.0,
+          7458.9
+        ],
+        [
+          3126.9,
+          7386.9
+        ],
+        [
+          1700.0,
+          8210.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      2558.17,
+      8612.17
+    ],
+    "cells": [
+      "B4·45",
+      "B4·26",
+      "B4·36",
+      "B4·46",
+      "B4·17",
+      "B4·27",
+      "B4·37",
+      "B4·47",
+      "A4·98",
+      "B4·08",
+      "B4·18",
+      "B4·28",
+      "B4·38",
+      "B4·48",
+      "A4·79",
+      "A4·89",
+      "A4·99",
+      "B4·09",
+      "B4·19",
+      "B4·29",
+      "B4·39",
+      "B4·49",
+      "A5·70",
+      "A5·80",
+      "A5·90",
+      "B5·00",
+      "B5·10",
+      "B5·20",
+      "B5·30",
+      "B5·40",
+      "A5·71",
+      "A5·81",
+      "A5·91",
+      "B5·01",
+      "B5·11",
+      "B5·21",
+      "B5·31",
+      "B5·41",
+      "A5·72",
+      "A5·82",
+      "A5·92",
+      "B5·02",
+      "B5·12",
+      "B5·22",
+      "B5·32",
+      "B5·42",
+      "A5·73",
+      "A5·83",
+      "A5·93",
+      "B5·03",
+      "B5·13",
+      "B5·23",
+      "B5·33",
+      "B5·43",
+      "A5·74",
+      "A5·84",
+      "A5·94",
+      "B5·04",
+      "B5·14",
+      "B5·24",
+      "B5·34",
+      "B5·44",
+      "A5·85",
+      "A5·95",
+      "B5·05",
+      "B5·15",
+      "B5·25",
+      "B5·35",
+      "B5·45",
+      "B5·06",
+      "B5·16",
+      "B5·26",
+      "B5·36",
+      "B5·46",
+      "B5·27",
+      "B5·37",
+      "B5·47"
+    ],
+    "ref": "B4·45",
+    "areaM2": 2515775.8,
+    "withinRegionRef": null,
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-204",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "A long shallow valley carrying road, rail and river south-west together, built up along both banks. The city's main way out by land.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A long shallow valley carrying road, rail and river south-west together, built up along both banks. The city's main way out by land.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

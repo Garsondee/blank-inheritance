@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-ready-hut",
+  "type": "location",
+  "tier": "site",
+  "name": "The Ready Hut",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21600991,
+          34.67829252
+        ],
+        [
+          135.21611576,
+          34.6783236
+        ],
+        [
+          135.21618417,
+          34.67816043
+        ],
+        [
+          135.21608076,
+          34.67812921
+        ],
+        [
+          135.21600991,
+          34.67829252
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7052.4,
+          5659.2
+        ],
+        [
+          7059,
+          5651.3
+        ],
+        [
+          7073.6,
+          5663.7
+        ],
+        [
+          7067.2,
+          5671.5
+        ],
+        [
+          7052.4,
+          5659.2
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7063.02,
+      5661.41
+    ],
+    "cells": [
+      "D3·47"
+    ],
+    "ref": "D3·47",
+    "areaM2": 195.7,
+    "withinRegionRef": "the-proving-ground",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-354",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Where crews muster before a run. A chalkboard with the day's rotation, a rack of ear protection nobody signs for and everybody takes, and a kettle that outranks everyone who has ever used it.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Where crews muster before a run. A chalkboard with the day's rotation, a rack of ear protection nobody signs for and everybody takes, and a kettle that outranks everyone who has ever used it.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

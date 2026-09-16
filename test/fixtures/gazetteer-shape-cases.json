@@ -1,0 +1,697 @@
+{
+  "note": "Shared fixture for tools/gazetteer/core/shape.py and core/shape.mjs. Both test suites assert every case. Regenerate with tools/gazetteer/_make_shape_fixture.py and read the diff -- see that file's docstring.",
+  "generatedBy": "tools/gazetteer/_make_shape_fixture.py",
+  "cases": [
+    {
+      "name": "axis-aligned square",
+      "why": "The baseline. A square is 1:1, fills its own rectangle, and has the isoperimetric quotient pi/4.",
+      "ring": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          0,
+          10
+        ]
+      ],
+      "opts": {},
+      "metrics": {
+        "vertexCount": 4,
+        "areaM2": 100.0,
+        "perimeterM": 40.0,
+        "lengthM": 10.0,
+        "widthM": 10.0,
+        "elongation": 1.0,
+        "rectangularity": 1.0,
+        "compactness": 0.785,
+        "bearingDeg": 0.0,
+        "shape": "blocky",
+        "levels": 1,
+        "heightM": 3.3,
+        "heightSource": "typical",
+        "floorAreaM2": 100.0,
+        "floorAreaEstimated": true,
+        "rooms": 4
+      },
+      "capacity": {
+        "maxDepth": "sketch",
+        "reasons": [
+          "100 m2 of floor (storeys not known, counted as one) across 1 level: a shop, a house, a single hall.",
+          "A plain 100% rectangle: no plan features to lean on, so whatever makes it distinctive has to be put there.",
+          "Room for 4 group-sized spaces at 20 m2 each.",
+          "No storey count in the source data, so this is a single-storey reading; a real multi-storey building would carry more."
+        ],
+        "floorAreaM2": 100.0,
+        "rooms": 4,
+        "shape": "blocky"
+      }
+    },
+    {
+      "name": "terrace rotated 40 degrees",
+      "why": "The case that makes a minimum-area rectangle necessary. Its axis-aligned bounding box is 49.8 x 43.2 -- near enough square to look like a block. It is a 60 x 6 m terrace.",
+      "ring": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          45.962667,
+          38.567257
+        ],
+        [
+          42.105941,
+          43.163523
+        ],
+        [
+          -3.856726,
+          4.596267
+        ]
+      ],
+      "opts": {},
+      "metrics": {
+        "vertexCount": 4,
+        "areaM2": 360.0,
+        "perimeterM": 132.0,
+        "lengthM": 60.0,
+        "widthM": 6.0,
+        "elongation": 10.0,
+        "rectangularity": 1.0,
+        "compactness": 0.26,
+        "bearingDeg": 40.0,
+        "shape": "strip",
+        "levels": 1,
+        "heightM": 3.3,
+        "heightSource": "typical",
+        "floorAreaM2": 360.0,
+        "floorAreaEstimated": true,
+        "rooms": 14
+      },
+      "capacity": {
+        "maxDepth": "scene",
+        "reasons": [
+          "360 m2 of floor (storeys not known, counted as one) across 1 level: a real building with several distinct spaces.",
+          "60 x 6 m, 10.0 to 1: it runs in a line. Write it as a row, a range or a frontage -- movement along it, not around it.",
+          "Room for a dozen or so group-sized spaces -- enough for a floor plan with a front, a back and somewhere staff go.",
+          "No storey count in the source data, so this is a single-storey reading; a real multi-storey building would carry more."
+        ],
+        "floorAreaM2": 360.0,
+        "rooms": 14,
+        "shape": "strip"
+      }
+    },
+    {
+      "name": "small shed, narrow but not a sliver",
+      "why": "5 x 5 m is under SLIVER_WIDTH_M and is not a wall. Proves the sliver test needs elongation as well as narrowness.",
+      "ring": [
+        [
+          0,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          5,
+          5
+        ],
+        [
+          0,
+          5
+        ]
+      ],
+      "opts": {},
+      "metrics": {
+        "vertexCount": 4,
+        "areaM2": 25.0,
+        "perimeterM": 20.0,
+        "lengthM": 5.0,
+        "widthM": 5.0,
+        "elongation": 1.0,
+        "rectangularity": 1.0,
+        "compactness": 0.785,
+        "bearingDeg": 0.0,
+        "shape": "blocky",
+        "levels": 1,
+        "heightM": 3.3,
+        "heightSource": "typical",
+        "floorAreaM2": 25.0,
+        "floorAreaEstimated": true,
+        "rooms": 0
+      },
+      "capacity": {
+        "maxDepth": "named",
+        "reasons": [
+          "25.0 m2 of floor (storeys not known, counted as one) across 1 level: a kiosk, a shed, a store, a shrine box.",
+          "A plain 100% rectangle: no plan features to lean on, so whatever makes it distinctive has to be put there.",
+          "No storey count in the source data, so this is a single-storey reading; a real multi-storey building would carry more."
+        ],
+        "floorAreaM2": 25.0,
+        "rooms": 0,
+        "shape": "blocky"
+      }
+    },
+    {
+      "name": "L-plan",
+      "why": "Fills well under COMPLEX_RECTANGULARITY of its own rectangle.",
+      "ring": [
+        [
+          0,
+          0
+        ],
+        [
+          30,
+          0
+        ],
+        [
+          30,
+          10
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          10,
+          30
+        ],
+        [
+          0,
+          30
+        ]
+      ],
+      "opts": {},
+      "metrics": {
+        "vertexCount": 6,
+        "areaM2": 500.0,
+        "perimeterM": 120.0,
+        "lengthM": 30.0,
+        "widthM": 30.0,
+        "elongation": 1.0,
+        "rectangularity": 0.556,
+        "compactness": 0.436,
+        "bearingDeg": 0.0,
+        "shape": "complex",
+        "levels": 1,
+        "heightM": 3.3,
+        "heightSource": "typical",
+        "floorAreaM2": 500.0,
+        "floorAreaEstimated": true,
+        "rooms": 20
+      },
+      "capacity": {
+        "maxDepth": "scene",
+        "reasons": [
+          "500 m2 of floor (storeys not known, counted as one) across 1 level: a real building with several distinct spaces.",
+          "The plan fills only 56% of its own bounding rectangle -- an L, a U, a cross or a courtyard. Free interior structure; use it.",
+          "Room for a dozen or so group-sized spaces -- enough for a floor plan with a front, a back and somewhere staff go.",
+          "No storey count in the source data, so this is a single-storey reading; a real multi-storey building would carry more."
+        ],
+        "floorAreaM2": 500.0,
+        "rooms": 20,
+        "shape": "complex"
+      }
+    },
+    {
+      "name": "metres per pixel of 2",
+      "why": "The same square at a different map scale. Lengths double, areas quadruple, every ratio is unchanged.",
+      "ring": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          0,
+          10
+        ]
+      ],
+      "opts": {
+        "metres_per_px": 2.0
+      },
+      "metrics": {
+        "vertexCount": 4,
+        "areaM2": 400.0,
+        "perimeterM": 80.0,
+        "lengthM": 20.0,
+        "widthM": 20.0,
+        "elongation": 1.0,
+        "rectangularity": 1.0,
+        "compactness": 0.785,
+        "bearingDeg": 0.0,
+        "shape": "blocky",
+        "levels": 1,
+        "heightM": 3.3,
+        "heightSource": "typical",
+        "floorAreaM2": 400.0,
+        "floorAreaEstimated": true,
+        "rooms": 16
+      },
+      "capacity": {
+        "maxDepth": "scene",
+        "reasons": [
+          "400 m2 of floor (storeys not known, counted as one) across 1 level: a real building with several distinct spaces.",
+          "A plain 100% rectangle: no plan features to lean on, so whatever makes it distinctive has to be put there.",
+          "Room for a dozen or so group-sized spaces -- enough for a floor plan with a front, a back and somewhere staff go.",
+          "No storey count in the source data, so this is a single-storey reading; a real multi-storey building would carry more."
+        ],
+        "floorAreaM2": 400.0,
+        "rooms": 16,
+        "shape": "blocky"
+      }
+    },
+    {
+      "name": "three storeys from a tagged storey count",
+      "why": "Floor area is footprint x storeys and is not estimated.",
+      "ring": [
+        [
+          0,
+          0
+        ],
+        [
+          20,
+          0
+        ],
+        [
+          20,
+          20
+        ],
+        [
+          0,
+          20
+        ]
+      ],
+      "opts": {
+        "levels": 3,
+        "height_source": "levels"
+      },
+      "metrics": {
+        "vertexCount": 4,
+        "areaM2": 400.0,
+        "perimeterM": 80.0,
+        "lengthM": 20.0,
+        "widthM": 20.0,
+        "elongation": 1.0,
+        "rectangularity": 1.0,
+        "compactness": 0.785,
+        "bearingDeg": 0.0,
+        "shape": "blocky",
+        "levels": 3,
+        "heightM": 9.9,
+        "heightSource": "levels",
+        "floorAreaM2": 1200.0,
+        "floorAreaEstimated": false,
+        "rooms": 48
+      },
+      "capacity": {
+        "maxDepth": "scene",
+        "reasons": [
+          "1200 m2 of floor across 3 levels: a real building with several distinct spaces.",
+          "A plain 100% rectangle: no plan features to lean on, so whatever makes it distinctive has to be put there.",
+          "Dozens of group-sized spaces. This is a place with wings or floors that need naming, not one room to describe."
+        ],
+        "floorAreaM2": 1200.0,
+        "rooms": 48,
+        "shape": "blocky"
+      }
+    },
+    {
+      "name": "height tagged in metres, storeys inferred",
+      "why": "22 m over 3.3 m per storey rounds to 7.",
+      "ring": [
+        [
+          0,
+          0
+        ],
+        [
+          20,
+          0
+        ],
+        [
+          20,
+          20
+        ],
+        [
+          0,
+          20
+        ]
+      ],
+      "opts": {
+        "height_m": 22.0,
+        "height_source": "tagged"
+      },
+      "metrics": {
+        "vertexCount": 4,
+        "areaM2": 400.0,
+        "perimeterM": 80.0,
+        "lengthM": 20.0,
+        "widthM": 20.0,
+        "elongation": 1.0,
+        "rectangularity": 1.0,
+        "compactness": 0.785,
+        "bearingDeg": 0.0,
+        "shape": "blocky",
+        "levels": 7,
+        "heightM": 22.0,
+        "heightSource": "tagged",
+        "floorAreaM2": 2800.0,
+        "floorAreaEstimated": false,
+        "rooms": 112
+      },
+      "capacity": {
+        "maxDepth": "standing",
+        "reasons": [
+          "2800 m2 of floor across 7 levels: a complex -- wings, floors, somewhere you can get lost.",
+          "A plain 100% rectangle: no plan features to lean on, so whatever makes it distinctive has to be put there.",
+          "Hundreds of group-sized spaces. Do not attempt to describe the whole of it -- write the few parts anyone will ever be in."
+        ],
+        "floorAreaM2": 2800.0,
+        "rooms": 112,
+        "shape": "blocky"
+      }
+    },
+    {
+      "name": "a defaulted height does not become storeys",
+      "why": "The store fills height_m in for every building and two thirds of this sheet gets the per-type default. Read as a real height it makes 8 m into two floors and doubles the floor area of a shed. `typical` means not known.",
+      "ring": [
+        [
+          0,
+          0
+        ],
+        [
+          20,
+          0
+        ],
+        [
+          20,
+          20
+        ],
+        [
+          0,
+          20
+        ]
+      ],
+      "opts": {
+        "height_m": 8.0,
+        "height_source": "typical"
+      },
+      "metrics": {
+        "vertexCount": 4,
+        "areaM2": 400.0,
+        "perimeterM": 80.0,
+        "lengthM": 20.0,
+        "widthM": 20.0,
+        "elongation": 1.0,
+        "rectangularity": 1.0,
+        "compactness": 0.785,
+        "bearingDeg": 0.0,
+        "shape": "blocky",
+        "levels": 1,
+        "heightM": 8.0,
+        "heightSource": "typical",
+        "floorAreaM2": 400.0,
+        "floorAreaEstimated": true,
+        "rooms": 16
+      },
+      "capacity": {
+        "maxDepth": "scene",
+        "reasons": [
+          "400 m2 of floor (storeys not known, counted as one) across 1 level: a real building with several distinct spaces.",
+          "A plain 100% rectangle: no plan features to lean on, so whatever makes it distinctive has to be put there.",
+          "Room for a dozen or so group-sized spaces -- enough for a floor plan with a front, a back and somewhere staff go.",
+          "No storey count in the source data, so this is a single-storey reading; a real multi-storey building would carry more."
+        ],
+        "floorAreaM2": 400.0,
+        "rooms": 16,
+        "shape": "blocky"
+      }
+    },
+    {
+      "name": "real: Baggage Inspection (item-159)",
+      "why": "334 m long, 4.3 m across, 1430 m2 of floor. The sliver cap exists for this: area alone would call it a scene location.",
+      "ring": [
+        [
+          5699.5,
+          5983.7
+        ],
+        [
+          5702.6,
+          5980.7
+        ],
+        [
+          5937.5,
+          6218.3
+        ],
+        [
+          5934.5,
+          6221.3
+        ],
+        [
+          5699.5,
+          5983.7
+        ]
+      ],
+      "opts": {},
+      "metrics": {
+        "vertexCount": 4,
+        "areaM2": 1429.5,
+        "perimeterM": 676.9,
+        "lengthM": 334.2,
+        "widthM": 4.3,
+        "elongation": 77.47,
+        "rectangularity": 0.992,
+        "compactness": 0.039,
+        "bearingDeg": 45.3,
+        "shape": "sliver",
+        "levels": 1,
+        "heightM": 3.3,
+        "heightSource": "typical",
+        "floorAreaM2": 1429.5,
+        "floorAreaEstimated": true,
+        "rooms": 0
+      },
+      "capacity": {
+        "maxDepth": "sketch",
+        "reasons": [
+          "1430 m2 of floor (storeys not known, counted as one) across 1 level: no enclosed space wide enough to stand a group in.",
+          "334 m long and only 4.3 m across: a wall, a jetty, a canopy or an inspection line. There is no room in there, so write the passage through it, not the inside of it.",
+          "334 x 4 m, 77.5 to 1: it runs in a line. Write it as a row, a range or a frontage -- movement along it, not around it.",
+          "No storey count in the source data, so this is a single-storey reading; a real multi-storey building would carry more."
+        ],
+        "floorAreaM2": 1429.5,
+        "rooms": 0,
+        "shape": "sliver"
+      }
+    },
+    {
+      "name": "real: North Tower (item-128)",
+      "why": "15 tagged storeys over a 5:1 footprint. Elongated and still a standing location, which is why elongation does not gate.",
+      "ring": [
+        [
+          6928,
+          6632.9
+        ],
+        [
+          6932,
+          6626.8
+        ],
+        [
+          6930,
+          6625.6
+        ],
+        [
+          6930.6,
+          6624.8
+        ],
+        [
+          6928.7,
+          6623.6
+        ],
+        [
+          6923.4,
+          6631.9
+        ],
+        [
+          6889.8,
+          6610.4
+        ],
+        [
+          6898.1,
+          6597.6
+        ],
+        [
+          6935.4,
+          6621.4
+        ],
+        [
+          6936.3,
+          6620
+        ],
+        [
+          6968.6,
+          6640.6
+        ],
+        [
+          6960.3,
+          6653.5
+        ],
+        [
+          6928,
+          6632.9
+        ]
+      ],
+      "opts": {
+        "levels": 15,
+        "height_source": "levels"
+      },
+      "metrics": {
+        "vertexCount": 12,
+        "areaM2": 1222.6,
+        "perimeterM": 215.7,
+        "lengthM": 83.3,
+        "widthM": 16.8,
+        "elongation": 4.96,
+        "rectangularity": 0.875,
+        "compactness": 0.33,
+        "bearingDeg": 30.4,
+        "shape": "strip",
+        "levels": 15,
+        "heightM": 49.5,
+        "heightSource": "levels",
+        "floorAreaM2": 18338.7,
+        "floorAreaEstimated": false,
+        "rooms": 733
+      },
+      "capacity": {
+        "maxDepth": "standing",
+        "reasons": [
+          "18339 m2 of floor across 15 levels: a complex -- wings, floors, somewhere you can get lost.",
+          "83 x 17 m, 5.0 to 1: it runs in a line. Write it as a row, a range or a frontage -- movement along it, not around it.",
+          "Hundreds of group-sized spaces. Do not attempt to describe the whole of it -- write the few parts anyone will ever be in."
+        ],
+        "floorAreaM2": 18338.7,
+        "rooms": 733,
+        "shape": "strip"
+      }
+    },
+    {
+      "name": "real: bicycle store (item-172)",
+      "why": "24 m2. The smallest thing in the first session and the reason this module was written.",
+      "ring": [
+        [
+          6285.9,
+          6363.2
+        ],
+        [
+          6285.3,
+          6362.2
+        ],
+        [
+          6285.2,
+          6361.1
+        ],
+        [
+          6285.5,
+          6360.1
+        ],
+        [
+          6286.2,
+          6359.2
+        ],
+        [
+          6287.1,
+          6358.7
+        ],
+        [
+          6288.2,
+          6358.6
+        ],
+        [
+          6289.3,
+          6358.8
+        ],
+        [
+          6290.1,
+          6359.5
+        ],
+        [
+          6290.7,
+          6360.5
+        ],
+        [
+          6290.8,
+          6361.6
+        ],
+        [
+          6290.5,
+          6362.6
+        ],
+        [
+          6289.8,
+          6363.5
+        ],
+        [
+          6288.9,
+          6364
+        ],
+        [
+          6287.8,
+          6364.1
+        ],
+        [
+          6286.7,
+          6363.8
+        ],
+        [
+          6285.9,
+          6363.2
+        ]
+      ],
+      "opts": {},
+      "metrics": {
+        "vertexCount": 16,
+        "areaM2": 24.0,
+        "perimeterM": 17.5,
+        "lengthM": 5.5,
+        "widthM": 5.4,
+        "elongation": 1.02,
+        "rectangularity": 0.798,
+        "compactness": 0.986,
+        "bearingDeg": 174.8,
+        "shape": "irregular",
+        "levels": 1,
+        "heightM": 3.3,
+        "heightSource": "typical",
+        "floorAreaM2": 24.0,
+        "floorAreaEstimated": true,
+        "rooms": 0
+      },
+      "capacity": {
+        "maxDepth": "named",
+        "reasons": [
+          "24.0 m2 of floor (storeys not known, counted as one) across 1 level: a kiosk, a shed, a store, a shrine box.",
+          "No storey count in the source data, so this is a single-storey reading; a real multi-storey building would carry more."
+        ],
+        "floorAreaM2": 24.0,
+        "rooms": 0,
+        "shape": "irregular"
+      }
+    }
+  ]
+}

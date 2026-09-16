@@ -1,0 +1,110 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "walled-house-no-16-436",
+  "type": "location",
+  "tier": "site",
+  "name": "Walled House No. 16",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "wealthy",
+    "walled"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21641861,
+          34.66562143
+        ],
+        [
+          135.21625323,
+          34.66589889
+        ],
+        [
+          135.21657432,
+          34.66602911
+        ],
+        [
+          135.21674064,
+          34.66575119
+        ],
+        [
+          135.21641861,
+          34.66562143
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7799.2,
+          6850.6
+        ],
+        [
+          7770.5,
+          6831.8
+        ],
+        [
+          7788.5,
+          6804.4
+        ],
+        [
+          7817.3,
+          6823.2
+        ],
+        [
+          7799.2,
+          6850.6
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7793.88,
+      6827.5
+    ],
+    "cells": [
+      "D4·73",
+      "D4·83"
+    ],
+    "ref": "D4·73",
+    "areaM2": 1127.1,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-436",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Larger and more expensive houses. Some within walled compounds with gates and expensive looking bodyguards.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "One of a run of walled compounds on the island's better ground -- private gates, private guards, and neighbours who mostly know better than to ask what pays for either.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

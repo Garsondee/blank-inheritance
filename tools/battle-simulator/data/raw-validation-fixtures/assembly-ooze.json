@@ -1,0 +1,66 @@
+{
+  "id": "raw-validation-assembly-ooze",
+  "name": "Assembly Ooze",
+  "side": "opposition",
+  "level": 1,
+  "initiativeModifier": 7,
+  "maxHP": 54,
+  "currentHP": 54,
+  "ac": 11,
+  "saves": {
+    "fort": 12,
+    "ref": 1,
+    "will": 4
+  },
+  "speed": 15,
+  "strikes": [
+    {
+      "name": "Pseudopod",
+      "strikeType": "melee",
+      "attackBonus": 9,
+      "traits": [],
+      "damage": [
+        {
+          "dice": "1d6",
+          "bonus": 0,
+          "damageType": "bludgeoning"
+        }
+      ]
+    }
+  ],
+  "reactions": [],
+  "actions": [
+    {
+      "name": "Techsense",
+      "actionType": "passive",
+      "actionsCost": null,
+      "description": "<p>An assembly ooze can detect creatures and objects with the tech trait as a precise sense within the listed range.</p>"
+    },
+    {
+      "name": "Assemble",
+      "actionType": "passive",
+      "actionsCost": null,
+      "description": "<p>Over the course of 1 minute, the assembly ooze crafts a random piece of gear (rolling a [[/r 1d6]]: 1–armor, 2–shield, 3–weapon, 4–armor upgrade, 5–weapon upgrade, or 6–tech item) using the UPBs stored inside of it. An assembly ooze can craft items with a cost up to the UPBs stored, but with an item level and Bulk of no greater than 4 each.</p>"
+    },
+    {
+      "name": "Disassemble",
+      "actionType": "action",
+      "actionsCost": 2,
+      "description": "<p>The assembly ooze engulfs an adjacent, unattended piece of gear of no more than 4 Bulk, deconstructing it into its component parts. The ooze gains a number of UPBs equal to the item's price in credits. An assembly ooze can hold up to 1,000 UPBs at a time.</p>"
+    },
+    {
+      "name": "Sticky Disarm",
+      "actionType": "action",
+      "actionsCost": 1,
+      "description": "<p><strong>Requirements</strong> The assembly ooze's last action was a successful pseudopod Strike</p><hr /><p><strong>Effect</strong> The ooze attempts to [[/act disarm options=sticky-disarm]] the creature it hit. It gains a +4 status bonus to the Athletics check. This attempt neither applies nor counts toward the ooze's multiple attack penalty.</p>"
+    }
+  ],
+  "lore": [],
+  "skills": {
+    "athletics": 8,
+    "stealth": 6
+  },
+  "intimidationModifier": null,
+  "athleticsModifier": 8,
+  "notes": "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level 1 damage-sponge pick (design doc §76 Phase 4, GH #64's own suggested-ten survey, AC 11 / HP 54, the lowest AC and joint-highest HP of any fixture in this project to date). Its real Pseudopod carries TWO real, non-persistent damage-roll entries on the SAME strike (1d6 bludgeoning AND 1d4 acid) — a genuinely different, more consequential gap than Jinsul Trooper's/Xenowarden Greenhorn's own dropped PERSISTENT entries: toCombatant only ever reads the first entry, so the real acid component is silently absent, not merely a secondary/over-time effect. Flagged honestly rather than hidden — fixing it would mean extending toCombatant's single-damage-type Strike shape (and personnel-engine's own single-damage-type resolution, which reads only `strike.damage[0]` throughout) to a real multi-damage-type model, a genuinely separate, larger change than this content-import ticket's own scope. \"Techsense\"/\"Assemble\" are real passives, captured under `actions`, not mechanically wired. \"Disassemble\"/\"Sticky Disarm\" are real actions, likewise captured but not wired (no dedicated disarm/self-destruct mechanism exists)."
+}

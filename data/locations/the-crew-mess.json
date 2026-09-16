@@ -1,0 +1,109 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-crew-mess",
+  "type": "location",
+  "tier": "site",
+  "name": "The Crew Mess",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21450045,
+          34.68085109
+        ],
+        [
+          135.21465242,
+          34.68087224
+        ],
+        [
+          135.21469263,
+          34.68068201
+        ],
+        [
+          135.21454104,
+          34.68065962
+        ],
+        [
+          135.21450045,
+          34.68085109
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6789,
+          5485.1
+        ],
+        [
+          6799.8,
+          5476
+        ],
+        [
+          6813.7,
+          5492.3
+        ],
+        [
+          6803,
+          5501.5
+        ],
+        [
+          6789,
+          5485.1
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6801.37,
+      5488.73
+    ],
+    "cells": [
+      "D3·26",
+      "D3·36"
+    ],
+    "ref": "D3·26",
+    "areaM2": 303.4,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-227",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Where the repair crews eat, and where they drink when a refit finishes. A pilot who turns up unasked and stands a round tends to find their Frame gets a night shift nobody allocated.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Where the repair crews eat, and where they drink when a refit finishes. A pilot who turns up unasked and stands a round tends to find their Frame gets a night shift nobody allocated.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

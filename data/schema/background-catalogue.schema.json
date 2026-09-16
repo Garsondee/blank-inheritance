@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "background-catalogue.schema.json",
+  "title": "Background Catalogue",
+  "description": "The real, complete SF2E background catalogue (154 entries), extracted live from gamesystems/sf2e/packs/backgrounds for the induction terminal's Page 3 (design/induction-terminal.md). Singleton file: data/campaign/background-catalogue.json.",
+  "type": "object",
+  "required": ["id", "backgrounds"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "background-catalogue" },
+    "type": { "const": "background-catalogue" },
+    "description": { "type": "string" },
+    "backgrounds": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/backgroundEntry" }
+    }
+  },
+  "$defs": {
+    "backgroundEntry": {
+      "type": "object",
+      "required": ["id", "name", "rarity", "boosts", "trainedSkills", "loreSkills", "feat", "description"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "rarity": { "enum": ["common", "uncommon", "rare"] },
+        "boosts": {
+          "type": "array",
+          "description": "One entry per boost slot (almost always 2; one real background, Escaped Experiment, has 3). Same shape and resolution rule as ancestry-catalogue.json's boosts -- a single-ability entry is fixed, a multi-ability entry is a free choice among exactly those abilities; core/boost-slots.mjs resolves a player's pick against this shape.",
+          "items": {
+            "type": "array",
+            "items": { "enum": ["str", "dex", "con", "int", "wis", "cha"] },
+            "minItems": 1
+          }
+        },
+        "trainedSkills": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Fixed (non-Lore) skill(s) this background trains, informational only -- NOT a player choice the terminal resolves. Some real backgrounds offer a prose CHOICE the flat data doesn't capture (e.g. Starship Dweller: 'trained in the Crafting or Piloting skill'); the `description` field is always the source of truth for those cases. Empty array is real and means the raw compendium data didn't capture a skill grant this cleanly -- check `description`."
+        },
+        "loreSkills": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Named Lore skill(s) this background trains, informational only, same caveat as trainedSkills. A background listing two Lore names occasionally means 'choose one of these' rather than 'grants both' -- check `description`."
+        },
+        "feat": {
+          "type": ["string", "null"],
+          "description": "The background (skill) feat this background grants, by name, informational only -- deliberately NOT resolved/picked here, same reasoning as ancestry feat and class feats/spells (design doc §5): it's a real menu pick with its own rule text, deferred to the real character sheet post-induction. Null for the few real backgrounds that grant no feat at all."
+        },
+        "description": {
+          "type": "string",
+          "description": "Real Player Core / setting-book flavor text, HTML-stripped, @UUID inline-links resolved to their label text. Includes the background's own mechanical sentences verbatim (unlike ancestry-catalogue.json's pure-flavor description) -- background prose routinely embeds the exact boost/skill/feat wording, and is the only place a genuine choice (e.g. 'Crafting or Piloting') is preserved."
+        }
+      }
+    }
+  }
+}

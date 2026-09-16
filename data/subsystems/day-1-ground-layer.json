@@ -2,6 +2,7 @@
   "$schema": "../schema/subsystem.schema.json",
   "id": "day-1-ground-layer",
   "type": "subsystem",
+  "status": "ORPHANED CAMPAIGN CONTENT, RETAINED AS A SIMULATOR FIXTURE. The episode this belonged to (episode-01-contact-unclassified) was deleted 2026-09-13 along with every other drafted beat beyond Session 0/1. This file survives ONLY because tools/battle-simulator/ground-layer/resolve-ground-layer.mjs and test/battle-simulator/ground-layer.test.mjs read its real DCs, and deleting it would break a tested tool. It is NOT current campaign content and must not be run at a table or built on. It is also built entirely on the five ground roles, which are themselves under review and may be removed - see open-questions.json#ground-roles-viability. If ground roles are cut, this file and the simulator layer that reads it both need a decision.",
   "name": "Day 1 — The Ground Layer",
   "subsystemType": "victory-points",
   "scale": "quick-encounter",
@@ -98,7 +99,6 @@
   "loseCondition": null,
   "rewards": "Moderate accomplishment XP (30) to every kid regardless of outcome, per reference/tables/encounter-and-rewards-math.json — they were level-1 children under a Claimant and they stayed. Award it in scene 9, out loud, in the same flat institutional voice as the ratio.",
   "relatedRefs": [
-    "episode-01-contact-unclassified",
     "day-1-the-fight",
     "contact-unclassified",
     "data/campaign/ground-roles.json",

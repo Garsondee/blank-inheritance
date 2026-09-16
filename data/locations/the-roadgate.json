@@ -1,0 +1,124 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-roadgate",
+  "type": "location",
+  "tier": "site",
+  "name": "The Roadgate",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21270063,
+          34.68207416
+        ],
+        [
+          135.21100799,
+          34.68186002
+        ],
+        [
+          135.2107667,
+          34.68152232
+        ],
+        [
+          135.21110793,
+          34.68113088
+        ],
+        [
+          135.21324191,
+          34.68140407
+        ],
+        [
+          135.21314465,
+          34.68189219
+        ],
+        [
+          135.21314183,
+          34.68189357
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6578,
+          5452.1
+        ],
+        [
+          6456.5,
+          5551.4
+        ],
+        [
+          6456.5,
+          5594.9
+        ],
+        [
+          6505.5,
+          5616.4
+        ],
+        [
+          6658.5,
+          5490.9
+        ],
+        [
+          6623.3,
+          5448.8
+        ],
+        [
+          6623,
+          5448.8
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6550.03,
+      5528.56
+    ],
+    "cells": [
+      "D3·16",
+      "D3·26",
+      "D3·17"
+    ],
+    "ref": "D3·16",
+    "areaM2": 16479.1,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-154",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Both highway lanes onto the fortress island pass underneath it, through a concrete throat wide enough for two vehicles abreast and no more. Traffic slows to walking pace inside, which is the point: the ceiling is firing slits, and a barrier drops at either end independently. Drivers know the drill — window down, pass held up, engine off if asked. At shift change the queue runs back a quarter mile, and the second lane is shut far more often than anyone has ever explained.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Both highway lanes onto the fortress island pass underneath it, through a concrete throat wide enough for two vehicles abreast and no more. Traffic slows to walking pace inside, which is the point: the ceiling is firing slits, and a barrier drops at either end independently. Drivers know the drill — window down, pass held up, engine off if asked. At shift change the queue runs back a quarter mile, and the second lane is shut far more often than anyone has ever explained.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

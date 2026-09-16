@@ -1,0 +1,140 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "row-c-block-7",
+  "type": "location",
+  "tier": "site",
+  "name": "Row C, Block 7",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.2100027,
+          34.67134438
+        ],
+        [
+          135.2100834,
+          34.67121082
+        ],
+        [
+          135.21051861,
+          34.67138904
+        ],
+        [
+          135.21042026,
+          34.6715511
+        ],
+        [
+          135.21037663,
+          34.6715326
+        ],
+        [
+          135.21040587,
+          34.67148484
+        ],
+        [
+          135.21005924,
+          34.67134193
+        ],
+        [
+          135.21004727,
+          34.67136243
+        ],
+        [
+          135.2100027,
+          34.67134438
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6970.1,
+          6602.8
+        ],
+        [
+          6984,
+          6611.8
+        ],
+        [
+          7008.3,
+          6574.5
+        ],
+        [
+          6991.4,
+          6563.6
+        ],
+        [
+          6989,
+          6567.4
+        ],
+        [
+          6994,
+          6570.6
+        ],
+        [
+          6974.7,
+          6600.4
+        ],
+        [
+          6972.6,
+          6599
+        ],
+        [
+          6970.1,
+          6602.8
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6990.05,
+      6588.63
+    ],
+    "cells": [
+      "D4·31",
+      "D4·41",
+      "D4·32"
+    ],
+    "ref": "D4·31",
+    "areaM2": 664.1,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-107",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Settled second-term housing, unremarkable and well-kept. A candidate two years ago started a window-box vegetable patch along the ground-floor sills that residents have kept alive ever since, out of what has become genuine competitive pride.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Settled second-term housing, unremarkable and well-kept. A candidate two years ago started a window-box vegetable patch along the ground-floor sills that residents have kept alive ever since, out of what has become genuine competitive pride.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

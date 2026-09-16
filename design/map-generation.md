@@ -67,7 +67,27 @@ access to Overpass, pip wheels installing at 27 MB/s.
 
 Verified: PLATEAU covers 250+ cities under CC BY 4.0 via the G-Spatial
 Information Center, carrying semantic attributes including usage, year of
-construction and urban-planning data. GSI's own documentation notes **NoData
+construction and urban-planning data.
+
+> **Correction, 2026-09-11 — PLATEAU does not cover Kobe, so none of the
+> above applies to this map.** Checked three independent ways: the full
+> G-Spatial CKAN package list (17,296 packages, 525 `plateau-*`, none
+> containing `28100` or `kobe`), direct `package_show` probes for every
+> plausible year (all 404), and MLIT's own city index, where Hyōgo's covered
+> cities are Himeji, Kakogawa, Miki, Asago and Tatsuno. The neighbours this
+> frame clips (Akashi, Nishinomiya, Ashiya, Amagasaki) are absent too. There
+> is no data year to wait for. The "250+ cities" figure above is true in
+> general and simply does not reach this city — a good reminder that national
+> coverage claims need checking against the specific tile you need.
+>
+> What replaced it, both now built (`tools/city-map/citymap/external.py`):
+> **legal zoning** comes from 国土数値情報 A29 instead (a 10 MB zip, GeoJSON
+> per municipality, carrying 用途地域 name plus 建蔽率 and 容積率), and
+> **evacuation sites** from GSI's 指定緊急避難場所 GeoJSON. Still unbuilt but
+> verified as the right source for **building heights**: Hyōgo's own
+> prefecture-wide 1 m LiDAR DSM/DEM (CC BY 4.0) — nDSM = DSM − DEM gives a
+> real height for ~71% of buildings, against the 0.08% of OSM buildings here
+> that carry a `height` tag at all. GSI's own documentation notes **NoData
 areas exist mainly in lakes and coastal areas** — the sea floor is precisely
 where real data has a hole, which is where the existing procedural bathymetry
 earns its place (§9).

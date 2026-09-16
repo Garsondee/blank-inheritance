@@ -17,17 +17,18 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { installMockFoundry } from "./support/mock-foundry.mjs";
-import { deriveFoundryId } from "../foundry/blank-inheritance/scripts/core/ids.mjs";
-import { ensureDirectory, writeReportFile, fetchModuleJson } from "../foundry/blank-inheritance/scripts/foundry/io.mjs";
+import { deriveFoundryId } from "../module/blank-inheritance/scripts/core/ids.mjs";
+import { ensureDirectory, writeReportFile, fetchModuleJson } from "../module/blank-inheritance/scripts/foundry/io.mjs";
 // Safe as a static top-level import even though this is "the mocked globals"
 // file: sync.mjs only touches game/ui/Actor/etc. inside its exported
 // function bodies, never at module-evaluation time, so it's fine to import
 // once here and call its exports after installMockFoundry() runs per-test.
-import { runDiagnosticTestSync } from "../foundry/blank-inheritance/scripts/foundry/sync.mjs";
+import { runDiagnosticTestSync, runRealContentSync } from "../module/blank-inheritance/scripts/foundry/sync.mjs";
+import { promptToRunSync } from "../module/blank-inheritance/scripts/foundry/sync-dialog.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
-const moduleRoot = path.join(repoRoot, "foundry", "blank-inheritance");
+const moduleRoot = path.join(repoRoot, "module", "blank-inheritance");
 const templateJsonPath = path.join(repoRoot, "gamesystems", "sf2e", "template.json");
 
 const moduleManifest = JSON.parse(readFileSync(path.join(moduleRoot, "module.json"), "utf8"));
@@ -36,8 +37,29 @@ const templateJson = existsSync(templateJsonPath) ? JSON.parse(readFileSync(temp
 function loadFixtureModuleFiles() {
   const fixturesDir = path.join(moduleRoot, "data", "_test-fixtures");
   const moduleFiles = {};
-  for (const name of ["test-creature.json", "test-character.json", "test-scene.json"]) {
+  for (const name of ["test-creature.json", "test-character.json", "test-scene.json", "test-journal.json"]) {
     moduleFiles[`data/_test-fixtures/${name}`] = JSON.parse(readFileSync(path.join(fixturesDir, name), "utf8"));
+  }
+  return moduleFiles;
+}
+
+/**
+ * Real campaign data (repo root data/), keyed the same way
+ * tools/module-sync/sync-campaign-data.mjs deploys it -- under the module's
+ * own data/campaign/ so fetchModuleJson (relative to the module root) reads
+ * it identically to how it reads the test fixtures above.
+ */
+function loadRealCampaignModuleFiles() {
+  const dataRoot = path.join(repoRoot, "data");
+  const moduleFiles = {};
+  moduleFiles["data/campaign/antagonists/claimants/contact-unclassified.json"] = JSON.parse(
+    readFileSync(path.join(dataRoot, "antagonists", "claimants", "contact-unclassified.json"), "utf8")
+  );
+  // Session One is the only episode left in the repo -- every other drafted beat
+  // beyond Session 0/1 was deleted 2026-09-13. Keep this list in step with
+  // REAL_EPISODE_PATHS in scripts/foundry/sync.mjs.
+  for (const name of ["episode-c1s1-mothers-maiden-name.json"]) {
+    moduleFiles[`data/campaign/episodes/${name}`] = JSON.parse(readFileSync(path.join(dataRoot, "episodes", name), "utf8"));
   }
   return moduleFiles;
 }
@@ -78,6 +100,30 @@ test("writeReportFile writes through to the mock's uploaded-files store", async 
   }
 });
 
+test("mock uploadPersistent: the path argument is a directory only, never dir+filename (regression: found live 2026-09-05)", async () => {
+  const { uninstall } = installMockFoundry({ moduleManifest });
+  try {
+    await ensureDirectory("modules/blank-inheritance/storage/test-reports");
+    const file = new File(["hello"], "report.json", { type: "application/json" });
+
+    // The exact shape of the bug: passing dir+filename as the "directory"
+    // must fail, matching the real server's fs.existsSync(destDir) check --
+    // no directory is ever literally named after the report file.
+    const wrongResult = await foundry.applications.apps.FilePicker.implementation.uploadPersistent(
+      "blank-inheritance", "test-reports/report.json", file, {}, { notify: false }
+    );
+    assert.equal(wrongResult, false, "a path that already includes the filename must be rejected, matching the real server");
+
+    const rightResult = await foundry.applications.apps.FilePicker.implementation.uploadPersistent(
+      "blank-inheritance", "test-reports", file, {}, { notify: false }
+    );
+    assert.ok(rightResult, "a directory-only path must succeed");
+    assert.equal(rightResult.path, "test-reports/report.json", "the filename must come from the File object's own .name");
+  } finally {
+    uninstall();
+  }
+});
+
 test("writeReportFile throws if the module manifest lacks persistentStorage (verified real uploadPersistent behavior)", async () => {
   const { uninstall } = installMockFoundry({ moduleManifest: { id: "blank-inheritance", persistentStorage: false } });
   try {
@@ -108,7 +154,7 @@ test("runDiagnosticTestSync: full run against the mock produces an all-passing r
     const report = await runDiagnosticTestSync();
 
     assert.equal(report.fatalError, null);
-    assert.equal(report.results.length, 3);
+    assert.equal(report.results.length, 4);
     for (const result of report.results) {
       const failed = result.checks.filter((c) => !c.pass);
       assert.deepEqual(failed, [], `expected all checks to pass for ${result.foundryType} ${result.sourceId}`);
@@ -119,9 +165,133 @@ test("runDiagnosticTestSync: full run against the mock produces an all-passing r
     assert.ok(createdCreature, "expected the creature Actor to actually exist in the mock world");
     assert.equal(createdCreature.getFlag("blank-inheritance", "sourceId"), "test-fixture-creature-001");
 
+    const journalId = await deriveFoundryId("test-fixture-journal-001");
+    const createdJournal = world.journal.get(journalId);
+    assert.ok(createdJournal, "expected the JournalEntry to actually exist in the mock world");
+    assert.equal(createdJournal.pages.length, 2, "expected both pages from the test fixture");
+
     assert.equal(world.chatMessages.length, 1, "expected exactly one whispered chat message");
     assert.ok(report.reportFileWritten);
     assert.ok(world.uploadedFiles.has(`modules/blank-inheritance/storage/${report.reportPath}`));
+
+    assert.equal(report.clipboardCopied, true, "a successful run must report that it copied to the clipboard");
+    assert.ok(world.clipboardText, "expected the mock clipboard to have received text");
+    assert.match(world.clipboardText, /paste.*back to Claude/i);
+    const jsonStart = world.clipboardText.indexOf("{");
+    const parsedFromClipboard = JSON.parse(world.clipboardText.slice(jsonStart));
+    assert.deepEqual(parsedFromClipboard, report, "the clipboard's JSON must be the exact same report object returned to the caller");
+  } finally {
+    uninstall();
+  }
+});
+
+test("runDiagnosticTestSync: a second run with unchanged fixtures skips all four cases, without recreating any of them (GH issue #113)", async (t) => {
+  if (!templateJson) {
+    t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadFixtureModuleFiles(), templateJson });
+  try {
+    const creatureId = await deriveFoundryId("test-fixture-creature-001");
+    const characterId = await deriveFoundryId("test-fixture-kid-001");
+    const sceneId = await deriveFoundryId("test-fixture-scene-001");
+    const journalId = await deriveFoundryId("test-fixture-journal-001");
+
+    const firstRun = await runDiagnosticTestSync();
+    assert.equal(firstRun.fatalError, null);
+    for (const result of firstRun.results) {
+      assert.equal(result.skipped, false, `expected the first-ever run to create, not skip, ${result.sourceId}`);
+    }
+    // Capture object identity, not just id equality -- a skip that quietly
+    // deleted and recreated an identical-looking document would still pass
+    // an id/flag comparison, but MockDocument.create() always makes a new
+    // object instance (see test/support/mock-foundry.mjs), so only a genuine
+    // skip (no teardown, no create call at all) leaves these references untouched.
+    const creatureRefAfterFirstRun = world.actors.get(creatureId);
+    const characterRefAfterFirstRun = world.actors.get(characterId);
+    const sceneRefAfterFirstRun = world.scenes.get(sceneId);
+    const journalRefAfterFirstRun = world.journal.get(journalId);
+    assert.ok(creatureRefAfterFirstRun && characterRefAfterFirstRun && sceneRefAfterFirstRun && journalRefAfterFirstRun);
+
+    const secondRun = await runDiagnosticTestSync();
+    assert.equal(secondRun.fatalError, null);
+    for (const result of secondRun.results) {
+      assert.equal(result.skipped, true, `expected the second run against unchanged fixtures to skip ${result.sourceId}`);
+      assert.deepEqual(result.checks.filter((c) => !c.pass), [], "a skipped case must still validate the existing document, not just assume it's fine");
+    }
+    assert.equal(secondRun.results.length, 4);
+
+    assert.strictEqual(world.actors.get(creatureId), creatureRefAfterFirstRun, "the creature Actor must be the SAME object -- never torn down and recreated");
+    assert.strictEqual(world.actors.get(characterId), characterRefAfterFirstRun, "the character Actor must be the SAME object");
+    assert.strictEqual(world.scenes.get(sceneId), sceneRefAfterFirstRun, "the Scene must be the SAME object");
+    assert.strictEqual(world.journal.get(journalId), journalRefAfterFirstRun, "the JournalEntry must be the SAME object");
+  } finally {
+    uninstall();
+  }
+});
+
+test("runDiagnosticTestSync: only the case whose source actually changed gets recreated -- the other two stay skipped", async (t) => {
+  if (!templateJson) {
+    t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const moduleFiles = loadFixtureModuleFiles();
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles, templateJson });
+  try {
+    const creatureId = await deriveFoundryId("test-fixture-creature-001");
+    const characterId = await deriveFoundryId("test-fixture-kid-001");
+    const sceneId = await deriveFoundryId("test-fixture-scene-001");
+    const journalId = await deriveFoundryId("test-fixture-journal-001");
+
+    await runDiagnosticTestSync();
+    const creatureRefAfterFirstRun = world.actors.get(creatureId);
+    const characterRefAfterFirstRun = world.actors.get(characterId);
+    const sceneRefAfterFirstRun = world.scenes.get(sceneId);
+    const journalRefAfterFirstRun = world.journal.get(journalId);
+
+    // Mutate only the creature fixture in place -- moduleFiles is the same
+    // object instance the mock's fetch() reads from, so this is visible to
+    // the very next runDiagnosticTestSync() call without reinstalling anything.
+    moduleFiles["data/_test-fixtures/test-creature.json"] = {
+      ...moduleFiles["data/_test-fixtures/test-creature.json"],
+      name: "A Genuinely Different Name",
+    };
+
+    const secondRun = await runDiagnosticTestSync();
+    const creatureResult = secondRun.results.find((r) => r.entityLabel === "creature");
+    const characterResult = secondRun.results.find((r) => r.entityLabel === "character");
+    const sceneResult = secondRun.results.find((r) => r.foundryType === "Scene");
+    const journalResult = secondRun.results.find((r) => r.foundryType === "JournalEntry");
+
+    assert.equal(creatureResult.skipped, false, "the changed creature must be recreated, not skipped");
+    assert.equal(characterResult.skipped, true, "the unchanged character must still be skipped");
+    assert.equal(sceneResult.skipped, true, "the unchanged scene must still be skipped");
+    assert.equal(journalResult.skipped, true, "the unchanged journal must still be skipped");
+
+    assert.notStrictEqual(world.actors.get(creatureId), creatureRefAfterFirstRun, "the changed creature must be a genuinely NEW object, not just still present");
+    assert.strictEqual(world.actors.get(characterId), characterRefAfterFirstRun, "the untouched character must remain the exact same object");
+    assert.strictEqual(world.scenes.get(sceneId), sceneRefAfterFirstRun, "the untouched scene must remain the exact same object");
+    assert.strictEqual(world.journal.get(journalId), journalRefAfterFirstRun, "the untouched journal must remain the exact same object");
+  } finally {
+    uninstall();
+  }
+});
+
+test("runDiagnosticTestSync: a clipboard failure does not fail the whole sync (best-effort, per design/foundry-module-design.md's Safety section)", async (t) => {
+  if (!templateJson) {
+    t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const { uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadFixtureModuleFiles(), templateJson });
+  try {
+    // Simulate a browser that refuses clipboard access (no permission, insecure context, etc.).
+    navigator.clipboard.writeText = async () => { throw new Error("clipboard permission denied"); };
+
+    const report = await runDiagnosticTestSync();
+
+    assert.equal(report.fatalError, null, "a clipboard failure must not become a fatal sync error");
+    assert.equal(report.clipboardCopied, false);
+    assert.equal(report.reportFileWritten, true, "the report file must still get written even if the clipboard copy failed");
   } finally {
     uninstall();
   }
@@ -143,9 +313,10 @@ test("runDiagnosticTestSync: re-running immediately does not collide with the pr
       assert.deepEqual(result.checks.filter((c) => !c.pass), []);
     }
 
-    // Re-running should not accumulate duplicate documents — same three ids, still just three.
+    // Re-running should not accumulate duplicate documents — same ids, still just one each.
     assert.equal(world.actors.size, 2, "expected exactly the creature + character actors, not accumulated duplicates");
     assert.equal(world.scenes.size, 1);
+    assert.equal(world.journal.size, 1);
   } finally {
     uninstall();
   }
@@ -158,13 +329,14 @@ test("runDiagnosticTestSync: a non-GM user does not create anything", async () =
     const result = await runDiagnosticTestSync();
     assert.equal(result, null);
     assert.equal(world.actors.size, 0);
+    assert.equal(world.journal.size, 0);
     assert.equal(world.chatMessages.length, 0);
   } finally {
     uninstall();
   }
 });
 
-test("runDiagnosticTestSync: one case throwing does not prevent the other two from running and reporting (regression: found while bootstrapping tests, 2026-08-22)", async (t) => {
+test("runDiagnosticTestSync: one case throwing does not prevent the other three from running and reporting (regression: found while bootstrapping tests, 2026-08-22)", async (t) => {
   if (!templateJson) {
     t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
     return;
@@ -182,7 +354,7 @@ test("runDiagnosticTestSync: one case throwing does not prevent the other two fr
     const report = await runDiagnosticTestSync();
 
     assert.equal(report.fatalError, null, "the sync as a whole must not abort just because one case failed");
-    assert.equal(report.results.length, 3, "all three cases must still report a result");
+    assert.equal(report.results.length, 4, "all four cases must still report a result");
 
     const creatureResult = report.results.find((r) => r.sourceId === "creature");
     assert.ok(creatureResult, "the failed case should still produce a result, labeled by its case name");
@@ -193,6 +365,144 @@ test("runDiagnosticTestSync: one case throwing does not prevent the other two fr
     assert.ok(sceneResult, "the scene case must still have run even though the creature case failed");
     // The scene can't place a token for the never-created creature, but it must still exist.
     assert.equal(world.scenes.size, 1);
+
+    const journalResult = report.results.find((r) => r.foundryType === "JournalEntry");
+    assert.ok(journalResult, "the journal case must still have run even though the creature case failed");
+    assert.deepEqual(journalResult.checks.filter((c) => !c.pass), [], "the journal case doesn't depend on the creature at all, so it must fully pass");
+    assert.equal(world.journal.size, 1);
+  } finally {
+    uninstall();
+  }
+});
+
+test("runRealContentSync: the real Claimant and Session One sync cleanly against actual campaign data", async (t) => {
+  if (!templateJson) {
+    t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadRealCampaignModuleFiles(), templateJson });
+  try {
+    const report = await runRealContentSync();
+
+    assert.equal(report.fatalError, null);
+    assert.equal(report.results.length, 2, "1 claimant + 1 episode (Session One is the only one left)");
+    for (const result of report.results) {
+      const failed = result.checks.filter((c) => !c.pass);
+      assert.deepEqual(failed, [], `expected all checks to pass for ${result.sourceId}: ${JSON.stringify(failed)}`);
+      assert.equal(result.skipped, false, "first-ever run must create, not skip");
+    }
+
+    const claimantId = await deriveFoundryId("contact-unclassified");
+    const claimant = world.actors.get(claimantId);
+    assert.ok(claimant, "the real Claimant Actor must actually exist in the mock world");
+    assert.equal(claimant.name, "Contact, Unclassified");
+    assert.equal(claimant.system.attributes.hp.max, 165);
+
+    const sessionOneId = await deriveFoundryId("episode-c1s1-mothers-maiden-name");
+    const sessionOneJournal = world.journal.get(sessionOneId);
+    assert.ok(sessionOneJournal, "Session One's JournalEntry must exist");
+    assert.equal(sessionOneJournal.pages.length, 7, "1 overview page + 6 authored scenes");
+
+    // Real content must not touch the diagnostic path's documents or vice versa.
+    assert.equal(world.actors.size, 1, "only the claimant -- no test-fixture actors from this run");
+    assert.equal(world.journal.size, 1, "one JournalEntry per real episode file");
+  } finally {
+    uninstall();
+  }
+});
+
+test("runRealContentSync: a second run against unchanged real data skips everything (hash-skip applies to real content too)", async (t) => {
+  if (!templateJson) {
+    t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadRealCampaignModuleFiles(), templateJson });
+  try {
+    await runRealContentSync();
+    const claimantId = await deriveFoundryId("contact-unclassified");
+    const claimantRef = world.actors.get(claimantId);
+
+    const secondRun = await runRealContentSync();
+    for (const result of secondRun.results) {
+      assert.equal(result.skipped, true, `expected ${result.sourceId} to be skipped on an unchanged second run`);
+    }
+    assert.strictEqual(world.actors.get(claimantId), claimantRef, "unchanged real data must never be torn down and recreated");
+  } finally {
+    uninstall();
+  }
+});
+
+test("runRealContentSync: does not touch the six kids/Frames or the NPCs -- they're still draft/placeholder, not this pipeline's call to finalize", async (t) => {
+  if (!templateJson) {
+    t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadRealCampaignModuleFiles(), templateJson });
+  try {
+    await runRealContentSync();
+    // Only the one real Actor (the Claimant) may exist -- none of the
+    // draft kid/Frame characters, which would also be type "character"
+    // Actors if this pipeline ever created them.
+    const characterActors = [...world.actors.values()].filter((a) => a.type === "character");
+    assert.deepEqual(characterActors, [], "no draft kid/Frame character should be synced without explicit confirmation");
+  } finally {
+    uninstall();
+  }
+});
+
+test("runRealContentSync: a non-GM user does not create anything", async () => {
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadRealCampaignModuleFiles(), templateJson });
+  try {
+    globalThis.game.user.isGM = false;
+    const result = await runRealContentSync();
+    assert.equal(result, null);
+    assert.equal(world.actors.size, 0);
+    assert.equal(world.journal.size, 0);
+  } finally {
+    uninstall();
+  }
+});
+
+test("promptToRunSync: the GM confirming the dialog runs the real content sync (GH issue #82)", async (t) => {
+  if (!templateJson) {
+    t.skip("gamesystems/sf2e/template.json not present locally — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadRealCampaignModuleFiles(), templateJson });
+  try {
+    world.dialogConfirmResponse = true;
+    await promptToRunSync();
+
+    assert.equal(world.dialogConfirmCalls.length, 1, "expected exactly one confirmation dialog to have been shown");
+    assert.equal(world.actors.size, 1, "confirming must actually run the REAL sync -- the real Claimant, not test fixtures");
+    assert.equal(world.journal.size, 1, "one JournalEntry per real episode");
+    assert.equal(world.chatMessages.length, 1, "the sync's own whispered report must still show up");
+  } finally {
+    uninstall();
+  }
+});
+
+test("promptToRunSync: declining the dialog does not touch the world at all", async () => {
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadFixtureModuleFiles(), templateJson });
+  try {
+    world.dialogConfirmResponse = false;
+    await promptToRunSync();
+
+    assert.equal(world.dialogConfirmCalls.length, 1);
+    assert.equal(world.actors.size, 0, "declining must not create anything");
+    assert.equal(world.journal.size, 0);
+    assert.equal(world.chatMessages.length, 0);
+  } finally {
+    uninstall();
+  }
+});
+
+test("promptToRunSync: a dismissed dialog (null response) is treated the same as declining, not as an error", async () => {
+  const { world, uninstall } = installMockFoundry({ moduleManifest, moduleFiles: loadFixtureModuleFiles(), templateJson });
+  try {
+    world.dialogConfirmResponse = null;
+    await assert.doesNotReject(() => promptToRunSync());
+    assert.equal(world.actors.size, 0);
   } finally {
     uninstall();
   }

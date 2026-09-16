@@ -154,6 +154,33 @@ export function checkStepLegality({ combatant, from, to, effectiveSpeed, allPosi
   return checkMoveLegality({ combatant, from, to, effectiveSpeed, allPositions, gridSize, turnState, walls });
 }
 
+/**
+ * GH #148 — a real, confirmed bug: this used to fall back to `maxRange = Infinity` whenever
+ * `strike.rangeIncrement` was absent, treating a ranged Strike with no declared range data as having
+ * UNLIMITED range. Not merely under-modeled (the way an unmodeled trait honestly is elsewhere in this
+ * project) — actively wrong, since every real SF2E ranged Strike has SOME finite maximum (Player Core
+ * pg. 254).
+ *
+ * `rangeMax` (sf2e-common.schema.json's `strike` $def) is the second legal shape alongside
+ * `rangeIncrement`: a flat maximum with NO increment scaling at all — legal at any distance up to
+ * `rangeMax`, zero range penalty anywhere in that span (rangeIncrementPenalty, just below, already
+ * returns 0 whenever `rangeIncrement` is unset, for exactly this reason). Investigated directly
+ * before building this: every `{increment: null, max: N}` raw range shape found across this
+ * project's three available bestiary packs (alien-core-bestiary, rulebook-bestiaries,
+ * starfinder-society-bestiary — ~30 items total) turned out to be a real Area Fire burst effect
+ * (`system.action: "area-fire"`, wired via deriveAreaAttack/checkAreaAttackLegal instead — see
+ * extract-npc.mjs's own toCombatant guard against exactly this), never a genuine single-target
+ * Strike. `rangeMax` is still built and tested here as its own real, legal strike shape — a flat-max
+ * thrown Strike with no increment is a valid, if currently unpopulated, SF2E shape distinct from a
+ * grenade's Area Fire action — but as of this fix nothing in this project's real data actually uses
+ * it yet.
+ *
+ * A ranged Strike with NEITHER field set is a genuine data error, not a legal unlimited-range state —
+ * throws rather than silently guessing a fallback number, matching this project's own established
+ * discipline elsewhere (extract-npc.mjs's deriveUsesFromFrequency, parseDamageString, the
+ * initiative-statistic guard): better to fail loudly the moment such a strike is evaluated than to
+ * silently simulate a sniper with infinite range.
+ */
 export function checkStrikeRange({ attackerPos, targetPos, strike }) {
   const reach = reachFeetForStrike(strike);
   const dist = distanceFeet(attackerPos, targetPos);
@@ -161,16 +188,25 @@ export function checkStrikeRange({ attackerPos, targetPos, strike }) {
     return { legal: false, reason: `Target is ${dist}ft away, outside melee reach (${reach}ft).` };
   }
   if (strike.strikeType === "ranged") {
-    const increment = strike.rangeIncrement ?? Infinity;
-    const maxRange = increment * 6; // Player Core pg. 254: beyond the 6th range increment is impossible
-    if (dist > maxRange) {
-      return { legal: false, reason: `Target is ${dist}ft away, beyond the 6th range increment (max ${maxRange}ft) for a ranged Strike with increment ${increment}ft.` };
+    if (strike.rangeIncrement != null) {
+      const maxRange = strike.rangeIncrement * 6; // Player Core pg. 254: beyond the 6th range increment is impossible
+      if (dist > maxRange) {
+        return { legal: false, reason: `Target is ${dist}ft away, beyond the 6th range increment (max ${maxRange}ft) for a ranged Strike with increment ${strike.rangeIncrement}ft.` };
+      }
+    } else if (strike.rangeMax != null) {
+      if (dist > strike.rangeMax) {
+        return { legal: false, reason: `Target is ${dist}ft away, beyond ${strike.name}'s flat maximum range (${strike.rangeMax}ft).` };
+      }
+    } else {
+      throw new Error(`"${strike.name}" is a ranged Strike with neither rangeIncrement nor rangeMax set — real range data is required, there is no safe default for "how far can this hit."`);
     }
   }
   return { legal: true, reason: null };
 }
 
-/** Player Core pg. 254: -2 penalty per additional range increment beyond the first. */
+/** Player Core pg. 254: -2 penalty per additional range increment beyond the first. A flat-`rangeMax`
+ * Strike (no increment at all — see checkStrikeRange's own header) correctly falls through to 0 here,
+ * same as melee: there is no increment to scale a penalty off, by design, not by omission. */
 export function rangeIncrementPenalty(strike, distanceFeetValue) {
   if (strike.strikeType !== "ranged" || !strike.rangeIncrement) return 0;
   const incrementNumber = Math.max(1, Math.ceil(distanceFeetValue / strike.rangeIncrement));
@@ -245,6 +281,24 @@ export function multipleAttackPenalty(strikeNumber, hasAgile) {
   return hasAgile ? -8 : -10;
 }
 
+/**
+ * GH #60 — a resource check/spend that works for EITHER shape a limited-use ability can carry: the
+ * ordinary flat per-ability `usesRemaining` every other ability type already uses, or a shared,
+ * per-caster `spellSlots` pool keyed by rank (design doc §60 Part 1 Decision 3 — Heal's own two
+ * single-target variants both carry `slotRank` INSTEAD of `usesRemaining`, so casting either one
+ * spends the SAME pool). Used at the two real call sites Heal needs (this file's own
+ * checkHealAbilityLegal, engine.mjs's healAbility resolution branch) — not a blanket replacement for
+ * every existing bare `usesRemaining` check elsewhere, since nothing else sets `slotRank` today.
+ */
+export function hasUses(ability, healer) {
+  if (ability.slotRank != null) return (healer.spellSlots?.[ability.slotRank] ?? 0) > 0;
+  return ability.usesRemaining == null || ability.usesRemaining > 0;
+}
+export function spendUse(ability, healer) {
+  if (ability.slotRank != null) { healer.spellSlots[ability.slotRank] -= 1; return; }
+  if (ability.usesRemaining != null) ability.usesRemaining -= 1;
+}
+
 /** A spell's flat range — no range field means touch/adjacent-only. */
 export function checkSpellRange({ casterPos, targetPos, spell }) {
   const dist = distanceFeet(casterPos, targetPos);
@@ -295,12 +349,23 @@ export function checkSpellAttackLegal({ caster, casterPos, target, targetPos, sp
  * received the `walls` parameter to do the same. Healing at range still needs a real line to the
  * target — nothing in Player Core exempts it from Line of Effect.
  */
-export function checkHealAbilityLegal({ healer, healerPos, target, targetPos, ability, turnState, walls }) {
+export function checkHealAbilityLegal({ healer, healerPos, target, targetPos, ability, turnState, walls, anyTargetBelowFull }) {
   const actorAlive = checkActorAlive(healer);
   if (!actorAlive.legal) return actorAlive;
 
   const budget = checkActionBudget(turnState, ability.actions ?? 1);
   if (!budget.legal) return budget;
+
+  // GH #60 Part 1b — a self-centered emanation has no single `target` at all (engine.mjs computes
+  // `anyTargetBelowFull` from the real affected set BEFORE calling this, the same "caller computes,
+  // this file only checks" convention checkAreaAttackLegal's own `affectedCount` already established).
+  // No range/LOS/dead checks make sense against a whole group centered on the caster's own square —
+  // distance-to-self is always 0, trivially in range and never wall-blocked.
+  if (ability.areaOrigin === "self") {
+    if (!anyTargetBelowFull) return { legal: false, reason: `Nobody within ${ability.radius}ft of ${healer.name} needs ${ability.name}.` };
+    if (!hasUses(ability, healer)) return { legal: false, reason: `${ability.name} has no uses remaining this encounter.` };
+    return { legal: true, reason: null };
+  }
 
   if (!target) return { legal: false, reason: "No such combatant — the target id does not exist." };
   // Design doc §25: healing a downed-but-not-dead PC back to 1+ HP is the whole point of the real
@@ -317,7 +382,7 @@ export function checkHealAbilityLegal({ healer, healerPos, target, targetPos, ab
     return { legal: false, reason: `No line of effect to ${target.name} — a wall entirely blocks ${ability.name}.` };
   }
 
-  if (ability.usesRemaining != null && ability.usesRemaining <= 0) {
+  if (!hasUses(ability, healer)) {
     return { legal: false, reason: `${ability.name} has no uses remaining this encounter.` };
   }
 
@@ -445,6 +510,14 @@ export function checkConditionSaveLegal({ attacker, attackerPos, target, targetP
 
   if (target.conditionSaveImmunities?.includes(conditionSave.name)) {
     return { legal: false, reason: `${target.name} is already immune to ${conditionSave.name} this encounter.` };
+  }
+
+  // GH #56/#69: the one sibling action type that was missing this gate — every other legality
+  // function above already refuses a limited-use ability with no uses left (strike :234, spell :282,
+  // heal :320, saveAttack :357, areaAttack :491); this was the sole exception, dormant only because
+  // nothing decremented it either (see engine.mjs's own conditionSave resolution branch).
+  if (conditionSave.usesRemaining != null && conditionSave.usesRemaining <= 0) {
+    return { legal: false, reason: `${conditionSave.name} is out of uses this encounter.` };
   }
 
   return { legal: true, reason: null };

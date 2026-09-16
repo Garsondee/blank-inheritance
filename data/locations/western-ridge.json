@@ -1,0 +1,180 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "western-ridge",
+  "type": "location",
+  "tier": "region",
+  "name": "The Western Ridge",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "district",
+  "tags": [
+    "auto-tessellated",
+    "land"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.1803638557971,
+          34.723344637978066
+        ],
+        [
+          135.17105966396798,
+          34.736937881658
+        ],
+        [
+          135.1566526508514,
+          34.71676374063347
+        ],
+        [
+          135.1755607498529,
+          34.716620462345
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          1700.0,
+          3014.6
+        ],
+        [
+          200.0,
+          2148.6
+        ],
+        [
+          200.0,
+          4746.6
+        ],
+        [
+          1700.0,
+          3880.6
+        ]
+      ]
+    ],
+    "centroidPx": [
+      825.0,
+      3447.6
+    ],
+    "cells": [
+      "A1·09",
+      "A2·00",
+      "A2·10",
+      "A2·20",
+      "A2·01",
+      "A2·11",
+      "A2·21",
+      "A2·31",
+      "A2·02",
+      "A2·12",
+      "A2·22",
+      "A2·32",
+      "A2·42",
+      "A2·52",
+      "A2·03",
+      "A2·13",
+      "A2·23",
+      "A2·33",
+      "A2·43",
+      "A2·53",
+      "A2·63",
+      "A2·73",
+      "A2·04",
+      "A2·14",
+      "A2·24",
+      "A2·34",
+      "A2·44",
+      "A2·54",
+      "A2·64",
+      "A2·74",
+      "A2·05",
+      "A2·15",
+      "A2·25",
+      "A2·35",
+      "A2·45",
+      "A2·55",
+      "A2·65",
+      "A2·75",
+      "A2·06",
+      "A2·16",
+      "A2·26",
+      "A2·36",
+      "A2·46",
+      "A2·56",
+      "A2·66",
+      "A2·76",
+      "A2·07",
+      "A2·17",
+      "A2·27",
+      "A2·37",
+      "A2·47",
+      "A2·57",
+      "A2·67",
+      "A2·77",
+      "A2·08",
+      "A2·18",
+      "A2·28",
+      "A2·38",
+      "A2·48",
+      "A2·58",
+      "A2·68",
+      "A2·78",
+      "A2·09",
+      "A2·19",
+      "A2·29",
+      "A2·39",
+      "A2·49",
+      "A2·59",
+      "A2·69",
+      "A3·00",
+      "A3·10",
+      "A3·20",
+      "A3·30",
+      "A3·40",
+      "A3·01",
+      "A3·11",
+      "A3·21",
+      "A3·31",
+      "A3·02",
+      "A3·12"
+    ],
+    "ref": "A1·09",
+    "areaM2": 2598000.0,
+    "withinRegionRef": null,
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-192",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "Upland shoulder above the reservoir country, open enough at the top to see the whole bay on a clear day. Used by walkers, and by people who would rather not be seen walking.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Upland shoulder above the reservoir country, open enough at the top to see the whole bay on a clear day. Used by walkers, and by people who would rather not be seen walking.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

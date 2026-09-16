@@ -53,6 +53,29 @@ citymap/
                    the same call at different tile sizes. NOT the CLI (that's
                    the top-level render.py above) -- this is the library
                    function it calls.
+  external.py     Non-OSM geo-referenced sources, projected into map space:
+                   GSI's designated evacuation sites (指定緊急避難場所,
+                   GeoJSON per municipality, carrying the eight legal hazard
+                   categories) and MLIT 国土数値情報 A29 land-use zoning
+                   (用途地域 + 建蔽率/容積率). Separate from acquire.py on
+                   purpose -- these are drawn but never routed over, never
+                   clipped against and never part of a cache key. Each source
+                   carries its own licence/attribution string; see the module
+                   docstring, and note the GSI condition that travels
+                   downstream (designation is per hazard type, the data may
+                   not be current, and it is not authoritative guidance).
+  render_layers.py  The layered-export sibling of render.py -- never edits
+                   or is edited by that file. iter_tile_layers(fields, style,
+                   tile) yields render_tile's same visual elements as SEPARATE
+                   transparent RGBA images (buildings, roads, the three
+                   different "shadow" concepts kept apart, a new reference
+                   grid + coordinate-label overlay, etc.) instead of one
+                   flattened picture -- for hand-painting/finishing the map in
+                   an image editor rather than fighting the code for the
+                   final look. See its own module docstring for the two
+                   layers with a deliberate, documented fidelity
+                   approximation, and why iter_tile_layers is a generator
+                   (memory), not a dict.
   ops/
     log.py         Operation dataclass, load/save the operation-log JSON
     demolish.py     Remove content cleanly: graph-cascade road pruning so a
@@ -109,7 +132,37 @@ python render.py --mode full --out full.png
 # reclaimed by the sea, the mech bunker constructed) -- what the delivered
 # map actually is
 python render.py --mode full --ops ../../data/map/operations/kurose.json --out full-with-ops.png
+
+# every visual element as its own transparent PNG (citymap/render_layers.py)
+# plus a reference grid + manifest.json, instead of one flattened image
+python render.py --mode layers --out-dir ../../export/layers --tiles 3 --px-per-tile 2048
 ```
+
+As of 2026-09-11 that export is **25 layers**, not just the physical map:
+alongside terrain/sea/roads/buildings/shadows it carries `zoning`,
+`barriers`, `power` (lines, pylons, substations -- in red), `structures`
+(silos, tanks, cranes, piers), `historic`, `services` (glyph-coded by kind),
+`evacuation` (official GSI designated sites, in signage green) and
+`neighbourhoods` (place-name labels, Japanese over romanised, collision-
+avoided across the whole frame so nothing tears at a tile seam).
+
+Most of that arrived by **widening the Overpass query**, not by finding new
+data: the query used to ask for nine tag families and silently discarded
+every tagged OSM *node*, which threw away the entire POI layer. Widening it
+took the world from 236k to 257k features. Note that the query string is part
+of the world cache key, so changing it forces a full refetch and rebuild --
+about two minutes here, but not free.
+
+`--no-external` skips the non-OSM sources (useful offline; they are fetched
+once and cached under `cache/source/external/`).
+
+`--mode layers` shares every resolution/crop flag `--mode full` has
+(`--tiles`/`--px-per-tile`/`--supersample`/`--lon`/`--lat`/`--extent-m`) --
+it tiles and assembles exactly the same way, just once per layer instead of
+once overall, so it scales to the same resolution ceiling regardless of how
+many layers there are (see render_layers_full's own docstring in the CLI
+file for the two-phase assembly this relies on). `--grid-spacing-m`
+(ground metres) and `--no-grid` control the new reference-grid overlay.
 
 Frame/style default to the real Kurose files under `data/map/`; both cache
 the World (L1) and Fields (L2) layers the same way a plain library call

@@ -11,17 +11,12 @@
  * action types exist in this tree's engine.mjs at all (Ladle/vehicle/Day-1/Claimant-specific — see
  * that file's own header), so nothing here can legally propose them either.
  *
- * The Large+-only `stepCandidates` special case (offering Step specifically to close the last
- * square onto a reaction-capable enemy) is ALSO dropped, for a different reason: it existed
- * entirely to let the AI discover "close via Step instead of Move" as the way to avoid provoking
- * the Claimant's Claim reaction. This tree's engine.mjs fires NO reactions at all right now (see
- * its header — a real NPC reaction needs its own real trigger condition, not yet extracted), so
- * Step and Move currently produce IDENTICAL sandbox outcomes; generating both would only double
- * the sandbox forks per decision for zero behavioral difference. checkStepLegality/the "step"
- * action type both still exist in legality.mjs/engine.mjs — an AI or a future extension can still
- * propose one directly — this is only about what generateProposals bothers to manufacture on its
- * own. Revisit once a real reaction with a real trigger condition is wired up (design doc §19
- * Phase 2/3).
+ * REVIVED (GH #18): `stepCandidates`, offering Step specifically to close the last square onto a
+ * Reactive-Strike holder without provoking it. Originally dropped here because this tree's
+ * engine.mjs fired no reactions at all, making Step and Move produce identical sandbox outcomes —
+ * now that a real, generic Reactive Strike exists (engine.mjs's own "move" branch, gated on the
+ * combatant's own authored `reactions[]`, not the Frame-scale original's Claimant-specific Large+
+ * size check), this is a real, distinct choice again and generateProposals offers it.
  *
  * KEPT as a genuinely general mechanism, unlike the above: objective-directed movement
  * (`me.objective` — "move toward this point," with no dedicated action type spending a point on
@@ -42,12 +37,13 @@
 import { forkTurnSandbox } from "./engine.mjs";
 import { makeRng } from "../engine/rng.mjs";
 import { distanceFeet, isInBounds, isOccupied, blocksPassage, FEET_PER_SQUARE } from "./grid.mjs";
-import { splitByRelation } from "./factions.mjs";
+import { splitByRelation, isHostileTo } from "./factions.mjs";
 import { evaluateState, attackOptions, proactiveAttackOptions, usefulRangeFeet, maxLegalRangeFeet } from "./evaluate/state-value.mjs";
 import { reachableCells } from "./world/pathfind.mjs";
 import { refreshBelief, believedEnemies } from "./knowledge/belief.mjs";
 import { isDead, isUnconscious } from "./conditions.mjs";
 import { hasCover, lineOfEffect } from "./terrain.mjs";
+import { isFlanking, meleeReachFeet, hasReactiveStrike } from "./flanking.mjs";
 
 /**
  * A per-decision RNG derived from (battle seed, round, combatant, decision index). Must NOT be the
@@ -175,7 +171,13 @@ function cachedReachableCells(cache, key, args) {
 function trueDistanceField(state, moverId, to, others, cache) {
   const span = Math.max(state.gridSize.cols, state.gridSize.rows) * FEET_PER_SQUARE * 4; // generous — covers any plausible detour on this map
   const key = `field|${moverId}|${to.col},${to.row}`;
-  return cachedReachableCells(cache, key, { from: to, maxFeet: span, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls, moverSide: state.combatants.get(moverId).side });
+  // includePath: false (GH #62) — this floods the WHOLE grid (span is 4x the map diagonal), and
+  // every consumer of this field (both call sites below, via `trueDist`) reads only `.cost`, never
+  // `.path` — confirmed directly, not assumed. Profiled: reconstructing a route for every one of
+  // the ~1,300+ cells a full-grid flood reaches is 32-76% of that flood's own cost, thrown away
+  // unread every single time. The Speed-bounded `reach|` flood below (`pathfindingDestinationToward`)
+  // keeps the default and its own `.path` — that one genuinely needs the route.
+  return cachedReachableCells(cache, key, { from: to, maxFeet: span, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls, moverSide: state.combatants.get(moverId).side, includePath: false });
 }
 
 /**
@@ -300,6 +302,41 @@ function bestCoverDestination(state, moverId, from, threatPos, maxFeet, myRangeF
     if (distanceFeet(cell, threatPos) > myRangeFeet) continue; // must stay within MY OWN useful range
     if (!lineOfEffect(cell, threatPos, state.walls)) continue; // must still be able to see/hit them
     if (!hasCover(cell, threatPos, state.walls)) continue; // must actually BE covered, not just nearby cover
+    if (cost < bestCost) { best = { col, row, path }; bestCost = cost; }
+  }
+  return best;
+}
+
+/**
+ * GH #59 — Ingram's/the report's own diagnosis: "a rogue has no way to seek a flank." For a melee
+ * ally already engaged with a specific, reachable enemy, searches for the cheapest cell I can
+ * reach that would put ME on the exact opposite compass heading from that enemy — a real flank,
+ * off-guarding it for both of us. Reuses isFlanking directly for the per-cell check, the same
+ * predicate engine.mjs applies at real resolution time, rather than reimplementing the geometry —
+ * so a "would flank if I stood here" check here can never drift from the "does flank" check that
+ * actually fires when a Strike resolves.
+ *
+ * The caller gates on `meleeReachFeet(me) != null` BEFORE calling this at all (mirroring
+ * bestCoverDestination's own call-site gate on having a real ranged option, `decide.mjs`'s own
+ * established pattern) — an adversarial review of this design flagged that relying solely on
+ * isFlanking's own internal meleeReachFeet(attacker) check would recompute that same filter+map+max
+ * over `me.strikes` on every reachable cell, for every (engaged ally x enemy) pair, even when `me`
+ * is provably ranged-only and could never produce a single valid candidate — real, avoidable waste
+ * given planTurn's own whole-turn search calls generateProposals repeatedly per decision.
+ */
+function bestFlankingDestination(state, moverId, me, ally, allyPos, enemy, enemyPos, maxFeet, cache) {
+  const others = otherLivingPositions(state, moverId);
+  const moverSide = state.combatants.get(moverId).side;
+  const myPos = state.positions.get(moverId);
+  const reachableKey = `reach|${moverId}|${myPos.col},${myPos.row}|${maxFeet}`;
+  const reachable = cachedReachableCells(cache, reachableKey, { from: myPos, maxFeet, gridSize: state.gridSize, occupiedPositions: others, walls: state.walls, moverSide });
+  const alliesOfMe = [{ id: ally.id, pos: allyPos, combatant: ally }];
+
+  let best = null, bestCost = Infinity;
+  for (const [cellKey, { cost, path }] of reachable) {
+    const [col, row] = cellKey.split(",").map(Number);
+    const cell = { col, row };
+    if (!isFlanking(me, cell, enemy, enemyPos, alliesOfMe, state.walls)) continue;
     if (cost < bestCost) { best = { col, row, path }; bestCost = cost; }
   }
   return best;
@@ -444,13 +481,50 @@ export function generateProposals(state, combatantId, turn, externalDestCache, i
   // prices an origin that would also catch a nearby ally exactly as unfavorably as any other
   // ally-damaging proposal — the friendly-fire awareness comes for free from correct simulation,
   // not a bespoke heuristic. ---
-  (me.areaAttacks ?? []).forEach((_, i) => {
+  (me.areaAttacks ?? []).forEach((ability, i) => {
     for (const e of targetableEnemies) proposals.push({ type: "areaAttack", originId: e.id, areaAttackIndex: i });
+
+    // GH #61, Gap 2 — free-point aiming: the signature "drop it in the gap so it catches two
+    // enemies and no allies" play was structurally unavailable before this (originId had to name a
+    // living combatant). For every pair of targetable enemies close enough together that a single
+    // blast could plausibly reach both (their own distance apart within twice the radius — the
+    // widest gap where a point can still sit within both their individual radii), propose the
+    // midpoint between them as a free aim point. No "avoid allies" pre-filtering here either,
+    // matching the per-enemy-square candidate's own established reasoning just above: the
+    // evaluator's already-correct friendly-fire simulation prices that for free once #61's own Gap
+    // 1 (areaAttacks visible to attackOptions) makes it visible at all. Deliberately pairwise, not a
+    // full N-way cluster centroid (the issue's own two-enemies-no-allies case doesn't need one) — a
+    // tight 3+ cluster still gets covered by whichever pair's own midpoint happens to catch the
+    // third too, just not the single mathematically optimal point; a real centroid pass is a
+    // reasonable future refinement, not required by this issue's own "Done when".
+    for (let a = 0; a < targetableEnemies.length; a++) {
+      const posA = state.positions.get(targetableEnemies[a].id);
+      if (!posA) continue;
+      for (let b = a + 1; b < targetableEnemies.length; b++) {
+        const posB = state.positions.get(targetableEnemies[b].id);
+        if (!posB) continue;
+        if (distanceFeet(posA, posB) > 2 * (ability.radius ?? 0)) continue; // too far apart for one blast to plausibly catch both
+        const originPoint = { col: Math.round((posA.col + posB.col) / 2), row: Math.round((posA.row + posB.row) / 2) };
+        proposals.push({ type: "areaAttack", originPoint, areaAttackIndex: i });
+      }
+    }
   });
 
   // --- Support ---
-  (me.healAbilities ?? []).forEach((_, i) => {
+  (me.healAbilities ?? []).forEach((ability, i) => {
+    // GH #60 Part 1b: a self-centered emanation has no per-target enumeration at all — it always
+    // targets "here." Handled by its own single-candidate branch below; skipped here so this loop
+    // never emits N misleading, target-named duplicates of the exact same self-centered cast (round-2
+    // adversarial review's own finding — the old unconditional loop would otherwise still propose one
+    // per hurt ally, each carrying a real but meaningless targetId for an ability that ignores it).
+    if (ability.areaOrigin === "self") return;
     for (const t of [me, ...allies]) if (t.currentHP < t.maxHP) proposals.push({ type: "healAbility", targetId: t.id, abilityIndex: i });
+  });
+  // GH #60 Part 1b: exactly one candidate per self-centered heal ability — the origin is always and
+  // only the caster's own current square, so no target/origin search is needed at all (unlike
+  // areaAttack's own enemy-targeted free-point candidates, just above).
+  (me.healAbilities ?? []).forEach((ability, i) => {
+    if (ability.areaOrigin === "self") proposals.push({ type: "healAbility", targetId: null, abilityIndex: i, areaOrigin: "self" });
   });
 
   // --- Movement: ALWAYS offered (unless the caller already knows a "move" could never be picked
@@ -476,6 +550,17 @@ export function generateProposals(state, combatantId, turn, externalDestCache, i
   // occupancy are all constant for the whole burst. Reuses the caller's own cache when one is
   // threaded in (see this function's own header) rather than always starting fresh.
   const destCache = externalDestCache ?? new Map();
+  // GH #18 — Step (design doc §15o precedent, revived): a one-square hop that never triggers a
+  // reaction. Offered ONLY for the specific case Step actually exists for: closing the last square
+  // onto a Reactive-Strike holder. The sandbox evaluator prices the alternative honestly — a plain
+  // "move" candidate that ends adjacent already fires the real reaction inside the sandbox, so its
+  // evaluated score already reflects that risk; offering Step alongside it is what lets the AI
+  // discover "close via Step instead" as the better play, rather than something hardcoded to always
+  // prefer one over the other. Ported from the Frame-scale original (ai/decide.mjs), with its own
+  // Claimant-specific `["large","huge","gargantuan"].includes(e.size)` gate replaced by the actual,
+  // generic SF2E condition — real Reactive Strike has nothing to do with size (GM Core: "oozes,
+  // constructs, and unintelligent creatures" lack it, not a size rule).
+  const stepCandidates = [];
   for (const e of enemies) {
     // Believed position, not ground truth (design doc §15s) — an enemy with no belief entry at
     // all has never been perceived by anyone on this side; proposing a move toward its true secret
@@ -491,10 +576,35 @@ export function generateProposals(state, combatantId, turn, externalDestCache, i
     // real ranged option to protect; "still allow them to be involved in the fight" is enforced
     // inside bestCoverDestination itself (myRangedRange + a real line of effect requirement).
     if (state.walls?.length && myRangedRange > 0) addDest(bestCoverDestination(state, combatantId, myPos, ePos, speed, myRangedRange, destCache));
+
+    if (hasReactiveStrike(e) && !isDead(e) && !isUnconscious(e) && isHostileTo(e, me) && (state.reactionAvailable?.get(e.id) ?? true)) {
+      const hop = bestDestinationToward(state, combatantId, myPos, ePos, FEET_PER_SQUARE, 0, destCache);
+      if (hop) stepCandidates.push(hop);
+    }
   }
   for (const a of allies) {
     const aPos = state.positions.get(a.id);
     if (aPos && a.currentHP < a.maxHP) addDest(bestDestinationToward(state, combatantId, myPos, aPos, speed, FEET_PER_SQUARE, destCache));
+  }
+  // GH #59: flank-seeking — only searched when I have a melee option at all (mirroring the
+  // cover-seeking gate's own "only if there's a real ranged option to protect" shape, one line
+  // above but for the opposite weapon type), gated at the CALL SITE rather than relying solely on
+  // bestFlankingDestination's own internal isFlanking check — see that function's own header for
+  // why the up-front gate matters for cost, not just correctness.
+  if (meleeReachFeet(me) != null) {
+    for (const a of allies) {
+      if (a.currentHP <= 0) continue;
+      const aPos = state.positions.get(a.id);
+      if (!aPos) continue;
+      const allyMeleeReach = meleeReachFeet(a);
+      if (allyMeleeReach == null) continue; // this ally has no melee option, so it can never flank with anyone
+      for (const e of enemies) {
+        const ePos = believedPositions.get(e.id); // belief, not ground truth — matches every other enemy-directed candidate above
+        if (!ePos) continue;
+        if (distanceFeet(aPos, ePos) > allyMeleeReach) continue; // this ally isn't actually engaged with THIS enemy
+        addDest(bestFlankingDestination(state, combatantId, me, a, aPos, e, ePos, speed, destCache));
+      }
+    }
   }
   if (me.objective) addDest(bestDestinationToward(state, combatantId, myPos, me.objective, speed, 0, destCache));
 
@@ -557,6 +667,7 @@ export function generateProposals(state, combatantId, turn, externalDestCache, i
   }
 
   for (const d of destinations.values()) proposals.push({ type: "move", to: d });
+  for (const d of stepCandidates) proposals.push({ type: "step", to: d });
   } // includeMovement
 
   return proposals;
@@ -669,11 +780,17 @@ function proposeFlee(state, combatantId, turn) {
  * every proposal at every depth.
  *
  * `unconstrained` is this project's own fifth addition, not one of the report's four — a filter
- * matching every proposal type, phase after phase. It reproduces the OLD single-action-at-a-time
- * decide() exactly, and because `planTurn` always takes the max score across the whole portfolio,
- * its presence is what guarantees the search can never settle on a worse plan than the pre-Stage-2
- * baseline would have played — flagged as an addition, not a citation, same honesty convention §42
- * already used for "mindless."
+ * matching every proposal type, phase after phase. Because `planTurn` always takes the max score
+ * across the whole portfolio, its presence is what guarantees the search can never settle on a worse
+ * plan than the pre-Stage-2 baseline would have played — flagged as an addition, not a citation, same
+ * honesty convention §42 already used for "mindless."
+ *
+ * GH #141: `unconstrained` is no longer a pure greedy floor reproducing old single-action-at-a-time
+ * decide() — since `bestContinuation`'s own bounded lookahead (below) applies at EVERY phase for
+ * every template, and `unconstrained`'s own phases never narrow by type the way the other four
+ * templates' do, it is actually the WIDEST of the five searches now, not the narrowest. It still can
+ * never produce a worse decision than any other template (planTurn's own cross-template max sees to
+ * that), just not necessarily the same one it used to for identical inputs.
  */
 const isControlType = (p) => p.type === "trip" || p.type === "shove" || p.type === "grapple" || p.type === "demoralize" || p.type === "conditionSave";
 const isAttackType = (p) => p.type === "strike" || p.type === "spellAttack" || p.type === "saveAttack" || p.type === "areaAttack";
@@ -693,6 +810,28 @@ const TURN_TEMPLATES = [
  * object with a fixed field layout per type, so plain JSON.stringify is a safe, fast fingerprint. */
 function proposalKey(proposal) {
   return JSON.stringify(proposal);
+}
+
+/**
+ * GH #62 (design doc §76.4 fix 2): a cheap fingerprint of "everything a `field|` flood's own inputs
+ * could depend on that can actually change mid-battle" — real occupancy — used to decide whether
+ * `turn.destCache`'s persistent map still describes the current battlefield. Deliberately built from
+ * `otherLivingPositions`' OWN return shape (`{col, row, side}` — it does not carry `id` at all, so
+ * this cannot sort by id) rather than re-deriving one: `state.positions` is a Map whose iteration
+ * order is stable across the mutations that happen mid-battle (`.set()` on an already-present key
+ * never reorders a Map — verified directly, not assumed), and `cloneStateForPlanning` preserves that
+ * same order into every sandbox fork, so this string is already deterministic without an explicit
+ * sort. `walls`/`gridSize`/`moverSide` never change mid-battle (confirmed by reading every
+ * `attemptAction` branch) — occupancy is the only real input this needs to track.
+ *
+ * EXPORTED (GH #62's own remaining scope — MCTS tree-node cache reuse): the same real occupancy
+ * question applies identically to a hypothetical sandboxed tree-node state, not just the real
+ * battle's own `turn.destCache` — this function reads only `state.positions`/`state.combatants`,
+ * present identically on every `cloneStateForPlanning`-produced fork. `search/tree-shared.mjs`'s own
+ * `scopedDestCache` reuses it directly rather than re-deriving an equivalent hash a second way.
+ */
+export function occupancyFingerprint(state, combatantId) {
+  return otherLivingPositions(state, combatantId).map((p) => `${p.col},${p.row},${p.side}`).join("|");
 }
 
 /**
@@ -720,6 +859,20 @@ function proposalKey(proposal) {
  * for another that reaches the same sequence is exact, not an approximation. This captures sharing
  * at EVERY phase depth, not just phase 0, with no hardcoded knowledge of which templates happen to
  * overlap; the win falls out of how much the templates actually converge in a given real situation.
+ *
+ * GH #141 (adversarially reviewed, 2 rounds, before any code): within one template's own walk, each
+ * phase used to commit to whichever single candidate had the highest raw one-action `gain` — with no
+ * regard for how many of the turn's scarce actions that candidate cost. Two candidates of the SAME
+ * type (so no template's own phase-order can separate them — e.g. Lunar-17's own Transfer Vitality,
+ * 1 action, flat 10 HP, vs. Heal (30ft), 2 actions, ~12.5 HP expected) could then have the cheaper,
+ * more efficient one passed over for the pricier one, leaving too little budget for a much better
+ * follow-up action. `bestContinuation` (below) replaces the single-candidate commit with a bounded
+ * top-`BEAM_WIDTH` continuation search: at each phase, the top few candidates are each recursively
+ * completed using their own already-computed post-action state (free — `scoredCandidatesFor`'s own
+ * per-candidate trial already forks and applies every legal candidate to compute `gain`; retaining
+ * the result costs nothing extra), and the COMPLETE plan with the highest total gain wins — the same
+ * "compare whole plans, take the max" principle this function already applies ACROSS templates
+ * (below), now also applied WITHIN one template's own walk.
  */
 function planTurn(state, combatantId, turn, weights, templates = TURN_TEMPLATES, disabledActionTypes) {
   const me = state.combatants.get(combatantId);
@@ -727,14 +880,38 @@ function planTurn(state, combatantId, turn, weights, templates = TURN_TEMPLATES,
   if (turn.actionsAvailable - turn.actionsUsed <= 0) return null;
   const before = evaluateState(state, me.side, weights, combatantId);
 
+  // GH #62 fix 2: a PERSISTENT cache for candidate generation scored against REAL, current, unmutated
+  // occupancy (plan.length === 0 below — before this call's own hypothetical exploration has applied
+  // anything), so it can safely survive across a turn's real, separate decide() calls, not just within
+  // one. `turn.destCache` (engine.mjs's makeTurnProgress) is absent for the ~30 test call sites that
+  // hand-build a `turn` object rather than going through the real runTurn/makeTurnProgress path — a
+  // local, un-persisted fallback for those is correct and matches this file's own existing convention
+  // for optional turn fields (e.g. `turn.decisionIndex ?? 0` below): it behaves exactly as this cache
+  // did before this fix existed (a fresh Map, thrown away), never a crash, never written back onto a
+  // caller's own object. `.map` and `.fingerprint` live on ONE shared container object specifically so
+  // both survive engine.mjs's own `{...turnProgress, effective}` copy every call — a Map already
+  // survives a shallow copy by reference; wrapping the fingerprint alongside it gives that plain field
+  // the same property, rather than leaving it a doomed-to-reset primitive directly on `turn` itself.
+  const destCacheContainer = turn.destCache ?? { map: new Map(), fingerprint: null };
+  const currentFingerprint = occupancyFingerprint(state, combatantId);
+  if (destCacheContainer.fingerprint !== currentFingerprint) {
+    destCacheContainer.map.clear();
+    destCacheContainer.fingerprint = currentFingerprint;
+  }
+
   const scoredCache = new Map(); // "sequenceKey::includeMovement" -> [{proposal, gain}]
   // Shared pathfinding cache across the WHOLE search (every template, every phase) — see
   // generateProposals' own header for exactly what this does and does not assume safe to reuse.
+  // UNCHANGED by fix 2: still per-call, still thrown away at the end, still mixes real-phase-0 and
+  // hypothetical-phase-1+ computations exactly as before — this is deliberate (design doc §76.4 fix 2,
+  // Finding 3), so nothing computed against a sandboxed, not-yet-real state can ever reach
+  // `destCacheContainer.map`, which persists across real actions and must stay real-occupancy-only.
   const sharedDestCache = new Map();
-  function scoredCandidatesFor(sequenceKey, sandboxState, sandboxTurn, includeMovement) {
+  function scoredCandidatesFor(sequenceKey, sandboxState, sandboxTurn, includeMovement, isRealOccupancy) {
     const cacheKey = `${sequenceKey}::${includeMovement}`;
     if (scoredCache.has(cacheKey)) return scoredCache.get(cacheKey);
-    const rawProposals = generateProposals(sandboxState, combatantId, sandboxTurn, sharedDestCache, includeMovement);
+    const destCache = isRealOccupancy ? destCacheContainer.map : sharedDestCache;
+    const rawProposals = generateProposals(sandboxState, combatantId, sandboxTurn, destCache, includeMovement);
     // §46 (AI profiles): a real CAPABILITY restriction, not a preference — filtered out before
     // scoring even begins, so a disabled action type is never a candidate at all, in either the
     // whole-turn search here or the competence<1 fallback below (both call this same helper).
@@ -746,37 +923,66 @@ function planTurn(state, combatantId, turn, weights, templates = TURN_TEMPLATES,
       const result = trial.apply(combatantId, proposal);
       if (!result.legal) continue; // the ENGINE decides legality; we never re-derive it
       const gain = evaluateState(trial.state, me.side, weights, combatantId) - localBefore;
-      scored.push({ proposal, gain });
+      // GH #141: retain the trial's own post-action state/turn and full result alongside gain — this
+      // trial was already forked and applied to compute `gain`; keeping these costs nothing extra,
+      // and is what lets bestContinuation below explore more than one candidate per phase for free.
+      scored.push({ proposal, gain, result, resultState: trial.state, resultTurn: trial.turn });
     }
     scoredCache.set(cacheKey, scored);
     return scored;
   }
-  function bestMatching(scored, filter) {
-    if (!scored.length) return null;
+
+  const BEAM_WIDTH = 3; // GH #141 — NOT YET MEASURED, a reasoned starting point: 2 is the minimum
+                         // that closes the known Heal(30ft)-vs-Transfer-Vitality case, 3 gives margin
+                         // for a third competing option without the cost of a much wider search.
+
+  /**
+   * GH #141: at each phase, take the top BEAM_WIDTH legal candidates (by the SAME filter/fallback
+   * logic the old single-candidate `bestMatching` used) and recursively complete EACH one using its
+   * own already-computed post-action state, keeping whichever COMPLETE continuation has the highest
+   * total gain — not just whichever single candidate had the highest gain for that one phase alone.
+   * Always returns {plan, finalState}, plan a FLAT array (never nested), possibly empty if nothing at
+   * all was legal at this phase (matching the old loop's own `break`-on-no-candidate behavior).
+   */
+  function bestContinuation(template, sandboxState, sandboxTurn, planSoFar, sequenceKey) {
+    if (sandboxTurn.actionsAvailable - sandboxTurn.actionsUsed <= 0) return { plan: planSoFar, finalState: sandboxState };
+    const filter = template.phases[Math.min(planSoFar.length, template.phases.length - 1)];
+    // §43 performance: skip real pathfinding entirely for a phase whose filter could never select
+    // "move" anyway (isControlType/isAttackType/isHealType) — the dominant cost in generateProposals,
+    // paid for nothing on a phase that would just filter it back out. isMoveType/anyType are the only
+    // two filters that can ever match a "move" proposal.
+    const includeMovement = filter === anyType || filter === isMoveType;
+    // planSoFar.length === 0: this template hasn't applied any hypothetical action of its own yet, so
+    // sandboxState is still a fresh, unmutated fork of the real state (forkTurnSandbox wraps for
+    // potential mutation; it does not itself change positions/HP) — genuinely real-occupancy-safe to
+    // cache into destCacheContainer.map, regardless of which template or beam branch this is (GH #62
+    // fix 2) — true of every template's own FIRST call here, never true of any recursive child call.
+    const isRealOccupancy = planSoFar.length === 0;
+    const scored = scoredCandidatesFor(sequenceKey, sandboxState, sandboxTurn, includeMovement, isRealOccupancy);
     const matching = filter === anyType ? scored : scored.filter((s) => filter(s.proposal));
     const pool = matching.length ? matching : scored;
-    return pool.reduce((best, cur) => (!best || cur.gain > best.gain ? cur : best), null);
+    if (!pool.length) return { plan: planSoFar, finalState: sandboxState };
+
+    const topK = [...pool].sort((a, b) => b.gain - a.gain).slice(0, BEAM_WIDTH);
+    let best = null;
+    for (const candidate of topK) {
+      const branchPlan = [...planSoFar, { proposal: candidate.proposal, result: candidate.result, gain: candidate.gain }];
+      const branchKey = `${sequenceKey}|${proposalKey(candidate.proposal)}`;
+      const { plan: completedPlan, finalState } = bestContinuation(template, candidate.resultState, candidate.resultTurn, branchPlan, branchKey);
+      // Sum of per-step gains == evaluateState(finalState) - evaluateState(templateStart), exactly,
+      // since evaluateState has no turn/action-economy dependence — avoids a redundant evaluateState
+      // call here just to compare branches (the ONE per-template evaluateState call below, used for
+      // the actual cross-template comparison, is unchanged).
+      const totalGain = completedPlan.reduce((sum, step) => sum + step.gain, 0);
+      if (!best || totalGain > best.totalGain) best = { plan: completedPlan, finalState, totalGain };
+    }
+    return { plan: best.plan, finalState: best.finalState };
   }
 
   const results = templates.map((template) => {
     const sandbox = forkTurnSandbox({ state, turn });
-    const plan = [];
-    let sequenceKey = "";
-    while (sandbox.actionsRemaining() > 0) {
-      const filter = template.phases[Math.min(plan.length, template.phases.length - 1)];
-      // §43 performance: skip real pathfinding entirely for a phase whose filter could never
-      // select "move" anyway (isControlType/isAttackType/isHealType) — the dominant cost in
-      // generateProposals, paid for nothing on a phase that would just filter it back out.
-      // isMoveType/anyType are the only two filters that can ever match a "move" proposal.
-      const includeMovement = filter === anyType || filter === isMoveType;
-      const scored = scoredCandidatesFor(sequenceKey, sandbox.state, sandbox.turn, includeMovement);
-      const picked = bestMatching(scored, filter);
-      if (!picked) break;
-      const result = sandbox.apply(combatantId, picked.proposal);
-      plan.push({ proposal: picked.proposal, result, gain: picked.gain });
-      sequenceKey += `|${proposalKey(picked.proposal)}`;
-    }
-    return { templateName: template.name, plan, finalState: sandbox.state };
+    const { plan, finalState } = bestContinuation(template, sandbox.state, sandbox.turn, [], "");
+    return { templateName: template.name, plan, finalState };
   }).filter((r) => r.plan.length > 0);
 
   if (!results.length) return null;
@@ -900,8 +1106,10 @@ function describe(proposal, result) {
     case "saveAttack": return `Use ${result?.saveAttackName ?? "ability " + (proposal.saveAttackIndex ?? 0)} against ${proposal.targetId}`;
     case "demoralize": return `Demoralize ${proposal.targetId}`;
     case "conditionSave": return `Use ${result?.conditionSaveName ?? "ability " + (proposal.conditionSaveIndex ?? 0)} against ${proposal.targetId}`;
-    case "areaAttack": return `Throw ${result?.areaAttackName ?? "ability " + (proposal.areaAttackIndex ?? 0)} at ${proposal.originId}'s position`;
-    case "healAbility": return `Heal ${proposal.targetId} with ${result?.abilityName ?? "ability"}`;
+    case "areaAttack": return `Throw ${result?.areaAttackName ?? "ability " + (proposal.areaAttackIndex ?? 0)} at ${proposal.originId ? `${proposal.originId}'s position` : `(${proposal.originPoint.col},${proposal.originPoint.row})`}`;
+    case "healAbility": return proposal.targetId
+      ? `Heal ${proposal.targetId} with ${result?.abilityName ?? "ability"}`
+      : `Cast ${result?.abilityName ?? "ability"} (centered on self)`;
     case "trip": return `Trip ${proposal.targetId}`;
     case "shove": return `Shove ${proposal.targetId}`;
     case "grapple": return `Grapple ${proposal.targetId}`;

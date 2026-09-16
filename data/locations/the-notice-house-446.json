@@ -1,0 +1,116 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-notice-house-446",
+  "type": "location",
+  "tier": "site",
+  "name": "The Notice House",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "amenity"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21441936,
+          34.66616943
+        ],
+        [
+          135.21468137,
+          34.66627194
+        ],
+        [
+          135.21453396,
+          34.66631033
+        ],
+        [
+          135.21452506,
+          34.66628013
+        ],
+        [
+          135.21446976,
+          34.6662914
+        ],
+        [
+          135.21441936,
+          34.66616943
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7610.5,
+          6891.4
+        ],
+        [
+          7625.4,
+          6869.4
+        ],
+        [
+          7611.6,
+          6872.6
+        ],
+        [
+          7612.6,
+          6875.9
+        ],
+        [
+          7607.6,
+          6877.4
+        ],
+        [
+          7610.5,
+          6891.4
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7614.79,
+      6878.55
+    ],
+    "cells": [
+      "D4·73"
+    ],
+    "ref": "D4·73",
+    "areaM2": 153.9,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-446",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "amenities and other general city supporting functions and administration.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Where the island's civil postings, ration notices and school results sheets get pinned up before anywhere else.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

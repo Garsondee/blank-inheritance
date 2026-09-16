@@ -55,7 +55,9 @@ import { distanceFeet, reachFeetForStrike, FEET_PER_SQUARE } from "../grid.mjs";
 import { lineOfEffect, hasCover, STANDARD_COVER_AC_BONUS } from "../terrain.mjs";
 import { pathCost } from "../world/pathfind.mjs";
 import { splitByRelation } from "../factions.mjs";
-import { isRestrained, isImmobilized, isOffGuardFromConditions, attackerConditionPenalty } from "../conditions.mjs";
+import { isRestrained, isImmobilized, isOffGuardFromConditions, attackerConditionPenalty, isUnconscious } from "../conditions.mjs";
+import { isFlanking } from "../flanking.mjs";
+import { alliesWithPositions, OFF_GUARD_AC_PENALTY } from "../engine.mjs";
 
 /**
  * Straight-line distanceFeet becomes actively MISLEADING once a wall sits between two combatants —
@@ -87,12 +89,18 @@ function effectiveDistance(state, from, to) {
   return result;
 }
 
-/** Every attack option a combatant has — Strikes, attack spells, and save-based attacks (a saveAttack is distinguished by carrying `saveType`, never `attackBonus`; see bestExpectedDamage below). */
+/** Every attack option a combatant has — Strikes, attack spells, save-based attacks, and area
+ * attacks (a saveAttack/areaAttack is distinguished by carrying `saveType`, never `attackBonus`;
+ * see bestExpectedDamage below — both resolve through the identical save-based branch there, since
+ * an areaAttack's shape is a saveAttack's plus `radius`, and this single-target evaluator function
+ * only ever asks "how much would this option do to THIS ONE target", never pricing the multi-target
+ * upside a real area attack's blast also has — that's a real, deliberate simplification, GH #61). */
 export function attackOptions(combatant) {
   const out = [];
   for (const s of combatant.strikes ?? []) if (s.usesRemaining == null || s.usesRemaining > 0) out.push(s);
   for (const s of combatant.spells ?? []) if (s.usesRemaining == null || s.usesRemaining > 0) out.push(s);
   for (const s of combatant.saveAttacks ?? []) if (s.usesRemaining == null || s.usesRemaining > 0) out.push(s);
+  for (const s of combatant.areaAttacks ?? []) if (s.usesRemaining == null || s.usesRemaining > 0) out.push(s);
   return out;
 }
 
@@ -106,11 +114,31 @@ export function proactiveAttackOptions(combatant) {
   return attackOptions(combatant).filter((s) => !s.reactionOnly);
 }
 
-/** The distance at which an option is actually worth using — flat range for a spell, reach for melee, one increment for a gun. */
+/** The distance at which an option is actually worth using — flat range for a spell, reach for melee,
+ * one increment for a gun, or the entire span for a flat-`rangeMax` Strike (GH #148 — no increment
+ * means no accuracy falloff anywhere in that span, so the whole thing is equally "useful"). A ranged
+ * Strike with neither field is the same genuine data error checkStrikeRange (legality.mjs) throws on;
+ * this function keeps its own long-standing Infinity fallback for that case rather than throwing,
+ * since it runs unconditionally over every attack option on every evaluateState call (not gated
+ * behind a specific attempted Strike the way checkStrikeRange is) — a real occurrence would already
+ * have been caught there first. */
 export function usefulRangeFeet(item) {
   if (item.range != null) return item.range;
   if (item.strikeType === "melee") return reachFeetForStrike(item);
-  return item.rangeIncrement ?? Infinity;
+  return item.rangeIncrement ?? item.rangeMax ?? Infinity;
+}
+
+/**
+ * GH #60 — the caster's own longest-range heal option. Mirrors `meleeReachFeet`'s (flanking.mjs)
+ * exact contract: `null` when there's no heal option at all, distinguishing "structurally can't
+ * help" from "must be adjacent." An omitted `range` field on a heal ability reads as touch/adjacent
+ * (FEET_PER_SQUARE), matching `checkHealAbilityLegal`'s own `checkSpellRange` convention
+ * (legality.mjs) — NOT 0, since a touch-only healer still has real, if short, reach.
+ */
+function healReachFeet(combatant) {
+  const healOptions = combatant.healAbilities ?? [];
+  if (!healOptions.length) return null;
+  return Math.max(...healOptions.map((h) => h.range ?? FEET_PER_SQUARE));
 }
 
 /**
@@ -128,11 +156,17 @@ export function usefulRangeFeet(item) {
  * not a usefulRangeFeet change, because usefulRangeFeet's OTHER callers (the closing gradient,
  * bestExpectedDamage, the myRanges standoff candidates) are about "worth approaching to without a
  * penalty," a genuinely different, already-correct question this fix must not disturb.
+ *
+ * GH #148: a flat-`rangeMax` Strike has no increment to multiply by 6 — its legal max IS `rangeMax`
+ * itself, identical to usefulRangeFeet's own value for that shape (no accuracy falloff means "useful"
+ * and "legal max" coincide). Same Infinity fallback, and the same reasoning for keeping it (rather
+ * than throwing, as checkStrikeRange does), as usefulRangeFeet just above.
  */
 export function maxLegalRangeFeet(item) {
   if (item.range != null) return item.range;
   if (item.strikeType === "melee") return reachFeetForStrike(item);
-  return item.rangeIncrement != null ? item.rangeIncrement * 6 : Infinity;
+  if (item.rangeIncrement != null) return item.rangeIncrement * 6;
+  return item.rangeMax ?? Infinity;
 }
 
 /**
@@ -176,9 +210,34 @@ export function maxLegalRangeFeet(item) {
  * integration above: cover lowers the estimated damage a target behind it would take, which
  * threatExposure/offensiveReach already turn into a real positional preference on their own.
  */
-export function bestExpectedDamage(attacker, fromPos, target, targetPos, walls) {
-  const targetEffective = resolveEffectiveStats(target);
+/**
+ * GH #59 — `alliesOfAttacker` is OPTIONAL, defaulting to `[]` (every existing caller that omits it
+ * is byte-for-byte unaffected, since an empty list can never satisfy isFlanking's own "at least one
+ * ally on the opposite heading" requirement). Must be built the SAME way engine.mjs's own real,
+ * resolution-time `alliesWithPositions` does (exact side match, alive, excluding the attacker
+ * itself) — imported directly from there rather than reimplemented, so an evaluator-side "would
+ * flank" check can never drift from what actually happens when the strike resolves. Two real traps
+ * a naive construction falls into, found by adversarial review before this shipped: (1) reusing
+ * evaluateState's own broader `allies` array would silently include NEUTRAL combatants as valid
+ * flank partners — factions.mjs's isAlliedWith treats a neutral as a party asset to protect, but
+ * engine.mjs's real flanking gate strictly requires c.side === combatant.side, excluding them —
+ * the evaluator would credit a "flank" that grants zero actual AC reduction when it resolves. (2) A
+ * flanking PARTNER only needs to be alive and correctly-sided, never "hasn't acted yet this round" —
+ * setupValue's own stillToActIds-filtered list (a real, tempting, wrong source given code
+ * proximity) would wrongly drop an already-acted ally who is still physically standing there,
+ * still completing the flank.
+ */
+export function bestExpectedDamage(attacker, fromPos, target, targetPos, walls, alliesOfAttacker = []) {
+  const targetEffective = resolveEffectiveStats(target); // already folds in off-guard-from-conditions (prone/unconscious/grabbed), if any
   const coverBonus = hasCover(fromPos, targetPos, walls) ? STANDARD_COVER_AC_BONUS : 0;
+  // Off-guard doesn't stack with itself (Player Core) — gated on !isOffGuardFromConditions(target)
+  // to match engine.mjs's own real resolution-time gate exactly; without it, an already-prone,
+  // already-flanked target would double-count the same -2 (resolveEffectiveStats above already
+  // applied it once). Computed ONCE, not per-option, since it doesn't depend on which attack is
+  // being scored — only whether THIS option is melee does (flanking's off-guard, Player Core pg.
+  // 409, applies to melee attacks only, never to a ranged Strike or a save-based option).
+  const flankBonus = (!isOffGuardFromConditions(target) && alliesOfAttacker.length && isFlanking(attacker, fromPos, target, targetPos, alliesOfAttacker, walls))
+    ? OFF_GUARD_AC_PENALTY : 0;
   let best = 0;
   const dist = distanceFeet(fromPos, targetPos);
   for (const option of attackOptions(attacker)) {
@@ -191,6 +250,7 @@ export function bestExpectedDamage(attacker, fromPos, target, targetPos, walls) 
     // hurt us now") visible to threatExposure/offensiveReach with no new evaluator weight needed.
     if (option.attackBonus != null && isRestrained(attacker)) continue;
     if (dist > usefulRangeFeet(option)) continue; // out of useful range from here
+    const meleeFlankBonus = option.strikeType === "melee" ? flankBonus : 0;
     const value = option.saveType != null
       ? expectedSaveDamage({
           saveBonus: target.saves[option.saveType] + (option.saveType === "ref" ? coverBonus : 0), dc: option.dc,
@@ -198,7 +258,7 @@ export function bestExpectedDamage(attacker, fromPos, target, targetPos, walls) 
         })
       : expectedStrikeDamage({
           attackModifier: option.attackBonus + attackerConditionPenalty(attacker),
-          targetAc: targetEffective.ac + coverBonus,
+          targetAc: targetEffective.ac + coverBonus - meleeFlankBonus,
           strike: option, target, targetEffective
         });
     if (value > best) best = value;
@@ -216,6 +276,18 @@ export const DEFAULT_WEIGHTS = {
   // point only, per design doc §19's own explicit plan to re-measure once real fights exist.
   closing: 0.75,
   resource: 3.0,           // HP-equivalent of keeping one limited-use item unspent
+  // NOT YET MEASURED (GH #60 — confirmed by direct measurement: a downed ally at dyingValue 1 and
+  // the same ally at dyingValue 3 scored byte-identically before this term existed). Lands
+  // dyingValue 1/2/3 at 5/10/15 points, comparable to several real HP worth of allyDamage/
+  // enemyDamage credit (1.0/HP each) — deliberately weighted heavily, matching lowHpCaution's own
+  // precedent of being calibrated to reach "just past parity" once a previously-too-weak term proved
+  // unable to compete with a mediocre attack.
+  dyingUrgency: 5.0,
+  // NOT YET MEASURED (GH #60) — deliberately set equal to `closing`'s own value, not an independently
+  // guessed number: both terms price the identical unit (score per square of shortfall against a
+  // distance-and-reach gate), and nothing yet distinguishes how urgently one should be preferred over
+  // the other absent real measurement.
+  downedAllyClosing: 0.75,
   // NOT YET MEASURED (design doc §22) — a reasoned starting point, not a guess pulled from nowhere:
   // roughly the same order of magnitude as `resource` (a comparably "temporary tactical value, not
   // permanent HP" concept), well below what a real kill is worth. Flagged exactly like `closing`
@@ -296,7 +368,16 @@ export const DEFAULT_WEIGHTS = {
   // threatExposure's own order of magnitude (both are "real expected damage, discounted for being
   // about a hypothetical future attack rather than the current turn") — a reasoned starting point
   // for the search to correct, exactly the role closing/setupValue/mobilityDenial already play.
-  pileOnRisk: 0.25
+  pileOnRisk: 0.25,
+  // NOT YET MEASURED (GH #58 — the sniper-vs-caster gap: measured, the AI scored a HIGH-damage
+  // enemy LOWER than a low-damage one, purely because the high-damage one had better AC — nothing
+  // priced "how dangerous is this specific enemy" at all). Same order of magnitude as
+  // offensiveReach on purpose — see evaluateState's own comment at the point of use for the real
+  // mechanism (rewards damage already dealt, weighted by a structurally-[0,1]-bounded threatShare
+  // of total party-wide incoming threat — NOT offensiveReach's own "reach against a live enemy"
+  // shape, which a reviewed first draft copied and which turned out to reward the WRONG enemy once
+  // checked against this issue's own literal acceptance test, not just against monotonicity safety).
+  threatReduction: 0.2
 };
 
 /**
@@ -336,6 +417,21 @@ function maneuverTempoOwed(combatant, combatantsMap) {
 }
 
 /**
+ * GH #60 — how urgently a downed ally needs saving. Confirmed by direct measurement before this term
+ * existed: an ally at dyingValue 1 and the same ally at dyingValue 3 scored byte-identically (this
+ * file never read dyingValue at all), even though the real recovery-check DC compounds with it
+ * (`10 + dyingValue`, conditions.mjs's own resolveRecoveryCheck) — risk gets harder to escape exactly
+ * as death gets closer, and nothing here reflected that. A pure function of ONE combatant's own
+ * state (Idiom B, matching `tempoOwed`'s own one-argument shape above) — no cross-ally aggregation
+ * problem exists, so no cap/Math.min machinery is needed the way the enemy-side Idiom A terms
+ * (offensiveReach/threatReduction/setupValue) require.
+ */
+function dyingUrgency(ally) {
+  if (!isUnconscious(ally)) return 0; // never a dead ally either (isDead) — already gone, nothing left to price
+  return ally.dyingValue ?? 0; // 1-3 (4 would be dead, excluded above); linear, an untuned starting point like every other NOT YET MEASURED term in this file
+}
+
+/**
  * Evaluate `state` from `side`'s point of view, in hit-point-equivalents. Higher is better for
  * that side. Absolute magnitude is meaningless; only DIFFERENCES between two states matter, which
  * is how it is always used.
@@ -344,7 +440,18 @@ function maneuverTempoOwed(combatant, combatantsMap) {
  * caller that omits it (every test, decide.mjs's own callers before this change) gets exactly the
  * same score as before this parameter existed; only the new setupValue term below ever reads it.
  */
+// EVALUATE-CALL COUNTER (GH #62 investigation) — the one true seam every real decision AND every
+// MCTS tree-node expansion passes through, mirroring engine.mjs's own sandboxForkCount/pathfind.mjs's
+// own floodCount pattern exactly: a plain increment that never touches this function's own control
+// flow or return value, only meaningful to a caller that explicitly resets and reads it. Exists to
+// measure, not assume, how many times a single real MCTS search() call invokes this function — the
+// open question behind #62's own remaining "zero cache reuse per tree node" scope.
+let evaluateStateCallCount = 0;
+export function resetEvaluateStateCallCount() { evaluateStateCallCount = 0; }
+export function getEvaluateStateCallCount() { return evaluateStateCallCount; }
+
 export function evaluateState(state, side, weights = DEFAULT_WEIGHTS, actingCombatantId = null) {
+  evaluateStateCallCount += 1;
   const all = [...state.combatants.values()];
   // Faction-aware (factions.mjs), not a raw side filter — see that file's own header.
   const { allies, enemies } = splitByRelation({ id: null, side }, all);
@@ -355,9 +462,15 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS, actingComb
     score += weights.allyDamage * ally.currentHP;
     score -= weights.tempoDenial * tempoOwed(ally); // Stunned only — a certain, already-resolved lost action
     score -= weights.maneuverTempoDenial * maneuverTempoOwed(ally, state.combatants); // Prone/Grabbed — contested by a real future roll, priced lower (design doc §44)
-    for (const s of [...(ally.strikes ?? []), ...(ally.spells ?? []), ...(ally.healAbilities ?? []), ...(ally.saveAttacks ?? []), ...(ally.conditionSaves ?? [])]) {
+    score -= weights.dyingUrgency * dyingUrgency(ally); // GH #60 — a downed ally one bad recovery check from permanent death
+    for (const s of [...(ally.strikes ?? []), ...(ally.spells ?? []), ...(ally.healAbilities ?? []), ...(ally.saveAttacks ?? []), ...(ally.conditionSaves ?? []), ...(ally.areaAttacks ?? [])]) {
       if (s.usesRemaining != null) score += weights.resource * s.usesRemaining;
     }
+    // GH #60 — a shared, per-CASTER resource pool (Heal's own spellSlots) priced ONCE here rather
+    // than per-ability above: Heal's own entries carry `slotRank` INSTEAD of `usesRemaining` (the
+    // whole point of sharing one pool), so the per-ability loop above never sees them at all — without
+    // this, the shared pool would look "free" to conserve, unlike every other limited-use ability.
+    for (const remaining of Object.values(ally.spellSlots ?? {})) score += weights.resource * remaining;
   }
   for (const enemy of enemies) {
     score -= weights.enemyDamage * enemy.currentHP;
@@ -386,10 +499,25 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS, actingComb
   // four times as dangerous as one, and that term shrinking when an enemy dies is a *gain*, so it
   // cannot violate the requirement above.
   const reachByEnemy = new Map();
+  // GH #58 — each enemy's own INTRINSIC attack potential against every living ally, summed.
+  // Deliberately computed for EVERY enemy with a tracked position — dead or alive, in LOS or not,
+  // and with their own momentary conditions (prone/frightened) and terrain (cover) neutralized —
+  // unlike every other accumulator in this loop: see the point of use below for why anything less
+  // than fully unconditional breaks monotonicity at exactly the moment (a kill) it must not.
+  const enemyThreatTotal = new Map();
   for (const ally of allies) {
     if (ally.currentHP <= 0) continue;
     const allyPos = state.positions.get(ally.id);
     if (!allyPos) continue;
+    // GH #59 — this ally's own real, same-side, living flanking partners. Computed once per ally
+    // (not per enemy below, since it doesn't depend on which enemy is being scored) via the SAME
+    // function engine.mjs uses at real resolution time, not a reimplementation — so offensiveReach's
+    // own "would this position flank" check can never drift from what actually happens when the
+    // Strike resolves. Deliberately NOT `allies` itself (includes neutrals, which engine.mjs's own
+    // real gate excludes) and NOT anything filtered by initiative order (a flanking PARTNER only
+    // needs to be alive and correctly-sided, never "hasn't acted yet this round" — see setupValue's
+    // own use of this same list below for why that distinction matters).
+    const alliesForFlanking = alliesWithPositions(state, ally);
 
     // Deferred, not applied inline: the low-HP/outnumbered caution factors below need this ally's
     // FULL visible-enemy count first, so threatExposure's actual cost is applied in a second pass
@@ -398,12 +526,32 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS, actingComb
     // separate "the one who might trip me" from "everyone else who'd cash in on it".
     const visibleEnemies = [];
     for (const enemy of enemies) {
-      if (enemy.currentHP <= 0) continue;
       const enemyPos = state.positions.get(enemy.id);
-      if (!enemyPos) continue;
+      if (!enemyPos) continue; // never tracked at all — distinct from merely dead or out of LOS below
+
+      // GH #58 — computed from a CONDITION- AND TERRAIN-NEUTRAL copy of the enemy, UNCONDITIONALLY,
+      // before the aliveness/LOS gates below: this term prices INTRINSIC threat capability (kit,
+      // attack bonus, damage dice), never momentary battlefield state. Aliveness/LOS independence
+      // alone turned out NOT to be enough — a real, adversarially-found bug: bestExpectedDamage
+      // reads the ATTACKER's own attackerConditionPenalty (frightened/prone), and applyKnockout
+      // (conditions.mjs) sets `prone: true` UNCONDITIONALLY the instant a dying-rules combatant
+      // hits 0 HP — exactly the same moment (enemy.maxHP - enemy.currentHP) below reaches its
+      // maximum. That let the enemy's own currentHP leak back into threatShare through a second,
+      // indirect path, reproduced with real fixture-scale numbers (a 100-300 maxHP dying-rules
+      // combatant scored WORSE dropping from 1 HP to 0 than staying at 1 HP — the exact
+      // monotonicity bug class this file exists to prevent). Neutralizing prone/frightened AND
+      // passing no walls (so hasCover — documented as only ever reached after a real lineOfEffect
+      // check — is never consulted here either) closes both that leak and a related, currently-
+      // dormant one: a real map's cover geometry could otherwise shade this "should be terrain-
+      // independent" hypothetical. A SEPARATE bestExpectedDamage call from the one below — real,
+      // honest cost for every alive+visible enemy, no longer shareable now that the two calls
+      // deliberately compute different things.
+      enemyThreatTotal.set(enemy.id, (enemyThreatTotal.get(enemy.id) ?? 0) + bestExpectedDamage({ ...enemy, prone: false, frightened: 0 }, enemyPos, ally, allyPos, []));
+
+      if (enemy.currentHP <= 0) continue;
       if (state.walls?.length && !lineOfEffect(allyPos, enemyPos, state.walls)) continue; // no real shot exists from here
-      reachByEnemy.set(enemy.id, (reachByEnemy.get(enemy.id) ?? 0) + bestExpectedDamage(ally, allyPos, enemy, enemyPos, state.walls));
-      visibleEnemies.push({ enemy, enemyPos, damage: bestExpectedDamage(enemy, enemyPos, ally, allyPos, state.walls) });
+      reachByEnemy.set(enemy.id, (reachByEnemy.get(enemy.id) ?? 0) + bestExpectedDamage(ally, allyPos, enemy, enemyPos, state.walls, alliesForFlanking));
+      visibleEnemies.push({ enemy, enemyPos, damage: bestExpectedDamage(enemy, enemyPos, ally, allyPos, state.walls) }); // REAL, current-condition damage — threatExposure/pileOnRisk correctly want this, unlike threatReduction above
     }
 
     // LOW-HP CAUTION (design doc §22 — "give PCs a greater reason to get out of line of sight of
@@ -505,6 +653,48 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS, actingComb
     score += weights.offensiveReach * Math.min(raw, enemy.currentHP);
   }
 
+  // THREAT-BASED TARGET PRIORITIZATION (GH #58) — issue's own words: prices "expected enemy damage
+  // output removed PER POINT OF DAMAGE DEALT", so a fragile high-damage caster outranks a durable
+  // low-damage brute at equal hit chance. threatShare = this enemy's share of total party-wide
+  // incoming threat (0 when nobody threatens anybody) — structurally in [0,1] regardless of party
+  // size or absolute damage magnitude, a share of a sum that includes its own numerator.
+  //
+  // DELIBERATELY (enemy.maxHP - enemy.currentHP), NOT Math.min(raw, enemy.currentHP) —
+  // offensiveReach's own shape rewards HAVING REACH AGAINST A LIVE ENEMY, so it shrinks as that
+  // enemy is damaged (compensated only because enemyDamage's own +1.0/HP gain always wins — see
+  // offensiveReach's own comment above). Copying that shape here was this feature's actual first
+  // draft, adversarially reviewed and confirmed monotonicity-safe — and then, when checked directly
+  // against #58's own stated acceptance test (equal-AC-hit-chance, which enemy is more valuable to
+  // ATTACK), found to reward the WRONG enemy: the higher-threat target's own credit shrinks FASTER
+  // per point of damage dealt (it has a bigger threatShare, hence more to lose from offensiveReach's
+  // "reach" shape), the opposite of what "prioritize the dangerous one" needs. Reward DAMAGE DEALT
+  // instead: this term is monotonically NON-DECREASING as any enemy's own HP drops, on its own,
+  // with NO help needed from enemyDamage's own gradient — gradient is a CONSTANT
+  // `weights.threatReduction * threatShare` per HP point removed, everywhere in [0, maxHP], bounded
+  // above by `weights.threatReduction` since threatShare <= 1 always. Reaches its correctly-bounded
+  // maximum smoothly AT death (maxHP - 0 = maxHP) with no discontinuity, because threatShare itself
+  // (built from enemyThreatTotal above) doesn't depend on this enemy's own currentHP AT ALL —
+  // not on whether they're alive, in LOS, or in any momentary condition their own dying/knockout
+  // sequence would otherwise correlate with the very HP change this term is pricing. Getting that
+  // last part right took a real, adversarially-found bug (see enemyThreatTotal's own point of
+  // computation above): aliveness/LOS-independence alone still let currentHP leak back in through
+  // applyKnockout's own `prone: true` side effect at 0 HP.
+  let totalThreat = 0;
+  for (const enemy of enemies) totalThreat += enemyThreatTotal.get(enemy.id) ?? 0;
+  for (const enemy of enemies) {
+    const threatShare = totalThreat > 0 ? (enemyThreatTotal.get(enemy.id) ?? 0) / totalThreat : 0;
+    // enemyDamage/allyDamage are this evaluator's only other terms old enough to predate maxHP
+    // being a assumed-present field, and they only ever read currentHP — so plenty of real,
+    // otherwise-unrelated fixtures across this project's own test suite never set maxHP at all
+    // (confirmed live: a determinization test with bare {currentHP:30, ac:17,...} combatants,
+    // maxHP omitted entirely, turned `undefined - 30` into a real NaN here, propagating into a
+    // search-crashing prior). Same safe fallback lowHpFactor already uses just above for the
+    // identical undefined/zero-maxHP case — an untracked max HP earns no threatReduction credit,
+    // rather than crashing or fabricating one.
+    const maxHP = enemy.maxHP > 0 ? enemy.maxHP : enemy.currentHP;
+    score += weights.threatReduction * threatShare * (maxHP - enemy.currentHP);
+  }
+
   // SETUP VALUE (design doc §42, Stage 1) — see DEFAULT_WEIGHTS' own comment for the full
   // reasoning. Structurally identical to offensiveReach just above (same bestExpectedDamage
   // currency, same per-enemy-HP cap, same monotonicity proof by inheritance), restricted to allies
@@ -521,12 +711,19 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS, actingComb
         if (ally.currentHP <= 0 || !stillToActIds.has(ally.id)) continue;
         const allyPos = state.positions.get(ally.id);
         if (!allyPos) continue;
+        // GH #59 — deliberately NOT stillToActIds-filtered, even though we're inside a loop that
+        // otherwise is: stillToActIds restricts which ally's OWN setup-value counts (the thing this
+        // whole block is about), but a flanking PARTNER only needs to be alive and correctly-sided —
+        // an ally who already acted this round is still physically standing there, still completing
+        // a real flank. Reusing a stillToActIds-filtered list here would silently drop exactly those
+        // already-acted partners. See offensiveReach's own identical call above for the full reasoning.
+        const alliesForFlanking = alliesWithPositions(state, ally);
         for (const enemy of enemies) {
           if (enemy.currentHP <= 0) continue;
           const enemyPos = state.positions.get(enemy.id);
           if (!enemyPos) continue;
           if (state.walls?.length && !lineOfEffect(allyPos, enemyPos, state.walls)) continue;
-          setupByEnemy.set(enemy.id, (setupByEnemy.get(enemy.id) ?? 0) + bestExpectedDamage(ally, allyPos, enemy, enemyPos, state.walls));
+          setupByEnemy.set(enemy.id, (setupByEnemy.get(enemy.id) ?? 0) + bestExpectedDamage(ally, allyPos, enemy, enemyPos, state.walls, alliesForFlanking));
         }
       }
       for (const enemy of enemies) {
@@ -571,6 +768,33 @@ export function evaluateState(state, side, weights = DEFAULT_WEIGHTS, actingComb
     }
     if (nearest === Infinity || nearest <= reach) continue; // in range already — no credit to farm
     score -= weights.closing * ((nearest - reach) / FEET_PER_SQUARE); // squares still short of a shot
+  }
+
+  // GH #60 — the downed-ally counterpart to `closing` just above. Confirmed by direct read: `closing`
+  // only ever pulls toward the nearest ENEMY, no code path anywhere pulls toward a downed ally who
+  // needs rescuing. Minimizes SHORTFALL across rescuers, not raw distance — `closing` gets away with
+  // "nearest by distance" because it has exactly ONE reach value per computation (the outer-loop
+  // ally's own), but here the inner loop searches RESCUERS, each of which can have a DIFFERENT heal
+  // reach, so "nearest by distance" and "smallest actual shortfall" are no longer the same question
+  // (a non-healer standing close is not more relevant than a real healer standing farther away but
+  // already in range) — an adversarial review round found this exact gap in an earlier draft that
+  // picked the nearest rescuer by raw distance and used only THAT one's reach.
+  for (const ally of allies) {
+    if (!isUnconscious(ally)) continue; // only a downed ally creates this pull — a scratch doesn't
+    const allyPos = state.positions.get(ally.id);
+    if (!allyPos) continue;
+    let minShortfall = Infinity;
+    for (const rescuer of allies) {
+      if (rescuer.id === ally.id || rescuer.currentHP <= 0) continue;
+      const rescuerPos = state.positions.get(rescuer.id);
+      if (!rescuerPos) continue;
+      const dist = effectiveDistance(state, rescuerPos, allyPos);
+      const reach = healReachFeet(rescuer) ?? 0; // null (no heal option at all) reads as 0 reach here
+      const shortfall = Math.max(0, dist - reach);
+      if (shortfall < minShortfall) minShortfall = shortfall;
+    }
+    if (minShortfall === Infinity || minShortfall === 0) continue; // no living rescuer, or someone's already in range — no credit to farm
+    score -= weights.downedAllyClosing * (minShortfall / FEET_PER_SQUARE);
   }
 
   // MOBILITY DENIAL (design doc §42, Stage 1) — see DEFAULT_WEIGHTS' own comment for the full

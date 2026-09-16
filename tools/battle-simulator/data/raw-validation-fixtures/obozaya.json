@@ -2,6 +2,8 @@
   "id": "raw-validation-obozaya",
   "name": "Obozaya (level-1 Soldier iconic, design doc §39 — real Paizo iconic pregen, NOT one of the six real campaign kids)",
   "side": "party",
+  "level": 1,
+  "initiativeModifier": 3,
   "maxHP": 24,
   "currentHP": 24,
   "ac": 18,

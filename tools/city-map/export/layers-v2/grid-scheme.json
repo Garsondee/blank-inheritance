@@ -1,0 +1,28 @@
+{
+  "scheme": "two-tier",
+  "describedBy": "tools/gazetteer/core/grid.py",
+  "generatedBy": "tools/gazetteer/make_grid_layers.py",
+  "example": "C4·73",
+  "reading": "Major squares are 10 cells (2000 m) and are lettered ABCDEF across and numbered 1-6 down. Inside a major, the two digits are the cell's column then its row, each 0-9, counting right and down.",
+  "grid": {
+    "cellPx": 200,
+    "cellsPerMajor": 10,
+    "cols": 60,
+    "rows": 60,
+    "separator": "·",
+    "majorColLetters": "ABCDEF"
+  },
+  "border": {
+    "px": 200
+  },
+  "content": {
+    "width": 12000,
+    "height": 12000
+  },
+  "layers": {
+    "23-grid-lines.png": "content-area sized; composite at the content origin",
+    "24-grid-labels.png": "content-area sized; composite at the content origin",
+    "25-grid-border.png": "FULL image sized, margin included; composite at (0, 0)"
+  },
+  "supersedes": "The previous 'col,row' labels, whose rows counted UP from the frame origin. This scheme counts DOWN from the top. Both layers must be replaced together."
+}

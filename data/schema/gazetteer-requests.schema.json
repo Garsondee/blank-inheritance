@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gazetteer-requests.schema.json",
+  "title": "Gazetteer Requests",
+  "description": "The Claude -> Ingram 'please define this place' queue -- Stage 7 of the original Gazetteer plan. Raised when writing lore for one place turns up a second one that matters but has no shape or note yet, so it is not lost in conversation scrollback. Deliberately carries no proposed shape or lore of its own: per the standing rule against inventing what a place IS, a request says a gap exists, never what should fill it. Consumed by tools/gazetteer/core/requests.py.",
+  "type": "object",
+  "required": ["$schema", "id", "type", "requests"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "gazetteer-requests" },
+    "type": { "const": "gazetteer-requests" },
+
+    "requests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "what", "status", "raisedAt"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "req-<n>, monotonic, never recycled." },
+          "what": { "type": "string", "description": "What needs defining, in one line." },
+          "why": { "type": "string", "description": "What this is blocked on, or where it came up -- so it can be judged without reconstructing the conversation that raised it." },
+          "hint": {
+            "type": ["string", "null"],
+            "description": "A grid reference (e.g. 'C4.11') pointing at roughly where this belongs, so opening the map means going straight there rather than searching. Null when nothing narrower than 'somewhere on the map' is known yet."
+          },
+          "status": { "enum": ["open", "resolved"] },
+          "raisedAt": { "type": "string", "description": "ISO timestamp." },
+          "resolvedAt": { "type": ["string", "null"] },
+          "resolution": { "type": ["string", "null"], "description": "One line on how it was resolved -- e.g. the localId or location id that now fills the gap." }
+        }
+      }
+    }
+  }
+}

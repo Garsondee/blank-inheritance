@@ -1,0 +1,107 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-loading-bank",
+  "type": "location",
+  "tier": "site",
+  "name": "The Loading Bank",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "transport",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20373875,
+          34.66827419
+        ],
+        [
+          135.20378887,
+          34.66827697
+        ],
+        [
+          135.20381204,
+          34.6679192
+        ],
+        [
+          135.20376247,
+          34.6679172
+        ],
+        [
+          135.20373875,
+          34.66827419
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6648.8,
+          7187.9
+        ],
+        [
+          6652.6,
+          7185.3
+        ],
+        [
+          6674.6,
+          7218.4
+        ],
+        [
+          6670.8,
+          7220.9
+        ],
+        [
+          6648.8,
+          7187.9
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6661.68,
+      7203.09
+    ],
+    "cells": [
+      "D4·24",
+      "D4·25"
+    ],
+    "ref": "D4·24",
+    "areaM2": 181.7,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-377",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "A raised platform the length of a rail van, so a lorry bed and a wagon floor meet at the same height. The whole of the works' day begins on this strip of concrete.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A raised platform the length of a rail van, so a lorry bed and a wagon floor meet at the same height. The whole of the works' day begins on this strip of concrete.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

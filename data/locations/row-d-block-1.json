@@ -1,0 +1,138 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "row-d-block-1",
+  "type": "location",
+  "tier": "site",
+  "name": "Row D, Block 1",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21198834,
+          34.6716249
+        ],
+        [
+          135.21204951,
+          34.67152075
+        ],
+        [
+          135.21209856,
+          34.67153975
+        ],
+        [
+          135.21210501,
+          34.67152927
+        ],
+        [
+          135.21248917,
+          34.67168214
+        ],
+        [
+          135.21245194,
+          34.6717453
+        ],
+        [
+          135.21247974,
+          34.67175583
+        ],
+        [
+          135.21244841,
+          34.67180774
+        ],
+        [
+          135.21198834,
+          34.6716249
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7111,
+          6483.5
+        ],
+        [
+          7121.7,
+          6490.6
+        ],
+        [
+          7124.5,
+          6486.5
+        ],
+        [
+          7125.6,
+          6487.2
+        ],
+        [
+          7147.3,
+          6454.7
+        ],
+        [
+          7140.8,
+          6450.4
+        ],
+        [
+          7142.4,
+          6448.1
+        ],
+        [
+          7137,
+          6444.6
+        ],
+        [
+          7111,
+          6483.5
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7129.48,
+      6468.3
+    ],
+    "cells": [
+      "D4·41"
+    ],
+    "ref": "D4·41",
+    "areaM2": 636.2,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-108",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Closest block to the Infirmary, which means it's where candidates go to \"casually\" walk past after a screening day, comparing notes on how long the draw took and whether anyone's arm actually hurt. Nobody who lives here has ever been pulled aside afterward, as far as they know.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Closest block to the Infirmary, which means it's where candidates go to \"casually\" walk past after a screening day, comparing notes on how long the draw took and whether anyone's arm actually hurt. Nobody who lives here has ever been pulled aside afterward, as far as they know.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

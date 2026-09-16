@@ -71,7 +71,7 @@ export const ALL_TEMPLATE_NAMES = Object.freeze(["unconstrained", "control-then-
 export const BASELINE_V1 = Object.freeze({
   id: "baseline-v1",
   frozenAt: "2026-08-30",
-  engineContract: 2, // bumped design doc §55: pileOnRisk added to evaluateState — re-verified against ai-profiles.test.mjs's own golden sequences (both still byte-identical: pileOnRisk is a real no-op in a 1-enemy-per-side fight, since there's no second attacker left to price a pile-on from)
+  engineContract: 6, // bumped GH #141: bestMatching's own action-cost blindness fixed (bestContinuation, a bounded top-BEAM_WIDTH continuation search) — the BASELINE_V1 vs NO_MANEUVERS_V1 golden sequence flips BACK to party-victory, byte-identical to its own pre-GH-#60 sequence, confirmed directly rather than assumed. Previous bump (5, GH #60 Part 1) recorded the regression this fix now corrects — see ai-profiles.test.mjs's own comment for the full before/after story
   competence: 1.0,
   templates: ALL_TEMPLATE_NAMES,
   temperament: null, // null = ordinary morale rules apply, not an override
@@ -86,13 +86,16 @@ export const BASELINE_V1 = Object.freeze({
     objective: 2.5,
     closing: 0.75,
     resource: 3.0,
+    dyingUrgency: 5.0,
+    downedAllyClosing: 0.75,
     tempoDenial: 1.0,
     maneuverTempoDenial: 0.3,
     lowHpCaution: 8.0,
     outnumberedCaution: 1.0,
     setupValue: 0.3,
     mobilityDenial: 0.75,
-    pileOnRisk: 0.25
+    pileOnRisk: 0.25,
+    threatReduction: 0.2
   })
 });
 assertCompleteWeights(BASELINE_V1.weights); // real, immediate self-check — a typo here fails at import time, not mid-battle

@@ -23,13 +23,55 @@
 import { distanceFeet } from "./grid.mjs";
 import { lineOfEffect } from "./terrain.mjs";
 import { reachFeetForStrike } from "./grid.mjs";
+import { isDead, isUnconscious, isRestrained } from "./conditions.mjs";
 
 /** Every melee strike a combatant has (a strike, unarmed or otherwise, that isn't ranged) — the
- * "wielding a melee weapon or able to make an unarmed attack" requirement. */
-function meleeReachFeet(combatant) {
+ * "wielding a melee weapon or able to make an unarmed attack" requirement. Exported (GH #59) so
+ * decide.mjs can gate flank-seeking candidate generation on "do I/does this ally even have a melee
+ * option" before searching, the same way it already gates cover-seeking on having a ranged one. */
+export function meleeReachFeet(combatant) {
   const meleeStrikes = (combatant.strikes ?? []).filter((s) => s.strikeType === "melee");
   if (!meleeStrikes.length) return null; // can't flank at all -- no melee option, ranged doesn't count
   return Math.max(...meleeStrikes.map((s) => reachFeetForStrike(s)));
+}
+
+/** The melee strike `meleeReachFeet` itself measures (longest reach, not "first") — factored out
+ * (GH #18) so Reactive Strike's resolution fires the SAME weapon its own threat gate just checked
+ * against, rather than a separately-guessed one. */
+export function longestMeleeStrike(combatant) {
+  const meleeStrikes = (combatant.strikes ?? []).filter((s) => s.strikeType === "melee");
+  if (!meleeStrikes.length) return null;
+  return meleeStrikes.reduce((best, s) => (reachFeetForStrike(s) > reachFeetForStrike(best) ? s : best));
+}
+
+/** Does `combatant`'s own authored data carry a real "Reactive Strike" reaction (GH #18)? Player
+ * Core's real text (gamesystems/sf2e/lang/en.json, PF2E.NPC.Abilities.Glossary.ReactiveStrike) is
+ * NOT universal — GM Core (reference/srd/gm-core/1027-reactive-abilities.json): "oozes, constructs,
+ * and unintelligent creatures are less likely to have reactions" — so this gates strictly on the
+ * combatant's own authored `reactions[]` naming it, never inferred from having a melee weapon. Name-
+ * matches the exact string the real extraction pipeline writes (extract-npc.mjs's own
+ * describeAction output for a system.actionType.value === "reaction" item named "Reactive Strike"
+ * in the source pack data). */
+export function hasReactiveStrike(combatant) {
+  return (combatant.reactions ?? []).some((r) => r.name === "Reactive Strike");
+}
+
+/**
+ * Does `reactor` (at `reactorPos`) threaten `square` for Reactive Strike purposes (GH #18)? Real
+ * preconditions `checkStrikeLegal` (legality.mjs) would also enforce for a PROACTIVE strike, applied
+ * by hand here since a reaction has no legality gate of its own: alive, conscious, not Restrained
+ * (Player Core: Restrained "can't use any attack... actions except to... Escape"), a real melee
+ * strike with uses remaining if it's a limited one, in reach, and in line of effect.
+ */
+export function threatensSquare(reactor, reactorPos, square, walls) {
+  if (isDead(reactor) || isUnconscious(reactor) || isRestrained(reactor)) return false;
+  if (!hasReactiveStrike(reactor)) return false;
+  const strike = longestMeleeStrike(reactor);
+  if (!strike) return false;
+  if (strike.usesRemaining != null && strike.usesRemaining <= 0) return false;
+  if (distanceFeet(reactorPos, square) > reachFeetForStrike(strike)) return false;
+  if (walls?.length && !lineOfEffect(reactorPos, square, walls)) return false;
+  return true;
 }
 
 /**

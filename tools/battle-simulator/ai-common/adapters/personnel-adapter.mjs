@@ -5,7 +5,7 @@
  * function. This file adds no new behavior — its only job is presenting personnel-engine's existing,
  * unmodified exports in the shared shape.
  */
-import { decisionRng, generateProposals, decide } from "../../personnel-engine/decide.mjs";
+import { decisionRng, generateProposals, decide, occupancyFingerprint } from "../../personnel-engine/decide.mjs";
 import { forkTurnSandbox, checkOutcome, resetSandboxForkCount, getSandboxForkCount } from "../../personnel-engine/engine.mjs";
 import { evaluateState, DEFAULT_WEIGHTS } from "../../personnel-engine/evaluate/state-value.mjs";
 import { FEET_PER_SQUARE } from "../../personnel-engine/grid.mjs";
@@ -38,6 +38,12 @@ export const PERSONNEL_ADAPTER = Object.freeze({
   // (greedy-v1, budget-demo-v1) being forced to carry fields it never touches.
   isDead,
   isUnconscious,
-  resolveEffectiveStats
+  resolveEffectiveStats,
+  // OPTIONAL, also not part of REQUIRED_FIELDS (GH #62's own remaining scope) — a pure profiling/
+  // performance aid, matching resetSandboxForkCount's own precedent above (NOT isDead's — this
+  // field's absence never risks a wrong answer, only a missed cache-reuse opportunity, so it's
+  // never gated by resolveEngine's own required-capability throw). search/tree-shared.mjs's
+  // scopedDestCache checks for this with a plain truthiness test and degrades gracefully.
+  occupancyFingerprint
 });
 assertValidAdapter(PERSONNEL_ADAPTER); // real, immediate self-check — a missing field fails at import time

@@ -1,0 +1,190 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-corner-block-no-25-413",
+  "type": "location",
+  "tier": "site",
+  "name": "The Corner Block, No. 25",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "",
+  "tags": [
+    "staff-housing"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21410009,
+          34.66891284
+        ],
+        [
+          135.21432724,
+          34.669002
+        ],
+        [
+          135.21427253,
+          34.66909568
+        ],
+        [
+          135.21431654,
+          34.66911294
+        ],
+        [
+          135.21415811,
+          34.66938596
+        ],
+        [
+          135.21397348,
+          34.66931375
+        ],
+        [
+          135.21399818,
+          34.6692703
+        ],
+        [
+          135.21396181,
+          34.66925663
+        ],
+        [
+          135.21394168,
+          34.66929053
+        ],
+        [
+          135.21384956,
+          34.6692538
+        ],
+        [
+          135.21390542,
+          34.66915643
+        ],
+        [
+          135.21410013,
+          34.6692321
+        ],
+        [
+          135.21417005,
+          34.66911007
+        ],
+        [
+          135.2140203,
+          34.6690512
+        ],
+        [
+          135.21410009,
+          34.66891284
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7430.6,
+          6644.2
+        ],
+        [
+          7443.5,
+          6625.1
+        ],
+        [
+          7433.9,
+          6618.7
+        ],
+        [
+          7436.4,
+          6615
+        ],
+        [
+          7408.5,
+          6596.3
+        ],
+        [
+          7398,
+          6611.8
+        ],
+        [
+          7402.4,
+          6614.8
+        ],
+        [
+          7400.3,
+          6617.8
+        ],
+        [
+          7396.8,
+          6615.5
+        ],
+        [
+          7391.6,
+          6623.3
+        ],
+        [
+          7401.5,
+          6630
+        ],
+        [
+          7412.6,
+          6613.7
+        ],
+        [
+          7425,
+          6622.1
+        ],
+        [
+          7416.5,
+          6634.7
+        ],
+        [
+          7430.6,
+          6644.2
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7419.04,
+      6619.69
+    ],
+    "cells": [
+      "D4·61",
+      "D4·52",
+      "D4·62"
+    ],
+    "ref": "D4·61",
+    "areaM2": 987.0,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-413",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "All of these are staff accommodation.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Two larger staff houses at the row's end, usually given to whichever family has been on the island longest.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

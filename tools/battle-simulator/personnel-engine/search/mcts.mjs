@@ -35,14 +35,14 @@
  * stays intact. Omitted (every existing caller today): every internal call below uses this file's own
  * real, direct imports exactly as before — verified byte-for-byte unchanged.
  */
-import { generateProposals } from "../decide.mjs";
+import { generateProposals, occupancyFingerprint } from "../decide.mjs";
 import { forkTurnSandbox, checkOutcome } from "../engine.mjs";
 import { evaluateState, DEFAULT_WEIGHTS } from "../evaluate/state-value.mjs";
-import { outcomeValue, nextActorAfterAction, proposalKey } from "./tree-shared.mjs";
+import { outcomeValue, nextActorAfterAction, proposalKey, scopedDestCache } from "./tree-shared.mjs";
 
 const EXPLORATION_CONSTANT = Math.SQRT2; // standard UCT c = sqrt(2); tuning c/tau is issue #12's own job
 
-function makeNode(state, actor, rootSide, maxDepth, depth, engine) {
+function makeNode(state, actor, rootSide, maxDepth, depth, engine, searchDestCache) {
   const outcome = engine.checkOutcome(state);
   if (outcome) {
     return { state, actor, depth, visits: 0, valueSum: 0, children: new Map(), terminal: true, terminalValue: outcomeValue(outcome, rootSide), untriedProposals: [] };
@@ -51,7 +51,7 @@ function makeNode(state, actor, rootSide, maxDepth, depth, engine) {
   return {
     state, actor, depth, visits: 0, valueSum: 0, children: new Map(),
     terminal: false, horizon,
-    untriedProposals: horizon ? [] : engine.generateProposals(state, actor.actingId, actor.turn)
+    untriedProposals: horizon ? [] : engine.generateProposals(state, actor.actingId, actor.turn, scopedDestCache(searchDestCache, engine, state, actor.actingId))
   };
 }
 
@@ -78,7 +78,7 @@ function selectChild(node, rootSide) {
  * next actor hits a Phase-A `stochasticGap`/`noActor` (design doc §61) becomes an immediate horizon
  * leaf of its own — registered as a real child so it can still be selected/reported, just never
  * expanded further. */
-function expandOneChild(node, rootSide, maxDepth, initiativeOrder, engine) {
+function expandOneChild(node, rootSide, maxDepth, initiativeOrder, engine, searchDestCache) {
   while (node.untriedProposals.length > 0) {
     const proposal = node.untriedProposals.pop();
     const sandbox = engine.forkTurnSandbox({ state: node.state, turn: node.actor.turn });
@@ -89,7 +89,7 @@ function expandOneChild(node, rootSide, maxDepth, initiativeOrder, engine) {
     if (nextActor.stochasticGap || nextActor.noActor) {
       child = { state: sandbox.state, actor: node.actor, depth: node.depth + 1, visits: 0, valueSum: 0, children: new Map(), terminal: false, horizon: true, untriedProposals: [] };
     } else {
-      child = makeNode(sandbox.state, nextActor, rootSide, maxDepth, node.depth + 1, engine);
+      child = makeNode(sandbox.state, nextActor, rootSide, maxDepth, node.depth + 1, engine, searchDestCache);
     }
     child.proposal = proposal;
     node.children.set(proposalKey(proposal), child);
@@ -101,7 +101,7 @@ function expandOneChild(node, rootSide, maxDepth, initiativeOrder, engine) {
 /** One real MCTS iteration: SELECT down to an expandable/terminal/horizon node, EXPAND one real
  * child if applicable, read its leaf value ("leaf = evaluateState" — no rollout), BACKPROPAGATE that
  * value (root-relative, no sign flip) up the real path just walked. */
-function runIteration(root, rootSide, weights, maxDepth, initiativeOrder, engine) {
+function runIteration(root, rootSide, weights, maxDepth, initiativeOrder, engine, searchDestCache) {
   let node = root;
   const path = [node];
   while (!node.terminal && !node.horizon && node.untriedProposals.length === 0 && node.children.size > 0) {
@@ -115,7 +115,7 @@ function runIteration(root, rootSide, weights, maxDepth, initiativeOrder, engine
   } else if (node.horizon) {
     leafValue = engine.evaluateState(node.state, rootSide, weights);
   } else {
-    const expanded = expandOneChild(node, rootSide, maxDepth, initiativeOrder, engine);
+    const expanded = expandOneChild(node, rootSide, maxDepth, initiativeOrder, engine, searchDestCache);
     if (expanded) {
       path.push(expanded);
       leafValue = expanded.terminal ? expanded.terminalValue : engine.evaluateState(expanded.state, rootSide, weights);
@@ -167,9 +167,12 @@ export function search({
     ? {
         generateProposals: adapter.generateProposals, forkTurnSandbox: adapter.forkTurnSandbox,
         checkOutcome: adapter.checkOutcome, evaluateState: adapter.evaluateState,
-        conditions: { isDead: adapter.isDead, isUnconscious: adapter.isUnconscious, resolveEffectiveStats: adapter.resolveEffectiveStats }
+        conditions: { isDead: adapter.isDead, isUnconscious: adapter.isUnconscious, resolveEffectiveStats: adapter.resolveEffectiveStats },
+        // OPTIONAL (GH #62) — see tree-shared.mjs's own scopedDestCache header. Absence degrades
+        // gracefully to today's exact behavior; never gated by the throw above, unlike isDead/etc.
+        occupancyFingerprint: adapter.occupancyFingerprint
       }
-    : { generateProposals, forkTurnSandbox, checkOutcome, evaluateState, conditions: undefined };
+    : { generateProposals, forkTurnSandbox, checkOutcome, evaluateState, conditions: undefined, occupancyFingerprint };
 
   const me = state.combatants.get(combatantId);
   if (!me) return { bestProposal: null, visits: 0, meanValue: 0, iterations: 0, root: null };
@@ -181,7 +184,11 @@ export function search({
     turn
   };
   const initiativeOrder = state.initiativeOrder ?? [combatantId];
-  const root = makeNode(state, actor, rootSide, maxDepth, 0, engine);
+  // GH #62 — ONE shared cache for this ENTIRE search() call, bucketed by occupancy fingerprint
+  // (scopedDestCache, tree-shared.mjs) so sibling/cousin tree nodes with matching occupancy reuse
+  // real pathfinding-flood results, never a different branch's. Freshly instantiated per call.
+  const searchDestCache = new Map();
+  const root = makeNode(state, actor, rootSide, maxDepth, 0, engine, searchDestCache);
 
   if (root.terminal || root.untriedProposals.length === 0) {
     return { bestProposal: null, visits: 0, meanValue: root.terminal ? root.terminalValue : engine.evaluateState(state, rootSide, weights), iterations: 0, root };
@@ -189,7 +196,7 @@ export function search({
 
   let realIterations = 0;
   for (let i = 0; i < iterations; i++) {
-    runIteration(root, rootSide, weights, maxDepth, initiativeOrder, engine);
+    runIteration(root, rootSide, weights, maxDepth, initiativeOrder, engine, searchDestCache);
     realIterations += 1;
     if (root.untriedProposals.length === 0 && root.children.size === 0) break; // every real root candidate was illegal
   }

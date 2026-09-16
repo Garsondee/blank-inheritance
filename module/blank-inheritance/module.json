@@ -1,0 +1,52 @@
+{
+  "id": "blank-inheritance",
+  "title": "Mythica Machina - Blank Inheritance (Adventure Module)",
+  "description": "<p>A module containing all the materials for running 'Blank Inheritance', a mecha-themed SF2E campaign with lots and lots of bells and whistles. Syncs authored campaign JSON into Foundry documents (Scenes, Actors, JournalEntries, Playlists) and runs session logistics. See design/foundry-module-design.md in the source repo for the full architecture.</p>",
+  "version": "0.1.0",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14.367",
+    "maximum": "14"
+  },
+  "authors": [
+    {
+      "name": "Ingram Blakelock - Mythica Machina",
+      "email": "garsondee@gmail.com",
+      "url": "https://www.patreon.com/c/MythicaMachina/posts",
+      "discord": "garsondee",
+      "flags": {}
+    }
+  ],
+  "relationships": {
+    "systems": [
+      {
+        "id": "sf2e",
+        "type": "system",
+        "compatibility": {
+          "minimum": "1.4.1"
+        }
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/blank-inheritance.mjs"
+  ],
+  "styles": [
+    "styles/bi-fonts.css",
+    "styles/bi-tokens.css",
+    "styles/bi-components.css",
+    "styles/bi-foundry-bridge.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "socket": true,
+  "persistentStorage": true,
+  "flags": {
+    "canUpload": true
+  }
+}

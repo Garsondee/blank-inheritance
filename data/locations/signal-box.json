@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "signal-box",
+  "type": "location",
+  "tier": "site",
+  "name": "Signal Box",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "infrastructure",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20220756,
+          34.68207449
+        ],
+        [
+          135.20234749,
+          34.68210362
+        ],
+        [
+          135.2024095,
+          34.68190487
+        ],
+        [
+          135.20226958,
+          34.68187573
+        ],
+        [
+          135.20220756,
+          34.68207449
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          5749.9,
+          5940.8
+        ],
+        [
+          5759.3,
+          5931.5
+        ],
+        [
+          5775.4,
+          5947.6
+        ],
+        [
+          5766,
+          5956.9
+        ],
+        [
+          5749.9,
+          5940.8
+        ]
+      ]
+    ],
+    "centroidPx": [
+      5762.65,
+      5944.2
+    ],
+    "cells": [
+      "C3·78"
+    ],
+    "ref": "C3·78",
+    "areaM2": 301.1,
+    "withinRegionRef": "old-landing",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-157",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Timber-framed on a brick base, controlling every movement through the Transfer and out along the causeway. Two signalmen a shift and a kettle that is never off. They have the best view of the whole crossing, and by long habit they wave at children on the platform.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Timber-framed on a brick base, controlling every movement through the Transfer and out along the causeway. Two signalmen a shift and a kettle that is never off. They have the best view of the whole crossing, and by long habit they wave at children on the platform.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

@@ -1,0 +1,31 @@
+{{!--
+    The arrival sting's Announced tier — a brass chevron plate that drops
+    from the top of the screen, sits for a few seconds, and slides back.
+
+    Markup is V1's .bi-banner verbatim (design/ui/console.js's buildBanner),
+    reused rather than reinvented — only the lane that hosts it, and the data
+    that fills it, are new. scripts/foundry/sting.mjs owns the timers; this
+    is purely presentational.
+
+    capWord and role are computed by the caller from `kind`, so this template
+    never has to know the mapping — it only prints what it is handed.
+
+    The kind modifier is four separate {{#if}} blocks rather than a
+    concatenated `bi-banner--{{kind}}`, matching every other dynamic class in
+    this module's templates (frame.hbs's `bi-frame--concealed`, zone-cast's
+    `bi-cast__row--selected`). tier0-architecture.test.mjs's class lint can
+    only see a literal class name that sits OUTSIDE a {{ }} expression — a
+    concatenated one disappears into the stripped text, and the lint could
+    never have caught the eighteen-skills-in-one-column bug that way either.
+--}}
+<div class="bi-banner{{#if isInfo}} bi-banner--info{{/if}}{{#if isCaution}} bi-banner--caution{{/if}}{{#if isAlert}} bi-banner--alert{{/if}}{{#if isResonance}} bi-banner--resonance{{/if}}" role="{{role}}">
+    <div class="bi-banner__face">
+        <span class="bi-banner__cap"><span class="bi-banner__kind">{{capWord}}</span></span>
+        <span class="bi-banner__chev" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="bi-banner__glass">
+            <span class="bi-banner__text">{{text}}</span>
+            <span class="bi-banner__count"{{#unless showCount}} hidden{{/unless}}>&times;{{count}}</span>
+        </span>
+        <span class="bi-banner__cap bi-banner__cap--right"><span class="bi-banner__time">{{time}}</span></span>
+    </div>
+</div>

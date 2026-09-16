@@ -14,16 +14,17 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { deriveFoundryId, contentHash } from "../foundry/blank-inheritance/scripts/core/ids.mjs";
-import { buildCreatureActorData } from "../foundry/blank-inheritance/scripts/core/generators/creature.mjs";
-import { buildCharacterActorData } from "../foundry/blank-inheritance/scripts/core/generators/character.mjs";
-import { buildSceneData } from "../foundry/blank-inheritance/scripts/core/generators/scene.mjs";
-import { validateActor, validateScene } from "../foundry/blank-inheritance/scripts/core/validate.mjs";
-import { summarizeReport } from "../foundry/blank-inheritance/scripts/core/report.mjs";
+import { deriveFoundryId, contentHash } from "../module/blank-inheritance/scripts/core/ids.mjs";
+import { buildCreatureActorData } from "../module/blank-inheritance/scripts/core/generators/creature.mjs";
+import { buildCharacterActorData } from "../module/blank-inheritance/scripts/core/generators/character.mjs";
+import { buildSceneData } from "../module/blank-inheritance/scripts/core/generators/scene.mjs";
+import { buildJournalEntryData, episodeToJournalSource } from "../module/blank-inheritance/scripts/core/generators/journal.mjs";
+import { validateActor, validateScene, validateJournalEntry } from "../module/blank-inheritance/scripts/core/validate.mjs";
+import { summarizeReport, reportToClipboardText } from "../module/blank-inheritance/scripts/core/report.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
-const fixturesDir = path.join(repoRoot, "foundry", "blank-inheritance", "data", "_test-fixtures");
+const fixturesDir = path.join(repoRoot, "module", "blank-inheritance", "data", "_test-fixtures");
 const goldenDir = path.join(here, "golden");
 
 function readFixture(name) {
@@ -31,6 +32,9 @@ function readFixture(name) {
 }
 function readGolden(name) {
   return JSON.parse(readFileSync(path.join(goldenDir, name), "utf8"));
+}
+function readRealData(relativePath) {
+  return JSON.parse(readFileSync(path.join(repoRoot, "data", relativePath), "utf8"));
 }
 
 test("deriveFoundryId is deterministic and Foundry-id-shaped", async () => {
@@ -115,6 +119,112 @@ test("buildSceneData: a placement referencing an actor not in the map is silentl
   assert.deepEqual(data.tokens, []);
 });
 
+test("buildJournalEntryData matches golden output", async () => {
+  const source = readFixture("test-journal.json");
+  const actual = await buildJournalEntryData(source);
+  const expected = readGolden("journal-entry.json");
+  assert.deepEqual(actual, expected);
+});
+
+test("buildJournalEntryData: page ids are deterministic and independent of the parent journal's id", async () => {
+  const a = await buildJournalEntryData({ id: "j1", pages: [{ id: "p1", name: "Page" }] });
+  const b = await buildJournalEntryData({ id: "j1", pages: [{ id: "p1", name: "Page" }] });
+  assert.equal(a.pages[0]._id, b.pages[0]._id, "same journal id + same page id must always derive the same page id");
+
+  const differentJournal = await buildJournalEntryData({ id: "j2", pages: [{ id: "p1", name: "Page" }] });
+  assert.notEqual(a.pages[0]._id, differentJournal.pages[0]._id, "the same page id under a different journal must derive a different page id");
+});
+
+test("buildJournalEntryData: no pages in source produces an empty pages array, not throw", async () => {
+  const data = await buildJournalEntryData({ id: "bare-journal" });
+  assert.deepEqual(data.pages, []);
+  assert.equal(data.name, "bare-journal", "falls back to id when name is absent, same convention as the other generators");
+});
+
+test("buildJournalEntryData: pages default to text/HTML format and space sort values by Foundry's own SORT_INTEGER_DENSITY", async () => {
+  const data = await buildJournalEntryData({ id: "j", pages: [{ id: "a", name: "A" }, { id: "b", name: "B" }] });
+  for (const page of data.pages) {
+    assert.equal(page.type, "text");
+    assert.equal(page.text.format, 1, "must match CONST.JOURNAL_ENTRY_PAGE_FORMATS.HTML");
+  }
+  assert.equal(data.pages[0].sort, 100000);
+  assert.equal(data.pages[1].sort, 200000);
+});
+
+test("validateJournalEntry: a JournalEntry with all pages present and matching passes every check", async () => {
+  const source = readFixture("test-journal.json");
+  const data = await buildJournalEntryData(source);
+  const created = { ...data, id: data._id };
+  const result = await validateJournalEntry(created, source, data._id);
+  const summary = summarizeReport({ results: [result] });
+  assert.equal(summary.failed, 0, `expected all checks to pass, got: ${JSON.stringify(result.checks.filter((c) => !c.pass))}`);
+});
+
+test("validateJournalEntry: a missing page is reported as a failed check, not silently accepted", async () => {
+  const source = readFixture("test-journal.json");
+  const data = await buildJournalEntryData(source);
+  const created = { ...data, id: data._id, pages: data.pages.slice(0, 1) };
+  const result = await validateJournalEntry(created, source, data._id);
+  const failed = result.checks.filter((c) => !c.pass);
+  assert.ok(failed.length > 0, "dropping a page must surface at least one failed check");
+});
+
+test("episodeToJournalSource: a real episode with authored scenes (Session One) produces one overview page plus one page per scene", async () => {
+  // Repointed 2026-09-13 from episode-01-contact-unclassified, which was deleted
+  // along with every other drafted beat beyond Session 0/1. Session One is now
+  // the only real episode in the repo, and is the better fixture anyway: it is
+  // the one we actually intend to run.
+  const episode = readRealData("episodes/episode-c1s1-mothers-maiden-name.json");
+  const source = episodeToJournalSource(episode);
+
+  assert.equal(source.id, "episode-c1s1-mothers-maiden-name");
+  assert.equal(source.name, "Mother's Maiden Name (Again)");
+  assert.equal(source.pages.length, 1 + episode.scenes.length, "one overview page plus one per authored scene");
+  assert.equal(source.pages[0].id, "overview");
+  assert.match(source.pages[0].content, /Six volunteers/, "overview page must include the episode summary");
+  assert.match(source.pages[0].content, /Make the table love Taka/, "overview page must include the casting note");
+
+  // Session One's scenes carry their own `id`, so the page is keyed on that
+  // rather than falling back to `scene-${order}`. The old fixture had no scene
+  // ids at all, so this branch of journal.mjs was never actually covered.
+  const fightPage = source.pages.find((p) => p.id === "flood-tunnel");
+  assert.ok(fightPage, "expected a page for the flood tunnel scene, keyed on the scene's own id");
+  assert.equal(fightPage.name, "6. Flood Tunnel Clearance");
+  assert.match(fightPage.content, /Giant Centipedes/, "scene page must include the scene's own description");
+  assert.match(fightPage.content, /c1s1-flood-tunnel/, "scene page must surface its encounterRef");
+  assert.match(fightPage.content, /c1s1-compactor-cycle/, "scene page must surface its subsystemRef");
+
+  // This is real prose, so it must actually build into a valid JournalEntry, not just look right.
+  const data = await buildJournalEntryData(source);
+  assert.equal(data.pages.length, source.pages.length);
+});
+
+test("episodeToJournalSource: an episode with no authored scenes yet still produces a real overview page, not an empty journal", () => {
+  // Was the Days 2-5 interlude until 2026-09-13, when every drafted beat beyond
+  // Session 0/1 was deleted. The behaviour is still worth pinning -- an episode
+  // stub must render honestly rather than fabricating scenes -- so it keeps a
+  // synthetic fixture instead of borrowing whichever real file happens to be
+  // half-written. requiredBeats is GM-facing prose and must render;
+  // danglingThreads is a bare cross-reference id list and must not.
+  const source = episodeToJournalSource({
+    id: "episode-stub",
+    title: "A Stub",
+    summary: "Mandatory school and training eat most of each day.",
+    requiredBeats: ["Seed exactly one dangling thread. Don't resolve it yet."],
+    danglingThreads: ["who-was-meant-to-pilot"],
+  });
+
+  assert.equal(source.pages.length, 1, "no scenes authored yet -- exactly the overview page, honestly, not a fabricated one");
+  assert.match(source.pages[0].content, /Mandatory school/);
+  assert.match(source.pages[0].content, /Seed exactly one dangling thread/, "requiredBeats must be rendered as prose, since they're real GM-facing content, not just a cross-reference id");
+  assert.doesNotMatch(source.pages[0].content, /who-was-meant-to-pilot/, "danglingThreads is a bare cross-reference id list, not prose -- must not be dumped into the journal as if it were");
+});
+
+test("episodeToJournalSource: HTML-special characters in prose are escaped, not injected as markup", () => {
+  const source = episodeToJournalSource({ id: "x", title: "X", summary: "Kids & Frames <fight>" });
+  assert.match(source.pages[0].content, /Kids &amp; Frames &lt;fight&gt;/);
+});
+
 test("validateActor + summarizeReport: a matching Actor passes every check", async () => {
   const source = readFixture("test-creature.json");
   const data = await buildCreatureActorData(source);
@@ -123,6 +233,21 @@ test("validateActor + summarizeReport: a matching Actor passes every check", asy
   const result = await validateActor(created, source, data._id, "creature");
   const summary = summarizeReport({ results: [result] });
   assert.equal(summary.failed, 0, `expected all checks to pass, got: ${JSON.stringify(result.checks.filter((c) => !c.pass))}`);
+});
+
+test("summarizeReport: counts skipped results separately from pass/fail, without affecting the check totals", () => {
+  const skippedResult = { skipped: true, checks: [{ pass: true }, { pass: true }] };
+  const createdResult = { skipped: false, checks: [{ pass: true }, { pass: false }] };
+  const summary = summarizeReport({ results: [skippedResult, createdResult] });
+  assert.equal(summary.skipped, 1);
+  assert.equal(summary.total, 4, "skipping a case must not exclude its own checks from the totals -- a skip is still validated");
+  assert.equal(summary.passed, 3);
+  assert.equal(summary.failed, 1);
+});
+
+test("summarizeReport: a result with no 'skipped' field at all (older report shape) counts as 0 skipped, not a crash", () => {
+  const summary = summarizeReport({ results: [{ checks: [{ pass: true }] }] });
+  assert.equal(summary.skipped, 0);
 });
 
 test("validateActor: a mismatched field is reported as a failed check, not silently accepted", async () => {
@@ -144,4 +269,27 @@ test("validateScene: token count check fails if a placement silently produced no
   const result = await validateScene(created, sceneSource, data._id, actorIdBySourceId);
   const tokenCountCheck = result.checks.find((c) => c.label === "token count matches placements");
   assert.equal(tokenCountCheck.pass, false);
+});
+
+test("reportToClipboardText: contains a human-readable summary AND the full report as parseable JSON", () => {
+  const report = { timestamp: "2026-09-04T00:00:00.000Z", results: [{ foo: "bar" }], fatalError: null };
+  const summary = { total: 5, passed: 5, failed: 0 };
+  const text = reportToClipboardText(report, summary);
+
+  assert.match(text, /5\/5 checks passed/);
+  assert.doesNotMatch(text, /FAILED/, "a fully-passing report must not mention FAILED");
+  assert.match(text, /paste.*back to Claude/i);
+
+  const jsonStart = text.indexOf("{");
+  const parsed = JSON.parse(text.slice(jsonStart));
+  assert.deepEqual(parsed, report, "the full original report object must be losslessly recoverable from the clipboard text");
+});
+
+test("reportToClipboardText: a failing report names the failure count and the fatal error", () => {
+  const report = { timestamp: "2026-09-04T00:00:00.000Z", results: [], fatalError: "boom" };
+  const summary = { total: 3, passed: 1, failed: 2 };
+  const text = reportToClipboardText(report, summary);
+
+  assert.match(text, /1\/3 checks passed \(2 FAILED\)/);
+  assert.match(text, /Fatal error: boom/);
 });

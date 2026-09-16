@@ -1,0 +1,109 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-armour-shop",
+  "type": "location",
+  "tier": "site",
+  "name": "The Armour Shop",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "industrial",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20301217,
+          34.66478799
+        ],
+        [
+          135.20565052,
+          34.66489365
+        ],
+        [
+          135.20570791,
+          34.66411201
+        ],
+        [
+          135.2030656,
+          34.66401143
+        ],
+        [
+          135.20301217,
+          34.66478799
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6788,
+          7554.8
+        ],
+        [
+          6990.3,
+          7421.8
+        ],
+        [
+          7038.9,
+          7493.8
+        ],
+        [
+          6836,
+          7626.5
+        ],
+        [
+          6788,
+          7554.8
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6913.42,
+      7524.16
+    ],
+    "cells": [
+      "D4·26",
+      "D4·36",
+      "D4·46",
+      "D4·37"
+    ],
+    "ref": "D4·26",
+    "areaM2": 20973.5,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-381",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Plate is cut, formed and hardened here at a scale nothing else on the island matches. Audible across the entire strip, and the reason the works keeps an ambulance of its own rather than calling for one.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Plate is cut, formed and hardened here at a scale nothing else on the island matches. Audible across the entire strip, and the reason the works keeps an ambulance of its own rather than calling for one.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

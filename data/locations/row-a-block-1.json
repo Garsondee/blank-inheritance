@@ -1,0 +1,195 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "row-a-block-1",
+  "type": "location",
+  "tier": "site",
+  "name": "Row A, Block 1",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21117377,
+          34.67321232
+        ],
+        [
+          135.21120334,
+          34.67316859
+        ],
+        [
+          135.21119216,
+          34.67316357
+        ],
+        [
+          135.21122118,
+          34.67311907
+        ],
+        [
+          135.21123369,
+          34.67312239
+        ],
+        [
+          135.211261,
+          34.67308081
+        ],
+        [
+          135.21153439,
+          34.67319035
+        ],
+        [
+          135.21187615,
+          34.67320583
+        ],
+        [
+          135.21187437,
+          34.67326008
+        ],
+        [
+          135.21188858,
+          34.67326048
+        ],
+        [
+          135.21189001,
+          34.67331212
+        ],
+        [
+          135.2118728,
+          34.67331109
+        ],
+        [
+          135.21186884,
+          34.67335699
+        ],
+        [
+          135.21153672,
+          34.67335146
+        ],
+        [
+          135.21145697,
+          34.67333382
+        ],
+        [
+          135.21117377,
+          34.67321232
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6957.2,
+          6369.8
+        ],
+        [
+          6962,
+          6372.6
+        ],
+        [
+          6961.4,
+          6373.6
+        ],
+        [
+          6966.2,
+          6376.5
+        ],
+        [
+          6967,
+          6375.6
+        ],
+        [
+          6971.5,
+          6378.3
+        ],
+        [
+          6986.9,
+          6355.1
+        ],
+        [
+          7013,
+          6337.7
+        ],
+        [
+          7009.8,
+          6332.6
+        ],
+        [
+          7010.9,
+          6331.9
+        ],
+        [
+          7008.1,
+          6326.9
+        ],
+        [
+          7006.8,
+          6327.8
+        ],
+        [
+          7003.9,
+          6323.6
+        ],
+        [
+          6978,
+          6339.6
+        ],
+        [
+          6972.7,
+          6345
+        ],
+        [
+          6957.2,
+          6369.8
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6984.07,
+      6349.74
+    ],
+    "cells": [
+      "D4·30",
+      "D4·40"
+    ],
+    "ref": "D4·30",
+    "areaM2": 1101.7,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-113",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "First block along the entrance road, so it gets every visiting officer's first impression. Residents keep the stairwell absurdly tidy purely out of habit at this point, since nobody official has actually inspected it in a year.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "First block along the entrance road, so it gets every visiting officer's first impression. Residents keep the stairwell absurdly tidy purely out of habit at this point, since nobody official has actually inspected it in a year.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

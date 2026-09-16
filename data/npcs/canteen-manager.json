@@ -1,0 +1,14 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "canteen-manager",
+  "type": "npc",
+  "name": null,
+  "role": "Manager, The Works Canteen",
+  "pole": null,
+  "affiliation": "directorate",
+  "description": "Feeds the entire works strip in three sittings and knows, from who sits with whom, roughly everything about how the work is really going. Treats rank as a suggestion and pilots as young people who need feeding.",
+  "designNotes": "Created 2026-09-12 with The Works Canteen. Deliberately warm: this is a Giant Robo campaign and the canteen is where that register lives on this strip. Name and manner open.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "placeholder — not yet named or cast"
+}

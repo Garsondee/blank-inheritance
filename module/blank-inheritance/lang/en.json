@@ -1,0 +1,333 @@
+{
+  "BLANKINHERITANCE": {
+    "TestSync": {
+      "MacroName": "Blank Inheritance: Run Test Sync",
+      "Running": "Blank Inheritance: running diagnostic test sync...",
+      "Complete": "Blank Inheritance: test sync complete — {passed}/{total} checks passed. Full report written to storage/test-reports/.",
+      "Failed": "Blank Inheritance: test sync failed before completing. See console (F12) for the error, and report it back.",
+      "NotGM": "Only a GM can run the Blank Inheritance test sync."
+    },
+    "SyncPrompt": {
+      "Title": "Blank Inheritance",
+      "Body": "Sync campaign content now? (episodes, and the Contact Unclassified Claimant)",
+      "Yes": "Run Sync",
+      "No": "Not Now"
+    },
+    "RealSync": {
+      "MacroName": "Blank Inheritance: Sync Campaign Content",
+      "Running": "Blank Inheritance: syncing campaign content...",
+      "Complete": "Blank Inheritance: sync complete — {passed}/{total} checks passed.",
+      "Failed": "Blank Inheritance: sync failed before completing. See console (F12) for the error, and report it back.",
+      "NotGM": "Only a GM can run the Blank Inheritance content sync."
+    },
+    "Console": {
+      "Checks": {
+        "Skills": "Skills",
+        "Defences": "Defences",
+        "NoCharacter": "No character is assigned to you yet.",
+        "NoSelection": "Select a token to roll for it.",
+        "BadSlug": "That check cannot be posted safely.",
+        "Requested": "Requesting a {label} check.",
+        "UnknownStatistic": "This character has nothing called \"{slug}\" to roll."
+      },
+      "Card": {
+        "Title": "Character Card",
+        "Open": "Open character card",
+        "Missing": "That character is no longer available.",
+        "AttitudeLabel": "Attitude",
+        "ActionsLabel": "What moves it",
+        "FactsLabel": "What is known",
+        "NoFacts": "Nothing authored for this character yet.",
+        "Reveal": "Reveal",
+        "Unlearned": "{count} more to learn.",
+        "Attitude": {
+          "Hostile": "Hostile",
+          "Unfriendly": "Unfriendly",
+          "Indifferent": "Indifferent",
+          "Friendly": "Friendly",
+          "Helpful": "Helpful"
+        },
+        "Action": {
+          "MakeAnImpression": "Make an Impression",
+          "Request": "Request",
+          "Coerce": "Coerce"
+        }
+      },
+      "Cast": {
+        "Empty": "No tokens in this scene.",
+        "Summary": "{players} PC / {others} other",
+        "Hidden": "Hidden from players"
+      },
+      "Log": {
+        "Placeholder": "What just happened…",
+        "SaveFailed": "The session log could not be saved. Your note is kept and will retry on the next entry.",
+        "Empty": "Nothing logged yet."
+      },
+      "Zone": {
+        "Ident": "Ident",
+        "Dome": "Day",
+        "Checks": "Checks",
+        "Segment": "Schedule",
+        "Cast": "Cast",
+        "Log": "Log"
+      },
+      "Quarter": {
+        "Morning": "Morning",
+        "Afternoon": "Afternoon",
+        "Evening": "Evening",
+        "Night": "Night"
+      },
+      "Ring": {
+        "Day": "Day {day}",
+        "Advance": "Advance to the next quarter"
+      },
+      "Segment": {
+        "Budget": "{remaining} of {total} slices left",
+        "NoOffers": "Nothing on offer this quarter.",
+        "Occupied": "Spoken for"
+      }
+    },
+    "Settings": {
+      "ThemeEnabled": {
+        "Name": "Directorate interface theme",
+        "Hint": "Restyle Foundry and the Starfinder 2e system in the campaign's visual identity. Turning this off returns Foundry to its stock appearance immediately, with no reload."
+      },
+      "RosterInBar": {
+        "Name": "Move the player list into the command bar",
+        "Hint": "Hides Foundry's own player list (which sits under the scene controls on the left in v14) once the command bar carries its own roster. Off by default so nothing disappears unexpectedly."
+      }
+    },
+    "Stage": {
+      "Reveal": "Reveal to the table",
+      "Conceal": "Conceal from the table",
+      "AskCheck": "Ask the table for a check",
+      "NoActor": "{name} has no character sheet in this world yet.",
+      "Built": "Blank Inheritance: built {count} staged scenes.",
+      "NotGM": "Only a GM can build the staged demo scenes.",
+      "MacroName": "Blank Inheritance: Build Staged Demo Scenes",
+      "RevealHint": "Reveal to the table (Shift-click: announce with a banner)"
+    },
+    "Splash": {
+      "Trigger": "Splash — a full-screen introduction (works whether they're concealed or already revealed)",
+      "TriggerFirst": "Splash — their first appearance",
+      "DismissHint": "Click or press any key to continue"
+    },
+    "Runner": {
+      "Title": "Scene Runner",
+      "NoScene": "No scene chosen. Pick one from the running order above.",
+      "Cast": "Who is here",
+      "Beats": "What has to happen",
+      "Handouts": "To hand over",
+      "CarryForward": "Carry forward",
+      "Progress": "Required beats done",
+      "Of": "of",
+      "Opens": "Opens with:",
+      "Will": "Will talk about",
+      "WillNot": "Will not talk about",
+      "Coercible": "Can be moved on",
+      "Tick": "Mark this as having happened",
+      "Untick": "Mark this as not having happened after all",
+      "Open": "Bring this in",
+      "Reveal": "Show the table",
+      "RevealSolo": "Show one player",
+      "Solo": "One player",
+      "Passive": "Unannounced",
+      "PickPlayer": "Who should see this?",
+      "PickPlayerHint": "Only the player you choose will see it. Nobody else is told anything happened.",
+      "RevealConfirm": "Show \"{title}\" to {who}?",
+      "RevealConfirmHint": "They see it immediately, and it cannot be unseen.",
+      "Everyone": "the whole table",
+      "Revealed": "Showed \"{title}\" to {who}.",
+      "NoPlayers": "Nobody else is connected to show it to.",
+      "SceneMissing": "That scene's brief could not be loaded — check it has been pushed to the server.",
+      "CritSuccess": "Crit success",
+      "Success": "Success",
+      "Failure": "Failure",
+      "CritFailure": "Crit fail",
+      "Goal": "What has to be true when this ends",
+      "Intro": "Getting in",
+      "Outro": "Getting out",
+      "Artefacts": "They can keep",
+      "WriteDown": "Write down",
+      "Grant": "Hand it over",
+      "GrantConfirm": "Give the players \"{title}\" permanently?",
+      "GrantConfirmHint": "It goes into their own journals and stays there for the rest of the campaign. This cannot be undone.",
+      "Granted": "The party now hold \"{title}\".",
+      "Held": "Held by the party",
+      "Insight": "Free to ask"
+    },
+    "Induction": {
+      "Tracker": {
+        "Label": "Induction progress"
+      },
+      "Page1": {
+        "Title": "Induction",
+        "FormNumber": "FORM 1-A — CANDIDATE REGISTRATION",
+        "Intro1": "The letter said to report here. This is here — a Directorate terminal, humming quietly, waiting for a name it doesn't have yet.",
+        "Intro2": "You're about to build the character you'll be playing. This takes most people twenty to thirty minutes. Nothing here is final — anything too complicated for a form gets finished properly once you're actually in the game, on your character's own sheet.",
+        "WhatToExpectTitle": "What to expect",
+        "WhatToExpect": "You'll choose who your character is — their ancestry, their background, their training — and answer a handful of real questions about who they are as a person, not just what they can do. If a question ever seems unclear, look for a small toggle that switches the form to plain, out-of-character language explaining exactly what's being asked. Every answer here feeds directly into the campaign; nothing is just flavour text. At the end, you'll have a working character and a token waiting for you at the table.",
+        "WhatYouNeedTitle": "What to have ready",
+        "WhatYouNeed": "Just a concept — a rough idea of who you want to play. Everything else, this form will ask you for, one step at a time.",
+        "Begin": "Begin"
+      },
+      "Page2": {
+        "Title": "Ancestry",
+        "FormNumber": "FORM 1-B — ANCESTRY DECLARATION",
+        "Intro": "Your character's real ancestry — not the one they'll wear at the table. Every option here is real and mechanical; how it's disguised in play is entirely yours to decide later.",
+        "FilterPlaceholder": "Filter by name…",
+        "GroupTerrestrial": "Terrestrial-Presenting",
+        "GroupAlien": "Alien-Coded",
+        "NoMatches": "Nothing matches that filter.",
+        "LoadFailedTitle": "The ancestry list didn't load.",
+        "LoadFailedBody": "That's this terminal's fault, not yours — nothing was lost. Use Back below, then Begin again; if it keeps happening, tell your GM.",
+        "HelpSummary": "What does this actually change?",
+        "HelpBody": "Ancestry permanently sets six things on your sheet: two or three ability boosts (and sometimes one flaw), your base Hit Points, your Size, your Speed, and which languages you start with. It does not pick an ancestry feat — you'll choose one on your own character sheet once your token is on the table, the same way class feats work.",
+        "StatHP": "Hit Points",
+        "StatSize": "Size",
+        "StatSpeed": "Speed",
+        "StatLanguages": "Languages",
+        "StatVision": "Vision",
+        "BoostsTitle": "Ability Boosts",
+        "FlawsTitle": "Ability Flaws",
+        "NoFlaw": "No ancestry flaw.",
+        "ChooseOne": "Choose one:",
+        "Change": "Change ancestry",
+        "LockdownNote": "Playing something other than Human, Elf, Dwarf, Gnome or Halfling is fully encouraged — it just means a few extra private questions later in the process. Those are between you and this screen; whether you ever tell anyone at the table is entirely your call, and there is no wrong answer.",
+        "Back": "Back",
+        "Continue": "Continue"
+      },
+      "Page3": {
+        "Title": "Background",
+        "FormNumber": "FORM 1-C — PRIOR OCCUPATION",
+        "Intro": "Who your character was before the letter arrived. Every background is real and mechanical, same as ancestry — search or browse the full list below.",
+        "FilterPlaceholder": "Filter by name…",
+        "GroupCommon": "Common",
+        "GroupUncommon": "Uncommon",
+        "GroupRare": "Rare",
+        "NoMatches": "Nothing matches that filter.",
+        "Change": "Change background",
+        "BoostsTitle": "Ability Boosts",
+        "GrantsTitle": "This Background Also Grants",
+        "StatSkills": "Trained Skill",
+        "StatSkillsChoice": "Trained Skill (choose one)",
+        "StatLore": "Trained Lore",
+        "StatLoreChoice": "Trained Lore (choose one)",
+        "StatFeat": "Skill Feat",
+        "SkillsSeeDescription": "This background's exact skill grant is a little unusual — see the description above for the real wording.",
+        "ChooseOne": "Choose one:",
+        "HelpSummary": "What does this actually change?",
+        "HelpBody": "Background permanently sets three things on your sheet: two ability boosts, training in one or two skills (often including a Lore skill), and a skill feat. It does not pick the skill feat for you — you'll choose it on your own character sheet once your token is on the table, the same way ancestry and class feats work. A few backgrounds phrase their skill grant as a real choice (\"Crafting or Piloting\"); when that happens, the description above is the actual rule, not the summary rows below it.",
+        "Back": "Back",
+        "Continue": "Continue"
+      },
+      "Page4": {
+        "Title": "Class",
+        "FormNumber": "FORM 1-D — DUTY SPECIALISATION",
+        "Intro": "The training your character actually received. Only six real specialisations exist — pick one below.",
+        "Change": "Change class",
+        "StatHP": "Hit Points per Level",
+        "StatPerception": "Perception",
+        "StatFortitude": "Fortitude",
+        "StatReflex": "Reflex",
+        "StatWill": "Will",
+        "StatWeapons": "Weapon Proficiencies",
+        "StatArmor": "Armor Proficiencies",
+        "StatSkills": "Trained Skill",
+        "AttackSimple": "Simple Weapons",
+        "AttackMartial": "Martial Weapons",
+        "AttackAdvanced": "Advanced Weapons",
+        "AttackUnarmed": "Unarmed Attacks",
+        "DefenseUnarmored": "Unarmored Defense",
+        "DefenseLight": "Light Armor",
+        "DefenseMedium": "Medium Armor",
+        "DefenseHeavy": "Heavy Armor",
+        "KeyAbilityTitle": "Key Ability",
+        "SkillsTitle": "Training",
+        "PlusMoreSkills": "Plus {count} more skills of your choice — pick them on your own character sheet once your token is on the table.",
+        "HelpSummary": "What does this actually change?",
+        "HelpBody": "Class permanently sets your key ability (the one every class feature and most of your best rolls key off), your Hit Points per level, starting Perception and saving-throw proficiencies, and your starting weapon/armor training. It does not pick your class features, feats or spells — those come next, on your own character sheet, once your token is on the table. Your Class DC starts Trained, same as every class at level 1.",
+        "Back": "Back",
+        "Continue": "Continue"
+      },
+      "Page5": {
+        "Title": "Attribute Boosts",
+        "FormNumber": "FORM 1-E — APTITUDE ALLOCATION",
+        "Intro": "Four more boosts, entirely your choice — on top of whatever your ancestry, background and class already set on their own pages. Each of the four below must go to a different ability.",
+        "HelpSummary": "What does this actually change?",
+        "HelpBody": "This permanently raises one of the six numbers that drive almost every roll you make — the single most consequential page in this form. A free boost can land on an ability your ancestry, background or class already raised; it simply adds another +1 there. The four boosts below must each go to a different ability from each other, but not necessarily different from what's already been set elsewhere.",
+        "Back": "Back",
+        "Continue": "Continue"
+      },
+      "Page6": {
+        "Title": "Portrait",
+        "FormNumber": "FORM 1-F — PHOTOGRAPHIC IDENTIFICATION",
+        "Intro": "A photograph for your file — optional, but every character in this campaign uses the same frame, and it's a nice thing to have waiting for you at the table. Upload one below and adjust it to fit; Section Nine keeps standard imagery on hand for anyone who'd rather skip this.",
+        "NoPhotoLabel": "No photograph on file",
+        "ChoosePhoto": "Choose Photo",
+        "ChangePhoto": "Change Photo",
+        "RemovePhoto": "Remove",
+        "ZoomLabel": "Zoom",
+        "UseThisCrop": "Use This Crop",
+        "Uploading": "Uploading…",
+        "InvalidFileType": "That doesn't look like an image file — choose a photo (JPEG, PNG, WebP, etc.) instead.",
+        "FileTooLarge": "That file is too large (over 20MB). Try a smaller photo.",
+        "HelpSummary": "What's this actually for?",
+        "HelpBody": "There's no mechanical effect from your choice of photo, or from skipping it entirely. Every character portrait in this campaign is shown in the same tall frame, so keeping the crop close to the guide box just keeps your character looking consistent next to the rest of the cast once play begins.",
+        "Back": "Back",
+        "Continue": "Continue"
+      },
+      "Page7": {
+        "Title": "Finishing Details",
+        "FormNumber": "FORM 1-G — PERSONAL PARTICULARS",
+        "Intro": "The mechanical parts are done. This is the rest of who they are — a name, how they're addressed, and a few small things about them. Every box here has a row of suggestions you can click to fill it in fast, and every box is also just a box — write whatever you like instead, or as well.",
+        "NameLabel": "Name",
+        "NamePlaceholder": "Your character's name…",
+        "PronounsLabel": "Pronouns",
+        "GenderIdentityLabel": "Gender identity",
+        "AppearanceLabel": "Appearance notes",
+        "LanguagesTitle": "Languages",
+        "AddLanguagePlaceholder": "Add a language…",
+        "AddLanguage": "Add",
+        "NoLanguagesYet": "No languages added yet.",
+        "RemoveLanguage": "Remove",
+        "BanalOptionalNote": "None of this is required except your name — write as much or as little as you like.",
+        "Back": "Back",
+        "Continue": "Continue"
+      },
+      "Page8": {
+        "Title": "Personal Declaration",
+        "FormNumber": "FORM 1-H — PERSONAL DECLARATION",
+        "Intro": "Eight real questions. Every answer becomes something the campaign actually uses — a connection, a side plot, a vulnerability, a running joke.",
+        "OptionalNote": "Nothing on this page is required. Leave any or all of it blank and continue — you can always come back to this later.",
+        "HelpSummary": "What's this actually for?",
+        "Back": "Back",
+        "Continue": "Continue"
+      },
+      "Page9": {
+        "Title": "Review & Confirm",
+        "FormNumber": "FORM 1-I — FINAL DECLARATION",
+        "Intro": "Everything below is what actually gets written down. Nothing is created until you confirm.",
+        "ErrorTitle": "That didn't go through.",
+        "SectionIdentity": "Identity",
+        "SectionMechanical": "Mechanical",
+        "SectionTexture": "Texture",
+        "SectionQuestions": "Personal Declaration",
+        "StatName": "Name",
+        "StatPronouns": "Pronouns",
+        "StatGender": "Gender Identity",
+        "StatLanguages": "Languages",
+        "StatAncestry": "Ancestry",
+        "StatBackground": "Background",
+        "StatClass": "Class",
+        "StatFreeBoosts": "Free Boosts",
+        "ConfirmNote": "Class feats, spells, an ancestry/background feat, and any skills beyond what's listed above still need finishing on your own character sheet, once your token is on the table — same as every real character.",
+        "Confirm": "Confirm",
+        "Confirming": "Creating your character…",
+        "SuccessTitle": "Done. You're in the system now.",
+        "SuccessBody": "{actorName} exists. Find your token once your GM places it, and finish the rest — feats, spells, the last few skills — on your own character sheet.",
+        "Back": "Back"
+      }
+    }
+  }
+}

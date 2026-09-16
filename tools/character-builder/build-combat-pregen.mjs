@@ -9,8 +9,10 @@
  *
  * SCOPE (updated for design doc §19's skill-actions-in-combat expansion — saving throws are no
  * longer unsupported): derives ATTACK-ROLL Strikes, attack-roll spells, save-based attacks (once
- * personnel-engine gained a real saving-throw mechanism), one hand-identified heal ability, and
- * skill-check modifiers for skill actions (Demoralize). What's still deliberately SKIPPED: a
+ * personnel-engine gained a real saving-throw mechanism), area attacks (GH #65, once GH #61 gave
+ * personnel-engine a real area-effect mechanism — grenades, previously unwired for lacking one), one
+ * hand-identified heal ability, and skill-check modifiers for skill actions (Demoralize). What's
+ * still deliberately SKIPPED: a
  * Fortitude-save special action requiring a prerequisite condition this project doesn't model
  * (Prone) — that's a genuinely different kind of gap (a missing prerequisite mechanism, not a
  * missing resolution mechanism) and stays out of scope on its own terms.
@@ -63,6 +65,23 @@ function firstSpellDamage(damageMap) {
 function parseSpellRangeFeet(rawRange) {
   const parsed = parseInt(rawRange, 10);
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+/**
+ * Shared use-limit derivation for a spell (design doc §76.9, GH #69/#55). A cantrip is castable "at
+ * will, any number of times per day" (Player Core pg. 283, reference/srd/player-core/283-cantrips.json)
+ * — NEVER slot-limited, confirmed by an adversarial review against every real cantrip-trait item this
+ * project has access to (461 checked across every pack): zero carry a real frequency/uses/slots value.
+ * A non-cantrip spell's real limit is its own governing spellcastingEntry's slot count — the field
+ * deriveSaveSpells already read correctly for Thunderstrike before this helper existed. Shared, not
+ * duplicated, specifically because an earlier, unshared version of deriveSpells lacked the cantrip
+ * check entirely and would have capped Eldritch Lance — a cantrip — at 3 casts/encounter (GH #69's own
+ * found regression, caught before shipping): one helper means that mistake can't recur independently a
+ * third time in a fourth copy of this logic.
+ */
+function deriveSpellUsesRemaining(spell, entry) {
+  if ((spell.system.traits?.value ?? []).includes("cantrip")) return { atWill: true };
+  return { usesRemaining: entry.system.slots?.slot1?.max ?? null };
 }
 
 /** Player Core's real save-statistic names ("reflex"/"fortitude"/"will") mapped to this project's
@@ -131,7 +150,8 @@ export function deriveSpells(ingredients, spellNames, abilityModifiers) {
       range: parseSpellRangeFeet(spell.system.range.value), // e.g. "30 feet" -> 30; "touch" -> null, not NaN (see parseSpellRangeFeet)
       actions: parseInt(spell.system.time.value, 10),
       traits: spell.system.traits.value,
-      ...(damage ? { damage: [damage] } : {})
+      ...(damage ? { damage: [damage] } : {}),
+      ...deriveSpellUsesRemaining(spell, entry)
     };
   });
 }
@@ -180,8 +200,11 @@ export function deriveSaveSpells(ingredients, spellNames, abilityModifiers) {
       damage,
       // A real spell-slot count (this project's own extension of deriveSaveAttacks' own
       // system.quantity precedent, applied to spells instead of consumable items) — NOT unlimited.
-      // Bennit's real "Arcane Spontaneous Spells" entry carries system.slots.slot1.max: 3.
-      usesRemaining: entry.system.slots?.slot1?.max ?? null
+      // Bennit's real "Arcane Spontaneous Spells" entry carries system.slots.slot1.max: 3. Routed
+      // through the shared deriveSpellUsesRemaining so a cantrip-shaped save-spell (none exists in
+      // any current fixture, but nothing about this shape rules one out) can't independently regress
+      // the same way an earlier, unshared deriveSpells once did (GH #69).
+      ...deriveSpellUsesRemaining(spell, entry)
     };
   });
 }
@@ -201,10 +224,9 @@ export function deriveSaveSpells(ingredients, spellNames, abilityModifiers) {
  * a single-target attack (confirmed directly against the Incendiary Grenade's raw description:
  * "Activate 1 Area Fire ... @Template[burst|distance:5]"). Wiring an area weapon through this
  * single-target mechanism silently drops its real friendly-fire risk, which is likely why the AI
- * used it far more liberally than a rules-correct implementation ever would have. Grenades stay
- * unwired — same "out of scope" treatment already applied to every other area/multi-target weapon
- * (Auto-Fire, Suppressing Fire) — until this engine has a real area-effect mechanism to build them
- * against.
+ * used it far more liberally than a rules-correct implementation ever would have. Grenades went
+ * unwired for a long time — GH #65 (design doc §76 Phase 4) finally gave them a real home,
+ * `deriveAreaAttacks` below, once GH #61 built the real area-effect mechanism to build them against.
  *
  * `actions: 1` is NOT read from any raw field — no explicit action-cost field exists on this raw
  * weapon item to read instead. A thrown weapon Strike is a real, single-action SF2E activity, so
@@ -236,6 +258,50 @@ export function deriveSaveAttacks(ingredients, items, abilityModifiers) {
 }
 
 /**
+ * Derive real PC-side area attacks (GH #65, design doc §76 Phase 4) — grenades, the exact case
+ * deriveSaveAttacks' own header above disclaims ("NOT A VALID FIT FOR GRENADES... every grenade
+ * checked so far is a @Template[burst] AREA effect"). That disclaimer's own reasoning is now stale:
+ * it said grenades stay unwired "until this engine has a real area-effect mechanism to build them
+ * against" — GH #61 built exactly that (checkAreaAttackLegal, both outcome tables, candidate
+ * generation, friendly-fire pricing), already shipped and proven via the NPC side's own sibling
+ * deriveAreaAttack (extract-npc.mjs). This is the PC-side counterpart, reading from a genuinely
+ * DIFFERENT raw shape than that sibling: an NPC's own area-fire item is a `melee`-type attack-row
+ * entry with a real, structured `system.area.value` radius and a precomputed `system.bonus.value`
+ * attack bonus (NPCs store final numbers); a PC's own grenade is a plain `weapon`-type item —
+ * confirmed directly against real pack data (Iseph's Incendiary Grenade, Lunar-17's own, etc.) to
+ * have NO structured area/radius field at all, only a flat `range` (max throw distance) and the
+ * burst radius mentioned solely in free-text description prose (`@Template[burst|distance:5]`).
+ * `radius` is therefore a caller-supplied parameter, same "hand-read from that same prose" discipline
+ * `saveType` already uses one function above — not auto-parsed out of the HTML, which would be
+ * fragile ceremony for a value that's been checked and found identical (5ft) on every real grenade
+ * in this project's roster so far. DC is the wielder's real Class DC (deriveClassDC) — NOT the NPC
+ * side's own "10 + attack-row bonus" convention, which only exists because NPCs have no separate
+ * Class DC concept at all; a PC's own basic-save DC for an area weapon really is just their Class DC,
+ * confirmed directly against Player Core's own '@Check[reflex|against:class|basic]' embedded tag.
+ */
+export function deriveAreaAttacks(ingredients, items, abilityModifiers) {
+  const { weapons, level, classKeyAbility } = ingredients;
+  const dc = deriveClassDC({ level, keyAbilityModifier: abilityModifiers[classKeyAbility] }).modifier;
+  return items.map(({ name: wantedName, saveType, radius }) => {
+    const weapon = weapons.find((w) => w.name === wantedName);
+    if (!weapon) throw new Error(`No weapon named "${wantedName}" in this pregen's raw weapon list.`);
+    return {
+      name: weapon.name,
+      saveType,
+      dc,
+      range: weapon.system.range,
+      radius,
+      actions: 1,
+      traits: weapon.system.traits?.value ?? [],
+      damage: [{ dice: diceString(weapon.system.damage), bonus: 0, damageType: weapon.system.damage.damageType }],
+      // Same real regression deriveSaveAttacks' own header already names for the identical
+      // consumable-quantity shape — a grenade is a real, finite, carried item, not infinite ordnance.
+      usesRemaining: weapon.system.quantity ?? 1
+    };
+  });
+}
+
+/**
  * A skill-check modifier for a skill action (Demoralize's Intimidation check). Reuses the same
  * proficiency() formula every other check in derive.mjs already does — a skill modifier IS a
  * proficiency check, nothing save/spell/Strike-specific about it. `ingredients.skillRanks` only
@@ -258,6 +324,19 @@ export function deriveSkillModifier(ingredients, skillName, abilityModifiers) {
  * to derive from. At level 1 the "minimum 1" qualifier and the later-level increases are both
  * moot (a level-1 Mystic's pool is large enough that 10 is always available), so the flat number
  * transcribed here is the complete, correct level-1 value, not a simplification.
+ *
+ * Deliberately NOT returned here: usesRemaining/usesPerEncounter (GH #55). Every other limited-use
+ * ability this file derives (deriveSaveAttacks' grenade, deriveSaveSpells' Thunderstrike) reads a
+ * REAL structured field — system.quantity, system.slots.slotN.max — because their limit genuinely
+ * is a per-day/per-encounter count. Transfer Vitality's real limit is categorically different: the
+ * Vitality Network feat's own regenerating "vitality network" HP-pool (capacity 6+4/level,
+ * regenerating 4-8 HP per turn in combat, full refill on Refocus), which has no per-day slot count
+ * to read at all. This function's whole contract is "a number that's actually derived from real
+ * structured data, or an honest absence" (see this file's own atWill/cantrip tests) — inventing an
+ * approximated uses-per-encounter number here would misrepresent a guess as derived fact. The
+ * approximation belongs at the fixture-construction site instead, hand-authored with its reasoning
+ * written down there (data/raw-validation-fixtures/lunar-17.json's own notes field; mirrors the
+ * identical, already-shipped choice for the level-12 Frame-scale Mystic in data/combatants.mjs).
  */
 export function deriveTransferVitality(ingredients) {
   const action = ingredients.actions.find((a) => a.name === "Transfer Vitality");
@@ -268,4 +347,57 @@ export function deriveTransferVitality(ingredients) {
     range: 60,
     actions: action.system.actions.value
   };
+}
+
+/**
+ * GH #60, design doc §60 Part 1/1b — Heal's THREE living-target variants (the vs.-Undead 2-action
+ * variant is Part 1c, a separate, deferred follow-on — see the design's own "Explicitly deferred"
+ * section: no creature-type concept exists anywhere in this codebase), read directly off Foundry's
+ * real OVERLAY mechanism. Confirmed via direct LevelDB read: Heal carries FOUR overlays on its base
+ * spell document, one per action-cost tier (`spell.system.overlays`, each `overlayType: "override"`,
+ * patching a subset of the base spell's own fields). The three in-scope overlays are selected by
+ * their own real structural signature — `time.value`/`damage.0.kinds`/`area.type` — not a hardcoded
+ * overlay `_id`, because the 1-action touch overlay carries no `name` field at all (only the two
+ * 2-action variants are individually named "Heal (vs. Living)"/"Heal (vs. Undead)" in the real
+ * data); an overlay that doesn't patch `damage` (the touch AND the emanation overlays) inherits the
+ * base spell's own formula, matching Foundry's own real override-merge semantics.
+ */
+export function deriveHealSpellVariants(ingredients, spellName) {
+  const { spells, spellcastingEntries } = ingredients;
+  const spell = spells.find((s) => s.name === spellName);
+  if (!spell) throw new Error(`No spell named "${spellName}" in this pregen's raw spell list.`);
+  if (!spellcastingEntries.find((e) => e._id === spell.system.location.value)) {
+    throw new Error(`"${spellName}": no spellcastingEntry found matching its own system.location.value.`);
+  }
+  const baseFormula = spell.system.damage?.["0"]?.formula;
+  if (!baseFormula) throw new Error(`"${spellName}": no base damage.0.formula to derive a healing formula from.`);
+
+  const overlays = Object.values(spell.system.overlays ?? {});
+  const touch = overlays.find((o) => o.system.time?.value === "1");
+  const ranged = overlays.find((o) => o.system.time?.value === "2" && (o.system.damage?.["0"]?.kinds ?? []).includes("healing"));
+  if (!touch || !ranged) {
+    throw new Error(`"${spellName}": expected a 1-action touch overlay and a 2-action living-heal overlay among its ${overlays.length} real overlays — Paizo may have restructured this spell.`);
+  }
+  const emanation = overlays.find((o) => o.system.time?.value === "3" && o.system.area?.type === "emanation");
+  if (!emanation) {
+    throw new Error(`"${spellName}": expected a 3-action self-centered emanation overlay among its ${overlays.length} real overlays — Paizo may have restructured this spell.`);
+  }
+
+  function toVariant(overlay, label) {
+    const actions = parseInt(overlay.system.time.value, 10);
+    if (!Number.isInteger(actions)) throw new Error(`"${spellName}" (${label}): non-numeric time.value "${overlay.system.time.value}".`);
+    const rangeFeet = overlay.system.range ? parseSpellRangeFeet(overlay.system.range.value) : null; // "touch" -> null (omitted -> checkSpellRange's own touch/adjacent default), "30 feet" -> 30
+    return {
+      name: `${spellName} (${label})`,
+      healingFormula: overlay.system.damage?.["0"]?.formula ?? baseFormula,
+      actions,
+      ...(rangeFeet != null ? { range: rangeFeet } : {}),
+      // GH #60 Part 1b — a self-centered area origin (Foundry's own real emanation shape). Only ever
+      // set for the emanation overlay (the touch/30ft overlays have no `area` field at all, so this
+      // degrades safely to false/no-op for them).
+      ...(overlay.system.area?.type === "emanation" ? { areaOrigin: "self", radius: overlay.system.area.value } : {}),
+      slotRank: spell.system.level.value // real spell rank (1) — keys the shared pool (design doc §60 Decision 3), not hardcoded
+    };
+  }
+  return [toVariant(touch, "touch"), toVariant(ranged, "30ft"), toVariant(emanation, "emanation")];
 }

@@ -13,7 +13,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { runTournamentParallel, runTournamentSequential, aggregateTournament, DEFAULT_CONCURRENCY, checkCostGuard } from "../../tools/battle-simulator/analysis/tournament-runner.mjs";
+import { runTournamentParallel, runTournamentSequential, aggregateTournament, DEFAULT_CONCURRENCY, checkCostGuard, aggregateAbilityCoverage } from "../../tools/battle-simulator/analysis/tournament-runner.mjs";
 import { BASELINE_V1, NO_MANEUVERS_V1, PROFILES } from "../../tools/battle-simulator/personnel-engine/ai-profiles.mjs";
 
 const smallParams = {
@@ -91,6 +91,60 @@ test("runTournamentParallel: a real pull-based pool — concurrency SMALLER than
 test("DEFAULT_CONCURRENCY: a real, positive integer derived from the real host's CPU count", () => {
   assert.ok(Number.isInteger(DEFAULT_CONCURRENCY));
   assert.ok(DEFAULT_CONCURRENCY >= 1);
+});
+
+// --- abilityCoverage wiring (design doc §78, GH #57) — the worker used to discard the whole battle
+// log; both real code paths (the worker thread, and its sequential sibling) now compute and return
+// a compact per-battle coverage summary instead. ---
+
+test("runTournamentSequential: every result carries a real abilityCoverage summary, not a discarded log", () => {
+  const results = runTournamentSequential(smallParams);
+  for (const r of results) {
+    assert.ok(Array.isArray(r.abilityCoverage.abilities) && r.abilityCoverage.abilities.length > 0, `seed ${r.seed}: abilityCoverage.abilities missing/empty`);
+    assert.ok(Array.isArray(r.abilityCoverage.zero));
+    assert.ok(Array.isArray(r.abilityCoverage.overUsed));
+    assert.equal(r.abilityCoverage.unmatched.length, 0, `seed ${r.seed}: unmatched executions ${JSON.stringify(r.abilityCoverage.unmatched)}`);
+  }
+});
+
+test("runTournamentParallel: the real worker thread computes the identical abilityCoverage summary the sequential path does, for the same seed — same determinism guarantee as outcome/rounds", async () => {
+  const sequential = runTournamentSequential(smallParams);
+  const parallel = await runTournamentParallel(smallParams);
+  for (let i = 0; i < sequential.length; i++) {
+    assert.deepEqual(parallel[i].abilityCoverage, sequential[i].abilityCoverage, `seed ${sequential[i].seed}: worker abilityCoverage must match the sequential ground truth`);
+  }
+});
+
+test("aggregateAbilityCoverage: sums real executions across every seed, per (owner, ability)", () => {
+  const results = [
+    { seed: 1, abilityCoverage: { abilities: [{ ownerId: "a", rosterKey: "strikes", name: "Knife", executions: 2 }], overUsed: [], unmatched: [] } },
+    { seed: 2, abilityCoverage: { abilities: [{ ownerId: "a", rosterKey: "strikes", name: "Knife", executions: 1 }], overUsed: [], unmatched: [] } }
+  ];
+  const agg = aggregateAbilityCoverage(results);
+  assert.equal(agg.battles, 2);
+  assert.equal(agg.abilities.length, 1);
+  assert.equal(agg.abilities[0].executions, 3);
+});
+
+test("aggregateAbilityCoverage: neverUsed is scoped to the WHOLE batch — zero in one seed but used in another is not batch-level never-used", () => {
+  const results = [
+    { seed: 1, abilityCoverage: { abilities: [{ ownerId: "a", rosterKey: "strikes", name: "Pistol", executions: 0 }, { ownerId: "a", rosterKey: "strikes", name: "Knife", executions: 1 }], overUsed: [], unmatched: [] } },
+    { seed: 2, abilityCoverage: { abilities: [{ ownerId: "a", rosterKey: "strikes", name: "Pistol", executions: 0 }, { ownerId: "a", rosterKey: "strikes", name: "Knife", executions: 0 }], overUsed: [], unmatched: [] } }
+  ];
+  const agg = aggregateAbilityCoverage(results);
+  assert.deepEqual(agg.neverUsed.map((a) => a.name), ["Pistol"], "Knife was used in seed 1 — not a batch-level zero, even though seed 2 alone never fired it");
+});
+
+test("aggregateAbilityCoverage: overUseViolations/unmatched carry the REAL seed each violation came from", () => {
+  const results = [
+    { seed: 7, abilityCoverage: { abilities: [], overUsed: [{ kind: "ability", ownerId: "a", name: "Transfer Vitality", executions: 3, cap: 2 }], unmatched: [] } },
+    { seed: 8, abilityCoverage: { abilities: [], overUsed: [], unmatched: [{ ownerId: "a", rosterKey: "strikes", name: "Ghost Strike", round: 4 }] } }
+  ];
+  const agg = aggregateAbilityCoverage(results);
+  assert.equal(agg.overUseViolations.length, 1);
+  assert.equal(agg.overUseViolations[0].seed, 7);
+  assert.equal(agg.unmatched.length, 1);
+  assert.equal(agg.unmatched[0].seed, 8);
 });
 
 // --- checkCostGuard (design doc §59, GH issue #5 — "warn when a policy's battles exceed a

@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-gatehouse",
+  "type": "location",
+  "tier": "site",
+  "name": "The Gatehouse",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21707516,
+          34.68037019
+        ],
+        [
+          135.21711415,
+          34.68018891
+        ],
+        [
+          135.21691901,
+          34.68016055
+        ],
+        [
+          135.21688002,
+          34.68034183
+        ],
+        [
+          135.21707516,
+          34.68037019
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7019.3,
+          5411.1
+        ],
+        [
+          7032.6,
+          5426.6
+        ],
+        [
+          7018.8,
+          5438.4
+        ],
+        [
+          7005.5,
+          5422.9
+        ],
+        [
+          7019.3,
+          5411.1
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7019.05,
+      5424.75
+    ],
+    "cells": [
+      "D3·46"
+    ],
+    "ref": "D3·46",
+    "areaM2": 370.8,
+    "withinRegionRef": "garrison",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-230",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "The compound's own checkpoint, inside the island's outer ones. Everything that comes up from the Roadgate stops here a second time and is asked the same questions by different people.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The compound's own checkpoint, inside the island's outer ones. Everything that comes up from the Roadgate stops here a second time and is asked the same questions by different people.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

@@ -1,0 +1,135 @@
+{{!--
+    The induction terminal — Page 9, Review & Confirm.
+
+    A read-only summary of every choice made across Pages 1-8 -- NOT a
+    computed sheet (design/induction-terminal.md §4/§6 and this page's own
+    adapter doc comments explain why: sf2e's own derived-data engine
+    computes AC/HP/skills/saves live once the real ancestry/background/
+    class Items are embedded, so this terminal never re-implements that
+    math itself). Confirm is the only action in this whole terminal that
+    touches the real world -- everything before this point is pure
+    in-memory wizard state.
+
+    PAPER register throughout, same .bi-doc/.bi-form-row vocabulary as
+    every other page.
+--}}
+<section class="bi-induction">
+    <div class="bi-doc bi-induction__page">
+        <header class="bi-doc__head">
+            <h1 class="bi-doc__title">{{localize "BLANKINHERITANCE.Induction.Page9.Title"}}</h1>
+            <div class="bi-doc__meta">
+                {{localize "BLANKINHERITANCE.Induction.Page9.FormNumber"}}
+                {{#if userName}}<br><b>{{userName}}</b>{{/if}}
+            </div>
+        </header>
+
+        <div class="bi-induction__tracker" role="list" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
+            {{#each trackerSteps}}
+            <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
+                  role="listitem" title="{{this.number}}. {{this.label}}">{{this.number}}</span>
+            {{/each}}
+        </div>
+
+        {{#if createdActorId}}
+        <div class="bi-induction__success">
+            <p class="bi-induction__success-title">{{localize "BLANKINHERITANCE.Induction.Page9.SuccessTitle"}}</p>
+            <p>{{localize "BLANKINHERITANCE.Induction.Page9.SuccessBody" actorName=createdActorName}}</p>
+        </div>
+        {{else}}
+
+        <p>{{localize "BLANKINHERITANCE.Induction.Page9.Intro"}}</p>
+
+        {{#if loadFailed}}
+        <div class="bi-induction__load-error">
+            <p class="bi-induction__load-error-title">{{localize "BLANKINHERITANCE.Induction.Page2.LoadFailedTitle"}}</p>
+            <p>{{localize "BLANKINHERITANCE.Induction.Page2.LoadFailedBody"}}</p>
+        </div>
+        {{/if}}
+
+        {{#if error}}
+        <div class="bi-induction__load-error">
+            <p class="bi-induction__load-error-title">{{localize "BLANKINHERITANCE.Induction.Page9.ErrorTitle"}}</p>
+            <p>{{error}}</p>
+        </div>
+        {{/if}}
+
+        <h2>{{localize "BLANKINHERITANCE.Induction.Page9.SectionIdentity"}}</h2>
+        <div class="bi-form-row">
+            <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page9.StatName"}}</span>
+            <span class="bi-form-row__lead"></span>
+            <span class="bi-form-row__value">{{name}}</span>
+        </div>
+        {{#if pronouns}}
+        <div class="bi-form-row">
+            <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page9.StatPronouns"}}</span>
+            <span class="bi-form-row__lead"></span>
+            <span class="bi-form-row__value">{{pronouns}}</span>
+        </div>
+        {{/if}}
+        {{#if genderIdentity}}
+        <div class="bi-form-row">
+            <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page9.StatGender"}}</span>
+            <span class="bi-form-row__lead"></span>
+            <span class="bi-form-row__value">{{genderIdentity}}</span>
+        </div>
+        {{/if}}
+        {{#if hasLanguages}}
+        <div class="bi-form-row">
+            <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page9.StatLanguages"}}</span>
+            <span class="bi-form-row__lead"></span>
+            <span class="bi-form-row__value">{{#each languages}}{{#unless @first}}, {{/unless}}{{this}}{{/each}}</span>
+        </div>
+        {{/if}}
+        {{#if appearance}}
+        <p class="bi-induction__review-note">{{appearance}}</p>
+        {{/if}}
+
+        <h2>{{localize "BLANKINHERITANCE.Induction.Page9.SectionMechanical"}}</h2>
+        <div class="bi-form-row">
+            <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page9.StatAncestry"}}</span>
+            <span class="bi-form-row__lead"></span>
+            <span class="bi-form-row__value">{{ancestryName}} ({{#each ancestryBoostLabels}}{{#unless @first}}, {{/unless}}{{this}}{{/each}}{{#if ancestryFlawLabels.length}}; −{{#each ancestryFlawLabels}}{{#unless @first}}, {{/unless}}{{this}}{{/each}}{{/if}})</span>
+        </div>
+        <div class="bi-form-row">
+            <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page9.StatBackground"}}</span>
+            <span class="bi-form-row__lead"></span>
+            <span class="bi-form-row__value">{{backgroundName}} ({{#each backgroundBoostLabels}}{{#unless @first}}, {{/unless}}{{this}}{{/each}})</span>
+        </div>
+        <div class="bi-form-row">
+            <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page9.StatClass"}}</span>
+            <span class="bi-form-row__lead"></span>
+            <span class="bi-form-row__value">{{className}} ({{classKeyAbilityLabel}})</span>
+        </div>
+        <div class="bi-form-row">
+            <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page9.StatFreeBoosts"}}</span>
+            <span class="bi-form-row__lead"></span>
+            <span class="bi-form-row__value">{{#each freeBoostLabels}}{{#unless @first}}, {{/unless}}{{this}}{{/each}}</span>
+        </div>
+
+        {{#if banalAnswers.length}}
+        <h2>{{localize "BLANKINHERITANCE.Induction.Page9.SectionTexture"}}</h2>
+        {{#each banalAnswers}}
+        <p class="bi-induction__review-qa"><em>{{this.prompt}}</em> — {{this.answer}}</p>
+        {{/each}}
+        {{/if}}
+
+        {{#if questionAnswers.length}}
+        <h2>{{localize "BLANKINHERITANCE.Induction.Page9.SectionQuestions"}}</h2>
+        {{#each questionAnswers}}
+        <p class="bi-induction__review-qa"><em>{{this.prompt}}</em> — {{this.answer}}</p>
+        {{/each}}
+        {{/if}}
+
+        <p class="bi-prompt-field__optional-note">{{localize "BLANKINHERITANCE.Induction.Page9.ConfirmNote"}}</p>
+        {{/if}}
+
+        <div class="bi-induction__actions bi-induction__actions--split">
+            <button type="button" class="bi-induction__back" data-action="backFromReview" {{#if confirming}}disabled{{/if}}>{{localize "BLANKINHERITANCE.Induction.Page9.Back"}}</button>
+            {{#unless createdActorId}}
+            <button type="button" class="bi-induction__begin" data-action="confirmCharacter" {{#unless isComplete}}disabled{{/unless}} {{#if confirming}}disabled{{/if}}>
+                {{#if confirming}}{{localize "BLANKINHERITANCE.Induction.Page9.Confirming"}}{{else}}{{localize "BLANKINHERITANCE.Induction.Page9.Confirm"}}{{/if}}
+            </button>
+            {{/unless}}
+        </div>
+    </div>
+</section>

@@ -1,0 +1,57 @@
+{{!--
+    One person the GM might have to be.
+
+    Ordered the way it is actually needed at the table: what they WANT first,
+    because that is the field that decides what they do when the players go
+    somewhere the script never anticipated. Topics second. Sample lines last,
+    where the eye can find them without reading past them every time.
+--}}
+<article class="bi-runner__person{{#if walkOn}} bi-runner__person--walkon{{/if}}">
+    <h4 class="bi-runner__person-name">{{displayName}}</h4>
+    {{#if role}}<p class="bi-runner__person-role">{{role}}</p>{{/if}}
+
+    {{#if brief.wants}}<p class="bi-runner__wants">{{brief.wants}}</p>{{/if}}
+
+    {{#if brief.opensWith}}
+    <ul class="bi-runner__topics">
+        <li class="bi-runner__topic"><b>{{localize "BLANKINHERITANCE.Runner.Opens"}}</b> {{brief.opensWith}}</li>
+    </ul>
+    {{/if}}
+
+    {{#if brief.willDiscuss.length}}
+    <p class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Will"}}</p>
+    <ul class="bi-runner__topics">
+        {{#each brief.willDiscuss}}
+        <li class="bi-runner__topic"><b>{{topic}}</b>{{#if note}} — <i>{{note}}</i>{{/if}}</li>
+        {{/each}}
+    </ul>
+    {{/if}}
+
+    {{#if brief.willNotDiscuss.length}}
+    <p class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.WillNot"}}</p>
+    <ul class="bi-runner__topics">
+        {{#each brief.willNotDiscuss}}
+        <li class="bi-runner__topic bi-runner__topic--refused"><b>{{topic}}</b>{{#if why}} — <i>{{why}}</i>{{/if}}</li>
+        {{/each}}
+    </ul>
+    {{/if}}
+
+    {{#if brief.coercible.length}}
+    <p class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Coercible"}}</p>
+    <ul class="bi-runner__topics">
+        {{#each brief.coercible}}
+        <li class="bi-runner__topic"><b>{{topic}}</b>{{#if how}} — <i>{{how}}</i>{{/if}}</li>
+        {{/each}}
+    </ul>
+    {{/if}}
+
+    {{#if brief.voice.register}}<p class="bi-runner__note">{{brief.voice.register}}</p>{{/if}}
+
+    {{#if brief.voice.samples.length}}
+    <div class="bi-runner__samples">
+        {{#each brief.voice.samples}}
+        <p class="bi-runner__sample">{{this}}</p>
+        {{/each}}
+    </div>
+    {{/if}}
+</article>

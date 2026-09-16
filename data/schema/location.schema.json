@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "location.schema.json",
+  "title": "Location",
+  "description": "A place on the campaign map: a district, a building or block, or a pinned point. One file per location in data/locations/. Produced by promoting a tools/gazetteer drawing-session item once its lore has been written together, not authored from scratch -- see tools/gazetteer/core/location.py's promote(). geometry.rings is canonical (lon/lat, WGS84); everything under `derived` is recomputed from it by tools/gazetteer/derive.mjs and must never be hand-edited. `realWorld` is research about the real Kobe geography this map was drawn from -- material for writing a convincing place, never itself canon, and no string from it may appear verbatim in `lore`.",
+  "type": "object",
+  "required": ["$schema", "id", "type", "tier", "geometry", "derived", "authoring"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string" },
+    "type": { "const": "location" },
+
+    "tier": {
+      "enum": ["region", "site", "point"],
+      "description": "region: a district -- regions tessellate, and the goal is the whole map broken into them. site: a building, complex or block inside a region. point: a pin with a story and no footprint."
+    },
+
+    "name": { "type": ["string", "null"] },
+    "nameJa": { "type": ["string", "null"] },
+    "namingPlaceholderRef": { "type": ["string", "null"] },
+
+    "kind": {
+      "type": "string",
+      "description": "A short, blunt classifier for sorting and map colour -- district / quarter / waterfront / industrial / residential / civic / commercial / transport / military / green / water / landmark / ruin / infrastructure / other, or blank. Not the terrain system; finer character belongs in lore.summary, where it can be prose."
+    },
+
+    "tags": {
+      "type": "array",
+      "description": "Freeform structural markers, same convention as a gazetteer session item's own `tags`. Notably 'underground': tools/gazetteer/coverage.py excludes a region carrying it from the surface-tessellation and overlap checks, since it occupies the same footprint as whatever district sits above it -- a real Z-axis stack the tessellation has no way to represent in two dimensions, not an overlap to report.",
+      "items": { "type": "string" }
+    },
+
+    "rank": {
+      "type": ["integer", "null"],
+      "minimum": 1,
+      "maximum": 5,
+      "description": "How much this place matters to the plot, 1 being the most important (Central Fortification is rank 1). A SEPARATE axis from `depth`, though informed by it: `depth` is how much has been written, `rank` is how much process the place earns -- how many passes of writing and revision before it counts as finished, and how hard Claude must check narrative decisions with Ingram before committing them rather than deciding alone. The two can legitimately disagree: somewhere seen once but pivotal is rank 1 at depth sketch; somewhere returned to constantly but incidental is rank 4 at depth standing. Null means not yet ranked. Rungs: 1 pivotal (the campaign turns on it) / 2 major (a named, recurring place with real consequence) / 3 supporting (a scene happens here) / 4 colour (texture, walked past) / 5 background (exists for the map to be complete). See design/location-rank.md for what each rung obliges.",
+      "default": null
+    },
+
+    "classification": {
+      "type": ["string", "null"],
+      "enum": ["public", "internal", "secret", "classified", "top-secret", "omega-zero", null],
+      "description": "Whether this place's own EXISTENCE and purpose are secret -- a different axis from design/strategy-layer.md's Clearance rungs, which gate how far a party that already knows a place exists may go INSIDE it once they're there. Null (the default, and correct for almost everything) means undeclared -- most locations have nothing to say here and showing up on an ordinary map is the whole point of them. The first five tiers are the same real Japanese document-classification ladder already used for text (ideas/entries/redacted-document-chain.json: 公開/部外秘/秘/機密/極秘 -- public/internal/secret/classified/top-secret) generalised from documents to places. 'omega-zero' sits above that ladder rather than extending it: a vanishingly rare tier for the handful of sites (The Rock is the first) whose existence is unknown even to most Directorate staff, not merely restricted. See design/strategy-layer.md's Site Classification section."
+    },
+
+    "depth": {
+      "enum": ["named", "sketch", "scene", "standing"],
+      "default": "named",
+      "description": "How developed this location is supposed to be, and therefore what it owes -- see design/location-depth.md, enforced by tools/gazetteer/core/depth.py. named: a purpose in one line, the bulk tier. sketch: a few paragraphs, enough for a brief moment in passing. scene: enough to run a full scene with the group, and the first depth that earns its own artwork, playlist and a named NPC. standing: returned to across the campaign, carrying history and consequence. DECLARED by hand, never inferred from how much text exists -- declaring it first makes it a commission rather than a description. Independent of `tier`, which is geometric scale: a region can be depth named and a point can be depth standing."
+    },
+
+    "geometry": {
+      "type": "object",
+      "description": "Canonical. lon/lat (WGS84), never image pixels or map-frame metres -- design/map-generation.md: the frame's centre, rotation and extent have all changed before, and pixel coordinates would silently detach a location from its place the next time they do.",
+      "required": ["rings"],
+      "additionalProperties": false,
+      "properties": {
+        "rings": {
+          "type": "array",
+          "description": "One or more closed rings in GeoJSON Polygon order: the first ring is the shell, every ring after it is a hole punched in that shell -- never a second disjoint part. A site tier normally has exactly one (no holes); a region gains a second ring when another region's territory sits entirely inside it (The Open Sea holds The River Island this way). Each ring is [lon, lat] pairs. Consumed in this order by coverage.py's _to_polygon and built in this order by core/location.py's build_location.",
+          "minItems": 1,
+          "items": {
+            "type": "array",
+            "minItems": 3,
+            "items": {
+              "type": "array",
+              "items": { "type": "number" },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          }
+        },
+        "point": {
+          "type": ["array", "null"],
+          "description": "For tier 'point' only: [lon, lat]. Null for region/site.",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+
+    "pinAnchor": {
+      "type": ["array", "null"],
+      "description": "[lon, lat] -- where a Foundry map pin should actually sit. Null defaults to the area centroid, which lands badly on an L-shaped or annular footprint (a courtyard, a dock basin); set this explicitly once that matters.",
+      "items": { "type": "number" },
+      "minItems": 2,
+      "maxItems": 2
+    },
+
+    "derived": {
+      "type": "object",
+      "description": "Everything computable from geometry, recomputed on every promotion/re-derive and never hand-edited. Present so the file is readable and queryable without running the tool.",
+      "additionalProperties": false,
+      "properties": {
+        "imagePx": { "description": "geometry.rings reprojected to campaign-map image pixels, same shape as geometry.rings.", "type": "array" },
+        "centroidPx": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+        "cells": { "type": "array", "items": { "type": "string" }, "description": "Every grid reference the shape touches -- tools/gazetteer/core/grid.py's cell_coverage, area-exact." },
+        "ref": { "type": ["string", "null"], "description": "The single reference to say aloud -- the cell the centroid falls in." },
+        "areaM2": { "type": ["number", "null"] },
+        "withinRegionRef": {
+          "type": ["string", "null"],
+          "description": "For a site or point: the region id whose area covers this location's centroid, by majority if more than one candidate region overlaps. Null if no region has been drawn over this ground yet, or for a region itself."
+        },
+        "containsRefs": {
+          "type": "array",
+          "description": "For a region: site/point location ids whose centroid falls inside it. Always empty for a site or point.",
+          "items": { "type": "string" }
+        },
+        "neighbourRefs": {
+          "type": "array",
+          "description": "For a region: other region ids sharing a boundary. tools/gazetteer/core/containment.py computes this correctly for draft items (it's what drives the drawing UI's tree and handoff views), but the promotion path does not yet carry it onto the promoted document -- build_location() still hardcodes this to empty, same shape as the scene/cross-ref gap that promotion once had, just not closed yet. A region tagged 'underground' (see top-level `tags`) legitimately has none either way: it sits entirely inside another region's footprint rather than bordering it.",
+          "items": { "type": "string" }
+        },
+        "sourceSession": { "type": ["string", "null"], "description": "The gazetteer draft this was promoted from, for provenance." },
+        "sourceLocalId": { "type": ["string", "null"], "description": "The item's localId within that session." },
+        "promotedDate": { "type": ["string", "null"], "format": "date" }
+      }
+    },
+
+    "authoring": {
+      "type": "object",
+      "required": ["note", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "note": {
+          "type": "string",
+          "description": "The human's rough note from the drawing session, carried over verbatim. Never rewritten -- corrections append, they do not overwrite. This is the brief the lore below was written from."
+        },
+        "status": {
+          "enum": ["needs-lore", "drafted", "approved"],
+          "description": "needs-lore: promoted with a note but no written lore yet. drafted: lore written, not yet reviewed together. approved: signed off."
+        }
+      }
+    },
+
+    "lore": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "summary": { "type": "string", "description": "A GM-facing paragraph: what this place is, in plain instructional sentences (see design/prose-craft-and-naming.md §1, the two registers)." },
+        "playerFacing": { "type": "string", "description": "What a player would see/hear on arrival, or an Encyclopaedia-check reveal. Law 11: only what has actually been learned." },
+        "gmOnly": { "type": "string", "description": "Anything hidden -- a Fact per design/npc-social-intel.md's pattern, a hook, a hazard." }
+      }
+    },
+
+    "scene": {
+      "type": "object",
+      "description": "What makes this place playable rather than merely described. Required in increasing amounts from depth 'sketch' upward -- see design/location-depth.md's requirements table. Absent or empty for a depth-'named' location, which is correct: a warehouse with a listed set of activities has been mis-declared.",
+      "additionalProperties": false,
+      "properties": {
+        "hooks": {
+          "type": "array",
+          "description": "Reasons to be here, or things that could happen. One is enough from 'sketch' up.",
+          "items": { "type": "string" }
+        },
+        "activities": {
+          "type": "array",
+          "description": "What the group can actually DO here, as opposed to look at. A location that cannot answer this is a sketch with ambitions, not a scene.",
+          "items": { "type": "string" }
+        },
+        "history": {
+          "type": "string",
+          "description": "Depth 'standing' only: what happened here before the campaign, and what has happened here during it. Grows in play -- this is what makes a returning group feel continuity rather than repetition."
+        },
+        "consequences": {
+          "type": "string",
+          "description": "Depth 'standing' only: how this place changes based on what the players did. A standing location identical on the fifth visit is a backdrop, not a location."
+        }
+      }
+    },
+
+    "playlistRefs": {
+      "type": "array",
+      "description": "Music/ambience playlists belonging to this location, so arriving somewhere sounds like arriving somewhere, and sounds the same on the fifth visit as the first. Required from depth 'scene' up. Ids into data/campaign/asset-registry.json, same as assetRefs.",
+      "items": { "type": "string" }
+    },
+
+    "realWorld": {
+      "type": "object",
+      "description": "Research about the real Kobe geography under this shape -- from tools/gazetteer/enrich.py querying data/map/kurose.gpkg. Never canon. No string here may appear verbatim in `lore`.",
+      "additionalProperties": true,
+      "properties": {
+        "character": { "type": "string" },
+        "dominantLanduse": { "type": ["string", "null"] },
+        "buildingCount": { "type": ["integer", "null"] },
+        "realNames": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "factionRefs": { "type": "array", "items": { "type": "string" } },
+    "npcRefs": { "type": "array", "items": { "type": "string" } },
+    "episodeRefs": { "type": "array", "items": { "type": "string" } },
+    "openQuestionRefs": { "type": "array", "items": { "type": "string" } },
+    "bibleRef": { "type": ["string", "null"], "description": "ideas/story/bible/locations/<name>.md, for a place that recurs or carries weight." },
+    "assetRefs": { "type": "array", "items": { "type": "string" }, "description": "data/campaign/asset-registry.json entry ids." }
+  }
+}

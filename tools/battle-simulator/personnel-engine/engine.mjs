@@ -25,21 +25,23 @@
  *  - scriptedEvents: nothing in the current plan (a straight fight, no narrative triggers) needs
  *    a round-keyed event hook; adding one now would be exactly the kind of speculative surface
  *    area the project's own conventions warn against.
- *  - checkReactionTriggers (the Claimant's Claim): hardcoded to a Large+ size trigger and "the
- *    reactor's one and only reaction" — real, but Claimant-specific machinery, not a generic
- *    SF2E reaction-trigger system. A living NPC's real reaction (e.g. Security Goon's own, per
- *    the raw pack data) has its own real trigger condition that isn't yet extracted or read — see
- *    design doc §19 Phase 2. Reactions stay VISIBLE on the roster (real authored data, for
- *    transcript honesty) but are not fired by anything in this file. Wiring a real trigger
- *    condition in without having read the real ability text yet would be inventing behavior this
- *    project's own conventions explicitly rule out. Revisit once Phase 2 extraction is done.
+ *  - checkReactionTriggers (the Claimant's Claim): Claimant-specific machinery (a hardcoded Large+
+ *    size trigger, checked only at a mover's FINAL destination), not ported here. GH #18 instead
+ *    builds a real, generic Reactive Strike directly into the "move" branch below: gated on the
+ *    combatant's own authored `reactions[]` (never inferred from size or a melee weapon alone —
+ *    matching GM Core's own "not every creature has this" text), firing per-SQUARE as one is left,
+ *    not just at the destination. Security Goon's "Get Back!" and Erabryth's "Reflect Aggression"
+ *    are real but structurally different trigger shapes (ally-targeted redirect; on-hit retaliation)
+ *    — still not fired by anything in this file; a real, separate extension, not silently assumed
+ *    covered by the move-triggered case GH #18 actually built.
  *
- * A direct, unavoidable consequence of dropping reactions: nothing in this file can ever reduce a
- * combatant's own HP DURING its own turn (only an opposing turn's Strike/spellAttack can, and that
- * always resolves on the attacker's turn against a different combatant, never the acting one). The
- * "re-derive effective stats every loop iteration, hard-stop if disabled" safety net is kept
- * anyway — it's the same real invariant the Frame-scale file protects, essentially free to keep
- * here, and exactly right if a future reaction or hazard effect ever does need it.
+ * The "re-derive effective stats every loop iteration, hard-stop if disabled" safety net
+ * (runTurn's own `while (true)` loop, below) is exactly what makes GH #18 safe with zero special-
+ * casing: a Reactive Strike fired mid-move (the first thing in this file that CAN reduce the acting
+ * combatant's own HP during its own turn) that drops the mover to 0 HP is caught on the very next
+ * loop iteration, ending the turn and reconciling the action ledger correctly — the same real
+ * invariant the Frame-scale file already protects, kept here from the start "exactly right if a
+ * future reaction... effect ever does need it," which this is.
  *
  * Reused directly, unmodified: ../engine/resolve.mjs (dice/degree-of-success/damage math) and
  * ../engine/rng.mjs (the seeded PRNG) — both verified scale-agnostic during planning, same
@@ -115,9 +117,9 @@ import {
   checkMoveLegality, checkStepLegality, checkStrikeLegal, checkSpellAttackLegal, checkHealAbilityLegal,
   checkSaveAttackLegal, checkDemoralizeLegal, checkConditionSaveLegal, checkAreaAttackLegal,
   checkTripLegal, checkShoveLegal, checkGrappleLegal, checkEscapeLegal, checkStandLegal, checkCrawlLegal,
-  multipleAttackPenalty, rangeIncrementPenalty
+  multipleAttackPenalty, rangeIncrementPenalty, spendUse
 } from "./legality.mjs";
-import { resolveStrike, mitigateDamage, expectedStrikeDamage, resolveSave, basicSaveDamage, expectedSaveDamage, degreeProbabilities, degreeOfSuccess, averageDamage } from "../engine/resolve.mjs";
+import { resolveStrike, mitigateDamage, expectedStrikeDamage, resolveSave, basicSaveDamage, expectedSaveDamage, degreeProbabilities, degreeOfSuccess, averageDamage, averageFormula } from "../engine/resolve.mjs";
 import { distanceFeet, isInBounds, isOccupied, FEET_PER_SQUARE } from "./grid.mjs";
 import { hasCover, STANDARD_COVER_AC_BONUS, moveBlockedBetween } from "./terrain.mjs";
 import {
@@ -125,13 +127,14 @@ import {
   applyKnockout, worsenDyingFromDamage, resolveRecoveryCheck, applyRevival,
   applyGrapple, releaseGrapple, releaseGrapplesHeldBy, usesDyingRules
 } from "./conditions.mjs";
-import { isFlanking } from "./flanking.mjs";
+import { isFlanking, hasReactiveStrike, threatensSquare, longestMeleeStrike } from "./flanking.mjs";
+import { isHostileTo, isAlliedWith } from "./factions.mjs";
 
 /** Off-Guard's -2 to AC (condition-28-off-guard.json) — the melee-flanking-scoped bonus applied
  * per-attack, alongside the persistent (Prone/Unconscious) one resolveEffectiveStats already folds
  * into the target's base AC. Never double-counted: this only adds the flanking-specific -2 on top
  * when it ISN'T already covered by a persistent off-guard the target has for some other reason. */
-const OFF_GUARD_AC_PENALTY = 2;
+export const OFF_GUARD_AC_PENALTY = 2;
 
 /**
  * OUTCOME TABLES (design doc §15f) — the ONE seam where a real battle and a lookahead sandbox
@@ -297,6 +300,17 @@ const REAL_OUTCOMES = {
     const degree = degreeOfSuccess(d20, total, dc);
     const freed = degree === "criticalSuccess" || degree === "success";
     return { roll: { d20, modifier, total, dc, degree }, freed };
+  },
+  /**
+   * GH #60 — Heal's own real 1d8/1d8+8 dice roll. Branches on `healingFormula` so every EXISTING
+   * flat-`healingAmount` heal ability (Transfer Vitality, Field Repair Kit) is completely untouched —
+   * an earlier draft called rollFormula unconditionally, which would have thrown on the very first
+   * cast of any flat-amount ability (rollFormula(rng, undefined) reads undefined.trim()).
+   */
+  healAbility(rng, { ability }) {
+    if (ability.healingFormula == null) return { healingAmount: ability.healingAmount ?? 0 };
+    const { total } = rollFormula(rng, ability.healingFormula);
+    return { roll: { healingFormula: ability.healingFormula, total }, healingAmount: total };
   }
 };
 
@@ -430,6 +444,13 @@ const EXPECTED_OUTCOMES = {
     const mostLikely = Object.entries(probs).sort((a, b) => b[1] - a[1])[0][0];
     const freed = mostLikely === "criticalSuccess" || mostLikely === "success";
     return { roll: { expected: true, d20: null, modifier, total: null, dc, degree: mostLikely }, freed };
+  },
+  /** Deterministic twin of REAL_OUTCOMES.healAbility — same flat-amount branch, no averaging needed
+   * there since a flat amount has no variance to average over. */
+  healAbility(_rng, { ability }) {
+    if (ability.healingFormula == null) return { healingAmount: ability.healingAmount ?? 0 };
+    const expected = averageFormula(ability.healingFormula);
+    return { roll: { expected: true, healingFormula: ability.healingFormula, total: expected }, healingAmount: expected };
   }
 };
 
@@ -474,7 +495,13 @@ export function runBattle(scenario) {
     // this, so belief.mjs's own refreshBelief starts empty instead — see that file's own comment.
     blindDeployment: scenario.blindDeployment,
     combatants: new Map(scenario.combatants.map((c) => [c.id, structuredClone(c)])),
-    positions: new Map(scenario.combatants.map((c) => [c.id, { ...c.position }]))
+    positions: new Map(scenario.combatants.map((c) => [c.id, { ...c.position }])),
+    // GH #18 — 1 reaction per round (Player Core pg. 406-407), regained at the start of each of a
+    // combatant's own turns. Batch-reset once at round start (below) rather than individually per
+    // turn: genuinely equivalent under this engine's simple single-pass-per-round initiative model
+    // (every combatant acts exactly once per round, in a fixed order), and the same pattern the
+    // Frame-scale sibling already uses (engine/engine.mjs).
+    reactionAvailable: new Map(scenario.combatants.map((c) => [c.id, true]))
   };
   const { order: initiativeOrder, rolls: initiativeRolls } = rollInitiative(rng, scenario.combatants);
   state.initiativeOrder = initiativeOrder;
@@ -492,12 +519,14 @@ export function runBattle(scenario) {
         initiativeModifier: c.initiativeModifier ?? 0,
         ac: c.ac, hardness: c.hardness ?? 0,
         saves: c.saves, speed: c.speed, strikes: c.strikes ?? [],
-        // Real authored data, shown for transcript honesty — NOT fired by anything in this file.
-        // See this file's own header for why reactions are deliberately not wired up in Phase 1.
+        // Real authored data, shown for transcript honesty. GH #18 wires a real, generic Reactive
+        // Strike for any reaction named exactly "Reactive Strike" (see this file's own header) — any
+        // OTHER authored reaction (Security Goon's "Get Back!", etc.) is still real but unwired.
         reactions: c.reactions ?? [],
         spells: c.spells ?? [], healAbilities: c.healAbilities ?? [],
         saveAttacks: c.saveAttacks ?? [], conditionSaves: c.conditionSaves ?? [], areaAttacks: c.areaAttacks ?? [], intimidationModifier: c.intimidationModifier ?? null,
-        heroPoints: c.heroPoints ?? null // design doc §42 — real, shown for transcript honesty; null (not 0) for anyone this rule doesn't apply to at all (every NPC)
+        heroPoints: c.heroPoints ?? null, // design doc §42 — real, shown for transcript honesty; null (not 0) for anyone this rule doesn't apply to at all (every NPC)
+        spellSlots: c.spellSlots ?? null // GH #60 — same transcript-honesty treatment as heroPoints, the one other combatant-level (not per-ability) resource
       }];
     })
   );
@@ -521,6 +550,8 @@ export function runBattle(scenario) {
     // `undefined`, so this is a pure addition with zero behavior change for anyone not using it.
     scenario.onRoundStart?.(round, scenario.roundLimit);
     const roundLog = { round, turns: [] };
+
+    for (const id of state.reactionAvailable.keys()) state.reactionAvailable.set(id, true);
 
     for (const combatantId of initiativeOrder) {
       const combatant = state.combatants.get(combatantId);
@@ -646,6 +677,16 @@ export function accountForActions({ available, spent, heldReason }) {
  * action to the next within a turn lives here and nowhere else: the action budget, movement
  * spent, and the shared multiple-attack-penalty counter. `{ ...turnProgress }` is a complete fork
  * by construction — this is what makes the lookahead sandbox's forking cheap and safe.
+ *
+ * `destCache` (GH #62, design doc §76.4 fix 2) is deliberately an OBJECT wrapping a Map, not a bare
+ * Map or a bare field: `{ ...turnProgress }` (below, and at every call site that spreads turn
+ * progress into a copy) copies the REFERENCE to this one container across every one of a turn's real
+ * decide() calls, so `decide.mjs`'s `planTurn` can mutate `.map`/`.fingerprint` on the SAME shared
+ * object every time — a bare string field would NOT survive this copy the same way (verified the hard
+ * way: an earlier draft of this fix stored the fingerprint directly on `turnProgress` and it silently
+ * never worked, since every `{...turnProgress}` copy left the ORIGINAL untouched). `planTurn` owns
+ * everything about how this cache is used/invalidated; this file only ever constructs the empty
+ * container once per real turn and lets the reference ride along.
  */
 function makeTurnProgress(startEffective) {
   return {
@@ -653,7 +694,8 @@ function makeTurnProgress(startEffective) {
     actionsUsed: 0,
     feetMoved: 0,
     strikesAttempted: 0,
-    decisionIndex: 0 // monotonic per turn; seeds the AI's own per-decision RNG (§15f)
+    decisionIndex: 0, // monotonic per turn; seeds the AI's own per-decision RNG (§15f)
+    destCache: { map: new Map(), fingerprint: null }
   };
 }
 
@@ -809,7 +851,7 @@ function livingPositions(state) {
 /** Every OTHER living, same-side combatant — flanking.mjs's own candidate pool for "who could be
  * flanking alongside me". An unconscious ally (currentHP<=0) can't act and can't attack, so can't
  * help flank either — excluded the same way livingPositions already excludes anyone down. */
-function alliesWithPositions(state, combatant) {
+export function alliesWithPositions(state, combatant) {
   return [...state.combatants.values()]
     .filter((c) => c.id !== combatant.id && c.side === combatant.side && c.currentHP > 0)
     .map((c) => ({ id: c.id, pos: state.positions.get(c.id), combatant: c }));
@@ -838,6 +880,66 @@ function pushDestination(attackerPos, targetPos, squares, gridSize, otherPositio
   return cur;
 }
 
+/**
+ * The shared resolution core behind a melee Strike (GH #18) — extracted so a Reactive Strike (fired
+ * from `attemptAction`'s own "move" branch, below) and a proactive one (the "strike" branch,
+ * further below) share ONE implementation rather than drifting apart, exactly the "six parallel
+ * pipelines" anti-pattern GH #69's own investigation already diagnosed and warned against in this
+ * codebase. Takes an already-composed `mapPenalty` and an optional `rangePenalty` (default 0,
+ * correct for a Reactive Strike — it's inherently melee, no range increment applies) — composing
+ * MAP/range/condition into that single number is each CALLER's own concern, not this function's.
+ */
+function resolveMeleeStrikeAgainst({ state, rng, outcomes, attacker, attackerPos, target, targetPos, strike, mapPenalty, rangePenalty = 0 }) {
+  const coverBonus = hasCover(attackerPos, targetPos, state.walls) ? STANDARD_COVER_AC_BONUS : 0;
+  // Flanking (design doc §25) is melee-only, and off-guard is never double-counted: if the target
+  // already has a PERSISTENT off-guard (prone/unconscious, already folded into baseEffective.ac by
+  // resolveEffectiveStats), flanking adds nothing further — same target, same -2, one source is enough.
+  const flankBonus = (strike.strikeType === "melee" && !isOffGuardFromConditions(target)
+    && isFlanking(attacker, attackerPos, target, targetPos, alliesWithPositions(state, attacker), state.walls))
+    ? OFF_GUARD_AC_PENALTY : 0;
+  const baseEffective = resolveEffectiveStats(target);
+  // ONE signed delta, deliberately — see the "strike" branch's own identical comment for why.
+  const acDelta = coverBonus - flankBonus;
+  const targetEffective = acDelta ? { ...baseEffective, ac: baseEffective.ac + acDelta } : baseEffective;
+
+  const hpBefore = target.currentHP;
+  const { roll, appliedDamage } = outcomes.strike(rng, {
+    attacker, strike, target, targetEffective, mapPenalty: mapPenalty + rangePenalty
+  });
+  roll.rangePenalty = rangePenalty;
+  applyDyingTransition({ target, hpBefore, appliedDamage, critical: roll.degree === "criticalSuccess", allCombatants: state.combatants.values() });
+
+  // Limited-use abilities: decrement on a successful fire — the caller's own legality/threat gate
+  // already refused this if usesRemaining was already 0.
+  if (strike.usesRemaining != null) strike.usesRemaining -= 1;
+
+  return {
+    roll, hardnessApplied: targetEffective.hardness, coverBonus, flankBonus,
+    damageApplied: appliedDamage, targetHPAfter: target.currentHP, ...targetConditionAfter(target),
+    usesRemaining: strike.usesRemaining ?? null
+  };
+}
+
+/** Cheap short-circuit (GH #18): is there ANY living, hostile, reaction-available Reactive-Strike
+ * holder anywhere on the field? Checked ONCE per move resolution, before ever walking the path —
+ * O(combatants), not O(path × combatants). Given only a small minority of real fixtures carry
+ * Reactive Strike, this keeps every untouched scenario/test/MCTS-search-node-expansion (a genuinely
+ * hot path — design doc §76.4, GH #62) at its current cost, unchanged. */
+function anyLivingReactiveStrikeHolder(state, mover) {
+  for (const c of state.combatants.values()) {
+    if (c.id === mover.id) continue;
+    if (isDead(c) || isUnconscious(c)) continue;
+    // `?? true`: a state object built by hand (bypassing runBattle's own constructor — several
+    // search/test fixtures do this) may never have a `reactionAvailable` map at all; treat that as
+    // "not tracked, so not yet spent" rather than crashing, matching this codebase's own established
+    // "optional field, sensible default" idiom used everywhere else (c.hardness ?? 0, c.strikes ?? []).
+    if (!(state.reactionAvailable?.get(c.id) ?? true)) continue;
+    if (!isHostileTo(c, mover)) continue;
+    if (hasReactiveStrike(c)) return true;
+  }
+  return false;
+}
+
 /** The ONLY function in this codebase permitted to mutate combatant position/HP/flags. */
 function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLog, effective, outcomes = REAL_OUTCOMES }) {
   const combatant = state.combatants.get(combatantId);
@@ -855,8 +957,58 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     });
     if (!check.legal) return { type: "move", to, legal: false, reason: check.reason };
 
-    const stepDistance = distanceFeet(pos, to);
-    state.positions.set(combatantId, { ...to });
+    // GH #18 (Reactive Strike, gamesystems/sf2e/lang/en.json's real, cited text): walk the real
+    // path square-by-square, firing any hostile, reaction-available Reactive-Strike holder who
+    // threatens a square AS IT'S LEFT — not just at the final destination (the one real difference
+    // from the Frame-scale sibling's own destination-only checkReactionTriggers). `path`, when
+    // present, already includes the origin cell (see this branch's own final comment below); a null
+    // path (a wall-less scenario's straight-line fallback) still needs the one real [from,to] hop.
+    // Cheap short-circuit first (Decision 4): only walk the path at all if a real, live, hostile,
+    // Reactive-Strike-capable reactor exists anywhere on the field — every scenario/test/MCTS-search
+    // node without one pays nothing extra.
+    const fullPath = path ?? [pos, to];
+    const reactions = [];
+    let stoppedAt = null, stoppedIndex = null;
+    if (anyLivingReactiveStrikeHolder(state, combatant)) {
+      outer:
+      for (let i = 0; i < fullPath.length - 1; i++) {
+        const leaving = fullPath[i];
+        // `?? state.combatants.keys()`: a state built by hand (or via a scenario helper that never
+        // rolled initiative) may not have `initiativeOrder` set at all — Map iteration (insertion)
+        // order is still a real, deterministic, stable fallback for "who resolves first," matching
+        // the same "optional field, sensible default" idiom used throughout this file.
+        for (const reactorId of state.initiativeOrder ?? state.combatants.keys()) {
+          if (reactorId === combatantId) continue;
+          if (!(state.reactionAvailable?.get(reactorId) ?? true)) continue; // see anyLivingReactiveStrikeHolder's own comment
+          const reactor = state.combatants.get(reactorId);
+          if (!isHostileTo(reactor, combatant)) continue;
+          const reactorPos = state.positions.get(reactorId);
+          if (!threatensSquare(reactor, reactorPos, leaving, state.walls)) continue;
+
+          const strike = longestMeleeStrike(reactor); // the same weapon threatensSquare gated on
+          state.reactionAvailable?.set(reactorId, false);
+          const result = resolveMeleeStrikeAgainst({
+            state, rng, outcomes, attacker: reactor, attackerPos: reactorPos,
+            target: combatant, targetPos: leaving, strike,
+            // Flat 0 MAP/range component — real by RAW, not a simplification: a Reactive Strike
+            // "doesn't count toward... multiple attack penalty, and its multiple attack penalty
+            // doesn't apply to this Strike" (gamesystems/sf2e/lang/en.json). Condition penalty
+            // (frightened/prone of the REACTOR) still applies normally.
+            mapPenalty: attackerConditionPenalty(reactor)
+          });
+          reactions.push({ reactorId, strikeName: strike.name, ...result });
+
+          // A miss, or a non-critical hit, never stops the move (RAW scopes disruption to "a
+          // critical hit AND the trigger was a manipulate action" — never a move trigger). Only the
+          // natural consequence of the mover being incapacitated by the damage itself can.
+          if (isDead(combatant) || isUnconscious(combatant)) { stoppedAt = leaving; stoppedIndex = i; break outer; }
+        }
+      }
+    }
+
+    const finalTo = stoppedAt ?? to;
+    const stepDistance = distanceFeet(pos, finalTo);
+    state.positions.set(combatantId, { ...finalTo });
     turnProgress.feetMoved += stepDistance;
     turnProgress.actionsUsed += 1;
 
@@ -870,12 +1022,21 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     // selection, ported from §16) had legitimately routed around. `path` includes the origin cell
     // (world/pathfind.mjs's own documented shape) — null when no real path was computed at all
     // (a wall-less scenario's straight-line fallback, where [from,to] already IS the real route).
-    return { type: "move", from: { ...pos }, to: { ...to }, path: path ?? null, feet: stepDistance, legal: true, actionsCost: 1, decisionReason: proposal.reason ?? null };
+    // Truncated (GH #18) to match `finalTo` when a reaction cut the move short mid-path, rather than
+    // logging a route the mover never actually completed.
+    const loggedPath = path && stoppedIndex != null ? path.slice(0, stoppedIndex + 1) : (path ?? null);
+    return {
+      type: "move", from: { ...pos }, to: { ...finalTo }, path: loggedPath, feet: stepDistance,
+      legal: true, actionsCost: 1, reactions: reactions.length ? reactions : undefined,
+      decisionReason: proposal.reason ?? null
+    };
   }
 
   // Step (Player Core pg. 410): identical to a move in every way except it is capped at one
-  // square and never triggers a reaction — no different from "move" here since this file doesn't
-  // fire reactions from either action type (see header).
+  // square and never triggers a reaction (GH #18) — real, textually confirmed RAW ("Unlike most
+  // types of movement, Stepping doesn't trigger reactions, such as Reactive Strike"), not an
+  // oversight: this branch deliberately never walks a path/checks threatened squares the way
+  // "move" now does.
   if (proposal.type === "step") {
     const { path: _stepPath, ...to } = proposal.to;
     const check = checkStepLegality({
@@ -912,35 +1073,16 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     const mapPenalty = multipleAttackPenalty(turnProgress.strikesAttempted, (strike.traits ?? []).includes("agile"));
     const rangePenalty = rangeIncrementPenalty(strike, distanceFeet(pos, targetPos));
     const conditionPenalty = attackerConditionPenalty(combatant); // design doc §25: frightened + prone, replaces the old frightened-only inline snippet
-    const coverBonus = hasCover(pos, targetPos, state.walls) ? STANDARD_COVER_AC_BONUS : 0;
-    // Flanking (design doc §25) is melee-only, and off-guard is never double-counted: if the
-    // target already has a PERSISTENT off-guard (prone/unconscious, already folded into
-    // baseEffective.ac by resolveEffectiveStats), flanking adds nothing further — same target,
-    // same -2, one source is enough.
-    const flankBonus = (strike.strikeType === "melee" && !isOffGuardFromConditions(target)
-      && isFlanking(combatant, pos, target, targetPos, alliesWithPositions(state, combatant), state.walls))
-      ? OFF_GUARD_AC_PENALTY : 0;
-    const baseEffective = resolveEffectiveStats(target);
-    const acBonus = coverBonus + flankBonus;
-    const targetEffective = acBonus ? { ...baseEffective, ac: baseEffective.ac + acBonus } : baseEffective;
 
-    const hpBefore = target.currentHP;
-    const { roll: strikeResult, appliedDamage } = outcomes.strike(rng, {
-      attacker: combatant, strike, target, targetEffective, mapPenalty: mapPenalty + rangePenalty + conditionPenalty
+    const result = resolveMeleeStrikeAgainst({
+      state, rng, outcomes, attacker: combatant, attackerPos: pos, target, targetPos, strike,
+      mapPenalty: mapPenalty + conditionPenalty, rangePenalty
     });
-    strikeResult.rangePenalty = rangePenalty;
-    applyDyingTransition({ target, hpBefore, appliedDamage, critical: strikeResult.degree === "criticalSuccess", allCombatants: state.combatants.values() });
     turnProgress.actionsUsed += 1;
-
-    // Limited-use abilities (e.g. a strike granted by a consumable): decrement on a successful
-    // fire — checkStrikeLegal already refused this proposal if usesRemaining was already 0.
-    if (strike.usesRemaining != null) strike.usesRemaining -= 1;
 
     return {
       type: "strike", strikeName: strike.name, targetId: proposal.targetId, legal: true, actionsCost: 1,
-      roll: strikeResult, hardnessApplied: targetEffective.hardness, coverBonus, flankBonus,
-      damageApplied: appliedDamage, targetHPAfter: target.currentHP, ...targetConditionAfter(target),
-      usesRemaining: strike.usesRemaining ?? null, decisionReason: proposal.reason ?? null
+      decisionReason: proposal.reason ?? null, ...result
     };
   }
 
@@ -992,10 +1134,50 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     const ability = (combatant.healAbilities ?? [])[proposal.abilityIndex ?? 0];
     if (!ability) return { type: "healAbility", targetId: proposal.targetId, legal: false, reason: `No heal ability at index ${proposal.abilityIndex ?? 0} — ${combatant.name} has ${(combatant.healAbilities ?? []).length}.` };
 
+    // GH #60 Part 1b — a self-centered emanation (Heal's own 3-action variant): every living ally
+    // within radius, centered on the caster's OWN current square, always. A real, separate resolution
+    // shape from the single-target code below — never falls through into it (every exit here returns).
+    if (ability.areaOrigin === "self") {
+      const affectedIds = [...state.combatants.keys()].filter((id) => {
+        const c = state.combatants.get(id);
+        if (isDead(c)) return false;
+        if (!isAlliedWith(combatant, c)) return false; // living-target, allies-only scope (Part 1c defers vs.-undead) — isAlliedWith, not raw `side`, so a neutral in the blast still counts
+        const cPos = state.positions.get(id);
+        return cPos && distanceFeet(cPos, pos) <= ability.radius;
+      });
+      const anyTargetBelowFull = affectedIds.some((id) => {
+        const c = state.combatants.get(id);
+        return c.currentHP < c.maxHP;
+      });
+      const areaCheck = checkHealAbilityLegal({ healer: combatant, healerPos: pos, ability, turnState: turnProgress, anyTargetBelowFull });
+      if (!areaCheck.legal) return { type: "healAbility", targetId: null, areaOrigin: "self", legal: false, reason: areaCheck.reason };
+
+      // ONE real roll for the whole burst, applied per-target with per-target capping — matching
+      // outcomes.areaAttack's own real precedent (rolled once, applied per affected creature), NOT one
+      // independent roll per target.
+      const { healingAmount } = outcomes.healAbility(rng, { ability });
+      const affected = affectedIds.map((id) => {
+        const target = state.combatants.get(id);
+        const hpBefore = target.currentHP;
+        const wasDownBeforeHealing = hpBefore <= 0;
+        target.currentHP = Math.min(target.maxHP, hpBefore + healingAmount);
+        if (wasDownBeforeHealing && target.currentHP > 0) applyRevival(target);
+        return { targetId: id, healing: target.currentHP - hpBefore, targetHPAfter: target.currentHP, ...targetConditionAfter(target) };
+      });
+      turnProgress.actionsUsed += ability.actions ?? 1;
+      spendUse(ability, combatant); // ONCE per cast, outside the per-target loop — one emanation spends exactly one shared slot, regardless of how many allies it catches
+
+      return {
+        type: "healAbility", abilityName: ability.name, targetId: null, areaOrigin: "self", legal: true,
+        actionsCost: ability.actions ?? 1, radius: ability.radius, healing: healingAmount, affected,
+        usesRemaining: ability.usesRemaining ?? null, decisionReason: proposal.reason ?? null
+      };
+    }
+
     const check = checkHealAbilityLegal({ healer: combatant, healerPos: pos, target, targetPos, ability, turnState: turnProgress, walls: state.walls });
     if (!check.legal) return { type: "healAbility", targetId: proposal.targetId, legal: false, reason: check.reason };
 
-    const healing = ability.healingAmount ?? 0;
+    const { healingAmount: healing } = outcomes.healAbility(rng, { ability, target });
     const wasDownBeforeHealing = target.currentHP <= 0;
     target.currentHP = Math.min(target.maxHP, target.currentHP + healing);
     // Player Core pg. 403: "restored to 1 Hit Point or more via healing, you lose the dying and
@@ -1003,7 +1185,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     if (wasDownBeforeHealing && target.currentHP > 0) applyRevival(target);
     turnProgress.actionsUsed += ability.actions ?? 1;
 
-    if (ability.usesRemaining != null) ability.usesRemaining -= 1;
+    spendUse(ability, combatant);
 
     return {
       type: "healAbility", abilityName: ability.name, targetId: proposal.targetId, legal: true, actionsCost: ability.actions ?? 1,
@@ -1099,10 +1281,14 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     target.conditionSaveImmunities = [...(target.conditionSaveImmunities ?? []), conditionSaveAbility.name];
     turnProgress.actionsUsed += conditionSaveAbility.actions ?? 1;
 
+    // GH #56/#69: the one sibling action type that wasn't decrementing usesRemaining — see
+    // checkConditionSaveLegal's own matching gate for why this was the sole exception.
+    if (conditionSaveAbility.usesRemaining != null) conditionSaveAbility.usesRemaining -= 1;
+
     return {
       type: "conditionSave", conditionSaveName: conditionSaveAbility.name, targetId: proposal.targetId, legal: true, actionsCost: conditionSaveAbility.actions ?? 1,
       roll: saveResult, applied, targetFrightenedAfter: target.frightened, targetStunnedValueAfter: target.stunnedValue ?? 0,
-      decisionReason: proposal.reason ?? null
+      usesRemaining: conditionSaveAbility.usesRemaining ?? null, decisionReason: proposal.reason ?? null
     };
   }
 
@@ -1113,10 +1299,16 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
   // `target` at all, so "who's actually caught in it" is computed here from real state, not trusted
   // from the proposal (matching this whole engine's "never trust the AI/scenario" design).
   if (proposal.type === "areaAttack") {
-    const originPos = state.positions.get(proposal.originId);
+    // GH #61, Gap 2 — a free-point throw ("drop it in the gap so it catches two enemies and no
+    // allies") is just as legal an aim as a combatant's own square: originPoint (a plain {col,row})
+    // takes precedence when supplied, falling back to the existing originId-names-a-combatant path
+    // unchanged for every pre-#61 caller. checkAreaAttackLegal was already written to take a plain
+    // originPos regardless of where it came from — this is the one remaining place that only ever
+    // derived it from a combatant's own square.
+    const originPos = proposal.originPoint ?? state.positions.get(proposal.originId);
     const areaAttackAbility = (combatant.areaAttacks ?? [])[proposal.areaAttackIndex ?? 0];
-    if (!areaAttackAbility) return { type: "areaAttack", originId: proposal.originId, legal: false, reason: `No areaAttack at index ${proposal.areaAttackIndex ?? 0} — ${combatant.name} has ${(combatant.areaAttacks ?? []).length}.` };
-    if (!originPos) return { type: "areaAttack", originId: proposal.originId, legal: false, reason: `${proposal.originId} has no known position to aim at.` };
+    if (!areaAttackAbility) return { type: "areaAttack", originId: proposal.originId, originPoint: proposal.originPoint ?? null, legal: false, reason: `No areaAttack at index ${proposal.areaAttackIndex ?? 0} — ${combatant.name} has ${(combatant.areaAttacks ?? []).length}.` };
+    if (!originPos) return { type: "areaAttack", originId: proposal.originId, originPoint: proposal.originPoint ?? null, legal: false, reason: proposal.originId ? `${proposal.originId} has no known position to aim at.` : `No aim point given — need either an originId or an originPoint.` };
 
     const affectedIds = [...state.combatants.keys()].filter((id) => {
       const c = state.combatants.get(id);
@@ -1129,7 +1321,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
       attacker: combatant, attackerPos: pos, originPos, areaAttack: areaAttackAbility, turnState: turnProgress, walls: state.walls,
       affectedCount: affectedIds.length
     });
-    if (!check.legal) return { type: "areaAttack", originId: proposal.originId, legal: false, reason: check.reason };
+    if (!check.legal) return { type: "areaAttack", originId: proposal.originId, originPoint: proposal.originPoint ?? null, legal: false, reason: check.reason };
 
     const affected = affectedIds.map((id) => {
       const target = state.combatants.get(id);
@@ -1152,7 +1344,7 @@ function attemptAction({ state, rng, combatantId, proposal, turnProgress, turnLo
     if (areaAttackAbility.usesRemaining != null) areaAttackAbility.usesRemaining -= 1;
 
     return {
-      type: "areaAttack", areaAttackName: areaAttackAbility.name, originId: proposal.originId, legal: true, actionsCost: areaAttackAbility.actions ?? 1,
+      type: "areaAttack", areaAttackName: areaAttackAbility.name, originId: proposal.originId ?? null, originPoint: { col: originPos.col, row: originPos.row }, legal: true, actionsCost: areaAttackAbility.actions ?? 1,
       radius: areaAttackAbility.radius, damage,
       affected: results.map((r) => {
         const target = state.combatants.get(r.targetId);
@@ -1315,7 +1507,18 @@ function snapshotState(state) {
       grappledBy: combatant.grappledBy ?? null,
       // design doc §42 — null for anyone this rule doesn't apply to at all (every NPC), not 0;
       // real PCs start at 1 and drop to 0 the instant one is actually spent to avoid death.
-      heroPoints: combatant.heroPoints ?? null
+      heroPoints: combatant.heroPoints ?? null,
+      // GH #60 — same transcript-honesty reasoning as heroPoints above, for the new shared heal pool.
+      // FIX (design doc §78, GH #57): was a bare live reference (`combatant.spellSlots ?? null`) —
+      // since spendUse (legality.mjs) mutates this object in place and snapshotState runs many times
+      // per battle, every snapshot ever taken for this combatant shared the SAME object, so a later
+      // cast retroactively corrupted every EARLIER snapshot's own spellSlots too (confirmed live: a
+      // multi-round battle's initialSnapshot read the end-of-battle remainder, not the true starting
+      // count). cloneStateForPlanning already deep-copies this exact field for the identical reason
+      // (this file's own header, "Mutable surface" list) — snapshotState just never got the same
+      // treatment. Every other field here is either a primitive or (grappledBy) only ever wholesale-
+      // reassigned, never mutated in place, so needs no copy — spellSlots was the one real gap.
+      spellSlots: combatant.spellSlots ? { ...combatant.spellSlots } : null
     };
   }
   return snapshot;
@@ -1361,9 +1564,11 @@ export function checkOutcome(state) {
  *
  * Mutable surface at personnel scale: state.round; state.combatants.<id>.{currentHP,
  * stunnedValue, frightened, dyingValue, woundedValue, prone, demoralizedTargets,
- * conditionSaveImmunities, grappledBy, heroPoints}; state.combatants.<id>.{strikes,spells,
- * healAbilities, saveAttacks, conditionSaves}[i].usesRemaining; state.positions.<id>.{col,row}. (No
- * reactionAvailable map — this tree fires no reactions, see this file's own header.) `heroPoints`
+ * conditionSaveImmunities, grappledBy, heroPoints, spellSlots}; state.combatants.<id>.{strikes,spells,
+ * healAbilities, saveAttacks, conditionSaves}[i].usesRemaining; state.positions.<id>.{col,row};
+ * state.reactionAvailable.<id> (GH #18 — a `Map<id,boolean>` of plain booleans, so `new Map(...)`
+ * below allocates fully independent storage; a sandbox firing a reaction can never alias back to
+ * the real battle's own reaction economy). `heroPoints`
  * needs no special deep-copy handling for the identical reason `grappledBy` doesn't (design doc
  * §41's own comment here) — trySpendHeroPointToAvoidDeath REASSIGNS it (`combatant.heroPoints = 0`),
  * never mutates in place.
@@ -1381,6 +1586,11 @@ export function cloneStateForPlanning(state) {
     if (c.saveAttacks) copy.saveAttacks = c.saveAttacks.map((s) => ({ ...s }));
     if (c.conditionSaves) copy.conditionSaves = c.conditionSaves.map((s) => ({ ...s }));
     if (c.areaAttacks) copy.areaAttacks = c.areaAttacks.map((a) => ({ ...a }));
+    // GH #60 — combatant.spellSlots is a new, nested, mutable object of exactly the shape this
+    // function's own header warns about: a shallow {...c} would alias copy.spellSlots to the SAME
+    // object the live battle uses, letting a sandboxed lookahead branch that merely CONSIDERS
+    // casting Heal permanently spend a real slot from the live battle, even on a branch never chosen.
+    if (c.spellSlots) copy.spellSlots = { ...c.spellSlots };
     if (c.demoralizedTargets) copy.demoralizedTargets = [...c.demoralizedTargets];
     if (c.conditionSaveImmunities) copy.conditionSaveImmunities = [...c.conditionSaveImmunities];
     combatants.set(id, copy);
@@ -1394,7 +1604,8 @@ export function cloneStateForPlanning(state) {
     initiativeOrder: state.initiativeOrder,
     walls: state.walls, // static terrain — never mutated in a battle, safe (and cheap) to share by reference
     combatants,
-    positions
+    positions,
+    reactionAvailable: new Map(state.reactionAvailable)
   };
 }
 

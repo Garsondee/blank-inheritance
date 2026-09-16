@@ -3,18 +3,29 @@
   "id": "dialogue-management-panel",
   "type": "idea",
   "title": "Dialogue management panel for critical NPC conversations",
-  "status": "accepted",
-  "domains": ["ui", "mechanics", "tooling"],
+  "status": "in-progress",
+  "domains": [
+    "ui",
+    "mechanics",
+    "tooling"
+  ],
   "summary": "A GM-facing info panel for running important NPC conversations: player goals, NPC goals, hard lines the NPC won't cross, what's coercible, and a subject list each with a DC and one-click buttons to record degree of success as the scene plays out.",
-  "description": "Stated directly: 'We build a dialogue managing system which allows the group to have critical conversations with NPCs.' The panel should make it easy for the GM to manage the conversation live: player goals, the NPC's own goals, hard lines the NPC won't cross, information about what could plausibly be coerced from them, and — the mechanical core — a long list of subjects each with an associated DC, plus buttons to record the degree of success (critical failure / failure / neutral / success / critical success) as the players attempt them.\n\nStructurally this is the same shape challenge.schema.json already models (a set of DC'd checks with per-degree outcomes), wearing a live-session UI. Feeds directly into chat-log-knowledge-base (recorded outcomes need to be durably queryable after the session, not just visible in the moment) and is probably a component of campaign-managing-system rather than a fully standalone tool.",
+  "description": "Stated directly: 'We build a dialogue managing system which allows the group to have critical conversations with NPCs.' The panel should make it easy for the GM to manage the conversation live: player goals, the NPC's own goals, hard lines the NPC won't cross, information about what could plausibly be coerced from them, and — the mechanical core — a long list of subjects each with an associated DC, plus buttons to record the degree of success (critical failure / failure / neutral / success / critical success) as the players attempt them.\n\nStructurally this is the same shape challenge.schema.json already models (a set of DC'd checks with per-degree outcomes), wearing a live-session UI. Feeds directly into chat-log-knowledge-base (recorded outcomes need to be durably queryable after the session, not just visible in the moment) and is probably a component of campaign-managing-system rather than a fully standalone tool.\n\nREVISITED 2026-09-06 (design/npc-social-intel.md). Two things. First, a small correction worth recording rather than silently fixing: SF2E's real degree of success is FOUR tiers (critical failure / failure / success / critical success), never five — this entry's own 'neutral' has no RAW equivalent as a check outcome. Checked against real Diplomacy/Intimidation actions: a plain Failure on Make an Impression or Request already has no listed effect, which is what reads as 'neutral' in play — that's the genuine four-tier structure, not an invented fifth rung. Second, this panel now has a standing companion rather than starting cold each time: the Character Card gives every recurring NPC a persistent, hand-authored Facts list (revealed permanently through play) and a real Attitude state (SF2E's own Hostile/Unfriendly/Indifferent/Friendly/Helpful scale) that carries between scenes — this panel is the live tool you open into that standing state, not a separate live-only system.",
   "capturedDate": "2026-08-22",
-  "lastTouchedDate": "2026-08-22",
+  "lastTouchedDate": "2026-09-09",
   "sourceContext": "User planning message on dialogue/journal/campaign-management systems, prior to the ideas/ system existing — originally captured as prose in design/campaign-arc.md's 'Foundry module: new concept threads' section, migrated here on audit.",
   "openSubQuestions": [
     "Exact panel layout and what counts as a 'hard line' vs. 'coercible' in data terms.",
     "Whether this extends challenge.schema.json directly or needs its own lighter schema.",
     "How this plugs into the ApplicationV2 director's-panel work already designed."
   ],
-  "relatedRefs": ["chat-log-knowledge-base", "campaign-managing-system", "data/schema/challenge.schema.json", "design/foundry-module-design.md"],
-  "resolution": null
+  "relatedRefs": [
+    "chat-log-knowledge-base",
+    "campaign-managing-system",
+    "data/schema/challenge.schema.json",
+    "design/foundry-module-design.md",
+    "in-scene-character-portrait-frames",
+    "design/npc-social-intel.md"
+  ],
+  "resolution": "PASS 1 (2026-09-09): built as part of the scene runner (module/blank-inheritance/scripts/foundry/scene-runner.mjs), not as a standalone panel — a GM improvising a conversation needs the NPC's brief in the same place as the scene's beats, so it landed inside ux-doctrine.md §10.7's Scene drawer rather than beside it. This entry's own first open sub-question is now answered in data: a HARD LINE is `willNotDiscuss[]`, an object of {topic, why}, and the `why` is load-bearing — it is what lets the GM improvise the refusal in the character's voice instead of just saying no. COERCIBLE is `coercible[]`, {topic, how, challengeRef?}, distinct from `willDiscuss` because it is what they give up only under pressure. Both sit on a new scene-brief.schema.json alongside `wants` (what they are trying to achieve, the single most useful field at the table) and a `voice` block of register, tics and real sample lines. The second sub-question is answered too, and the answer was neither option: it does NOT extend challenge.schema.json and it does NOT need its own check shape — beats REFERENCE a challenge by id, because challenge.schema.json already modelled 'one or a handful of DC'd checks with per-degree outcomes' and had sat with zero instances in the repo since it was written. Still not built: the subject-by-subject DC list with one-click degree recording per subject. Degree recording exists, but per BEAT rather than per conversational subject — enough to drive branching, not yet the full 'long list of subjects each with an associated DC' this entry asks for. That is the natural next pass and wants a real conversation run at a table first."
 }

@@ -2,6 +2,8 @@
   "id": "raw-validation-lunar-17",
   "name": "Lunar-17 (level-1 Mystic pregen, design doc §19 Pure RAW SF2E Validation — real Paizo Adventure Pregen, NOT one of the six real campaign kids)",
   "side": "party",
+  "level": 1,
+  "initiativeModifier": 7,
   "maxHP": 15,
   "currentHP": 15,
   "ac": 17,
@@ -85,7 +87,8 @@
           "bonus": 0,
           "damageType": "mental"
         }
-      ]
+      ],
+      "atWill": true
     }
   ],
   "healAbilities": [
@@ -93,11 +96,61 @@
       "name": "Transfer Vitality",
       "healingAmount": 10,
       "range": 60,
-      "actions": 1
+      "actions": 1,
+      "usesRemaining": 2,
+      "usesPerEncounter": 2
+    },
+    {
+      "name": "Heal (touch)",
+      "healingFormula": "1d8",
+      "actions": 1,
+      "slotRank": 1
+    },
+    {
+      "name": "Heal (30ft)",
+      "healingFormula": "1d8+8",
+      "actions": 2,
+      "range": 30,
+      "slotRank": 1
+    },
+    {
+      "name": "Heal (emanation)",
+      "healingFormula": "1d8",
+      "actions": 3,
+      "areaOrigin": "self",
+      "radius": 30,
+      "slotRank": 1
+    }
+  ],
+  "spellSlots": {
+    "1": 3
+  },
+  "areaAttacks": [
+    {
+      "name": "Incendiary Grenade (Commercial)",
+      "saveType": "ref",
+      "dc": 17,
+      "range": 70,
+      "radius": 5,
+      "actions": 1,
+      "traits": [
+        "consumable",
+        "fire",
+        "grenade",
+        "tech"
+      ],
+      "damage": [
+        {
+          "dice": "1d8",
+          "bonus": 0,
+          "damageType": "fire"
+        }
+      ],
+      "usesRemaining": 1
     }
   ],
   "intimidationModifier": 0,
   "athleticsModifier": 0,
   "heroPoints": 1,
-  "notes": "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §19/§21. Transfer Vitality's healing amount (10, minimum 1) is hand-transcribed from real rule prose since no structured field exists for it — see build-combat-pregen.mjs's own citation. Her Incendiary Grenade (Commercial) is real but NOT wired as a usable action: its raw description reads \"Activate 1 Area Fire ... (@Template[burst|distance:5])\" — a 5ft-burst AREA effect, not a single-target attack, structurally identical to Frag Grenade/Electromag Grenade (already excluded for other pregens for the same reason). personnel-engine's saveAttack action is single-target only; wiring a burst weapon through it would have hit exactly one creature with none of the real friendly-fire risk an area weapon actually carries, and was in fact caught doing exactly that (see design doc §21's grenade-modeling correction)."
+  "notes": "Every combat number here is real, derived SF2E math (tools/character-builder/derive.mjs + build-combat-pregen.mjs), cross-checked against her own raw pack data (gamesystems/sf2e/packs/paizo-pregens) — see test/character-builder/build-combat-pregen.test.mjs and design/scale-and-chassis.md §19/§21. Transfer Vitality's healing amount (10, minimum 1) is hand-transcribed from real rule prose since no structured field exists for it — see build-combat-pregen.mjs's own citation. GH #55: usesRemaining/usesPerEncounter (2) are hand-authored here, NOT derived — the real limit isn't a per-day slot count but the Mystic's own 'vitality network' resource pool (Vitality Network feat, Player Core: capacity 6+4/level = 10 at level 1, regenerating 4 HP at the start of each of the caster's turns in combat — more if master/legendary in spell DC, refilling fully on Refocus), a mechanic this single-encounter simulator doesn't simulate HP-for-HP. At level 1 the pool's capacity exactly equals one use's cost (10=10), so a flat 2-per-encounter cap ('usable once at full charge, once more after a few turns' partial regen') is the same approximation already shipped for the level-12 Frame-scale Mystic (data/combatants.mjs's makeMysticFrame, pool 54 / cost 30 / also capped at 2 for the identical reason). The caster's own currentHP is correctly UNTOUCHED by this ability — Transfer Vitality draws from the network, never the caster's own HP total, confirmed directly against the real extracted rule text (not assumed from the ability's name). GH #65 (design doc §76 Phase 4): her Incendiary Grenade (Commercial) — real, extracted, but left UNWIRED from GH #55 through GH #64 (\"a 5ft-burst AREA effect, not a single-target attack... personnel-engine's saveAttack action is single-target only\") — is now a real areaAttack, using GH #61's own area-effect mechanism (deriveAreaAttacks, build-combat-pregen.mjs). GH #60 (design doc §60 Part 1): Heal (touch)/Heal (30ft) are her real rank-1 spell, confirmed on her own raw spell list (gamesystems/sf2e/packs/spells) — both entries share one real spellSlots pool (spellSlots.1, her actual rank-1 slot count from Occult Spontaneous Spells' own system.slots.slot1.max), separate from Transfer Vitality's own network-pool uses. Only the two single-target, living-target variants are wired — the 3-action emanation and the vs.-Undead variant are Part 1b, a deferred follow-on (see the design's own \"Explicitly deferred\" section)."
 }

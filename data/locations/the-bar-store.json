@@ -1,0 +1,171 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-bar-store",
+  "type": "location",
+  "tier": "site",
+  "name": "The Bar Store",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "industrial",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20379655,
+          34.66714902
+        ],
+        [
+          135.20451099,
+          34.66717016
+        ],
+        [
+          135.20450924,
+          34.66721916
+        ],
+        [
+          135.2053159,
+          34.66724348
+        ],
+        [
+          135.20533138,
+          34.66688737
+        ],
+        [
+          135.20464726,
+          34.6668661
+        ],
+        [
+          135.20464853,
+          34.66682885
+        ],
+        [
+          135.20388209,
+          34.66680585
+        ],
+        [
+          135.20387992,
+          34.66686134
+        ],
+        [
+          135.20380977,
+          34.66685891
+        ],
+        [
+          135.20380458,
+          34.66695984
+        ],
+        [
+          135.20380305,
+          34.66700559
+        ],
+        [
+          135.20379655,
+          34.66714902
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6716.8,
+          7292.7
+        ],
+        [
+          6772,
+          7257.4
+        ],
+        [
+          6769.1,
+          7252.8
+        ],
+        [
+          6831.4,
+          7212.9
+        ],
+        [
+          6852.7,
+          7246.2
+        ],
+        [
+          6799.9,
+          7280.1
+        ],
+        [
+          6802.1,
+          7283.6
+        ],
+        [
+          6742.9,
+          7321.5
+        ],
+        [
+          6739.6,
+          7316.3
+        ],
+        [
+          6734.2,
+          7319.8
+        ],
+        [
+          6728.1,
+          7310.4
+        ],
+        [
+          6725.4,
+          7306.1
+        ],
+        [
+          6716.8,
+          7292.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6785.4,
+      7268.51
+    ],
+    "cells": [
+      "D4·25",
+      "D4·35"
+    ],
+    "ref": "D4·25",
+    "areaM2": 5445.3,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-368",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "A hundred and forty metres of racked stock -- bar, section, tube and plate -- kept long, because cutting steel short is the one thing that cannot be undone. The overhead crane runs the full length and is never idle.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A hundred and forty metres of racked stock -- bar, section, tube and plate -- kept long, because cutting steel short is the one thing that cannot be undone. The overhead crane runs the full length and is never idle.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

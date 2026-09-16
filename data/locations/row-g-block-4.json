@@ -1,0 +1,107 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "row-g-block-4",
+  "type": "location",
+  "tier": "site",
+  "name": "Row G, Block 4",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21034984,
+          34.6719225
+        ],
+        [
+          135.21033501,
+          34.67179889
+        ],
+        [
+          135.21069439,
+          34.67176809
+        ],
+        [
+          135.21071015,
+          34.67189125
+        ],
+        [
+          135.21034984,
+          34.6719225
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6964.9,
+          6531.4
+        ],
+        [
+          6970.7,
+          6543.9
+        ],
+        [
+          7000.8,
+          6530.1
+        ],
+        [
+          6995.1,
+          6517.6
+        ],
+        [
+          6964.9,
+          6531.4
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6982.87,
+      6530.75
+    ],
+    "cells": [
+      "D4·31",
+      "D4·41"
+    ],
+    "ref": "D4·31",
+    "areaM2": 456.2,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-126",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Small and a little run-down, mostly overflow bunks brought online only when a semester's intake runs larger than expected. Furniture and posters left behind by whoever last shipped out never quite get cleared before the next lot moves in.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Small and a little run-down, mostly overflow bunks brought online only when a semester's intake runs larger than expected. Furniture and posters left behind by whoever last shipped out never quite get cleared before the next lot moves in.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

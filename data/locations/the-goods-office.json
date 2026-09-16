@@ -1,0 +1,250 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-goods-office",
+  "type": "location",
+  "tier": "site",
+  "name": "The Goods Office",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20254952,
+          34.66946847
+        ],
+        [
+          135.20255975,
+          34.66936927
+        ],
+        [
+          135.20259273,
+          34.66927887
+        ],
+        [
+          135.20264996,
+          34.66919759
+        ],
+        [
+          135.20274365,
+          34.66911946
+        ],
+        [
+          135.2028486,
+          34.66905886
+        ],
+        [
+          135.20294768,
+          34.6690273
+        ],
+        [
+          135.20305316,
+          34.66901356
+        ],
+        [
+          135.20316037,
+          34.66901467
+        ],
+        [
+          135.20315502,
+          34.6691544
+        ],
+        [
+          135.20321078,
+          34.66915442
+        ],
+        [
+          135.20320217,
+          34.66932505
+        ],
+        [
+          135.2031494,
+          34.66932566
+        ],
+        [
+          135.2031487,
+          34.66934066
+        ],
+        [
+          135.20308602,
+          34.66933982
+        ],
+        [
+          135.20303294,
+          34.66935418
+        ],
+        [
+          135.20298403,
+          34.66938327
+        ],
+        [
+          135.20294886,
+          34.66942449
+        ],
+        [
+          135.20292876,
+          34.66947616
+        ],
+        [
+          135.2029184,
+          34.66956809
+        ],
+        [
+          135.20258208,
+          34.66955308
+        ],
+        [
+          135.20258841,
+          34.66947148
+        ],
+        [
+          135.20254952,
+          34.66946847
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6487.6,
+          7129.2
+        ],
+        [
+          6494,
+          7138.2
+        ],
+        [
+          6501.7,
+          7145.3
+        ],
+        [
+          6510.8,
+          7150.4
+        ],
+        [
+          6522.6,
+          7153.5
+        ],
+        [
+          6534.3,
+          7154.4
+        ],
+        [
+          6543.9,
+          7152.8
+        ],
+        [
+          6553,
+          7149.2
+        ],
+        [
+          6561.4,
+          7144.1
+        ],
+        [
+          6553.1,
+          7131
+        ],
+        [
+          6557.5,
+          7128.4
+        ],
+        [
+          6547.2,
+          7112.5
+        ],
+        [
+          6543,
+          7114.9
+        ],
+        [
+          6542.1,
+          7113.5
+        ],
+        [
+          6537.2,
+          7116.5
+        ],
+        [
+          6532.2,
+          7117.6
+        ],
+        [
+          6526.7,
+          7117.1
+        ],
+        [
+          6521.6,
+          7114.8
+        ],
+        [
+          6517.1,
+          7110.8
+        ],
+        [
+          6511.1,
+          7102.5
+        ],
+        [
+          6485.4,
+          7119.6
+        ],
+        [
+          6490.5,
+          7127.1
+        ],
+        [
+          6487.6,
+          7129.2
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6523.27,
+      7131.45
+    ],
+    "cells": [
+      "D4·14"
+    ],
+    "ref": "D4·14",
+    "areaM2": 2445.8,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-363",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Where a load stops being somebody else's problem and starts being the works'. Every consignment on the island is signed for in this building, twice, by two people who are not permitted to be the same person.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Where a load stops being somebody else's problem and starts being the works'. Every consignment on the island is signed for in this building, twice, by two people who are not permitted to be the same person.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

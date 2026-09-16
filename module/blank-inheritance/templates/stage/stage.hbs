@@ -1,0 +1,21 @@
+{{!--
+    The stage: three sides, and the gaps between them are the composition.
+
+    Must render exactly ONE top-level element — ApplicationV2's #parsePartHTML
+    throws otherwise (client/applications/api/handlebars-application.mjs).
+
+    Empty sides are rendered rather than skipped. That is the point of the
+    arrangements that have one: a conversation is two figures AND the space
+    between them, and a side that collapses when nobody is standing in it
+    would turn every layout back into a centred row.
+--}}
+<div class="bi-stage__deck" data-layout="{{layout}}" data-scale="{{scale}}" data-count="{{count}}"
+    {{#unless present}}hidden{{/unless}}>
+    {{#each groups}}
+    <div class="bi-stage__side" data-side="{{this.side}}" data-occupied="{{this.members.length}}">
+        {{#each this.members}}
+        {{> "modules/blank-inheritance/templates/stage/frame.hbs"}}
+        {{/each}}
+    </div>
+    {{/each}}
+</div>

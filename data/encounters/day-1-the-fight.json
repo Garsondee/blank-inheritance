@@ -2,6 +2,7 @@
   "$schema": "../schema/encounter.schema.json",
   "id": "day-1-the-fight",
   "type": "encounter",
+  "status": "ORPHANED CAMPAIGN CONTENT, RETAINED AS A SIMULATOR FIXTURE. The episode this belonged to (episode-01-contact-unclassified) was deleted 2026-09-13 along with every other drafted beat beyond Session 0/1. It survives only because the battle simulator's scenarios and the ground-layer pairing reference it. It is NOT current campaign content and must not be run at a table or built on. The first Frame-scale encounter the campaign actually intends to run is Session Two, which is agreed in shape and unwritten - see open-questions.json#session-two-shape.",
   "name": "Day 1, Scene 7 — The Fight",
   "description": "One Frame, one Claimant, three rounds. Runs in parallel with subsystem day-1-ground-layer on the same clock, cutting between a level-12 initiative order and a level-1 one. The Frame is scripted to win; what is NOT scripted is how long the berserk lasts and therefore what it costs.",
   "partyLevel": 12,
@@ -14,7 +15,7 @@
   "roundLimit": 3,
   "specialRules": [
     "IMMUNITY: The Claimant is immune to all damage while its Interdiction Field holds. The field is not broken by Frame-scale action — it is broken by the ground team filling the Field Integrity pool (6 points) in subsystem day-1-ground-layer. When it breaks: Claimant is Stunned 2 and gains weakness 15 to all damage for the rest of the encounter.",
-    "PILOT: 68% Resonance, Harmonised band — 3 actions per turn, reaction available, internal power 8 rounds (so power is NOT the pressure here; Bleed is). Per data/episodes/episode-01-contact-unclassified.json firstPilotSpecialRules.",
+    "PILOT: 68% Resonance, Harmonised band — 3 actions per turn, reaction available, internal power 8 rounds (so power is NOT the pressure here; Bleed is). These were the first pilot's special rules in the episode this fixture came from, now deleted.",
     "BLEED CLOCK: pilot starts at Bleed 2 (the opening injury, plus the plug in scene 6). +1 at the end of each round, +1 per Frame hit taken, +2 if the pilot pushes Resonance. Berserk at 10. Under expected play (about two hits taken per round) this reaches 10 during round 3, exactly as the design bible scripts. A pilot who pushes can get there in round 2 — let them, and do not warn them.",
     "BERSERK: per data/campaign/config.json — GM takes the sheet for 1d4 rounds, damage roughly doubles, targeting stops discriminating between friend, foe, and terrain. Do not narrate it from the cockpit.",
     "THE CLAIMANT IS NOT FIGHTING THE FRAME. It Advances toward its objective every round it is not Stunned. It only Strikes via its Claim reaction, when something Large or larger ends its movement adjacent. If the Frame stands off at range and does nothing, the Claimant simply leaves, reaches the shelter, and the episode's cost is total. Blocking it is a choice the pilot has to actively make, and it is what gets them hit."
@@ -22,7 +23,6 @@
   "groundRoleTieIns": ["day-1-ground-layer"],
   "rewards": "Milestone: no XP award for the Frame — Frames advance by the milestone rule in design/campaign-arc.md (a significant defeat plus enough downtime to refit), not by XP. The kids' accomplishment XP is handled in the ground-layer subsystem. The real reward is scene 9's information, and it is not a pleasant one.",
   "relatedRefs": [
-    "episode-01-contact-unclassified",
     "contact-unclassified",
     "day-1-ground-layer",
     "design/scale-and-chassis.md",

@@ -1,0 +1,117 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "permit-office",
+  "type": "location",
+  "tier": "site",
+  "name": "Permit Office",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20227606,
+          34.68165067
+        ],
+        [
+          135.20213913,
+          34.68162217
+        ],
+        [
+          135.20235828,
+          34.68090195
+        ],
+        [
+          135.20242796,
+          34.68091613
+        ],
+        [
+          135.20249615,
+          34.68093
+        ],
+        [
+          135.20227606,
+          34.68165067
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          5779.2,
+          5978.1
+        ],
+        [
+          5770,
+          5987.2
+        ],
+        [
+          5827.9,
+          6045.8
+        ],
+        [
+          5832.6,
+          6041.2
+        ],
+        [
+          5837.2,
+          6036.7
+        ],
+        [
+          5779.2,
+          5978.1
+        ]
+      ]
+    ],
+    "centroidPx": [
+      5803.6,
+      6011.98
+    ],
+    "cells": [
+      "C3·78",
+      "C3·88",
+      "C3·79",
+      "C3·89"
+    ],
+    "ref": "C3·78",
+    "areaM2": 1069.4,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-156",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Where island passes are issued, renewed and refused. Three windows, one of which is always shut. A pass takes a week when the paperwork is right, and there is no published list of what right means. The waiting bench seats eleven and is usually full.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Where island passes are issued, renewed and refused. Three windows, one of which is always shut. A pass takes a week when the paperwork is right, and there is no published list of what right means. The waiting bench seats eleven and is usually full.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

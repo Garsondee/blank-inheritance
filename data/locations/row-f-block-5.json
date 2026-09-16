@@ -1,0 +1,114 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "row-f-block-5",
+  "type": "location",
+  "tier": "site",
+  "name": "Row F, Block 5",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20967471,
+          34.67215332
+        ],
+        [
+          135.20975476,
+          34.6720295
+        ],
+        [
+          135.21016039,
+          34.6721876
+        ],
+        [
+          135.2101533,
+          34.67233552
+        ],
+        [
+          135.21008097,
+          34.67232473
+        ],
+        [
+          135.20967471,
+          34.67215332
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6898.6,
+          6540.8
+        ],
+        [
+          6911.9,
+          6548.9
+        ],
+        [
+          6935,
+          6514.9
+        ],
+        [
+          6926.1,
+          6501.1
+        ],
+        [
+          6921,
+          6505.5
+        ],
+        [
+          6898.6,
+          6540.8
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6917.56,
+      6525.77
+    ],
+    "cells": [
+      "D4·31"
+    ],
+    "ref": "D4·31",
+    "areaM2": 726.8,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-117",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "A block-wide card game has apparently been running, with rotating players, for longer than anyone currently living there has been a candidate. The stakes are chores, not money, and the debt board behind the common-room door is taken with total seriousness.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A block-wide card game has apparently been running, with rotating players, for longer than anyone currently living there has been a candidate. The stakes are chores, not money, and the debt board behind the common-room door is taken with total seriousness.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

@@ -1,0 +1,172 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-postbox-court-452",
+  "type": "location",
+  "tier": "site",
+  "name": "The Postbox Court",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "amenity"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.2140498,
+          34.66450834
+        ],
+        [
+          135.21402431,
+          34.66451344
+        ],
+        [
+          135.21400514,
+          34.66452384
+        ],
+        [
+          135.21400363,
+          34.66454656
+        ],
+        [
+          135.21401848,
+          34.66456025
+        ],
+        [
+          135.21405497,
+          34.66458119
+        ],
+        [
+          135.21409804,
+          34.66459891
+        ],
+        [
+          135.21414154,
+          34.66461015
+        ],
+        [
+          135.21415747,
+          34.66460761
+        ],
+        [
+          135.21417404,
+          34.66459534
+        ],
+        [
+          135.21417627,
+          34.66457541
+        ],
+        [
+          135.21416894,
+          34.66455805
+        ],
+        [
+          135.2140498,
+          34.66450834
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7675,
+          7067.3
+        ],
+        [
+          7672.7,
+          7068
+        ],
+        [
+          7670.6,
+          7067.9
+        ],
+        [
+          7669.2,
+          7065.8
+        ],
+        [
+          7669.6,
+          7063.8
+        ],
+        [
+          7671.3,
+          7060.1
+        ],
+        [
+          7673.7,
+          7056.4
+        ],
+        [
+          7676.5,
+          7053.3
+        ],
+        [
+          7677.9,
+          7052.8
+        ],
+        [
+          7679.9,
+          7053.2
+        ],
+        [
+          7681.2,
+          7055
+        ],
+        [
+          7681.6,
+          7057
+        ],
+        [
+          7675,
+          7067.3
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7675.33,
+      7060.48
+    ],
+    "cells": [
+      "D4·74"
+    ],
+    "ref": "D4·74",
+    "areaM2": 104.5,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-452",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "amenities and other general city supporting functions and administration.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A small courtyard of private mail lockboxes, rented by the household.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

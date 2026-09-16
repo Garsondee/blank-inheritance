@@ -1,0 +1,187 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-drawing-office",
+  "type": "location",
+  "tier": "site",
+  "name": "The Drawing Office",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "industrial",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.2050731,
+          34.66663753
+        ],
+        [
+          135.20507678,
+          34.66655932
+        ],
+        [
+          135.20510185,
+          34.66656071
+        ],
+        [
+          135.20510824,
+          34.66645082
+        ],
+        [
+          135.20508804,
+          34.66644915
+        ],
+        [
+          135.20509003,
+          34.66641469
+        ],
+        [
+          135.20388184,
+          34.66636739
+        ],
+        [
+          135.20387475,
+          34.66649227
+        ],
+        [
+          135.20391497,
+          34.6664936
+        ],
+        [
+          135.20391324,
+          34.66651956
+        ],
+        [
+          135.20395346,
+          34.66652088
+        ],
+        [
+          135.20394832,
+          34.66661655
+        ],
+        [
+          135.20465932,
+          34.66664355
+        ],
+        [
+          135.20466139,
+          34.66662161
+        ],
+        [
+          135.2050731,
+          34.66663753
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6846.4,
+          7282.1
+        ],
+        [
+          6851.1,
+          7289.4
+        ],
+        [
+          6853,
+          7288.1
+        ],
+        [
+          6859.7,
+          7298.3
+        ],
+        [
+          6858.2,
+          7299.4
+        ],
+        [
+          6860.3,
+          7302.6
+        ],
+        [
+          6767.6,
+          7363.4
+        ],
+        [
+          6760,
+          7351.8
+        ],
+        [
+          6763.1,
+          7349.8
+        ],
+        [
+          6761.5,
+          7347.4
+        ],
+        [
+          6764.6,
+          7345.4
+        ],
+        [
+          6758.8,
+          7336.5
+        ],
+        [
+          6813.4,
+          7300.8
+        ],
+        [
+          6814.8,
+          7302.8
+        ],
+        [
+          6846.4,
+          7282.1
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6807.48,
+      7321.75
+    ],
+    "cells": [
+      "D4·25",
+      "D4·35"
+    ],
+    "ref": "D4·25",
+    "areaM2": 2858.7,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-361",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "A hundred metres of drawing boards under north light, where every part the works makes exists on paper first. Raising your voice in here is a thing people afterwards apologise for.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A hundred metres of drawing boards under north light, where every part the works makes exists on paper first. Raising your voice in here is a thing people afterwards apologise for.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

@@ -1,0 +1,179 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "redoubt-shore",
+  "type": "location",
+  "tier": "region",
+  "name": "Redoubt Shore",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "district",
+  "tags": [
+    "auto-tessellated",
+    "land"
+  ],
+  "classification": null,
+  "rank": 4,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.27095401539611,
+          34.706058184488995
+        ],
+        [
+          135.27101820620734,
+          34.705593332094836
+        ],
+        [
+          135.27110023681485,
+          34.70500458474084
+        ],
+        [
+          135.27152326472577,
+          34.70234461462091
+        ],
+        [
+          135.2718064863338,
+          34.702159243360754
+        ],
+        [
+          135.27231241425875,
+          34.702215958167926
+        ],
+        [
+          135.27686275760328,
+          34.70268484694093
+        ],
+        [
+          135.28199945570418,
+          34.703251643067034
+        ],
+        [
+          135.27370870221182,
+          34.70729379356344
+        ],
+        [
+          135.27315703980088,
+          34.70756830603781
+        ],
+        [
+          135.27370870221182,
+          34.70729379356344
+        ],
+        [
+          135.27115986577124,
+          34.70637238116254
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          9820.5,
+          446.9
+        ],
+        [
+          9851.8,
+          488.3
+        ],
+        [
+          9891.5,
+          540.7
+        ],
+        [
+          10075.0,
+          775.0
+        ],
+        [
+          10107.8,
+          779.5
+        ],
+        [
+          10144.5,
+          750.5
+        ],
+        [
+          10476.9,
+          493.6
+        ],
+        [
+          10850.0,
+          200.0
+        ],
+        [
+          9968.0,
+          200.5
+        ],
+        [
+          9909.0,
+          200.0
+        ],
+        [
+          9968.0,
+          200.5
+        ],
+        [
+          9819.0,
+          407.3
+        ]
+      ]
+    ],
+    "centroidPx": [
+      10236.54,
+      412.54
+    ],
+    "cells": [
+      "E1·80",
+      "E1·90",
+      "F1·00",
+      "F1·10",
+      "F1·20",
+      "F1·30",
+      "E1·81",
+      "E1·91",
+      "F1·01",
+      "F1·11",
+      "E1·82",
+      "E1·92",
+      "F1·02"
+    ],
+    "ref": "E1·80",
+    "areaM2": 324245.9,
+    "withinRegionRef": null,
+    "containsRefs": [
+      "home-redoubt-shore-cottage"
+    ],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-207",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "The thin coastal strip facing the fort: a pilot station, a boat slip, and a row of houses whose windows all point the same way. Everyone here has an opinion about the garrison.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The thin coastal strip facing the fort: a pilot station, a boat slip, and a row of houses whose windows all point the same way. Everyone here has an opinion about the garrison.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

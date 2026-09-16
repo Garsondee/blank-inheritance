@@ -12,6 +12,9 @@
     "resonance": {
       "type": "object",
       "properties": {
+        "bandDesignNote": { "type": "string" },
+        "actionEconomyRevisionNote": { "type": "string" },
+        "boundaryConvention": { "type": "string" },
         "range": {
           "type": "object",
           "properties": { "min": { "type": "number" }, "max": { "type": "number" } }
@@ -59,8 +62,15 @@
             "narrationRule": { "type": "string" }
           }
         },
-        "pilotVisibility": { "type": ["boolean", "null"] },
-        "openQuestionRef": { "type": "string" }
+        "pilotVisibility": {
+          "enum": ["hidden", "visible", "tested", null],
+          "description": "Resolved 2026-09-06 to \"tested\": a pilot buys the number with a discretionary slice rather than seeing it passively or never. \"hidden\" and \"visible\" are the two alternatives that were considered and rejected; null still means undecided."
+        },
+        "visibilityMechanism": { "type": "string" },
+        "openQuestionRef": {
+          "type": ["string", "null"],
+          "description": "Null once the question is resolved, per the project convention that a null ref means there is no open question rather than that one is missing."
+        }
       }
     },
     "anchors": {
@@ -98,6 +108,30 @@
             "sharedPoolNote": { "type": "string" }
           }
         },
+        "upgradePoints": {
+          "type": "object",
+          "description": "How Frames level up. Individual per-pilot points earned from downtime and combat; see design/campaign-arc.md and open-questions.json#frame-upgrade-economy.",
+          "properties": {
+            "confirmed": { "type": "string" },
+            "pool": { "type": "string" },
+            "guaranteedFloor": { "type": "string" },
+            "levelDrift": { "type": "string" },
+            "overInvestmentCost": { "type": "string" },
+            "openQuestionRef": { "type": "string" }
+          }
+        },
+        "repairCrew": {
+          "type": "object",
+          "description": "Each pilot's own standing NPC repair crew, whose relationship scales repair effectiveness. Distinct from the PC-played Ground Roles in campaign/ground-roles.json.",
+          "properties": {
+            "confirmed": { "type": "string" },
+            "goodStanding": { "type": "string" },
+            "neglected": { "type": "string" },
+            "whyItIsNotRedundantWithTechnicianDays": { "type": "string" },
+            "terminologyWarning": { "type": "string" },
+            "openQuestionRef": { "type": "string" }
+          }
+        },
         "deployability": { "type": "string" },
         "permanentLoss": { "type": "string" }
       }
@@ -106,8 +140,10 @@
       "type": "object",
       "properties": {
         "discretionarySlicesPerDay": { "type": "integer" },
+        "slicesRevisionNote": { "type": "string", "description": "Free-text history for when discretionarySlicesPerDay itself changes, so a stale number in a doc/comment doesn't outlive the data." },
         "mandatoryLoad": { "type": "string" },
         "designIntent": { "type": "string" },
+        "restIsAlwaysAvailable": { "type": "string", "description": "Confirms resting is always a legal, encouraged use of a discretionary slice, independent of the options list below." },
         "options": {
           "type": "array",
           "items": {
@@ -116,8 +152,21 @@
               "id": { "type": "string" },
               "name": { "type": "string" },
               "effect": { "type": "string" },
-              "cost": { "type": "string" }
+              "cost": { "type": "string" },
+              "openQuestionRef": { "type": "string", "description": "id of an entry in data/campaign/open-questions.json, when part of this option is still undecided." }
             }
+          }
+        },
+        "fatigue": {
+          "type": "object",
+          "description": "Working consecutive segments without resting; see design/ux-doctrine.md §3.",
+          "properties": {
+            "description": { "type": "string" },
+            "check": { "type": ["string", "null"] },
+            "dcEscalation": { "type": ["string", "null"] },
+            "failureConsequence": { "type": "string" },
+            "resetBy": { "type": "string" },
+            "openQuestionRef": { "type": "string" }
           }
         }
       }
@@ -125,6 +174,7 @@
     "contactPool": {
       "type": "object",
       "properties": {
+        "designIntent": { "type": "string" },
         "activeFrom": { "type": "string" },
         "floor": {
           "type": "object",

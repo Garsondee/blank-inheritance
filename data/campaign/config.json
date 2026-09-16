@@ -3,6 +3,7 @@
   "id": "config",
   "twoTracksPrinciple": "Every pilot runs on two independent numbers, Resonance and Bleed. Neither ever produces a numeric combat bonus larger than +2 — the difference between a well-synced and poorly-synced pilot is what they're allowed to do, not how good they are at doing it.",
   "resonance": {
+    "status": "NEEDS REWORK - not playable as written. Flagged by Ingram 2026-09-13: Resonance requires substantial work before it is functional, interesting or playable. The numbers below are the existing draft, retained so the rebuild has a starting point; they are NOT authoritative and nothing new should be built on top of them. See open-questions.json#resonance-playability and design/resonance-and-bleed.md.",
     "range": { "min": 0, "max": 100 },
     "bands": [
       {
@@ -22,7 +23,7 @@
         "rangeLabel": "40-65%",
         "min": 40,
         "max": 64,
-        "actionsPerTurn": 2,
+        "actionsPerTurn": 3,
         "reaction": true,
         "abilitiesAvailable": "+ Attuned",
         "internalPowerDuration": "6 rounds"
@@ -51,7 +52,8 @@
         "internalPowerDuration": "10 rounds"
       }
     ],
-    "bandDesignNote": "Sort each Frame's class abilities into these four bands at chargen. A Dead Weight Frame should still be competent — a big, dangerous, slow thing, not a joke. Most of the campaign is played at 2 actions; reaching Harmonised for the first time, mid-fight, should be a table moment. Duration is the pacing tool: once internal power runs out, the Frame is dead weight until reconnected. Ground crew's Umbilical Control role buys more of it.",
+    "bandDesignNote": "Sort each Frame's class abilities into these four bands at chargen. A Dead Weight Frame should still be competent — a big, dangerous, slow thing, not a joke. Duration is the pacing tool: once internal power runs out, the Frame is dead weight until reconnected. Ground crew's Umbilical Control role buys more of it.",
+    "actionEconomyRevisionNote": "Nominal was 2 actions until 2026-09-06, and the design bible's line that 'most of the campaign is played at 2 actions' described that. Changed to 3, deliberately: SF2E is architecturally a three-action system — two-action activities consume a whole turn, its signature turn shapes need three, and the multiple attack penalty is built around a third attack being possible-but-unwise — so a 2-action baseline plays a degraded version of the system rather than a tense one. 3 actions is now the norm from Nominal upward. 2 actions is a PENALTY state with exactly two causes: Dead Weight sync (below 40%), and Frame damage (see frameEconomy / scale-and-chassis.md §8, where Degraded caps at 2 and Critical at 1 regardless of band). Analysis: design/resonance-and-bleed.md §2; the band spread across normal operating range drops from 3.3x to 2.2x as a result, while Dead Weight stays a genuine outlier at 5.7x below Absolute, which is correct for a failure state.",
     "boundaryConvention": "The design bible prints adjacent bands sharing a boundary digit (e.g. \"40-65%\" then \"65-85%\"). This file resolves that the standard way — bands are contiguous and non-overlapping (65% = Harmonised, not Nominal). Revisit if that's not the intent.",
     "pushMechanic": {
       "description": "A pilot may raise Resonance mid-scene by accepting Bleed.",
@@ -59,6 +61,7 @@
     }
   },
   "bleed": {
+    "status": "NEEDS REWORK - not playable as written. Flagged by Ingram 2026-09-13 alongside Resonance. The existing investigation already found why: four inflows, one undefined outflow, one threshold across ten points, so points 1-9 do nothing. The numbers below are the existing draft, retained as a starting point; they are NOT authoritative. See open-questions.json#bleed-playability and design/resonance-and-bleed.md.",
     "min": 0,
     "max": 10,
     "sources": [
@@ -73,8 +76,9 @@
       "effect": "Damage output roughly doubles; targeting stops discriminating between friend, foe, and terrain.",
       "narrationRule": "Do not narrate this from the cockpit — the player doesn't get to watch it happen to them."
     },
-    "pilotVisibility": null,
-    "openQuestionRef": "bleed-visibility"
+    "pilotVisibility": "tested",
+    "visibilityMechanism": "Resolved 2026-09-06. A pilot does not passively see their Bleed total, and it is not permanently hidden either — it is TESTED. Spending a discretionary slice on a harmonics/medical evaluation reveals the current value, and the same evaluation can also improve it (see timeEconomy.options#harmonics-evaluation). This makes tactical certainty a purchase in personal time, exactly the pattern contactPool.analysisDutyInteraction already establishes for the Contact Pool: 'tactical certainty is purchased with personal time — the same currency as everything else in this game.' It also fixes the real problem with hiding it outright, which is that Pushing is a trade and a trade with one side of the ledger concealed is a gamble rather than a decision (design/resonance-and-bleed.md §3).",
+    "openQuestionRef": null
   },
   "anchors": {
     "countPerKid": { "min": 2, "max": 3 },
@@ -97,13 +101,38 @@
       "cost": "Repairing a step costs technician-days, drawn from a single shared weekly pool the Directorate allocates.",
       "sharedPoolNote": "Frame modification/customization draws from the exact same pool. Repairing a friend's Frame and upgrading your own compete directly for the same finite resource — this is the primary economic tension of downtime."
     },
+    "upgradePoints": {
+      "confirmed": "2026-09-06. Frames DO level up (campaign-arc.md had already corrected the design bible on this; this adds the earning mechanism). Players earn upgrade points from downtime activities AND from winning both personnel- and Frame-scale combat, spend them on Frame upgrades, and enough points levels the Frame — a normal SF2E level-up carrying bespoke Frame feats and options.",
+      "pool": "INDIVIDUAL per pilot, not shared. Deliberately unlike technician-days: each pilot has their own repair crew (see repairCrew below), so investing in your own Frame never means taking from a squadmate.",
+      "guaranteedFloor": "Combat wins award points at both scales, so a Frame can never be stranded at level 12 by a player who spends their downtime elsewhere.",
+      "levelDrift": "Hard cap of ONE level either way from the pilot's own level. Rewards investment up to a point without letting Frame-focus become an overpowering strategy, and keeps encounter maths predictable. This supersedes campaign-arc.md's strict-lockstep line, which is annotated there.",
+      "overInvestmentCost": "No new mechanic needed — the existing systems already punish it. Upgrade work spends discretionary slices, so slices spent in the hangar are slices not spent resting: Exhaustion climbs, Bleed goes unmanaged for want of a Harmonics Evaluation slot, and untouched Anchors invite Suppression. All work and no rest punishes itself.",
+      "openQuestionRef": "frame-upgrade-economy"
+    },
+    "repairCrew": {
+      "confirmed": "2026-09-06. Each pilot has their own repair crew — standing NPCs, not the PC-played Ground Roles — and the relationship carries real mechanical weight in both directions.",
+      "goodStanding": "Treat them well and they go beyond the allocation. The user's own example: go out drinking with your repair crew and they might put in a night shift nobody asked them for.",
+      "neglected": "A neglected crew provides less HP healing per repair.",
+      "whyItIsNotRedundantWithTechnicianDays": "Two different axes. The technician-day pool is the Directorate's SHARED allocation — how much repair time you are granted, competed for between pilots. Crew standing is PERSONAL and scales how much you get OUT of that time. Allocation versus effectiveness.",
+      "terminologyWarning": "Do not call these 'ground crew' in player-facing text. Ground Roles (campaign/ground-roles.json) are something else entirely — the PC-played roles the non-piloting kids take during a Contact.",
+      "namedChief": "Confirmed 2026-09-09: each crew has one named head, six total (data/npcs/repair-chief-*.json, linked via npc.schema.json's crewChiefForRef). Currently placeholders — Ingram's own framing: 'six lesser NPCs who may grow into bigger more interesting roles later.'",
+      "floorAndBoost": {
+        "confirmed": "2026-09-09",
+        "principle": "A crew is always working, whether or not the pilot shows up — 'repair crews are always working around the clock.' A guaranteed baseline HP repair happens automatically every technician-day cycle regardless of PC involvement (the floor). Direct PC involvement — showing up and working alongside the crew, not just spending the resource — restores substantially more HP than the floor alone, representing real labour, not a relationship-standing multiplier layered on top of it.",
+        "exactNumbersOpenQuestionRef": "repair-crew-relationship"
+      },
+      "coversVehicles": "Confirmed 2026-09-09, once chassis-catalogue.json existed to need it: a pilot's repair crew maintains their assigned vehicle (data/campaign/chassis-catalogue.json) as well as their Frame, drawing from the same technician-day allocation. Splitting a limited pool between Frame repair and vehicle repair is a real player choice, not two separate economies.",
+      "openQuestionRef": "repair-crew-relationship"
+    },
     "deployability": "Not all six Frames are necessarily deployable at once. A Degraded or Critical Frame may be riskier or unable to launch. When a Contact only calls for two or three Frames, the players choose the subset — the GM never has to force this; the repair economy does it for them.",
-    "permanentLoss": "A Frame that reaches Hulked can stay Hulked. Permanent loss of a personal Frame is on the table from the start (foreshadow it early, so when it happens it reads as the campaign keeping a promise, not GM cruelty)."
+    "permanentLoss": "A Frame that reaches Hulked can stay Hulked. Permanent loss of a personal Frame is on the table from the start (foreshadow it early, so when it happens it reads as the campaign keeping a promise, not GM cruelty). Confirmed 2026-09-09: this now applies equally to vehicles -- badly damaging or destroying a chassis in the Session Three drill/first-real-threat pairing is acceptable and expected, generating real repair backlog, same as a Frame. PC death is never the cost mechanism at either scale."
   },
   "timeEconomy": {
-    "discretionarySlicesPerDay": 2,
-    "mandatoryLoad": "Each day, mandatory school and mandatory harmonics/sync training eat most of it.",
+    "discretionarySlicesPerDay": 4,
+    "slicesRevisionNote": "Was 2, revised 2026-09-06 once the day gained a real four-quarter shape (morning/afternoon/evening/night) during UX design work — see design/ux-doctrine.md §3/§7a. One discretionary slice per quarter is now the intended granularity, not a smaller number spread across four.",
+    "mandatoryLoad": "School (morning + afternoon only) and sync training are standing options, on offer most days like anything else — choosing them still spends the quarter's slice, the same as any other pick. In practice they're the default most players take most days, which is what keeps a day feeling structured even though nothing forces the choice mechanically.",
     "designIntent": "More options exist than slices to spend them on — that gap is the entire engine of downtime play.",
+    "restIsAlwaysAvailable": "Even a player with nothing else planned, or one running high on fatigue (see fatigue below), can always spend a quarter's slice resting instead. Encouraged, not just permitted.",
     "options": [
       { "id": "sync-training", "name": "Sync Training", "effect": "Nudges baseline Resonance upward, slowly.", "cost": "1 slice" },
       { "id": "frame-modification", "name": "Frame Modification", "effect": "Customize loadout/tuning.", "cost": "1+ slices, from the shared technician-day pool" },
@@ -111,8 +140,17 @@
       { "id": "anchor-time", "name": "Anchor Time", "effect": "Scene with an Anchor — a chance to affirm it (or risk it).", "cost": "1 slice" },
       { "id": "investigation", "name": "Investigation", "effect": "Pull a thread.", "cost": "1+ slices, often spans several days" },
       { "id": "analysis-duty", "name": "Analysis Duty", "effect": "Read the sensor archive: reveals the current Contact Pool state, or pushes the floor back (delays the next possible Contact).", "cost": "1 slice" },
-      { "id": "rest", "name": "Rest", "effect": "Recover; protects against burnout at GM's discretion.", "cost": "1 slice" }
-    ]
+      { "id": "rest", "name": "Rest", "effect": "Recover — confirmed 2026-09-06 to be a category of several named rest activities, each with a different SF2E-relevant bonus (e.g. a quiet option weighted toward HP recovery, hospital care targeting HP and debuffs, a social outing for a different kind of bonus). The specific roster and numbers are not yet designed.", "cost": "1 slice", "openQuestionRef": "rest-activity-roster" },
+      { "id": "harmonics-evaluation", "name": "Harmonics Evaluation", "effect": "Get tested. Reveals the pilot's current Bleed value (otherwise not visible — see bleed.visibilityMechanism) and can also improve it. This is how a pilot buys the information needed to price a Push honestly: give up a morning, learn where you actually stand, and possibly come out of it better than you went in. Confirmed 2026-09-06; the amount of Bleed reduction it grants is not yet set.", "cost": "1 slice", "openQuestionRef": "bleed-recovery-sinks" }
+    ],
+    "fatigue": {
+      "description": "Working consecutive segments without resting triggers a check to see how tired the character is; the check gets harder each additional segment worked without a rest, and failing enough of them ends in involuntary unconsciousness and the loss of that segment's slot. Confirmed 2026-09-06 (design/ux-doctrine.md §3); grounded in but goes beyond PC2E's own flat \"fatigued at 16 hours\" rule (reference/srd/player-core/489-exploration-mode.json).",
+      "check": null,
+      "dcEscalation": null,
+      "failureConsequence": "unconscious; loses that segment's slot",
+      "resetBy": "likely resting, exact mechanism not yet decided alongside the rest-activity-roster question",
+      "openQuestionRef": "fatigue-escalation-formula"
+    }
   },
   "contactPool": {
     "activeFrom": "Day 7 (the opening arc, Days 1-6, is hand-placed and does not roll).",

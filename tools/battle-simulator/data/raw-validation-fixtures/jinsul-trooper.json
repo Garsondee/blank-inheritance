@@ -1,0 +1,75 @@
+{
+  "id": "raw-validation-jinsul-trooper",
+  "name": "Jinsul Trooper",
+  "side": "opposition",
+  "level": 0,
+  "initiativeModifier": 6,
+  "maxHP": 16,
+  "currentHP": 16,
+  "ac": 15,
+  "saves": {
+    "fort": 6,
+    "ref": 9,
+    "will": 4
+  },
+  "speed": 30,
+  "strikes": [
+    {
+      "name": "Laser Rifle",
+      "strikeType": "ranged",
+      "attackBonus": 7,
+      "rangeIncrement": 100,
+      "traits": [
+        "expend-2",
+        "reload-1",
+        "tech"
+      ],
+      "damage": [
+        {
+          "dice": "1d8",
+          "bonus": 0,
+          "damageType": "fire"
+        }
+      ]
+    },
+    {
+      "name": "Leg Blade",
+      "strikeType": "melee",
+      "attackBonus": 5,
+      "traits": [
+        "agile"
+      ],
+      "damage": [
+        {
+          "dice": "1d4",
+          "bonus": 1,
+          "damageType": "slashing"
+        }
+      ]
+    }
+  ],
+  "reactions": [],
+  "actions": [
+    {
+      "name": "All-Around Vision",
+      "actionType": "passive",
+      "actionsCost": null,
+      "description": "<p>@Localize[PF2E.NPC.Abilities.Glossary.AllAroundVision]</p>"
+    },
+    {
+      "name": "Strider Leap",
+      "actionType": "action",
+      "actionsCost": 2,
+      "description": "<p>The jinsul Strides and then performs a [[/act long-jump]]. They can Stride less than 10 feet and not automatically fail their check to Long Jump.</p>"
+    }
+  ],
+  "lore": [],
+  "skills": {
+    "athletics": 7,
+    "intimidation": 5,
+    "survival": 7
+  },
+  "intimidationModifier": 5,
+  "athleticsModifier": 7,
+  "notes": "Strikes/defenses are a direct transcription of the real bestiary statblock (gamesystems/sf2e/packs/alien-core-bestiary) — see test/character-builder/extract-npc.test.mjs. Level 0 ranged pick (design doc §76 Phase 4, GH #64's own suggested-ten survey): Laser Rifle (100ft range, tech) derives unmodified. Its real Leg Blade carries a SECOND damage-roll entry (1 persistent bleed) this project does not model — toCombatant only ever reads the first entry (1d4+1 slashing) — the same honest, already-documented limitation as Xenowarden Greenhorn's own real second damage entry. \"Strider Leap\" is a real action, captured under `actions`, not mechanically wired (no dedicated movement-ability mechanism exists). \"All-Around Vision\" is a real passive, likewise captured but not wired."
+}

@@ -1,0 +1,6 @@
+{
+  "$schema": "../schema/biome-overrides.schema.json",
+  "id": "biome-overrides",
+  "type": "biome-overrides",
+  "overrides": []
+}

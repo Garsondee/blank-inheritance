@@ -192,10 +192,50 @@ export function segmentsIntersect([ax1, ay1, ax2, ay2], [bx1, by1, bx2, by2]) {
  * gradations from a PARTIAL obstruction are a separate, now-implemented
  * check — see `hasCover` below, not deferred any more.)
  */
+/**
+ * lineOfEffect/hasCover CACHE (GH #62) — both functions are pure functions of the unordered point
+ * pair and `walls` (proven: reversing a/b flips segmentsIntersect's orientation tests together,
+ * preserving every comparison — see engine/terrain.mjs's own git history / design doc §77.x for the
+ * derivation), so a result computed once for a given (predicate, pair, walls) never needs
+ * recomputing for the life of a battle — walls are static terrain, never mutated mid-battle
+ * (confirmed: zero mutating assignments to any `.walls` property anywhere in this codebase, and
+ * cloneStateForPlanning/decide.mjs's own occupancyFingerprint comment both independently assert
+ * this). Measured directly (not assumed) on a real 8-combatant, 247-wall, `mcts-puct-v1` decision:
+ * 47,201 total lineOfEffect+hasCover calls resolved to only 668 DISTINCT (predicate,pair) results —
+ * a 70x repeat ratio, overwhelmingly from evaluateState's own per-(ally,enemy)-pair loop being
+ * called ~580 times across one MCTS search's tree-node expansions, each re-querying largely the
+ * same small position space every other node already queried. Mirrors evaluate/state-value.mjs's
+ * own `distanceCache` WeakMap-per-walls-reference pattern exactly (same file already has this
+ * precedent for a different symmetric per-pair query), rather than moveBlockedBetween's own
+ * edge-index approach, which only applies to single-adjacent-step queries, not arbitrary-distance
+ * lines. Cache lives on the SAME per-walls-reference WeakMap for both predicates, so battle-teardown
+ * (the whole `walls` array becoming unreachable) frees it automatically.
+ */
+const geometryResultCache = new WeakMap(); // walls -> Map<"predicate|a|b", boolean>
+let geometryQueryCount = 0, geometryCacheHits = 0;
+function cachedGeometryQuery(predicate, a, b, walls, compute) {
+  geometryQueryCount += 1;
+  let cache = geometryResultCache.get(walls);
+  if (!cache) { cache = new Map(); geometryResultCache.set(walls, cache); }
+  // Order-normalized — both functions are proven symmetric (pure functions of the unordered pair).
+  const [p, q] = `${a.col},${a.row}` <= `${b.col},${b.row}` ? [a, b] : [b, a];
+  const key = `${predicate}|${p.col},${p.row}|${q.col},${q.row}`;
+  if (cache.has(key)) { geometryCacheHits += 1; return cache.get(key); }
+  const result = compute();
+  cache.set(key, result);
+  return result;
+}
+export function resetGeometryQueryStats() { geometryQueryCount = 0; geometryCacheHits = 0; }
+export function getGeometryQueryStats(walls) {
+  return { total: geometryQueryCount, hits: geometryCacheHits, distinct: geometryResultCache.get(walls)?.size ?? 0 };
+}
+
 export function lineOfEffect(a, b, walls) {
   if (!walls?.length) return true;
-  const line = [a.col + 0.5, a.row + 0.5, b.col + 0.5, b.row + 0.5];
-  return !walls.some((w) => wallBlocksSight(w) && segmentsIntersect(line, w.c));
+  return cachedGeometryQuery("los", a, b, walls, () => {
+    const line = [a.col + 0.5, a.row + 0.5, b.col + 0.5, b.row + 0.5];
+    return !walls.some((w) => wallBlocksSight(w) && segmentsIntersect(line, w.c));
+  });
 }
 
 /**
@@ -225,6 +265,8 @@ export const STANDARD_COVER_AC_BONUS = 2;
 
 export function hasCover(a, b, walls) {
   if (!walls?.length) return false;
-  const line = [a.col + 0.5, a.row + 0.5, b.col + 0.5, b.row + 0.5];
-  return walls.some((w) => w.cover && segmentsIntersect(line, w.c));
+  return cachedGeometryQuery("cover", a, b, walls, () => {
+    const line = [a.col + 0.5, a.row + 0.5, b.col + 0.5, b.row + 0.5];
+    return walls.some((w) => w.cover && segmentsIntersect(line, w.c));
+  });
 }

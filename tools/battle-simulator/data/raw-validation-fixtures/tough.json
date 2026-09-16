@@ -2,6 +2,8 @@
   "id": "raw-validation-tough",
   "name": "Tough",
   "side": "opposition",
+  "level": 1,
+  "initiativeModifier": 6,
   "maxHP": 24,
   "currentHP": 24,
   "ac": 16,

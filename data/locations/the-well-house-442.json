@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-well-house-442",
+  "type": "location",
+  "tier": "site",
+  "name": "The Well House",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "amenity"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21454216,
+          34.66514961
+        ],
+        [
+          135.21456361,
+          34.66520091
+        ],
+        [
+          135.21467352,
+          34.66517034
+        ],
+        [
+          135.21465208,
+          34.66511903
+        ],
+        [
+          135.21454216,
+          34.66514961
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7677.7,
+          6983.1
+        ],
+        [
+          7676.5,
+          6977.2
+        ],
+        [
+          7686.9,
+          6975
+        ],
+        [
+          7688.1,
+          6980.9
+        ],
+        [
+          7677.7,
+          6983.1
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7682.3,
+      6979.05
+    ],
+    "cells": [
+      "D4·73"
+    ],
+    "ref": "D4·73",
+    "areaM2": 64.0,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-442",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "amenities and other general city supporting functions and administration.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "One of the old wells, kept and covered rather than filled in, on the reasoning that the mains have failed before.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

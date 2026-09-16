@@ -14,6 +14,7 @@
 import { parentPort } from "node:worker_threads";
 import { runBattle } from "../personnel-engine/engine.mjs";
 import { buildScenario } from "../scenarios/personnel-mirror.mjs";
+import { abilityCoverageStats } from "./tactical-metrics.mjs";
 
 parentPort.on("message", (job) => {
   const t0 = Date.now();
@@ -23,6 +24,10 @@ parentPort.on("message", (job) => {
     seed: job.seed,
     outcome: log.outcome.result,
     rounds: log.rounds.length,
-    elapsedMs: Date.now() - t0
+    elapsedMs: Date.now() - t0,
+    // GH #57 (design doc §78): compute the compact ability-coverage summary HERE, while the full log
+    // still exists in this worker's own scope, and post that instead — a real battle log runs
+    // 100-140KB, too much to ship per seed across a tournament; this summary is a few KB.
+    abilityCoverage: abilityCoverageStats(log)
   });
 });

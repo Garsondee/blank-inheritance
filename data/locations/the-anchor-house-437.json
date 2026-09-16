@@ -1,0 +1,142 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-anchor-house-437",
+  "type": "location",
+  "tier": "site",
+  "name": "The Anchor House",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "wealthy",
+    "walled"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.215982,
+          34.66521781
+        ],
+        [
+          135.21637882,
+          34.66537599
+        ],
+        [
+          135.21663966,
+          34.66494309
+        ],
+        [
+          135.2162954,
+          34.66478754
+        ],
+        [
+          135.2162463,
+          34.66479683
+        ],
+        [
+          135.21622002,
+          34.66482745
+        ],
+        [
+          135.21617751,
+          34.6648105
+        ],
+        [
+          135.21596269,
+          34.66515709
+        ],
+        [
+          135.215982,
+          34.66521781
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7787.5,
+          6909.5
+        ],
+        [
+          7809.9,
+          6875.9
+        ],
+        [
+          7854.9,
+          6905.1
+        ],
+        [
+          7836.5,
+          6936
+        ],
+        [
+          7832.1,
+          6937.4
+        ],
+        [
+          7828.3,
+          6935.7
+        ],
+        [
+          7825.9,
+          6939.3
+        ],
+        [
+          7789.4,
+          6916.2
+        ],
+        [
+          7787.5,
+          6909.5
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7820.33,
+      6908.99
+    ],
+    "cells": [
+      "D4·73",
+      "D4·83"
+    ],
+    "ref": "D4·73",
+    "areaM2": 2396.8,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-437",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Larger and more expensive houses. Some within walled compounds with gates and expensive looking bodyguards.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Named for the ship's anchor mounted over its own gate -- old shipping money, still walled in behind bodyguards who dress like household staff and aren't.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

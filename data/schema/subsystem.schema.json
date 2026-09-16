@@ -45,6 +45,22 @@
                 "effect": { "type": "string" }
               }
             }
+          },
+          "startModifiers": {
+            "type": "array",
+            "description": "How this pool's actual starting value can be shifted by a beat resolved BEFORE this subsystem begins — a setup check in the same scene-brief, not one of this subsystem's own obstacles[]. Different from poolEffects (which is for obstacles inside this subsystem, applied as the subsystem runs): a startModifier is read once, at the moment core/scene-brief.mjs's clockState first computes this pool's value, from that SAME scene's runState.ticked[beatRef].degree — the identical beat-tick data the scene runner already tracks, not a new cross-file lookup. Sparse per degree, same convention as poolEffects (an omitted degree contributes 0). First real use: c1s1-flood-tunnel's clear-the-jam beat seeding c1s1-compactor-cycle's Encroachment pool.",
+            "items": {
+              "type": "object",
+              "required": ["poolRef", "beatRef"],
+              "properties": {
+                "poolRef": { "type": "string" },
+                "beatRef": { "type": "string", "description": "id of a beat in the scene-brief this subsystem is used from (scene-brief.schema.json beats[].id) — NOT an id inside this subsystem file." },
+                "criticalSuccess": { "type": "integer" },
+                "success": { "type": "integer" },
+                "failure": { "type": "integer" },
+                "criticalFailure": { "type": "integer" }
+              }
+            }
           }
         }
       }
@@ -66,8 +82,7 @@
     },
     "obstacles": {
       "type": "array",
-      "minItems": 1,
-      "description": "The discrete tasks/checks that make up this subsystem.",
+      "description": "The discrete tasks/checks that make up this subsystem. May legitimately be EMPTY since `spends` exists: a subsystem whose whole job is to be a visible clock the players spend down by choosing things has real pools, real thresholds and no DC'd task anywhere in it. Still required to be present, so that an authoring slip reads as \"no obstacles here\" rather than as a forgotten field.",
       "items": {
         "allOf": [
           { "$ref": "common/sf2e-common.schema.json#/$defs/check" },
@@ -105,6 +120,21 @@
             }
           }
         ]
+      }
+    },
+    "spends": {
+      "type": "array",
+      "description": "Authored, check-free ways to move a pool. Every `obstacle` is a DC'd check; a spend is the other half — a flat, GM-adjudicated cost for something a player simply chooses to do. Written for the scene-runner's visible clocks (design/theatre-of-the-mind-staging.md, ux-doctrine.md §3): a shift's twelve walls is a diminishing pool, and 'mapping the tag distribution costs two of them' is a spend. Cost is authored because the GM prices the action, not the dice.",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "poolRef", "delta"],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string", "description": "What the players are choosing to do, in their words — \"Map the tag distribution\", \"Interview a shopkeeper properly\"." },
+          "poolRef": { "type": "string", "description": "id of the pool in this subsystem's `pools` that this moves." },
+          "delta": { "type": "integer", "description": "Signed, and applied as-is: negative spends a diminishing pool down, positive can give time back. Never assume the sign from the pool's mode." },
+          "note": { "type": ["string", "null"], "description": "GM-facing colour on what this costs or buys." }
+        }
       }
     },
     "complications": {

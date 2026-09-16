@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-magazine",
+  "type": "location",
+  "tier": "site",
+  "name": "The Magazine",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21719892,
+          34.68125092
+        ],
+        [
+          135.21723852,
+          34.68106517
+        ],
+        [
+          135.21691515,
+          34.68101873
+        ],
+        [
+          135.21687555,
+          34.68120449
+        ],
+        [
+          135.21719892,
+          34.68125092
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6979.4,
+          5321.2
+        ],
+        [
+          6993,
+          5337.1
+        ],
+        [
+          6970.1,
+          5356.6
+        ],
+        [
+          6956.5,
+          5340.7
+        ],
+        [
+          6979.4,
+          5321.2
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6974.75,
+      5338.9
+    ],
+    "cells": [
+      "D3·35"
+    ],
+    "ref": "D3·35",
+    "areaM2": 629.3,
+    "withinRegionRef": "garrison",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-220",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Ammunition, sited on its own well clear of the compound and banked on three sides. Two signatures to open it and a walk to get there, both of which are the point.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Ammunition, sited on its own well clear of the compound and banked on three sides. Two signatures to open it and a walk to get there, both of which are the point.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

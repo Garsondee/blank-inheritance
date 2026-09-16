@@ -1,0 +1,161 @@
+{
+  "$schema": "../schema/induction-intake-prompts.schema.json",
+  "id": "induction-intake-prompts",
+  "type": "induction-intake-prompts",
+  "description": "Suggestion-chip content for the induction terminal's Page 7 (Finishing Details) and Page 8 (The Eight Questions). Every suggestion here is illustrative only -- a quick-start a player may click to insert into their own answer, never a real answer for any of the six actual kids. The Eight Questions' text is bible §20's real intake quiz, verbatim; do not alter the wording.",
+  "genderIdentityOptions": [
+    "Woman",
+    "Man",
+    "Nonbinary",
+    "Genderfluid",
+    "Agender",
+    "Trans woman",
+    "Trans man",
+    "Genderqueer",
+    "Demigirl",
+    "Demiboy",
+    "Bigender",
+    "Still figuring it out",
+    "Prefer not to say"
+  ],
+  "pronounOptions": [
+    "She/her",
+    "He/him",
+    "They/them",
+    "She/they",
+    "He/they",
+    "Any pronouns",
+    "Ask me",
+    "Use my name"
+  ],
+  "appearanceOptions": [
+    "Never without their jacket, whatever the weather.",
+    "Looks like they just woke up, always.",
+    "Taller than they act like they are.",
+    "A scar they won't explain.",
+    "Dresses like someone twice their age.",
+    "You'd know them by their laugh before you'd know their face."
+  ],
+  "banalQuestions": [
+    {
+      "id": "unpacking",
+      "text": "What's the first thing you unpack, and the last?",
+      "purposeNote": null,
+      "suggestions": [
+        "A photograph, first. Whatever's left, last.",
+        "Socks first — cold feet is a genuine tragedy.",
+        "Nothing's really unpacked. Still in the bag, just in case."
+      ]
+    },
+    {
+      "id": "canteen-food",
+      "text": "What do you actually think of the canteen food?",
+      "purposeNote": null,
+      "suggestions": [
+        "Better than home, and I'll never admit that.",
+        "I've had worse. I've also had much better.",
+        "Ask again after exam week."
+      ]
+    },
+    {
+      "id": "first-name-learned",
+      "text": "Who's the first person here whose name you bothered to learn?",
+      "purposeNote": null,
+      "suggestions": [
+        "Whoever was rude to me first — you remember rude.",
+        "Nobody yet. Give it a week.",
+        "The kid who couldn't reach the top bunk. Felt obligated."
+      ]
+    }
+  ],
+  "eightQuestions": [
+    {
+      "id": "q1",
+      "number": 1,
+      "text": "Who do you love, and what would you never tell them?",
+      "purposeNote": null,
+      "suggestions": [
+        "My little sister. That I'm scared too.",
+        "A friend back home. That I only left because of them.",
+        "Someone in this building already. That I noticed on day one."
+      ]
+    },
+    {
+      "id": "q2",
+      "number": 2,
+      "text": "What are you good at that has nothing to do with piloting?",
+      "purposeNote": "This becomes your ground-role affinity, and probably a side plot.",
+      "suggestions": [
+        "Fixing things nobody else can figure out.",
+        "Making people laugh when they need it.",
+        "Cooking — really cooking, not just canteen trays."
+      ]
+    },
+    {
+      "id": "q3",
+      "number": 3,
+      "text": "What did you want to be, before the draft notice?",
+      "purposeNote": null,
+      "suggestions": [
+        "A teacher. Still might be, someday.",
+        "Whatever my parents were, and I never said otherwise.",
+        "Honestly? Nothing. I hadn't decided yet."
+      ]
+    },
+    {
+      "id": "q4",
+      "number": 4,
+      "text": "Who in this city owes you something? Who do you owe?",
+      "purposeNote": null,
+      "suggestions": [
+        "Nobody owes me anything. I owe someone everything.",
+        "A friend covered for me once. I haven't paid that back.",
+        "Nobody yet — I've only just arrived."
+      ]
+    },
+    {
+      "id": "q5",
+      "number": 5,
+      "text": "What is the smallest thing that would make today a good day?",
+      "purposeNote": "The campaign's cheapest, most reliable emotional lever — your GM will actually use this.",
+      "suggestions": [
+        "A letter from home, any length.",
+        "Getting through a whole drill without being singled out.",
+        "Someone laughing at something I said on purpose."
+      ]
+    },
+    {
+      "id": "q6",
+      "number": 6,
+      "text": "What do you not want the Directorate to know about you?",
+      "purposeNote": null,
+      "suggestions": [
+        "Where I actually come from.",
+        "Why I really signed up.",
+        "Something I did before any of this."
+      ]
+    },
+    {
+      "id": "q7",
+      "number": 7,
+      "text": "Name someone who thinks you are better than you are.",
+      "purposeNote": null,
+      "suggestions": [
+        "My mother. She's wrong, but I let her be.",
+        "A teacher who wrote me a recommendation I didn't earn.",
+        "Someone I haven't spoken to in years."
+      ]
+    },
+    {
+      "id": "q8",
+      "number": 8,
+      "text": "What do you find funny?",
+      "purposeNote": "Tells your GM what register you want — funnier, darker, weirder. There's no wrong answer.",
+      "suggestions": [
+        "People who take the uniform more seriously than the job.",
+        "My own bad luck, eventually — just not yet.",
+        "Anything that goes wrong for someone in charge."
+      ]
+    }
+  ]
+}

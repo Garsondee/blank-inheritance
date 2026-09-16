@@ -137,6 +137,45 @@ test("REAL BATTLE: a Strike from a real flanking position logs a real flankBonus
   assert.equal(strike.flankBonus, 2, `expected a real flanking bonus, got ${JSON.stringify(strike)}`);
 });
 
+// GH #54 regression. The four tests above all assert the LOG FIELD `flankBonus`, and the only test
+// that checked a real `roll.targetAc` was the non-flanking case — so for the whole life of this
+// feature the sign could be (and was) inverted without a single test noticing: `acBonus` summed
+// cover and flanking as if both raised AC, so a flanked target was struck at AC+2 instead of AC-2.
+// These two assert the number the d20 is ACTUALLY rolled against, which is the only thing that
+// can catch a sign error.
+test("REAL BATTLE (GH #54): flanking LOWERS the target's effective AC by 2 — the number actually rolled against, not just the logged field", () => {
+  const a = makePartyMelee("a", { col: 4, row: 5 });
+  const b = makePartyMelee("b", { col: 6, row: 5 }); // opposite side of the target from `a`
+  const target = makeTargetAt({ col: 5, row: 5 });   // ac 15, no conditions
+  function ai(state, id, turn) {
+    return id === "a" && turn.actionsUsed === 0 ? { type: "strike", targetId: "target", strikeIndex: 0 } : null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [a, b, target], ai });
+  const strike = log.rounds[0].turns.find((t) => t.combatantId === "a").actions.find((act) => act.type === "strike");
+  assert.equal(strike.flankBonus, 2, "precondition: the flank must actually be detected");
+  assert.equal(strike.roll.targetAc, target.ac - 2,
+    `a flanked target must be EASIER to hit: expected AC ${target.ac - 2}, got ${strike.roll.targetAc}`);
+});
+
+test("REAL BATTLE (GH #54): cover and flanking are opposite signs — a flanked target behind cover is struck at its own base AC", () => {
+  const a = makePartyMelee("a", { col: 4, row: 5 });
+  const b = makePartyMelee("b", { col: 6, row: 5 });
+  const target = makeTargetAt({ col: 5, row: 5 });
+  // A cover-granting edge on the a-to-target line. `sight: 0` means it never blocks line of
+  // effect, so the flank itself still stands (isFlanking runs its own LOS gate) — which is
+  // exactly the case that proves the two modifiers cancel rather than compound.
+  const coverWall = [{ c: [5, 5, 5, 6], move: 0, sight: 0, cover: true }];
+  function ai(state, id, turn) {
+    return id === "a" && turn.actionsUsed === 0 ? { type: "strike", targetId: "target", strikeIndex: 0 } : null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [a, b, target], ai, walls: coverWall });
+  const strike = log.rounds[0].turns.find((t) => t.combatantId === "a").actions.find((act) => act.type === "strike");
+  assert.equal(strike.flankBonus, 2, "precondition: a cover edge with sight 0 must not break the flank");
+  assert.equal(strike.coverBonus, 2, "precondition: the cover edge must actually grant cover");
+  assert.equal(strike.roll.targetAc, target.ac,
+    `cover (+2) and flanking (-2) must cancel: expected AC ${target.ac}, got ${strike.roll.targetAc}`);
+});
+
 test("REAL BATTLE: the SAME position without a flanking ally present logs flankBonus 0", () => {
   const a = makePartyMelee("a", { col: 4, row: 5 });
   const target = makeTargetAt({ col: 5, row: 5 });

@@ -47,7 +47,19 @@
     {
       "id": "school-name",
       "label": "The school",
-      "description": "Where the kids attend classes. Confirmed as the same combined campus as the Directorate's civil-defense facility (see open-questions.json #school-facility-same-location, resolved) — this and \"the huge facility\" from the design bible are one location, so may end up sharing a single name rather than needing two.",
+      "description": "Where the kids attend classes. Confirmed as the same combined campus as the Directorate's civil-defense facility (see open-questions.json #school-facility-same-location, resolved) -- this and \"the huge facility\" from the design bible are one location, so may end up sharing a single name rather than needing two. REFINED 2026-09-12 (LEDGER #13): one campus, one island, but NOT co-sited. The island's north-west end -- causeway, Roadgate, Frame hangar, workshops, vehicle control point, candidate camp -- is \"pure military and checkpoints\" in Ingram's words; the school is further south-east on the same island. Entry 12's deliberate military/school mix is achieved by walking between the two ends, not by blending them in one place. A single name may therefore still be wrong; check before assuming.",
+      "finalName": null
+    },
+    {
+      "id": "the-original-cultist",
+      "label": "The Original Cultist",
+      "description": "Working name, 2026-09-13, explicitly not final. The designation for Cicada's unidentified founder. IN-FICTION this is a label for a person nobody has a name for -- the Directorate has never identified him (LEDGER #17), so any term the party or the institution uses is one they invented for a gap in the file. That makes the label itself a piece of characterisation: an institution that gives a case number to someone it cannot name. Whatever this becomes, it must read as something people would actually say out loud in a briefing.",
+      "finalName": null
+    },
+    {
+      "id": "section-officer-name",
+      "label": "The Section Officer",
+      "description": "The party's immediate superior and the campaign's in-house petty tyrant (data/npcs/section-officer.json). Needs a name that sounds like a middling rank on a duty roster rather than a villain -- the joke is that he is completely ordinary. Whatever it is, the party will say it a great deal, usually while complaining.",
       "finalName": null
     }
   ]

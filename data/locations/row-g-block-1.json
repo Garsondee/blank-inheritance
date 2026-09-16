@@ -1,0 +1,138 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "row-g-block-1",
+  "type": "location",
+  "tier": "site",
+  "name": "Row G, Block 1",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20935027,
+          34.67244761
+        ],
+        [
+          135.20938198,
+          34.67239446
+        ],
+        [
+          135.20941033,
+          34.67240576
+        ],
+        [
+          135.20945115,
+          34.67233875
+        ],
+        [
+          135.21015863,
+          34.67262497
+        ],
+        [
+          135.21011781,
+          34.67269198
+        ],
+        [
+          135.21014168,
+          34.67270232
+        ],
+        [
+          135.21010996,
+          34.67275547
+        ],
+        [
+          135.20935027,
+          34.67244761
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6856.4,
+          6527.8
+        ],
+        [
+          6861.9,
+          6531.4
+        ],
+        [
+          6863.5,
+          6529
+        ],
+        [
+          6870.5,
+          6533.5
+        ],
+        [
+          6910.2,
+          6473.2
+        ],
+        [
+          6903.2,
+          6468.7
+        ],
+        [
+          6904.5,
+          6466.6
+        ],
+        [
+          6899,
+          6463
+        ],
+        [
+          6856.4,
+          6527.8
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6883.92,
+      6499.29
+    ],
+    "cells": [
+      "D4·31"
+    ],
+    "ref": "D4·31",
+    "areaM2": 1113.7,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-125",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Furthest block from the gate, quietest, favoured by candidates who requested it specifically. A single payphone in the stairwell is the row's most reliable, and most gossiped-about, connection to anyone outside the campus.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Furthest block from the gate, quietest, favoured by candidates who requested it specifically. A single payphone in the stairwell is the row's most reliable, and most gossiped-about, connection to anyone outside the campus.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

@@ -1,0 +1,124 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-tool-store-455",
+  "type": "location",
+  "tier": "site",
+  "name": "The Tool Store",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "amenity"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21419055,
+          34.66517351
+        ],
+        [
+          135.2145893,
+          34.66506486
+        ],
+        [
+          135.21469139,
+          34.66490097
+        ],
+        [
+          135.21475218,
+          34.66492575
+        ],
+        [
+          135.21465797,
+          34.66510778
+        ],
+        [
+          135.21421852,
+          34.66522685
+        ],
+        [
+          135.21419055,
+          34.66517351
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7648.6,
+          6997.2
+        ],
+        [
+          7686.2,
+          6989
+        ],
+        [
+          7703.5,
+          6999.9
+        ],
+        [
+          7706.9,
+          6994.7
+        ],
+        [
+          7689.2,
+          6981.7
+        ],
+        [
+          7647.8,
+          6990.8
+        ],
+        [
+          7648.6,
+          6997.2
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7678.16,
+      6990.14
+    ],
+    "cells": [
+      "D4·73"
+    ],
+    "ref": "D4·73",
+    "areaM2": 408.7,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-455",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "amenities and other general city supporting functions and administration.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A shared equipment store for the quarter's civic maintenance crews.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

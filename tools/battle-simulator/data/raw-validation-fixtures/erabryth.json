@@ -2,6 +2,8 @@
   "id": "raw-validation-erabryth",
   "name": "Erabryth",
   "side": "opposition",
+  "level": 1,
+  "initiativeModifier": 10,
   "maxHP": 20,
   "currentHP": 20,
   "ac": 15,

@@ -1,0 +1,157 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "walled-house-no-5-428",
+  "type": "location",
+  "tier": "site",
+  "name": "Walled House No. 5",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "wealthy",
+    "walled"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.2146208,
+          34.66842336
+        ],
+        [
+          135.21456237,
+          34.66862353
+        ],
+        [
+          135.21479961,
+          34.66867008
+        ],
+        [
+          135.21487178,
+          34.66841819
+        ],
+        [
+          135.2149424,
+          34.66843191
+        ],
+        [
+          135.2149978,
+          34.66823635
+        ],
+        [
+          135.21475961,
+          34.66819026
+        ],
+        [
+          135.21470426,
+          34.66838056
+        ],
+        [
+          135.21471621,
+          34.66838311
+        ],
+        [
+          135.21470038,
+          34.66843898
+        ],
+        [
+          135.2146208,
+          34.66842336
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7499.3,
+          6666.7
+        ],
+        [
+          7483.4,
+          6650.3
+        ],
+        [
+          7499.5,
+          6634.8
+        ],
+        [
+          7519.4,
+          6655.5
+        ],
+        [
+          7524.2,
+          6650.9
+        ],
+        [
+          7539.6,
+          6667
+        ],
+        [
+          7523.4,
+          6682.5
+        ],
+        [
+          7508.3,
+          6666.9
+        ],
+        [
+          7509.1,
+          6666.1
+        ],
+        [
+          7504.7,
+          6661.5
+        ],
+        [
+          7499.3,
+          6666.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7511.52,
+      6658.65
+    ],
+    "cells": [
+      "D4·62"
+    ],
+    "ref": "D4·62",
+    "areaM2": 1096.0,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-428",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Larger and more expensive houses. Some within walled compounds with gates and expensive looking bodyguards.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "One of a run of walled compounds on the island's better ground -- private gates, private guards, and neighbours who mostly know better than to ask what pays for either.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

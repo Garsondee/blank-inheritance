@@ -1,0 +1,92 @@
+{{!--
+    The induction terminal — Page 6, Portrait.
+
+    Three states, one shared <input type="file"> reused across all of them
+    (a native <label for="..."> triggers it with no click-relay JS needed):
+      - empty     -- no crop session, no uploaded path yet: a placeholder box.
+      - cropping  -- a file was just chosen (adapter's _portraitCropSession):
+                     a pannable/zoomable preview at the real 2:3 ratio.
+      - done      -- portrait.path is set: the final cropped image, plus
+                     Change/Remove.
+
+    Nothing here gates Continue -- a portrait is optional, same as every
+    field on Pages 7-8 except Page 7's name. Pan/zoom/drag are plain DOM
+    listeners bound in #bindPortraitCropper (induction-terminal.mjs), not
+    data-action -- a live drag redraws a CSS transform every pointermove,
+    which would fight a real Foundry re-render the same way Page 2's live
+    filter and Pages 7-8's suggestion chips already avoid one.
+--}}
+<section class="bi-induction">
+    <div class="bi-doc bi-induction__page">
+        <header class="bi-doc__head">
+            <h1 class="bi-doc__title">{{localize "BLANKINHERITANCE.Induction.Page6.Title"}}</h1>
+            <div class="bi-doc__meta">
+                {{localize "BLANKINHERITANCE.Induction.Page6.FormNumber"}}
+                {{#if userName}}<br><b>{{userName}}</b>{{/if}}
+            </div>
+        </header>
+
+        <div class="bi-induction__tracker" role="list" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
+            {{#each trackerSteps}}
+            <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
+                  role="listitem" title="{{this.number}}. {{this.label}}">{{this.number}}</span>
+            {{/each}}
+        </div>
+
+        <p>{{localize "BLANKINHERITANCE.Induction.Page6.Intro"}}</p>
+
+        <div class="bi-portrait">
+            <input type="file" id="bi-portrait-file-input" accept="image/*" class="bi-portrait__file-input" data-portrait-file-input {{#if portraitUploading}}disabled{{/if}}>
+
+            {{#if isCropping}}
+            <div class="bi-portrait__crop">
+                <div class="bi-portrait__viewport" data-portrait-viewport>
+                    <img src="{{cropImageUrl}}" alt="" data-portrait-crop-image
+                         style="transform: translate({{cropOffsetXNeg}}px, {{cropOffsetYNeg}}px) scale({{cropScale}});">
+                </div>
+                <div class="bi-portrait__zoom-row">
+                    <label for="bi-portrait-zoom">{{localize "BLANKINHERITANCE.Induction.Page6.ZoomLabel"}}</label>
+                    <input type="range" id="bi-portrait-zoom" data-portrait-zoom
+                           min="0" max="1" step="0.001" value="{{cropZoomSliderValue}}">
+                </div>
+                <div class="bi-portrait__crop-actions">
+                    <button type="button" class="bi-induction__begin" data-action="confirmPortraitCrop" {{#if portraitUploading}}disabled{{/if}}>
+                        {{localize "BLANKINHERITANCE.Induction.Page6.UseThisCrop"}}
+                    </button>
+                    <label class="bi-induction__change" for="bi-portrait-file-input">{{localize "BLANKINHERITANCE.Induction.Page6.ChangePhoto"}}</label>
+                </div>
+                {{#if portraitUploading}}<p class="bi-portrait__uploading">{{localize "BLANKINHERITANCE.Induction.Page6.Uploading"}}</p>{{/if}}
+            </div>
+            {{else if portraitPath}}
+            <div class="bi-portrait__done">
+                <div class="bi-portrait__preview">
+                    <img src="{{portraitPath}}" alt="">
+                </div>
+                <div class="bi-portrait__crop-actions">
+                    <label class="bi-induction__begin" for="bi-portrait-file-input">{{localize "BLANKINHERITANCE.Induction.Page6.ChangePhoto"}}</label>
+                    <button type="button" class="bi-induction__change" data-action="removePortrait">{{localize "BLANKINHERITANCE.Induction.Page6.RemovePhoto"}}</button>
+                </div>
+            </div>
+            {{else}}
+            <label class="bi-portrait__chooser" for="bi-portrait-file-input">
+                <span class="bi-portrait__chooser-label">{{localize "BLANKINHERITANCE.Induction.Page6.NoPhotoLabel"}}</span>
+                <span class="bi-portrait__choose-button">{{localize "BLANKINHERITANCE.Induction.Page6.ChoosePhoto"}}</span>
+            </label>
+            {{/if}}
+
+            {{#if portraitError}}<p class="bi-portrait__error">{{portraitError}}</p>{{/if}}
+        </div>
+
+        <details class="bi-induction__help" data-sync="help">
+            <summary>{{localize "BLANKINHERITANCE.Induction.Page6.HelpSummary"}}</summary>
+            <p>{{localize "BLANKINHERITANCE.Induction.Page6.HelpBody"}}</p>
+        </details>
+
+        <div class="bi-induction__actions bi-induction__actions--split">
+            <button type="button" class="bi-induction__back" data-action="backFromPortrait">{{localize "BLANKINHERITANCE.Induction.Page6.Back"}}</button>
+            <button type="button" class="bi-induction__begin" data-action="continueFromPortrait">
+                {{localize "BLANKINHERITANCE.Induction.Page6.Continue"}}
+            </button>
+        </div>
+    </div>
+</section>

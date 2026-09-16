@@ -1,0 +1,130 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "row-b-block-2",
+  "type": "location",
+  "tier": "site",
+  "name": "Row B, Block 2",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21045826,
+          34.67290071
+        ],
+        [
+          135.21038919,
+          34.67288205
+        ],
+        [
+          135.21013395,
+          34.67277308
+        ],
+        [
+          135.21021388,
+          34.67264199
+        ],
+        [
+          135.21047547,
+          34.672751
+        ],
+        [
+          135.210721,
+          34.67275061
+        ],
+        [
+          135.21071762,
+          34.67290194
+        ],
+        [
+          135.21045826,
+          34.67290071
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6918.3,
+          6432.9
+        ],
+        [
+          6913.9,
+          6437.9
+        ],
+        [
+          6899.9,
+          6460.2
+        ],
+        [
+          6913.6,
+          6469
+        ],
+        [
+          6928.1,
+          6446.4
+        ],
+        [
+          6947.5,
+          6435
+        ],
+        [
+          6938.7,
+          6420.7
+        ],
+        [
+          6918.3,
+          6432.9
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6922.76,
+      6443.8
+    ],
+    "cells": [
+      "D4·31"
+    ],
+    "ref": "D4·31",
+    "areaM2": 877.0,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-118",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Directly across from Long Hall, close enough that residents can hear the dinner bell without a clock. Consequently has the row's fastest, rowdiest sprint to the mess queue on record, and an unofficial time to beat.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Directly across from Long Hall, close enough that residents can hear the dinner bell without a clock. Consequently has the row's fastest, rowdiest sprint to the mess queue on record, and an unofficial time to beat.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

@@ -1,0 +1,72 @@
+{{!--
+    The induction terminal — Page 8, The Eight Questions.
+
+    bible §20's real intake quiz, verbatim (design/induction-terminal.md §4)
+    -- every answer becomes an Anchor, a side plot seed, or a vulnerability.
+    Nothing here is required; leaving every box blank and continuing is a
+    real, supported path. Each question gets its own OOC "what's this for"
+    toggle where the bible states a purpose explicitly.
+
+    Same suggestion-chip + free-text pattern as Page 7 -- see that page's
+    own header comment for the mechanism. PAPER register, .bi-doc vocabulary.
+--}}
+<section class="bi-induction">
+    <div class="bi-doc bi-induction__page">
+        <header class="bi-doc__head">
+            <h1 class="bi-doc__title">{{localize "BLANKINHERITANCE.Induction.Page8.Title"}}</h1>
+            <div class="bi-doc__meta">
+                {{localize "BLANKINHERITANCE.Induction.Page8.FormNumber"}}
+                {{#if userName}}<br><b>{{userName}}</b>{{/if}}
+            </div>
+        </header>
+
+        <div class="bi-induction__tracker" role="list" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
+            {{#each trackerSteps}}
+            <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
+                  role="listitem" title="{{this.number}}. {{this.label}}">{{this.number}}</span>
+            {{/each}}
+        </div>
+
+        <p>{{localize "BLANKINHERITANCE.Induction.Page8.Intro"}}</p>
+        <p class="bi-prompt-field__optional-note">{{localize "BLANKINHERITANCE.Induction.Page8.OptionalNote"}}</p>
+
+        {{#if loadFailed}}
+        <div class="bi-induction__load-error">
+            <p class="bi-induction__load-error-title">{{localize "BLANKINHERITANCE.Induction.Page2.LoadFailedTitle"}}</p>
+            <p>{{localize "BLANKINHERITANCE.Induction.Page2.LoadFailedBody"}}</p>
+        </div>
+        {{else}}
+
+        {{#each promptFields}}
+        <div class="bi-prompt-field">
+            <label class="bi-prompt-field__label" for="{{this.elementId}}">{{this.label}}</label>
+            <textarea class="bi-prompt-field__control bi-prompt-field__control--textarea" id="{{this.elementId}}"
+                      name="{{this.elementId}}" data-prompt-field="{{this.statePath}}">{{this.value}}</textarea>
+            {{#if this.suggestions.length}}
+            <div class="bi-induction__options">
+                {{#each this.suggestions}}
+                <button type="button" class="bi-induction__option" data-prompt-suggestion
+                        data-prompt-target="{{this.targetElementId}}" data-suggestion-text="{{this.text}}"
+                        data-prompt-separator="{{this.separator}}">{{this.text}}</button>
+                {{/each}}
+            </div>
+            {{/if}}
+            {{#if this.helpBody}}
+            <details class="bi-induction__help" data-sync="{{this.syncKey}}">
+                <summary>{{localize "BLANKINHERITANCE.Induction.Page8.HelpSummary"}}</summary>
+                <p>{{this.helpBody}}</p>
+            </details>
+            {{/if}}
+        </div>
+        {{/each}}
+
+        {{/if}}
+
+        <div class="bi-induction__actions bi-induction__actions--split">
+            <button type="button" class="bi-induction__back" data-action="backFromQuestions">{{localize "BLANKINHERITANCE.Induction.Page8.Back"}}</button>
+            <button type="button" class="bi-induction__begin" data-action="continueFromQuestions">
+                {{localize "BLANKINHERITANCE.Induction.Page8.Continue"}}
+            </button>
+        </div>
+    </div>
+</section>

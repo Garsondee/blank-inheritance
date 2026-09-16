@@ -36,11 +36,11 @@
  * function needs no changes at all — only the sandbox it forks through does. `trip` stays real and
  * unmodified too, harmlessly unused on Frame scale, which has no Trip/Shove/Grapple maneuvers at all
  * (`isStochasticProposal` simply never matches a `type: "trip"` proposal Frame's own `generateProposals`
- * never produces). Frame's own reaction strikes (the Claimant's Claim, triggered off `move`/`advance`
- * proposals) are a real, separate, NOT-yet-covered gap — `move`/`advance` aren't in `STOCHASTIC_TYPES`,
- * so a search evaluating "step next to a reactive threat" only ever sees `EXPECTED_OUTCOMES`'s
- * deterministic average reaction damage, never a real branch. Personnel has no reaction-strike concept
- * at all to compare against; this is Frame-only, structurally the same shape of trap this whole feature
+ * never produces). Reaction strikes (Frame's Claimant's Claim, AND — since GH #18 — personnel's own
+ * real, generic Reactive Strike, fired from inside the "move" branch itself) are a real, separate,
+ * NOT-yet-covered gap on BOTH scales now — `move`/`advance` aren't in `STOCHASTIC_TYPES`, so a search
+ * evaluating a move that provokes only ever sees `EXPECTED_OUTCOMES`'s deterministic average reaction
+ * damage, never a real crit/hit/miss branch. Structurally the same shape of trap this whole feature
  * exists to fix, just outside this slice's own scope (matching issue #6's own pre-existing "strike +
  * trip only" limit) — named honestly, not silently dropped.
  */

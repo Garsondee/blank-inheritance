@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-target-shed",
+  "type": "location",
+  "tier": "site",
+  "name": "The Target Shed",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.22072197,
+          34.6794815
+        ],
+        [
+          135.22082444,
+          34.67925251
+        ],
+        [
+          135.22095492,
+          34.67929147
+        ],
+        [
+          135.22085207,
+          34.67952169
+        ],
+        [
+          135.22072197,
+          34.6794815
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7357.2,
+          5326.1
+        ],
+        [
+          7378.2,
+          5343.2
+        ],
+        [
+          7386.3,
+          5333.4
+        ],
+        [
+          7365.2,
+          5316.2
+        ],
+        [
+          7357.2,
+          5326.1
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7371.73,
+      5329.72
+    ],
+    "cells": [
+      "D3·55"
+    ],
+    "ref": "D3·55",
+    "areaM2": 345.4,
+    "withinRegionRef": "the-proving-ground",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-356",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Nearest the backstop. Silhouettes, frames, scoring chalk, and the tools to reset all three after a session, stored closer to the impact wall than most people are comfortable standing.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Nearest the backstop. Silhouettes, frames, scoring chalk, and the tools to reset all three after a session, stored closer to the impact wall than most people are comfortable standing.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

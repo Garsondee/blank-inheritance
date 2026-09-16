@@ -1,0 +1,110 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "home-the-slope-terrace",
+  "type": "location",
+  "tier": "site",
+  "name": "The High Steps",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [
+    "pc-adoptable"
+  ],
+  "classification": null,
+  "depth": "sketch",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.18718455,
+          34.70027818
+        ],
+        [
+          135.18722715,
+          34.70030767
+        ],
+        [
+          135.18729248,
+          34.70024654
+        ],
+        [
+          135.18724146,
+          34.70021592
+        ],
+        [
+          135.18718455,
+          34.70027818
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          3538.2,
+          4901.1
+        ],
+        [
+          3539.9,
+          4896.3
+        ],
+        [
+          3548.5,
+          4899.1
+        ],
+        [
+          3546.2,
+          4904.4
+        ],
+        [
+          3538.2,
+          4901.1
+        ]
+      ]
+    ],
+    "centroidPx": [
+      3543.29,
+      4900.24
+    ],
+    "cells": [
+      "B3·63"
+    ],
+    "ref": "B3·63",
+    "areaM2": 48.0,
+    "withinRegionRef": "slope",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-387",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "A small residential building in The Slope, available to become a PC's home.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A small house cut into the hillside terraces of The Slope, reached by a run of steps rather than a road for the last stretch. The climb keeps casual visitors away and makes the view worth it -- the whole bay is visible from the top step on a clear day.",
+    "playerFacing": "A narrow stair climbs past three other houses before reaching this one's door, retaining walls holding the terrace level on both sides. Getting anything heavy up here is its own small ordeal, and everyone on the row has an opinion about the best way to do it.",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [
+      "Something needs carrying up or down the steps -- a person, an object, a piece of news -- and the climb itself becomes the scene."
+    ],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": [],
+  "rank": 4
+}

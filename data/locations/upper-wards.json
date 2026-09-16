@@ -1,0 +1,200 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "upper-wards",
+  "type": "location",
+  "tier": "region",
+  "name": "The Upper Wards",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "district",
+  "tags": [
+    "auto-tessellated",
+    "land"
+  ],
+  "classification": null,
+  "rank": 4,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.23693188027707,
+          34.70937482149739
+        ],
+        [
+          135.2535036439105,
+          34.709237845017746
+        ],
+        [
+          135.25679005909873,
+          34.715555382779705
+        ],
+        [
+          135.23110504429187,
+          34.728082050872324
+        ],
+        [
+          135.22943067154205,
+          34.72034947103693
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6950.0,
+          1715.5
+        ],
+        [
+          8264.8,
+          956.5
+        ],
+        [
+          8167.5,
+          200.0
+        ],
+        [
+          5435.2,
+          200.0
+        ],
+        [
+          5739.3,
+          1016.6
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6914.32,
+      785.48
+    ],
+    "cells": [
+      "C1·60",
+      "C1·70",
+      "C1·80",
+      "C1·90",
+      "D1·00",
+      "D1·10",
+      "D1·20",
+      "D1·30",
+      "D1·40",
+      "D1·50",
+      "D1·60",
+      "D1·70",
+      "D1·80",
+      "D1·90",
+      "C1·61",
+      "C1·71",
+      "C1·81",
+      "C1·91",
+      "D1·01",
+      "D1·11",
+      "D1·21",
+      "D1·31",
+      "D1·41",
+      "D1·51",
+      "D1·61",
+      "D1·71",
+      "D1·81",
+      "D1·91",
+      "E1·01",
+      "C1·62",
+      "C1·72",
+      "C1·82",
+      "C1·92",
+      "D1·02",
+      "D1·12",
+      "D1·22",
+      "D1·32",
+      "D1·42",
+      "D1·52",
+      "D1·62",
+      "D1·72",
+      "D1·82",
+      "D1·92",
+      "E1·02",
+      "C1·73",
+      "C1·83",
+      "C1·93",
+      "D1·03",
+      "D1·13",
+      "D1·23",
+      "D1·33",
+      "D1·43",
+      "D1·53",
+      "D1·63",
+      "D1·73",
+      "D1·83",
+      "D1·93",
+      "E1·03",
+      "C1·74",
+      "C1·84",
+      "C1·94",
+      "D1·04",
+      "D1·14",
+      "D1·24",
+      "D1·34",
+      "D1·44",
+      "D1·54",
+      "D1·64",
+      "D1·74",
+      "D1·84",
+      "D1·94",
+      "C1·95",
+      "D1·05",
+      "D1·15",
+      "D1·25",
+      "D1·35",
+      "D1·45",
+      "D1·55",
+      "D1·65",
+      "D1·75",
+      "D1·85",
+      "D1·16",
+      "D1·26",
+      "D1·36",
+      "D1·46",
+      "D1·56",
+      "D1·66",
+      "D1·27",
+      "D1·37",
+      "D1·47"
+    ],
+    "ref": "C1·60",
+    "areaM2": 2992709.8,
+    "withinRegionRef": null,
+    "containsRefs": [
+      "home-upper-wards-shelf"
+    ],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-187",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "Streets stacked along the northern shelf above the coast, reached by stairs as often as by road. Good views, bad drainage, and a strong sense of being a separate town that happens to share a tram line.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Streets stacked along the northern shelf above the coast, reached by stairs as often as by road. Good views, bad drainage, and a strong sense of being a separate town that happens to share a tram line.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

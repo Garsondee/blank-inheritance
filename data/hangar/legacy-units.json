@@ -2,7 +2,7 @@
   "$schema": "../schema/hangar.schema.json",
   "id": "hangar",
   "type": "hangar",
-  "description": "Beyond the six active PC Frames, the Directorate's hangar holds a larger graveyard of legacy units — many already seriously damaged, decommissioned, or never successfully synced to anyone.",
+  "description": "Beyond the six active PC Frames, the Directorate's hangar holds a larger graveyard of legacy units — many already seriously damaged, decommissioned, or never successfully synced to anyone. Physically: compromised, obsolete or politically awkward units are moved quietly into Deep Storage (data/locations/deep-storage.json) rather than kept on the active roster, added 2026-09-12 while writing that location -- a location for the graveyard to live in, not a decision about what's actually in it. `units` stays empty until a specific one is authored.",
   "purposes": [
     "Give the setting history before session one.",
     "Be a long-term technician-day sink: bringing one online is possible, and always costs something else.",

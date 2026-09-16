@@ -1,0 +1,141 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-tailors-418",
+  "type": "location",
+  "tier": "site",
+  "name": "The Tailor's",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "shop"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.2120324,
+          34.66744451
+        ],
+        [
+          135.21229304,
+          34.66697406
+        ],
+        [
+          135.21256491,
+          34.66708327
+        ],
+        [
+          135.21254012,
+          34.66713724
+        ],
+        [
+          135.21255646,
+          34.66715125
+        ],
+        [
+          135.21234653,
+          34.66751533
+        ],
+        [
+          135.21231502,
+          34.66750139
+        ],
+        [
+          135.21228259,
+          34.66755175
+        ],
+        [
+          135.2120324,
+          34.66744451
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7350.2,
+          6880.8
+        ],
+        [
+          7397.3,
+          6913.6
+        ],
+        [
+          7412.6,
+          6890.5
+        ],
+        [
+          7407.6,
+          6886.5
+        ],
+        [
+          7408.1,
+          6884.4
+        ],
+        [
+          7371,
+          6859.4
+        ],
+        [
+          7369.3,
+          6862.2
+        ],
+        [
+          7363.9,
+          6858.9
+        ],
+        [
+          7350.2,
+          6880.8
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7381.88,
+      6885.02
+    ],
+    "cells": [
+      "D4·53",
+      "D4·63"
+    ],
+    "ref": "D4·53",
+    "areaM2": 1684.9,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-418",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Shops",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Alters and repairs uniforms for the school and the households on the row above it, in that order of actual income.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

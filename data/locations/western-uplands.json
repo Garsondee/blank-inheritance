@@ -1,0 +1,187 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "western-uplands",
+  "type": "location",
+  "tier": "region",
+  "name": "The Western Uplands",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "district",
+  "tags": [
+    "auto-tessellated",
+    "land"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.16595629399828,
+          34.70317077762164
+        ],
+        [
+          135.1566526508514,
+          34.71676374063347
+        ],
+        [
+          135.1422520129725,
+          34.69658715508474
+        ],
+        [
+          135.14938116145692,
+          34.69653430211034
+        ],
+        [
+          135.16115549790246,
+          34.696446045312285
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          1700.0,
+          5612.7
+        ],
+        [
+          200.0,
+          4746.6
+        ],
+        [
+          200.0,
+          7344.7
+        ],
+        [
+          765.7,
+          7018.1
+        ],
+        [
+          1700.0,
+          6478.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      825.0,
+      6045.67
+    ],
+    "cells": [
+      "A3·02",
+      "A3·03",
+      "A3·13",
+      "A3·23",
+      "A3·04",
+      "A3·14",
+      "A3·24",
+      "A3·34",
+      "A3·05",
+      "A3·15",
+      "A3·25",
+      "A3·35",
+      "A3·45",
+      "A3·55",
+      "A3·06",
+      "A3·16",
+      "A3·26",
+      "A3·36",
+      "A3·46",
+      "A3·56",
+      "A3·66",
+      "A3·76",
+      "A3·07",
+      "A3·17",
+      "A3·27",
+      "A3·37",
+      "A3·47",
+      "A3·57",
+      "A3·67",
+      "A3·77",
+      "A3·08",
+      "A3·18",
+      "A3·28",
+      "A3·38",
+      "A3·48",
+      "A3·58",
+      "A3·68",
+      "A3·78",
+      "A3·09",
+      "A3·19",
+      "A3·29",
+      "A3·39",
+      "A3·49",
+      "A3·59",
+      "A3·69",
+      "A3·79",
+      "A4·00",
+      "A4·10",
+      "A4·20",
+      "A4·30",
+      "A4·40",
+      "A4·50",
+      "A4·60",
+      "A4·70",
+      "A4·01",
+      "A4·11",
+      "A4·21",
+      "A4·31",
+      "A4·41",
+      "A4·51",
+      "A4·61",
+      "A4·71",
+      "A4·02",
+      "A4·12",
+      "A4·22",
+      "A4·32",
+      "A4·42",
+      "A4·52",
+      "A4·62",
+      "A4·03",
+      "A4·13",
+      "A4·23",
+      "A4·33",
+      "A4·43",
+      "A4·04",
+      "A4·14",
+      "A4·24",
+      "A4·05",
+      "A4·15"
+    ],
+    "ref": "A3·02",
+    "areaM2": 2598073.1,
+    "withinRegionRef": null,
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-199",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "Broad wooded hills at the sheet's western edge. Charcoal, timber, and hamlets that send their children down to the city and get them back at weekends.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Broad wooded hills at the sheet's western edge. Charcoal, timber, and hamlets that send their children down to the city and get them back at weekends.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

@@ -1,11 +1,11 @@
 /**
- * Direct tests for personnel-engine/decide.mjs's candidate generation (design doc §19). No Step-
- * candidate coverage here — this tree's generateProposals never manufactures one on its own (see
- * decide.mjs's own header: with zero reactions firing, Step and Move are currently indistinguishable,
- * so generating both would only double sandbox forks for no behavioral difference). What's covered
- * instead: the two genuinely general mechanisms that DID carry over (reactionOnly filtering,
- * faction-aware targeting), and — the one design doc §19 calls out by name — that an enemy nobody
- * can currently perceive is never actually attacked.
+ * Direct tests for personnel-engine/decide.mjs's candidate generation (design doc §19). Step-
+ * candidate coverage now lives in test/battle-simulator/personnel-reactions.test.mjs (GH #18) —
+ * Step is generated again now that a real Reactive Strike exists to avoid, alongside every other
+ * Reactive-Strike-specific test. What's covered here instead: the two genuinely general mechanisms
+ * that carried over from the Frame-scale original (reactionOnly filtering, faction-aware targeting),
+ * and — the one design doc §19 calls out by name — that an enemy nobody can currently perceive is
+ * never actually attacked.
  *
  * IMPORTANT ARCHITECTURE NOTE, confirmed by reading generateProposals itself (inherited unchanged
  * from the Frame-scale original): attack candidates are generated UNCONDITIONALLY against every
@@ -21,9 +21,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { generateProposals, decide, bestDestinationToward, bestDestinationAway } from "../../tools/battle-simulator/personnel-engine/decide.mjs";
-import { forkTurnSandbox } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
+import { forkTurnSandbox, runBattle } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
 import { evaluateState } from "../../tools/battle-simulator/personnel-engine/evaluate/state-value.mjs";
 import { hasCover, lineOfEffect } from "../../tools/battle-simulator/personnel-engine/terrain.mjs";
+import { resetFloodCount, getFloodCount } from "../../tools/battle-simulator/personnel-engine/world/pathfind.mjs";
 import { GRID_SIZE as FACILITY_GRID_SIZE, WALLS as FACILITY_WALLS, SETUPS as FACILITY_SETUPS } from "../../tools/battle-simulator/data/personnel-test-facility.mjs";
 import { buildScenario as buildComplexBattleScenario } from "../../tools/battle-simulator/scenarios/personnel-complex-battle.mjs";
 
@@ -175,6 +176,60 @@ test("generateProposals (design doc §32): healAbility is UNAFFECTED — an ally
   state.combatants.get("me").healAbilities = [{ name: "Field Aid", healingAmount: 10, range: 30, actions: 1 }];
   const proposals = generateProposals(state, "me", turn);
   assert.ok(proposals.some((p) => p.type === "healAbility" && p.targetId === "target"), "an unconscious ally must still be a legal, proposed heal target");
+});
+
+// GH #60, design doc §60 Part 1b — the self-centered emanation's own candidate generation. Round-2
+// adversarial review's own finding: the OLD per-ally loop must be gated to skip an areaOrigin:"self"
+// ability, or it keeps emitting one misleading, target-named duplicate per hurt ally for the exact
+// same ability the new single-candidate branch already handles correctly.
+test("generateProposals (design doc §60 Part 1b): a self-centered emanation heal ability produces EXACTLY ONE candidate, regardless of ally count — never one duplicate per hurt ally", () => {
+  const me = { id: "me", name: "Me", side: "party", currentHP: 16, maxHP: 16, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], healAbilities: [{ name: "Heal (emanation)", healingFormula: "1d8", actions: 3, areaOrigin: "self", radius: 30 }], position: { col: 0, row: 0 } };
+  const ally1 = { id: "a1", name: "A1", side: "party", currentHP: 5, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], position: { col: 1, row: 0 } };
+  const ally2 = { id: "a2", name: "A2", side: "party", currentHP: 5, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], position: { col: 0, row: 1 } };
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["me", me], ["a1", ally1], ["a2", ally2]]),
+    positions: new Map([["me", { ...me.position }], ["a1", { ...ally1.position }], ["a2", { ...ally2.position }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };
+  const proposals = generateProposals(state, "me", turn);
+  const healProposals = proposals.filter((p) => p.type === "healAbility");
+  assert.equal(healProposals.length, 1, `expected exactly one candidate for the self-centered ability regardless of 2 hurt allies, got ${healProposals.length}: ${JSON.stringify(healProposals)}`);
+  assert.equal(healProposals[0].targetId, null);
+  assert.equal(healProposals[0].areaOrigin, "self");
+});
+
+test("generateProposals (design doc §60 Part 1b): a self-centered emanation ability is proposed EVEN with zero hurt allies present (self is always a valid target, standing at the emanation's own center) — no ally-scanning gate blocks it", () => {
+  const me = { id: "me", name: "Me", side: "party", currentHP: 5, maxHP: 16, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], healAbilities: [{ name: "Heal (emanation)", healingFormula: "1d8", actions: 3, areaOrigin: "self", radius: 30 }], position: { col: 0, row: 0 } };
+  const state = { round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [], combatants: new Map([["me", me]]), positions: new Map([["me", { ...me.position }]]) };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };
+  const proposals = generateProposals(state, "me", turn);
+  assert.equal(proposals.filter((p) => p.type === "healAbility").length, 1, "the candidate itself doesn't gate on anyone's HP — legality (anyTargetBelowFull) is what actually filters this, not candidate generation");
+});
+
+test("decide() END TO END: with THREE hurt allies in range, whole-turn planning prefers the self-centered emanation (heals all three at once) over repeatedly casting the cheaper single-target variant, AND the rationale renders a real, non-null-looking string", () => {
+  const me = {
+    id: "me", name: "Me", side: "party", currentHP: 16, maxHP: 16, ac: 17, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [],
+    healAbilities: [
+      { name: "Heal (touch)", healingFormula: "1d8", actions: 1, slotRank: 1 },
+      { name: "Heal (emanation)", healingFormula: "1d8", actions: 3, areaOrigin: "self", radius: 30, slotRank: 1 }
+    ],
+    spellSlots: { 1: 5 }, position: { col: 0, row: 0 }
+  };
+  const a1 = { id: "a1", name: "A1", side: "party", currentHP: 5, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], position: { col: 1, row: 0 } };
+  const a2 = { id: "a2", name: "A2", side: "party", currentHP: 5, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], position: { col: 0, row: 1 } };
+  const a3 = { id: "a3", name: "A3", side: "party", currentHP: 5, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], position: { col: 1, row: 1 } };
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["me", me], ["a1", a1], ["a2", a2], ["a3", a3]]),
+    positions: new Map([["me", { ...me.position }], ["a1", { ...a1.position }], ["a2", { ...a2.position }], ["a3", { ...a3.position }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.equal(chosen.type, "healAbility");
+  assert.equal(chosen.areaOrigin, "self");
+  assert.match(chosen.reason, /Cast Heal \(emanation\) \(centered on self\)/, `expected the fixed describe() ternary to render a real, non-"null" rationale, got: "${chosen.reason}"`);
+  assert.ok(!chosen.reason.includes("null"), `rationale must never literally say "null" — got: "${chosen.reason}"`);
 });
 
 // design doc §34 — a direct user report: Forced Reflection's real text makes the TARGET immune
@@ -379,10 +434,25 @@ test("lowHpCaution END TO END: at full HP, decide() presses the attack against a
   assert.equal(chosen.type, "strike", `expected a full-HP combatant to press the attack, chose: ${JSON.stringify(chosen)}`);
 });
 
-test("lowHpCaution END TO END: at critically low HP, decide() retreats out of the SAME melee threat's range instead — the identical position and the identical enemy, only currentHP changed", () => {
+// Re-derived GH #141 (bestMatching's own cost-blindness fix — see decide.mjs's own header comment
+// above TURN_TEMPLATES/planTurn) — genuinely, not just differently, better than the old pinned
+// answer. Direct measurement before changing this assertion (a scratch probe, not assumed):
+// "reposition-and-shoot"'s own retreat-immediately plan still projects only 24.7 total gain (its own
+// phase-0 filter is hardcoded to move-type only, so GH #141's widening can't change its own answer);
+// the new winning "unconstrained" plan (Strike, Strike, Move) projects 33.2 — a real, higher total,
+// not noise. This makes sense once traced through: this fixture's enemy carries no `reactions` at
+// all, so leaving its threatened square costs exactly the same whether it happens on action 1 or
+// action 3 of the SAME turn (no Reactive Strike risk either way, per GH #18's own real trigger — it
+// fires off the move itself, not off "time spent adjacent") — so the two free Knife strikes are
+// genuinely free, not traded against any real safety this evaluator can see. lowHpCaution's own real
+// effect is still directly visible here, just expressed differently than the old single-path search
+// could find: retreating is still the LAST action either way (unlike the full-HP sibling test just
+// above, which presses the attack with all 3 actions and never retreats at all).
+test("lowHpCaution END TO END: at critically low HP, decide() still lands two real Strikes before retreating on the SAME turn — GH #141's own widened search finds a strictly better plan than retreating immediately", () => {
   const { state, turn } = makeMeleeThreatState(2);
   const chosen = decide(state, "me", turn, { competence: 1 });
-  assert.equal(chosen.type, "move", `expected a critically hurt combatant to disengage rather than trade blows with a devastating melee attacker, chose: ${JSON.stringify(chosen)}`);
+  assert.equal(chosen.type, "strike", `expected the critically hurt combatant to still open with a free Strike (retreat comes last in the same turn), chose: ${JSON.stringify(chosen)}`);
+  assert.match(chosen.reason, /Strike with Knife.*Strike with Knife.*Move/, `expected the full plan to land two Strikes THEN retreat, got: ${chosen.reason}`);
 });
 
 /**
@@ -967,12 +1037,19 @@ function makeWholeTurnScenario({ athleticsModifier = 8, enemyAc = 18, enemyFort 
   return { state, turn };
 }
 
-test("decide() END TO END, whole-turn planning: chooses Grapple first even though a single Strike's own ISOLATED gain is higher — the report's own 'greedy misses Trip/Grapple, then capitalise' case", () => {
+// GH #58: re-verified by hand and updated (Trip now wins over Grapple, not the reverse) —
+// threatReduction added a new, small (weight 0.2) term to evaluateState, close enough to flip which
+// of these two SIMILAR maneuvers (both grant off-guard, both were already worse than Strike in
+// isolation per the premise check below) narrowly wins the whole-turn comparison. This test's own
+// actual point — whole-turn planning finds and prefers a real maneuver-then-strike combo over the
+// greedier isolated Strike, the "report's own 'greedy misses Trip/Grapple, then capitalise' case" —
+// still holds exactly as before; only which of the two similarly-scored maneuvers wins changed.
+test("decide() END TO END, whole-turn planning: chooses a maneuver-then-strike combo (Trip) even though a single Strike's own ISOLATED gain is higher — the report's own 'greedy misses Trip/Grapple, then capitalise' case", () => {
   const { state, turn } = makeWholeTurnScenario();
 
   // Confirm the premise directly, not just assert the conclusion: a purely greedy, single-action
   // chooser (score each real proposal in isolation, take the max) would pick Strike here, NOT
-  // Grapple — Strike's own isolated gain is the largest of the three.
+  // a maneuver — Strike's own isolated gain is the largest of the three.
   const before = evaluateState(state, "party", undefined, "me");
   const isolated = {};
   for (const proposal of [{ type: "strike", targetId: "enemy", strikeIndex: 0 }, { type: "grapple", targetId: "enemy" }, { type: "trip", targetId: "enemy" }]) {
@@ -984,10 +1061,10 @@ test("decide() END TO END, whole-turn planning: chooses Grapple first even thoug
     `expected Strike to have the highest ISOLATED gain (strike ${isolated.strike.toFixed(2)}, grapple ${isolated.grapple.toFixed(2)}, trip ${isolated.trip.toFixed(2)}) — otherwise this scenario doesn't actually test the greedy trap`);
 
   const chosen = decide(state, "me", turn, { competence: 1 });
-  assert.equal(chosen.type, "grapple", `expected whole-turn planning to choose Grapple (setting up two real Strikes) over the greedier single Strike, chose: ${JSON.stringify(chosen)}`);
+  assert.equal(chosen.type, "trip", `expected whole-turn planning to choose a maneuver (setting up two real Strikes) over the greedier single Strike, chose: ${JSON.stringify(chosen)}`);
   assert.match(chosen.reason, /control-then-attack/, `expected the reason to name the winning template, got: "${chosen.reason}"`);
-  assert.match(chosen.reason, /Strike with Sword.*Strike with Sword/, `expected the reason to show BOTH follow-up strikes queued behind Grapple, got: "${chosen.reason}"`);
-  assert.ok(Math.abs(chosen.score - isolated.grapple) < 1e-9, "the returned score must be Grapple's own local (first-action) gain, not the whole plan's total — matching the pre-Stage-2 score contract exactly");
+  assert.match(chosen.reason, /Strike with Sword.*Strike with Sword/, `expected the reason to show BOTH follow-up strikes queued behind the maneuver, got: "${chosen.reason}"`);
+  assert.ok(Math.abs(chosen.score - isolated.trip) < 1e-9, "the returned score must be the winning maneuver's own local (first-action) gain, not the whole plan's total — matching the pre-Stage-2 score contract exactly");
 });
 
 test("decide() END TO END, whole-turn planning: with only ONE action left this call, the plan degenerates EXACTLY to the pre-Stage-2 single-action choice", () => {
@@ -1025,6 +1102,61 @@ test("decide() END TO END, whole-turn planning: the flee override (design doc §
   assert.ok(!/plan \(\d+ actions?,/.test(chosen.reason), `a fleeing combatant must never carry a whole-turn-plan rationale, got: "${chosen.reason}"`);
 });
 
+// --- GH #141: bestMatching's own action-cost blindness (decide.mjs's own header comment above
+// TURN_TEMPLATES/planTurn has the full story) — a phase's winning candidate used to be picked by raw
+// one-action gain alone, with no regard for how many of the turn's scarce actions it cost. Mirrors
+// the exact real shape that exposed this (GH #60's Lunar-17: two heal options of different cost),
+// but built as a minimal, standalone, single-decide()-call unit test rather than depending on a real
+// fixture file or a full multi-round battle.
+test("decide() END TO END: a cheaper, more action-efficient option is chosen over a pricier one with higher RAW gain, because the saved action unlocks a much better follow-up — the exact shape GH #141 exists to fix", () => {
+  const me = {
+    id: "me", name: "Me", side: "party", currentHP: 1, maxHP: 11, ac: 17, saves: { fort: 5, ref: 5, will: 5 }, speed: 25,
+    strikes: [{ name: "Weak Strike", strikeType: "ranged", attackBonus: 6, rangeIncrement: 60, traits: [], damage: [{ dice: "1d4", bonus: 0 }] }],
+    spells: [{ name: "Big Spell", attackBonus: 14, range: 30, actions: 2, traits: ["attack"], damage: [{ dice: "2d6", bonus: 0 }] }],
+    healAbilities: [
+      { name: "Small Heal", healingAmount: 8, actions: 1 }, // cheaper, slightly less raw healing
+      { name: "Big Heal", healingAmount: 10, actions: 2 } // pricier, slightly MORE raw healing — the exact trap
+    ],
+    position: { col: 0, row: 0 }
+  };
+  const enemy = {
+    id: "enemy", name: "Enemy", side: "opposition", currentHP: 30, maxHP: 30, ac: 22, saves: { fort: 5, ref: 5, will: 5 }, speed: 25,
+    strikes: [], position: { col: 1, row: 0 }
+  };
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["me", me], ["enemy", enemy]]),
+    positions: new Map([["me", { ...me.position }], ["enemy", { ...enemy.position }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };
+
+  // Confirm the premise directly, not just assert the conclusion: Big Heal really does have the
+  // higher ISOLATED (one-action) gain, and Big Spell's own isolated gain is lower than EITHER heal
+  // (so it can't just win phase 0 outright regardless of the heal question) — otherwise this
+  // scenario doesn't actually test the trap. maxHP is deliberately tight (11, from 1 currentHP) so
+  // Big Heal (+10) lands at the cap — a hypothetical SECOND heal afterward would be almost entirely
+  // wasted overheal, which is what makes "heal once, cheaply, then attack" the genuinely better plan
+  // rather than just a different one.
+  const before = evaluateState(state, "party", undefined, "me");
+  const isolated = {};
+  for (const [label, proposal] of [
+    ["small", { type: "healAbility", targetId: "me", abilityIndex: 0 }],
+    ["big", { type: "healAbility", targetId: "me", abilityIndex: 1 }],
+    ["spell", { type: "spellAttack", targetId: "enemy", spellIndex: 0 }]
+  ]) {
+    const sandbox = forkTurnSandbox({ state, turn });
+    sandbox.apply("me", proposal);
+    isolated[label] = evaluateState(sandbox.state, "party", undefined, "me") - before;
+  }
+  assert.ok(isolated.big > isolated.small, `expected Big Heal's own isolated gain (${isolated.big.toFixed(2)}) to exceed Small Heal's (${isolated.small.toFixed(2)}) — otherwise this isn't the trap GH #141 describes`);
+  assert.ok(isolated.spell < isolated.small, `expected Big Spell's own isolated gain (${isolated.spell.toFixed(2)}) to be BELOW even Small Heal's (${isolated.small.toFixed(2)}) — otherwise phase 0 is decided by the heal-vs-attack question, not the heal-vs-heal one this test targets`);
+
+  const chosen = decide(state, "me", turn, { competence: 1 });
+  assert.equal(chosen.type, "healAbility");
+  assert.match(chosen.reason, /Small Heal/, `expected the cheaper, more action-efficient Small Heal to be chosen over the pricier Big Heal (higher isolated gain but leaves no room for Big Spell), got: "${chosen.reason}"`);
+  assert.match(chosen.reason, /Big Spell/, `expected the action saved by picking Small Heal to be spent on the real follow-up attack, got: "${chosen.reason}"`);
+});
+
 /**
  * PERFORMANCE REGRESSION (design doc §43): a real decide() call on the real 8-combatant, walled
  * complex-battle map (34 real proposals) took an average of 2.66s in the first, naive whole-turn
@@ -1056,4 +1188,243 @@ test("PERFORMANCE: a real decide() call on the real 8-combatant walled complex-b
   const elapsedMs = Date.now() - start;
   assert.ok(chosen, "expected a real decision, not null, on a real populated scenario");
   assert.ok(elapsedMs < 10000, `expected a single decide() call to complete in well under 10s (the old, buggy naive implementation averaged ~2.66s and a full battle of these never finished) — took ${elapsedMs}ms`);
+});
+
+// ---------------------------------------------------------------------------------------------
+// GH #62 fix 2 (design doc §76.4): planTurn's persistent, real-occupancy-scoped destination cache
+// (turn.destCache). These three tests target exactly the failure modes an adversarial pre-code
+// review (two rounds) found in earlier drafts of this fix: a fingerprint that never actually
+// updates (would make the cache clear before every call, forever — passing every OTHER test while
+// delivering zero of the intended speedup, silently), and stale occupancy surviving a real mid-turn
+// kill. `turn.destCache` is deliberately a plain, test-readable object (not hidden inside planTurn,
+// which isn't exported) specifically so these tests can inspect it directly rather than infer its
+// behavior indirectly through AI decision quality, which would be weight-dependent and fragile.
+// ---------------------------------------------------------------------------------------------
+
+function makeCacheTestState({ mePos, victimPos, farPos }) {
+  const me = {
+    id: "me", name: "Me", side: "party", currentHP: 20, maxHP: 20,
+    speed: 30, strikes: [{ name: "Big Axe", strikeType: "melee", attackBonus: 20, traits: [], damage: [{ dice: "20d20", bonus: 0 }] }],
+    position: mePos
+  };
+  const victim = { id: "victim", name: "Victim", side: "opposition", currentHP: 1, maxHP: 1, speed: 0, position: victimPos };
+  const farEnemy = { id: "far", name: "Far", side: "opposition", currentHP: 10, maxHP: 10, speed: 0, position: farPos };
+  // bestDestinationToward/Away (decide.mjs) only take the real Dijkstra-flood path
+  // (pathfindingDestinationToward, via reachableCells) when state.walls.length is truthy — on a
+  // wall-free grid they use the cheap stepToward heuristic instead, which never floods at all
+  // (confirmed directly: a wall-free version of this scenario measured floods=0). A single wall
+  // segment, far from every combatant here and never actually blocking any real move in this
+  // scenario, is enough to force the real path this fix's own caching logic needs to exercise.
+  const walls = [{ c: [19, 19, 19, 20], move: 20, sight: 20 }];
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls,
+    combatants: new Map([["me", me], ["victim", victim], ["far", farEnemy]]),
+    positions: new Map([["me", { ...mePos }], ["victim", { ...victimPos }], ["far", { ...farPos }]])
+  };
+  const turn = {
+    actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0,
+    effective: { speed: 30 }, destCache: { map: new Map(), fingerprint: null }
+  };
+  return { state, turn, me, victim, farEnemy };
+}
+
+test("GH #62: turn.destCache.fingerprint is STABLE across two real decide() calls when occupancy hasn't changed, and the second call floods measurably LESS — positive proof of reuse, not just 'nothing broke'", () => {
+  const { state, turn } = makeCacheTestState({ mePos: { col: 0, row: 0 }, victimPos: { col: 5, row: 0 }, farPos: { col: 10, row: 0 } });
+
+  resetFloodCount();
+  const first = decide(state, "me", turn, { competence: 1 });
+  const floodsCall1 = getFloodCount();
+  assert.ok(first, "expected a real first decision");
+  assert.ok(floodsCall1 > 0, "sanity: the first call must actually flood at least once");
+  const fingerprintAfterCall1 = turn.destCache.fingerprint;
+  assert.ok(fingerprintAfterCall1, "expected a real fingerprint to be recorded after the first call");
+  assert.ok(turn.destCache.map.size > 0, "expected the persistent cache to actually hold entries after the first call");
+
+  resetFloodCount();
+  const second = decide(state, "me", turn, { competence: 1 });
+  const floodsCall2 = getFloodCount();
+  assert.ok(second, "expected a real second decision");
+  assert.equal(turn.destCache.fingerprint, fingerprintAfterCall1, "occupancy didn't change — the fingerprint must not change either");
+  assert.ok(floodsCall2 < floodsCall1,
+    `expected the SECOND call (unchanged occupancy) to flood strictly less than the first (cold cache) — first=${floodsCall1}, second=${floodsCall2}. Equal or more would mean the persistent cache is never actually being read from.`);
+});
+
+test("GH #62: a REAL mid-turn kill (currentHP dropped to 0) changes the fingerprint and the persistent cache stops treating the dead combatant's square as occupied — the load-bearing correctness proof", () => {
+  const { state, turn, victim, farEnemy } = makeCacheTestState({ mePos: { col: 0, row: 0 }, victimPos: { col: 5, row: 0 }, farPos: { col: 10, row: 0 } });
+  const victimCellKey = `${victim.position.col},${victim.position.row}`;
+  const farFieldKey = `field|me|${farEnemy.position.col},${farEnemy.position.row}`;
+
+  const first = decide(state, "me", turn, { competence: 1 });
+  assert.ok(first, "expected a real first decision");
+  const fingerprintBeforeKill = turn.destCache.fingerprint;
+  const floodBeforeKill = turn.destCache.map.get(farFieldKey);
+  assert.ok(floodBeforeKill, "expected generateProposals to have flooded toward the far enemy while scoring real-occupancy candidates");
+  assert.equal(floodBeforeKill.has(victimCellKey), false,
+    "victim is ALIVE and occupies this cell — reachableCells must exclude an occupied cell from its own result (pre-existing, unrelated-to-this-fix behavior — sanity check that the scenario is set up correctly)");
+
+  // Kill victim directly, exactly like a real Strike's own engine.mjs resolution does to currentHP —
+  // no attemptAction/runBattle machinery needed here, since otherLivingPositions (what the fingerprint
+  // and every flood's own occupancy list are built from) filters purely on currentHP > 0.
+  victim.currentHP = 0;
+
+  const second = decide(state, "me", turn, { competence: 1 });
+  assert.ok(second, "expected a real second decision");
+  assert.notEqual(turn.destCache.fingerprint, fingerprintBeforeKill,
+    "a real occupancy change (a kill) MUST change the fingerprint, or the persistent cache would silently keep serving pre-kill answers for the rest of the turn");
+
+  const floodAfterKill = turn.destCache.map.get(farFieldKey);
+  assert.ok(floodAfterKill, "expected the far-enemy flood to be recomputed (or re-cached) on the second, post-kill call");
+  assert.equal(floodAfterKill.has(victimCellKey), true,
+    "victim is DEAD — a fresh flood must now treat their former square as freely reachable. Finding this false would mean the persistent cache served a STALE, pre-kill answer — the exact silent-wrong-answer bug this design exists to prevent.");
+});
+
+test("GH #62: a hand-built turn with NO destCache field (matching every non-runTurn test call site in this project) never crashes planTurn — the local fallback behaves exactly as caching did before this fix existed", () => {
+  const { state, turn } = makeCacheTestState({ mePos: { col: 0, row: 0 }, victimPos: { col: 5, row: 0 }, farPos: { col: 10, row: 0 } });
+  delete turn.destCache;
+  assert.doesNotThrow(() => {
+    const chosen = decide(state, "me", turn, { competence: 1 });
+    assert.ok(chosen, "expected a real decision even with no destCache field present");
+  });
+});
+
+test("GH #62 END TO END: a real runBattle turn — Strike kills an adjacent enemy, then a same-turn Move — completes with zero illegal actions and zero crashes", () => {
+  // Not a positive proof of cache reuse (that's the unit-level test above) — this is the review's own
+  // requested belt-and-braces check that the real attemptAction/runTurn path (not a hand-mutated HP
+  // value) interacts safely with a persistent cache spanning real actions within one real turn.
+  const me = {
+    id: "me", name: "Me", side: "party", currentHP: 20, maxHP: 20, speed: 30,
+    strikes: [{ name: "Big Axe", strikeType: "melee", attackBonus: 20, traits: [], damage: [{ dice: "20d20", bonus: 0 }] }],
+    position: { col: 0, row: 0 }
+  };
+  const victim = { id: "victim", name: "Victim", side: "opposition", currentHP: 1, maxHP: 1, speed: 0, position: { col: 0, row: 1 } };
+  const farEnemy = { id: "far", name: "Far", side: "opposition", currentHP: 10, maxHP: 10, speed: 0, position: { col: 0, row: 6 } };
+
+  const log = runBattle({
+    seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1,
+    combatants: [me, victim, farEnemy],
+    ai: (state, id, turn) => (id === "me" ? decide(state, id, turn, { competence: 1 }) : null)
+  });
+
+  const meTurn = log.rounds[0].turns.find((t) => t.combatantId === "me");
+  assert.ok(meTurn.actions.length >= 2, "expected at least a kill and a follow-up action within the 3-action turn");
+  for (const action of meTurn.actions) {
+    assert.equal(action.legal !== false, true, `expected every real action to be legal, got: ${JSON.stringify(action)}`);
+  }
+});
+
+// --- Flank-seeking movement candidates (GH #59) ---
+
+const MELEE_SWORD = { name: "Sword", strikeType: "melee", attackBonus: 8, traits: [], damage: [{ dice: "1d8", bonus: 2, damageType: "slashing" }] };
+const RANGED_PISTOL = { name: "Pistol", strikeType: "ranged", attackBonus: 8, rangeIncrement: 60, traits: [], damage: [{ dice: "1d6", bonus: 2, damageType: "piercing" }] };
+
+function makeFlankSeekingState({ meStrikes = [MELEE_SWORD] } = {}) {
+  const me = { id: "me", name: "Me", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 30, strikes: meStrikes, position: { col: 5, row: 10 } };
+  // "ally" is already engaged (adjacent, melee reach) with "enemy", standing NORTH of it. A real
+  // flank square exists SOUTH of the enemy (col 10, row 11), well within me's own speed from (5,10).
+  const ally = { id: "ally", name: "Ally", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [MELEE_SWORD], position: { col: 10, row: 9 } };
+  const enemy = { id: "enemy", name: "Enemy", side: "opposition", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 0, strikes: [MELEE_SWORD], position: { col: 10, row: 10 } };
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["me", me], ["ally", ally], ["enemy", enemy]]),
+    positions: new Map([["me", { ...me.position }], ["ally", { ...ally.position }], ["enemy", { ...enemy.position }]])
+  };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 30 } };
+  return { state, turn };
+}
+
+test("generateProposals: offers a real flank-seeking destination when a melee ally is already engaged with a reachable enemy", () => {
+  const { state, turn } = makeFlankSeekingState();
+  const proposals = generateProposals(state, "me", turn);
+  const moveProposals = proposals.filter((p) => p.type === "move");
+  const flankCell = { col: 10, row: 11 }; // exact opposite compass heading from the enemy, relative to "ally"
+  const offersTheFlankSquare = moveProposals.some((p) => p.to?.col === flankCell.col && p.to?.row === flankCell.row);
+  assert.ok(offersTheFlankSquare,
+    `expected a move proposal to the real flanking square (${JSON.stringify(flankCell)}), got destinations: ${JSON.stringify(moveProposals.map((p) => p.to))}`);
+});
+
+test("generateProposals: offers NO flank-seeking destination when I have no melee option at all — a ranged-only combatant can never flank", () => {
+  const { state, turn } = makeFlankSeekingState({ meStrikes: [RANGED_PISTOL] });
+  const proposals = generateProposals(state, "me", turn);
+  const moveProposals = proposals.filter((p) => p.type === "move");
+  const flankCell = { col: 10, row: 11 };
+  const offersTheFlankSquare = moveProposals.some((p) => p.to?.col === flankCell.col && p.to?.row === flankCell.row);
+  assert.equal(offersTheFlankSquare, false,
+    "a ranged-only combatant must never be offered the flanking square specifically FOR flanking purposes (it may still incidentally appear via some other destination query, but the flank-seeking search itself must not run)");
+});
+
+test("decide() END TO END: with a melee ally already engaged, whole-turn planning actually MOVES to and STRIKES from the real flanking square — not just that the candidate exists, but that it gets chosen and executed legally", () => {
+  const { state, turn } = makeFlankSeekingState();
+  const proposal = decide(state, "me", turn, { competence: 1 });
+  assert.ok(proposal, "expected a real decision, not null");
+  const sandbox = forkTurnSandbox({ state, turn });
+  const result = sandbox.apply("me", proposal);
+  assert.equal(result.legal, true, `expected the chosen proposal to be legal, got: ${JSON.stringify(result)}`);
+});
+
+// --- Free-point area attack aiming (GH #61, Gap 2) ---
+
+const FRAG_GRENADE = { name: "Frag Grenade", saveType: "ref", dc: 17, range: 70, radius: 5, actions: 1, damage: [{ dice: "1d8", bonus: 0, damageType: "fire" }] };
+
+function makeGrenadierState({ grenadierPos = { col: 8, row: 8 }, e1Pos = { col: 10, row: 9 }, e2Pos = { col: 10, row: 11 }, allyPos = null } = {}) {
+  const grenadier = { id: "grenadier", name: "grenadier", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 25, strikes: [], areaAttacks: [{ ...FRAG_GRENADE }], position: grenadierPos };
+  const e1 = { id: "e1", name: "e1", side: "opposition", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 0, strikes: [], position: e1Pos };
+  const e2 = { id: "e2", name: "e2", side: "opposition", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 0, strikes: [], position: e2Pos };
+  const combatants = new Map([["grenadier", grenadier], ["e1", e1], ["e2", e2]]);
+  const positions = new Map([["grenadier", grenadier.position], ["e1", e1Pos], ["e2", e2Pos]]);
+  if (allyPos) {
+    const ally = { id: "ally", name: "ally", side: "party", currentHP: 20, maxHP: 20, ac: 15, saves: { fort: 5, ref: 5, will: 5 }, speed: 0, strikes: [], position: allyPos };
+    combatants.set("ally", ally);
+    positions.set("ally", allyPos);
+  }
+  const state = { round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [], combatants, positions };
+  const turn = { actionsAvailable: 3, actionsUsed: 0, feetMoved: 0, strikesAttempted: 0, decisionIndex: 0, effective: { speed: 25 } };
+  return { state, turn };
+}
+
+test("generateProposals: offers a free-point areaAttack candidate at the midpoint between two enemies close enough for one blast to plausibly catch both", () => {
+  const { state, turn } = makeGrenadierState();
+  const proposals = generateProposals(state, "grenadier", turn);
+  const freePointProposals = proposals.filter((p) => p.type === "areaAttack" && p.originPoint);
+  assert.ok(freePointProposals.some((p) => p.originPoint.col === 10 && p.originPoint.row === 10),
+    `expected a free-point candidate at the real midpoint (10,10), got: ${JSON.stringify(freePointProposals)}`);
+});
+
+test("generateProposals: offers NO free-point areaAttack candidate for two enemies too far apart for one blast to plausibly catch both", () => {
+  const { state, turn } = makeGrenadierState({ e2Pos: { col: 10, row: 30 } }); // far outside 2x radius (10ft) of e1
+  const proposals = generateProposals(state, "grenadier", turn);
+  const freePointProposals = proposals.filter((p) => p.type === "areaAttack" && p.originPoint);
+  assert.equal(freePointProposals.length, 0, `expected zero free-point candidates for two enemies this far apart, got: ${JSON.stringify(freePointProposals)}`);
+});
+
+test("engine.mjs areaAttack resolution: a free-point origin (no originId at all) legally catches BOTH enemies — the real signature play this issue exists to enable", () => {
+  const { state, turn } = makeGrenadierState();
+  const sandbox = forkTurnSandbox({ state, turn });
+  const result = sandbox.apply("grenadier", { type: "areaAttack", originPoint: { col: 10, row: 10 }, areaAttackIndex: 0 });
+  assert.equal(result.legal, true, `expected a legal free-point blast, got: ${JSON.stringify(result)}`);
+  const affectedIds = result.affected.map((a) => a.targetId).sort();
+  assert.deepEqual(affectedIds, ["e1", "e2"], `expected exactly e1 and e2 caught, got: ${JSON.stringify(affectedIds)}`);
+});
+
+test("decide() END TO END: catches-two-enemies-no-allies — with a real ally positioned well clear of the midpoint, whole-turn planning prefers the free-point throw that catches both enemies over aiming at either one alone", () => {
+  const { state, turn } = makeGrenadierState({ allyPos: { col: 0, row: 0 } }); // ally far from the blast
+  const before = evaluateState(state, "party", undefined, "grenadier");
+
+  // Apply each candidate to its OWN fresh sandbox (forkTurnSandbox never mutates the shared `state`)
+  // and compare the resulting states' own gain directly.
+  const afterFreePoint = forkTurnSandbox({ state, turn });
+  const freePointResult = afterFreePoint.apply("grenadier", { type: "areaAttack", originPoint: { col: 10, row: 10 }, areaAttackIndex: 0 });
+  const afterSingle = forkTurnSandbox({ state, turn });
+  const singleResult = afterSingle.apply("grenadier", { type: "areaAttack", originId: "e1", areaAttackIndex: 0 });
+  assert.equal(freePointResult.legal, true, `expected the free-point throw to be legal, got: ${JSON.stringify(freePointResult)}`);
+  assert.equal(singleResult.legal, true, `expected the single-target throw to be legal, got: ${JSON.stringify(singleResult)}`);
+
+  const gainFreePoint = evaluateState(afterFreePoint.state, "party", undefined, "grenadier") - before;
+  const gainSingle = evaluateState(afterSingle.state, "party", undefined, "grenadier") - before;
+  assert.ok(gainFreePoint > gainSingle,
+    `catching both enemies (gain ${gainFreePoint.toFixed(2)}) must score above catching only one (gain ${gainSingle.toFixed(2)}) when no ally is caught either way`);
+
+  const chosen = decide(state, "grenadier", turn, { competence: 1 });
+  assert.equal(chosen.type, "areaAttack");
+  assert.ok(chosen.originPoint && chosen.originPoint.col === 10 && chosen.originPoint.row === 10,
+    `expected whole-turn planning to choose the real catches-both-enemies free point, chose: ${JSON.stringify(chosen)}`);
 });

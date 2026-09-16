@@ -1,0 +1,14 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "goods-inwards-officer",
+  "type": "npc",
+  "name": null,
+  "role": "Goods Inwards Officer, The Bonded Store",
+  "pole": null,
+  "affiliation": "directorate",
+  "description": "Signs for everything that comes onto the island under seal, and decides what goes to the Quarantine Shed when the manifest and the contents disagree. Wholly uninterested in who is asking.",
+  "designNotes": "Created 2026-09-12 with the works strip's goods end. A checkpoint personality for a district briefed 'pure military and checkpoints, no civilians'. Name and manner open.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "placeholder — not yet named or cast"
+}

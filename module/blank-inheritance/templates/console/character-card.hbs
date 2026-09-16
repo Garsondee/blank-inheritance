@@ -1,0 +1,78 @@
+{{!--
+    The Character Card. One person, in theatre of the mind.
+
+    Attitude is a state that moves; Facts are permanent things learned. They
+    are rendered differently on purpose, because they behave differently.
+
+    Note what is NOT here: any branch that renders an unrevealed fact and
+    hides it. A player's card does not contain those facts at all — the
+    removal happens in core/social-intel.mjs. Law 11.
+--}}
+<div class="bi-card">
+    {{#if missing}}
+    <p class="bi-legend">{{localize "BLANKINHERITANCE.Console.Card.Missing"}}</p>
+    {{else}}
+    <header class="bi-card__head">
+        <h2 class="bi-card__name">{{name}}</h2>
+        <div class="bi-card__attitude-now">{{localize attitudeLabelKey}}</div>
+    </header>
+
+    <section class="bi-card__block">
+        <div class="bi-bank__label">{{localize "BLANKINHERITANCE.Console.Card.AttitudeLabel"}}</div>
+        <div class="bi-card__scale">
+            {{#each attitudes}}
+            <button type="button" class="bi-card__step{{#if this.current}} bi-card__step--current{{/if}}"
+                data-action="setAttitude" data-attitude="{{this.value}}"
+                aria-pressed="{{#if this.current}}true{{else}}false{{/if}}">{{localize this.labelKey}}</button>
+            {{/each}}
+        </div>
+    </section>
+
+    {{#if isGM}}
+    <section class="bi-card__block">
+        <div class="bi-bank__label">{{localize "BLANKINHERITANCE.Console.Card.ActionsLabel"}}</div>
+        <ul class="bi-card__actions">
+            {{#each actions}}
+            <li class="bi-card__action">
+                <span class="bi-card__action-name">{{localize this.labelKey}}</span>
+                <span class="bi-card__action-skill">{{this.skill}}</span>
+                <span class="bi-card__action-steps">{{#if this.best}}+{{this.best}}{{else}}·{{/if}} / {{#if this.worst}}{{this.worst}}{{else}}·{{/if}}</span>
+            </li>
+            {{/each}}
+        </ul>
+    </section>
+    {{/if}}
+
+    <section class="bi-card__block">
+        <div class="bi-bank__label">{{localize "BLANKINHERITANCE.Console.Card.FactsLabel"}}</div>
+        {{#if facts.length}}
+        <ul class="bi-card__facts">
+            {{#each facts}}
+            <li class="bi-card__fact{{#unless this.revealed}} bi-card__fact--unrevealed{{/unless}}">
+                <span class="bi-card__fact-text">{{this.text}}</span>
+                {{#unless this.revealed}}
+                <button type="button" class="bi-card__reveal" data-action="revealFact" data-fact-id="{{this.id}}">{{localize "BLANKINHERITANCE.Console.Card.Reveal"}}</button>
+                {{/unless}}
+                {{#if this.trigger}}
+                <span class="bi-card__trigger">
+                    {{#if this.trigger.skill}}{{this.trigger.skill}}{{#if this.trigger.dc}} DC {{this.trigger.dc}}{{/if}}{{else}}{{this.trigger.text}}{{/if}}
+                </span>
+                {{/if}}
+            </li>
+            {{/each}}
+        </ul>
+        {{else}}
+        <p class="bi-legend">{{localize "BLANKINHERITANCE.Console.Card.NoFacts"}}</p>
+        {{/if}}
+
+        {{#unless isGM}}
+        {{#if unlearned}}
+        {{!-- A player is told there is more to know, but never what. That is
+              information the fiction gives them anyway, and it is the hook
+              that makes asking around feel worth the time. --}}
+        <p class="bi-card__unlearned">{{localize "BLANKINHERITANCE.Console.Card.Unlearned" count=unlearned}}</p>
+        {{/if}}
+        {{/unless}}
+    </section>
+    {{/if}}
+</div>

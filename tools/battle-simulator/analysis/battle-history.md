@@ -4430,3 +4430,87 @@ Parallel tournament runner (worker_threads, concurrency=8): 2455ms vs. 4789ms se
 Parallel tournament runner (worker_threads, concurrency=8): 2177ms vs. 3821ms sequential — 1.8x.
 
 ---
+## 2026-09-04 — Terrain performance, fix 1: skip unread path reconstruction (GH #62, design doc §76.4)
+
+### `reachableCells`'s two full-grid callers (`trueDistanceField`, `pathCost`) never read `.path` — confirmed by reading every call site, not assumed. `includePath: false` skips reconstruction for those two shapes only; every Speed-bounded caller is untouched.
+
+Measured on `personnel-complex-battle.mjs` (44x30, 247 walls), `NORTH_SOUTH_ENDS`, party `lunar-17+tapkey+obozaya` vs. opposition `tough+kuriaku+erabryth`, default `decide()`/`planTurn` AI, seeds 1-5 (n=5, real walled-arena battles are expensive enough that this is a controlled spot-check, not the project's usual n>=48 bar — that bar governs claims about AI *strength*, not a claim about wall-clock cost, which this measures directly and exactly):
+
+| | Before | After | Delta |
+|---|---|---|---|
+| Total wall time, 5 battles | 84,352 ms | 61,735 ms | **-26.8%** |
+| ms/turn | 340.1 | 248.9 | **-26.8%** |
+
+**Zero behavior change, confirmed empirically as well as by unit test**: all 5 seeds produced byte-identical outcomes, round counts, and turn counts before and after (seed 1: party-defeat/5/25 both runs; seed 2: party-victory/10/52; seed 3: party-defeat/15/65; seed 4: party-victory/7/34; seed 5: party-victory/13/72). SF2E combat is chaotic enough that a single differently-chosen destination cascades through the RNG stream into a different fight — identical results across all 5 seeds is strong evidence this is exact, on top of `personnel-pathfind.test.mjs`'s own direct proof that `includePath:false` returns identical costs and reachable sets, only `path: null` instead of the real route.
+
+Methodology: `git stash` isolated the two source files carrying this fix (`personnel-engine/world/pathfind.mjs`, `personnel-engine/decide.mjs`) from the rest of the working tree, benchmarked before, restored, benchmarked after — same process, same machine, back to back.
+
+Two larger fixes remain queued under #62: `trueDistanceField` still floods the whole grid every `decide()` call rather than reusing a field that's a pure function of (target, walls, gridSize, occupancy) — profiled separately at ~58% of a real battle's own wall-clock time, this fix only removes the reconstruction waste WITHIN that flood, not the flood's own repetition; and every MCTS/search policy calls `generateProposals` with no `externalDestCache` at all, paying a fresh flood per tree node with zero reuse (`decide()`'s own default path gets a measured 92.5% cache hit rate; search gets 0%).
+
+---
+## 2026-09-04 — Terrain performance, fix 2: persist the real-occupancy distance flood across a turn's 3 real decisions (GH #62, design doc §76.4)
+
+### `trueDistanceField` recomputed a full-grid flood from scratch on every one of a turn's 3 real `decide()` calls, even when nothing relevant had changed. Two rounds of adversarial pre-code review found a critical bug (a fingerprint stored as a bare field would never actually update, making the fix a silent no-op) and two further real issues before any code was written — see design doc §76.4 for the full writeup.
+
+`personnel-engine/engine.mjs`'s `makeTurnProgress` now creates `destCache: { map: new Map(), fingerprint: null }` once per real turn — a container OBJECT, not a bare field, specifically because a Map (or an object wrapping one) survives `runTurn`'s own `{...turnProgress, effective}` copy every action by reference, while a bare string field silently would not (round-1 review finding). `personnel-engine/decide.mjs`'s `planTurn` reads/writes this persistent map ONLY for candidate generation scored against real, current, unmutated occupancy (`plan.length === 0` — before that template's own hypothetical exploration has applied anything); every hypothetical, post-action phase keeps using the pre-existing per-call `sharedDestCache`, exactly as before this fix, so nothing computed against a sandboxed, never-taken branch can contaminate a real decision (round-1 review finding). Invalidation is a cheap occupancy fingerprint, checked once per `planTurn` call, clearing the whole persistent map on any mismatch — coarse and deliberately so: a false mismatch only costs a wasted recompute, never a wrong answer. A local, un-persisted fallback (`turn.destCache ?? {...}`) keeps every hand-built-`turn` test call site (~30 of them, found by round-2 review) working exactly as before this fix, never a crash.
+
+**Measured, isolated from fix 1** (same 5-seed walled-battle benchmark, `personnel-complex-battle.mjs`, `NORTH_SOUTH_ENDS`; fix 2 disabled by omitting just the `destCache` field from `makeTurnProgress` — a surgical, one-line toggle that leaves fix 1 and everything else untouched, benchmarked back-to-back to control for this machine's own known ±30% load variance rather than comparing across different measurement sessions):
+
+| | Fix 1 only | Fix 1 + fix 2 |
+|---|---|---|
+| Total wall time, 5 battles | 116,183 ms | 78,626 ms |
+| ms/turn | 468.5 | 317.0 |
+
+**-32.3%, on top of fix 1's own -26.8%.** Same standard as fix 1: all 5 seeds produced byte-identical outcomes, round counts, and turn counts with fix 2 on and off.
+
+**Two new regression tests prove this is real reuse, not just "nothing broke"** (`test/battle-simulator/personnel-decide.test.mjs`, GH #62 section): a floor-count instrumentation hook (`resetFloodCount`/`getFloodCount`, mirroring `engine.mjs`'s own `sandboxForkCount` pattern, added directly inside `reachableCells` — the one seam every flood passes through regardless of caching) proves a second, occupancy-unchanged `decide()` call floods strictly less than the first; a direct real-occupancy-mutation test proves the persistent cache's own fingerprint changes on a real mid-turn kill and stops treating the dead combatant's square as occupied. Both were verified load-bearing the same way as fix 1's and #54's own tests: temporarily reintroducing the exact bug round-1 review found (a non-persisting local container) makes exactly these two tests fail, nothing else.
+
+**One fix remains queued under #62**: every MCTS/search policy still calls `generateProposals` with no destination cache at all, paying a fresh full-grid flood per tree node with zero reuse — `decide()`'s own real-turn path now benefits from both fixes above, search does not. Deliberately out of scope for fix 2 (design doc §76.4 Decision 4): sharing a cache safely across distinct MCTS sandbox `state` objects is a harder, separately-scoped problem (a content-addressed cache keyed by the occupancy fingerprint itself, not by turn-lifetime object identity), likely to need its own adversarial review pass before code, matching how fix 2 itself was developed.
+
+---
+## 2026-09-12 — Terrain performance, fix 3: lineOfEffect/hasCover result cache — real, safe, and MEASURED to have no effect on wall-clock time (GH #62)
+
+### The first real MCTS-specific measurement logged in this file. `lineOfEffect`/`hasCover` cache their result per `(predicate, unordered point-pair, walls-reference)`, mirroring `moveBlockedBetween`'s own existing WeakMap-keyed-on-walls index. Before writing a design around it, the actual redundancy was measured directly rather than assumed — and the result corrected the direction of the investigation before any further design effort went into the wrong target.
+
+Measured on `personnel-complex-battle.mjs` (44x30, 247 walls), party `lunar-17+tapkey+bennit+vorza-moonshot` vs. opposition `security-goon+xenowarden-greenhorn+erabryth+tough`, `RANDOM_ARCS`, a single real `mcts-puct-v1` decision (500 iterations, maxDepth 4, seed 1):
+
+| | Before cache | After cache |
+|---|---|---|
+| Total decide() wall time | ~3,300 ms | ~3,300 ms — **no measurable change** |
+| `lineOfEffect`/`hasCover` calls | 47,201 total | 47,201 total, 46,549 cache hits (668 distinct results — **a 70x repeat ratio**) |
+
+**The 70x repeat ratio is real** (overwhelmingly from `evaluateState`'s own per-(ally,enemy)-pair loop re-querying the same small position space across ~580 tree-node expansions in one search — see the new `resetEvaluateStateCallCount`/`getEvaluateStateCallCount` instrumentation, `state-value.mjs`), **but eliminating 98.6% of these calls did not move total wall-clock time at all.** Each individual geometry query is cheap enough in absolute terms, even at 247 walls, that caching it doesn't matter — directly confirming, now for the MCTS path specifically and not just `decide()`, the profiling finding that originally corrected this issue's own Cause-1/Cause-2 priority back on 2026-09-04.
+
+**Where the time actually goes, measured directly** (new `getFloodTimeMs()` instrumentation, `pathfind.mjs`, cumulative time inside `reachableCells`): **~2,780 ms of the ~3,300 ms total — ~83% — is spent inside pathfinding floods.** 232 floods for this one decision, zero reuse across any of them, exactly matching fix 2's own already-logged remaining gap above: every MCTS tree node still calls `generateProposals` with no destination cache at all.
+
+**Kept anyway**: the cache is a genuine, zero-risk, permanent improvement (proven-pure functions, static terrain, no occupancy hazard whatsoever — unlike the pathfinding cache below) and directly informs future measurement (a query-heavy future evaluator term would benefit automatically). It just isn't the fix #62 still needs.
+
+**Real next step, now precisely scoped instead of guessed at**: a content-addressed, occupancy-fingerprint-keyed pathfinding cache threaded through `mcts-puct.mjs`/`mcts.mjs`'s own tree expansion. If MCTS could achieve even a fraction of `decide()`'s own already-measured 92.5% flood-reuse rate (fix 2 above), the arithmetic on this same benchmark projects total decide() time dropping from ~3.3s toward the ~0.5-0.8s range — a projection, not a promise, and the real design work (occupancy-safety across branches with different combatants alive/dead/repositioned) is the hard, correctness-sensitive part, not yet attempted.
+
+Also newly established here: the "150-185s walled-arena MCTS battles" figure quoted in this issue's own 2026-09-04 comments predates all three fixes now shipped under #62 (this one and the two above) — no post-fix full-battle MCTS timing existed anywhere in this file before this entry. Worth a real end-to-end re-measurement before the next design projects savings off that number.
+
+---
+## 2026-09-12 — Terrain performance, fix 4: real destination-cache reuse across MCTS tree nodes (GH #62)
+
+### The fix fix-3's own measurement pointed at directly: every MCTS tree node called `generateProposals` with no destination cache at all, re-flooding from scratch even when many nodes shared the same combatant occupancy. Two adversarial review rounds before any code — round 1 found a CRITICAL bug (the design read the new capability off `engine`, not `adapter` — two different objects; as originally drafted, the whole feature would have shipped as a byte-for-byte no-op passing every test while doing nothing) plus a call-site undercount; round 2 verified every fix against current source and found nothing new.
+
+`decide.mjs`'s own `occupancyFingerprint` (already built for `planTurn`'s own turn-scoped `destCache`) is now exported and reused as-is — zero changes to its own implementation or to any of `decide.mjs`'s internal cache-key-building logic. `search/tree-shared.mjs` gains `scopedDestCache`: a `Map<fingerprint, Map>` bucketing structure, instantiated fresh once per real `search()`/`continueSearch()` call, each bucket handed to `generateProposals` as an ordinary `Map` indistinguishable from what `planTurn` already provides today. `occupancyFingerprint` is a new OPTIONAL adapter field (mirroring `resetSandboxForkCount`'s own "profiling aid, never required" precedent, not `isDead`'s required-capability one — its absence is never a correctness risk, only a missed cache-reuse opportunity) — `FRAME_ADAPTER` doesn't implement it yet and degrades to today's exact behavior, confirmed directly by the full existing Frame-scale MCTS test suite (43 tests) passing unchanged.
+
+**A real, costly methodology trap, caught before it corrupted the shipped numbers**: the first attempt at measuring this fix's real-world effect compared "with" and "without" configurations back-to-back inside ONE Node process and found the fix apparently made things WORSE (166 vs 96 floods) — backwards from every design expectation. Root-caused directly, not assumed: `personnel-complex-battle.mjs`'s own `buildScenario` returns `walls: WALLS`, a SHARED MODULE-LEVEL CONSTANT, by reference, on every call — so `evaluate/state-value.mjs`'s own pre-existing, unrelated `distanceCache` (a WeakMap keyed on `state.walls` by reference) silently warms up and persists across what looked like two independent scenario builds within the same process, since both received the identical `walls` array reference. The "without fix" run was accidentally benefiting from the "with fix" run's own prior work against a completely different cache. Re-measured correctly with each configuration in its own fresh process (matching fix-1's/fix-2's own already-established, valid methodology) and the result reversed to the expected direction. **Lesson, worth remembering for every future A/B benchmark in this codebase: never compare two configurations back-to-back within one process if there is any chance of unrelated shared, reference-keyed state (a WeakMap cache, a module-level constant) persisting between them — use separate, fresh processes, always.**
+
+**Measured correctly** (personnel-complex-battle.mjs, 44x30, 247 walls, party `lunar-17+tapkey+bennit+vorza-moonshot` vs opposition `security-goon+xenowarden-greenhorn+erabryth+tough`, `RANDOM_ARCS`, seed 1, a single real `mcts-puct-v1` decision, 500 iterations, maxDepth 4, three independent fresh-process runs per configuration, all consistent):
+
+| | Without fix | With fix | Delta |
+|---|---|---|---|
+| Pathfinding floods | 232 | 166 | **-28.4%** |
+| Total decide() wall time | ~3,460 ms | ~2,675 ms | **-22.7%** |
+
+**Zero behavior change, confirmed empirically**: the identical `bestProposal` (same type, same destination, same path) was chosen in all six runs across both configurations.
+
+**Smaller than the original hope, and the real reason why, measured directly rather than assumed**: `decide()`'s own turn-scoped cache gets a 92.5% flood-reuse rate because its key space (mover × destination cell) repeats heavily within one turn's 3 actions. MCTS's own cache key additionally includes the CURRENT position a hypothetical move starts from — and across MCTS's own progressive-widening exploration, the SAME mover is routinely evaluated from MANY DIFFERENT hypothetical positions (one per sibling branch's own first action), so occupancy-fingerprint sharing alone doesn't collapse nearly as much of the search as it does for `decide()`'s own narrower, same-position-repeated turn-local case. The fix is real, safe, and worth keeping — a genuine ~28% flood reduction — just a smaller piece of the ~83%-in-pathfinding cost than a naive read of `decide()`'s own 92.5% figure would suggest.
+
+New tests in `test/battle-simulator/mcts-destcache.test.mjs` (10 tests): `scopedDestCache` unit correctness (same fingerprint shares a bucket, different fingerprints never cross-contaminate, graceful degradation both when the engine lacks the capability and when no shared cache is supplied); a direct correctness proof that two occupancies sharing one `searchDestCache` each get their own independent, correct `generateProposals` result, never one serving the other's stale answer; real flood-count reduction proofs for both `mcts-puct.mjs` and `mcts.mjs`, plus `continueSearch`'s own root-level reopen path specifically (the call site round 1's review found undercounted, with real precedent in this codebase for being missed); and confirmation that an adapter without the new field chooses the identical real decision as one with it.
+
+Full battle-simulator suite: 1356/1356. Full project suite: 2234/2234.
+
+---

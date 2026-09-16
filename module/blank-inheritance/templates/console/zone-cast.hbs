@@ -1,0 +1,38 @@
+{{!--
+    The cast board: everyone in this scene, one row each.
+
+    A BOARD, not a sheet — rows are as shallow as a row can be, because the
+    GM's problem is breadth (who is here) rather than depth (what can this one
+    character do). Clicking a row selects that token, which is what the checks
+    zone beside it reads.
+
+    GM-only by construction: this partial is only ever reached from
+    DirectorBar, which a player's client never instantiates.
+--}}
+<div class="bi-cast">
+    {{#if rows.length}}
+    <div class="bi-cast__summary">{{localize "BLANKINHERITANCE.Console.Cast.Summary" players=summary.players others=summary.others}}</div>
+    <ul class="bi-cast__rows">
+        {{#each rows}}
+        <li class="bi-cast__item">
+            <button type="button" class="bi-cast__row{{#if this.selected}} bi-cast__row--selected{{/if}}"
+                data-action="selectCast" data-token-id="{{this.id}}"
+                data-disposition="{{this.disposition}}" {{#unless this.hasActor}}disabled{{/unless}}
+                title="{{this.name}}{{#if this.hidden}} — {{localize "BLANKINHERITANCE.Console.Cast.Hidden"}}{{/if}}">
+                <span class="bi-cast__pip"></span>
+                <span class="bi-cast__name">{{this.name}}</span>
+                {{#if this.hidden}}<span class="bi-cast__flag">H</span>{{/if}}
+            </button>
+            {{#if this.hasActor}}
+            <button type="button" class="bi-cast__card" data-action="openCard"
+                data-actor-id="{{this.actorId}}"
+                title="{{localize "BLANKINHERITANCE.Console.Card.Open"}}"
+                aria-label="{{localize "BLANKINHERITANCE.Console.Card.Open"}}">▣</button>
+            {{/if}}
+        </li>
+        {{/each}}
+    </ul>
+    {{else}}
+    <p class="bi-legend">{{localize "BLANKINHERITANCE.Console.Cast.Empty"}}</p>
+    {{/if}}
+</div>

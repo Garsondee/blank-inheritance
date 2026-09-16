@@ -1,0 +1,170 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-canteen-window",
+  "type": "location",
+  "tier": "site",
+  "name": "The Canteen Window",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "commercial",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21168696,
+          34.6712066
+        ],
+        [
+          135.21170119,
+          34.67118396
+        ],
+        [
+          135.21167622,
+          34.67117206
+        ],
+        [
+          135.21170921,
+          34.67112248
+        ],
+        [
+          135.21172859,
+          34.67113187
+        ],
+        [
+          135.21174167,
+          34.67111293
+        ],
+        [
+          135.21196441,
+          34.67121366
+        ],
+        [
+          135.21194527,
+          34.67124184
+        ],
+        [
+          135.21196354,
+          34.67124968
+        ],
+        [
+          135.21194439,
+          34.67127786
+        ],
+        [
+          135.21192706,
+          34.67126956
+        ],
+        [
+          135.21190356,
+          34.67130405
+        ],
+        [
+          135.21168696,
+          34.6712066
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7110.8,
+          6537.5
+        ],
+        [
+          7113.2,
+          6539
+        ],
+        [
+          7111.9,
+          6541.3
+        ],
+        [
+          7117.3,
+          6544.5
+        ],
+        [
+          7118.3,
+          6542.7
+        ],
+        [
+          7120.4,
+          6543.9
+        ],
+        [
+          7132.3,
+          6523.9
+        ],
+        [
+          7129.2,
+          6522.1
+        ],
+        [
+          7130.2,
+          6520.5
+        ],
+        [
+          7127.1,
+          6518.7
+        ],
+        [
+          7126.2,
+          6520.3
+        ],
+        [
+          7122.4,
+          6518.1
+        ],
+        [
+          7110.8,
+          6537.5
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7121.32,
+      6531.21
+    ],
+    "cells": [
+      "D4·41"
+    ],
+    "ref": "D4·41",
+    "areaM2": 285.5,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-123",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Not a full shop, just a single service window and a short covered queue, selling instant noodles, cheap stationery, and the only phone cards candidates are allowed. Runs odd hours built around drill schedules, not customer convenience.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Not a full shop, just a single service window and a short covered queue, selling instant noodles, cheap stationery, and the only phone cards candidates are allowed. Runs odd hours built around drill schedules, not customer convenience.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

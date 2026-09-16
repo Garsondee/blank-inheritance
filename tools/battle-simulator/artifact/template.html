@@ -1164,8 +1164,14 @@ function playTurnBeats(run, step, stepIdx, gen, onDone) {
     applyAndRenderRoster(action) {
       liveSnapshot = applyActionToSnapshot(liveSnapshot, action);
       renderRoster(run, liveSnapshot, step.combatantId);
-      const targetG = action.targetId && tokenEls.get(action.targetId);
-      if (targetG) targetG.classList.toggle("dead", (liveSnapshot[action.targetId]?.currentHP ?? 1) <= 0);
+      // A grenade/emanation's own affected[] entries (design doc §38) each name their own
+      // targetId — same map-token sync as the single-target case below, just once per victim
+      // instead of once for action.targetId (which an areaAttack never sets at all).
+      const targetIds = Array.isArray(action.affected) ? action.affected.map((a) => a.targetId) : [action.targetId];
+      for (const targetId of targetIds) {
+        const targetG = targetId && tokenEls.get(targetId);
+        if (targetG) targetG.classList.toggle("dead", (liveSnapshot[targetId]?.currentHP ?? 1) <= 0);
+      }
     }
   };
   let i = 0;

@@ -1,0 +1,109 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-gas-store",
+  "type": "location",
+  "tier": "site",
+  "name": "The Gas Store",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21609583,
+          34.68092732
+        ],
+        [
+          135.21607999,
+          34.68100623
+        ],
+        [
+          135.21645439,
+          34.68106023
+        ],
+        [
+          135.21647173,
+          34.68098164
+        ],
+        [
+          135.21609583,
+          34.68092732
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6910.6,
+          5403.5
+        ],
+        [
+          6904.9,
+          5396.7
+        ],
+        [
+          6931.4,
+          5374.1
+        ],
+        [
+          6937.2,
+          5380.8
+        ],
+        [
+          6910.6,
+          5403.5
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6921.02,
+      5388.78
+    ],
+    "cells": [
+      "D3·35",
+      "D3·36"
+    ],
+    "ref": "D3·35",
+    "areaM2": 309.4,
+    "withinRegionRef": "garrison",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-233",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Cylinders in a long narrow shed set apart from everything else, chained upright, with the door kept open in all but the worst weather.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Cylinders in a long narrow shed set apart from everything else, chained upright, with the door kept open in all but the worst weather.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

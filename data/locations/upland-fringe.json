@@ -1,0 +1,232 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "upland-fringe",
+  "type": "location",
+  "tier": "region",
+  "name": "The Upland Fringe",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "district",
+  "tags": [
+    "auto-tessellated",
+    "land"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.2222724301892,
+          34.73238760029195
+        ],
+        [
+          135.20129129931178,
+          34.72194663564157
+        ],
+        [
+          135.21018341066224,
+          34.711857410057455
+        ],
+        [
+          135.21696501340844,
+          34.7110766991018
+        ],
+        [
+          135.22943067154205,
+          34.72034947103693
+        ],
+        [
+          135.23110504429187,
+          34.728082050872324
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          4495.8,
+          200.0
+        ],
+        [
+          3429.7,
+          2174.2
+        ],
+        [
+          4700.0,
+          2724.1
+        ],
+        [
+          5279.0,
+          2482.9
+        ],
+        [
+          5739.3,
+          1016.6
+        ],
+        [
+          5435.2,
+          200.0
+        ]
+      ]
+    ],
+    "centroidPx": [
+      4714.02,
+      1460.18
+    ],
+    "cells": [
+      "C1·00",
+      "C1·10",
+      "C1·20",
+      "C1·30",
+      "C1·40",
+      "C1·50",
+      "C1·60",
+      "C1·01",
+      "C1·11",
+      "C1·21",
+      "C1·31",
+      "C1·41",
+      "C1·51",
+      "C1·61",
+      "B1·92",
+      "C1·02",
+      "C1·12",
+      "C1·22",
+      "C1·32",
+      "C1·42",
+      "C1·52",
+      "C1·62",
+      "C1·72",
+      "B1·93",
+      "C1·03",
+      "C1·13",
+      "C1·23",
+      "C1·33",
+      "C1·43",
+      "C1·53",
+      "C1·63",
+      "C1·73",
+      "B1·84",
+      "B1·94",
+      "C1·04",
+      "C1·14",
+      "C1·24",
+      "C1·34",
+      "C1·44",
+      "C1·54",
+      "C1·64",
+      "C1·74",
+      "B1·85",
+      "B1·95",
+      "C1·05",
+      "C1·15",
+      "C1·25",
+      "C1·35",
+      "C1·45",
+      "C1·55",
+      "C1·65",
+      "C1·75",
+      "B1·76",
+      "B1·86",
+      "B1·96",
+      "C1·06",
+      "C1·16",
+      "C1·26",
+      "C1·36",
+      "C1·46",
+      "C1·56",
+      "C1·66",
+      "C1·76",
+      "B1·77",
+      "B1·87",
+      "B1·97",
+      "C1·07",
+      "C1·17",
+      "C1·27",
+      "C1·37",
+      "C1·47",
+      "C1·57",
+      "C1·67",
+      "B1·68",
+      "B1·78",
+      "B1·88",
+      "B1·98",
+      "C1·08",
+      "C1·18",
+      "C1·28",
+      "C1·38",
+      "C1·48",
+      "C1·58",
+      "C1·68",
+      "B1·69",
+      "B1·79",
+      "B1·89",
+      "B1·99",
+      "C1·09",
+      "C1·19",
+      "C1·29",
+      "C1·39",
+      "C1·49",
+      "C1·59",
+      "C1·69",
+      "B2·60",
+      "B2·70",
+      "B2·80",
+      "B2·90",
+      "C2·00",
+      "C2·10",
+      "C2·20",
+      "C2·30",
+      "C2·40",
+      "C2·50",
+      "B2·81",
+      "B2·91",
+      "C2·01",
+      "C2·11",
+      "C2·21",
+      "C2·31",
+      "C2·41",
+      "C2·51",
+      "C2·12",
+      "C2·22",
+      "C2·32"
+    ],
+    "ref": "C1·00",
+    "areaM2": 3785560.3,
+    "withinRegionRef": null,
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-179",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "Where the northern woods stop being wild: scattered holdings, a quarry road, and the last houses on the grid before the trees take over entirely.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Where the northern woods stop being wild: scattered holdings, a quarry road, and the last houses on the grid before the trees take over entirely.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

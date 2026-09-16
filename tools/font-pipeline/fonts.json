@@ -1,0 +1,37 @@
+{
+  "_comment": "Font manifest for the Blank Inheritance visual identity. Consumed by build_fonts.py, which downloads from Google Fonts, subsets, converts to woff2, and writes module/blank-inheritance/assets/fonts/ plus the generated bi-fonts.css. Every family here is SIL Open Font License, so bundling and redistribution inside the module is fine.",
+
+  "_profiles": {
+    "full": "Latin + punctuation + kana + the common CJK ideograph block. ~2.8MB per weight in Mincho. ONLY for faces that must render arbitrary Japanese a GM might type — realistically just the document body face.",
+    "ui": "Latin + punctuation + kana + a curated kanji vocabulary (below). ~85KB per weight. For display faces that only ever render strings WE author — stamps, legends, headings. If a new Kanji is added to the UI it must be added to uiKanji and the fonts rebuilt, or it will render in a fallback face.",
+    "latin": "No CJK. Latin-only families, converted to woff2 and otherwise untouched."
+  },
+
+  "uiKanji": "機密極秘部外秘公開統制局命令第号文書番発行写承認閲覧記録要取扱注意同調侵蝕率機体型演出捕捉抹消空白相続情報保安級別作戦報告書式整備出撃待機警戒解除完了未確認損傷回収搭乗員候補生訓練所日時場所目標状態異常正常危険安全通信受信送信開始終了中断継続音楽効果音声量調整地図拠点座標距離方位高度速度残弾補給修理格納庫発艦着艦管制塔指揮官医療班避難誘導structural",
+
+  "families": [
+    { "name": "Shippori Mincho",      "weights": [400, 700], "profile": "full",  "role": "Document body and titles. The one face that must render arbitrary Japanese." },
+    { "name": "Zen Old Mincho",       "weights": [400, 900], "profile": "ui",    "role": "Retro display Mincho — document headings, section marks." },
+    { "name": "Klee One",             "weights": [400, 600], "profile": "ui",    "role": "Pen/textbook hand. Handwritten annotations and margin notes on documents." },
+    { "name": "Yuji Syuku",           "weights": [400],      "profile": "ui",    "role": "Brush calligraphy. Seals, stamps, anything that should look inked by hand." },
+    { "name": "DotGothic16",          "weights": [400],      "profile": "ui",    "role": "Bitmap/pixel Japanese. The phone OS — see terminal-login-landing-page's locked chunky-pixel art direction." },
+    { "name": "Noto Sans JP",         "weights": [400, 700], "profile": "ui",    "role": "Gothic workhorse for hard administrative markings." },
+    { "name": "Zen Kaku Gothic New",  "weights": [400, 700], "profile": "ui",    "role": "Clean gothic. Panel legends in Japanese." },
+    { "name": "RocknRoll One",        "weights": [400],      "profile": "ui",    "role": "Rounded gothic. The phone's friendlier corners." },
+
+    { "name": "Saira Stencil One",    "weights": [400],      "profile": "latin", "role": "Military stencil. Crate markings, hull numbers, classification banners." },
+    { "name": "Special Elite",        "weights": [400],      "profile": "latin", "role": "Imperfect typewriter — uneven strike. The 1950s typed-document face." },
+    { "name": "Courier Prime",        "weights": [400, 700], "profile": "latin", "role": "Clean typewriter. Form fields and control numbers where Special Elite is too noisy." },
+    { "name": "Chakra Petch",         "weights": [400, 700], "profile": "latin", "role": "Squared techno. Panel legends, key caps." },
+    { "name": "Oxanium",              "weights": [400, 800], "profile": "latin", "role": "Retro-futurist display. Headings on the glass register." },
+    { "name": "Michroma",             "weights": [400],      "profile": "latin", "role": "Wide techno. Marquee and wordmark use." },
+    { "name": "Share Tech Mono",      "weights": [400],      "profile": "latin", "role": "HUD numerals. Narrow, technical, reads at small sizes on phosphor." },
+    { "name": "IBM Plex Mono",        "weights": [400, 600], "profile": "latin", "role": "Technical mono for dense readouts and log lines." },
+    { "name": "Spectral",             "weights": [400, 600], "profile": "latin", "role": "Book serif for Latin document text, paired with Shippori for Japanese." },
+    { "name": "Bruno Ace",            "weights": [400],      "profile": "latin", "role": "Engraved panel legends. Also ships with Foundry; bundled so it is certain." },
+    { "name": "Bruno Ace SC",         "weights": [400],      "profile": "latin", "role": "Small-caps display variant." },
+    { "name": "Rajdhani",             "weights": [500, 700], "profile": "latin", "role": "Condensed techno. Tight labels where Chakra Petch is too wide." },
+    { "name": "Press Start 2P",       "weights": [400],      "profile": "latin", "role": "Pixel Latin. The phone OS, paired with DotGothic16." },
+    { "name": "Antonio",              "weights": [400, 700], "profile": "latin", "role": "Condensed poster. Marquee headlines, alert banners." }
+  ]
+}

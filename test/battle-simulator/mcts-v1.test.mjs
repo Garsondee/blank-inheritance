@@ -41,10 +41,19 @@ function makeTripPileOnState() {
   const tough = loadFixture("tough.json");
   const xeno = loadFixture("xenowarden-greenhorn.json");
   const me = {
-    ...lunar17, id: "me", side: "party", strikes: [], spells: [], healAbilities: [], intimidationModifier: null,
+    // GH #65: lunar-17.json gained a real areaAttacks entry (her Incendiary Grenade) — stripped here
+    // too, or this "move-only" isolation would silently stop being move-only.
+    ...lunar17, id: "me", side: "party", strikes: [], spells: [], healAbilities: [], areaAttacks: [], intimidationModifier: null,
     objective: { col: 12, row: 10 }, position: { col: 10, row: 10 }
   };
-  const enemyA = { ...tough, id: "enemyA", side: "opposition", position: { col: 12, row: 10 } };
+  // GH #18: Reactive Strike stripped — this fixture borrows Tough purely as a stand-in "tough melee
+  // brute" for the trip-pile-on trap this test exists to demonstrate (see trap-insurance.test.mjs's
+  // own identical fix and comment for the full, directly-measured reasoning: left in, it shifts
+  // MCTS's own visit distribution enough that the objectively-correct retreat drops out of trap
+  // insurance's own top-K most-visited candidates — a real, structural limitation of "only re-check
+  // the top-K" insurance, not a Reactive Strike bug, and a confound on a test that was never about
+  // this mechanic).
+  const enemyA = { ...tough, id: "enemyA", side: "opposition", position: { col: 12, row: 10 }, reactions: [] };
   const enemyB = { ...xeno, id: "enemyB", side: "opposition", position: { col: 13, row: 10 } };
   return {
     round: 1, seed: 1, gridSize: { cols: 30, rows: 30 }, walls: [], initiativeOrder: ["me", "enemyA", "enemyB"],

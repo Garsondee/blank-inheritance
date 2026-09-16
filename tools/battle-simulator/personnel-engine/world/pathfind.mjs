@@ -87,9 +87,31 @@ function key(col, row, parity) { return `${col},${row},${parity}`; }
  * inclusive — for every cell reachable within `maxFeet` THAT ISN'T ITSELF OCCUPIED (an ally's own
  * square is a real waypoint on the way to somewhere else, never a valid destination in its own
  * right). Only cells within `maxFeet` are explored, so this stays cheap even on a large grid: it's
- * bounded by a combatant's own Speed, not the whole map.
+ * bounded by a combatant's own Speed, not the whole map — EXCEPT `decide.mjs`'s own
+ * `trueDistanceField`, which deliberately sets `maxFeet` to 4x the map diagonal specifically to
+ * flood the whole grid (design doc §76.4/GH #62): profiled directly, that shape and `pathCost`'s own
+ * `maxFeet: 100000` account for ~58% of a real walled battle's own wall-clock time, and NEITHER
+ * caller ever reads `.path` off the result (both read only `.cost` — confirmed by reading every call
+ * site, not assumed) — `path` reconstruction alone is 32-76% of a full-grid flood's own cost,
+ * scaling with path length as `unshift`'s own O(n) cost compounds. `includePath = false` skips it:
+ * `path` comes back `null` on every returned cell instead. Every Speed-bounded caller (destination
+ * search, cover search, blind exploration, determinization) keeps the default and is byte-for-byte
+ * unaffected — this is an additive, opt-in parameter, not a behavior change to any existing shape.
  */
-export function reachableCells({ from, maxFeet, gridSize, occupiedPositions = [], walls = [], moverSide = null }) {
+// FLOOD COUNTER (GH #62, mirroring engine.mjs's own sandboxForkCount/design doc §59 pattern) — this
+// function is the one true seam every Dijkstra flood passes through, no matter how much caching sits
+// above it (decide.mjs's own field|/reach| caches skip this call outright on a hit) — so counting AT
+// this seam, not derived from a call site, is what can actually prove a cache is being reused rather
+// than merely "not wrong." Inert for every existing caller: a plain increment, no control-flow/return
+// effect, only meaningful to a caller that explicitly resets and reads it.
+let floodCount = 0, floodTimeMs = 0;
+export function resetFloodCount() { floodCount = 0; floodTimeMs = 0; }
+export function getFloodCount() { return floodCount; }
+export function getFloodTimeMs() { return floodTimeMs; } // GH #62 investigation — see evaluate/state-value.mjs's own distanceCache header for the sibling, already-solved occupancy-independent caching problem this one is NOT (occupancy varies; see search/tree-shared.mjs's own scopedDestCache)
+
+export function reachableCells({ from, maxFeet, gridSize, occupiedPositions = [], walls = [], moverSide = null, includePath = true }) {
+  floodCount++;
+  const __floodStart = performance.now();
   const heap = new MinHeap();
   const best = new Map(); // key(col,row,parity) -> cost
   const cameFrom = new Map(); // key -> {col,row,parity} of the predecessor
@@ -139,25 +161,31 @@ export function reachableCells({ from, maxFeet, gridSize, occupiedPositions = []
     if (isOccupied({ col, row }, occupiedPositions)) continue;
     const existing = result.get(cellKey);
     if (existing && existing.cost <= cost) continue;
-    const path = [{ col, row }];
-    let cur = { col, row, parity };
-    while (cur.col !== from.col || cur.row !== from.row) {
-      const prevKey = key(cur.col, cur.row, cur.parity);
-      const prev = cameFrom.get(prevKey);
-      if (!prev) break;
-      path.unshift({ col: prev.col, row: prev.row });
-      cur = prev;
+    let path = null;
+    if (includePath) {
+      path = [{ col, row }];
+      let cur = { col, row, parity };
+      while (cur.col !== from.col || cur.row !== from.row) {
+        const prevKey = key(cur.col, cur.row, cur.parity);
+        const prev = cameFrom.get(prevKey);
+        if (!prev) break;
+        path.unshift({ col: prev.col, row: prev.row });
+        cur = prev;
+      }
     }
     result.set(cellKey, { cost, path });
   }
+  floodTimeMs += performance.now() - __floodStart;
   return result;
 }
 
 /**
  * Convenience wrapper: the real path cost (or Infinity if unreachable within `maxFeet`) between
- * two specific cells.
+ * two specific cells. Returns a bare number — never the route itself — so this always floods with
+ * `includePath: false` (GH #62): its one real caller (`evaluate/state-value.mjs`'s `effectiveDistance`,
+ * `maxFeet: 100000` — a full-grid flood) only ever reads the number this function already returns.
  */
 export function pathCost(args) {
-  const cells = reachableCells(args);
+  const cells = reachableCells({ ...args, includePath: false });
   return cells.get(`${args.to.col},${args.to.row}`)?.cost ?? Infinity;
 }

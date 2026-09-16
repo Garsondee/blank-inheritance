@@ -1,0 +1,8 @@
+{
+  "id": "test-fixture-journal-001",
+  "name": "TEST FIXTURE — Diagnostic Journal",
+  "pages": [
+    { "id": "overview", "name": "Overview", "content": "<p>Synthetic test page. Not real campaign prose.</p>" },
+    { "id": "gm-notes", "name": "GM Notes", "content": "<p>Second page, proving multi-page journals build correctly.</p>", "titleLevel": 2 }
+  ]
+}

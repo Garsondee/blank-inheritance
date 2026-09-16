@@ -1,0 +1,171 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "north-tower",
+  "type": "location",
+  "tier": "site",
+  "name": "North Tower",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20944016,
+          34.67130361
+        ],
+        [
+          135.20951158,
+          34.67133264
+        ],
+        [
+          135.20949944,
+          34.67135112
+        ],
+        [
+          135.20950952,
+          34.67135458
+        ],
+        [
+          135.20949832,
+          34.6713726
+        ],
+        [
+          135.20940249,
+          34.67133245
+        ],
+        [
+          135.209206,
+          34.67165332
+        ],
+        [
+          135.20935498,
+          34.67171466
+        ],
+        [
+          135.20957348,
+          34.67135898
+        ],
+        [
+          135.2095897,
+          34.67136573
+        ],
+        [
+          135.20977896,
+          34.6710578
+        ],
+        [
+          135.20962942,
+          34.67099569
+        ],
+        [
+          135.20944016,
+          34.67130361
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6928,
+          6632.9
+        ],
+        [
+          6932,
+          6626.8
+        ],
+        [
+          6930,
+          6625.6
+        ],
+        [
+          6930.6,
+          6624.8
+        ],
+        [
+          6928.7,
+          6623.6
+        ],
+        [
+          6923.4,
+          6631.9
+        ],
+        [
+          6889.8,
+          6610.4
+        ],
+        [
+          6898.1,
+          6597.6
+        ],
+        [
+          6935.4,
+          6621.4
+        ],
+        [
+          6936.3,
+          6620
+        ],
+        [
+          6968.6,
+          6640.6
+        ],
+        [
+          6960.3,
+          6653.5
+        ],
+        [
+          6928,
+          6632.9
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6929.25,
+      6625.49
+    ],
+    "cells": [
+      "D4·31",
+      "D4·32"
+    ],
+    "ref": "D4·31",
+    "areaM2": 1222.6,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-128",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Newest of the three towers and visibly better-built — square corners, a lift that mostly works. Houses the semester's newest intake almost exclusively, which the other two towers never let them forget.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Newest of the three towers and visibly better-built — square corners, a lift that mostly works. Houses the semester's newest intake almost exclusively, which the other two towers never let them forget.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

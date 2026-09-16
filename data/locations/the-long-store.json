@@ -1,0 +1,110 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-long-store",
+  "type": "location",
+  "tier": "site",
+  "name": "The Long Store",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.2186191,
+          34.67690596
+        ],
+        [
+          135.21883693,
+          34.67638623
+        ],
+        [
+          135.21624044,
+          34.67561645
+        ],
+        [
+          135.21599845,
+          34.67609352
+        ],
+        [
+          135.21599845,
+          34.67609352
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7336.5,
+          5670.1
+        ],
+        [
+          7383,
+          5709.6
+        ],
+        [
+          7221.5,
+          5904.1
+        ],
+        [
+          7175.5,
+          5869.8
+        ],
+        [
+          7175.5,
+          5869.8
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7279.9,
+      5787.33
+    ],
+    "cells": [
+      "D3·57",
+      "D3·48",
+      "D3·58"
+    ],
+    "ref": "D3·57",
+    "areaM2": 15066.0,
+    "withinRegionRef": "long-sheds",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-217",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "main equipment storage racks for mechs and the vehicle hangers. A quarter-kilometre of racking on rails, ordered by Frame rather than by part, so a crew can walk their own aisle end to end without once asking anybody else to move.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "main equipment storage racks for mechs and the vehicle hangers. A quarter-kilometre of racking on rails, ordered by Frame rather than by part, so a crew can walk their own aisle end to end without once asking anybody else to move.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

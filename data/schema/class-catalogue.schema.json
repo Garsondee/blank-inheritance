@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "class-catalogue.schema.json",
+  "title": "Class Catalogue",
+  "description": "The real, complete SF2E class catalogue (6 entries), extracted live from gamesystems/sf2e/packs/classes for the induction terminal's Page 4 (design/induction-terminal.md). Class features, feats and spells are deliberately not captured here -- deferred to the real character sheet, same reasoning as ancestry feat/heritage and background feat. Singleton file: data/campaign/class-catalogue.json.",
+  "type": "object",
+  "required": ["id", "classes"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "class-catalogue" },
+    "type": { "const": "class-catalogue" },
+    "description": { "type": "string" },
+    "classes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/classEntry" }
+    }
+  },
+  "$defs": {
+    "classEntry": {
+      "type": "object",
+      "required": [
+        "id", "name", "hp", "keyAbility", "perception", "savingThrows",
+        "trainedSkills", "attacks", "defenses", "description"
+      ],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "hp": { "type": "integer", "description": "HP gained per level from this class -- tools/character-builder/derive.mjs's deriveHP input, added to ancestry HP + the Con modifier each level." },
+        "keyAbility": {
+          "type": "array",
+          "description": "One boost slot (core/boost-slots.mjs shape): a single-ability entry is fixed (e.g. Soldier: Constitution only); a multi-ability entry is a real free choice (Witchwarper: Charisma or Intelligence).",
+          "items": { "enum": ["str", "dex", "con", "int", "wis", "cha"] },
+          "minItems": 1
+        },
+        "perception": { "type": "integer", "minimum": 0, "maximum": 4, "description": "Proficiency rank (0=untrained..4=legendary) at level 1." },
+        "savingThrows": {
+          "type": "object",
+          "required": ["fortitude", "reflex", "will"],
+          "properties": {
+            "fortitude": { "type": "integer", "minimum": 0, "maximum": 4 },
+            "reflex": { "type": "integer", "minimum": 0, "maximum": 4 },
+            "will": { "type": "integer", "minimum": 0, "maximum": 4 }
+          }
+        },
+        "trainedSkills": {
+          "type": "object",
+          "description": "Informational only, not resolved as a player choice here -- the `additional` count is a real 'choose N of 18' pick this form doesn't build (design doc §1's 'basic but viable' scope), same deferral already applied to background's own skill grants.",
+          "required": ["fixed", "additional"],
+          "properties": {
+            "fixed": { "type": "array", "items": { "type": "string" }, "description": "Skill slugs always trained by this class, e.g. [\"intimidation\"]. Empty is real (several classes fix none)." },
+            "additional": { "type": "integer", "minimum": 0, "description": "How many more skills of the player's choice this class grants, on top of `fixed`." }
+          }
+        },
+        "attacks": {
+          "type": "object",
+          "description": "Weapon proficiency ranks at level 1, informational only.",
+          "required": ["simple", "martial", "advanced", "unarmed"],
+          "properties": {
+            "simple": { "type": "integer", "minimum": 0, "maximum": 4 },
+            "martial": { "type": "integer", "minimum": 0, "maximum": 4 },
+            "advanced": { "type": "integer", "minimum": 0, "maximum": 4 },
+            "unarmed": { "type": "integer", "minimum": 0, "maximum": 4 },
+            "otherName": { "type": ["string", "null"], "description": "A class-specific weapon-group name with its own proficiency (e.g. Operative's 'Simple Guns, Martial Guns'), or null." },
+            "otherRank": { "type": ["integer", "null"], "minimum": 0, "maximum": 4 }
+          }
+        },
+        "defenses": {
+          "type": "object",
+          "description": "Armor proficiency ranks at level 1, informational only.",
+          "required": ["unarmored", "light", "medium", "heavy"],
+          "properties": {
+            "unarmored": { "type": "integer", "minimum": 0, "maximum": 4 },
+            "light": { "type": "integer", "minimum": 0, "maximum": 4 },
+            "medium": { "type": "integer", "minimum": 0, "maximum": 4 },
+            "heavy": { "type": "integer", "minimum": 0, "maximum": 4 }
+          }
+        },
+        "description": { "type": "string", "description": "Real Player Core flavor text, HTML-stripped, @UUID inline-links resolved to their label text." }
+      }
+    }
+  }
+}

@@ -6,6 +6,14 @@ node_modules/
 __pycache__/
 *.pyc
 
+# SSH/private keys — never committed, regardless of where they land locally.
+*.ppk
+*.pem
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+
 # Large local reference trees — not project content, not for version control
 /gamesystems/
 /foundryvtt/
@@ -40,6 +48,11 @@ __pycache__/
 # of churn into history for something a one-line command regenerates exactly.
 /tools/map-generator/out/
 
+# City-map hand-touch-up layers: multi-gigabyte Photoshop source files (.psd/.psb),
+# the user's own raw working material, never meant for version control. Caught
+# 2026-09-16 after one accidentally landed in a commit and bloated .git by ~3GB.
+/tools/city-map/export/layers/
+
 # city-map's fetch/build cache: cached Overpass JSON and GSI DEM tiles (L0),
 # parsed world models (L1), per-frame terrain fields (L2), and replayed
 # worlds keyed by op-log content hash (L3). Large binary data reproducible
@@ -62,3 +75,62 @@ __pycache__/
 # artifact with its own generator script the way the entries above are, just
 # working scratch that accumulated in-tree. Never meant to be committed.
 /tools/city-map/_out/
+
+# Same shape as the above, but landed at the repo root instead of a tool's
+# own scratch dir — a one-off CLI run that didn't cd first. Caught 2026-09-16.
+/production-preview-1200.png
+/region_buildings.json
+/residential_candidates.json
+/residential_picks.json
+
+# Font pipeline download cache — full upstream TTFs (tens of MB) used only as
+# subsetting input. The shipped woff2 files in module/.../assets/fonts/ ARE
+# committed; these intermediates are reproducible via build_fonts.py.
+tools/font-pipeline/.cache/
+
+# Campaign JSON staged into the module for LOCAL Foundry testing.
+# The source of truth is repo-root data/; tools/module-sync/stage-campaign-data.mjs
+# builds this same tree into a temp dir on a real push, so a committed copy here
+# would be a second source of truth that silently drifts.
+module/blank-inheritance/data/campaign/
+
+# Runtime session logs written by the module inside a live Foundry Data dir.
+# module.json declares persistentStorage, so Foundry owns this directory;
+# harvesting a session into the repo is a separate, deliberate step.
+module/blank-inheritance/storage/
+
+# Artwork staged into the module by tools/stage-assets/. Derived from
+# artwork/in-tray/, which is itself gitignored; module-sync pushes from disk
+# rather than from git, so the server still gets them. Regenerate with
+# python tools/stage-assets/stage_assets.py
+module/blank-inheritance/assets/stage/
+
+# Harvested from the live server by tools/module-sync/sync-harvest.mjs.
+# The session logs ARE kept -- they are the record of what actually happened
+# at the table, and the whole reason the harvest direction exists. The sync
+# test reports are pure diagnostics, regenerated on every run, and are not.
+harvest/test-reports/
+
+# Gazetteer: calibration overlays and crops are regenerable working images,
+# not project content. Same treatment as tools/city-map/_out/.
+/tools/gazetteer/_calibration/
+/tools/gazetteer/_tiles/
+# Land/water mask and overlay renders, all derived from the gitignored
+# master PNG. Regenerate with tools/gazetteer/landmask.py.
+/tools/gazetteer/_cache/
+# Client-reported activity log (tool changes, drags, welds, saves, JS
+# errors) -- a debugging aid for reading back what a session actually did,
+# not project content.
+/tools/gazetteer/_client.log
+
+# Drawing-session drafts: raw input awaiting hand-conversion into real location
+# entities, exactly like data/map/editor-submissions/ before them.
+/data/map/gazetteer-drafts/
+
+# SQLite WAL-mode sidecar files. citymap.store.gpkg opens data/map/kurose.gpkg
+# with journal_mode=WAL (a long feature-query read must never block a short
+# write), which creates these next to the tracked .gpkg on first connection.
+# Transient local state, not content -- the same tracked-database/untracked-
+# journal split as a .git/index vs its .lock.
+*.gpkg-wal
+*.gpkg-shm

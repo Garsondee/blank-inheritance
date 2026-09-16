@@ -1,0 +1,126 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-training-house",
+  "type": "location",
+  "tier": "site",
+  "name": "The Training House",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21416086,
+          34.68002118
+        ],
+        [
+          135.21597451,
+          34.68028407
+        ],
+        [
+          135.21619221,
+          34.67926404
+        ],
+        [
+          135.21503333,
+          34.6790964
+        ],
+        [
+          135.21470792,
+          34.67904887
+        ],
+        [
+          135.21438007,
+          34.67900147
+        ],
+        [
+          135.21416086,
+          34.68002118
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6809,
+          5580.2
+        ],
+        [
+          6937.3,
+          5470.6
+        ],
+        [
+          7012,
+          5557.9
+        ],
+        [
+          6930,
+          5627.9
+        ],
+        [
+          6907,
+          5647.6
+        ],
+        [
+          6883.8,
+          5667.4
+        ],
+        [
+          6809,
+          5580.2
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6910.52,
+      5569.02
+    ],
+    "cells": [
+      "D3·36",
+      "D3·46",
+      "D3·37"
+    ],
+    "ref": "D3·36",
+    "areaM2": 19377.0,
+    "withinRegionRef": "garrison",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-218",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "The main building where combat training and close quarter combat training happens. Room clearing, training drill. Its internal walls are bolted rather than built, and the layout is changed on a schedule that is never published in advance.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The main building where combat training and close quarter combat training happens. Room clearing, training drill. Its internal walls are bolted rather than built, and the layout is changed on a schedule that is never published in advance.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

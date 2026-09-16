@@ -1,0 +1,156 @@
+{{!--
+    The induction terminal — Page 3, Background.
+
+    Real background (mechanical) -- see design/induction-terminal.md §4.
+    Same picking/resolving two-state shape as Page 2 (Ancestry), grouped by
+    rarity instead of terrestrial/alien-coded since that's the axis that
+    actually matters for 154 backgrounds. Trained skills, Lore skill(s) and
+    the granted background feat are shown read-only, never resolved as a
+    player choice here -- some real backgrounds offer a prose choice the
+    flat data can't represent (background-catalogue.schema.json), and the
+    feat itself is deferred to the real character sheet, same reasoning as
+    ancestry feat/heritage and class feats/spells.
+
+    PAPER register throughout, same .bi-doc/.bi-form-row vocabulary as
+    Pages 1-2.
+--}}
+<section class="bi-induction">
+    <div class="bi-doc bi-induction__page">
+        <header class="bi-doc__head">
+            <h1 class="bi-doc__title">{{localize "BLANKINHERITANCE.Induction.Page3.Title"}}</h1>
+            <div class="bi-doc__meta">
+                {{localize "BLANKINHERITANCE.Induction.Page3.FormNumber"}}
+                {{#if userName}}<br><b>{{userName}}</b>{{/if}}
+            </div>
+        </header>
+
+        <div class="bi-induction__tracker" role="list" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
+            {{#each trackerSteps}}
+            <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
+                  role="listitem" title="{{this.number}}. {{this.label}}">{{this.number}}</span>
+            {{/each}}
+        </div>
+
+        <p>{{localize "BLANKINHERITANCE.Induction.Page3.Intro"}}</p>
+
+        {{#unless selected}}
+            {{#if loadFailed}}
+            <div class="bi-induction__load-error">
+                <p class="bi-induction__load-error-title">{{localize "BLANKINHERITANCE.Induction.Page2.LoadFailedTitle"}}</p>
+                <p>{{localize "BLANKINHERITANCE.Induction.Page2.LoadFailedBody"}}</p>
+            </div>
+            {{else}}
+            <div class="bi-induction__filter-row">
+                <input type="text" class="bi-induction__filter" data-induction-filter data-filter-path="background.filter"
+                       placeholder="{{localize 'BLANKINHERITANCE.Induction.Page3.FilterPlaceholder'}}" value="{{filterValue}}">
+            </div>
+
+            <div class="bi-induction__groups">
+                <div class="bi-induction__group">
+                    <h2>{{localize "BLANKINHERITANCE.Induction.Page3.GroupCommon"}}</h2>
+                    <div class="bi-induction__ancestry-list">
+                        {{#each backgroundGroups.common}}
+                        <button type="button" class="bi-induction__ancestry-item" data-action="pickBackground"
+                                data-background-id="{{this.id}}" data-induction-name="{{this.nameLower}}">{{this.name}}</button>
+                        {{/each}}
+                    </div>
+                </div>
+                <div class="bi-induction__group">
+                    <h2>{{localize "BLANKINHERITANCE.Induction.Page3.GroupUncommon"}}</h2>
+                    <div class="bi-induction__ancestry-list">
+                        {{#each backgroundGroups.uncommon}}
+                        <button type="button" class="bi-induction__ancestry-item" data-action="pickBackground"
+                                data-background-id="{{this.id}}" data-induction-name="{{this.nameLower}}">{{this.name}}</button>
+                        {{/each}}
+                    </div>
+                </div>
+                <div class="bi-induction__group">
+                    <h2>{{localize "BLANKINHERITANCE.Induction.Page3.GroupRare"}}</h2>
+                    <div class="bi-induction__ancestry-list">
+                        {{#each backgroundGroups.rare}}
+                        <button type="button" class="bi-induction__ancestry-item" data-action="pickBackground"
+                                data-background-id="{{this.id}}" data-induction-name="{{this.nameLower}}">{{this.name}}</button>
+                        {{/each}}
+                    </div>
+                </div>
+            </div>
+            <p class="bi-induction__no-matches" data-induction-no-matches hidden>{{localize "BLANKINHERITANCE.Induction.Page3.NoMatches"}}</p>
+            {{/if}}
+        {{/unless}}
+
+        {{#if selected}}
+        <div class="bi-induction__selected">
+            <div class="bi-induction__selected-head">
+                <h2 class="bi-induction__selected-name">{{selected.name}}</h2>
+                <button type="button" class="bi-induction__change" data-action="changeBackground">{{localize "BLANKINHERITANCE.Induction.Page3.Change"}}</button>
+            </div>
+            {{#if selected.isRare}}
+            <span class="bi-induction__rarity-tag bi-induction__rarity-tag--rare">{{selected.rarity}}</span>
+            {{else if selected.isUncommon}}
+            <span class="bi-induction__rarity-tag bi-induction__rarity-tag--uncommon">{{selected.rarity}}</span>
+            {{/if}}
+            <p>{{selected.description}}</p>
+
+            <h2>{{localize "BLANKINHERITANCE.Induction.Page3.BoostsTitle"}}</h2>
+            <div class="bi-induction__slots">
+                {{#each selected.boostSlots}}
+                <div class="bi-induction__slot">
+                    {{#if this.fixed}}
+                    <span class="bi-induction__fixed">{{this.fixedLabel}}</span>
+                    {{else}}
+                    <span class="bi-induction__slot-hint">{{localize "BLANKINHERITANCE.Induction.Page2.ChooseOne"}}</span>
+                    <div class="bi-induction__options">
+                        {{#each this.options}}
+                        <button type="button"
+                                class="bi-induction__option {{#if this.picked}}bi-induction__option--picked{{/if}} {{#if this.claimed}}bi-induction__option--claimed{{/if}}"
+                                data-action="pickBackgroundBoost" data-slot-index="{{this.slotIndex}}" data-ability="{{this.ability}}"
+                                aria-pressed="{{this.picked}}" {{#if this.claimed}}disabled{{/if}}>{{this.label}}</button>
+                        {{/each}}
+                    </div>
+                    {{/if}}
+                </div>
+                {{/each}}
+            </div>
+
+            <h2>{{localize "BLANKINHERITANCE.Induction.Page3.GrantsTitle"}}</h2>
+            {{#if selected.hasNamedSkills}}
+            {{#if selected.hasTrainedSkills}}
+            <div class="bi-form-row">
+                <span class="bi-form-row__label">{{#if selected.trainedSkillsAreChoice}}{{localize "BLANKINHERITANCE.Induction.Page3.StatSkillsChoice"}}{{else}}{{localize "BLANKINHERITANCE.Induction.Page3.StatSkills"}}{{/if}}</span>
+                <span class="bi-form-row__lead"></span>
+                <span class="bi-form-row__value">{{selected.trainedSkillsLabel}}</span>
+            </div>
+            {{/if}}
+            {{#if selected.hasLoreSkills}}
+            <div class="bi-form-row">
+                <span class="bi-form-row__label">{{#if selected.loreSkillsAreChoice}}{{localize "BLANKINHERITANCE.Induction.Page3.StatLoreChoice"}}{{else}}{{localize "BLANKINHERITANCE.Induction.Page3.StatLore"}}{{/if}}</span>
+                <span class="bi-form-row__lead"></span>
+                <span class="bi-form-row__value">{{selected.loreSkillsLabel}}</span>
+            </div>
+            {{/if}}
+            {{else}}
+            <p class="bi-induction__no-flaw">{{localize "BLANKINHERITANCE.Induction.Page3.SkillsSeeDescription"}}</p>
+            {{/if}}
+            {{#if selected.feat}}
+            <div class="bi-form-row">
+                <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page3.StatFeat"}}</span>
+                <span class="bi-form-row__lead"></span>
+                <span class="bi-form-row__value">{{selected.feat}}</span>
+            </div>
+            {{/if}}
+
+            <details class="bi-induction__help" data-sync="help">
+                <summary>{{localize "BLANKINHERITANCE.Induction.Page3.HelpSummary"}}</summary>
+                <p>{{localize "BLANKINHERITANCE.Induction.Page3.HelpBody"}}</p>
+            </details>
+        </div>
+        {{/if}}
+
+        <div class="bi-induction__actions bi-induction__actions--split">
+            <button type="button" class="bi-induction__back" data-action="backFromBackground">{{localize "BLANKINHERITANCE.Induction.Page3.Back"}}</button>
+            <button type="button" class="bi-induction__begin" data-action="continueFromBackground" {{#unless isComplete}}disabled{{/unless}}>
+                {{localize "BLANKINHERITANCE.Induction.Page3.Continue"}}
+            </button>
+        </div>
+    </div>
+</section>

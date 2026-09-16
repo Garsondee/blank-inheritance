@@ -154,7 +154,17 @@ Practices, not tooling — these are what actually decay.
 3. **If it can be a pure function, it must be.** Every piece of logic pushed into `core/` is logic that becomes cheap to verify forever. Logic left in the adapter is logic only testable through the slowest tier.
 4. **Prefer real data over synthetic fixtures** once real campaign content exists. Synthetic fixtures test the generator against your assumptions; real data tests it against the campaign.
 5. **A skipped test must announce itself.** Silent skips are how a suite becomes decorative.
-6. **`npm test` runs tiers 0–3 and must stay fast enough to run on every save.** If it stops being fast, it stops being run.
+6. **The default test command must stay fast enough to run on every save.** If it stops being fast, it stops being run — which is exactly what happened here: `npm test`/`node --test test/` grew, alongside the module and campaign-data tiers, into `test/battle-simulator/`'s 81 files, `test/city-map-editor/`, `test/map-generator/`, and `test/module-sync/`, and stopped being something anyone would run on every save without thinking about it (**found live 2026-09-05**, when running it mid-UI-iteration meant sitting through the combat simulator every time). `package.json` now has scoped scripts so the fast/relevant subset is a real, named command instead of something to remember by hand:
+
+   | Script | Runs | Use when |
+   |---|---|---|
+   | `npm run test:ui` | tier0, tier1-redaction, tier3-theme-contract, tier3-fonts | touching CSS/HTML/console.js/redact.mjs/theme.mjs/the font pipeline |
+   | `npm run test:module` | tier1-generators, tier2-data-corpus, tier3-contract, tier4-mocked-adapter | touching the campaign-data → Foundry-document generators |
+   | `npm run test:fast` | everything above, plus character-builder/map-generator/module-sync/city-map-editor | a broad sanity check that still finishes in seconds |
+   | `npm run test:battle-sim` | `test/battle-simulator/` (81 files) | changing `decide()`/`evaluateState`/the AI — the genuinely slow one |
+   | `npm run test:character-builder` / `test:map-generator` / `test:module-sync` / `test:city-map-editor` | that one subject only | working in just that tool |
+   | `npm run test:city-map` | the Python suite (`unittest`) | working in `tools/city-map/` — never part of `node --test`, see `tools/city-map/README.md` |
+   | `npm test` | literally everything | before a real milestone, not a reflex |
 
 ---
 
@@ -165,4 +175,4 @@ Named so they aren't silently assumed:
 - **No CI service.** This is a local repo with no remote configured. `npm test` plus, optionally, a git pre-commit hook is the whole story until that changes.
 - **No browser-automation / end-to-end tests** driving a real Foundry through a headless browser. Real technique, wrong cost/benefit here — tiers 4 and 5 together cover the same ground at a fraction of the setup, and the GM is already in the loop.
 - **No test coverage targets.** Coverage percentages measure the wrong thing on a codebase that is mostly data transformation; the corpus test in tier 2 is a better proxy for "are we actually exercising this."
-- **No tests for UI appearance.** The phone, portrait frames, and control bar (see `ideas/entries/`) will need *behavioral* tests, but nothing here tries to assert that pixels look right.
+- **No pixel-diffing.** Nothing here screenshots a render and compares it to a golden image. The visual-identity work (`design/visual-identity.md`) found a cheaper, higher-signal substitute for the specific failures that actually occurred: grep-level assertions on the CSS itself — a property that must/must not appear, a token that must be declared, a selector that must carry a specific class. That style of test has already caught four real, live bugs (a demo-only `aspect-ratio` baked into the shippable console class, `.bi-console`'s grid track sizing coming out wrong under `@container` queries, Japanese text rendered under a 12px legibility floor, and the Foundry bridge silently overriding the document typeface) before anyone had to notice them by eye. It is still not an assertion that pixels *look right* — that judgment stays human — but "the rule that would have prevented this exact bug now exists" is a real, cheap thing to keep doing.

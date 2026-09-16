@@ -1,0 +1,116 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-butts",
+  "type": "location",
+  "tier": "site",
+  "name": "The Butts",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21456947,
+          34.68053271
+        ],
+        [
+          135.21454104,
+          34.68065962
+        ],
+        [
+          135.21469263,
+          34.68068201
+        ],
+        [
+          135.21582347,
+          34.68084763
+        ],
+        [
+          135.2158504,
+          34.6807204
+        ],
+        [
+          135.21456947,
+          34.68053271
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6812.4,
+          5512.3
+        ],
+        [
+          6803,
+          5501.5
+        ],
+        [
+          6813.7,
+          5492.3
+        ],
+        [
+          6893.6,
+          5423.8
+        ],
+        [
+          6902.9,
+          5434.7
+        ],
+        [
+          6812.4,
+          5512.3
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6852.97,
+      5468.07
+    ],
+    "cells": [
+      "D3·36"
+    ],
+    "ref": "D3·36",
+    "areaM2": 1709.6,
+    "withinRegionRef": "garrison",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-221",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "A hundred and twenty metres of covered range under one roof, fourteen wide. Small-arms qualification happens here in all weather, which on this island is the entire reason it has a roof.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A hundred and twenty metres of covered range under one roof, fourteen wide. Small-arms qualification happens here in all weather, which on this island is the entire reason it has a roof.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

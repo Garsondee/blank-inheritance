@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "intake-infirmary",
+  "type": "location",
+  "tier": "site",
+  "name": "Intake Infirmary",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21017034,
+          34.67233453
+        ],
+        [
+          135.2101688,
+          34.67218873
+        ],
+        [
+          135.21047684,
+          34.67218717
+        ],
+        [
+          135.21047837,
+          34.67233297
+        ],
+        [
+          135.21017034,
+          34.67233453
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6927.5,
+          6500.4
+        ],
+        [
+          6935.6,
+          6514.4
+        ],
+        [
+          6960,
+          6500.2
+        ],
+        [
+          6951.9,
+          6486.2
+        ],
+        [
+          6927.5,
+          6500.4
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6943.75,
+      6500.3
+    ],
+    "cells": [
+      "D4·31"
+    ],
+    "ref": "D4·31",
+    "areaM2": 456.6,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-114",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Where the semester's screening blood draws actually happen — thirty seconds, no explanation, exactly as brisk and unremarkable as intended. Otherwise it's just a nurse, a cot, and a drawer of plasters for drill scrapes; nobody who works here seems to know or care what the draw is actually for.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Where the semester's screening blood draws actually happen — thirty seconds, no explanation, exactly as brisk and unremarkable as intended. Otherwise it's just a nurse, a cot, and a drawer of plasters for drill scrapes; nobody who works here seems to know or care what the draw is actually for.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

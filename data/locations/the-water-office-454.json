@@ -1,0 +1,149 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-water-office-454",
+  "type": "location",
+  "tier": "site",
+  "name": "The Water Office",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "amenity"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21391236,
+          34.66628794
+        ],
+        [
+          135.21407314,
+          34.6666921
+        ],
+        [
+          135.21452421,
+          34.66657156
+        ],
+        [
+          135.2144678,
+          34.66643053
+        ],
+        [
+          135.21447832,
+          34.66640447
+        ],
+        [
+          135.21447659,
+          34.66636658
+        ],
+        [
+          135.21445031,
+          34.66633334
+        ],
+        [
+          135.21442295,
+          34.66631632
+        ],
+        [
+          135.21436343,
+          34.6661674
+        ],
+        [
+          135.21391236,
+          34.66628794
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7563.8,
+          6903.7
+        ],
+        [
+          7553.7,
+          6857.6
+        ],
+        [
+          7596.1,
+          6848.1
+        ],
+        [
+          7599.6,
+          6864.2
+        ],
+        [
+          7601.9,
+          6866.2
+        ],
+        [
+          7603.9,
+          6869.9
+        ],
+        [
+          7603.7,
+          6874.3
+        ],
+        [
+          7602.5,
+          6877.2
+        ],
+        [
+          7606.2,
+          6894.2
+        ],
+        [
+          7563.8,
+          6903.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7580.21,
+      6875.84
+    ],
+    "cells": [
+      "D4·63",
+      "D4·73"
+    ],
+    "ref": "D4·63",
+    "areaM2": 2074.8,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-454",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "amenities and other general city supporting functions and administration.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Manages the pressure and rationing for this whole quarter -- unglamorous, and quietly one of the more powerful small offices on the island.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

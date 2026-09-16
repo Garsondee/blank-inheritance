@@ -1,6 +1,8 @@
 # Blank Inheritance — Foundry VTT Module: Concept Design
 
-Design for `foundry/blank-inheritance/`, the module that ships this campaign into Foundry VTT, keeps it in sync with the JSON authored in this repo, and runs session logistics. Concept-level: architecture and decisions, not code. Every technical claim here is backed by [foundry-technical-reference.md](foundry-technical-reference.md) — that document is the source of truth for exact field names/APIs; this one is the reasoning on top of it.
+Design for the module that ships this campaign into Foundry VTT, keeps it in sync with the JSON authored in this repo, and runs session logistics. Concept-level: architecture and decisions, not code. Every technical claim here is backed by [foundry-technical-reference.md](foundry-technical-reference.md) — that document is the source of truth for exact field names/APIs; this one is the reasoning on top of it.
+
+**2026-09-04 note:** originally written against `foundry/blank-inheritance/`. A second module scaffold (`module/blank-inheritance/`, a system-generated v14 package with compendium packs wired up) was created since, prompting a real reconciliation — see GitHub issue #70 and the amended §8 packs bullet below. The two are being consolidated into one module directory (issue #71); this doc's reasoning holds regardless of which physical path it ends up at.
 
 Written against the user's seven numbered goals (reproduced inline as headers below), Foundry VTT v14.367, and sf2e v1.4.1.
 
@@ -24,6 +26,40 @@ This asymmetry is why the design doesn't need a general three-way merge engine, 
 Concretely: a Claimant's stat block is authored (I write it, it gets pushed, full stop). A scene's journal-page prose is promotable (I write the first draft; if the GM rewrites it live at the table, push must not clobber that until the GM says "yes, take this back"). A token's HP-during-combat is runtime (neither side ever touches the other's copy).
 
 Detecting "has this been touched in Foundry" needs no custom hashing infrastructure beyond what's described in §4 — it's the same mechanism as detecting "has this changed in the repo," just compared against the other side's last-known value.
+
+Compendium packs sit outside this whole model on purpose — see the amended §8 bullet. They're a one-way, no-history "clean starting point" mechanism (a fresh world, or recovery), never the live sync path.
+
+---
+
+## Safety: why this can't corrupt the world, and the one gap that still needs closing
+
+Raised as a serious, named concern (2026-09-04) — answered here concretely, grounded directly in Foundry v14's real source (`foundryvtt/Foundry Virtual Tabletop/resources/app/`), not by assurance.
+
+### What a world actually is, on disk
+
+Foundry v14 stores world documents in **LevelDB** (via the `classic-level` package), *not* NeDB and *not* flat JSON files — NeDB only appears as a one-time legacy migration path for worlds that predate v13 (`dist/database/backend/server-document.mjs`'s `_migrateNEDBToLevelDB()`). A world's `data/` folder holds one LevelDB environment per top-level collection (`data/actors/`, `data/scenes/`, `data/journal/`, …) — a write-ahead log plus periodically-compacted sorted-string-tables plus a manifest (`dist/database/backend/level-database.mjs`). **There is no "one file = one Actor" to safely open and hand-edit.** Embedded documents (an Actor's Items, say) aren't separate files either — they live as key-prefixed sublevels multiplexed inside their parent's own store (`server-document.mjs`'s `_getDBKey()`/`formatKey()`).
+
+### Why raw file access is never safe — running or stopped
+
+- It's a log-structured merge tree. "Editing just this document" means correctly reimplementing LevelDB's key encoding, sublevel-prefixing, and write path by hand — there's no partial shortcut.
+- A raw copy or edit while Foundry holds the store open races Foundry's own internal write serialization (a `Semaphore(1)` per store) and bypasses the OS-level `LOCK` file entirely. Torn, interleaved writes from an uncoordinated second process are exactly how a store like this corrupts.
+- Foundry's own code treats "an embedded document survives after its parent doesn't" as an anticipated failure shape, not a hypothetical — it walks and cleans these up on every connect (`deleteOrphanDocuments()`). That's precisely the kind of corruption a naive raw edit produces.
+- Foundry ships exactly one recovery path (`ClassicLevel.repair()`, auto-retried once on a failed open) — and repair works by rebuilding the manifest from whatever SST files it can still parse, **discarding the rest**. It can bring a corrupted store back online; it does not guarantee your data survives.
+
+### Why the Document API, from a live GM session, is the safe path
+
+Every legitimate write — this module's `Actor.create()`/`Scene.create()` calls, the GM's own UI, and even Foundry's own `Adventure` import (confirmed by reading `client/documents/adventure.mjs` directly) — funnels through the exact same server-side choke point: `ServerDatabaseBackend#_createDocuments`/`#_updateDocuments`/`#_deleteDocuments`. That single path guarantees, for every write: serialization through the store's semaphore, schema validation and cleaning before anything touches disk, correct sublevel bookkeeping for embedded documents, and one atomic batched LevelDB transaction per operation. **This project's sync script has always called only this API, from inside a real GM-authenticated session — never a raw file — and that is exactly right. Keep it that way permanently; there is no reason to ever change it.**
+
+### The rules this produces
+
+1. **All world-document writes go through the Document API**, called from a live, GM-authenticated Foundry session — never raw file access, never headless/offline.
+2. **Back up the whole `worlds/<world-id>/` folder before any sync run that touches real content — with Foundry stopped.** Nothing else guards against a mistake; Foundry has no built-in world versioning or snapshot feature. A copy taken while Foundry is running risks capturing a torn mid-write/mid-compaction snapshot; a copy taken while stopped is an ordinary, fully safe file operation.
+3. **Keep validating by reread after every write** (already Stage-1 policy, `core/validate.mjs`).
+4. **Keep deterministic IDs + `keepId: true`** (already the design) — this is the same id-based create-vs-update idiom Foundry's own `Adventure` importer uses internally (`prepareImport`'s `collection.has(d._id)` partition), not a workaround bolted on from outside.
+
+### The one real gap, and why it matters starting now
+
+At today's scale — 3 test documents in the Stage-1 diagnostic — a throw partway through leaves whatever was already created sitting in the world with no rollback. Survivable at that scale. It stops being survivable the moment a sync creates dozens of documents for a real scene (journals, NPCs, tokens, a playlist). **Before the sync pipeline scales past its current diagnostic, it needs either a dry-run/preview mode, transactional batching (create everything, commit/report success only once all of it validates), or at minimum a clear partial-failure report naming exactly what was and wasn't created** — tracked as its own issue precisely because this is where "GM edits a document, syncs, and something's silently half-wrong" would actually happen.
 
 ---
 
@@ -162,7 +198,7 @@ Item 6 said "eventually," and the schema reflects that honestly: `encounter.sche
 Named here so they don't get silently assumed later:
 - No live Resonance-band sheet enforcement — informational only (§2).
 - No automated token placement for encounters — schema doesn't carry positions yet (§7).
-- No compendium packs of our own content — everything ships as world documents (Scenes/Actors/JournalEntries created directly), not packed into a LevelDB compendium. The technical reference confirms no pack-building tooling exists in either local source tree, and `Adventure`-document import (which requires packs) is destructive on re-import anyway — wrong fit even if the tooling existed.
+- **Amended 2026-09-04 (issue #70):** compendium packs are back in, but scoped narrowly — a **one-way, no-history "clean starting point"** mechanism only (an `Adventure` pack for a fresh-world quick import, plus per-type packs for static reference content that never needs promotable-field tracking), not the live sync path. Confirmed directly from source (`client/documents/adventure.mjs`) that `Adventure` import runs through the exact same `createDocuments`/`updateDocuments` Document-API path as everything else in this doc — it is safe in the sense §0's safety section means — but with **destructive full-replace semantics** for anything that already exists by id (`updateDocuments(..., {diff:false, recursive:false})`, which discards fields not present in the update and never deep-merges). That's precisely why it stays the wrong tool for the campaign's live, evolving, GM-editable content: the push/harvest/promotable field-ownership machinery in §0 is what protects a GM's live edits, and nothing about `Adventure` import respects that distinction. Packs and world-document sync are two coexisting, purpose-separated mechanisms from here on, not a replacement of either — everything else in this document (Scenes/Actors/JournalEntries as world documents, via `createDocuments`/`updateDocuments` with the field-ownership classing) still stands unchanged as the mechanism for actual campaign content.
 - No general three-way merge — only *promotable* fields are ever subject to conflict detection, and conflicts are surfaced for a human, not auto-resolved.
 - No victory-point subsystem live-tracking UI yet — `subsystem.schema.json` generates descriptive content (obstacle list with inline checks) fine today; a real pool-tracking panel with +/- controls is scoped as its own build item, not a byproduct of document generation.
 

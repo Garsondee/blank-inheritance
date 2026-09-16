@@ -1,0 +1,172 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "row-b-block-6",
+  "type": "location",
+  "tier": "site",
+  "name": "Row B, Block 6",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21109737,
+          34.67308942
+        ],
+        [
+          135.2110994,
+          34.67225519
+        ],
+        [
+          135.21115068,
+          34.67225426
+        ],
+        [
+          135.21115105,
+          34.67227606
+        ],
+        [
+          135.21126037,
+          34.672273
+        ],
+        [
+          135.21126057,
+          34.67229279
+        ],
+        [
+          135.21130472,
+          34.67229429
+        ],
+        [
+          135.21130775,
+          34.67259114
+        ],
+        [
+          135.21126675,
+          34.67259229
+        ],
+        [
+          135.2112666,
+          34.67306028
+        ],
+        [
+          135.21114384,
+          34.67306047
+        ],
+        [
+          135.21114096,
+          34.67309014
+        ],
+        [
+          135.21109737,
+          34.67308942
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6958.1,
+          6385.1
+        ],
+        [
+          7005.3,
+          6464.7
+        ],
+        [
+          7009.4,
+          6462.4
+        ],
+        [
+          7008.2,
+          6460.3
+        ],
+        [
+          7017,
+          6455.5
+        ],
+        [
+          7015.9,
+          6453.6
+        ],
+        [
+          7019.3,
+          6451.4
+        ],
+        [
+          7002.8,
+          6422.9
+        ],
+        [
+          6999.5,
+          6424.7
+        ],
+        [
+          6973.1,
+          6380
+        ],
+        [
+          6963.4,
+          6385.7
+        ],
+        [
+          6961.5,
+          6383
+        ],
+        [
+          6958.1,
+          6385.1
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6990.11,
+      6422.64
+    ],
+    "cells": [
+      "D4·30",
+      "D4·31",
+      "D4·41"
+    ],
+    "ref": "D4·30",
+    "areaM2": 1487.0,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-122",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "One of the larger blocks, split roughly evenly between new intake and second-term residents by simple accident of scheduling, which has made it the row's actual social crossroads rather than any single common room.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "One of the larger blocks, split roughly evenly between new intake and second-term residents by simple accident of scheduling, which has made it the row's actual social crossroads rather than any single common room.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

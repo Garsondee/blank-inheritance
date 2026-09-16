@@ -1,0 +1,138 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "wash-house",
+  "type": "location",
+  "tier": "site",
+  "name": "Wash House",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "infrastructure",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21177544,
+          34.67295137
+        ],
+        [
+          135.21185895,
+          34.67281643
+        ],
+        [
+          135.21188525,
+          34.67282664
+        ],
+        [
+          135.21189987,
+          34.67280276
+        ],
+        [
+          135.21196271,
+          34.67282864
+        ],
+        [
+          135.21194847,
+          34.67285129
+        ],
+        [
+          135.21197328,
+          34.67286117
+        ],
+        [
+          135.21188805,
+          34.67299904
+        ],
+        [
+          135.21177544,
+          34.67295137
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7019.4,
+          6366.7
+        ],
+        [
+          7033.6,
+          6375.7
+        ],
+        [
+          7035.1,
+          6373.5
+        ],
+        [
+          7037.6,
+          6375.1
+        ],
+        [
+          7041.1,
+          6369.7
+        ],
+        [
+          7038.7,
+          6368.2
+        ],
+        [
+          7040.1,
+          6366.1
+        ],
+        [
+          7025.6,
+          6356.9
+        ],
+        [
+          7019.4,
+          6366.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7030.42,
+      6366.79
+    ],
+    "cells": [
+      "D4·40"
+    ],
+    "ref": "D4·40",
+    "areaM2": 215.7,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-124",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Coin-fed washers and a long drying yard strung between two posts outside, permanently a little too humid inside. The one building every candidate in every row has a genuine opinion about — whose socks went missing, whose dryer eats coins.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Coin-fed washers and a long drying yard strung between two posts outside, permanently a little too humid inside. The one building every candidate in every row has a genuine opinion about — whose socks went missing, whose dryer eats coins.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

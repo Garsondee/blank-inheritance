@@ -1,0 +1,191 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "middle-ridge",
+  "type": "location",
+  "tier": "region",
+  "name": "The Middle Ridge",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "district",
+  "tags": [
+    "auto-tessellated",
+    "land"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.16115549790246,
+          34.696446045312285
+        ],
+        [
+          135.16985429510103,
+          34.68373288750766
+        ],
+        [
+          135.1824771005011,
+          34.69276807577261
+        ],
+        [
+          135.17540935861567,
+          34.70309953764142
+        ],
+        [
+          135.16595629399828,
+          34.70317077762164
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          1700.0,
+          6478.7
+        ],
+        [
+          3102.9,
+          7288.7
+        ],
+        [
+          3590.0,
+          5837.8
+        ],
+        [
+          2450.0,
+          5179.6
+        ],
+        [
+          1700.0,
+          5612.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      2603.68,
+      6160.41
+    ],
+    "cells": [
+      "B3·14",
+      "A3·95",
+      "B3·05",
+      "B3·15",
+      "B3·25",
+      "B3·35",
+      "A3·76",
+      "A3·86",
+      "A3·96",
+      "B3·06",
+      "B3·16",
+      "B3·26",
+      "B3·36",
+      "B3·46",
+      "A3·77",
+      "A3·87",
+      "A3·97",
+      "B3·07",
+      "B3·17",
+      "B3·27",
+      "B3·37",
+      "B3·47",
+      "B3·57",
+      "B3·67",
+      "A3·78",
+      "A3·88",
+      "A3·98",
+      "B3·08",
+      "B3·18",
+      "B3·28",
+      "B3·38",
+      "B3·48",
+      "B3·58",
+      "B3·68",
+      "A3·79",
+      "A3·89",
+      "A3·99",
+      "B3·09",
+      "B3·19",
+      "B3·29",
+      "B3·39",
+      "B3·49",
+      "B3·59",
+      "B3·69",
+      "A4·70",
+      "A4·80",
+      "A4·90",
+      "B4·00",
+      "B4·10",
+      "B4·20",
+      "B4·30",
+      "B4·40",
+      "B4·50",
+      "B4·60",
+      "A4·71",
+      "A4·81",
+      "A4·91",
+      "B4·01",
+      "B4·11",
+      "B4·21",
+      "B4·31",
+      "B4·41",
+      "B4·51",
+      "B4·61",
+      "A4·82",
+      "A4·92",
+      "B4·02",
+      "B4·12",
+      "B4·22",
+      "B4·32",
+      "B4·42",
+      "B4·52",
+      "B4·03",
+      "B4·13",
+      "B4·23",
+      "B4·33",
+      "B4·43",
+      "B4·53",
+      "B4·24",
+      "B4·34",
+      "B4·44",
+      "B4·35",
+      "B4·45"
+    ],
+    "ref": "B3·14",
+    "areaM2": 2527071.3,
+    "withinRegionRef": null,
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-200",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "The long wooded spine dividing the western uplands from the city's hinterland. Crossed at exactly one point.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The long wooded spine dividing the western uplands from the city's hinterland. Crossed at exactly one point.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

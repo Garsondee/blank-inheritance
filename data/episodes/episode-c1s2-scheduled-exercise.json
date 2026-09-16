@@ -1,0 +1,31 @@
+{
+  "$schema": "../schema/episode.schema.json",
+  "id": "episode-c1s2-scheduled-exercise",
+  "type": "episode",
+  "title": "Scheduled Exercise",
+  "dayRange": { "start": 2, "end": 2 },
+  "summary": "Chapter One, session two. STUB. The agreed shape is a Frame and vehicle-scale training exercise that is interrupted part-way through by a real call-out -- the team sent to something live before they are ready. Only the opening scene is authored: the Section Officer's reaction to the requisition the party came back with on their first afternoon.",
+  "structure": "Not decided. The exercise itself and the call-out that interrupts it are unwritten.",
+  "designRequirement": "Teach the Frame and vehicle sheets. Interrupt the lesson. Do not explain the Frames, the Watcher, Cicada, the mitflits or the Gap.",
+  "downtime": "Not decided.",
+  "scenes": [
+    {
+      "order": 1,
+      "id": "as-discussed",
+      "title": "As Discussed",
+      "description": "The vial arrived. It is real, it is expensive, it is precision-ground glass in a padded case, it is correctly issued against the docket, and it is completely useless. It is on the Section Officer's desk. He calls the party in and does not mention it once -- instead he informs them that yesterday was an initiative assessment, that they passed, and that he is pleased. The party decides whether to let him have that. Either way the next fortnight's duty roster is legitimate, unappealable and miserable. And somebody senior signed the countersignature.",
+      "briefRef": "episode-c1s2--as-discussed",
+      "challengeRefs": ["c1s2-as-discussed"]
+    }
+  ],
+  "requiredBeats": [
+    "The Section Officer reframes the party's success as having been his own intention, and never mentions the vial.",
+    "The retaliation is entirely within regulation and therefore unappealable."
+  ],
+  "endOfEpisodeEffects": [],
+  "openQuestionRefs": ["session-two-shape", "ground-roles-viability"],
+  "danglingThreads": [
+    "Whose name is on the countersignature, and why a senior officer spent four minutes of an afternoon on Section Nine."
+  ],
+  "notes": "STUB, created 2026-09-13 only so the authored opening scene has a home. **The session's actual encounter is deliberately unwritten and blocked** -- see open-questions.json#session-two-shape and #ground-roles-viability. A Frame-scale encounter is exactly where the five ground roles either earn their place or get cut, so writing it now would bake in a system that may not survive.\n\nWhat IS agreed (Ingram, 2026-09-13): a training exercise at Frame and vehicle scale, interrupted by a real call-out, the team sent to something live before they are fully prepared. The classic trope, played straight.\n\nSession length is not a constraint on what goes in here -- a session is a unit of content, not table time."
+}

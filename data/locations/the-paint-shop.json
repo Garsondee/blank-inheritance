@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-paint-shop",
+  "type": "location",
+  "tier": "site",
+  "name": "The Paint Shop",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "industrial",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20286447,
+          34.66388236
+        ],
+        [
+          135.20344131,
+          34.66390778
+        ],
+        [
+          135.20348731,
+          34.66318822
+        ],
+        [
+          135.20291103,
+          34.66316358
+        ],
+        [
+          135.20286447,
+          34.66388236
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6827.4,
+          7648.2
+        ],
+        [
+          6871.5,
+          7618.9
+        ],
+        [
+          6915.7,
+          7685.5
+        ],
+        [
+          6871.6,
+          7714.7
+        ],
+        [
+          6827.4,
+          7648.2
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6871.55,
+      7666.82
+    ],
+    "cells": [
+      "D4·37"
+    ],
+    "ref": "D4·37",
+    "areaM2": 4227.7,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-364",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "The last building a Frame passes through, and the only one where the works goes quiet and the air gets worse. Finish coats go on in a shed sealed against dust, and nobody hurries the drying.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The last building a Frame passes through, and the only one where the works goes quiet and the air gets worse. Finish coats go on in a shed sealed against dust, and nobody hurries the drying.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

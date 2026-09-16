@@ -1,0 +1,91 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "id": "c1s1-the-medical",
+  "type": "challenge",
+  "name": "The Medical — finding out what \"irregular\" means",
+  "description": "Five ways at the same fact, at five DCs, plus one unrelated overheard thread. Shucks will not say what the screen tests for, so every route here gets at it sideways. The party is level 1, so the base DC is 15 and the ladder runs 13 / 15 / 17 / 20 (SF2E DC-by-level plus the standard easy/hard adjustments). Nobody has to succeed at any of this — the scene works if they never ask. overhear-the-search is a different topic entirely (added 2026-09-10, LEDGER.md #11) — pure incidental texture from the queue, not part of the 'irregular' ladder.",
+  "levelContext": 1,
+  "checks": [
+    {
+      "id": "ask-him-straight",
+      "name": "Ask him straight",
+      "skillOptions": ["diplomacy"],
+      "dc": { "value": 13, "basis": "level 1 DC 15, one step easy — he is friendly and they are allowed to ask", "adjustment": "easy" },
+      "outcomes": {
+        "criticalSuccess": "\"It's a screen. Screens flag things. You're fine.\" And then, because he likes them: \"Come back and ask me again in a year if it still bothers you.\" He means it.",
+        "success": "\"It's a screen. Screens flag things. You're fine.\" He is telling the truth as far as he is permitted to tell it.",
+        "failure": "He answers a slightly different question, warmly, and they are out of the door before they notice.",
+        "criticalFailure": "He decides this one is a worrier and mentions it to Ume. They get a welfare check-in nobody asked for, which is kindly meant and mildly humiliating."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "read-shucks",
+      "name": "Read his face",
+      "skillOptions": ["perception"],
+      "dc": { "value": 15, "basis": "level 1 standard DC — the intended door" },
+      "outcomes": {
+        "criticalSuccess": "He is bored, and boredom means routine. Also: there is one beat, just one, where he is not bored — when he checks the result against something on the second page, and does not write it down.",
+        "success": "He is not worried. He is bored. Boredom means routine, and routine means this happens to everybody, every year.",
+        "failure": "A busy man being busy.",
+        "criticalFailure": "They read him as hiding something frightening, which is wrong in a way that will colour how they treat him for a chapter."
+      }
+    },
+    {
+      "id": "what-a-screen-tests",
+      "name": "Know what a blood screen actually tests for",
+      "skillOptions": ["medicine", "nature"],
+      "dc": { "value": 17, "basis": "level 1 DC 15, one step hard — free, fast, and skips the conversation entirely", "adjustment": "hard" },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "Standard panels have no result called \"irregular\". This is a custom test, looking for one specific thing, and whatever it is, it is heritable — that is what a maiden-name field on a medical form is for.",
+        "success": "Standard panels have no result called \"irregular\". This is a custom test looking for one specific thing.",
+        "failure": "Nothing they can pin down. Blood tests are blood tests.",
+        "criticalFailure": "They confidently identify it as a common anaemia screen and tell the others so. This is wrong, and it will hold the party back for a chapter, which is fine."
+      }
+    },
+    {
+      "id": "palm-the-form",
+      "name": "Get a proper look at the paperwork",
+      "skillOptions": ["thievery"],
+      "dc": { "value": 17, "basis": "level 1 DC 15, one step hard — it is a busy room and the forms are right there", "adjustment": "hard" },
+      "outcomes": {
+        "criticalSuccess": "They keep a blank copy AND get a look at the completed pile. Every sheet on it is ticked the same way.",
+        "success": "They keep a blank copy of Form 12-B. The tick-box marked IRREGULAR is pre-printed — somebody expected this result often enough to have it typeset.",
+        "failure": "No copy, but they saw the pre-printed box before it was taken off them.",
+        "criticalFailure": "Shucks catches them. He is delighted rather than angry, tells the story for years, and they are now memorable to the one man in the building who has been here since the founding. That cuts both ways."
+      },
+      "repeatable": false
+    },
+    {
+      "id": "make-him-like-you",
+      "name": "Make him like you",
+      "skillOptions": ["diplomacy"],
+      "dc": { "value": 20, "basis": "level 1 DC 15, very hard — this buys more than the scene was going to give them", "adjustment": "very-hard" },
+      "outcomes": {
+        "criticalSuccess": "He softens, tells them nothing, and says \"come and find me if it ever stops being fine.\" He means it, he will remember, and he is two hundred years old. Cash this in Chapter 6.",
+        "success": "He softens and tells them nothing, but they have his attention, which almost nobody in this city has.",
+        "failure": "Pleasant, forgettable, next.",
+        "criticalFailure": "They try too hard and he becomes bureaucratic. Nothing is lost except the opening, and the opening will come back."
+      }
+    },
+    {
+      "id": "overhear-the-search",
+      "name": "Overhear something in the queue",
+      "skillOptions": ["perception"],
+      "dc": { "value": 17, "basis": "level 1 DC 15, one step hard — a good roll, per Ingram directly, for something that isn't being said to them", "adjustment": "hard" },
+      "insight": true,
+      "outcomes": {
+        "criticalSuccess": "Enough to actually piece together: a name, half-caught — something like \"Nozomi\" — paired with the word \"pilot,\" which doesn't fit anything anyone's told them yet. Whoever's talking clocks being overheard and the conversation ends immediately, too fast to be casual.",
+        "success": "Two staff a few feet away, tired rather than careful: \"...still hasn't turned up,\" \"...still looking,\" a shared look before one of them notices the queue is close enough to hear and they change the subject. Nothing that resolves into a name or a reason.",
+        "failure": "Queue noise. Nothing distinguishable from anything else being said around them.",
+        "criticalFailure": "They catch a fragment and land on the wrong, boring explanation — a supply requisition gone missing, someone's rota mixed up — and half-believe it enough to repeat it later. A real, plausible red herring, not a trap; just wrong."
+      },
+      "repeatable": false
+    }
+  ],
+  "resolutionMode": "narrative-only",
+  "participants": ["Any of the six"],
+  "relatedRefs": ["episode-c1s1-mothers-maiden-name", "episode-c1s1--intake-medicals"],
+  "notes": "The design rule this file demonstrates: every approach costs either dice or consequences, never neither. The cheap DC is cheap because being remembered as a worrier is a real cost. The expensive DC is expensive because it buys a standing relationship with a founder. If a player invents a sixth approach, price it on the same ladder rather than saying no."
+}

@@ -92,7 +92,7 @@ function makeMockFilePicker(world) {
         }
         world.directories.add(dirPath);
       },
-      async uploadPersistent(moduleId, relativePath, file, _options, _notifyOpts) {
+      async uploadPersistent(moduleId, targetDir, file, _options, _notifyOpts) {
         // Verified against file-picker.mjs's real uploadPersistent: it looks
         // up game.modules.get(packageId) and throws synchronously if the
         // package is missing or lacks persistentStorage, BEFORE ever
@@ -104,14 +104,42 @@ function makeMockFilePicker(world) {
             `Package ${moduleId} does not have persistent storage enabled. Set the "persistentStorage" flag to true in the package manifest.`
           );
         }
-        const fullDir = `${pkg.type}s/${pkg.id}/storage/${relativePath.split("/").slice(0, -1).join("/")}`;
+        // `targetDir` is a DIRECTORY, never a full file path -- confirmed
+        // against the real server (dist/files/local.mjs#upload): the
+        // filename always comes from the File object's own .name, appended
+        // separately server-side, never taken from the path argument. This
+        // mock originally stripped a trailing segment off its path argument
+        // assuming it might already be dir+filename, which quietly matched
+        // a real bug in writeReportFile instead of catching it (found live,
+        // 2026-09-05 -- see that function's own comment). Don't reintroduce
+        // that leniency; a caller passing dir+filename here must fail, same
+        // as it would against the real server.
+        const fullDir = `${pkg.type}s/${pkg.id}/storage/${targetDir}`;
         if (!world.directories.has(fullDir)) {
           return false;
         }
         const content = await file.text();
+        const relativePath = `${targetDir}/${file.name}`;
         world.uploadedFiles.set(`${pkg.type}s/${pkg.id}/storage/${relativePath}`, content);
         return { path: relativePath };
       }
+    }
+  };
+}
+
+/**
+ * Real DialogV2.confirm() (client/applications/api/dialog.mjs) resolves to
+ * true/false/null depending on which button (if any) the user actually
+ * clicks -- there's no way to simulate a real click in a headless test, so
+ * this mock lets a test pre-set the GM's answer via world.dialogConfirmResponse
+ * (defaults to false, the safe "declined" choice) and records every call's
+ * config for assertions, same pattern as the clipboard mock below.
+ */
+function makeMockDialogV2(world) {
+  return {
+    async confirm(config) {
+      world.dialogConfirmCalls.push(config);
+      return world.dialogConfirmResponse ?? false;
     }
   };
 }
@@ -124,10 +152,14 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
     actors: new Map(),
     scenes: new Map(),
     macros: new Map(),
+    journal: new Map(),
     chatMessages: [],
     directories: new Set(["data", "modules"]),
     uploadedFiles: new Map(),
-    notifications: []
+    notifications: [],
+    clipboardText: null,
+    dialogConfirmResponse: null,
+    dialogConfirmCalls: []
   };
 
   const counter = { n: 1 };
@@ -150,10 +182,19 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
     Actor: globalThis.Actor,
     Scene: globalThis.Scene,
     Macro: globalThis.Macro,
+    JournalEntry: globalThis.JournalEntry,
     ChatMessage: globalThis.ChatMessage,
     foundry: globalThis.foundry,
     fetch: globalThis.fetch
   };
+
+  // navigator gets its own descriptor-based save/restore, not the plain
+  // assignment the rest of `previous` uses: Node 21+ ships its own built-in
+  // `globalThis.navigator` (userAgent, etc.) as a non-writable accessor
+  // property, so a bare `globalThis.navigator = ...` can throw depending on
+  // Node version. Object.defineProperty with configurable:true sidesteps
+  // that regardless of what shape (or absence) the real one has.
+  const previousNavigatorDescriptor = Object.getOwnPropertyDescriptor(globalThis, "navigator");
 
   const modules = new Map();
   if (moduleManifest) {
@@ -170,6 +211,7 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
     actors: world.actors,
     scenes: world.scenes,
     macros: world.macros,
+    journal: world.journal,
     i18n: {
       localize: (key) => key,
       format: (key, data) => `${key} ${JSON.stringify(data)}`
@@ -193,6 +235,7 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
   globalThis.Actor = makeDocumentClass(world.actors, counter, { validateOnCreate: validateActorOnCreate });
   globalThis.Scene = makeDocumentClass(world.scenes, counter);
   globalThis.Macro = makeDocumentClass(world.macros, counter);
+  globalThis.JournalEntry = makeDocumentClass(world.journal, counter);
   globalThis.ChatMessage = {
     create: async (data) => {
       world.chatMessages.push(data);
@@ -202,7 +245,10 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
 
   globalThis.foundry = {
     utils: { getRoute: (p) => `/${p}` },
-    applications: { apps: { FilePicker: makeMockFilePicker(world) } }
+    applications: {
+      apps: { FilePicker: makeMockFilePicker(world) },
+      api: { DialogV2: makeMockDialogV2(world) }
+    }
   };
 
   globalThis.fetch = async (url) => {
@@ -214,12 +260,24 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
     return { ok: true, status: 200, json: async () => content };
   };
 
+  Object.defineProperty(globalThis, "navigator", {
+    value: { clipboard: { writeText: async (text) => { world.clipboardText = text; } } },
+    configurable: true,
+    writable: true,
+    enumerable: true
+  });
+
   return {
     world,
     uninstall() {
       for (const [key, value] of Object.entries(previous)) {
         if (value === undefined) delete globalThis[key];
         else globalThis[key] = value;
+      }
+      if (previousNavigatorDescriptor) {
+        Object.defineProperty(globalThis, "navigator", previousNavigatorDescriptor);
+      } else {
+        delete globalThis.navigator;
       }
     }
   };

@@ -1,0 +1,147 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "trackside-casemate",
+  "type": "location",
+  "tier": "site",
+  "name": "Trackside Casemate",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20351305,
+          34.67987739
+        ],
+        [
+          135.20428359,
+          34.68012768
+        ],
+        [
+          135.20444505,
+          34.6800699
+        ],
+        [
+          135.20458903,
+          34.67978722
+        ],
+        [
+          135.2045244,
+          34.67968789
+        ],
+        [
+          135.20372024,
+          34.67938699
+        ],
+        [
+          135.20347975,
+          34.67949377
+        ],
+        [
+          135.20352708,
+          34.67966644
+        ],
+        [
+          135.20352708,
+          34.67966644
+        ],
+        [
+          135.20352708,
+          34.67966644
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          5976.8,
+          6089.9
+        ],
+        [
+          6023.5,
+          6030.1
+        ],
+        [
+          6039.5,
+          6028.1
+        ],
+        [
+          6066.8,
+          6048.4
+        ],
+        [
+          6067.3,
+          6060.9
+        ],
+        [
+          6020.8,
+          6127.1
+        ],
+        [
+          5995.8,
+          6128.1
+        ],
+        [
+          5989.8,
+          6109.4
+        ],
+        [
+          5989.8,
+          6109.4
+        ],
+        [
+          5989.8,
+          6109.4
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6022.53,
+      6077.56
+    ],
+    "cells": [
+      "C3·89",
+      "C3·99"
+    ],
+    "ref": "C3·89",
+    "areaM2": 5229.8,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-153",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Sits directly over the rail cut where the island line leaves the Transfer, close enough that the carriages pass beneath its firing step. Three storeys of poured concrete with a flat top the crews use, unofficially, as a vantage point — the best view of the causeway on this side of the water. Its guns have never been fired in anger. Its searchlight is tested every night at nine, and the district sets its clocks by it.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Sits directly over the rail cut where the island line leaves the Transfer, close enough that the carriages pass beneath its firing step. Three storeys of poured concrete with a flat top the crews use, unofficially, as a vantage point — the best view of the causeway on this side of the water. Its guns have never been fired in anger. Its searchlight is tested every night at nine, and the district sets its clocks by it.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

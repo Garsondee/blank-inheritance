@@ -30,7 +30,9 @@ import {
   checkStandLegal,
   checkCrawlLegal,
   multipleAttackPenalty,
-  rangeIncrementPenalty
+  rangeIncrementPenalty,
+  hasUses,
+  spendUse
 } from "../../tools/battle-simulator/personnel-engine/legality.mjs";
 
 const gridSize = { cols: 20, rows: 20 };
@@ -230,6 +232,39 @@ test("checkStrikeRange: ranged allows a target within the 6th range increment", 
   assert.equal(result.legal, true);
 });
 
+// GH #148 — a flat-`rangeMax` ranged Strike (no rangeIncrement at all): legal at any distance up to
+// rangeMax with zero range penalty anywhere in that span, illegal beyond it. Real motivating shape:
+// a single-target thrown Strike with a flat maximum and no increment concept — distinct from a
+// grenade's own Area Fire action (an areaAttack, checked separately by checkAreaAttackLegal).
+test("checkStrikeRange: a flat-rangeMax ranged Strike (no rangeIncrement) is legal at any distance up to rangeMax", () => {
+  const strike = { name: "Thrown Rock", strikeType: "ranged", rangeMax: 70 };
+  const atMax = checkStrikeRange({ attackerPos: { col: 0, row: 0 }, targetPos: { col: 14, row: 0 }, strike }); // exactly 70ft
+  assert.equal(atMax.legal, true, `expected legal exactly at rangeMax: ${atMax.reason}`);
+  const wellWithin = checkStrikeRange({ attackerPos: { col: 0, row: 0 }, targetPos: { col: 2, row: 0 }, strike }); // 10ft
+  assert.equal(wellWithin.legal, true);
+});
+
+test("checkStrikeRange: a flat-rangeMax ranged Strike rejects a target one square beyond rangeMax", () => {
+  const strike = { name: "Thrown Rock", strikeType: "ranged", rangeMax: 70 };
+  const result = checkStrikeRange({ attackerPos: { col: 0, row: 0 }, targetPos: { col: 15, row: 0 }, strike }); // 75ft
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /flat maximum range/);
+});
+
+test("checkStrikeRange: rangeIncrement takes priority when a strike somehow carries both fields — never silently prefers the flatter, more permissive shape", () => {
+  const strike = { name: "Ambiguous", strikeType: "ranged", rangeIncrement: 20, rangeMax: 9999 };
+  const result = checkStrikeRange({ attackerPos: { col: 0, row: 0 }, targetPos: { col: 25, row: 0 }, strike }); // 125ft > 120ft (6*20)
+  assert.equal(result.legal, false, "must use the real increment-based cap (120ft), not the much larger rangeMax");
+});
+
+test("checkStrikeRange: a ranged Strike with NEITHER rangeIncrement nor rangeMax throws — a real data error, not a legal unlimited-range state (the exact bug this fix closes: it used to silently default to Infinity)", () => {
+  const strike = { name: "Mystery Weapon", strikeType: "ranged" };
+  assert.throws(
+    () => checkStrikeRange({ attackerPos: { col: 0, row: 0 }, targetPos: { col: 999, row: 0 }, strike }),
+    /neither rangeIncrement nor rangeMax/
+  );
+});
+
 test("rangeIncrementPenalty: matches Player Core pg. 254's own worked example exactly — real feet values, scale-independent (a 60ft-increment pistol)", () => {
   const strike = { strikeType: "ranged", rangeIncrement: 60 };
   assert.equal(rangeIncrementPenalty(strike, 60), 0, "exactly at the increment: no penalty");
@@ -242,6 +277,12 @@ test("rangeIncrementPenalty: matches Player Core pg. 254's own worked example ex
 test("rangeIncrementPenalty: is always 0 for melee, and for a ranged strike with no rangeIncrement set", () => {
   assert.equal(rangeIncrementPenalty({ strikeType: "melee" }, 9999), 0);
   assert.equal(rangeIncrementPenalty({ strikeType: "ranged" }, 9999), 0, "no rangeIncrement must not throw or divide by zero");
+});
+
+test("rangeIncrementPenalty: a flat-rangeMax ranged Strike (GH #148) never takes a range penalty, at any legal distance — there is no increment to scale one off", () => {
+  const strike = { name: "Thrown Rock", strikeType: "ranged", rangeMax: 70 };
+  assert.equal(rangeIncrementPenalty(strike, 1), 0);
+  assert.equal(rangeIncrementPenalty(strike, 70), 0, "even right at the flat maximum, still zero penalty — the whole span is equally accurate");
 });
 
 test("checkTargetAlive: rejects a missing or already-dead target", () => {
@@ -451,6 +492,116 @@ test("checkHealAbilityLegal: a depleted ability (usesRemaining 0) is rejected", 
   assert.equal(result.legal, false);
 });
 
+// GH #60, design doc §60 Part 1 — Heal's shared spellSlots pool. checkHealAbilityLegal reads it via
+// the new shared hasUses helper instead of a bare usesRemaining check, since Heal's own entries
+// carry slotRank INSTEAD of usesRemaining.
+const healTouch = { name: "Heal (touch)", healingFormula: "1d8", actions: 1, slotRank: 1 };
+const heal30ft = { name: "Heal (30ft)", healingFormula: "1d8+8", actions: 2, range: 30, slotRank: 1 };
+
+test("checkHealAbilityLegal: a slotRank ability with a real slot available is legal", () => {
+  const target = { id: "ally", name: "Ally", currentHP: 10, maxHP: 16 };
+  const healer = { ...aliveCaster, spellSlots: { 1: 1 } };
+  const result = checkHealAbilityLegal({ healer, healerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, ability: healTouch, turnState: openBudget });
+  assert.equal(result.legal, true);
+});
+
+test("checkHealAbilityLegal: a slotRank ability is rejected once its own rank's pool hits 0, same reason message shape as a depleted usesRemaining ability", () => {
+  const target = { id: "ally", name: "Ally", currentHP: 10, maxHP: 16 };
+  const healer = { ...aliveCaster, spellSlots: { 1: 0 } };
+  const result = checkHealAbilityLegal({ healer, healerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, ability: healTouch, turnState: openBudget });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /no uses remaining/);
+});
+
+test("checkHealAbilityLegal: a healer with NO spellSlots object at all (never cast a slot-based ability) is rejected for a slotRank ability, not crashed", () => {
+  const target = { id: "ally", name: "Ally", currentHP: 10, maxHP: 16 };
+  const result = checkHealAbilityLegal({ healer: aliveCaster, healerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, ability: healTouch, turnState: openBudget });
+  assert.equal(result.legal, false);
+});
+
+test("checkHealAbilityLegal: TWO DIFFERENT slotRank abilities sharing the SAME healer's pool — once rank 1 is spent, BOTH become illegal, not just the one cast", () => {
+  const target = { id: "ally", name: "Ally", currentHP: 10, maxHP: 16 };
+  const healer = { ...aliveCaster, spellSlots: { 1: 0 } }; // as if the touch variant already spent the shared slot
+  const stillIllegalTouch = checkHealAbilityLegal({ healer, healerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, ability: healTouch, turnState: openBudget });
+  const nowIllegal30ft = checkHealAbilityLegal({ healer, healerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, ability: heal30ft, turnState: openBudget });
+  assert.equal(stillIllegalTouch.legal, false);
+  assert.equal(nowIllegal30ft.legal, false, "the 30ft variant reads the SAME spellSlots.1 pool — it must be illegal too, not independently tracked");
+});
+
+// GH #60, design doc §60 Part 1b — the self-centered emanation's own area-mode branch. No `target`
+// at all — legality is driven entirely by the pre-computed `anyTargetBelowFull` (engine.mjs's own
+// job to compute from the real affected set, mirroring checkAreaAttackLegal's own `affectedCount`
+// convention) and the SAME shared spellSlots pool the other two variants already use.
+const healEmanation = { name: "Heal (emanation)", healingFormula: "1d8", actions: 3, areaOrigin: "self", radius: 30, slotRank: 1 };
+
+test("checkHealAbilityLegal: area mode — legal when someone in range is below full HP and a real slot exists", () => {
+  const healer = { ...aliveCaster, spellSlots: { 1: 1 } };
+  const result = checkHealAbilityLegal({ healer, healerPos: { col: 0, row: 0 }, ability: healEmanation, turnState: openBudget, anyTargetBelowFull: true });
+  assert.equal(result.legal, true);
+});
+
+test("checkHealAbilityLegal: area mode — illegal when nobody in range needs it, even with a real slot available", () => {
+  const healer = { ...aliveCaster, spellSlots: { 1: 1 } };
+  const result = checkHealAbilityLegal({ healer, healerPos: { col: 0, row: 0 }, ability: healEmanation, turnState: openBudget, anyTargetBelowFull: false });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /needs/);
+});
+
+test("checkHealAbilityLegal: area mode — illegal once the SHARED pool is spent, same as the single-target variants (shared, not independently tracked)", () => {
+  const healer = { ...aliveCaster, spellSlots: { 1: 0 } };
+  const result = checkHealAbilityLegal({ healer, healerPos: { col: 0, row: 0 }, ability: healEmanation, turnState: openBudget, anyTargetBelowFull: true });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /no uses remaining/);
+});
+
+test("checkHealAbilityLegal: area mode — spending the pool via the emanation makes the single-target variants illegal too, and vice versa (one real shared pool, three variants)", () => {
+  const healer = { ...aliveCaster, spellSlots: { 1: 0 } }; // as if the emanation already spent the shared slot
+  const target = { id: "ally", name: "Ally", currentHP: 10, maxHP: 16 };
+  const stillIllegalTouch = checkHealAbilityLegal({ healer, healerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, ability: healTouch, turnState: openBudget });
+  assert.equal(stillIllegalTouch.legal, false);
+});
+
+test("checkHealAbilityLegal: area mode never touches action budget differently — a real budget check still applies (3 actions needed, none available)", () => {
+  const healer = { ...aliveCaster, spellSlots: { 1: 1 } };
+  const result = checkHealAbilityLegal({ healer, healerPos: { col: 0, row: 0 }, ability: healEmanation, turnState: { actionsAvailable: 3, actionsUsed: 1 }, anyTargetBelowFull: true });
+  assert.equal(result.legal, false, "only 2 actions remain, the emanation costs 3 — must be rejected on budget alone, before ever reaching anyTargetBelowFull");
+});
+
+// hasUses/spendUse — the shared helper pair itself, in isolation.
+test("hasUses: a slotRank ability reads healer.spellSlots, completely ignoring any usesRemaining field it might also carry", () => {
+  assert.equal(hasUses({ slotRank: 1 }, { spellSlots: { 1: 2 } }), true);
+  assert.equal(hasUses({ slotRank: 1 }, { spellSlots: { 1: 0 } }), false);
+  assert.equal(hasUses({ slotRank: 1 }, { spellSlots: {} }), false, "an absent rank in the pool reads as 0 uses, not unlimited");
+});
+
+test("hasUses: an ordinary usesRemaining-bearing ability (no slotRank) is COMPLETELY unaffected — same behavior as before this helper existed", () => {
+  assert.equal(hasUses({ usesRemaining: 1 }, { spellSlots: { 1: 0 } }), true, "a flat usesRemaining ability must never consult spellSlots, even on a healer who has one");
+  assert.equal(hasUses({ usesRemaining: 0 }, {}), false);
+  assert.equal(hasUses({}, {}), true, "no slotRank and no usesRemaining at all means unlimited, matching every sibling ability type's own convention");
+});
+
+test("spendUse: decrements the shared pool for a slotRank ability, and leaves usesRemaining fields on OTHER abilities in the same array untouched", () => {
+  const healer = { spellSlots: { 1: 2 } };
+  spendUse(healTouch, healer);
+  assert.equal(healer.spellSlots[1], 1);
+  spendUse(heal30ft, healer); // a DIFFERENT ability object, SAME rank — must hit the same counter
+  assert.equal(healer.spellSlots[1], 0);
+});
+
+test("spendUse: an ordinary usesRemaining-bearing ability decrements ITSELF, not any healer-level pool — unchanged from before this helper existed", () => {
+  const ability = { usesRemaining: 2 };
+  const healer = {};
+  spendUse(ability, healer);
+  assert.equal(ability.usesRemaining, 1);
+  assert.equal(healer.spellSlots, undefined, "must never invent a spellSlots object on a healer that never had one");
+});
+
+test("spendUse: an unlimited ability (no slotRank, no usesRemaining) is a real no-op", () => {
+  const ability = {};
+  assert.doesNotThrow(() => spendUse(ability, {}));
+  assert.deepEqual(ability, {});
+});
+
 // REGRESSION (design doc §32 — a direct user report: "I noticed a heal being cast through a
 // wall"). checkHealAbilityLegal never checked Line of Effect at all, unlike every sibling action
 // legality check just above it in this same file — confirmed missing by direct code reading, now
@@ -613,6 +764,24 @@ test("checkConditionSaveLegal: rejects when the action budget doesn't allow it",
   const target = { id: "t", name: "Target", currentHP: 10 };
   const result = checkConditionSaveLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, conditionSave: forcedReflection, turnState: { actionsAvailable: 3, actionsUsed: 3 } });
   assert.equal(result.legal, false);
+});
+
+// GH #56/#69: conditionSave was the one sibling action type with no usesRemaining gate at all —
+// every other ability type above already has this exact test (checkStrikeLegal line 264,
+// checkSpellAttackLegal line 389, checkHealAbilityLegal line 445, checkSaveAttackLegal line 509).
+test("checkConditionSaveLegal: a spent limited-use conditionSave (usesRemaining 0) is rejected, same mechanism as every sibling ability type", () => {
+  const attacker = { id: "a", name: "Erabryth", currentHP: 20 };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkConditionSaveLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, conditionSave: { ...forcedReflection, usesRemaining: 0 }, turnState: openBudget });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /out of uses/);
+});
+
+test("checkConditionSaveLegal: a conditionSave with no usesRemaining field at all is unlimited — omission means unlimited, matching every sibling ability type", () => {
+  const attacker = { id: "a", name: "Erabryth", currentHP: 20 };
+  const target = { id: "t", name: "Target", currentHP: 10 };
+  const result = checkConditionSaveLegal({ attacker, attackerPos: { col: 0, row: 0 }, target, targetPos: { col: 0, row: 0 }, conditionSave: forcedReflection, turnState: openBudget });
+  assert.equal(result.legal, true);
 });
 
 // ---------------------------------------------------------------------------

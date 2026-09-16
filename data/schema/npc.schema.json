@@ -18,12 +18,46 @@
     "namingPlaceholderRef": { "type": ["string", "null"] },
     "openQuestionRefs": { "type": "array", "items": { "type": "string" } },
     "status": { "type": "string" },
+    "crewChiefForRef": {
+      "type": ["string", "null"],
+      "description": "This NPC is the named head of one pilot's repair crew (campaign/config.json#frameEconomy.repairCrew) -- the id of the kid (data/characters/kids/) they serve. One crew chief per pilot, six total. Distinct from Ground Roles (campaign/ground-roles.json), which are PC-played, not NPCs."
+    },
     "statblock": {
       "description": "Optional combat/skill stat block, only needed if this NPC could plausibly roll dice against the party. Same shape as creature.schema.json.",
       "anyOf": [
         { "$ref": "common/sf2e-common.schema.json#/$defs/combatStatblock" },
         { "type": "null" }
       ]
+    },
+    "socialProfile": {
+      "description": "Persistent, learnable social intel for the Character Card — see design/npc-social-intel.md. Optional; only worth authoring for recurring NPCs the party will meet more than once.",
+      "type": ["object", "null"],
+      "properties": {
+        "attitude": {
+          "description": "SF2E's real Attitudes scale (reference/srd/player-core/504-conditions-appendix.json), not an invented one.",
+          "enum": ["hostile", "unfriendly", "indifferent", "friendly", "helpful"]
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "text", "revealTrigger", "revealed"],
+            "properties": {
+              "id": { "type": "string" },
+              "text": { "type": "string", "description": "The fact itself, e.g. \"Easily bribed\" or \"Never forgets an insult.\"" },
+              "revealTrigger": {
+                "description": "How a player learns this. Either a check, or a narrative condition.",
+                "anyOf": [
+                  { "type": "object", "properties": { "skill": { "type": "string" }, "dc": { "type": ["integer", "string"] } }, "required": ["skill", "dc"] },
+                  { "type": "object", "properties": { "narrative": { "type": "string" } }, "required": ["narrative"] }
+                ]
+              },
+              "revealed": { "type": "boolean" },
+              "revealedNote": { "type": ["string", "null"], "description": "When/how it was actually learned at the table, filled in live, not authored ahead of time." }
+            }
+          }
+        }
+      }
     }
   }
 }

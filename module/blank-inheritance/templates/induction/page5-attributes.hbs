@@ -1,0 +1,62 @@
+{{!--
+    The induction terminal — Page 5, Attribute Boosts.
+
+    The four free ability boosts every character gets at chargen (design/
+    induction-terminal.md §4) -- ancestry/background/class boosts from
+    Pages 2-4 already apply automatically and aren't re-shown here (they're
+    each already visible on their own page; repeating them would just be
+    noise). Four identical, fully-open slots (core/induction-attributes.mjs)
+    -- the SAME boost-slot machinery as Pages 2-4, its fourth real consumer.
+
+    PAPER register throughout, same .bi-doc/.bi-induction__slots vocabulary
+    as Pages 2-4. No picker/resolver two-state here -- nothing to browse or
+    search, just four choices to make.
+--}}
+<section class="bi-induction">
+    <div class="bi-doc bi-induction__page">
+        <header class="bi-doc__head">
+            <h1 class="bi-doc__title">{{localize "BLANKINHERITANCE.Induction.Page5.Title"}}</h1>
+            <div class="bi-doc__meta">
+                {{localize "BLANKINHERITANCE.Induction.Page5.FormNumber"}}
+                {{#if userName}}<br><b>{{userName}}</b>{{/if}}
+            </div>
+        </header>
+
+        <div class="bi-induction__tracker" role="list" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
+            {{#each trackerSteps}}
+            <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
+                  role="listitem" title="{{this.number}}. {{this.label}}">{{this.number}}</span>
+            {{/each}}
+        </div>
+
+        <p>{{localize "BLANKINHERITANCE.Induction.Page5.Intro"}}</p>
+
+        <div class="bi-induction__slots">
+            {{#each freeBoostSlots}}
+            <div class="bi-induction__slot">
+                <span class="bi-induction__slot-hint">{{localize "BLANKINHERITANCE.Induction.Page2.ChooseOne"}}</span>
+                <div class="bi-induction__options">
+                    {{#each this.options}}
+                    <button type="button"
+                            class="bi-induction__option {{#if this.picked}}bi-induction__option--picked{{/if}} {{#if this.claimed}}bi-induction__option--claimed{{/if}}"
+                            data-action="pickFreeBoost" data-slot-index="{{this.slotIndex}}" data-ability="{{this.ability}}"
+                            aria-pressed="{{this.picked}}" {{#if this.claimed}}disabled{{/if}}>{{this.label}}</button>
+                    {{/each}}
+                </div>
+            </div>
+            {{/each}}
+        </div>
+
+        <details class="bi-induction__help" data-sync="help">
+            <summary>{{localize "BLANKINHERITANCE.Induction.Page5.HelpSummary"}}</summary>
+            <p>{{localize "BLANKINHERITANCE.Induction.Page5.HelpBody"}}</p>
+        </details>
+
+        <div class="bi-induction__actions bi-induction__actions--split">
+            <button type="button" class="bi-induction__back" data-action="backFromAttributes">{{localize "BLANKINHERITANCE.Induction.Page5.Back"}}</button>
+            <button type="button" class="bi-induction__begin" data-action="continueFromAttributes" {{#unless isComplete}}disabled{{/unless}}>
+                {{localize "BLANKINHERITANCE.Induction.Page5.Continue"}}
+            </button>
+        </div>
+    </div>
+</section>

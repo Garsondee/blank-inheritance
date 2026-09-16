@@ -1,0 +1,187 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "back-ridges",
+  "type": "location",
+  "tier": "region",
+  "name": "The Back Ridges",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "district",
+  "tags": [
+    "auto-tessellated",
+    "land"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.16595629399828,
+          34.70317077762164
+        ],
+        [
+          135.17540935861567,
+          34.70309953764142
+        ],
+        [
+          135.1802116930964,
+          34.70982372284182
+        ],
+        [
+          135.1755607498529,
+          34.716620462345
+        ],
+        [
+          135.1566526508514,
+          34.71676374063347
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          1700.0,
+          5612.7
+        ],
+        [
+          2450.0,
+          5179.6
+        ],
+        [
+          2450.0,
+          4313.6
+        ],
+        [
+          1700.0,
+          3880.6
+        ],
+        [
+          200.0,
+          4746.6
+        ]
+      ]
+    ],
+    "centroidPx": [
+      1557.14,
+      4746.63
+    ],
+    "cells": [
+      "A2·68",
+      "A2·78",
+      "A2·88",
+      "A2·49",
+      "A2·59",
+      "A2·69",
+      "A2·79",
+      "A2·89",
+      "A2·99",
+      "B2·09",
+      "A3·30",
+      "A3·40",
+      "A3·50",
+      "A3·60",
+      "A3·70",
+      "A3·80",
+      "A3·90",
+      "B3·00",
+      "B3·10",
+      "A3·11",
+      "A3·21",
+      "A3·31",
+      "A3·41",
+      "A3·51",
+      "A3·61",
+      "A3·71",
+      "A3·81",
+      "A3·91",
+      "B3·01",
+      "B3·11",
+      "A3·02",
+      "A3·12",
+      "A3·22",
+      "A3·32",
+      "A3·42",
+      "A3·52",
+      "A3·62",
+      "A3·72",
+      "A3·82",
+      "A3·92",
+      "B3·02",
+      "B3·12",
+      "A3·03",
+      "A3·13",
+      "A3·23",
+      "A3·33",
+      "A3·43",
+      "A3·53",
+      "A3·63",
+      "A3·73",
+      "A3·83",
+      "A3·93",
+      "B3·03",
+      "B3·13",
+      "A3·24",
+      "A3·34",
+      "A3·44",
+      "A3·54",
+      "A3·64",
+      "A3·74",
+      "A3·84",
+      "A3·94",
+      "B3·04",
+      "B3·14",
+      "A3·35",
+      "A3·45",
+      "A3·55",
+      "A3·65",
+      "A3·75",
+      "A3·85",
+      "A3·95",
+      "B3·05",
+      "B3·15",
+      "A3·56",
+      "A3·66",
+      "A3·76",
+      "A3·86",
+      "A3·96",
+      "A3·77"
+    ],
+    "ref": "A2·68",
+    "areaM2": 2273362.5,
+    "withinRegionRef": null,
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-197",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "Hill country behind the reservoirs, where the tracks stop being maintained and the map starts being approximate.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Hill country behind the reservoirs, where the tracks stop being maintained and the map starts being approximate.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

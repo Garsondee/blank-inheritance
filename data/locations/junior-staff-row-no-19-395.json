@@ -1,0 +1,124 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "junior-staff-row-no-19-395",
+  "type": "location",
+  "tier": "site",
+  "name": "Junior Staff Row, No. 19",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "",
+  "tags": [
+    "staff-housing"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21276988,
+          34.66965787
+        ],
+        [
+          135.21285087,
+          34.66953359
+        ],
+        [
+          135.21239138,
+          34.66932849
+        ],
+        [
+          135.21227078,
+          34.66951082
+        ],
+        [
+          135.21265868,
+          34.66968489
+        ],
+        [
+          135.21269813,
+          34.66962483
+        ],
+        [
+          135.21276988,
+          34.66965787
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7283.6,
+          6635
+        ],
+        [
+          7297,
+          6643.1
+        ],
+        [
+          7272.3,
+          6684.1
+        ],
+        [
+          7252.5,
+          6672.3
+        ],
+        [
+          7273.3,
+          6637.6
+        ],
+        [
+          7279.8,
+          6641.5
+        ],
+        [
+          7283.6,
+          6635
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7274.55,
+      6658.79
+    ],
+    "cells": [
+      "D4·52"
+    ],
+    "ref": "D4·52",
+    "areaM2": 1050.6,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-395",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "All of these are staff accommodation.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The newest hires get these -- small, close together, and first to lose hot water when the boiler struggles.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

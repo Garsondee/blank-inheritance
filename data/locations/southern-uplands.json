@@ -1,0 +1,220 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "southern-uplands",
+  "type": "location",
+  "tier": "region",
+  "name": "The Southern Uplands",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "district",
+  "tags": [
+    "auto-tessellated",
+    "land"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.12155750774747,
+          34.6675723889049
+        ],
+        [
+          135.14645529846368,
+          34.65971048758099
+        ],
+        [
+          135.15389931716814,
+          34.66583330935431
+        ],
+        [
+          135.14675716961793,
+          34.676269960751476
+        ],
+        [
+          135.127858295786,
+          34.67640890535203
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          200.0,
+          11080.5
+        ],
+        [
+          2608.9,
+          10673.4
+        ],
+        [
+          2851.8,
+          9741.8
+        ],
+        [
+          1700.0,
+          9076.8
+        ],
+        [
+          200.0,
+          9942.8
+        ]
+      ]
+    ],
+    "centroidPx": [
+      1463.98,
+      10141.86
+    ],
+    "cells": [
+      "A5·64",
+      "A5·74",
+      "A5·84",
+      "A5·45",
+      "A5·55",
+      "A5·65",
+      "A5·75",
+      "A5·85",
+      "A5·95",
+      "B5·05",
+      "A5·26",
+      "A5·36",
+      "A5·46",
+      "A5·56",
+      "A5·66",
+      "A5·76",
+      "A5·86",
+      "A5·96",
+      "B5·06",
+      "B5·16",
+      "B5·26",
+      "A5·17",
+      "A5·27",
+      "A5·37",
+      "A5·47",
+      "A5·57",
+      "A5·67",
+      "A5·77",
+      "A5·87",
+      "A5·97",
+      "B5·07",
+      "B5·17",
+      "B5·27",
+      "B5·37",
+      "A5·08",
+      "A5·18",
+      "A5·28",
+      "A5·38",
+      "A5·48",
+      "A5·58",
+      "A5·68",
+      "A5·78",
+      "A5·88",
+      "A5·98",
+      "B5·08",
+      "B5·18",
+      "B5·28",
+      "B5·38",
+      "A5·09",
+      "A5·19",
+      "A5·29",
+      "A5·39",
+      "A5·49",
+      "A5·59",
+      "A5·69",
+      "A5·79",
+      "A5·89",
+      "A5·99",
+      "B5·09",
+      "B5·19",
+      "B5·29",
+      "A6·00",
+      "A6·10",
+      "A6·20",
+      "A6·30",
+      "A6·40",
+      "A6·50",
+      "A6·60",
+      "A6·70",
+      "A6·80",
+      "A6·90",
+      "B6·00",
+      "B6·10",
+      "B6·20",
+      "A6·01",
+      "A6·11",
+      "A6·21",
+      "A6·31",
+      "A6·41",
+      "A6·51",
+      "A6·61",
+      "A6·71",
+      "A6·81",
+      "A6·91",
+      "B6·01",
+      "B6·11",
+      "B6·21",
+      "A6·02",
+      "A6·12",
+      "A6·22",
+      "A6·32",
+      "A6·42",
+      "A6·52",
+      "A6·62",
+      "A6·72",
+      "A6·82",
+      "A6·92",
+      "B6·02",
+      "B6·12",
+      "B6·22",
+      "A6·03",
+      "A6·13",
+      "A6·23",
+      "A6·33",
+      "A6·43",
+      "A6·53",
+      "A6·63",
+      "A6·73",
+      "A6·83",
+      "A6·04",
+      "A6·14",
+      "A6·24"
+    ],
+    "ref": "A5·64",
+    "areaM2": 3578579.2,
+    "withinRegionRef": null,
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-206",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "Open hill country at the south-western corner of the sheet, grazed rather than forested, with long views back over the whole city.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Open hill country at the south-western corner of the sheet, grazed rather than forested, with long views back over the whole city.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

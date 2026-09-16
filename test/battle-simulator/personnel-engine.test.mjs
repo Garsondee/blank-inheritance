@@ -10,6 +10,9 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { runBattle, accountForActions, forkTurnSandbox, resetSandboxForkCount, getSandboxForkCount } from "../../tools/battle-simulator/personnel-engine/engine.mjs";
 import { decide } from "../../tools/battle-simulator/personnel-engine/decide.mjs";
 import { resolveEffectiveStats } from "../../tools/battle-simulator/personnel-engine/combatant.mjs";
@@ -199,6 +202,31 @@ test("Real initiative: initiativeOrder is a real d20+modifier roll, deterministi
   for (let i = 1; i < totalsInOrder.length; i++) assert.ok(totalsInOrder[i - 1] >= totalsInOrder[i]);
 });
 
+// GH #63: proves the whole real pipeline end to end, not just the engine mechanism above (which
+// already had full coverage with hand-set modifiers) — real Foundry Perception data, derived/
+// extracted into a checked-in fixture's own initiativeModifier, actually shifts who acts first.
+// Erabryth (initiativeModifier 10) vs. Obozaya (initiativeModifier 3), a real 7-point gap: for two
+// independent d20 rolls, P(10+d20a > 3+d20b) = 309/400 = 77.25% (hand-enumerated over all 400 (a,b)
+// pairs) — n=50 seeds, asserting a 65% floor, leaves a comfortable ~3 SD safety margin against
+// flakiness while still requiring a real, meaningfully-above-50% effect, not a coin flip.
+test("Real initiative, end to end: a real fixture's own derived/extracted initiativeModifier actually shifts who acts first, not just the engine mechanism in isolation", () => {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const fixturesDir = path.join(here, "..", "..", "tools", "battle-simulator", "data", "raw-validation-fixtures");
+  const loadFixture = (file) => JSON.parse(readFileSync(path.join(fixturesDir, file), "utf8"));
+  const erabryth = { ...loadFixture("erabryth.json"), side: "party", position: { col: 0, row: 0 } };
+  const obozaya = { ...loadFixture("obozaya.json"), side: "opposition", position: { col: 5, row: 5 } };
+  assert.equal(erabryth.initiativeModifier, 10, "sanity: this test's own math assumes these two real fixtures' current values");
+  assert.equal(obozaya.initiativeModifier, 3, "sanity: this test's own math assumes these two real fixtures' current values");
+
+  let erabrythFirst = 0;
+  const seeds = 50;
+  for (let seed = 1; seed <= seeds; seed++) {
+    const log = runBattle({ seed, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [erabryth, obozaya], ai: () => null });
+    if (log.initiativeOrder[0] === erabryth.id) erabrythFirst++;
+  }
+  assert.ok(erabrythFirst / seeds >= 0.65, `expected Erabryth (initiativeModifier 10) to act first well over half the time against Obozaya (initiativeModifier 3), got ${erabrythFirst}/${seeds}`);
+});
+
 test("outcome detection: party-victory when all opposition are reduced to 0 HP", () => {
   const attacker = { id: "attacker", name: "Goon", side: "party", maxHP: 8, currentHP: 8, ac: 15, saves: { fort: 4, ref: 4, will: 2 }, speed: 25,
     strikes: [{ name: "Baton", strikeType: "melee", attackBonus: 100, traits: [], damage: [{ dice: "10d6", bonus: 100 }] }], position: { col: 0, row: 0 } };
@@ -304,6 +332,262 @@ test("a healAbility never overheals past the target's maxHP", () => {
   const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [caster, nearlyFullAlly], ai });
   const action = log.rounds[0].turns.find((t) => t.combatantId === "caster").actions.find((a) => a.type === "healAbility");
   assert.equal(action.targetHPAfter, 16, "5 healing on 14/16 HP must cap at maxHP (16), not overshoot to 19");
+});
+
+// GH #55: no fixture ever set usesRemaining on Transfer Vitality, so the shared, already-tested
+// usesRemaining mechanism every sibling ability type relies on (checkHealAbilityLegal, mirroring
+// checkStrikeLegal/checkSpellAttackLegal/checkSaveAttackLegal) never actually fired for it — an
+// unlimited free heal. This proves it now bounds correctly once a fixture sets a real value (2,
+// matching Lunar-17's real fixture and the level-12 Frame-scale Mystic's identical approximation).
+test("Transfer Vitality: usesRemaining bounds repeated casts within one encounter, same generic mechanism as every sibling ability", () => {
+  const caster = makeCaster({ healAbilities: [{ name: "Transfer Vitality", healingAmount: 5, range: 60, actions: 1, usesRemaining: 2 }] });
+  const woundedAlly = makeCaster({ id: "ally", name: "Ally", currentHP: 5, maxHP: 100, spells: [], healAbilities: [] });
+  function ai(state, combatantId) {
+    if (combatantId === "caster") return { type: "healAbility", targetId: "ally", abilityIndex: 0 };
+    return null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [caster, woundedAlly], ai });
+  const actions = log.rounds[0].turns.find((t) => t.combatantId === "caster").actions;
+  assert.equal(actions.length, 3, "the caster has 3 actions available and the AI proposes the same heal with all of them");
+  assert.deepEqual(actions.map((a) => a.legal), [true, true, false], "a third cast must be rejected once usesRemaining hits 0");
+  assert.equal(actions[2].reason, "Transfer Vitality has no uses remaining this encounter.");
+});
+
+// GH #55: the original bug report assumed Transfer Vitality "moves HP between bodies" and flagged
+// the caster being untouched as the bug. Checked directly against the real extracted rule text
+// (Vitality Network feat, Player Core) instead of the ability's name alone: it heals from a
+// separate resource pool the caster cultivates, never their own current HP. The caster being
+// untouched is the correct, RAW-accurate behavior — this guards against a future "fix" that debits
+// the caster's HP based on a surface reading of what "Transfer Vitality" sounds like it should do.
+test("Transfer Vitality: the caster's own HP is never touched — it heals from a separate resource pool, not its own body, per the real Player Core rule", () => {
+  const caster = makeCaster({ healAbilities: [{ name: "Transfer Vitality", healingAmount: 5, range: 60, actions: 1, usesRemaining: 2 }] });
+  const woundedAlly = makeCaster({ id: "ally", name: "Ally", currentHP: 5, maxHP: 100, spells: [], healAbilities: [] });
+  function ai(state, combatantId, turnState) {
+    if (combatantId === "caster" && turnState.actionsUsed === 0) return { type: "healAbility", targetId: "ally", abilityIndex: 0 };
+    return null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [caster, woundedAlly], ai });
+  const turn = log.rounds[0].turns.find((t) => t.combatantId === "caster");
+  assert.equal(turn.actions[0].legal, true);
+  assert.equal(turn.snapshot.caster.currentHP, 16, "casting Transfer Vitality must never reduce the caster's own currentHP");
+});
+
+// GH #60, design doc §60 Part 1 — the real Heal spell: a genuine dice roll, not a flat amount, and a
+// spellSlots pool spent alongside the roll (not usesRemaining, which Heal's own entries never set).
+function makeHealCaster(overrides = {}) {
+  return makeCaster({
+    spells: [], healAbilities: [{ name: "Heal (touch)", healingFormula: "1d8", actions: 1, slotRank: 1 }],
+    spellSlots: { 1: 3 }, ...overrides
+  });
+}
+
+test("healAbility with a healingFormula rolls REAL dice (varies across seeds), always within the formula's own real range, and spends the shared spellSlots pool, not usesRemaining", () => {
+  const seen = new Set();
+  for (let seed = 1; seed <= 20; seed++) {
+    const caster = makeHealCaster();
+    const woundedAlly = makeCaster({ id: "ally", name: "Ally", currentHP: 5, maxHP: 100, spells: [], healAbilities: [] });
+    // A real, harmless opposition combatant (high HP, no strikes) — WITHOUT one, the battle is
+    // already "party-victory" (vacuously, no opposition exists) the instant whoever wins initiative
+    // takes their first turn, which sometimes denies "caster" a turn at all before this fix (a
+    // self-authored test-construction gap, not a real engine bug — confirmed directly by seed).
+    const harmlessEnemy = makeTarget({ id: "enemy", maxHP: 1000, currentHP: 1000, position: { col: 15, row: 15 } });
+    function ai(state, combatantId, turnState) {
+      if (combatantId === "caster" && turnState.actionsUsed === 0) return { type: "healAbility", targetId: "ally", abilityIndex: 0 };
+      return null;
+    }
+    const log = runBattle({ seed, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [caster, woundedAlly, harmlessEnemy], ai });
+    const action = log.rounds[0].turns.find((t) => t.combatantId === "caster").actions.find((a) => a.type === "healAbility");
+    assert.equal(action.legal, true);
+    assert.ok(Number.isInteger(action.healing) && action.healing >= 1 && action.healing <= 8, `seed ${seed}: expected an integer 1d8 roll in [1,8], got ${action.healing}`);
+    assert.equal(action.usesRemaining, null, "Heal's own entry never sets usesRemaining — the real limit is the shared spellSlots pool");
+    const turn = log.rounds[0].turns.find((t) => t.combatantId === "caster");
+    assert.equal(turn.snapshot.caster.spellSlots?.["1"], 2, "casting Heal must spend the SHARED pool (3 -> 2), not a per-ability usesRemaining");
+    seen.add(action.healing);
+  }
+  assert.ok(seen.size > 1, `expected a real spread of 1d8 rolls across 20 seeds, saw only: ${[...seen].join(", ")}`);
+});
+
+// FIX (design doc §78, GH #57 — found investigating ability telemetry, not this ticket's own scope,
+// but real, confirmed, and small): snapshotState's own `spellSlots: combatant.spellSlots ?? null`
+// stored a bare live reference, not a copy — since snapshotState runs once per turn and spendUse
+// mutates that SAME object in place, every snapshot ever taken for a combatant with spellSlots
+// shared one mutable object, so a LATER cast retroactively corrupted every EARLIER turn's own
+// snapshot too. Proven here the only way that actually catches it: an early, untouched snapshot must
+// still read the true value after a LATER turn spends the pool — round 1's own passing assertion
+// above (roundLimit: 1, nothing happens afterward) could never have caught this.
+test("snapshotState: an EARLIER turn's own spellSlots snapshot is not retroactively corrupted by a LATER cast sharing the same live object", () => {
+  const caster = makeHealCaster();
+  const woundedAlly = makeCaster({ id: "ally", name: "Ally", currentHP: 5, maxHP: 100, spells: [], healAbilities: [] });
+  const harmlessEnemy = makeTarget({ id: "enemy", maxHP: 1000, currentHP: 1000, position: { col: 15, row: 15 } });
+  function ai(state, combatantId, turnState) {
+    if (combatantId !== "caster") return null;
+    if (state.round === 1) return null; // do nothing in round 1 — spellSlots must stay untouched
+    if (turnState.actionsUsed === 0) return { type: "healAbility", targetId: "ally", abilityIndex: 0 };
+    return null;
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 2, combatants: [caster, woundedAlly, harmlessEnemy], ai });
+  const round1Turn = log.rounds[0].turns.find((t) => t.combatantId === "caster");
+  const round2Turn = log.rounds[1].turns.find((t) => t.combatantId === "caster");
+  assert.equal(round2Turn.actions.find((a) => a.type === "healAbility")?.legal, true, "sanity: the round-2 cast must actually have happened");
+  assert.equal(round2Turn.snapshot.caster.spellSlots?.["1"], 2, "sanity: round 2's own snapshot shows the real post-cast remainder");
+  assert.equal(round1Turn.snapshot.caster.spellSlots?.["1"], 3, "round 1's snapshot — taken BEFORE the round-2 cast — must still show the true starting count, not retroactively decremented by a later cast sharing the same object");
+});
+
+test("healAbility (EXPECTED-VALUE sandbox, via forkTurnSandbox — the exact path decide.mjs's own lookahead uses): a healingFormula resolves to the real PROBABILITY-WEIGHTED average, not a rolled value", () => {
+  const caster = makeHealCaster();
+  const woundedAlly = makeCaster({ id: "ally", name: "Ally", currentHP: 5, maxHP: 100, spells: [], healAbilities: [] });
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["caster", { ...caster }], ["ally", { ...woundedAlly }]]),
+    positions: new Map([["caster", { col: 0, row: 0 }], ["ally", { col: 0, row: 0 }]])
+  };
+  const sandbox = forkTurnSandbox({ state, turn: { actionsAvailable: 3, actionsUsed: 0 } });
+  const result = sandbox.apply("caster", { type: "healAbility", targetId: "ally", abilityIndex: 0 });
+  assert.equal(result.legal, true, JSON.stringify(result));
+  assert.equal(result.healing, 4.5, "1d8's real average is 4.5 — the EXPECTED-value path must average, never roll");
+});
+
+test("healAbility with NO healingFormula (Transfer Vitality's own flat shape) is COMPLETELY unaffected by the new dice-based outcome functions — the round-2 review's own CRITICAL regression, checked directly", () => {
+  const caster = makeCaster(); // real Transfer Vitality, healingAmount:5, no healingFormula
+  const woundedAlly = makeCaster({ id: "ally", name: "Ally", currentHP: 5, maxHP: 100, spells: [], healAbilities: [] });
+  function ai(state, combatantId, turnState) {
+    if (combatantId === "caster" && turnState.actionsUsed === 0) return { type: "healAbility", targetId: "ally", abilityIndex: 0 };
+    return null;
+  }
+  assert.doesNotThrow(() => runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [caster, woundedAlly], ai }));
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [caster, woundedAlly], ai });
+  const action = log.rounds[0].turns.find((t) => t.combatantId === "caster").actions.find((a) => a.type === "healAbility");
+  assert.equal(action.legal, true);
+  assert.equal(action.healing, 5, "a flat healingAmount ability must produce its exact flat value, never a dice roll or NaN");
+});
+
+// THE CRITICAL REGRESSION (round-2 adversarial review): cloneStateForPlanning's own header already
+// warns that the ability arrays must be copied element-wise, not shared, or "merely planning a shot"
+// could spend a real limited use from the live battle. combatant.spellSlots is a new, nested, mutable
+// object of exactly that shape — this proves the sandboxed fix actually holds, not just that it's
+// present in the diff.
+test("cloneStateForPlanning: a SANDBOXED heal cast spends the sandbox's own spellSlots copy, and the ORIGINAL live state's pool is completely untouched", () => {
+  const caster = makeHealCaster({ spellSlots: { 1: 1 } });
+  const woundedAlly = makeCaster({ id: "ally", name: "Ally", currentHP: 5, maxHP: 100, spells: [], healAbilities: [] });
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["caster", { ...caster }], ["ally", { ...woundedAlly }]]),
+    positions: new Map([["caster", { col: 0, row: 0 }], ["ally", { col: 0, row: 0 }]])
+  };
+  const sandbox = forkTurnSandbox({ state, turn: { actionsAvailable: 3, actionsUsed: 0 } });
+  const result = sandbox.apply("caster", { type: "healAbility", targetId: "ally", abilityIndex: 0 });
+
+  assert.equal(result.legal, true, JSON.stringify(result)); // the sandboxed cast must actually have happened...
+  assert.equal(sandbox.state.combatants.get("caster").spellSlots[1], 0, "...and really spent the SANDBOX's own copy of the pool...");
+  assert.equal(state.combatants.get("caster").spellSlots[1], 1, "...while the ORIGINAL, live state's pool must remain completely untouched — a lookahead branch that's merely considered must never spend a real resource");
+});
+
+// --- GH #60, design doc §60 Part 1b — the self-centered emanation ---
+function makeEmanationCaster(overrides = {}) {
+  return makeCaster({
+    spells: [], healAbilities: [{ name: "Heal (emanation)", healingFormula: "1d8", actions: 3, areaOrigin: "self", radius: 30, slotRank: 1 }],
+    spellSlots: { 1: 3 }, ...overrides
+  });
+}
+
+test("healAbility (self-centered emanation): heals every living ALLY within radius with the SAME single roll, revives a downed one, and leaves an out-of-range/enemy/dead combatant untouched", () => {
+  const caster = makeEmanationCaster();
+  const nearAlly = makeCaster({ id: "near", name: "Near", currentHP: 5, maxHP: 20, spells: [], healAbilities: [], position: { col: 1, row: 0 } });
+  const downedAlly = makeCaster({ id: "downed", name: "Downed", currentHP: 0, dyingValue: 1, maxHP: 20, spells: [], healAbilities: [], position: { col: 2, row: 0 } });
+  const farAlly = makeCaster({ id: "far", name: "Far", currentHP: 5, maxHP: 20, spells: [], healAbilities: [], position: { col: 200, row: 0 } }); // 200 squares = 1000ft, well outside a 30ft radius
+  const enemy = makeCaster({ id: "enemy", name: "Enemy", side: "opposition", currentHP: 5, maxHP: 20, spells: [], healAbilities: [], position: { col: 1, row: 1 } });
+  const deadAlly = makeCaster({ id: "dead", name: "Dead", currentHP: 0, dyingValue: 4, maxHP: 20, spells: [], healAbilities: [], position: { col: 0, row: 1 } }); // real dead (dyingValue 4), not just downed
+
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 210, rows: 20 }, walls: [],
+    combatants: new Map([["caster", caster], ["near", nearAlly], ["downed", downedAlly], ["far", farAlly], ["enemy", enemy], ["dead", deadAlly]]),
+    positions: new Map([["caster", { ...caster.position }], ["near", { ...nearAlly.position }], ["downed", { ...downedAlly.position }], ["far", { ...farAlly.position }], ["enemy", { ...enemy.position }], ["dead", { ...deadAlly.position }]])
+  };
+  function ai(s, combatantId, turnState) {
+    if (combatantId === "caster" && turnState.actionsUsed === 0) return { type: "healAbility", targetId: null, abilityIndex: 0, areaOrigin: "self" };
+    return null;
+  }
+  const log = runBattle({ seed: 1, gridSize: state.gridSize, roundLimit: 1, combatants: [caster, nearAlly, downedAlly, farAlly, enemy, deadAlly], ai });
+  const action = log.rounds[0].turns.find((t) => t.combatantId === "caster").actions.find((a) => a.type === "healAbility");
+
+  assert.equal(action.legal, true, JSON.stringify(action));
+  assert.equal(action.targetId, null);
+  assert.equal(action.areaOrigin, "self");
+  const affectedIds = action.affected.map((a) => a.targetId).sort();
+  assert.deepEqual(affectedIds, ["caster", "downed", "near"], `expected the two in-range LIVING allies PLUS the caster's own self (standing at the emanation's own center, trivially in range and allied with themselves), got: ${JSON.stringify(affectedIds)}`);
+  const nearEntry = action.affected.find((a) => a.targetId === "near");
+  const downedEntry = action.affected.find((a) => a.targetId === "downed");
+  const casterEntry = action.affected.find((a) => a.targetId === "caster");
+  assert.equal(nearEntry.healing, action.healing, "each affected ally's own healing must equal the ONE shared roll (capped individually at their own maxHP)");
+  assert.equal(downedEntry.targetHPAfter > 0, true, "the downed ally must actually be revived, not just topped up past 0 in name only");
+  assert.equal(casterEntry.healing, 0, "the caster starts at full HP — their own share of the shared roll caps at 0 real gain, but they're still a real affected entry");
+
+  const turn = log.rounds[0].turns.find((t) => t.combatantId === "caster");
+  assert.equal(turn.snapshot.far.currentHP, 5, "an ally 1000ft away must be completely untouched");
+  assert.equal(turn.snapshot.enemy.currentHP, 5, "an enemy inside the radius must NEVER be healed — living-target, allies-only scope");
+  assert.equal(turn.snapshot.dead.currentHP, 0, "a genuinely dead (dyingValue 4) combatant must never be revived by this");
+});
+
+test("healAbility (self-centered emanation): spends the shared spellSlots pool EXACTLY ONCE per cast, regardless of how many allies are affected", () => {
+  const caster = makeEmanationCaster({ spellSlots: { 1: 1 } });
+  const ally1 = makeCaster({ id: "a1", name: "A1", currentHP: 5, maxHP: 20, spells: [], healAbilities: [], position: { col: 1, row: 0 } });
+  const ally2 = makeCaster({ id: "a2", name: "A2", currentHP: 5, maxHP: 20, spells: [], healAbilities: [], position: { col: 0, row: 1 } });
+  const ally3 = makeCaster({ id: "a3", name: "A3", currentHP: 5, maxHP: 20, spells: [], healAbilities: [], position: { col: 1, row: 1 } });
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["caster", { ...caster }], ["a1", { ...ally1 }], ["a2", { ...ally2 }], ["a3", { ...ally3 }]]),
+    positions: new Map([["caster", { ...caster.position }], ["a1", { ...ally1.position }], ["a2", { ...ally2.position }], ["a3", { ...ally3.position }]])
+  };
+  const sandbox = forkTurnSandbox({ state, turn: { actionsAvailable: 3, actionsUsed: 0 } });
+  const result = sandbox.apply("caster", { type: "healAbility", targetId: null, abilityIndex: 0, areaOrigin: "self" });
+  assert.equal(result.legal, true, JSON.stringify(result));
+  assert.equal(result.affected.length, 4, "sanity: all three allies PLUS the caster's own self must actually be in range and affected");
+  assert.equal(sandbox.state.combatants.get("caster").spellSlots[1], 0, "spent by exactly 1, not by 4 (once per affected combatant would be a real bug)");
+});
+
+test("healAbility (self-centered emanation): illegal when nobody in range needs it, even with a real slot available", () => {
+  const caster = makeEmanationCaster();
+  const fullAlly = makeCaster({ id: "full", name: "Full", currentHP: 20, maxHP: 20, spells: [], healAbilities: [], position: { col: 1, row: 0 } });
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["caster", { ...caster }], ["full", { ...fullAlly }]]),
+    positions: new Map([["caster", { ...caster.position }], ["full", { ...fullAlly.position }]])
+  };
+  const sandbox = forkTurnSandbox({ state, turn: { actionsAvailable: 3, actionsUsed: 0 } });
+  const result = sandbox.apply("caster", { type: "healAbility", targetId: null, abilityIndex: 0, areaOrigin: "self" });
+  assert.equal(result.legal, false);
+  assert.match(result.reason, /needs/);
+});
+
+test("healAbility (self-centered emanation): a REJECTED (illegal) cast never mutates anyone's HP or the shared pool — no partial application, no fall-through into the single-target code path", () => {
+  const caster = makeEmanationCaster({ spellSlots: { 1: 1 } });
+  const fullAlly = makeCaster({ id: "full", name: "Full", currentHP: 20, maxHP: 20, spells: [], healAbilities: [], position: { col: 1, row: 0 } });
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["caster", { ...caster }], ["full", { ...fullAlly }]]),
+    positions: new Map([["caster", { ...caster.position }], ["full", { ...fullAlly.position }]])
+  };
+  const sandbox = forkTurnSandbox({ state, turn: { actionsAvailable: 3, actionsUsed: 0 } });
+  const result = sandbox.apply("caster", { type: "healAbility", targetId: null, abilityIndex: 0, areaOrigin: "self" });
+  assert.equal(result.legal, false, "sanity: nobody needs healing, so this must be illegal");
+  assert.equal(sandbox.state.combatants.get("full").currentHP, 20, "an illegal cast must never mutate any ally's HP");
+  assert.equal(sandbox.state.combatants.get("caster").spellSlots[1], 1, "an illegal cast must never spend the pool");
+});
+
+test("healAbility (self-centered emanation, EXPECTED-VALUE sandbox): resolves to the real probability-weighted average, shared across every affected ally (including the caster's own self, also hurt here), same as the single-target variants", () => {
+  const caster = makeEmanationCaster({ currentHP: 5 }); // also hurt, so the "every entry gets 4.5" assertion below is meaningful for the caster's own entry too, not just capped-at-0
+  const ally1 = makeCaster({ id: "a1", name: "A1", currentHP: 5, maxHP: 20, spells: [], healAbilities: [], position: { col: 1, row: 0 } });
+  const ally2 = makeCaster({ id: "a2", name: "A2", currentHP: 5, maxHP: 20, spells: [], healAbilities: [], position: { col: 0, row: 1 } });
+  const state = {
+    round: 1, seed: 1, gridSize: { cols: 20, rows: 20 }, walls: [],
+    combatants: new Map([["caster", { ...caster }], ["a1", { ...ally1 }], ["a2", { ...ally2 }]]),
+    positions: new Map([["caster", { ...caster.position }], ["a1", { ...ally1.position }], ["a2", { ...ally2.position }]])
+  };
+  const sandbox = forkTurnSandbox({ state, turn: { actionsAvailable: 3, actionsUsed: 0 } });
+  const result = sandbox.apply("caster", { type: "healAbility", targetId: null, abilityIndex: 0, areaOrigin: "self" });
+  assert.equal(result.legal, true, JSON.stringify(result));
+  assert.equal(result.healing, 4.5, "1d8's real average is 4.5 — the EXPECTED-value path must average, never roll, and must be the SAME shared value for every affected ally");
+  for (const a of result.affected) assert.equal(a.healing, 4.5);
 });
 
 test("every legal action's result carries an actionsCost field matching what was actually spent", () => {
@@ -514,6 +798,43 @@ test("conditionSave: applies the REAL per-degree table exactly — failure sets 
   assert.deepEqual(action.applied, { stunnedValue: 1, frightened: 1 });
   assert.equal(action.targetFrightenedAfter, 1);
   assert.equal(action.targetStunnedValueAfter, 1);
+});
+
+// GH #56/#69: conditionSave was the one sibling action type not decrementing usesRemaining at all —
+// every other type above already has this exact test (spellAttack line 237, healAbility line 281,
+// saveAttack line 348, areaAttack line 740).
+test("conditionSave: decrements its own usesRemaining, same mechanism as every sibling ability type", () => {
+  const erabryth = makeErabryth();
+  erabryth.conditionSaves[0].usesRemaining = 1;
+  const target = makeGoon({ id: "target", side: "party", saves: { fort: 5, ref: 5, will: 2 }, position: { col: 5, row: 0 } });
+  function ai(state, id, turn) { return id === "erabryth" && turn.actionsUsed === 0 ? { type: "conditionSave", targetId: "target", conditionSaveIndex: 0 } : null; }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 1, combatants: [erabryth, target], ai });
+  const action = log.rounds[0].turns.find((t) => t.combatantId === "erabryth").actions.find((a) => a.type === "conditionSave");
+  assert.equal(action.legal, true);
+  assert.equal(action.usesRemaining, 0);
+});
+
+test("conditionSave: a depleted usesRemaining is rejected on a real second attempt — the full engine-level proof that #56's gate and decrement actually cooperate, not just each in isolation", () => {
+  // A DIFFERENT target for the second attempt, so the real target-side immunity gate (already
+  // covered elsewhere) can't be what's rejecting it — isolating usesRemaining specifically.
+  const erabryth = makeErabryth();
+  erabryth.conditionSaves[0].usesRemaining = 1;
+  const targetA = makeGoon({ id: "targetA", side: "party", saves: { fort: 5, ref: 5, will: 2 }, position: { col: 5, row: 0 } });
+  const targetB = makeGoon({ id: "targetB", side: "party", saves: { fort: 5, ref: 5, will: 2 }, position: { col: 6, row: 0 } });
+  let attemptCount = 0;
+  function ai(state, id, turn) {
+    if (id !== "erabryth" || turn.actionsUsed !== 0) return null;
+    attemptCount += 1;
+    return { type: "conditionSave", targetId: attemptCount === 1 ? "targetA" : "targetB", conditionSaveIndex: 0 };
+  }
+  const log = runBattle({ seed: 1, gridSize: { cols: 20, rows: 20 }, roundLimit: 2, combatants: [erabryth, targetA, targetB], ai });
+  const firstReal = log.rounds[0].turns.find((t) => t.combatantId === "erabryth").actions.find((a) => a.type === "conditionSave");
+  assert.equal(firstReal.legal, true);
+  assert.equal(firstReal.usesRemaining, 0);
+  // Round 2: the AI's own proposal against targetB is now illegal (out of uses), so the turn holds —
+  // matching every sibling ability type's own established "no legal action found" shape.
+  const secondTurn = log.rounds[1]?.turns.find((t) => t.combatantId === "erabryth");
+  if (secondTurn) assert.ok(!secondTurn.actions.some((a) => a.type === "conditionSave" && a.legal), "no SECOND conditionSave should ever resolve as legal once usesRemaining is spent");
 });
 
 test("conditionSave: never increments the shared Multiple Attack Penalty counter — no attack roll happens at all, same as saveAttack/demoralize", () => {

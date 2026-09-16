@@ -1,0 +1,466 @@
+{
+  "families": [
+    {
+      "name": "Shippori Mincho",
+      "weights": [
+        400,
+        700
+      ],
+      "profile": "full",
+      "role": "Document body and titles. The one face that must render arbitrary Japanese."
+    },
+    {
+      "name": "Zen Old Mincho",
+      "weights": [
+        400,
+        900
+      ],
+      "profile": "ui",
+      "role": "Retro display Mincho — document headings, section marks."
+    },
+    {
+      "name": "Klee One",
+      "weights": [
+        400,
+        600
+      ],
+      "profile": "ui",
+      "role": "Pen/textbook hand. Handwritten annotations and margin notes on documents."
+    },
+    {
+      "name": "Yuji Syuku",
+      "weights": [
+        400
+      ],
+      "profile": "ui",
+      "role": "Brush calligraphy. Seals, stamps, anything that should look inked by hand."
+    },
+    {
+      "name": "DotGothic16",
+      "weights": [
+        400
+      ],
+      "profile": "ui",
+      "role": "Bitmap/pixel Japanese. The phone OS — see terminal-login-landing-page's locked chunky-pixel art direction."
+    },
+    {
+      "name": "Noto Sans JP",
+      "weights": [
+        400,
+        700
+      ],
+      "profile": "ui",
+      "role": "Gothic workhorse for hard administrative markings."
+    },
+    {
+      "name": "Zen Kaku Gothic New",
+      "weights": [
+        400,
+        700
+      ],
+      "profile": "ui",
+      "role": "Clean gothic. Panel legends in Japanese."
+    },
+    {
+      "name": "RocknRoll One",
+      "weights": [
+        400
+      ],
+      "profile": "ui",
+      "role": "Rounded gothic. The phone's friendlier corners."
+    },
+    {
+      "name": "Saira Stencil One",
+      "weights": [
+        400
+      ],
+      "profile": "latin",
+      "role": "Military stencil. Crate markings, hull numbers, classification banners."
+    },
+    {
+      "name": "Special Elite",
+      "weights": [
+        400
+      ],
+      "profile": "latin",
+      "role": "Imperfect typewriter — uneven strike. The 1950s typed-document face."
+    },
+    {
+      "name": "Courier Prime",
+      "weights": [
+        400,
+        700
+      ],
+      "profile": "latin",
+      "role": "Clean typewriter. Form fields and control numbers where Special Elite is too noisy."
+    },
+    {
+      "name": "Chakra Petch",
+      "weights": [
+        400,
+        700
+      ],
+      "profile": "latin",
+      "role": "Squared techno. Panel legends, key caps."
+    },
+    {
+      "name": "Oxanium",
+      "weights": [
+        400,
+        800
+      ],
+      "profile": "latin",
+      "role": "Retro-futurist display. Headings on the glass register."
+    },
+    {
+      "name": "Michroma",
+      "weights": [
+        400
+      ],
+      "profile": "latin",
+      "role": "Wide techno. Marquee and wordmark use."
+    },
+    {
+      "name": "Share Tech Mono",
+      "weights": [
+        400
+      ],
+      "profile": "latin",
+      "role": "HUD numerals. Narrow, technical, reads at small sizes on phosphor."
+    },
+    {
+      "name": "IBM Plex Mono",
+      "weights": [
+        400,
+        600
+      ],
+      "profile": "latin",
+      "role": "Technical mono for dense readouts and log lines."
+    },
+    {
+      "name": "Spectral",
+      "weights": [
+        400,
+        600
+      ],
+      "profile": "latin",
+      "role": "Book serif for Latin document text, paired with Shippori for Japanese."
+    },
+    {
+      "name": "Bruno Ace",
+      "weights": [
+        400
+      ],
+      "profile": "latin",
+      "role": "Engraved panel legends. Also ships with Foundry; bundled so it is certain."
+    },
+    {
+      "name": "Bruno Ace SC",
+      "weights": [
+        400
+      ],
+      "profile": "latin",
+      "role": "Small-caps display variant."
+    },
+    {
+      "name": "Rajdhani",
+      "weights": [
+        500,
+        700
+      ],
+      "profile": "latin",
+      "role": "Condensed techno. Tight labels where Chakra Petch is too wide."
+    },
+    {
+      "name": "Press Start 2P",
+      "weights": [
+        400
+      ],
+      "profile": "latin",
+      "role": "Pixel Latin. The phone OS, paired with DotGothic16."
+    },
+    {
+      "name": "Antonio",
+      "weights": [
+        400,
+        700
+      ],
+      "profile": "latin",
+      "role": "Condensed poster. Marquee headlines, alert banners."
+    }
+  ],
+  "built": [
+    {
+      "family": "Shippori Mincho",
+      "weight": 400,
+      "profile": "full",
+      "file": "shippori-mincho-400.woff2",
+      "bytes": 2854220,
+      "present": true
+    },
+    {
+      "family": "Shippori Mincho",
+      "weight": 700,
+      "profile": "full",
+      "file": "shippori-mincho-700.woff2",
+      "bytes": 3008684,
+      "present": true
+    },
+    {
+      "family": "Zen Old Mincho",
+      "weight": 400,
+      "profile": "ui",
+      "file": "zen-old-mincho-400.woff2",
+      "bytes": 102692,
+      "present": true
+    },
+    {
+      "family": "Zen Old Mincho",
+      "weight": 900,
+      "profile": "ui",
+      "file": "zen-old-mincho-900.woff2",
+      "bytes": 106776,
+      "present": true
+    },
+    {
+      "family": "Klee One",
+      "weight": 400,
+      "profile": "ui",
+      "file": "klee-one-400.woff2",
+      "bytes": 134652,
+      "present": true
+    },
+    {
+      "family": "Klee One",
+      "weight": 600,
+      "profile": "ui",
+      "file": "klee-one-600.woff2",
+      "bytes": 138728,
+      "present": true
+    },
+    {
+      "family": "Yuji Syuku",
+      "weight": 400,
+      "profile": "ui",
+      "file": "yuji-syuku-400.woff2",
+      "bytes": 202644,
+      "present": true
+    },
+    {
+      "family": "DotGothic16",
+      "weight": 400,
+      "profile": "ui",
+      "file": "dotgothic16-400.woff2",
+      "bytes": 35068,
+      "present": true
+    },
+    {
+      "family": "Noto Sans JP",
+      "weight": 400,
+      "profile": "ui",
+      "file": "noto-sans-jp-400.woff2",
+      "bytes": 106824,
+      "present": true
+    },
+    {
+      "family": "Noto Sans JP",
+      "weight": 700,
+      "profile": "ui",
+      "file": "noto-sans-jp-700.woff2",
+      "bytes": 109692,
+      "present": true
+    },
+    {
+      "family": "Zen Kaku Gothic New",
+      "weight": 400,
+      "profile": "ui",
+      "file": "zen-kaku-gothic-new-400.woff2",
+      "bytes": 61384,
+      "present": true
+    },
+    {
+      "family": "Zen Kaku Gothic New",
+      "weight": 700,
+      "profile": "ui",
+      "file": "zen-kaku-gothic-new-700.woff2",
+      "bytes": 61376,
+      "present": true
+    },
+    {
+      "family": "RocknRoll One",
+      "weight": 400,
+      "profile": "ui",
+      "file": "rocknroll-one-400.woff2",
+      "bytes": 68656,
+      "present": true
+    },
+    {
+      "family": "Saira Stencil One",
+      "weight": 400,
+      "profile": "latin",
+      "file": "saira-stencil-one-400.woff2",
+      "bytes": 11400,
+      "present": true
+    },
+    {
+      "family": "Special Elite",
+      "weight": 400,
+      "profile": "latin",
+      "file": "special-elite-400.woff2",
+      "bytes": 51728,
+      "present": true
+    },
+    {
+      "family": "Courier Prime",
+      "weight": 400,
+      "profile": "latin",
+      "file": "courier-prime-400.woff2",
+      "bytes": 10544,
+      "present": true
+    },
+    {
+      "family": "Courier Prime",
+      "weight": 700,
+      "profile": "latin",
+      "file": "courier-prime-700.woff2",
+      "bytes": 10892,
+      "present": true
+    },
+    {
+      "family": "Chakra Petch",
+      "weight": 400,
+      "profile": "latin",
+      "file": "chakra-petch-400.woff2",
+      "bytes": 8376,
+      "present": true
+    },
+    {
+      "family": "Chakra Petch",
+      "weight": 700,
+      "profile": "latin",
+      "file": "chakra-petch-700.woff2",
+      "bytes": 8428,
+      "present": true
+    },
+    {
+      "family": "Oxanium",
+      "weight": 400,
+      "profile": "latin",
+      "file": "oxanium-400.woff2",
+      "bytes": 6168,
+      "present": true
+    },
+    {
+      "family": "Oxanium",
+      "weight": 800,
+      "profile": "latin",
+      "file": "oxanium-800.woff2",
+      "bytes": 6144,
+      "present": true
+    },
+    {
+      "family": "Michroma",
+      "weight": 400,
+      "profile": "latin",
+      "file": "michroma-400.woff2",
+      "bytes": 9900,
+      "present": true
+    },
+    {
+      "family": "Share Tech Mono",
+      "weight": 400,
+      "profile": "latin",
+      "file": "share-tech-mono-400.woff2",
+      "bytes": 7768,
+      "present": true
+    },
+    {
+      "family": "IBM Plex Mono",
+      "weight": 400,
+      "profile": "latin",
+      "file": "ibm-plex-mono-400.woff2",
+      "bytes": 9208,
+      "present": true
+    },
+    {
+      "family": "IBM Plex Mono",
+      "weight": 600,
+      "profile": "latin",
+      "file": "ibm-plex-mono-600.woff2",
+      "bytes": 9176,
+      "present": true
+    },
+    {
+      "family": "Spectral",
+      "weight": 400,
+      "profile": "latin",
+      "file": "spectral-400.woff2",
+      "bytes": 13252,
+      "present": true
+    },
+    {
+      "family": "Spectral",
+      "weight": 600,
+      "profile": "latin",
+      "file": "spectral-600.woff2",
+      "bytes": 14308,
+      "present": true
+    },
+    {
+      "family": "Bruno Ace",
+      "weight": 400,
+      "profile": "latin",
+      "file": "bruno-ace-400.woff2",
+      "bytes": 9904,
+      "present": true
+    },
+    {
+      "family": "Bruno Ace SC",
+      "weight": 400,
+      "profile": "latin",
+      "file": "bruno-ace-sc-400.woff2",
+      "bytes": 9844,
+      "present": true
+    },
+    {
+      "family": "Rajdhani",
+      "weight": 500,
+      "profile": "latin",
+      "file": "rajdhani-500.woff2",
+      "bytes": 8572,
+      "present": true
+    },
+    {
+      "family": "Rajdhani",
+      "weight": 700,
+      "profile": "latin",
+      "file": "rajdhani-700.woff2",
+      "bytes": 8872,
+      "present": true
+    },
+    {
+      "family": "Press Start 2P",
+      "weight": 400,
+      "profile": "latin",
+      "file": "press-start-2p-400.woff2",
+      "bytes": 4320,
+      "present": true
+    },
+    {
+      "family": "Antonio",
+      "weight": 400,
+      "profile": "latin",
+      "file": "antonio-400.woff2",
+      "bytes": 9640,
+      "present": true
+    },
+    {
+      "family": "Antonio",
+      "weight": 700,
+      "profile": "latin",
+      "file": "antonio-700.woff2",
+      "bytes": 9696,
+      "present": true
+    }
+  ]
+}

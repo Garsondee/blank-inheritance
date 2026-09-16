@@ -2,6 +2,8 @@
   "id": "raw-validation-security-goon",
   "name": "Security Goon",
   "side": "opposition",
+  "level": 1,
+  "initiativeModifier": 4,
   "maxHP": 25,
   "currentHP": 25,
   "ac": 14,

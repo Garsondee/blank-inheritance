@@ -14,6 +14,9 @@
         "type": { "const": "kid" },
         "name": { "type": ["string", "null"] },
         "player": { "type": ["string", "null"], "description": "Which player controls this kid and their paired Frame." },
+        "pronouns": { "type": ["string", "null"], "description": "Free text (e.g. \"She/her\", \"They/them\") -- induction terminal Page 7. The terminal offers suggestions but never invents an answer." },
+        "genderIdentity": { "type": ["string", "null"], "description": "Free text -- induction terminal Page 7. Distinct from ancestry/appearance; not an SF2E mechanical field." },
+        "appearance": { "type": ["string", "null"], "description": "Free-text appearance notes -- induction terminal Page 7." },
         "age": {
           "type": "integer",
           "minimum": 17,
@@ -64,7 +67,29 @@
         },
         "framePilotedRef": { "type": ["string", "null"], "description": "id of the Frame this kid pilots." },
         "status": { "type": "string" },
-        "notes": { "type": "string" }
+        "notes": { "type": "string" },
+        "intake": {
+          "type": "object",
+          "description": "Session-zero answers from the induction terminal's Page 7 (banal texture questions) and Page 8 (bible §20's eight core questions), design/induction-terminal.md. Distinct from `anchors` -- raw answers, not yet distilled into the capped-at-3 Anchors, which stay collaborative work with the real player.",
+          "properties": {
+            "banal": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "answer"],
+                "properties": { "id": { "type": "string" }, "answer": { "type": "string" } }
+              }
+            },
+            "questions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "answer"],
+                "properties": { "id": { "type": "string" }, "answer": { "type": "string" } }
+              }
+            }
+          }
+        }
       }
     }
   ]

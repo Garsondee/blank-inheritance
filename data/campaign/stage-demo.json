@@ -1,0 +1,207 @@
+{
+  "$schema": "../schema/stage-demo.schema.json",
+  "id": "stage-demo",
+  "type": "stage-demo",
+  "status": "DEMO — not final casting",
+  "purpose": "Four worked theatre-of-the-mind scenes, built to see what design/theatre-of-the-mind-staging.md actually looks like with real art in a real Foundry world. Each scene demonstrates one staging arrangement.",
+  "notes": [
+    "The portrait assignments below are a DEMO CAST, not a decision. Deciding which face belongs to which character is the job of the already-accepted asset-review-pipeline idea (AI-catalogued, human-confirmed, organised out of artwork/in-tray/), and it is explicitly the user's creative call — see CLAUDE.md's rule about not finalising the six kids. Nothing here writes back to data/characters/ or data/npcs/.",
+    "Sources are filenames inside artwork/in-tray/, which is gitignored and large. tools/stage-assets/stage_assets.py reads this file, resizes each source, and writes the result into the module's own assets/stage/ directory under the stable id given here. The id is the contract; the source filename is expected to change when the real pipeline organises the in-tray.",
+    "The three Directorate NPCs genuinely have no names yet (data/npcs/*.json carry null names and role titles only), so their role titles are used verbatim rather than invented around. `bar-regular` is a deliberately unaffiliated civilian (faction: null) added alongside them so the Splash tier's monochrome default and its Directorate-red accent both have a real demo case in one scene (stage-demo-bar)."
+  ],
+  "portraits": [
+    {
+      "id": "ishikawa-susumu",
+      "label": "Ishikawa Susumu",
+      "kind": "pc",
+      "characterRef": "ishikawa-susumu",
+      "source": "character-portraits/garsondee_hand-painted_gouache_and_watercolor_texture_muted_n_053b32d7-d110-42da-948f-18bbff310a89_1.png"
+    },
+    {
+      "id": "kaneda-masaru",
+      "label": "Kaneda Masaru",
+      "kind": "pc",
+      "characterRef": "kaneda-masaru",
+      "source": "character-portraits/garsondee_hand-painted_gouache_and_watercolor_texture_muted_n_f031ab33-d47b-463e-b4c2-283cb5d4b345_0.png"
+    },
+    {
+      "id": "kimura-etsuko",
+      "label": "Kimura Etsuko",
+      "kind": "pc",
+      "characterRef": "kimura-etsuko",
+      "source": "character-portraits/garsondee_hand-painted_gouache_and_watercolor_texture_muted_n_d7f8569e-1227-408e-99c0-c01b1291cbba_2.png"
+    },
+    {
+      "id": "nakamura-ren",
+      "label": "Nakamura Ren",
+      "kind": "pc",
+      "characterRef": "nakamura-ren",
+      "source": "character-portraits/garsondee_hand-painted_gouache_and_watercolor_texture_muted_n_1f726fce-bdf1-4080-867f-a9c5adc4fec8_0.png"
+    },
+    {
+      "id": "sato-hiroshi",
+      "label": "Sato Hiroshi",
+      "kind": "pc",
+      "characterRef": "sato-hiroshi",
+      "source": "character-portraits/garsondee_hand-painted_gouache_and_watercolor_texture_muted_n_c75be2b1-2fda-426d-ac20-d8d61a5cb2f6_0.png"
+    },
+    {
+      "id": "watanabe-yumiko",
+      "label": "Watanabe Yumiko",
+      "kind": "pc",
+      "characterRef": "watanabe-yumiko",
+      "source": "character-portraits/garsondee_hand-painted_gouache_and_watercolor_texture_muted_n_8671af3a-77f4-4c16-82c0-35d3a6bb2ec3_0.png"
+    },
+    {
+      "id": "commander",
+      "label": "The Commander",
+      "kind": "npc",
+      "characterRef": "commander",
+      "source": "character-portraits/garsondee_a_japanese_1050s_military_officer_portrait_1950s_ha_9c634f69-3315-437a-85d9-2079a39c6578_0.png",
+      "faction": "directorate"
+    },
+    {
+      "id": "caretaker",
+      "label": "The Caretaker",
+      "kind": "npc",
+      "characterRef": "caretaker",
+      "source": "character-portraits/garsondee_a_japanese_1050s_military_doctor_portrait_1950s_han_715f298b-c959-4e1a-9ba5-6d419ec26be8_1.png",
+      "faction": "directorate"
+    },
+    {
+      "id": "transparency-advocate",
+      "label": "The Transparency Advocate",
+      "kind": "npc",
+      "characterRef": "transparency-advocate",
+      "source": "character-portraits/garsondee_school_portrait_picture_military_school_teacher_gym_6107c190-e135-4d7a-ba9d-cfbf9a8ef113_0.png",
+      "faction": "directorate"
+    },
+    {
+      "id": "directorate-security",
+      "label": "Directorate Security",
+      "kind": "npc",
+      "characterRef": null,
+      "source": "character-portraits/garsondee_a_japanese_1050s_police_officer_with_a_full_face_ma_409e537d-b144-449b-aa67-fb9572a2e6eb_2.png",
+      "faction": "directorate"
+    },
+    {
+      "id": "bar-regular",
+      "label": "A Bar Regular",
+      "kind": "npc",
+      "characterRef": null,
+      "faction": null,
+      "source": "character-portraits/garsondee_a_japanese_1050s_street_thug_portrait_1950s_hand-pa_3720abf8-d03d-46f9-91c0-9fcd6922b4d8_0.png"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "stage-demo-bar",
+      "name": "Demo — A Bar, Late",
+      "layout": "conversation",
+      "background": "scenes/bar_02.png",
+      "cast": [
+        {
+          "portraitId": "sato-hiroshi",
+          "side": "left",
+          "revealed": true
+        },
+        {
+          "portraitId": "transparency-advocate",
+          "side": "right",
+          "revealed": true
+        },
+        {
+          "portraitId": "directorate-security",
+          "side": "right",
+          "revealed": false
+        },
+        {
+          "portraitId": "bar-regular",
+          "side": "left",
+          "revealed": false
+        }
+      ],
+      "note": "One frame each side, a gap between them. The concealed third is what a reveal looks like when the Director springs it — staging doc §4 and §5."
+    },
+    {
+      "id": "stage-demo-briefing",
+      "name": "Demo — Briefing Room",
+      "layout": "line",
+      "background": "scenes/control-panel-03.png",
+      "cast": [
+        {
+          "portraitId": "ishikawa-susumu",
+          "revealed": true
+        },
+        {
+          "portraitId": "kaneda-masaru",
+          "revealed": true
+        },
+        {
+          "portraitId": "kimura-etsuko",
+          "revealed": true
+        },
+        {
+          "portraitId": "nakamura-ren",
+          "revealed": true
+        },
+        {
+          "portraitId": "sato-hiroshi",
+          "revealed": true
+        },
+        {
+          "portraitId": "watanabe-yumiko",
+          "revealed": true
+        }
+      ],
+      "note": "All six PCs in one centred row — the 'remind everyone who is present' case. Six at once is the density test the staging doc's open question 2 asks about."
+    },
+    {
+      "id": "stage-demo-command",
+      "name": "Demo — Command and Control",
+      "layout": "pair",
+      "background": "scenes/garsondee_command_and_control_room_with_retro_futuristic_contro_374d52e3-6f69-4aed-9c20-4783eb31fb8f.png",
+      "transition": { "type": "holeSwirl", "duration": 1600 },
+      "cast": [
+        {
+          "portraitId": "commander",
+          "revealed": true
+        },
+        {
+          "portraitId": "caretaker",
+          "revealed": true
+        }
+      ],
+      "note": "Two together in the middle. The arrangement for a scene the players are watching rather than standing in. Also the worked example for staging doc §6's transition discipline: Directorate business gets holeSwirl (shipped) rather than a plain fade -- a box-zoom-and-twist, not a literal iris; a true circular aperture is a separate, not-yet-built custom type, see §6."
+    },
+    {
+      "id": "stage-demo-summons",
+      "name": "Demo — Summoned",
+      "layout": "group-left",
+      "background": "scenes/control-panel-06.png",
+      "cast": [
+        {
+          "portraitId": "watanabe-yumiko",
+          "side": "left",
+          "revealed": true
+        },
+        {
+          "portraitId": "nakamura-ren",
+          "side": "left",
+          "revealed": true
+        },
+        {
+          "portraitId": "kimura-etsuko",
+          "side": "left",
+          "revealed": true
+        },
+        {
+          "portraitId": "commander",
+          "side": "right",
+          "revealed": true
+        }
+      ],
+      "note": "A group on one side, one figure opposite. The gap is the point — staging is blocking, and three-against-one reads before anybody says a word."
+    }
+  ]
+}

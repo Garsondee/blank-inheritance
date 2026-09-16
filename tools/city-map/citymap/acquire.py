@@ -40,6 +40,22 @@ HIGHWAY_CLASSES = (
     "residential|unclassified|service|living_street|pedestrian|footway|steps"
 )
 
+# Tag families fetched as BOTH ways and nodes, added 2026-09-11. Measured
+# against the real 12 km Kurose frame with count-only Overpass queries before
+# committing to the refetch: power 152 ways + 741 supports + 101 facilities,
+# man_made 1707, amenity ~8k nodes, barrier 1835 ways, historic 1051,
+# emergency 102, place 2444 nodes. All of it was previously invisible to this
+# tool -- not because OSM lacks it, but because this query never asked. The
+# handful that DID show up before (123 man_made, 1185 amenity) were incidental:
+# a way tagged man_made=silo AND landuse=industrial came back for the landuse
+# clause and kept its other tags.
+#
+# Each addition costs a full world-cache invalidation (the query string is part
+# of the cache key, deliberately -- see world.world_key_parts), so this is a
+# batch, not something to extend casually one key at a time.
+EXTRA_WAY_KEYS = ("power", "man_made", "amenity", "barrier", "historic", "emergency")
+EXTRA_NODE_KEYS = ("power", "man_made", "amenity", "historic", "emergency", "place")
+
 
 def build_overpass_query(south: float, west: float, north: float, east: float) -> str:
     """The one query every frame issues, over an explicit (S, W, N, E) bbox.
@@ -49,6 +65,8 @@ def build_overpass_query(south: float, west: float, north: float, east: float) -
     exists ONLY as a relation).
     """
     bbox = f"{south},{west},{north},{east}"
+    extra_ways = "\n".join(f'  way["{key}"]({bbox});' for key in EXTRA_WAY_KEYS)
+    extra_nodes = "\n".join(f'  node["{key}"]({bbox});' for key in EXTRA_NODE_KEYS)
     return f"""
 [out:json][timeout:300];
 (
@@ -61,6 +79,8 @@ def build_overpass_query(south: float, west: float, north: float, east: float) -
   way["leisure"]({bbox});
   way["aeroway"]({bbox});
   node["highway"="street_lamp"]({bbox});
+{extra_ways}
+{extra_nodes}
   relation["landuse"]({bbox});
   relation["leisure"]({bbox});
   relation["natural"]({bbox});

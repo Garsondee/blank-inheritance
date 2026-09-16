@@ -1,0 +1,498 @@
+/* =====================================================================
+   BLANK INHERITANCE — DESIGN TOKENS
+   ---------------------------------------------------------------------
+   Layer 1 of 3. Pure values, no components, no Foundry knowledge.
+
+     bi-tokens.css          <- you are here. Palette, type, materials.
+     bi-components.css      <- the BI widget library. Tokens only.
+     bi-foundry-bridge.css  <- maps these tokens onto Foundry's and sf2e's
+                               own custom properties. Only meaningful
+                               inside Foundry; gated behind body.bi-theme.
+
+   VISUAL THESIS
+   Giant Robo by way of a 1950s Japanese naval-industrial ministry. Every
+   surface is a machined object: hammered steel plate, bone-bakelite label
+   inlays, brass bezels, phosphor glass. Nothing is flat, nothing floats,
+   everything is bolted to something else.
+
+   The palette is deliberately honest — steel, brass, bone, signal red —
+   with exactly one dishonest colour in it. Resonance violet does not
+   belong to the same century as the rest of the panel, and that is the
+   point: it is the one reading on the console that the console was never
+   built to take. Reserve it for Resonance, Bleed, Anchors and Claimant
+   telemetry. Spending it on ordinary UI wastes the only strange colour
+   the system has.
+   ===================================================================== */
+
+:root,
+.bi-scope {
+
+  /* ---------------------------------------------------------------
+     1. SUBSTRATE — the metal itself, darkest to lightest.
+     A seven-stop ramp so bevels are built from adjacent stops rather
+     than from arbitrary rgba() guesses at the call site.
+     --------------------------------------------------------------- */
+  --bi-void:          #070908;  /* behind the panel; the hangar dark */
+  --bi-steel-900:     #121615;  /* recessed wells, screen beds       */
+  --bi-steel-800:     #1b201e;  /* panel base                        */
+  --bi-steel-700:     #252c29;  /* panel face                        */
+  --bi-steel-600:     #333c38;  /* raised pod face                   */
+  --bi-steel-500:     #46514c;  /* top bevel / catch-light           */
+  --bi-steel-400:     #5c6862;  /* hard edge highlight               */
+
+  /* ---------------------------------------------------------------
+     2. BONE & PAPER — bakelite label plates, and Directorate documents.
+     Never pure white. Paper is warmer and dirtier than bakelite.
+     --------------------------------------------------------------- */
+  --bi-bone:          #ddd3ba;
+  --bi-bone-dim:      #a99f88;
+  --bi-bone-dark:     #6f6754;
+  --bi-ink:           #16130d;  /* engraved text on a bone plate */
+
+  --bi-paper:         #e3dac2;  /* document stock                */
+  --bi-paper-shade:   #cfc2a4;  /* its shadowed edge             */
+  --bi-paper-ink:     #241f16;  /* typed text                    */
+  --bi-paper-ink-2:   #574c39;  /* secondary/annotation text     */
+  --bi-paper-rule:    #8d7c56;  /* form rules and hairlines      */
+
+  /* ---------------------------------------------------------------
+     3. BRASS — bezels, screw heads, switch collars, trim.
+     --------------------------------------------------------------- */
+  --bi-brass:         #ac8a4d;
+  --bi-brass-lit:     #e6c98d;
+  --bi-brass-dark:    #5f4a22;
+  --bi-brass-shadow:  #33270f;
+
+  /* ---------------------------------------------------------------
+     4. SIGNAL — lamps and readouts. Each has a bed (unlit glass), a lit
+     face and a dim state, so an indicator can be dark or alive without
+     swapping colour models mid-component.
+     --------------------------------------------------------------- */
+  --bi-phosphor:      #6fe39a;  /* CRT green: nominal readouts          */
+  --bi-phosphor-dim:  #2f6a48;
+  --bi-phosphor-bed:  #0d1c14;
+
+  --bi-amber:         #f0a830;  /* caution, action economy, hero points */
+  --bi-amber-dim:     #7a5416;
+  --bi-amber-bed:     #1d1408;
+
+  --bi-vermilion:     #d1402a;  /* alarm, damage, the Directorate's own  */
+  --bi-vermilion-dim: #6b1d13;  /* accent. Torii red, not neon.         */
+  --bi-vermilion-bed: #1e0a07;
+
+  --bi-cyan:          #4fc8d8;  /* sensors, comms, targeting            */
+  --bi-cyan-dim:      #1f5b64;
+  --bi-cyan-bed:      #08181b;
+
+  /* The dishonest one. Excavated tech only. */
+  --bi-resonance:     #a986e8;
+  --bi-resonance-dim: #4a3273;
+  --bi-resonance-bed: #150e22;
+
+  /* ---------------------------------------------------------------
+     5. SEMANTIC ROLES — what components actually reach for, so the
+     widget layer never hard-codes a ramp stop.
+     --------------------------------------------------------------- */
+  --bi-surface:        var(--bi-steel-700);
+  --bi-surface-raised: var(--bi-steel-600);
+  --bi-surface-sunk:   var(--bi-steel-900);
+  --bi-edge-light:     var(--bi-steel-500);
+  --bi-edge-dark:      var(--bi-void);
+  --bi-text:           var(--bi-bone);
+  --bi-text-dim:       var(--bi-bone-dim);
+  --bi-text-engraved:  var(--bi-ink);
+  --bi-accent:         var(--bi-vermilion);
+  --bi-ok:             var(--bi-phosphor);
+  --bi-warn:           var(--bi-amber);
+  --bi-danger:         var(--bi-vermilion);
+
+  /* ===============================================================
+     6. TYPE — two registers, and the split is the whole idea.
+
+     PAPER is what the Directorate prints. GLASS is what the machine
+     displays. A document and a readout must never be mistakable for
+     one another; that is the functional job the split does on top of
+     looking good, and it tells a player at a glance whether they are
+     reading something a person wrote or something a machine measured.
+
+     ALL FACES ARE BUNDLED. 22 families, 34 subsetted woff2 files, all
+     SIL Open Font License, built by tools/font-pipeline/build_fonts.py
+     into module/blank-inheritance/assets/fonts/ and declared by the
+     generated bi-fonts.css. Nothing here depends on what happens to be
+     installed on a player's machine, which the previous pass learned
+     the hard way: Yu Mincho is absent from a default English Windows.
+
+     Every stack still ends in a real fallback, because font-display is
+     swap and a player should read the document in something rather
+     than stare at nothing while 2.8MB of Mincho arrives.
+     =============================================================== */
+
+  /* --- PAPER ---------------------------------------------------
+     Bilingual by construction: CSS resolves per character, so the
+     Latin book serif leads and Japanese falls through to Mincho. */
+  --bi-font-document:
+    Spectral, "Shippori Mincho", Constantia, Cambria, Georgia, serif;
+
+  /* Japanese-only runs — vertical margin text, large section marks. */
+  --bi-font-mincho:
+    "Shippori Mincho", "Zen Old Mincho", "Yu Mincho", "Hiragino Mincho ProN", serif;
+
+  /* Retro display Mincho, heavier and more mannered than the body. */
+  --bi-font-display-jp:
+    "Zen Old Mincho", "Shippori Mincho", "Yu Mincho", serif;
+
+  /* Brush calligraphy. Seals and stamps — anything inked by hand. */
+  --bi-font-brush: "Yuji Syuku", "Zen Old Mincho", serif;
+
+  /* Pen/textbook hand. Marginalia and annotations ON documents —
+     the one voice on the page that is not the institution's. */
+  --bi-font-hand: "Klee One", "Yu Gothic", sans-serif;
+
+  /* Japanese gothic, for hard administrative markings where Mincho
+     would read as too literary. */
+  --bi-font-gothic:
+    "Zen Kaku Gothic New", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif;
+
+  /* The typewriter the form was actually filled in on — uneven strike,
+     inconsistent ink. Special Elite is period-correct in a way Courier
+     is not: Courier is clean, and real 1950s carbon copies were not. */
+  --bi-font-typewriter: "Special Elite", "Courier Prime", "Courier New", monospace;
+
+  /* Clean typewriter, where Special Elite's noise would hurt legibility
+     (control numbers, dense form fields). */
+  --bi-font-typewriter-clean: "Courier Prime", "Courier New", Courier, monospace;
+
+  /* Military stencil. Hull numbers, crate markings, classification
+     banners — sprayed through a plate, not typed. */
+  --bi-font-stencil: "Saira Stencil One", "Antonio", Impact, sans-serif;
+
+  /* --- GLASS --------------------------------------------------- */
+
+  /* Engraved panel legends. Chakra Petch holds up at 9px in a way a
+     wider display face does not, and the panel is full of 9px labels. */
+  --bi-font-legend: "Chakra Petch", "Bruno Ace", ui-sans-serif, sans-serif;
+
+  /* Headings on the glass register. */
+  --bi-font-display: "Oxanium", "Bruno Ace SC", "Bruno Ace", ui-sans-serif, sans-serif;
+
+  /* The wordmark and anything that wants to be unmistakably machine. */
+  --bi-font-wordmark: "Michroma", "Oxanium", ui-sans-serif, sans-serif;
+
+  /* Every number a machine reports. Narrow, technical, reads small on
+     phosphor — which is the entire job. */
+  --bi-font-readout: "Share Tech Mono", "IBM Plex Mono", ui-monospace, monospace;
+
+  /* Dense log lines and tabular data, where Share Tech Mono is too
+     stylised to read in quantity. */
+  --bi-font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+
+  /* Condensed, for labels in tight rails. */
+  --bi-font-condensed: Rajdhani, Antonio, "Arial Narrow", sans-serif;
+
+  /* The marquee. Condensed so a useful amount of text fits in one
+     lozenge, and heavy enough to read while moving. */
+  --bi-font-marquee: Antonio, Rajdhani, "Arial Narrow", sans-serif;
+
+  /* The phone OS. Deliberately blocky/low-res per the locked art
+     direction in terminal-login-landing-page. Latin and Japanese
+     pixel faces that share a bitmap grid. */
+  --bi-font-pixel: "Press Start 2P", "DotGothic16", monospace;
+  --bi-font-pixel-jp: "DotGothic16", "Press Start 2P", monospace;
+
+  /* UI prose that is neither document nor readout — tooltips, chat. */
+  --bi-font-body: Signika, ui-sans-serif, system-ui, sans-serif;
+
+  /* --- Type mechanics ------------------------------------------
+     KANJI HAVE A HARD SIZE FLOOR. A 7px Latin label is merely small;
+     a 7px Kanji is a smudge, because the strokes merge before the
+     glyph is legible. There are Japanese readers at this table, so
+     the Japanese is content, not texture. Nothing sets a Japanese
+     font size below --bi-jp-size-sm, and a test enforces it.
+
+     Latin legends get real leading too: line-height 1 on a 9px
+     tracked-out label reads as a printed strip rather than type, and
+     stacked labels collide. --bi-legend-leading is that fix. */
+  --bi-legend-tracking: 0.14em;  /* stamped-plate letterspacing        */
+  --bi-legend-size:     10px;
+  --bi-legend-leading:  1.45;
+  --bi-kanji-tracking:  0.22em;  /* Kanji need more air than Latin     */
+
+  --bi-jp-size:      14px;  /* default Japanese run                    */
+  --bi-jp-size-sm:   12px;  /* the absolute floor — nothing goes under */
+  --bi-jp-size-lg:   17px;  /* headings, stamps, anything set to read  */
+  --bi-jp-leading:   1.55;  /* Kanji need generous line spacing        */
+
+  --bi-doc-tracking:    0.01em;
+  --bi-doc-leading:     1.8;
+
+  /* ---------------------------------------------------------------
+     7. METRICS
+     --------------------------------------------------------------- */
+  --bi-bar-height: 215px;  /* the INSTRUMENT ROW of the chassis. DETERMINISTIC:
+                              bi-components pins .bi-bar to exactly this,
+                              because bi-foundry-bridge pads #ui-bottom by the
+                              full chassis height to lift Foundry's hotbar
+                              clear. Content-sizing it would let the two drift
+                              and put the hotbar behind the panel.
+
+                              215, not the original 168: MEASURED 2026-09-07 in
+                              a real Foundry world as the height at which the
+                              checks pod shows every key with no scrolling for
+                              a 27-check character (eighteen skills, three
+                              saves, Perception, five Lores) at ten columns.
+                              168 forced a scrollbar on the control players
+                              touch most. Ingram's call, explicitly: "I know
+                              it's a lot but it's the best use of space for
+                              players." Re-measure this if the day ring ever
+                              takes real width in the instrument track, since
+                              that shrinks both side tracks and costs the
+                              checks pod columns, which costs it rows. */
+  --bi-marquee-height: 46px;   /* the status lozenge below the instrument row */
+  --bi-chassis-height: calc(var(--bi-bar-height) + var(--bi-marquee-height));
+
+  /* The main instrument is defined AS twice the instrument row, and is
+     anchored to that row's floor — so "the top half rises above the bar"
+     is a structural invariant rather than two numbers to keep in sync.
+     The flanking instruments are exactly half again, so all three sit on
+     one baseline with their centres on the same line. */
+  /* FOUND LIVE, reported against the running prototype: at 2x --bi-bar-height
+     (a full bar-height of protrusion above the chassis, 168px) the main dome
+     read as looming far higher than the two flanking subdomes beside it --
+     "make this much lower, about half way up the smaller circle displays."
+     1.5x halves that protrusion (84px, half of --bi-bar-height) while
+     staying a multiple of the bar height rather than a tuned pixel value --
+     the same "structural, not tuned" rule this token already followed. */
+  --bi-dome-size: calc(var(--bi-bar-height) * 1.5);
+  /* Deliberately NOT derived from --bi-dome-size any more. The two used to
+     share one formula (dome-half = half the dome), which meant resizing the
+     main dome would have silently resized the subdomes with it -- exactly
+     what the fix above must NOT do. Pinning this straight to --bi-bar-height
+     keeps the subdomes at their original 168px, completely independent of
+     whatever the main dome's own size is tuned to next. */
+  --bi-dome-half: var(--bi-bar-height);
+
+  --bi-rail-width: 244px;      /* floating side panels        */
+  /* Mirrors #sidebar's own --sidebar-scroll-gutter, which is declared on
+     #sidebar itself and so is not inherited anywhere we can read it.
+     test/tier3-theme-contract.test.mjs checks the two still agree. */
+  --bi-sidebar-gutter: 12px;
+
+  /* Foundry's own roster + performance stats (#players-active) sits
+     bottom-left, pinned there for as long as one user is connected --
+     which in practice means whenever this is worth looking at. Both
+     numbers are hardcoded in Foundry's OWN css (foundry2.css), not
+     exposed as variables we could reference the way --sidebar-width is,
+     so they are mirrored here instead. test/tier3-theme-contract checks
+     both against the real source. */
+  --bi-players-width: 200px;   /* #players-active { width: 200px } */
+  --bi-players-edge: 16px;     /* #ui-left { padding: 16px } */
+
+  /* The checks pod is the one module that cannot be sized to a known number
+     of keys: eighteen fixed skills, three saves, Perception, and however
+     many Lores that particular character happens to have. Everything else
+     on the chassis has a fixed content budget; this does not. It still gets
+     its own WIDTH (more columns, so fewer rows are ever needed) but is
+     deliberately given NO special height allowance beyond the same ceiling
+     every other pod already has -- see .bi-bar .bi-pod's own max-height in
+     bi-components.css.
+
+     REVERSED 2026-09-07, after two rounds of chasing this the other way
+     (letting it grow taller, then trying to reserve room above the bar for
+     that growth, then trying to clamp the growth to the viewport) all
+     failed the same live test. Measured directly in a running Foundry
+     instance: a grid/flex row that overflows its explicit-height container
+     does NOT escape upward the way .bi-dome's own looming trick does --
+     align-items:end only aligns an item WITHIN an already-sized row, and an
+     auto-sized row with no explicit grid-template-rows lays out from the
+     container's own top edge regardless of that property, so the EXCESS
+     height escapes DOWNWARD, off the bottom of the real window, not upward
+     toward the hotbar. Confirmed live: a stress-test creature with five
+     Lores measured its checks pod's bottom edge 117px past window.innerHeight
+     in a perfectly ordinary 900px-tall window -- fifteen of its twenty-seven
+     keys had no on-screen position at all. Every fix aimed at the space
+     ABOVE the bar could only ever have been treating the wrong direction.
+
+     So: no growth, ever. A pod taller than its ceiling scrolls internally
+     (.bi-checks's own overflow-y:auto) rather than pushing anything off the
+     visible window in a direction nothing was ever guarding. */
+  --bi-checks-width: 560px;
+  --bi-checks-key-min: 46px;   /* measured: yields 10 columns in a 560px track */
+
+  /* The day ring (stage 4). The DOME POD declares this width, not the berth --
+     .bi-bar__instrument stays content-sized so an empty centre track never
+     taxes the side tracks again (the whole reason checks went from four
+     columns to ten). Sized to sit INSIDE the bar rather than looming above it
+     the way V1's dome did: looming is free vertical space over the canvas, but
+     it needs absolute positioning, and this project has already paid once for
+     assuming it knew which way an over-tall element escapes its row. */
+  --bi-ring-size: 176px;
+
+  /* The player's schedule board shares the left track with `ident`, so it asks
+     for a berth rather than claiming one: flex 0 1 means it gives width back
+     under pressure instead of pushing a sibling off the bar. */
+  --bi-segment-width: 260px;
+  --bi-segment-key-min: 76px;
+
+  /* The staged theatre-of-the-mind frames. --bi-frame-width is set per
+     headcount by .bi-stage__deck[data-scale] rather than here, because the
+     right frame size is a function of how many people are in the room. */
+  --bi-stage-gap: 18px;
+
+  /* The GM's scene runner — the script drawer down the left. "About a third
+     of the screen" as asked for, but clamped rather than a bare 33vw: below
+     ~1100px a third is too narrow for a column of prose to be readable, and
+     above ~1900px it stops being a margin and starts being the page. The
+     panel is PAPER, so its width is a measure of line length first and a
+     fraction of the viewport second. */
+  --bi-runner-width: clamp(340px, 31vw, 560px);
+
+  --bi-toprail-height: 54px;   /* scene status strip          */
+  /* The session progress bar sits directly under the toprail, inside the
+     SAME top layer (see .bi-console__top) — so the layer's own height is
+     toprail + this, and everything positioned "below the top area"
+     (rails, banner lane) reads --bi-top-stack-height instead of the
+     toprail's own height alone. One token to change if that stack's
+     composition ever changes again. */
+  --bi-session-bar-height: 16px;
+  --bi-top-stack-height: calc(var(--bi-toprail-height) + var(--bi-session-bar-height));
+
+  --bi-radius-pod: 14px;
+  --bi-radius-key: 5px;
+
+  /* ---------------------------------------------------------------
+     7b. RUNTIME-DRIVEN
+     Set by script rather than authored here, but declared so the
+     default is documented and every surface has a sane value before
+     anything has written to it.
+     --------------------------------------------------------------- */
+  /* Whole-console scale (see .bi-console's zoom). 1 = authored size. The
+     prototype exposes a slider; in Foundry this becomes a client setting.
+     Scales the instrument as ONE unit — the scene under it is untouched. */
+  --bi-ui-scale: 1;
+
+  /* 0..1. Drives .bi-corrupt — per the phone-app-suite idea, a pilot's
+     own interface degrades as their Bleed climbs. Set per-element on the
+     pilot's surfaces only; it is deliberately NOT a global, because one
+     pilot's instability must not corrupt another player's screen. */
+  --bi-bleed: 0;
+
+  /* Width of one redaction bar, written by core/redact.mjs. Declared so
+     a bar still has a sane size if the attribute is ever missing. */
+  --bi-redact-w: 6ch;
+
+  /* Where an analog needle pivots inside its 200x200 viewBox. The flanking
+     instruments mount their dial in the TOP of the glass so the readout can
+     have the body of the circle. The arc runs to y=82 of 200 (41%), and the
+     readout starts at 48%, so the two never touch — the first attempt put
+     the pivot at y=78 and the Kanji landed on the dial. */
+  --bi-needle-pivot: 100px 60px;
+
+  /* ---------------------------------------------------------------
+     8. MATERIALS — composite backgrounds defined once, so a bevel is
+     never re-derived by hand in a component.
+     --------------------------------------------------------------- */
+
+  /* Hammered steel: a vertical ramp plus a fine horizontal tooling grain. */
+  --bi-mat-steel:
+    repeating-linear-gradient(0deg,
+      rgb(255 255 255 / 2.5%) 0 1px,
+      rgb(0 0 0 / 3%) 1px 2px),
+    linear-gradient(178deg,
+      var(--bi-steel-600) 0%,
+      var(--bi-steel-700) 46%,
+      var(--bi-steel-800) 100%);
+
+  /* Raised pod: brighter, lit from above. */
+  --bi-mat-pod:
+    repeating-linear-gradient(0deg,
+      rgb(255 255 255 / 3%) 0 1px,
+      rgb(0 0 0 / 3%) 1px 2px),
+    linear-gradient(176deg,
+      var(--bi-steel-500) 0%,
+      var(--bi-steel-600) 40%,
+      var(--bi-steel-700) 100%);
+
+  /* Bone bakelite label plate. */
+  --bi-mat-bone:
+    linear-gradient(180deg, #e8dfc7 0%, var(--bi-bone) 44%, #c4b99c 100%);
+
+  /* Document stock: laid-paper tooth plus an uneven press. */
+  --bi-mat-paper:
+    repeating-linear-gradient(0deg, rgb(0 0 0 / 1.6%) 0 2px, transparent 2px 4px),
+    repeating-linear-gradient(90deg, rgb(0 0 0 / 1.1%) 0 3px, transparent 3px 7px),
+    radial-gradient(120% 90% at 22% 8%, rgb(255 255 255 / 34%) 0%, transparent 60%),
+    linear-gradient(172deg, var(--bi-paper) 0%, var(--bi-paper-shade) 100%);
+
+  /* Brass bezel — a conic sweep so the highlight travels round the ring. */
+  --bi-mat-brass:
+    conic-gradient(from 210deg,
+      var(--bi-brass-dark)     0deg,
+      var(--bi-brass)         48deg,
+      var(--bi-brass-lit)     96deg,
+      var(--bi-brass)        148deg,
+      var(--bi-brass-dark)   208deg,
+      var(--bi-brass-shadow) 262deg,
+      var(--bi-brass)        316deg,
+      var(--bi-brass-dark)   360deg);
+
+  /* Phosphor glass bed, with the CRT darkening its own corners. */
+  --bi-mat-screen:
+    radial-gradient(120% 140% at 50% 8%, rgb(255 255 255 / 5%) 0%, transparent 58%),
+    radial-gradient(150% 150% at 50% 50%, transparent 42%, rgb(0 0 0 / 62%) 100%),
+    linear-gradient(180deg, #0f1a15 0%, var(--bi-phosphor-bed) 100%);
+
+  /* Scanlines, laid over a screen as a separate stacking layer. */
+  --bi-mat-scanline:
+    repeating-linear-gradient(0deg,
+      rgb(0 0 0 / 34%) 0 1px,
+      transparent 1px 3px);
+
+  /* Ventilation grille. */
+  --bi-mat-grille:
+    repeating-linear-gradient(90deg,
+      var(--bi-steel-900) 0 2px,
+      var(--bi-steel-600) 2px 3px,
+      var(--bi-steel-700) 3px 5px);
+
+  /* ---------------------------------------------------------------
+     9. ELEVATION — machined, not soft. Sharp 1px bevels do the work;
+     one deep drop is reserved for genuinely floating objects.
+     --------------------------------------------------------------- */
+  --bi-bevel-up:
+    inset 0 1px 0 rgb(255 255 255 / 16%),
+    inset 0 -1px 0 rgb(0 0 0 / 55%),
+    inset 1px 0 0 rgb(255 255 255 / 5%),
+    inset -1px 0 0 rgb(0 0 0 / 35%);
+
+  --bi-bevel-down:
+    inset 0 2px 3px rgb(0 0 0 / 72%),
+    inset 0 -1px 0 rgb(255 255 255 / 8%);
+
+  --bi-drop-chassis:
+    0 -2px 0 rgb(255 255 255 / 7%),
+    0 8px 28px rgb(0 0 0 / 72%),
+    0 2px 6px rgb(0 0 0 / 55%);
+
+  --bi-drop-pod:
+    0 2px 0 var(--bi-void),
+    0 5px 12px rgb(0 0 0 / 50%);
+
+  /* --------------------------------------------------------------
+     10. MOTION — heavy machinery moves with weight, then settles.
+     -------------------------------------------------------------- */
+  --bi-ease-servo: cubic-bezier(0.22, 0.85, 0.28, 1);
+  --bi-dur-snap:   90ms;
+  --bi-dur-servo:  260ms;
+  --bi-dur-sweep:  900ms;
+}
+
+/* Anyone who has asked the OS for less motion gets the panel without its
+   idle loops. Lamps still change state; they just stop breathing. */
+@media (prefers-reduced-motion: reduce) {
+  :root,
+  .bi-scope {
+    --bi-dur-snap:  0ms;
+    --bi-dur-servo: 0ms;
+    --bi-dur-sweep: 0ms;
+  }
+}

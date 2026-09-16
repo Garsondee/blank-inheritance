@@ -1,0 +1,14 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "chief-draughtsman",
+  "type": "npc",
+  "name": null,
+  "role": "Chief Draughtsman, The Drawing Office",
+  "pole": null,
+  "affiliation": "directorate",
+  "description": "Runs the hundred metres of drawing boards where every part the works makes exists on paper before it exists in steel. Holds, more completely than anyone, the answer to how a Frame is actually put together.",
+  "designNotes": "Created 2026-09-12 with the works strip. A natural source of technical truth for a party willing to ask politely and read a drawing. Name and manner open.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "placeholder — not yet named or cast"
+}

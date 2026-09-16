@@ -1,0 +1,27 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "road-network-routing",
+  "type": "idea",
+  "title": "Point-to-point routing across the road network (a dot travelling A to B)",
+  "status": "wishlist",
+  "domains": ["tooling", "technical-architecture", "ui"],
+  "summary": "Pathfind a real connected route between two arbitrary points on the city-map's road graph, and render it as a travelling dot — instead of the current machinery, which only snaps a single point to its nearest road node.",
+  "description": "Ingram's own framing, verbatim, from a 'fun ideas for the wishlist' message: 'We could create a system which connects all road lines together so that we can actually draw a dot following the line of the road from A to B.'\n\nWhat already exists, so this isn't starting from nothing: tools/city-map/citymap's RoadGraph (parse.py/world.py — node_xy, way_nodes, way_class, node_ways) is already a real connected planar graph built from OSM data, not disconnected line segments. ops/router.py already does curvature-constrained state-lattice A* pathfinding — but only for ONE job, construct.py's access-road routing, which pathfinds FROM a new building's fixed site TOWARD the nearest existing road. ops/trace.py explicitly does NOT do general pathfinding — its own module docstring says a hand-drawn trace's points already ARE the desired path, so there's 'nothing left to route around,' and reusing router.route() for that would be 'a different problem than what that router was built to answer.' That docstring is effectively pointing at the exact gap this idea fills: nothing today answers 'given point A and point B, both somewhere on the existing network, what connected sequence of roads gets between them?'\n\nThe likely shape: general point-to-point search (Dijkstra or A* with a real edge-length cost, reusing the existing node_xy/way_nodes adjacency rather than router.py's construct-specific lattice) that returns an ordered list of graph nodes/coordinates, plus a separate rendering concern — animating a marker along that polyline over time, for travel-time flavor between named locations (home, school, the Directorate facility, a Contact site) rather than just a static route overlay. Natural consumers: the map editor (tools/city-map/editor/) for GM-side route-planning, and/or the Foundry overworld Scene work (issue #107, module-stage-8-overworld-session-flow) if travel between sign-up locations ever wants a visual.\n\nRecorded as a wishlist item, not a decision — the whether-to-build and the how are both open.",
+  "capturedDate": "2026-09-13",
+  "lastTouchedDate": "2026-09-13",
+  "sourceContext": "Ingram, in a message offering 'some fun ideas to record to the wish list of Github issue tracker' (alongside the afterschool-club idea folded into school-schedule-system.json).",
+  "openSubQuestions": [
+    "Point-to-point search over the existing RoadGraph adjacency directly, or does ops/router.py's existing A* generalize to this with its lattice/curvature constraints relaxed?",
+    "What actually consumes this first — the local map editor (tools/city-map/editor/), the Foundry overworld Scene (issue #107), or a standalone visualization with no consumer yet?",
+    "Is 'draw a dot' a one-shot static polyline render, or real animated movement (speed, timing, whether it should reflect in-fiction travel duration)?",
+    "How should it behave across a disconnected graph (e.g. an island severed by demolish's cascade-pruning) — no-path error, or fall back to straight-line/ferry-style connection?"
+  ],
+  "relatedRefs": [
+    "tools/city-map/citymap/world.py",
+    "tools/city-map/citymap/parse.py",
+    "tools/city-map/citymap/ops/router.py",
+    "tools/city-map/citymap/ops/trace.py",
+    "GitHub issue #107 (Build the overworld Scene from a real tools/city-map render) — a plausible consumer, not a commitment"
+  ],
+  "resolution": null
+}

@@ -1,0 +1,124 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-long-terrace-no-13-405",
+  "type": "location",
+  "tier": "site",
+  "name": "The Long Terrace, No. 13",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "",
+  "tags": [
+    "staff-housing"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21267793,
+          34.67095677
+        ],
+        [
+          135.21270811,
+          34.67090856
+        ],
+        [
+          135.21272787,
+          34.67091672
+        ],
+        [
+          135.21276753,
+          34.67085341
+        ],
+        [
+          135.21303843,
+          34.67096834
+        ],
+        [
+          135.21296766,
+          34.67108032
+        ],
+        [
+          135.21267793,
+          34.67095677
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7203.1,
+          6515.2
+        ],
+        [
+          7208.2,
+          6518.4
+        ],
+        [
+          7209.3,
+          6516.7
+        ],
+        [
+          7216,
+          6520.9
+        ],
+        [
+          7230.9,
+          6497.3
+        ],
+        [
+          7219,
+          6489.9
+        ],
+        [
+          7203.1,
+          6515.2
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7217.18,
+      6505.71
+    ],
+    "cells": [
+      "D4·51"
+    ],
+    "ref": "D4·51",
+    "areaM2": 402.1,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-405",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "All of these are staff accommodation.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A long run of near-identical staff housing built in one pass; residents tell the doors apart by what's hanging in the window, since the numbers wore off years ago.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

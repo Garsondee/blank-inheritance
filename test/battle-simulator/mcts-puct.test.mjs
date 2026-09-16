@@ -72,7 +72,17 @@ function makeRichBranchingState() {
   const xeno = loadFixture("xenowarden-greenhorn.json");
   const me = { ...lunar17, id: "me", side: "party", position: { col: 10, row: 10 } };
   const enemyA = { ...tough, id: "enemyA", side: "opposition", position: { col: 12, row: 10 } };
-  const enemyB = { ...xeno, id: "enemyB", side: "opposition", position: { col: 13, row: 11 } };
+  // GH #65: lunar-17.json gained a real areaAttacks entry (her Incendiary Grenade, 5ft-radius burst).
+  // enemyB used to sit at (13,11), diagonally adjacent to enemyA (12,10) — close enough that EVERY
+  // area-attack aim point (originId:enemyA, originId:enemyB, and the free midpoint candidate) hit the
+  // SAME affected set {enemyA, enemyB}, a genuine EXACT tie in expected value (confirmed directly:
+  // all three candidates' own `affected` arrays were identical). No amount of search budget can ever
+  // resolve an exact tie — the oracle and plain UCT simply have different, equally-valid tie-breaking
+  // conventions, so UCT "disagreeing" with the oracle here was never a convergence failure. Moved
+  // enemyB far enough away that only a single-target aim point is ever correct (verified: real
+  // candidate count stays 25, exercising both areaAttack candidates from a genuinely large branching
+  // factor, but the oracle's own answer is now a plain, unique best move again).
+  const enemyB = { ...xeno, id: "enemyB", side: "opposition", position: { col: 15, row: 14 } };
   return {
     round: 1, seed: 1, gridSize: { cols: 30, rows: 30 }, walls: [], initiativeOrder: ["me", "enemyA", "enemyB"],
     combatants: new Map([["me", { ...me }], ["enemyA", { ...enemyA }], ["enemyB", { ...enemyB }]]),

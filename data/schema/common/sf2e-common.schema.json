@@ -153,7 +153,8 @@
         "attackBonus": { "type": "integer" },
         "traits": { "type": "array", "items": { "type": "string" }, "description": "e.g. agile, finesse, reach, thrown, deadly. Weapon-trait bonuses are pre-folded into attackBonus/damage; traits are kept as strings because some conditions (clumsy, enfeebled) key off specific trait names." },
         "reach": { "type": "integer", "description": "Feet. Melee only; normally derived from size but can be overridden by a trait." },
-        "rangeIncrement": { "type": "integer", "description": "Feet. Ranged only." },
+        "rangeIncrement": { "type": "integer", "description": "Feet. Ranged only. Player Core pg. 254: -2 penalty per additional increment beyond the first, illegal past the 6th. Mutually exclusive with rangeMax — a ranged Strike carries exactly one of the two." },
+        "rangeMax": { "type": "integer", "description": "Feet. Ranged only. A flat maximum range with NO increment scaling at all — legal, zero range penalty, at any distance up to this value; illegal beyond it. For a real single-target thrown Strike with a flat max and no increment concept (distinct from a grenade's own Area Fire action, which is a separate areaAttack, not a strike). Mutually exclusive with rangeIncrement." },
         "damage": { "type": "array", "items": { "$ref": "#/$defs/damageRoll" }, "description": "First entry is the base damage; further entries are additional/rider damage (e.g. +1d6 fire from an upgrade)." },
         "onHitEffects": { "type": "string" }
       }
@@ -327,7 +328,8 @@
         "outcomes": { "$ref": "#/$defs/degreeOfSuccessOutcome" },
         "repeatable": { "type": "boolean" },
         "maxAttempts": { "type": "integer" },
-        "secret": { "type": "boolean", "description": "GM rolls, doesn't reveal the degree of success to the player." }
+        "secret": { "type": "boolean", "description": "GM rolls, doesn't reveal the degree of success to the player." },
+        "insight": { "type": "boolean", "description": "An Encyclopaedia check (design/encyclopaedia-checks.md) -- proactively offered, purely informational or set-up for a future advantage, and failure costs nothing mechanical (never a lost slice, resource, or opportunity -- a plausible wrong belief on a crit failure is fine, a real cost is not). Distinct from `secret`, which is about who sees the roll; this is about what a miss is allowed to cost. The two can combine." }
       }
     },
     "hitPoints": {

@@ -1,0 +1,154 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "row-b-block-8",
+  "type": "location",
+  "tier": "site",
+  "name": "Row B, Block 8",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20980946,
+          34.67174427
+        ],
+        [
+          135.20988767,
+          34.67161611
+        ],
+        [
+          135.21032942,
+          34.67179638
+        ],
+        [
+          135.21033405,
+          34.67190927
+        ],
+        [
+          135.21025561,
+          34.67191297
+        ],
+        [
+          135.21024821,
+          34.67192391
+        ],
+        [
+          135.2101975,
+          34.67190258
+        ],
+        [
+          135.21020549,
+          34.67188717
+        ],
+        [
+          135.20986706,
+          34.67174863
+        ],
+        [
+          135.20985928,
+          34.6717608
+        ],
+        [
+          135.20980946,
+          34.67174427
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6932.3,
+          6573.6
+        ],
+        [
+          6945.7,
+          6582.2
+        ],
+        [
+          6970.4,
+          6544.4
+        ],
+        [
+          6964.4,
+          6533.4
+        ],
+        [
+          6958,
+          6536.7
+        ],
+        [
+          6956.8,
+          6536
+        ],
+        [
+          6954,
+          6540.4
+        ],
+        [
+          6955.5,
+          6541.5
+        ],
+        [
+          6936.6,
+          6570.5
+        ],
+        [
+          6935.3,
+          6569.7
+        ],
+        [
+          6932.3,
+          6573.6
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6952.76,
+      6558.01
+    ],
+    "cells": [
+      "D4·31"
+    ],
+    "ref": "D4·31",
+    "areaM2": 696.0,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-131",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "A steady, low-grade rumour mill about the screening tests runs strongest here — half-informed theories about \"the marker,\" swapped in low voices after lights-out, none of them close to right, all of them taken very seriously by whoever's telling them that week.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A steady, low-grade rumour mill about the screening tests runs strongest here — half-informed theories about \"the marker,\" swapped in low voices after lights-out, none of them close to right, all of them taken very seriously by whoever's telling them that week.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

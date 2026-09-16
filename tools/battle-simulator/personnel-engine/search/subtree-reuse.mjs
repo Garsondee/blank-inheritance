@@ -9,11 +9,15 @@
  * search purposes ALWAYS uses `EXPECTED_OUTCOMES` — a deterministic APPROXIMATION of dice (a Strike
  * becomes an "expected damage" number, not a real hit/miss/crit). A real, live battle applies the
  * actually-chosen action via `REAL_OUTCOMES` — real dice. Verified directly against every branch of
- * `attemptAction` (`engine.mjs`): proposal types `move`/`step`/`healAbility`/`stand`/`crawl` never
- * touch the outcomes table at all (pure geometry/fixed values, no dice) — for these, EXPECTED_OUTCOMES
- * and REAL_OUTCOMES are byte-identical. Every other type (`strike`, `spellAttack`, `saveAttack`,
- * `demoralize`, `conditionSave`, `areaAttack`, `trip`, `shove`, `grapple`, `escape`) dispatches
- * through `outcomes.X(rng, ...)` and will generally diverge from what a real roll actually produces.
+ * `attemptAction` (`engine.mjs`): proposal types `step`/`healAbility`/`stand`/`crawl` never touch the
+ * outcomes table at all (pure geometry/fixed values, no dice) — for these, EXPECTED_OUTCOMES and
+ * REAL_OUTCOMES are byte-identical. `move` USED to be in that same list, but isn't anymore (GH #18):
+ * a move that provokes a real Reactive Strike now dispatches through `outcomes.strike(rng, ...)` via
+ * the reactor, same as every other type below — harmless here, since `statesMatch` (below) verifies
+ * structurally regardless of proposal type, so a real divergence this causes is still correctly
+ * treated as a cache-miss, never silently reused. Every other type (`strike`, `spellAttack`,
+ * `saveAttack`, `demoralize`, `conditionSave`, `areaAttack`, `trip`, `shove`, `grapple`, `escape`)
+ * dispatches through `outcomes.X(rng, ...)` and will generally diverge from what a real roll actually produces.
  *
  * So naive reuse ("grab the child keyed by whatever proposal was actually taken") is UNSOUND for a
  * stochastic action. The fix: VERIFY, don't assume. After a real action is taken and the real

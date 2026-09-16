@@ -34,8 +34,29 @@
  */
 import { readPackDocuments } from "./read-pack.mjs";
 
+/**
+ * An actor's own embedded items, in Foundry's real authored display order — never the order they
+ * happened to come out of the pack read. `documents` (read-pack.mjs) comes back in raw LevelDB
+ * storage order: ascending internal-key order once a pack is compacted into an SSTable (which sorts
+ * by embedded-item `_id`, an opaque random string with no relationship to authoring order), or
+ * write order while entries still live in the write-ahead log — two DIFFERENT orderings with nothing
+ * to do with each other, and which one applies to a given item is a fact about when Foundry last
+ * compacted, not about the item itself. Confirmed live: re-running this project's own fixture
+ * generator after gamesystems/sf2e's packs had compacted from WAL to a single SSTable silently
+ * reordered erabryth.json's actions/lore and kuriaku.json's actions arrays — every item byte-
+ * identical, only array order changed — even though nothing about the campaign data had changed.
+ * Foundry itself never relies on storage order for this: every embedded Item document carries its
+ * own real `sort` field (confirmed present on every item in every pack checked), the exact number
+ * Foundry's own sheet UI persists and reads back to keep an actor's item list stable regardless of
+ * how the database happens to store it. Sorting by it here reproduces the pre-compaction order
+ * exactly (cross-checked against the committed fixtures). The idPart tiebreak only matters if two
+ * items ever shared a `sort` value; it exists so the order stays a pure function of document content
+ * even then, never of storage layout.
+ */
 function itemsFor(documents, actorIdPart) {
-  return documents.filter((e) => e.embedded && e.collection === "actors.items" && e.idPart.startsWith(actorIdPart + "."));
+  return documents
+    .filter((e) => e.embedded && e.collection === "actors.items" && e.idPart.startsWith(actorIdPart + "."))
+    .sort((a, b) => (a.doc.sort ?? 0) - (b.doc.sort ?? 0) || (a.idPart < b.idPart ? -1 : a.idPart > b.idPart ? 1 : 0));
 }
 
 /** Find one `npc`-type actor by exact name in a pack, with every embedded item attached. */
@@ -51,6 +72,61 @@ function parseDamageString(formula) {
   const m = formula.match(/^(\d+d\d+)([+-]\d+)?$/);
   if (!m) throw new Error(`Cannot parse damage formula "${formula}" — expected e.g. "1d4+2" or "1d6".`);
   return { dice: m[1], bonus: m[2] ? parseInt(m[2], 10) : 0 };
+}
+
+/**
+ * Shared use-limit derivation for an NPC spell (design doc §76.9, GH #69/#55). A DELIBERATELY
+ * SEPARATE copy from build-combat-pregen.mjs's own identically-named helper, not a cross-tool import
+ * — this project's own established convention (personnel-engine/world/pathfind.mjs's duplicated
+ * MinHeap over a cross-tree coupling) keeps tools/pack-extractor and tools/character-builder
+ * independently self-contained. Same rule, same reasoning either side: a cantrip is castable "at
+ * will, any number of times per day" (Player Core pg. 283) — never slot-limited. This file's own only
+ * real spell, Gouging Claw, IS a cantrip — an earlier, unguarded version of this file's own
+ * deriveSpellAttacks would have silently produced no usesRemaining for it only by accident (its own
+ * spellcastingEntry happens to carry empty slots), not because anything checked; a future NPC (#64)
+ * whose cantrip DOES share a populated slots entry with a real leveled spell would have silently
+ * capped an at-will attack, the exact regression GH #69 found and fixed on the PC side.
+ */
+function deriveSpellUsesRemaining(spell, entry) {
+  if ((spell.system.traits?.value ?? []).includes("cantrip")) return { atWill: true };
+  return { usesRemaining: entry.system.slots?.slot1?.max ?? null };
+}
+
+/**
+ * Foundry's real, complete frequency-scope enum (`CONFIG.PF2E.frequencies`, gamesystems/sf2e/sf2e.mjs)
+ * mapped to an approximate real round count — Player Core: 6 seconds per round
+ * (reference/srd/player-core/470-encounter-mode.json). Used to decide whether a `system.frequency`
+ * value is safe to flatten into a single, never-refreshing `usesRemaining` count (design doc §76.9).
+ */
+const FREQUENCY_ROUNDS = {
+  turn: 1, round: 1, PT1M: 10, PT10M: 100, PT1H: 600, PT24H: 8640, day: 8640,
+  P1W: 60480, P1M: 259200, P1Y: 3153600
+};
+
+/**
+ * Safe to derive `usesRemaining = frequency.max` only when the frequency's own real scope is
+ * comfortably longer than this project's own longest real scenario — confirmed 60 rounds (not just
+ * the 30-40 an individual scenario file's own default suggests: run-personnel-scenario.mjs's CLI
+ * layer overrides several entries to 60, and real logged runs in logs/index.json have genuinely
+ * reached it). 100 rounds clears that with real margin. Below it (`turn`/`round`/`PT1M` — 1-10 real
+ * rounds), an ability would recharge mid-battle for real, and flattening it to "N uses, ever, never
+ * refreshing" would be WRONG, not just imprecise — this project's usesRemaining model has no
+ * refresh-on-a-timer mechanism to express the real rule correctly. Throws rather than silently
+ * guessing, matching deriveTransferVitality's own established precedent of refusing to proceed rather
+ * than inventing a number — a real, live case: this project's own packs already contain 64 real
+ * `action`-type items with a round/PT1M-scoped frequency (GH #69's own investigation), any of which
+ * #64's future NPC imports could hit.
+ */
+function deriveUsesFromFrequency(name, frequency) {
+  if (!frequency) return null;
+  const rounds = FREQUENCY_ROUNDS[frequency.per];
+  if (rounds == null) {
+    throw new Error(`"${name}": unrecognized frequency.per "${frequency.per}" — not one of CONFIG.PF2E.frequencies' real values, needs a human look rather than a guess.`);
+  }
+  if (rounds < 100) {
+    throw new Error(`"${name}": frequency "${frequency.max} per ${frequency.per}" (~${rounds} real rounds) would recharge mid-battle — flattening it to a single never-refreshing usesRemaining count would be wrong, not just imprecise. This ability's real limit needs a genuine decision (a refresh mechanism, or accepting the imprecision explicitly), not a silent guess.`);
+  }
+  return frequency.max;
 }
 
 function describeAction(item) {
@@ -73,19 +149,54 @@ export function toCombatant(npc, { strikeNames, side = "opposition" } = {}) {
   const actionItems = npc.items.filter((i) => i.type === "action");
   const loreItems = npc.items.filter((i) => i.type === "lore");
 
+  // GH #63: initiative is Player Core pg. 427's "roll a Perception check," and every real NPC's own
+  // raw data confirms this explicitly rather than assuming it — system.initiative.statistic names
+  // the actual statistic this creature uses (checked directly across every current fixture: always
+  // "perception", but the field exists precisely because it need not be). Throwing on anything else
+  // matches this project's own established "safe cases derive a real number, unsafe ones throw
+  // rather than silently mismodel" discipline (GH #69's own conditionSave frequency gate) — better
+  // to notice a future NPC with a different initiative statistic than to silently derive it wrong.
+  if (npc.actor.system.initiative.statistic !== "perception") {
+    throw new Error(`${npc.name}: initiative uses "${npc.actor.system.initiative.statistic}", not Perception — toCombatant only knows how to derive initiativeModifier from Perception today.`);
+  }
+
   const strikes = strikeNames.map((wantedName) => {
     const melee = meleeItems.find((m) => m.name === wantedName);
     if (!melee) throw new Error(`No melee/strike item named "${wantedName}" on ${npc.name}.`);
+    // GH #148 — found investigating Scrap Rat's real Frag Grenade, which GH #64's own closing comment
+    // mischaracterized as "a genuine single-target thrown Strike, not a burst/area effect" without
+    // actually checking this field: its real system.action is "area-fire" (a genuine burst effect,
+    // same shape as Tough's already-wired Frag Grenade — see deriveAreaAttack below), and a repeat
+    // sweep of every melee-type item across this project's three available bestiary packs found 22
+    // more area-fire items and 5 auto-fire items, none of them ever a genuine Strike. Blocked here
+    // rather than left to silently produce a strike with a meaningless "attackBonus" (really a
+    // basic-save DC's own 10+bonus basis) and zero friendly-fire risk from its own burst radius —
+    // exactly the mistake deriveAreaAttack's own header says this project used to make before it
+    // existed. Route an area-fire item through deriveAreaAttack, and an auto-fire one stays
+    // unwired entirely (this project's own established "out-of-scope multi-target category," e.g.
+    // Tough's Scattergun) — never through here.
+    if (melee.system.action === "area-fire" || melee.system.action === "auto-fire") {
+      throw new Error(`"${wantedName}" on ${npc.name} has system.action "${melee.system.action}", not "strike" — never wire a burst/multi-target effect as a single-target Strike. Use deriveAreaAttack for a real area-fire burst, or leave an auto-fire weapon unwired (this project's established out-of-scope category).`);
+    }
     const isRanged = melee.system.range != null;
     const [damageEntry] = Object.values(melee.system.damageRolls ?? {});
     if (!damageEntry) throw new Error(`"${wantedName}" on ${npc.name} has no damageRolls entry to derive damage from.`);
     const { dice, bonus } = parseDamageString(damageEntry.damage);
+    // GH #148: a real ranged Strike's range is EITHER a firearm-style increment (Player Core pg. 254:
+    // -2 penalty per increment beyond the first, illegal past the 6th) OR — a real, if so-far
+    // unpopulated in this project's own data, shape — a flat maximum with no increment scaling at all
+    // (legality.mjs's checkStrikeRange/rangeIncrementPenalty, personnel-engine/evaluate/state-value.mjs's
+    // usefulRangeFeet/maxLegalRangeFeet all understand both). Never both at once in the raw data seen
+    // so far — reading whichever one is actually present rather than assuming increment.
+    const rangeShape = isRanged
+      ? (melee.system.range.increment != null ? { rangeIncrement: melee.system.range.increment } : { rangeMax: melee.system.range.max })
+      : {};
 
     return {
       name: melee.name,
       strikeType: isRanged ? "ranged" : "melee",
       attackBonus: melee.system.bonus.value,
-      ...(isRanged ? { rangeIncrement: melee.system.range.increment } : {}),
+      ...rangeShape,
       traits: melee.system.traits?.value ?? [],
       damage: [{ dice, bonus, damageType: damageEntry.damageType }]
     };
@@ -94,6 +205,8 @@ export function toCombatant(npc, { strikeNames, side = "opposition" } = {}) {
   return {
     name: npc.name,
     side,
+    level: npc.actor.system.details.level.value, // GH #63 — real, final; NPCs store this directly, no derivation needed
+    initiativeModifier: npc.actor.system.perception.mod, // GH #63 — real, final Perception modifier (see the statistic guard above)
     maxHP: npc.actor.system.attributes.hp.max,
     currentHP: npc.actor.system.attributes.hp.value,
     ac: npc.actor.system.attributes.ac.value,
@@ -161,7 +274,8 @@ export function deriveSpellAttacks(npc, spellNames) {
       range: Number.isFinite(parsedRange) ? parsedRange : null,
       actions: parseInt(spell.system.time.value, 10),
       traits: spell.system.traits.value,
-      ...(damageEntry ? { damage: [{ dice: damageEntry.formula, bonus: 0, damageType: damageEntry.type }] } : {})
+      ...(damageEntry ? { damage: [{ dice: damageEntry.formula, bonus: 0, damageType: damageEntry.type }] } : {}),
+      ...deriveSpellUsesRemaining(spell, entry)
     };
   });
 }
@@ -196,8 +310,25 @@ export function deriveSpellAttacks(npc, spellNames) {
  * transcribes rather than parses). `usesRemaining` comes from the real carried quantity on the
  * PAIRED `weapon`-type item of the same name (a grenade you've thrown is a grenade you don't have
  * anymore) — the same weapon/melee-item pairing toCombatant's own header documents for Strikes.
+ *
+ * GH #148: the raw `system.range` shape for a real area-fire item is genuinely inconsistent ACROSS
+ * PACKS, confirmed by a direct sweep of every area-fire item in this project's three available
+ * bestiary packs — `rulebook-bestiaries`/`starfinder-society-bestiary` store the flat throw range
+ * under `.increment` (Tough's own real `{increment: 70, max: null}`, which is why this function's
+ * original `item.system.range?.increment` alone worked for her), while EVERY `alien-core-bestiary`
+ * area-fire item stores the identical real number under `.max` instead (`{increment: null, max: 70}`
+ * — Scrap Rat's own real shape). Reading only `.increment` silently produced `range: null` for any
+ * alien-core-bestiary grenade, which checkAreaAttackLegal's own `?? FEET_PER_SQUARE` convention would
+ * then have silently treated as touch-range-only — a real, separate bug from #148's main one, caught
+ * here specifically because Scrap Rat is this project's first alien-core-bestiary area-fire wire-up.
+ *
+ * `carriedWeaponName` (optional, defaults to `name`) exists because the melee attack-row item and its
+ * paired weapon-type carried item don't always share an exactly identical name either — Tough's real
+ * data has both named "Frag Grenade (Commercial)", but Scrap Rat's melee item is named "Frag Grenade"
+ * while her weapon-type sibling is "Frag Grenade (Commercial)". Defaulting to `name` keeps every
+ * existing call site (Tough's own) byte-identical; only a real name mismatch needs the override.
  */
-export function deriveAreaAttack(npc, { name, saveType, actions }) {
+export function deriveAreaAttack(npc, { name, saveType, actions, carriedWeaponName = name }) {
   const item = npc.items.find((i) => i.type === "melee" && i.name === name);
   if (!item) throw new Error(`No melee/attack-row item named "${name}" on ${npc.name}.`);
   if (item.system.action !== "area-fire") {
@@ -209,13 +340,13 @@ export function deriveAreaAttack(npc, { name, saveType, actions }) {
   const [damageEntry] = Object.values(item.system.damageRolls ?? {});
   if (!damageEntry) throw new Error(`"${name}" on ${npc.name} has no damageRolls entry to derive damage from.`);
   const { dice, bonus } = parseDamageString(damageEntry.damage);
-  const carriedWeapon = npc.items.find((i) => i.type === "weapon" && i.name === name);
+  const carriedWeapon = npc.items.find((i) => i.type === "weapon" && i.name === carriedWeaponName);
 
   return {
     name: item.name,
     saveType,
     dc: 10 + item.system.bonus.value,
-    range: item.system.range?.increment ?? null,
+    range: item.system.range?.increment ?? item.system.range?.max ?? null,
     radius: item.system.area.value,
     actions,
     traits: item.system.traits?.value ?? [],
@@ -230,6 +361,12 @@ export function deriveConditionSave(npc, { name, saveType, range, outcomes }) {
   const entry = npc.items.find((i) => i.type === "spellcastingEntry");
   if (!entry) throw new Error(`"${name}" on ${npc.name}: no spellcastingEntry found to source a DC from.`);
 
+  // design doc §76.9 / GH #69: a real, encounter-scoped-or-longer frequency derives a real limit; an
+  // action with no frequency data at all (e.g. Erabryth's own Forced Reflection) stays dormant/
+  // unlimited, same honest "nothing to derive" outcome as every other real gap in this project — not
+  // silently invented, not hidden.
+  const usesRemaining = deriveUsesFromFrequency(name, action.system.frequency);
+
   return {
     name: action.name,
     saveType,
@@ -237,6 +374,7 @@ export function deriveConditionSave(npc, { name, saveType, range, outcomes }) {
     range,
     actions: action.system.actions?.value ?? 1,
     traits: action.system.traits?.value ?? [],
-    outcomes
+    outcomes,
+    ...(usesRemaining != null ? { usesRemaining } : {})
   };
 }

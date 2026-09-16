@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "equipment-catalogue.schema.json",
+  "title": "Equipment Catalogue",
+  "description": "The curated Directorate-issue equipment list personnel-scale kids choose from at Kit Issue, instead of SF2E's full item catalogue. Decided 2026-09-09: same real SF2E rules and the same 150cr Step-8 budget (reference/srd/player-core/64-character-creation.json), just a shorter, Directorate-flavoured menu -- players pick freely within it, no further restriction. Every entry's mechanics trace to a real SF2E item via baseItem; the name/flavorNote layer is the only reskin. Singleton file: data/campaign/equipment-catalogue.json.",
+  "type": "object",
+  "required": ["id", "budget", "items"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "equipment-catalogue" },
+    "type": { "const": "equipment-catalogue" },
+    "description": { "type": "string" },
+    "budget": {
+      "type": "object",
+      "description": "The real SF2E Step 8 rule, restated so a GM running Kit Issue doesn't have to cross-reference the SRD mid-scene.",
+      "properties": {
+        "credits": { "type": "integer", "const": 150 },
+        "source": { "type": "string", "const": "Player Core pg. 23, Step 8: Buy Equipment" }
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/catalogueItem" }
+    }
+  },
+  "$defs": {
+    "catalogueItem": {
+      "type": "object",
+      "required": ["id", "name", "baseItem", "category", "level", "price"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "description": "The Directorate-issue designation shown to players -- boring and standard on purpose." },
+        "baseItem": { "type": "string", "description": "The real SF2E item this is mechanically identical to, for GM/Foundry lookup. Never a reskinned/invented statline." },
+        "category": { "enum": ["weapon", "armor", "gear", "consumable"] },
+        "subcategory": { "type": "string", "description": "e.g. \"sidearm\", \"long arm\", \"melee\", \"light armor\", \"medium armor\", \"comms\", \"medical\", \"tools\"." },
+        "level": { "type": "integer" },
+        "price": { "type": "integer", "description": "Credits." },
+        "bulk": { "type": "number" },
+        "traits": { "type": "array", "items": { "type": "string" } },
+        "mechanics": { "type": "string", "description": "Damage die/type, AC bonus, or the item's real effect -- short, factual, no flavor." },
+        "flavorNote": { "type": "string", "description": "How Nobu's counter actually presents it: standard-issue, unremarkable, a form number. This is the reskin layer." }
+      }
+    }
+  }
+}

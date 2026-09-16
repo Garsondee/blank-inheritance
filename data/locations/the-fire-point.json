@@ -1,0 +1,109 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-fire-point",
+  "type": "location",
+  "tier": "site",
+  "name": "The Fire Point",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21656909,
+          34.67993864
+        ],
+        [
+          135.21660534,
+          34.67985815
+        ],
+        [
+          135.21652751,
+          34.67983435
+        ],
+        [
+          135.21649125,
+          34.67991483
+        ],
+        [
+          135.21656909,
+          34.67993864
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7003.7,
+          5475.9
+        ],
+        [
+          7011.1,
+          5481.9
+        ],
+        [
+          7006.3,
+          5487.8
+        ],
+        [
+          6998.9,
+          5481.8
+        ],
+        [
+          7003.7,
+          5475.9
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7005.0,
+      5481.85
+    ],
+    "cells": [
+      "D3·36",
+      "D3·46"
+    ],
+    "ref": "D3·36",
+    "areaM2": 72.5,
+    "withinRegionRef": "garrison",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-228",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Hoses, extinguishers and a hand bell, sited between the shops and the stores because that is where a fire would start.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Hoses, extinguishers and a hand bell, sited between the shops and the stores because that is where a fire would start.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

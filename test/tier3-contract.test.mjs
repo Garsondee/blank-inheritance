@@ -22,9 +22,10 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { buildCreatureActorData } from "../foundry/blank-inheritance/scripts/core/generators/creature.mjs";
-import { buildCharacterActorData } from "../foundry/blank-inheritance/scripts/core/generators/character.mjs";
-import { resolveActorTemplate, hasPath, findInvalidActorFieldPaths } from "./support/sf2e-template.mjs";
+import { buildCreatureActorData } from "../module/blank-inheritance/scripts/core/generators/creature.mjs";
+import { buildCharacterActorData } from "../module/blank-inheritance/scripts/core/generators/character.mjs";
+import { buildJournalEntryData } from "../module/blank-inheritance/scripts/core/generators/journal.mjs";
+import { resolveActorTemplate, hasPath, flattenPaths, findInvalidActorFieldPaths } from "./support/sf2e-template.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
@@ -144,4 +145,109 @@ test("buildCreatureActorData: strikes match a real shipped sf2e melee Item's fie
   const [realDamageEntry] = Object.values(realExample.system.damageRolls);
   assert.deepEqual(Object.keys(generatedDamageEntry).sort(), Object.keys(realDamageEntry).sort());
   assert.match(generatedDamageEntry.damage, /^\d+d\d+[+-]\d+$/, "damage string should be a dice formula shaped like the real example's \"1d4+1\"");
+});
+
+// JournalEntry/JournalEntryPage are core Foundry documents, not sf2e-specific
+// — there's no template.json equivalent to parse, since defineSchema() lives
+// in real (unminified) JS source, not data. Hand-extracted from
+// foundryvtt/.../common/documents/journal-entry.mjs:44-52 (JournalEntry) and
+// journal-entry-page.mjs:44-79 (JournalEntryPage), read directly, cited here
+// instead of machine-checked — same discipline as the version pin above:
+// if verifiedVersions.foundry bumps, re-read those two files by hand and
+// update this shape before trusting this test again.
+const JOURNAL_ENTRY_SCHEMA = {
+  _id: true, name: true, pages: true, folder: true, categories: true, sort: true, ownership: true, flags: true
+};
+const JOURNAL_ENTRY_PAGE_SCHEMA = {
+  _id: true, name: true, type: true, system: true,
+  title: { show: true, level: true },
+  image: { caption: true },
+  text: { content: true, markdown: true, format: true },
+  video: { controls: true, loop: true, autoplay: true, volume: true, timestamp: true, width: true, height: true },
+  src: true, category: true, sort: true, ownership: true, flags: true
+};
+
+test("buildJournalEntryData: every field path it writes exists on Foundry's real JournalEntry/JournalEntryPage schema", async (t) => {
+  if (!existsSync(foundryPackageJsonPath)) {
+    t.skip("foundryvtt/ not present locally (gitignored) — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+
+  const data = await buildJournalEntryData({
+    id: "contract-check",
+    name: "Contract Check",
+    pages: [{ id: "p1", name: "Page One", content: "<p>hi</p>", titleLevel: 2 }]
+  });
+
+  const { pages, ...topLevel } = data;
+  const invalidTop = flattenPaths(topLevel).filter((p) => !hasPath(JOURNAL_ENTRY_SCHEMA, p));
+  assert.deepEqual(
+    invalidTop,
+    [],
+    "these JournalEntry top-level paths don't exist on Foundry's real schema (foundryvtt/.../common/documents/journal-entry.mjs)"
+  );
+
+  for (const page of pages) {
+    const invalidPage = flattenPaths(page).filter((p) => !hasPath(JOURNAL_ENTRY_PAGE_SCHEMA, p));
+    assert.deepEqual(
+      invalidPage,
+      [],
+      `these JournalEntryPage paths don't exist on Foundry's real schema for page "${page.name}" (foundryvtt/.../common/documents/journal-entry-page.mjs)`
+    );
+  }
+});
+
+test("the undocumented Canvas internals the stage camera depends on still exist", (t) => {
+  // foundry/stage-camera.mjs replaces Canvas#_constrainView, which is marked
+  // `@internal`. That is a deliberate, load-bearing choice — it is the ONE
+  // choke point every pan and zoom in the application routes through, and the
+  // alternatives (a hook that cannot cancel and fires a frame late; overriding
+  // seven separate input handlers) are worse. But undocumented API can move.
+  //
+  // The failure mode without this test is silent and awful: the override
+  // simply never gets called, the camera comes unstuck, and players start
+  // dragging a theatre-of-the-mind scene around with nothing anywhere saying
+  // why. This is the canary.
+  if (!existsSync(foundryAppRoot)) {
+    t.skip("foundryvtt/ not present locally (gitignored) — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+
+  const board = path.join(foundryAppRoot, "client", "canvas", "board.mjs");
+  assert.ok(existsSync(board), "client/canvas/board.mjs has moved — Canvas is no longer where we think it is");
+  const source = readFileSync(board, "utf8");
+
+  assert.match(
+    source, /_constrainView\(\{\s*x,\s*y,\s*scale\s*\}\)/,
+    "Canvas#_constrainView is gone or has a different signature — foundry/stage-camera.mjs replaces it " +
+      "to pin the camera, and a renamed method means the override silently never runs"
+  );
+  assert.match(
+    source, /this\.stage\.pivot\.set\(/,
+    "Canvas#pan no longer sets stage.pivot directly — re-check that _constrainView is still the choke point"
+  );
+  assert.match(
+    source, /const constrained = this\._constrainView\(/,
+    "Canvas#pan no longer routes through _constrainView — the override would no longer catch anything"
+  );
+
+  // CONFIG.Canvas.minZoom/maxZoom are deliberately NOT used and deliberately
+  // not asserted: pinning them baked the stage cover scale into the NEXT
+  // scene's dimensions, because those are computed at board.mjs:1157 before
+  // any hook a module can listen on. See foundry/stage-camera.mjs.
+
+  // The other half of the staged scene: the background lives on the embedded
+  // Level document, not on the Scene. Getting this wrong renders no picture
+  // and reports nothing at all.
+  const level = path.join(foundryAppRoot, "common", "documents", "level.mjs");
+  assert.ok(existsSync(level), "common/documents/level.mjs is gone — Scene backgrounds may have moved again");
+  const levelSource = readFileSync(level, "utf8");
+  assert.match(
+    levelSource, /background:\s*new fields\.SchemaField/,
+    "Level#background is no longer a SchemaField — core/generators/stage-scene.mjs writes background.src there"
+  );
+  assert.match(
+    levelSource, /src:\s*new fields\.FilePathField/,
+    "Level#background.src is gone — a staged scene would render with no picture and no error"
+  );
 });

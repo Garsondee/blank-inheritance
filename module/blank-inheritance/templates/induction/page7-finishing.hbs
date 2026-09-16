@@ -1,0 +1,104 @@
+{{!--
+    The induction terminal — Page 7, Finishing Details.
+
+    Name (the only required field), pronouns, gender identity, a few light
+    "banal" texture questions, appearance notes, and languages -- see
+    design/induction-terminal.md §4. Every RP-response field pairs a
+    free-text control with a row of illustrative suggestion chips (click one
+    to insert it into the same box) -- content lives in
+    data/campaign/induction-intake-prompts.json, never invented here.
+
+    PAPER register throughout, same .bi-doc vocabulary as Pages 1-2.
+--}}
+<section class="bi-induction">
+    <div class="bi-doc bi-induction__page">
+        <header class="bi-doc__head">
+            <h1 class="bi-doc__title">{{localize "BLANKINHERITANCE.Induction.Page7.Title"}}</h1>
+            <div class="bi-doc__meta">
+                {{localize "BLANKINHERITANCE.Induction.Page7.FormNumber"}}
+                {{#if userName}}<br><b>{{userName}}</b>{{/if}}
+            </div>
+        </header>
+
+        <div class="bi-induction__tracker" role="list" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
+            {{#each trackerSteps}}
+            <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
+                  role="listitem" title="{{this.number}}. {{this.label}}">{{this.number}}</span>
+            {{/each}}
+        </div>
+
+        <p>{{localize "BLANKINHERITANCE.Induction.Page7.Intro"}}</p>
+
+        {{#if loadFailed}}
+        <div class="bi-induction__load-error">
+            <p class="bi-induction__load-error-title">{{localize "BLANKINHERITANCE.Induction.Page2.LoadFailedTitle"}}</p>
+            <p>{{localize "BLANKINHERITANCE.Induction.Page2.LoadFailedBody"}}</p>
+        </div>
+        {{else}}
+
+        <div class="bi-prompt-field">
+            <label class="bi-prompt-field__label" for="{{nameField.elementId}}">{{nameField.label}}</label>
+            <input type="text" class="bi-prompt-field__control" id="{{nameField.elementId}}" name="{{nameField.elementId}}"
+                   data-prompt-field="{{nameField.statePath}}" value="{{nameField.value}}"
+                   placeholder="{{localize 'BLANKINHERITANCE.Induction.Page7.NamePlaceholder'}}">
+        </div>
+
+        {{#each promptFields}}
+        <div class="bi-prompt-field">
+            <label class="bi-prompt-field__label" for="{{this.elementId}}">{{this.label}}</label>
+            {{#if this.isTextarea}}
+            <textarea class="bi-prompt-field__control bi-prompt-field__control--textarea" id="{{this.elementId}}"
+                      name="{{this.elementId}}" data-prompt-field="{{this.statePath}}">{{this.value}}</textarea>
+            {{else}}
+            <input type="text" class="bi-prompt-field__control" id="{{this.elementId}}" name="{{this.elementId}}"
+                   data-prompt-field="{{this.statePath}}" value="{{this.value}}">
+            {{/if}}
+            {{#if this.suggestions.length}}
+            <div class="bi-induction__options">
+                {{#each this.suggestions}}
+                <button type="button" class="bi-induction__option" data-prompt-suggestion
+                        data-prompt-target="{{this.targetElementId}}" data-suggestion-text="{{this.text}}"
+                        data-prompt-separator="{{this.separator}}">{{this.text}}</button>
+                {{/each}}
+            </div>
+            {{/if}}
+        </div>
+        {{/each}}
+        <p class="bi-prompt-field__optional-note">{{localize "BLANKINHERITANCE.Induction.Page7.BanalOptionalNote"}}</p>
+
+        <h2>{{localize "BLANKINHERITANCE.Induction.Page7.LanguagesTitle"}}</h2>
+        <div class="bi-langlist">
+            <div class="bi-langlist__chips">
+                {{#each languages}}
+                <span class="bi-langlist__chip">{{this}}
+                    <button type="button" class="bi-langlist__remove" data-action="removeLanguage" data-language="{{this}}"
+                            aria-label="{{localize 'BLANKINHERITANCE.Induction.Page7.RemoveLanguage'}}">×</button>
+                </span>
+                {{/each}}
+                {{#unless languages.length}}
+                <p class="bi-langlist__empty">{{localize "BLANKINHERITANCE.Induction.Page7.NoLanguagesYet"}}</p>
+                {{/unless}}
+            </div>
+            <div class="bi-induction__options">
+                {{#each languageSuggestions}}
+                <button type="button" class="bi-induction__option {{#if this.alreadyAdded}}bi-induction__option--claimed{{/if}}"
+                        data-action="addLanguage" data-language="{{this.label}}" {{#if this.alreadyAdded}}disabled{{/if}}>{{this.label}}</button>
+                {{/each}}
+            </div>
+            <div class="bi-langlist__custom">
+                <input type="text" class="bi-induction__filter" data-langlist-input
+                       placeholder="{{localize 'BLANKINHERITANCE.Induction.Page7.AddLanguagePlaceholder'}}">
+                <button type="button" class="bi-induction__option" data-action="addLanguageCustom">{{localize "BLANKINHERITANCE.Induction.Page7.AddLanguage"}}</button>
+            </div>
+        </div>
+
+        {{/if}}
+
+        <div class="bi-induction__actions bi-induction__actions--split">
+            <button type="button" class="bi-induction__back" data-action="backFromFinishing">{{localize "BLANKINHERITANCE.Induction.Page7.Back"}}</button>
+            <button type="button" class="bi-induction__begin" data-action="continueFromFinishing" {{#unless isComplete}}disabled{{/unless}}>
+                {{localize "BLANKINHERITANCE.Induction.Page7.Continue"}}
+            </button>
+        </div>
+    </div>
+</section>

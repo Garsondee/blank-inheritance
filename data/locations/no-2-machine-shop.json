@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "no-2-machine-shop",
+  "type": "location",
+  "tier": "site",
+  "name": "No. 2 Machine Shop",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [
+    "military"
+  ],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.2158504,
+          34.6807204
+        ],
+        [
+          135.21590947,
+          34.68044664
+        ],
+        [
+          135.21462855,
+          34.68025894
+        ],
+        [
+          135.21456947,
+          34.68053271
+        ],
+        [
+          135.2158504,
+          34.6807204
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6902.9,
+          5434.7
+        ],
+        [
+          6923,
+          5458.1
+        ],
+        [
+          6832.5,
+          5535.7
+        ],
+        [
+          6812.4,
+          5512.3
+        ],
+        [
+          6902.9,
+          5434.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6867.7,
+      5485.2
+    ],
+    "cells": [
+      "D3·36"
+    ],
+    "ref": "D3·36",
+    "areaM2": 3677.5,
+    "withinRegionRef": "garrison",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-222",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Fitting and assembly, one long bay under a travelling crane. Work too big for a bench and too small to be worth opening No. 1.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Fitting and assembly, one long bay under a travelling crane. Work too big for a bench and too small to be worth opening No. 1.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

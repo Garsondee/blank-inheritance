@@ -1,0 +1,33 @@
+{{!--
+    The Director's log: one field, always on.
+
+    Running the session and recording it are ONE act (doctrine Law 15), so this
+    is a single text input and nothing else — no dialog, no form, no save
+    button. The GM types the meaning; the console attaches the timestamp,
+    scene, mode and current subject.
+
+    A leading recognised word plus a colon ("npc: the caretaker lies") becomes
+    a tag. That is an accelerator, never a requirement — see core/log-entry.mjs.
+
+    The last few entries are shown as a receipt: without one, a GM has no way
+    to tell a saved note from a swallowed one.
+--}}
+<div class="bi-log">
+    {{!-- name= is load-bearing, not decoration: ApplicationV2 only restores
+         focus across a part re-render when the focused element has an id or a
+         name (handlebars-application.mjs _preSyncPartState). Without it the
+         GM loses the caret every time a log entry lands. --}}
+    <input type="text" name="bi-log-entry" class="bi-log__input" data-bi-log-input
+        placeholder="{{localize 'BLANKINHERITANCE.Console.Log.Placeholder'}}"
+        aria-label="{{localize 'BLANKINHERITANCE.Console.Log.Placeholder'}}" autocomplete="off">
+    <ul class="bi-log__recent">
+        {{#each entries}}
+        <li class="bi-log__entry">
+            {{#if this.tag}}<span class="bi-log__tag">{{this.tag}}</span>{{/if}}
+            <span class="bi-log__text">{{this.text}}</span>
+        </li>
+        {{else}}
+        <li class="bi-log__entry bi-log__entry--empty">{{localize "BLANKINHERITANCE.Console.Log.Empty"}}</li>
+        {{/each}}
+    </ul>
+</div>

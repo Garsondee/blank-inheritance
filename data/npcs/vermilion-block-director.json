@@ -1,0 +1,14 @@
+{
+  "$schema": "../schema/npc.schema.json",
+  "id": "vermilion-block-director",
+  "type": "npc",
+  "name": null,
+  "role": "Officer in Charge, The Vermilion Block",
+  "pole": null,
+  "affiliation": "directorate",
+  "description": "Runs the Directorate's own magic-using department out of the black-and-red building on Island Centre marked with a red diamond hazard placard. Extremely high proficiency as a spellcaster themself, and the one person on staff whose sign-off actually means something when a reagent shipment, a test, or a request for magical support from another department needs approving. Most staff know the Block exists; almost none of them know this person's day-to-day work, only that requests go through them and answers come back slowly, if at all.",
+  "designNotes": "Placeholder role, not a character -- created 2026-09-13 alongside the location itself, following the standing convention (see range-safety-officer.json, hospital-chief-of-staff.json). Name, personality, and exactly how much they themselves know about what the reagent stock is actually for are all open -- see data/locations/vermilion-block.json's own gmOnly for why that last part is deliberately unresolved rather than assumed.",
+  "namingPlaceholderRef": null,
+  "openQuestionRefs": [],
+  "status": "placeholder — not yet named or cast"
+}

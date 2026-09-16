@@ -1,0 +1,112 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1s1--kit-issue",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1s1-mothers-maiden-name",
+  "sceneRef": "kit-issue",
+  "title": "Kit Issue",
+  "goal": "Every player has picked their personnel equipment, and every player has had one small, unexplained moment of Nobu's generosity.",
+  "howToPlay": "Fast and a little chaotic -- the opposite rhythm of Intake Medicals. Shucks was unhurried and one-on-one; Nobu is three things at once and never stops moving. Don't slow down for this scene the way you did for the last one. Equipment choices should take real-world seconds each, not minutes -- the content is in Nobu's energy, not in deliberation.\n\nDECIDED 2026-09-13 (Ingram): THIS SCENE IS PERSONNEL EQUIPMENT AND NOTHING ELSE. No vehicles, no Frames, no ground roles -- all of that moves to Session Two. The reason is load, not tidiness: 'I don't want to overpower the group by having them making both sets of decisions at once.' One kit, one budget, one counter. If a player asks about a Frame or a vehicle tonight, Nobu has no idea what they're on about and there is a queue behind them.",
+  "runsAbout": "15-20 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "The quartermaster's stores, the same afternoon as Intake Medicals.",
+    "firstThing": "A man behind the counter who is already talking before the door finishes opening -- to the candidate, to a clipboard, to somebody in the back room, in no particular order, and somehow all three conversations get finished.",
+    "readAloud": "The stores smell like machine oil and stamped paperwork. \"Name -- no, don't, it's on the list -- sign there, there, and-\" he's already turned halfway to shout something through a doorway before turning back without missing a beat.",
+    "carriesIn": [
+      { "when": "Intake Medicals was played first (it should be)", "then": "Nobu already has each of their names off a slip from Shucks. If a player especially impressed Shucks that morning, Nobu mentions it without being asked -- fast, in passing, already moving on to the next thing." }
+    ]
+  },
+  "cast": [
+    {
+      "id": "nobu",
+      "npcRef": null,
+      "label": "Nobu",
+      "role": "Quartermaster",
+      "arrival": "announced",
+      "brief": {
+        "wants": "To get forty kids kitted and rostered by end of day without dropping anything that actually matters. He is not stressed about this the way it sounds -- this is just his pace.",
+        "opensWith": "\"Sidearm or long arm, we've got both, don't take both, take one -- ",
+        "willDiscuss": [
+          { "topic": "What's on the list", "note": "Fast, practical, no salesmanship. He'll answer exactly what's asked and nothing more, because he's already thinking about the next person." },
+          { "topic": "Whatever Shucks flagged that morning", "note": "If a player impressed Shucks, Nobu says so in passing -- warm, brief, already moving on." }
+        ],
+        "willNotDiscuss": [
+          { "topic": "Whether he's eaten today, slept, or has a life outside this counter", "why": "Deflects with a joke and changes the subject -- he's just busy, not hiding anything. Never play this as evasive; it's the same energy as everything else he does." }
+        ],
+        "voice": {
+          "register": "Harried, fast, overworked, visibly doing three things at once. Run-on sentences, interrupts himself, starts the next thought before finishing the last.",
+          "tics": [
+            "Talks while signing, stacking, or reaching for something else -- never one thing at a time",
+            "Does the generous thing too fast to examine it, doesn't make eye contact while doing it",
+            "Waves off thanks immediately and changes the subject"
+          ],
+          "samples": [
+            "\"Sidearm or long arm, we've got both, don't take both, take one -- good, next thing --\"",
+            "\"-- and take this too --\" (doesn't look up, already writing something else) \"-- don't make a thing of it, who's next --\"",
+            "\"Shucks said you were sharp this morning. Good. Arm here, sign there.\""
+          ]
+        }
+      }
+    }
+  ],
+  "beats": [
+    {
+      "id": "the-counter",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Establish the space and Nobu's energy before anyone picks anything -- a scrum around one busy counter, not an orderly queue.",
+      "npcRef": "nobu",
+      "direction": "Deliberate contrast with Intake Medicals' queue. That scene was slow and one-on-one; this one is fast and slightly chaotic, several things happening near-simultaneously. Don't let it feel rushed for the players even though Nobu himself never stops moving."
+    },
+    {
+      "id": "pick-your-kit",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Show every player the real catalogue and let them pick freely within the 150cr budget.",
+      "npcRef": "nobu",
+      "direction": "Full player choice, no restriction beyond the catalogue itself -- see data/campaign/equipment-catalogue.json. This should take seconds per player at the table, not minutes; if someone wants to deliberate, let them do it while the scene keeps moving around them rather than pausing everything.",
+      "note": "The catalogue is a curated Directorate menu, not the full SF2E item list -- same real 150cr Step-8 budget, shorter list, reflavoured as boring/standard issue. Full rationale: design/scale-and-chassis.md's 2026-09-09 decision log."
+    },
+    {
+      "id": "the-extra-thing",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "For every player, without exception, Nobu adds one more item from the catalogue on top of what their 150cr bought -- free, fast, unremarked.",
+      "npcRef": "nobu",
+      "readAloud": "\"-- and take this too --\" (already writing something else, doesn't look up) \"-- don't make a thing of it, who's next --\"",
+      "direction": "Presented as completely mundane. He does this for all six, not a chosen few, and never explains it or seems aware it's unusual. If a player pushes for a reason, he deflects with the same energy as everything else he does -- never nervous, never caught out, just a busy man who doesn't see what there is to explain.",
+      "note": "⚠ PLANT, do not resolve. This is `dossier-cicada.md`'s Chapter Six reveal in miniature -- see `ideas/story/bible/characters/nobu.md` before running this beat. GM-only, never state at the table: track exactly which item each player got, since it may matter later that some of what Nobu hands out isn't standard Directorate stock. Nothing about this beat should read as a hint tonight."
+    },
+    {
+      "id": "test-the-fit",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If a player wants a moment trying out their new gear, offer one roll, their choice of skill.",
+      "challengeRef": "c1s1-kit-issue",
+      "checkRef": "test-the-fit",
+      "when": { "condition": "if a player wants a moment with their own new equipment" },
+      "note": "Never required. Costs nothing on any result -- same design rule as The Road In's a-flourish."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "All six are kitted. Stop there -- don't linger, the scene's whole rhythm is momentum.",
+    "artefactRefs": [],
+    "tracks": [],
+    "onwards": "Straight into the canteen, where Taka is waiting and about to rename all six of them before the plates are cleared.",
+    "writeDown": [
+      "What each player picked from the catalogue -- it matters for continuity.",
+      "Exactly what Nobu's extra item was for each player. GM-only -- do not reveal the reason it might matter."
+    ]
+  },
+  "carryForward": [],
+  "notes": "Deliberately brisk and low-stakes, mirroring Intake Medicals' function (everyone gets a moment) with the opposite pace. Nobu's voice and the Chapter Six secret behind his generosity are fully locked in ideas/story/bible/characters/nobu.md -- read it before running or editing this scene, and never let anything here foreshadow the secret directly.\n\nSCOPE, DECIDED 2026-09-13: personnel equipment only. Vehicles and Frames belong to Session Two, and the ground-role pick that used to live here has been REMOVED from this scene entirely -- two reasons, both real. (1) Ingram's, and the governing one: making players choose a personnel loadout AND an operational role in the same twenty minutes is too much at once, and the second choice gets made badly because the first one used up the attention. (2) The five ground roles are themselves now under review and may be removed (open-questions.json#ground-roles-viability), so asking six players to pick one in the campaign's first session would be committing them to a system that might not exist by Session Three.\n\nWhat this costs: nothing structural. Session One is personnel scale throughout, no Frame launches, and nothing tonight resolves against a ground role -- the pick was pure forward-reference. What it gains: the scene is now one decision per player, which is the right size for a busy counter."
+}

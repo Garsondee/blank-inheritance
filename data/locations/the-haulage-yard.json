@@ -1,0 +1,235 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-haulage-yard",
+  "type": "location",
+  "tier": "site",
+  "name": "The Haulage Yard",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "transport",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20346945,
+          34.66708661
+        ],
+        [
+          135.20347361,
+          34.66699665
+        ],
+        [
+          135.20347552,
+          34.66694966
+        ],
+        [
+          135.20344559,
+          34.66694856
+        ],
+        [
+          135.20345032,
+          34.66683634
+        ],
+        [
+          135.20315662,
+          34.66682777
+        ],
+        [
+          135.20315663,
+          34.66680474
+        ],
+        [
+          135.20311343,
+          34.66680278
+        ],
+        [
+          135.20311122,
+          34.66684049
+        ],
+        [
+          135.203019,
+          34.6668373
+        ],
+        [
+          135.20305244,
+          34.66607886
+        ],
+        [
+          135.20293328,
+          34.66607521
+        ],
+        [
+          135.20293459,
+          34.6660327
+        ],
+        [
+          135.20275369,
+          34.66602775
+        ],
+        [
+          135.2027112,
+          34.66689946
+        ],
+        [
+          135.2026171,
+          34.66696104
+        ],
+        [
+          135.2026134,
+          34.66706229
+        ],
+        [
+          135.20268111,
+          34.66712871
+        ],
+        [
+          135.20281073,
+          34.66713459
+        ],
+        [
+          135.20288896,
+          34.66707028
+        ],
+        [
+          135.20346945,
+          34.66708661
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6694.5,
+          7313.9
+        ],
+        [
+          6699.9,
+          7322.3
+        ],
+        [
+          6702.7,
+          7326.7
+        ],
+        [
+          6700.4,
+          7328.2
+        ],
+        [
+          6707.1,
+          7338.7
+        ],
+        [
+          6684.4,
+          7353.2
+        ],
+        [
+          6685.7,
+          7355.4
+        ],
+        [
+          6682.4,
+          7357.6
+        ],
+        [
+          6680.1,
+          7354.1
+        ],
+        [
+          6673,
+          7358.7
+        ],
+        [
+          6718.4,
+          7429.6
+        ],
+        [
+          6709.2,
+          7435.5
+        ],
+        [
+          6711.7,
+          7439.5
+        ],
+        [
+          6697.7,
+          7448.4
+        ],
+        [
+          6645.2,
+          7367.1
+        ],
+        [
+          6634.3,
+          7365.6
+        ],
+        [
+          6628.3,
+          7356.1
+        ],
+        [
+          6629.9,
+          7346.6
+        ],
+        [
+          6639.8,
+          7340
+        ],
+        [
+          6649.6,
+          7342.5
+        ],
+        [
+          6694.5,
+          7313.9
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6676.7,
+      7375.87
+    ],
+    "cells": [
+      "D4·25",
+      "D4·26"
+    ],
+    "ref": "D4·25",
+    "areaM2": 4541.0,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-379",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Four ranges of garage and workshop around a hard yard, where the works' own lorries live. The yard is always fuller than it should be, because leaving a vehicle here is easier than explaining where else it went.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Four ranges of garage and workshop around a hard yard, where the works' own lorries live. The yard is always fuller than it should be, because leaving a vehicle here is easier than explaining where else it went.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

@@ -1,0 +1,209 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "north-approach-channel",
+  "type": "location",
+  "tier": "region",
+  "name": "The North Approach Channel",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "water",
+  "tags": [
+    "auto-tessellated",
+    "water"
+  ],
+  "classification": null,
+  "rank": 4,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21461769828858,
+          34.692767234111656
+        ],
+        [
+          135.21826693141747,
+          34.690017523191074
+        ],
+        [
+          135.21490149770736,
+          34.688211359504116
+        ],
+        [
+          135.21355285404613,
+          34.68748925548648
+        ],
+        [
+          135.23061875110145,
+          34.68381554275096
+        ],
+        [
+          135.22978233694963,
+          34.69227416821022
+        ],
+        [
+          135.22400861802717,
+          34.69164054169878
+        ],
+        [
+          135.21917784157228,
+          34.695189579495285
+        ],
+        [
+          135.21890240987085,
+          34.695415998300774
+        ],
+        [
+          135.2167910654061,
+          34.69434343502713
+        ],
+        [
+          135.21656981807715,
+          34.69419169942241
+        ],
+        [
+          135.21529592717863,
+          34.693405895620856
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6126.3,
+          4341.3
+        ],
+        [
+          6569.3,
+          4434.0
+        ],
+        [
+          6405.6,
+          4763.3
+        ],
+        [
+          6339.9,
+          4895.1
+        ],
+        [
+          7893.7,
+          4451.0
+        ],
+        [
+          7350.6,
+          3682.0
+        ],
+        [
+          6930.8,
+          4011.5
+        ],
+        [
+          6349.5,
+          3897.5
+        ],
+        [
+          6315.0,
+          3888.7
+        ],
+        [
+          6208.9,
+          4089.5
+        ],
+        [
+          6200.0,
+          4114.3
+        ],
+        [
+          6143.8,
+          4248.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6980.0,
+      4289.59
+    ],
+    "cells": [
+      "D2·57",
+      "D2·67",
+      "D2·08",
+      "D2·18",
+      "D2·28",
+      "D2·38",
+      "D2·48",
+      "D2·58",
+      "D2·68",
+      "C2·99",
+      "D2·09",
+      "D2·19",
+      "D2·29",
+      "D2·39",
+      "D2·49",
+      "D2·59",
+      "D2·69",
+      "D2·79",
+      "C3·90",
+      "D3·00",
+      "D3·10",
+      "D3·20",
+      "D3·30",
+      "D3·40",
+      "D3·50",
+      "D3·60",
+      "D3·70",
+      "D3·80",
+      "D3·11",
+      "D3·21",
+      "D3·31",
+      "D3·41",
+      "D3·51",
+      "D3·61",
+      "D3·71",
+      "D3·81",
+      "D3·02",
+      "D3·12",
+      "D3·22",
+      "D3·32",
+      "D3·42",
+      "D3·52",
+      "D3·03",
+      "D3·13",
+      "D3·23"
+    ],
+    "ref": "D2·57",
+    "areaM2": 1108278.8,
+    "withinRegionRef": null,
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-213",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "The marked channel inbound past the headland. Narrow, busy, and the one stretch of water where the harbour office gives orders rather than advice.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The marked channel inbound past the headland. Narrow, busy, and the one stretch of water where the harbour office gives orders rather than advice.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

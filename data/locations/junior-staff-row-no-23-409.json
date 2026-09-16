@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "junior-staff-row-no-23-409",
+  "type": "location",
+  "tier": "site",
+  "name": "Junior Staff Row, No. 23",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "",
+  "tags": [
+    "staff-housing"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21237856,
+          34.66994188
+        ],
+        [
+          135.21267153,
+          34.67005756
+        ],
+        [
+          135.21273269,
+          34.66995341
+        ],
+        [
+          135.21243878,
+          34.66983819
+        ],
+        [
+          135.21237856,
+          34.66994188
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7236.7,
+          6626.1
+        ],
+        [
+          7253.3,
+          6601.4
+        ],
+        [
+          7264,
+          6608.5
+        ],
+        [
+          7247.3,
+          6633.2
+        ],
+        [
+          7236.7,
+          6626.1
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7250.34,
+      6617.29
+    ],
+    "cells": [
+      "D4·52"
+    ],
+    "ref": "D4·52",
+    "areaM2": 381.3,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-409",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "All of these are staff accommodation.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The newest hires get these -- small, close together, and first to lose hot water when the boiler struggles.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

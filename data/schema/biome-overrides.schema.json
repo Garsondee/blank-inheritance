@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "biome-overrides.schema.json",
+  "title": "Biome Overrides",
+  "description": "The hand-written exceptions in the grid-cell biome classification described in tools/gazetteer/biome.py -- the same suppression-file pattern data/map/groundtruth-overrides.json already uses for buildings, applied to cells. Real GeoPackage data and each promoted district's own declared `kind` decide a cell's biome automatically; this file is for the specific cells neither gets right (a hidden bunker entrance under what reads as open ground, a cell a district's tessellation edge clips awkwardly), and it always wins outright over both. Consumed by tools/gazetteer/biome.py's load_overrides/save_overrides.",
+  "type": "object",
+  "required": ["$schema", "id", "type", "overrides"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "biome-overrides" },
+    "type": { "const": "biome-overrides" },
+
+    "overrides": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["ref", "biome"],
+        "additionalProperties": false,
+        "properties": {
+          "ref": { "type": "string", "description": "A grid reference, e.g. 'C4·11' (middle dot, not a period) -- see tools/gazetteer/core/grid.py's cell_to_ref and SEPARATOR." },
+          "biome": {
+            "enum": ["ocean", "shore", "dense-urban", "residential", "industrial", "open-ground", "upland"],
+            "description": "Must match one of core/biome.py's own BIOMES exactly -- kept as a literal enum here rather than generated so a schema-only reader (no Python import) still knows the real taxonomy."
+          },
+          "note": { "type": "string", "description": "Why this cell needed a hand override, for whoever reads this file next." }
+        }
+      }
+    }
+  }
+}

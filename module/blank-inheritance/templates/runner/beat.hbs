@@ -1,0 +1,62 @@
+{{!--
+    One line of the running order.
+
+    Every state class is written as a literal inside its own {{#if}} rather
+    than interpolated (`bi-runner__beat--{{state}}` would be invisible to the
+    tier-0 class lint, which strips Handlebars before it looks). The booleans
+    are precomputed in foundry/scene-runner.mjs so this template never has to
+    know what a beat state is.
+
+    The tick is a <button aria-pressed>, the idiom this module already uses
+    for every two-state control (zone-segment.hbs, frame.hbs) — a toggle owes
+    a screen reader its state, and .bi-runner__tick draws the mark off that
+    same attribute rather than off a modifier class.
+--}}
+<li class="bi-runner__beat{{#if isDone}} bi-runner__beat--done{{/if}}{{#if isPending}} bi-runner__beat--pending{{/if}}{{#if isConditional}} bi-runner__beat--conditional{{/if}}{{#if isNotTaken}} bi-runner__beat--nottaken{{/if}}{{#if mandatory}} bi-runner__beat--mandatory{{/if}}"
+    data-beat-id="{{id}}">
+
+    <button type="button" class="bi-runner__tick" data-action="toggleBeat"
+        data-beat-id="{{id}}" aria-pressed="{{isDone}}"
+        title="{{#if isDone}}{{localize "BLANKINHERITANCE.Runner.Untick"}}{{else}}{{localize "BLANKINHERITANCE.Runner.Tick"}}{{/if}}"></button>
+
+    <div class="bi-runner__beat-body">
+        {{#if whenLabel}}<span class="bi-runner__when">{{whenLabel}}</span>{{/if}}
+
+        <p class="bi-runner__beat-text">
+            {{#if isSolo}}<span class="bi-runner__tag bi-runner__tag--solo">{{localize "BLANKINHERITANCE.Runner.Solo"}}</span>{{/if}}
+            {{#if isPassive}}<span class="bi-runner__tag bi-runner__tag--passive">{{localize "BLANKINHERITANCE.Runner.Passive"}}</span>{{/if}}
+            {{#if isInsight}}<span class="bi-runner__tag bi-runner__tag--insight">{{localize "BLANKINHERITANCE.Runner.Insight"}}</span>{{/if}}
+            {{text}}
+        </p>
+
+        {{!-- Verbatim, and set in a different face from the stage direction
+              above it — reading a note to yourself out loud by mistake is a
+              real error and the typography is what prevents it. --}}
+        {{#if readAloud}}<div class="bi-runner__read">{{readAloud}}</div>{{/if}}
+
+        {{#if direction}}<p class="bi-runner__direction">{{direction}}</p>{{/if}}
+        {{#if note}}<p class="bi-runner__note">{{note}}</p>{{/if}}
+
+        <div class="bi-runner__actions">
+            {{#if isConditional}}
+            <button type="button" class="bi-runner__stamp" data-action="openBeat" data-beat-id="{{id}}">{{localize "BLANKINHERITANCE.Runner.Open"}}</button>
+            {{/if}}
+            {{#if check}}
+            <button type="button" class="bi-runner__stamp{{#if isInsight}} bi-runner__stamp--insight{{/if}}" data-action="postCheck"
+                data-beat-id="{{id}}" title="{{check.title}}">{{check.label}}</button>
+            {{!-- Recording WHICH degree it came out at, not just that it
+                  happened. A plain tick cannot open a degree-gated branch,
+                  which is most of what branching is for — found live, the
+                  first time a fork was clicked at. --}}
+            {{#each outcomes}}
+            <button type="button" class="bi-runner__stamp{{#if isPicked}} bi-runner__stamp--picked{{/if}}"
+                data-action="recordOutcome" data-beat-id="{{../id}}" data-degree="{{degree}}">{{label}}</button>
+            {{/each}}
+            {{/if}}
+            {{#if handout}}
+            <button type="button" class="bi-runner__stamp" data-action="revealHandout"
+                data-beat-id="{{id}}" data-handout-id="{{handout.id}}">{{#if isSolo}}{{localize "BLANKINHERITANCE.Runner.RevealSolo"}}{{else}}{{localize "BLANKINHERITANCE.Runner.Reveal"}}{{/if}}</button>
+            {{/if}}
+        </div>
+    </div>
+</li>

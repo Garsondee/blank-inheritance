@@ -1,0 +1,172 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-market-hall-456",
+  "type": "location",
+  "tier": "site",
+  "name": "The Market Hall",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "amenity"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21245801,
+          34.66655235
+        ],
+        [
+          135.21274649,
+          34.66606412
+        ],
+        [
+          135.21268953,
+          34.66592232
+        ],
+        [
+          135.21306002,
+          34.6658149
+        ],
+        [
+          135.21306031,
+          34.66576033
+        ],
+        [
+          135.21312406,
+          34.66574494
+        ],
+        [
+          135.21320618,
+          34.66594146
+        ],
+        [
+          135.21324107,
+          34.66593178
+        ],
+        [
+          135.21335986,
+          34.6662151
+        ],
+        [
+          135.21332536,
+          34.66622355
+        ],
+        [
+          135.21323385,
+          34.6662462
+        ],
+        [
+          135.21326493,
+          34.66633049
+        ],
+        [
+          135.21245801,
+          34.66655235
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7434.1,
+          6946.2
+        ],
+        [
+          7484.4,
+          6979.4
+        ],
+        [
+          7487.9,
+          6995.6
+        ],
+        [
+          7523.2,
+          6988.6
+        ],
+        [
+          7526.3,
+          6993.8
+        ],
+        [
+          7532.2,
+          6992.3
+        ],
+        [
+          7527.6,
+          6969.7
+        ],
+        [
+          7530.9,
+          6969
+        ],
+        [
+          7524.3,
+          6936.4
+        ],
+        [
+          7521.1,
+          6937.2
+        ],
+        [
+          7512.6,
+          6939.3
+        ],
+        [
+          7510.3,
+          6929.8
+        ],
+        [
+          7434.1,
+          6946.2
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7494.39,
+      6960.69
+    ],
+    "cells": [
+      "D4·63"
+    ],
+    "ref": "D4·63",
+    "areaM2": 3638.4,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-456",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "amenities and other general city supporting functions and administration.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A covered hall for the produce and goods market, loud in the morning and empty by early afternoon.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

@@ -1,0 +1,110 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "home-redoubt-shore-cottage",
+  "type": "location",
+  "tier": "site",
+  "name": "The Shore Cottage",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [
+    "pc-adoptable"
+  ],
+  "classification": null,
+  "depth": "sketch",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.27457561,
+          34.7051407
+        ],
+        [
+          135.27463056,
+          34.70522278
+        ],
+        [
+          135.27474178,
+          34.70517268
+        ],
+        [
+          135.27468628,
+          34.70508982
+        ],
+        [
+          135.27457561,
+          34.7051407
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          10157.9,
+          365.7
+        ],
+        [
+          10157.6,
+          355.3
+        ],
+        [
+          10169.2,
+          354.9
+        ],
+        [
+          10169.5,
+          365.4
+        ],
+        [
+          10157.9,
+          365.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      10163.56,
+      360.32
+    ],
+    "cells": [
+      "E1·90"
+    ],
+    "ref": "E1·90",
+    "areaM2": 121.3,
+    "withinRegionRef": "redoubt-shore",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-385",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "A small residential building in Redoubt Shore, available to become a PC's home.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A small stone-built house on the thin spit of Redoubt Shore, one of only a handful of buildings facing the old fort across the water. The pilot station and the boat slip are the only other reasons anyone comes out this far; most days the loudest thing here is the water itself. Whoever ends up living here will have chosen distance from the city on purpose.",
+    "playerFacing": "Salt-stained render, a chimney that leans very slightly, and a view straight across the water to the fort -- close enough to watch the tide change against its walls, far enough that the crossing has to be planned for, never assumed.",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [
+      "The pilot station's own comings and goings are visible from the front step, at all hours, whether anyone living here wants to notice them or not."
+    ],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": [],
+  "rank": 4
+}

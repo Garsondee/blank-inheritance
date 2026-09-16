@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "campaign-map.schema.json",
+  "title": "Campaign Map",
+  "description": "The raster campaign map's manifest -- the singleton that makes a pixel on the picture mean a place on the ground. The map itself is a hand-finished Photoshop file (the vector renderer that produced its base is retired), so nothing regenerates these numbers: they are the standing contract between the image, the reference grid, and the map frame it was exported from. Consumed by tools/gazetteer/core/georef.py. The image it points at lives under artwork/, which is gitignored -- this tracked file is the only durable record of what that image is and how to read it, the same arrangement asset-registry.json already uses.",
+  "type": "object",
+  "required": ["$schema", "id", "type", "image", "border", "content", "grid", "frameRef", "calibration"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "campaign-map" },
+    "type": { "const": "campaign-map" },
+    "description": { "type": "string" },
+
+    "image": {
+      "type": "object",
+      "description": "The master raster. `path` is repo-relative and may point into a gitignored tree.",
+      "required": ["path", "width", "height"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string" },
+        "width": { "type": "integer", "exclusiveMinimum": 0 },
+        "height": { "type": "integer", "exclusiveMinimum": 0 },
+        "sha256": {
+          "type": ["string", "null"],
+          "description": "Hash of the master as last calibrated. A mismatch means the map has been re-exported and the tile pyramid, and possibly the calibration, are stale. Null only if never hashed.",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "note": { "type": "string" }
+      }
+    },
+
+    "border": {
+      "type": "object",
+      "description": "The painted margin around the content area. Page furniture -- grid ticks and labels live here. Not part of the mapped ground.",
+      "required": ["px"],
+      "additionalProperties": false,
+      "properties": {
+        "px": { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "content": {
+      "type": "object",
+      "description": "The mapped ground, inside the margin. Must be square: it is the map frame's page square.",
+      "required": ["width", "height"],
+      "additionalProperties": false,
+      "properties": {
+        "width": { "type": "integer", "exclusiveMinimum": 0 },
+        "height": { "type": "integer", "exclusiveMinimum": 0 }
+      }
+    },
+
+    "grid": {
+      "type": "object",
+      "description": "The reference grid. Two-tier: major squares of `cellsPerMajor` cells, lettered by column and numbered by row, then the cell's position inside its major as two digits. See tools/gazetteer/core/grid.py.",
+      "required": ["cellPx", "cellsPerMajor", "cols", "rows"],
+      "additionalProperties": false,
+      "properties": {
+        "cellPx": { "type": "integer", "exclusiveMinimum": 0 },
+        "cellsPerMajor": { "type": "integer", "exclusiveMinimum": 0 },
+        "cols": { "type": "integer", "exclusiveMinimum": 0 },
+        "rows": { "type": "integer", "exclusiveMinimum": 0 },
+        "separator": { "type": "string" },
+        "majorColLetters": { "type": "string" }
+      }
+    },
+
+    "pageFurniture": {
+      "type": "array",
+      "description": "Rectangles inside the content area that are printed page furniture rather than terrain -- the title cartouche, a legend, an inset. Anything reading the picture to decide what the ground is must take `ground` here instead of the pixels, because furniture is painted in ink colours that classify as whatever they happen to resemble. Image pixels, not content pixels. See tools/gazetteer/landmask.py.",
+      "items": {
+        "type": "object",
+        "required": ["id", "rect", "ground"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "rect": {
+            "type": "array",
+            "description": "[x0, y0, x1, y1] in image pixels, upper-left inclusive and lower-right exclusive.",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": { "type": "number" }
+          },
+          "ground": {
+            "enum": ["water", "land"],
+            "description": "What is actually underneath the furniture."
+          },
+          "note": { "type": "string" }
+        }
+      }
+    },
+
+    "frameRef": {
+      "type": "string",
+      "description": "Id of the map frame in data/map/frames/ that this raster was exported from. It supplies the centre, the page rotation, the extent and the CRS -- everything needed to turn a content pixel into lon/lat."
+    },
+
+    "metresPerPixel": {
+      "type": ["number", "null"],
+      "exclusiveMinimum": 0,
+      "description": "Ground metres per content pixel. Derived from the frame (extentM / content width) and asserted against it on load, so a wrong value fails rather than silently rescaling the world. Null to skip the assertion."
+    },
+
+    "calibration": {
+      "type": "object",
+      "description": "Whether the Photoshop master still registers on the frame's page square. `exact` means it does and no correction is applied. `affine` means it drifted (a crop or a resample between export and hand-finishing) and the six coefficients correct raw content pixels before they are projected.",
+      "required": ["mode"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": { "enum": ["exact", "affine"] },
+        "matrix": {
+          "type": ["array", "null"],
+          "description": "[a, b, c, d, e, f] for x' = a*x + b*y + c, y' = d*x + e*y + f. Required when mode is affine.",
+          "items": { "type": "number" },
+          "minItems": 6,
+          "maxItems": 6
+        },
+        "checkedDate": { "type": ["string", "null"], "format": "date" },
+        "residualPx": {
+          "type": ["number", "null"],
+          "description": "Worst control-point residual at the last calibration, in pixels. 1 px is 1 m here, so this is also the map's positional accuracy in metres."
+        },
+        "controlPoints": {
+          "type": "array",
+          "description": "Identifiable features used to check registration, each an image pixel paired with the real lon/lat it should land on. Kept so the check is repeatable rather than a one-off eyeball.",
+          "items": {
+            "type": "object",
+            "required": ["label", "imagePx", "lonLat"],
+            "additionalProperties": false,
+            "properties": {
+              "label": { "type": "string" },
+              "imagePx": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+              "lonLat": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+              "note": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "tiles": {
+      "type": ["object", "null"],
+      "description": "The pyramid the gazetteer pans over, built from the master by tools/gazetteer/tile.py. Null before it has been built.",
+      "additionalProperties": false,
+      "properties": {
+        "dir": { "type": "string" },
+        "tileSize": { "type": "integer", "exclusiveMinimum": 0 },
+        "maxZoom": { "type": "integer", "minimum": 0 },
+        "format": { "type": "string" },
+        "builtFromSha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+        "builtDate": { "type": ["string", "null"], "format": "date" }
+      }
+    },
+
+    "openQuestionRefs": { "type": "array", "items": { "type": "string" } }
+  }
+}

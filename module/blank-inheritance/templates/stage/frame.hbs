@@ -1,0 +1,75 @@
+{{!--
+    One character on the stage.
+
+    The vocabulary is V1's encounter box (.bi-marker__card), reused deliberately
+    rather than reinvented — see design/theatre-of-the-mind-staging.md §3. The
+    art is dimmed until you look at it, because a row of six full-saturation
+    portraits would fight the console for attention every second of the session.
+
+    The frame is the control. The scope is a real <button> covering the art and
+    the nameplate, and the small keys sit BELOW it rather than inside it — a
+    button inside a button is invalid, and the browser's own handling of it is
+    not something to find out about live at a table.
+
+    `revealed` is absent from a player's copy of the cast: a concealed member
+    is not in their data at all (core/stage-layout.mjs#publishedCast), so there
+    is no hidden frame here to reveal by inspecting the DOM.
+
+    data-entrance drives the frame-engage motion (design/theatre-of-the-mind-
+    staging.md §5's middle rung, core/engage.mjs) and is OMITTED, not merely
+    empty, for every member except one arriving on THIS render — a plain
+    re-render (someone else's reveal, a sting change) must never replay an
+    already-visible member's own entrance. foundry/stage.mjs#_prepareContext
+    is what decides who that is.
+--}}
+<figure class="bi-frame{{#if concealed}} bi-frame--concealed{{/if}}" data-portrait-id="{{portraitId}}"
+    {{#if entrance}}data-entrance="{{entrance}}"{{/if}}>
+    <button type="button" class="bi-frame__scope" data-action="openCard"
+        data-actor-id="{{actorId}}" data-label="{{label}}"
+        title="{{label}}">
+        <span class="bi-frame__art">
+            {{#if img}}<img src="{{img}}" alt="">{{/if}}
+        </span>
+        <span class="bi-frame__lamp"></span>
+        <span class="bi-frame__plate">{{label}}</span>
+    </button>
+
+    <div class="bi-frame__keys">
+        {{#if @root.canDirect}}
+        {{!-- Director only, and absent rather than disabled on a player's
+              client — the seat is chosen at construction, so a player never
+              reaches this branch at all. --}}
+        {{!-- Plain click reveals quietly; shift-click reveals AND announces
+              with a banner (foundry/stage.mjs#onToggleReveal). The hint only
+              needs saying on the reveal edge -- concealing ignores the
+              modifier entirely (design/theatre-of-the-mind-staging.md §5). --}}
+        <button type="button" class="bi-frame__key" data-action="toggleReveal"
+            data-portrait-id="{{portraitId}}" data-revealed="{{revealed}}"
+            title="{{#if revealed}}{{localize "BLANKINHERITANCE.Stage.Conceal"}}{{else}}{{localize "BLANKINHERITANCE.Stage.RevealHint"}}{{/if}}"
+            aria-pressed="{{revealed}}">{{#if revealed}}&#9673;{{else}}&#9671;{{/if}}</button>
+        <button type="button" class="bi-frame__key" data-action="askCheck"
+            data-label="{{label}}"
+            title="{{localize "BLANKINHERITANCE.Stage.AskCheck"}}">&#9636;</button>
+        {{#if isNpc}}
+        {{!-- The one place this module deliberately exceeds "two or three
+              keys, never six" by a single key — see foundry/stage.mjs's
+              #onSplash doc comment for why Splash does not fit the
+              Quiet/Announced modifier pattern the reveal key already uses.
+              NPC-only (isNpc is precomputed false for every PC and for
+              every player's client in _prepareContext) and GM-only (nested
+              inside the same canDirect block as the two keys above). The
+              nudge class is the visible half of the "first appearance"
+              hint (design/theatre-of-the-mind-staging.md §5's "when a
+              character is introduced for the first time we do the big
+              bold version") — a suggestion, never a gate; the key works
+              identically with or without it. --}}
+        <button type="button" class="bi-frame__key bi-frame__key--splash{{#if firstAppearance}} bi-frame__key--nudge{{/if}}"
+            data-action="splash" data-portrait-id="{{portraitId}}"
+            title="{{#if firstAppearance}}{{localize "BLANKINHERITANCE.Splash.TriggerFirst"}}{{else}}{{localize "BLANKINHERITANCE.Splash.Trigger"}}{{/if}}">&#10022;</button>
+        {{/if}}
+        {{/if}}
+        <button type="button" class="bi-frame__key" data-action="openCard"
+            data-actor-id="{{actorId}}" data-label="{{label}}"
+            title="{{localize "BLANKINHERITANCE.Console.Card.Open"}}">&#9635;</button>
+    </div>
+</figure>

@@ -1,0 +1,134 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "vermilion-block",
+  "type": "location",
+  "tier": "site",
+  "name": "The Vermilion Block",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "other",
+  "tags": [],
+  "classification": "secret",
+  "rank": 2,
+  "depth": "standing",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21059723,
+          34.66164389
+        ],
+        [
+          135.20999796,
+          34.66138136
+        ],
+        [
+          135.21073553,
+          34.66024493
+        ],
+        [
+          135.21122323,
+          34.66044882
+        ],
+        [
+          135.21108173,
+          34.66069055
+        ],
+        [
+          135.21117396,
+          34.66073454
+        ],
+        [
+          135.21117396,
+          34.66073454
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7564,
+          7501.8
+        ],
+        [
+          7531.5,
+          7554.8
+        ],
+        [
+          7653.8,
+          7629
+        ],
+        [
+          7680.8,
+          7586.8
+        ],
+        [
+          7656,
+          7570.3
+        ],
+        [
+          7660.8,
+          7561.8
+        ],
+        [
+          7660.8,
+          7561.8
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7606.51,
+      7565.36
+    ],
+    "cells": [
+      "D4·66",
+      "D4·76",
+      "D4·77"
+    ],
+    "ref": "D4·66",
+    "areaM2": 8523.7,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-462",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "This place is genuinely complex. It looks distinctly different to anything else on the island. It's black with red trim and a red diamond on the roof. My thinking is that this is the place where extremely high level magic users who are on staff gather. To the north west there are 3 large red metallic silos and three small ones and they are surrounded by a barbed wire fence and highly restricted. It's assumed that powerful magical reagents from across Golarion have been brought here in huge quantities.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The Vermilion Block is the Directorate's own magic-using department -- a black building trimmed in red, a red diamond hazard placard fixed to its roof, standing out from everything else on the island by design. Staff know it exists; what happens inside it is not discussed. Six fenced silos stand north-west of the building -- three large, three small -- holding reagent stock brought in from across Golarion in bulk. What the stock is actually for is not settled here.",
+    "playerFacing": "Nothing else on the island looks like it. Black walls, red trim, and on the roof a diamond painted the same red as a warning light left permanently on. The windows are narrower than they need to be. Six squat cylindrical silos stand behind a second, tighter fence off to one side, each stencilled with a stock number and nothing else. Anyone posted here for the first time gets the same two-line briefing: sign in at the door, and don't ask what's in the silos.",
+    "gmOnly": "Classification: secret (design/strategy-layer.md) -- every ordinary staff member on the island knows this building exists and what it's called; almost none of them know what actually happens inside it, and the six silos are restricted even further, need-to-know only. Play this distinction literally: an NPC who works on Island Centre can confirm the Block is 'the magic people' without hesitation, but pushing for anything more should read as pushing on a locked door, not a well of secret information waiting to be dug out.\n\nDo not decide what the silo reagents are actually for. The Rock's own silo cells (data/locations/the-rock.json) are held to the same standard for the same reason: this is a real campaign-shaping decision, not set dressing, and it is Ingram's call to make when the story needs an answer. What is safe to use as-is: the reagents come from across Golarion, in bulk, the custodian who signs for them (vermilion-block-custodian) has no idea what they're for, and the director (vermilion-block-director) is the only person on site who might.\n\nThis is not connected to The Watcher, the illusionist 'magic show' circuit (LEDGER.md Q2), or the First Impact incident -- keep it that way unless Ingram explicitly says otherwise. It is straightforwardly a Directorate department doing Directorate work, and its mystery is bureaucratic (what are they stockpiling, and why) rather than cosmic.\n\nShowy magic reads as culturally unusual here the same way it does everywhere else in this setting (LEDGER.md Q2) -- staff at the Block are trained to keep their own work as quiet and unremarkable as the black paint on the walls. A PC spellcaster posted here, even briefly, would be told this directly."
+  },
+  "scene": {
+    "hooks": [
+      "A PC with any spellcasting background gets an unexpected posting order to the Block -- not a request, an order. Nobody the party can reach will say why, and the director isn't taking questions.",
+      "A silo delivery breaks down at the gate in full view of anyone nearby -- a supply truck, a tighter-than-usual escort, and a stock number that doesn't match anything on the manifest anyone's willing to explain."
+    ],
+    "activities": [
+      "A reagent delivery, under guard, moving from the gate to the silos -- slow, deliberate, and nobody around it is making conversation.",
+      "The director signing off on a request from another department, visibly unhappy about it, in the doorway rather than letting the requester inside.",
+      "A contained flash of light or a brief, wrong-feeling silence from inside the building that every member of staff outside pointedly does not react to."
+    ],
+    "history": "Built after the Directorate's magic-using staff outgrew whatever informal arrangement housed them before -- exactly when, and what that arrangement was, is undecided. The silos came later than the building itself; staff who've been here long enough remember when there were only two.",
+    "consequences": "Getting inside without authorisation, or getting caught asking too many questions about the silos, draws real Directorate attention -- not violent, but immediate and procedural: an escort back to where you're supposed to be, a note made, a superior informed. A reagent shipment that goes missing or is tampered with is the kind of thing that could plausibly justify Clearance being pulled from an entire unit while it's investigated."
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [
+    "vermilion-block-director",
+    "vermilion-block-custodian"
+  ],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": "ideas/story/bible/locations/vermilion-block.md",
+  "assetRefs": [],
+  "playlistRefs": []
+}

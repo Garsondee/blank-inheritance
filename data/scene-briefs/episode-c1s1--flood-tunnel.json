@@ -1,0 +1,81 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1s1--flood-tunnel",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1s1-mothers-maiden-name",
+  "sceneRef": "flood-tunnel",
+  "title": "Flood Tunnel Clearance",
+  "goal": "Section Nine does the job they were sent to do, gets ambushed by what was actually waiting in the drains, and comes out the other side exhausted, grimy, and blooded for the first time -- with nobody seriously hurt.",
+  "howToPlay": "This is the session's real climax, not an afterthought -- give it the room it needs. Start grounded and physical (the checks, the setting, the smell of the place) before anything turns dangerous. Once the fight starts, keep it moving fast; SF2E's own three-action structure and degree-of-success math will carry the table, since these players already know PF2E cold. Spend your own attention on the room itself -- the sludge, the grate, the walkways -- since that's the one genuinely new thing tonight, not the rules underneath it.",
+  "runsAbout": "30-45 minutes with the optional hazard, 20-30 without",
+  "mode": "combat",
+  "intro": {
+    "where": "A disused drainage/compactor chamber under the old town, accessed via Dock C -- Cze & Peku's 'Trash Compactor' map. A control platform to the north, a large sunken floor around a glowing central grate, conveyor walkways flanking both sides.",
+    "firstThing": "The smell first, then the light -- a low amber glow off the central mechanism, the only real light source in the room.",
+    "readAloud": "The access hatch drops you into a room that's seen better decades. A raised platform to the north still has power -- a bank of panels, half the lights on them dead. Below it, a wide sunken floor slopes toward a grate the size of a cart wheel, glowing faint amber under standing water. Conveyor tracks run the length of both walls, still carrying whatever last got dumped on them toward the middle. Nothing is moving down there. Yet.",
+    "carriesIn": [
+      { "when": "Canteen was played first (it should be)", "then": "The party already knows this is their assignment and knows how much -- or how little -- they were told about it. If anyone investigated at Canteen, let that knowledge inform how they approach the room, without giving it a mechanical bonus by default (see the encounter's specialRules)." }
+    ]
+  },
+  "cast": [],
+  "beats": [
+    {
+      "id": "arrival",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Establish the room before anyone touches anything -- let it feel physical and a little ominous, not yet dangerous.",
+      "direction": "This is the one new environment tonight that isn't an office or a counter. Give it real sensory texture -- sound, smell, the specific quality of the light -- since everything before this scene has been administrative interiors."
+    },
+    {
+      "id": "power-the-line",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Get power back to the drainage line -- the actual job. Assign however the table wants to split up.",
+      "challengeRef": "c1s1-flood-tunnel",
+      "checkRef": "power-the-line",
+      "direction": "Runs alongside clear-the-jam (same challenge file), not before or after it. Unlike almost every other check tonight, this has a small real cost on failure -- flag that shift in stakes if it helps the table read the moment."
+    },
+    {
+      "id": "clear-the-jam",
+      "kind": "check",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Clear the physical jam in the compactor feed.",
+      "challengeRef": "c1s1-flood-tunnel",
+      "checkRef": "clear-the-jam",
+      "direction": "Runs alongside power-the-line, not before or after it. Same real-cost-on-failure note applies -- a bad outcome here is what seeds the compactor-cycle hazard's starting Encroachment if it's running.",
+      "note": "The instant both power-the-line and clear-the-jam resolve, regardless of outcome, move straight to the-fight. Starting the system IS what provokes it."
+    },
+    {
+      "id": "the-fight",
+      "kind": "combat",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "The noise and disturbance wakes the nest. Six Giant Centipedes come up out of the sludge around the central grate.",
+      "encounterRef": "c1s1-flood-tunnel",
+      "subsystemRef": "c1s1-compactor-cycle",
+      "direction": "Run subsystemRef only if using the optional 'closing in' version -- see c1s1-compactor-cycle.json's own notes for how to drop it cleanly if not. Difficult terrain and poor light apply across the sunken floor regardless. The conveyor walkways are the real tactical high ground -- dry, clear, and (if the hazard is running) the one lane that stays safe throughout.",
+      "note": "What the party does with the centipedes -- kill them, drive them off, find another way -- is worth remembering for this specific group's own established character. It is NOT the Observer's Mirror mechanic (dossier-observer.md §13) -- centipedes are non-sentient animals with no connection to that thread. Don't conflate the two."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "The centipedes are dealt with, one way or another, and the immediate danger is over.",
+    "readAloud": "Whatever's left of the nest goes quiet. The grate keeps glowing, the water keeps standing, and six exhausted, soaked, filthy teenagers climb back out the way they came in.",
+    "artefactRefs": [],
+    "tracks": [],
+    "onwards": "Back to shared student accommodation. A long, hard first day ends here -- let them decompress before the session closes.",
+    "writeDown": [
+      "How they handled the centipedes -- kill, drive off, or something else. Colour for later, not a mechanical flag.",
+      "Whether they'd learned at Canteen that this wasn't just routine, and how that changed (or didn't) how they went in.",
+      "Any real injuries carried forward -- see the rest note below."
+    ]
+  },
+  "carryForward": [],
+  "notes": "Corrected 2026-09-09: this scene's notes used to end on 'six teenagers comparing notes over the water and working out they were all flagged' (ch1-v2.md's original line). That discovery has since moved earlier -- it's Intake Medicals' own mandatory climax (beat all-six), which fires that same morning, hours before this scene. By the time the party is here, they've known for most of a day. Don't re-run the discovery; if the table wants a beat for it here, play it as the conversation moving on from 'we're flagged' to what that might actually mean, now that they've had a full day to sit with it -- a different, later conversation, not the same one twice.\n\nREST: back at accommodation, a normal SF2E Long-Term Rest applies -- doubled HP recovery per design/downtime-activities.md's own research into the real rule. This is the session's actual close; don't rush it. Session One ends on six kids who don't fully know each other yet, soaked and tired, starting to realise they have more in common than they thought.\n\nMap: Cze & Peku 'Trash Compactor', supplied by Ingram 2026-09-09. The optional compactor-cycle hazard (c1s1-compactor-cycle.json) is his own addition to the base fight -- 'if you want a really fun version' -- and is purely additive; the scene and encounter both work cleanly without it."
+}

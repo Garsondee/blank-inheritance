@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<!--
+  The Gazetteer — drawing locations onto the campaign map.
+
+  Themed with the module's own stylesheet layers, loaded exactly the way
+  design/ui/style-prototype.html loads them: tokens and components, never the
+  Foundry bridge. PAPER register throughout, per design/ux-doctrine.md §7b —
+  this is a survey sheet and a set of notes, which is what PAPER is for. The
+  repo's other two map tools are its only unthemed surfaces; the standing
+  Visual Identity Directive says unify, so this one does.
+
+  Leaflet is used with CRS.Simple, so every coordinate on this page is a
+  campaign-map image pixel. There is no geography in the browser: projection
+  needs the 31° page rotation and pyproj, and lives on the server.
+-->
+<html lang="en" class="bi-scope">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gazetteer — Survey</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="/theme/bi-fonts.css">
+<link rel="stylesheet" href="/theme/bi-tokens.css">
+<link rel="stylesheet" href="/theme/bi-components.css">
+<link rel="stylesheet" href="/static/gazetteer.css">
+</head>
+<body data-mode="survey">
+
+<header class="gz-bar">
+  <div class="gz-bar__title">
+    <span class="gz-bar__jp">地誌</span>
+    <span class="gz-bar__name">GAZETTEER</span>
+  </div>
+
+  <!-- Two modes, because the tool serves two different jobs and they want
+       opposite layouts. SURVEY is the drawing loop: draw or adopt, write a
+       rough note, select, hand off. REVIEW is the evaluation loop: rank what
+       matters, see what is owed, and write lore with room to actually write.
+       Everything that is instrumentation rather than drawing lives in
+       review, which is what stops the survey sidebar from being a stack of
+       competing scrollbars. -->
+  <div class="gz-modes" id="modes" role="tablist" aria-label="Mode">
+    <button type="button" class="gz-mode is-on" data-mode="survey" role="tab">Survey</button>
+    <button type="button" class="gz-mode" data-mode="review" role="tab">Review</button>
+    <button type="button" class="gz-mode" data-mode="lore" role="tab">Lore</button>
+  </div>
+
+  <div class="gz-readout" id="readout">
+    <span class="gz-readout__ref" id="readout-ref">—</span>
+    <span class="gz-readout__px" id="readout-px"></span>
+  </div>
+
+  <!-- Always visible, never gated behind the optional coverage LAYER
+       checkbox — a tessellation that has stopped tessellating is exactly
+       the kind of fact that must not require opting in to see. Found live:
+       a Tier-dropdown mistake dropped coverage to 98.96% and nothing said
+       so until the layer was switched on by hand to go looking for it. -->
+  <div class="gz-coverage-pill" id="coverage-pill" title="Region coverage — always on, independent of the Layers panel's coverage overlay">
+    <span class="gz-coverage-pill__dot" id="coverage-pill-dot"></span>
+    <span id="coverage-pill-text">—</span>
+  </div>
+
+  <div class="gz-tools" id="tools" role="toolbar" aria-label="Tools">
+    <button class="gz-tool is-active" data-tool="pan"     data-key="V" title="Click to select, drag a box to select + adopt everything inside. Right-click drag to pan. (V)">Select</button>
+    <button class="gz-tool" data-tool="lasso"   data-key="L" title="Draw a polygon to select + adopt everything inside — drawn items and real buildings alike (L)">Lasso</button>
+    <button class="gz-tool" data-tool="region"  data-key="R" title="Draw a region — districts tessellate. Reverts to Select after one shape (R)">Region</button>
+    <button class="gz-tool" data-tool="bisect"  data-key="C" title="Select a region first. Draw a line from one point on its edge to another — splits it in two (C)">Bisect</button>
+    <button class="gz-tool" data-tool="site"    data-key="S" title="Draw a site — a building or block (S)">Site</button>
+    <button class="gz-tool" data-tool="point"   data-key="P" title="Place a pin (P)">Pin</button>
+    <button class="gz-tool" data-tool="adopt"   data-key="B" title="Click a real building to take its footprint (B)">Adopt</button>
+    <button class="gz-tool" data-tool="remove"  data-key="X" title="Remove real buildings the painted map no longer has (X)">Remove</button>
+  </div>
+
+  <!-- The armed tool, unmissable rather than inferred from which toolbar
+       button happens to look pressed. Two buildings were filed as districts
+       in one real session because Region stayed armed after a click
+       elsewhere drew attention away from the toolbar — this is on-screen
+       everywhere the map itself is, and colour-matches the shape that tool
+       draws (see TIER_COLOUR / the tool-armed CSS). -->
+  <div class="gz-armed" id="tool-armed" data-tool="pan">
+    <span class="gz-armed__dot"></span>
+    <span id="tool-armed-text">Select</span>
+  </div>
+
+  <div class="gz-bar__right">
+    <button class="gz-btn" id="btn-cleanup"
+      title="Snap every region vertex that is nearly touching another region's border into one shared point — the batch version of what dragging a vertex onto a neighbour already does. Click once to preview, again to apply.">Cleanup</button>
+    <button class="gz-btn" id="btn-undo" title="Nothing to undo yet" disabled>Undo</button>
+    <span class="gz-save" id="save-state">saved</span>
+    <button class="gz-btn" id="btn-save" title="Save the session (Ctrl+S)">Save</button>
+  </div>
+</header>
+
+<main class="gz-main">
+  <div id="map" class="gz-map"></div>
+
+  <!-- Drag to widen. A lore note is prose, and prose in a 340px column is
+       the other half of "the session panel is too small" -- the map and the
+       reading surface want different amounts of room at different moments,
+       and only the person doing the work knows which moment this is. -->
+  <div class="gz-resize" id="side-resize" role="separator" aria-orientation="vertical"
+       aria-label="Resize the side panel" tabindex="0"></div>
+
+  <aside class="gz-side">
+    <!-- A quick-navigation strip, separate from Session's full tree: every
+         district's name, reference and progress, collapsed by default so it
+         costs one line until opened, click a row to fly there and open
+         Session already narrowed to it. Ingram, 2026-09-12 survey: wants
+         this at the top as its own openable panel, Session collapsed by
+         default with Inspector getting priority instead. -->
+    <section class="gz-panel gz-panel--capped" id="regions-panel">
+      <h2 class="gz-panel__head">Regions <span class="gz-count" id="regions-count">0</span></h2>
+      <div class="gz-panel__body">
+        <ul class="gz-list gz-list--compact" id="regions-list"
+            title="Click a district to fly the map there and open Session narrowed to it"></ul>
+      </div>
+    </section>
+
+    <section class="gz-panel gz-panel--capped" id="inspector">
+      <h2 class="gz-panel__head">Inspector</h2>
+      <div class="gz-panel__body">
+      <div class="gz-empty" id="inspector-empty">
+        Nothing selected. Draw something, or pick a shape on the map.
+      </div>
+      <form class="gz-form" id="inspector-form" hidden>
+        <label class="gz-field">
+          <span class="gz-field__label">Tier</span>
+          <select id="f-tier">
+            <option value="region">Region — a district</option>
+            <option value="site">Site — a building or block</option>
+            <option value="point">Pin — a point with a story</option>
+          </select>
+        </label>
+        <label class="gz-field">
+          <span class="gz-field__label">Name <em>optional</em></span>
+          <input id="f-name" type="text" autocomplete="off" placeholder="leave blank and we'll name it together">
+        </label>
+
+        <!-- Where this thing actually IS, computed from geometry, never
+             typed. The finding that started Gazetteer V2: forty regions
+             already tessellate the map exactly, so every site already
+             knows its own district — nothing showed it anywhere. -->
+        <p class="gz-breadcrumb" id="breadcrumb" hidden></p>
+
+        <!-- Shown only once this item has been promoted to a real
+             data/locations/*.json entity -- the written lore, read from
+             there. Without this the inspector had nowhere to show what was
+             actually written: every field below is always the DRAFT's own
+             note, frozen the day this was promoted, and locking a promoted
+             item stops it from ever changing again here. See
+             tools/gazetteer/core/promotion.mjs. -->
+        <div class="gz-promoted" id="promoted-box" hidden>
+          <p class="gz-promoted__badge" id="promoted-badge"></p>
+          <dl class="gz-promoted__lore" id="promoted-lore"></dl>
+        </div>
+
+        <label class="gz-field">
+          <span class="gz-field__label">Kind</span>
+          <select id="f-kind"></select>
+        </label>
+
+        <!-- Region-only. One line of standing context every building inside
+             the district should already know before a word of lore is
+             written about them — the direct fix for three corrections that
+             arrived mid-session ("this end of the island is pure military
+             and checkpoints") only AFTER lore had already gone the wrong
+             way. Constraints are short hard facts as data, not prose, so
+             they can be scanned rather than read. -->
+        <div id="region-brief-fields">
+          <label class="gz-field">
+            <span class="gz-field__label">District brief <em>one line, read before writing lore inside it</em></span>
+            <input id="f-brief" type="text" autocomplete="off" placeholder="e.g. pure military and checkpoints — no civilians">
+          </label>
+          <label class="gz-field">
+            <span class="gz-field__label">Constraints <em>comma separated, short facts not sentences</em></span>
+            <input id="f-constraints" type="text" autocomplete="off" placeholder="no-civilians, 1950s-register">
+          </label>
+        </div>
+
+        <!-- Site/point only, when it stands inside a briefed region: the
+             brief READ, never edited here — editing it means going to the
+             region itself, so it can never drift out of sync with the ten
+             other buildings that also inherit it. -->
+        <div class="gz-inherited" id="inherited-brief" hidden>
+          <span class="gz-inherited__label">From <span id="inherited-region-name"></span></span>
+          <p id="inherited-brief-text"></p>
+        </div>
+        <!-- Declared, never inferred: saying how much a place is going to
+             matter is a commission, and the obligations panel below then
+             reports whether the content has caught up. See
+             design/location-depth.md. -->
+        <label class="gz-field">
+          <span class="gz-field__label">Depth <em>how much this place owes</em></span>
+          <select id="f-depth">
+            <option value="named">Named — a purpose, one line</option>
+            <option value="sketch">Sketch — a brief moment in passing</option>
+            <option value="scene">Scene — a full scene with the group</option>
+            <option value="standing">Standing — returned to all campaign</option>
+          </select>
+        </label>
+        <label class="gz-field">
+          <span class="gz-field__label">Note<em id="f-note-hint"></em></span>
+          <textarea id="f-note" rows="5" placeholder="rough is fine — what it is, who's there, what happens"></textarea>
+        </label>
+        <label class="gz-field">
+          <span class="gz-field__label">Tags <em>comma separated</em></span>
+          <input id="f-tags" type="text" autocomplete="off">
+        </label>
+        <!-- What this location still owes at its declared depth, live. The
+             three lists are deliberately different weights: `missing` is the
+             contract, the other two are advice about the declaration itself. -->
+        <div class="gz-owes gz-survey-hide" id="depth-owes"></div>
+        <!-- What the FOOTPRINT will carry, as opposed to what the text
+             currently is. Read this before writing, not after: a 24 m2
+             outline and a 3,876 m2 outline were being handed the same blank
+             note field and the same invitation. See tools/gazetteer/core/
+             shape.py. -->
+        <div class="gz-shape gz-survey-hide" id="shape-report"></div>
+        <dl class="gz-facts" id="f-facts"></dl>
+        <p class="gz-hint gz-lock-hint" id="lock-hint" hidden>
+          Locked — this has a lore entry. Unlock to rename, edit or delete it.
+        </p>
+        <div class="gz-form__actions">
+          <button type="button" class="gz-btn" id="btn-zoom">Zoom to</button>
+          <button type="button" class="gz-btn" id="btn-lock">Lock</button>
+          <button type="button" class="gz-btn gz-btn--danger" id="btn-delete">Delete</button>
+        </div>
+        <!-- Everything a person would otherwise have to type into chat by
+             hand: name, district, brief, constraints, footprint reading,
+             depth status, note — one click, onto the clipboard, ready to
+             paste. Replaces a typed handover sentence entirely. -->
+        <button type="button" class="gz-btn gz-btn--handoff" id="btn-handoff">Copy for Claude</button>
+        <div class="gz-promote gz-survey-hide" id="promote-box">
+          <p class="gz-hint" id="promote-hint"></p>
+          <button type="button" class="gz-btn gz-btn--promote" id="btn-promote">Promote to a real location</button>
+        </div>
+      </form>
+
+      <!-- Batch state: 2+ items selected, via a marquee or a lasso (either
+           can mix pre-existing drawn/adopted items with real buildings
+           adopted on the spot). Vertex editing has no meaning for a group,
+           so this replaces the single-item form entirely rather than
+           sitting alongside it. -->
+      <form class="gz-form" id="batch-form" hidden>
+        <span class="gz-batch__count" id="batch-count">0 selected</span>
+        <p class="gz-batch__hint">Set a shared theme for the whole cluster — nothing is written until you press Apply. This is a starting point, not each building's final word: read individually later and given its own purpose and description.</p>
+        <label class="gz-field">
+          <span class="gz-field__label">Kind</span>
+          <select id="b-kind"><option value="">— leave as is —</option></select>
+        </label>
+        <label class="gz-field">
+          <span class="gz-field__label">Shared theme <em>replaces each item's note</em></span>
+          <textarea id="b-note" rows="4" placeholder="what this whole cluster is — worker housing along the pier, a row of dockside warehouses…"></textarea>
+        </label>
+        <label class="gz-field">
+          <span class="gz-field__label">Tags <em>comma separated, replaces existing</em></span>
+          <input id="b-tags" type="text" autocomplete="off">
+        </label>
+        <label class="gz-field">
+          <span class="gz-field__label">Name pattern <em>{n} counts from 1, in the order below</em></span>
+          <div class="gz-pattern-row">
+            <input id="b-name-pattern" type="text" autocomplete="off" placeholder="Row A, Block {n}">
+            <button type="button" class="gz-btn" id="btn-batch-rename">Fill names</button>
+          </div>
+        </label>
+        <ul class="gz-batch__list" id="batch-list"></ul>
+        <div class="gz-form__actions">
+          <button type="button" class="gz-btn gz-btn--promote" id="btn-batch-apply">Apply to selected</button>
+          <button type="button" class="gz-btn" id="btn-batch-lock">Lock selected</button>
+          <button type="button" class="gz-btn" id="btn-batch-merge" hidden>Merge into one region</button>
+          <button type="button" class="gz-btn gz-btn--danger" id="btn-batch-delete">Delete selected</button>
+        </div>
+        <button type="button" class="gz-btn gz-btn--handoff" id="btn-batch-handoff">Copy for Claude</button>
+      </form>
+      </div>
+    </section>
+
+    <!-- The state of the whole map in one glance, before scrolling into the
+         hundred-plus-row list below. Answers "what should I work on
+         tonight" without having to already know the answer. -->
+    <section class="gz-panel gz-panel--capped gz-panel--overview gz-survey-hide" id="overview-panel">
+      <h2 class="gz-panel__head">Overview</h2>
+      <div class="gz-panel__body">
+        <div class="gz-overview__stats" id="overview-stats"></div>
+        <ul class="gz-overview__list" id="overview-needs"></ul>
+        <!-- Claude -> Ingram: a place that came up while writing lore
+             elsewhere but has no shape or note of its own yet. Hidden
+             entirely (not just empty) when there is nothing open, so an
+             empty queue costs no space in a panel this project already
+             fought to keep short. -->
+        <h3 class="gz-overview__subhead" id="requests-head" hidden>Open requests</h3>
+        <ul class="gz-overview__list" id="overview-requests" hidden></ul>
+      </div>
+    </section>
+
+    <!-- The session list is the surface this tool is actually FOR: working
+         through a session's worth of locations one at a time, and when it IS
+         open it still gets the remaining height unconditionally rather than
+         whatever the panels above happen to leave over -- a tall batch form
+         used to crush it to three visible rows out of thirty-six. But per
+         Ingram's own 2026-09-12 survey ("I don't actually use the 'Session'
+         section myself") it is not the default work surface for everyone,
+         so unlike Inspector it now starts collapsed -- the Regions panel
+         above and a region click both still open it, narrowed, on demand. -->
+    <section class="gz-panel gz-panel--grow" id="session-panel">
+      <h2 class="gz-panel__head">
+        Session
+        <span class="gz-count" id="item-count">0</span>
+      </h2>
+      <div class="gz-panel__body">
+
+      <div class="gz-filters">
+        <input id="f-search" type="search" placeholder="filter by name, note or reference" autocomplete="off">
+        <!-- Doubles as the progress readout: how much of this session still
+             needs writing is the single most useful number here, so it lives
+             on the control you would reach for anyway rather than in a
+             separate line of chrome. -->
+        <div class="gz-chips" id="status-chips" role="group" aria-label="Filter by status">
+          <button type="button" class="gz-chip is-on" data-status="all">All <span class="gz-chip__n" id="chip-n-all">0</span></button>
+          <button type="button" class="gz-chip" data-status="todo">Needs lore <span class="gz-chip__n" id="chip-n-todo">0</span></button>
+          <button type="button" class="gz-chip" data-status="locked">Locked <span class="gz-chip__n" id="chip-n-locked">0</span></button>
+        </div>
+        <div class="gz-listbar">
+          <label class="gz-select-all">
+            <input type="checkbox" id="select-all-visible" disabled>
+            <span id="select-all-label">select all</span>
+          </label>
+          <label class="gz-sort">
+            view
+            <select id="f-view">
+              <option value="tree">by district</option>
+              <option value="flat">flat list</option>
+            </select>
+          </label>
+          <label class="gz-sort">
+            sort
+            <select id="f-sort">
+              <option value="ref">by reference</option>
+              <option value="name">by name</option>
+              <option value="depth">by depth</option>
+              <option value="added">by added</option>
+            </select>
+          </label>
+        </div>
+        <!-- Only shown while a district is focused: click a region's header
+             in the tree below to fly the map to it and narrow the list to
+             just its contents — the single biggest change to how a session
+             this size actually feels to work through. -->
+        <div class="gz-focus-bar" id="focus-bar" hidden>
+          <span>Focused: <strong id="focus-bar-name"></strong></span>
+          <button type="button" class="gz-btn" id="btn-focus-clear">Show everything</button>
+        </div>
+      </div>
+      <ul class="gz-list" id="item-list"
+          title="Click a row to view it · Shift-click for a range · Ctrl-click to add one · click a name or note to edit it in place"></ul>
+      <p class="gz-hint gz-list-hint">Shift-click a range · Ctrl-click to add · click a name or note to edit · click a district to focus it</p>
+      </div>
+    </section>
+
+    <section class="gz-panel" id="layers-panel">
+      <h2 class="gz-panel__head">Layers</h2>
+      <div class="gz-panel__body">
+        <label class="gz-check"><input type="checkbox" id="l-grid" checked> Reference grid</label>
+        <label class="gz-check"><input type="checkbox" id="l-buildings" checked> Real buildings</label>
+        <label class="gz-check"><input type="checkbox" id="l-items" checked> Drawn locations</label>
+        <label class="gz-check"><input type="checkbox" id="l-suppressed"> Removed buildings</label>
+        <!-- The tessellation check. Shades ground no region claims, and
+             ground two regions both claim -- the two ways a cover fails. -->
+        <label class="gz-check"><input type="checkbox" id="l-coverage"> Region coverage</label>
+        <p class="gz-hint" id="coverage-hint"></p>
+        <p class="gz-hint" id="layer-hint"></p>
+      </div>
+    </section>
+  </aside>
+
+  <!-- Review mode. Shares the one Leaflet instance with survey mode (the map
+       element is re-parented on switch and invalidateSize called), so there is
+       never a second map to keep in step. -->
+  <section class="gz-review" id="review">
+    <div class="gz-review__list">
+      <div class="gz-review__head">
+        <h2>Locations <span class="gz-count" id="review-count">0</span></h2>
+        <input id="review-search" type="search" placeholder="filter by name or district" autocomplete="off">
+        <div class="gz-chips" id="review-rank-chips" role="group" aria-label="Filter by rank">
+          <button type="button" class="gz-chip is-on" data-rank="all">All</button>
+          <button type="button" class="gz-chip" data-rank="1">1</button>
+          <button type="button" class="gz-chip" data-rank="2">2</button>
+          <button type="button" class="gz-chip" data-rank="3">3</button>
+          <button type="button" class="gz-chip" data-rank="4">4</button>
+          <button type="button" class="gz-chip" data-rank="5">5</button>
+          <button type="button" class="gz-chip" data-rank="none">unranked</button>
+        </div>
+        <div class="gz-chips" id="review-kind-chips" role="group" aria-label="Filter by tier">
+          <button type="button" class="gz-chip is-on" data-tier="all">Everything</button>
+          <button type="button" class="gz-chip" data-tier="region">Districts only</button>
+          <button type="button" class="gz-chip" data-tier="site">Buildings only</button>
+        </div>
+      </div>
+      <ul class="gz-review__rows" id="review-rows"></ul>
+    </div>
+
+    <div class="gz-review__editor" id="review-editor">
+      <div class="gz-empty" id="review-empty">Pick a location on the left to work on it.</div>
+      <form class="gz-form" id="review-form" hidden>
+        <div class="gz-review__title">
+          <input id="r-name" type="text" autocomplete="off" placeholder="name">
+          <span class="gz-review__where" id="r-where"></span>
+        </div>
+        <div class="gz-review__meta">
+          <label class="gz-field gz-field--inline">
+            <span class="gz-field__label">Rank <em>1 matters most</em></span>
+            <select id="r-rank">
+              <option value="">— unranked —</option>
+              <option value="1">1 · pivotal</option>
+              <option value="2">2 · major</option>
+              <option value="3">3 · supporting</option>
+              <option value="4">4 · colour</option>
+              <option value="5">5 · background</option>
+            </select>
+          </label>
+          <label class="gz-field gz-field--inline">
+            <span class="gz-field__label">Depth</span>
+            <select id="r-depth">
+              <option value="named">named</option>
+              <option value="sketch">sketch</option>
+              <option value="scene">scene</option>
+              <option value="standing">standing</option>
+            </select>
+          </label>
+          <div class="gz-owes" id="r-owes"></div>
+        </div>
+
+        <div class="gz-review__panes" id="r-panes">
+          <label class="gz-field gz-field--tall">
+            <span class="gz-field__label">Summary <em>GM-facing, what this place is</em></span>
+            <textarea id="r-summary"></textarea>
+          </label>
+          <label class="gz-field gz-field--tall">
+            <span class="gz-field__label">Player-facing <em>what they see on arrival</em></span>
+            <textarea id="r-playerFacing"></textarea>
+          </label>
+          <label class="gz-field gz-field--tall">
+            <span class="gz-field__label">GM-only <em>what is hidden</em></span>
+            <textarea id="r-gmOnly"></textarea>
+          </label>
+          <label class="gz-field gz-field--tall">
+            <span class="gz-field__label">Hooks <em>one per line</em></span>
+            <textarea id="r-hooks"></textarea>
+          </label>
+          <label class="gz-field gz-field--tall">
+            <span class="gz-field__label">Activities <em>one per line</em></span>
+            <textarea id="r-activities"></textarea>
+          </label>
+          <label class="gz-field gz-field--tall">
+            <span class="gz-field__label">Note <em>the original rough brief</em></span>
+            <textarea id="r-note"></textarea>
+          </label>
+        </div>
+
+        <div class="gz-review__actions">
+          <span class="gz-hint" id="r-state"></span>
+          <!-- The seal of quality: Ingram's own, never Claude's -- see
+               server.py's /api/location/<id>/approve, the one path that can
+               set it, and the standing rule behind why that is a separate
+               deliberate action rather than a side effect of Save. -->
+          <button type="button" class="gz-btn gz-btn--promote" id="r-approve">Approve</button>
+          <button type="button" class="gz-btn gz-btn--promote" id="r-save">Save this location</button>
+          <button type="button" class="gz-btn gz-btn--handoff" id="r-handoff">Copy for Claude</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="gz-review__map" id="review-map-slot">
+      <!-- Ingram, 2026-09-12 survey: "press a button and grid spaces will
+           change colour to reflect their biome." Floats over the map
+           rather than living in Layers, since Layers is Survey's own panel
+           and this was asked for specifically in Review. -->
+      <div class="gz-biome-control">
+        <button type="button" class="gz-btn" id="btn-biomes">Show biomes</button>
+        <button type="button" class="gz-btn" id="btn-biomes-rebuild"
+                title="Recompute every cell from the real data, a promoted district's own kind, and any hand override -- use after promoting new districts or editing biome-overrides.json" hidden>Rebuild</button>
+      </div>
+      <div class="gz-biome-legend" id="biome-legend" hidden></div>
+    </div>
+  </section>
+
+  <!-- Ingram, 2026-09-13: "a small set of documents which you treat as
+       holy"; "the majority of space is taken up by the document viewer but
+       you also have other text boxes which are instructions I can save for
+       you." Three columns: the curated list, the viewer (largest), and
+       instructions -- deliberately not a fourth column for the map, which
+       this mode has no use for. -->
+  <section class="gz-lore" id="lore">
+    <div class="gz-lore__list">
+      <div class="gz-lore__head">
+        <h2>Lore Library</h2>
+        <button type="button" class="gz-btn" id="btn-summon-claude"
+                title="Copy a summary of every pending instruction to the clipboard, to paste into a new message">Summon Claude</button>
+      </div>
+      <input id="lore-filter" type="search" placeholder="filter by title or topic" autocomplete="off">
+      <ul class="gz-lore__docs" id="lore-doc-list"></ul>
+      <button type="button" class="gz-btn" id="btn-add-lore-doc">+ Add a document</button>
+      <form class="gz-lore__add-form" id="lore-add-form" hidden>
+        <input id="lore-add-path" placeholder="repo-relative path, e.g. design/foo.md" required>
+        <input id="lore-add-title" placeholder="title" required>
+        <label class="gz-sort">importance (1 holy - 5 background)
+          <select id="lore-add-importance">
+            <option value="1">1 - holy</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5 - background</option>
+          </select>
+        </label>
+        <label class="gz-sort">shelf
+          <select id="lore-add-category">
+            <option value="bible">bible</option>
+            <option value="ledger">ledger</option>
+            <option value="design" selected>design</option>
+            <option value="campaign-data">campaign-data</option>
+            <option value="other">other</option>
+          </select>
+        </label>
+        <input id="lore-add-description" placeholder="one line: what this is for">
+        <div class="gz-pattern-row">
+          <button type="submit" class="gz-btn gz-btn--promote">Add</button>
+          <button type="button" class="gz-btn" id="btn-cancel-add-lore-doc">Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="gz-lore__viewer">
+      <div class="gz-lore__viewer-head">
+        <h3 id="lore-doc-title">Pick a document on the left.</h3>
+        <span class="gz-lore__importance" id="lore-doc-importance" hidden></span>
+        <button type="button" class="gz-btn" id="btn-lore-edit" hidden>Edit</button>
+        <button type="button" class="gz-btn gz-btn--promote" id="btn-lore-save" hidden>Save</button>
+        <button type="button" class="gz-btn" id="btn-lore-cancel" hidden>Cancel</button>
+      </div>
+      <p class="gz-lore__description" id="lore-doc-description"></p>
+      <div class="gz-lore__links" id="lore-doc-links" hidden></div>
+      <div class="gz-lore__content" id="lore-doc-content"></div>
+      <textarea class="gz-lore__editor" id="lore-doc-editor" hidden spellcheck="false"></textarea>
+    </div>
+
+    <div class="gz-lore__instructions">
+      <h3>Instructions for Claude</h3>
+      <p class="gz-hint">Describe a change you want to the document on the left. Claude reads
+        pending instructions when summoned and applies them, or asks here if something is
+        genuinely ambiguous -- the more important the document, the more likely that is.</p>
+      <ul class="gz-lore__instr-list" id="lore-instructions-list"></ul>
+      <textarea id="lore-instruction-text" placeholder="e.g. &quot;Add a note that...&quot;" rows="4"></textarea>
+      <button type="button" class="gz-btn gz-btn--promote" id="btn-add-instruction" disabled>Save instruction</button>
+    </div>
+  </section>
+</main>
+
+<footer class="gz-status">
+  <span id="status">loading…</span>
+  <span class="gz-status__keys" id="status-keys"></span>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module" src="/static/app.js"></script>
+</body>
+</html>

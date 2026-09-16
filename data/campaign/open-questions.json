@@ -5,16 +5,21 @@
     {
       "id": "bleed-visibility",
       "question": "Does a pilot see their own running Bleed total, or is it GM-only?",
-      "status": "open",
-      "resolution": null,
-      "relatedRefs": ["campaign/config.json#bleed"]
+      "status": "resolved",
+      "resolution": "Resolved 2026-09-06, with a better answer than either option originally posed: Bleed is neither passively visible nor permanently hidden - it is TESTED. A pilot spends a discretionary slice on a Harmonics Evaluation to learn the current value, and that same evaluation can also improve it. Information becomes a purchase in personal time, matching the pattern contactPool.analysisDutyInteraction already set. See config.json bleed.visibilityMechanism and timeEconomy.options#harmonics-evaluation.",
+      "relatedRefs": [
+        "campaign/config.json#bleed",
+        "design/resonance-and-bleed.md"
+      ],
+      "notes": "2026-09-06 analysis (design/resonance-and-bleed.md \u00a73) argues this one is not neutral: Pushing trades Resonance now for Bleed later, and a trade with one side hidden is a gamble rather than a decision. Recommended middle path \u2014 show the pilot a BAND (Stable/Strained/Critical) rather than a number: enough to price a push honestly, not enough to count down precisely to berserk, and it matches the three-light-gauge idiom the console already uses. Still open; a recommendation is not a decision."
     },
     {
       "id": "day1-pilot-day6-choice",
       "question": "Does the Day 1 pilot get a genuine, viable option to sit out the second Contact? If yes, what does refusal actually cost — and is it survivable as a choice, or does the story punish it into a non-choice?",
       "status": "open",
       "resolution": null,
-      "relatedRefs": ["episodes/episode-02-second-contact.json"]
+      "relatedRefs": [],
+      "notes": "STALE FRAMING, 2026-09-13: this question was written about a specific deleted beat (the 'second Contact' on Day 6, episodes/episode-02-second-contact.json, removed along with every drafted beat beyond Session 0/1). The underlying question is still a good one and is now MORE live, not less - can a player decline a deployment, and does the campaign punish that into a non-choice - but it needs re-framing against whatever replaces it. Do not answer it in terms of Day 6."
     },
     {
       "id": "frame-class-assignment",
@@ -29,7 +34,12 @@
       "question": "Are all six Resonance percentages read aloud and ranked at weekly harmonics testing (public, competitive, cruel), or kept private to each pilot?",
       "status": "open",
       "resolution": null,
-      "relatedRefs": []
+      "relatedRefs": [
+        "campaign/config.json#resonance",
+        "design/resonance-and-bleed.md",
+        "campaign/gm-notes.json#read-numbers-flatly"
+      ],
+      "notes": "2026-09-06 analysis (design/resonance-and-bleed.md \u00a72) leans hard toward public: published ranking turns Resonance from a character stat into a public score of how emotionally available a child is, assigned by an institution \u2014 the cruellest and strongest use of the mechanic. gm-notes.json read-numbers-flatly already points the same way. Still the user call."
     },
     {
       "id": "third-npc-pole",
@@ -50,7 +60,8 @@
       "question": "Do the other five know the pilot in scene 7 (Episode One) is one of their own, or do they just see a machine? Ignorance is more frightening; knowledge is more binding.",
       "status": "open",
       "resolution": null,
-      "relatedRefs": ["episodes/episode-01-contact-unclassified.json"]
+      "relatedRefs": [],
+      "notes": "STALE FRAMING, 2026-09-13: 'scene 7 (Episode One)' was a beat in episodes/episode-01-contact-unclassified.json, deleted along with every drafted beat beyond Session 0/1. The question itself - do the kids on the ground know the pilot is one of their own - survives the deletion and should be asked again of whatever the first Frame-scale encounter turns out to be (open-questions.json#session-two-shape). It is also entangled with ground-roles-viability, since 'the other five' presumes ground roles exist."
     },
     {
       "id": "ancestry-reveal-justification",
@@ -72,6 +83,174 @@
       "status": "open",
       "resolution": null,
       "relatedRefs": ["campaign/ground-roles.json", "design/campaign-arc.md#non-pilot-students-avoiding-a-second-line-role"]
+    },
+    {
+      "id": "fatigue-escalation-formula",
+      "question": "Working consecutive time-of-day segments without resting is confirmed (2026-09-06) to trigger a check that gets harder each additional segment worked, ending in involuntary unconsciousness and the loss of that segment's slot. The structure is settled; the numbers are not — what check (Fortitude is the likely fit, not confirmed), what's the starting DC and the per-segment escalation, and does it reset fully on any rest or only on specific rest types?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/config.json#timeEconomy.fatigue", "design/ux-doctrine.md#downtime-is-the-segment-mechanic", "design/downtime-activities.md"],
+      "notes": "Closely linked to rest-activity-roster — the reset mechanism likely depends on which rest types end up designed. A concrete proposal exists (2026-09-06, design/downtime-activities.md §1): a four-stage Exhaustion track built from real conditions (Fatigued → +Slowed 1 → +Stupefied 1 → Unconscious), and Fortitude DC 15 escalating by 5 per consecutive segment. Not confirmed — a researched suggestion, not a decision."
+    },
+    {
+      "id": "rest-activity-roster",
+      "question": "Confirmed (2026-09-06) that resting is a real, encouraged, multi-typed choice with different SF2E-relevant bonuses per type — a quiet option weighted toward HP recovery, hospital care targeting HP and debuffs, a social outing (clubbing/karaoke) for a different kind of bonus, and more. The structure is settled; the actual roster of named rest activities and their specific mechanical bonuses is explicitly future collaborative design, not something to invent to look complete.",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/config.json#timeEconomy.options", "design/ux-doctrine.md#downtime-is-the-segment-mechanic", "design/downtime-activities.md", "ideas/entries/group-downtime-activity-voting.json", "ideas/entries/location-discovery-and-recovery-risk.json"],
+      "notes": "Closely linked to fatigue-escalation-formula. A concrete proposal exists (2026-09-06, design/downtime-activities.md §2): Lights Out (Long-Term Rest's real doubled HP recovery), Sick Bay (real Treat Wounds numbers), Night Out (−1 Bleed + a circumstance bonus, since Bleed's own sources already include psychological distress), plus Workshop offered as a fourth illustrative option. Not confirmed — a researched suggestion, not a decision. A 2026-09-13 wishlist idea (ideas/entries/group-downtime-activity-voting.json) proposes what happens when several players pick Night Out the same evening: a shared venue vote plus cross-session prerequisite gating between venues — unbuilt, not yet reflected in the roster above. A 2026-09-14 follow-up (ideas/entries/location-discovery-and-recovery-risk.json) proposes the roster's venues aren't fully known upfront — better destinations get discovered through play, plus a purchasable random-location item — and that some recovery picks should carry real risk instead of pure upside. Both wishlist, both unbuilt."
+    },
+    {
+      "id": "bleed-intermediate-thresholds",
+      "question": "Bleed is 0-10 with a single threshold at 10 (berserk), so points 1-9 currently have no mechanical expression at all \u2014 a tracked resource that stays invisible in play until it detonates. Should Bleed gain intermediate thresholds, and should they eat what Resonance grants (e.g. 4+ costs your reaction, 7+ drops your effective band one step for ability access) so the two tracks actually interact before the endpoint?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/config.json#bleed", "design/resonance-and-bleed.md"],
+      "notes": "Flagged 2026-09-06 as the highest-value, lowest-cost change available on either track. Also makes Pushing a genuinely tense trade: a band now for a band later."
+    },
+    {
+      "id": "bleed-recovery-sinks",
+      "question": "Bleed has four defined sources (pushing, Frame damage, plug distress, Suppression) and exactly one undefined reduction (Signals Liaison reduces Bleed, no magnitude or rate given). With no decay, no per-session reset and no downtime route, berserk arrives on a schedule regardless of player choices \u2014 a countdown rather than a managed risk. Is that the intent? If not, what are Bleed sinks and at what rates?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/config.json#bleed", "campaign/ground-roles.json#signals-liaison", "design/resonance-and-bleed.md", "design/downtime-activities.md"],
+      "notes": "A one-way doom clock is a legitimate structure (Blades in the Dark, Ten Candles) but it changes the interesting decision from avoiding berserk to choosing when it lands, which only works if Bleed is visible (see bleed-visibility). Episode 1 scripts berserk into the very first fight, which suggests the countdown reading may already be the de facto intent. design/downtime-activities.md proposes one sink (Night Out, -1)."
+    },
+    {
+      "id": "two-action-default",
+      "question": "config.json bandDesignNote states that most of the campaign is played at 2 actions. SF2E is architecturally a three-action system \u2014 two-action activities consume a whole turn, the signature turn shapes need three, and the multiple attack penalty is built around a third attack being possible-but-unwise. Should 3 actions instead be the norm from Nominal upward, with 2 reserved for Dead Weight as a genuine failure state, letting ability tiers and internal-power duration carry the band spread?",
+      "status": "resolved",
+      "resolution": "Resolved 2026-09-06: 3 actions is the norm from Nominal upward; 2 actions is a penalty state with exactly two causes, Dead Weight sync and Frame damage (Degraded caps at 2, Critical at 1). User's framing: 'we need to build around the normal being 3 actions and 2 actions being the penalty for early campaign usage and for usage when the mech is seriously damaged.' config.json updated; reasoning preserved in resonance.actionEconomyRevisionNote.",
+      "relatedRefs": ["campaign/config.json#resonance.bands", "design/resonance-and-bleed.md", "design/scale-and-chassis.md"],
+      "notes": "Raised 2026-09-06. The counter-argument is real and artistic: constraint IS the fiction, and Harmonised should feel like a breakthrough. The concern is that a reduced action economy delivers both feels-constrained and has-fewer-decisions, and only the first is wanted."
+    },
+    {
+      "id": "resonance-band-spread",
+      "question": "Measured total combat contribution across the Resonance bands (actions per round x internal-power rounds, plus Absolute free Strikes) is 7 / 12 / 24 / 40 actions \u2014 a 5.7x spread from Dead Weight to Absolute, before ability tiers are counted. That is a wider gap than four character levels in SF2E, on one track, inside one tier, between players at the same table. Is that intended, and if so should pilots fielded together be constrained to within a band or two of each other?",
+      "status": "resolved",
+      "resolution": "Addressed 2026-09-06 by the action-economy change rather than by capping who deploys together. With 3 actions from Nominal, the normal operating range (Nominal to Absolute) compresses from 3.3x to 2.2x. Dead Weight to Absolute remains 5.7x, which is now correct rather than alarming: Dead Weight is explicitly the failure state, and a pilot below 40% sync being a fraction of a working Frame is the intended fiction. The original concern was pilots at 55% being in that position, which no longer happens.",
+      "relatedRefs": ["campaign/config.json#resonance.bands", "design/resonance-and-bleed.md"],
+      "notes": "Arithmetic run 2026-09-06; it had not been computed before. Closely tied to two-action-default \u2014 making 3 actions standard from Nominal compresses the action-count spread to roughly 2.2x and shifts the difference onto ability tiers, which is arguably where it belongs anyway."
+    },
+    {
+      "id": "suppression-intent-vs-pattern",
+      "question": "Suppression currently triggers when a player declines an Anchor-relevant conflict specifically to protect their deployability \u2014 which requires the GM to judge a player motive and then penalise them for it. Should it instead trigger on pattern (a kid Anchors going untouched for N scenes raises Bleed regardless of why), keeping the same anti-exploit pressure without anyone at the table having to assess intent?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/config.json#suppression", "design/resonance-and-bleed.md"],
+      "notes": "Raised 2026-09-06. The current version also risks penalising a legitimate characterisation \u2014 some kids genuinely are conflict-avoidant."
+    },
+    {
+      "id": "hero-points-vs-berserk",
+      "question": "SF2E Hero Points can be spent to avert death. Berserk (Bleed 10) currently has no escape valve at all. Should spending all Hero Points be able to avert or interrupt berserk the way it averts death, giving loss-of-self the same mechanical dignity as death and handing players one expensive out?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/config.json#bleed.berserk", "design/resonance-and-bleed.md", "reference/srd/player-core/381-hero-points.json"],
+      "notes": "Raised 2026-09-06. Also worth being deliberate about the broader overlap: Hero Points and Anchors both reward selfless or daring play and will often fire on the same moments, at different timescales."
+    },
+    {
+      "id": "frame-upgrade-economy",
+      "question": "Frames DO level up (confirmed 2026-09-06; campaign-arc.md had already corrected the design bible on this). The new model: players earn upgrade points from downtime activities AND from winning both personnel- and Frame-scale combat, spend them on Frame upgrades, and enough points levels the Frame \u2014 a normal SF2E level-up with bespoke Frame feats and options. Combat awards guarantee a floor so no Frame is ever stranded at 12. Open parameters: what are the points called, what is the points-to-level conversion, are they per-pilot or drawn from a shared pool like technician-days, and what are the concrete DOWNSIDES of over-investing in Frame upgrades at the expense of personal activities?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/config.json#frameEconomy", "design/campaign-arc.md", "design/downtime-activities.md", "design/design-layers.md"],
+      "notes": "PARTIALLY ANSWERED 2026-09-06. (a) DRIFT: hard cap of one level either way. User: 'rewards players up to a point for investment but doesn't allow there to be an overpowering advantage to just doing frame stuff', and it keeps the encounter maths reliable. This supersedes campaign-arc.md's strict-lockstep line, which is now annotated there. (b) POOL: upgrade points are INDIVIDUAL per pilot, not shared like technician-days \u2014 each PC has their own repair crew (see repair-crew-relationship). STILL OPEN: what the points are called, and the points-to-level conversion rate."
+    },
+    {
+      "id": "activity-buff-legibility",
+      "question": "Downtime activities grant flavoured, predictable buffs \u2014 the user's example: 'they only have to go to the gun range once to get a buff which they know will make their next personnel level battle easier by making it easier to hit baddies.' DURATION ANSWERED 2026-09-06: a buff persists until used, and is spent on the character's next combat \u2014 bankable, one-shot, not use-it-or-lose-it. STILL OPEN: whether several different buffs can be carried into the same fight, and whether there is a cap.",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["design/downtime-activities.md", "campaign/config.json#timeEconomy", "design/design-layers.md"],
+      "notes": "Useful half-answer already in the system: if activity buffs are expressed as CIRCUMSTANCE bonuses, SF2E's own stacking rules cap them for free \u2014 two circumstance bonuses to the same roll don't stack, you take the highest, so hoarding three gun-range visits does nothing. Different bonus TYPES (circumstance + status + item) would all still apply, which is a natural, system-native ceiling rather than an invented one. The remaining risk to watch is a player banking several DIFFERENT-typed buffs ahead of a Contact they can see coming. The design principle is settled even though the parameters are not: buffs must be LEGIBLE and PLANNABLE \u2014 a player should be able to predict the payoff before spending the slice. That is the positive twin of ux-doctrine Law 19 (nothing expires without its cost being visible first). Circumstance bonuses are the safest vehicle since they are bounded and native to SF2E, and per design-layers.md this is a Layer 2 addition that must not distort the Layer 0 combat maths underneath."
+    },
+    {
+      "id": "repair-crew-relationship",
+      "question": "Each pilot has their own repair crew (confirmed 2026-09-06, alongside the decision that upgrade points are individual rather than pooled). The crew is a standing NPC relationship with real mechanical weight in both directions: treat them well \u2014 the user's example is going out drinking with them \u2014 and they may put in an unasked-for night shift; neglect them and they provide less HP healing per repair. Open parameters: how is crew standing tracked, what exactly does it scale (HP restored per technician-day? chance of free work? both?), how many named crew NPCs per pilot, and how does crew standing interact with the SHARED technician-day pool?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/config.json#frameEconomy", "design/downtime-activities.md", "campaign/config.json#timeEconomy", "data/npcs/repair-chief-*.json"],
+      "notes": "PARTIALLY ANSWERED 2026-09-09. (a) NAMED NPCS: one per pilot, six total, confirmed and scaffolded as placeholders (data/npcs/repair-chief-*.json, linked via npc.schema.json's new crewChiefForRef) \u2014 currently 'lesser NPCs who may grow into bigger more interesting roles later,' not characterised yet. (b) WHAT IT SCALES: a guaranteed baseline HP repair happens every technician-day cycle regardless of PC involvement (the floor \u2014 'repair crews are always working around the clock'); direct PC involvement, working alongside the crew rather than just spending the resource, restores substantially more. STILL OPEN, numeric: the exact floor amount and the exact PC-involvement multiplier/bonus are not set. (c) VEHICLES: confirmed the same crew also maintains the pilot's assigned chassis (campaign/chassis-catalogue.json, added 2026-09-09) from the same technician-day allocation, so splitting a limited pool between a Frame and a vehicle is a real player choice \u2014 this wasn't a live question when the entry was first written, since vehicles as a concrete catalogue didn't exist yet. The two resources are still cleanly non-redundant: the technician-day pool is the Directorate's SHARED allocation \u2014 how much repair time you are granted, competed for between pilots \u2014 while crew standing/involvement is PERSONAL and scales how much you get OUT of that time. This also gives the Night Out rest activity (design/downtime-activities.md \u00a72) a second payoff beyond Bleed reduction, and gives every pilot a recurring named NPC relationship that is professional rather than personal, sitting alongside Anchors rather than duplicating them. TERMINOLOGY WARNING unchanged: these are NPC repair technicians, verbally distinct from the PC-played Ground Roles in campaign/ground-roles.json (Sensor Operator, Umbilical Control, etc.), which are something else entirely."
+    },
+    {
+      "id": "npc-fact-reveal-scope",
+      "question": "When one player learns a Character Card Fact about an NPC (design/npc-social-intel.md), does it become known to the whole party from then on, or only to the player/character who earned it? Proposed default: party-wide, matching how the muster board already treats party knowledge as one shared flag and how the Sensor Operator ground role already frames a discovered fact as something 'the pilot can act on' regardless of who found it.",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["design/npc-social-intel.md", "data/schema/npc.schema.json#socialProfile"],
+      "notes": "Raised 2026-09-06. Changes whether 'who was actually in the room' ever matters for what the table can act on."
+    },
+    {
+      "id": "npc-fact-leverage-bonus-size",
+      "question": "design/npc-social-intel.md proposes a +2 circumstance bonus when a player's stated approach clearly uses a revealed Fact against an NPC. Is +2 the right size, matching the existing Night Out rest bonus, or should it scale with how directly the Fact applies?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["design/npc-social-intel.md", "design/downtime-activities.md"],
+      "notes": "Raised 2026-09-06. Low-stakes to leave open \u2014 easy to tune at the table without touching the surrounding design."
+    },
+    {
+      "id": "npc-attitude-player-visibility",
+      "question": "Should an NPC's current Attitude (Hostile/Unfriendly/Indifferent/Friendly/Helpful, on the Character Card) ever be shown to players as the literal word, or only narrated through how the GM plays the scene? design/npc-social-intel.md proposes narrated-only by default.",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["design/npc-social-intel.md", "data/schema/npc.schema.json#socialProfile"],
+      "notes": "Raised 2026-09-06. Distinct from bleed-visibility's resolution (tested, on request) \u2014 Attitude changes far more often and from many small actions, so a testing model may not fit as cleanly; open rather than assumed."
+    },
+    {
+      "id": "day1-pilot-slice-penalty-scaling",
+      "question": "The Day 1 pilot's stated disadvantage is a real injury that 'permanently lose[s] one discretionary slice per day to ongoing medical obligations' (design-bible.md). That was half their daily options under the original 2-slice economy. The slice count changed to 4 on 2026-09-06 (see timeEconomy.slicesRevisionNote), which quietly halves the real weight of that penalty to a quarter of their options, as a side effect of a UI-driven number that had nothing to do with this character beat when it was decided. Should the loss scale to two slices to preserve the original bite, or is the softer version actually fine or even an improvement?",
+      "status": "resolved",
+      "resolution": "Resolved 2026-09-06, and not by rescaling the number. Per the new standing design principle 'penalties cost risk, never choice' (design/campaign-arc.md), a permanent slice loss was always the wrong shape regardless of size. Superseded: the Day 1 pilot's injury is now reduced starting Hit Points at personnel scale, not a discretionary-slice tax. Costs nothing in a Frame (full Resonance, full actions, full slice choice); everything the moment they are not in one, since scale-and-chassis.md §11 already puts a dismounted pilot on foot at personnel scale where Ground Role danger deals real damage against a real HP pool. Their existing advantage (68% starting Resonance) is untouched.",
+      "relatedRefs": ["design/campaign-arc.md#design-principle-penalties-cost-risk-never-choice", "design/design-bible.md", "campaign/config.json#timeEconomy", "design/campaign-arc.md"],
+      "notes": "Found during a 2026-09-06 audit pass, not raised at the time the slice count changed \u2014 a real example of why cross-file consequences need checking after a number changes, not just the file the number lives in."
+    },
+    {
+      "id": "day1-pilot-hp-reduction-amount",
+      "question": "The Day 1 pilot's injury is now reduced starting Hit Points at personnel scale (resolved 2026-09-06, see day1-pilot-slice-penalty-scaling). The shape is decided; the number is not \u2014 how much HP, and is it a flat reduction, a percentage, or a specific ability-score/class-feature change?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["design/campaign-arc.md#design-principle-penalties-cost-risk-never-choice", "ideas/story/bible/LEDGER.md#10", "design/induction-terminal.md"],
+      "notes": "Deliberately not invented here \u2014 this is a real balance number for a specific named character beat, not something to guess at. Confirmed 2026-09-10 (LEDGER.md #10): this is a player-CHOSEN chargen option (\"the Day 1 pilot\"/\"veteran\" start), not an assigned narrative role, and the pilot also starts exhausted from their duties on top of the reduced HP \u2014 a plausible fit for the Exhaustion track (design/downtime-activities.md \u00a71, itself still a proposal). The induction terminal has no branch for this path yet; still needs this number before that branch can be built."
+    },
+    {
+      "id": "manako-records-visibility",
+      "question": "Does a Directorate records search on day one find Manako, and under what name? dossier-cicada.json section 5 says he appears in every document as a terrorist, which - if true and searchable by trainees - lets a curious party shortcut the entire campaign in Session One, the same afternoon they meet him.",
+      "status": "resolved",
+      "resolution": "Resolved 2026-09-13 (LEDGER #17), option (a) and then strengthened. THE DIRECTORATE HAS NEVER IDENTIFIED CICADA'S FOUNDER. They have a cult, demonstrations, arrests and a cabinet of detained believers, and no name at the top. A day-one search on the old man returns a chemist disgraced decades ago and nothing else, because that is genuinely all the institution has - not because the file is restricted. His name is therefore SAFE to give the table freely, and should be, since the later recognition depends on it having been in their notes all along. Ingram then went further and made it a standing rule: 'the rule should be that it is the player characters who must first identify that The Original Cultist is a key figure in the organisation and they must be the ones to find out it's the kindly man they met during the first session.' Both halves of that discovery belong to the players. No NPC hands them either one.",
+      "relatedRefs": ["ideas/story/dossier-cicada.md", "ideas/story/dossier-the-directorate.md", "data/scene-briefs/episode-c1s1--the-errand.json"],
+      "notes": "Raised 2026-09-13 while writing The Errand, the Session One scene where the party meets him. The four-pass reveal is designed so his name turns up later in a discredited paper and is ALREADY FAMILIAR, which is the gut-punch - that only works if a day-one search returns nothing useful. Three ways out, not chosen here: (a) the Directorate has never identified Cicada's founder at all, and 'appears as a terrorist' describes the movement rather than the man; (b) he is on file under the name he was disgraced under, which is not the name the tea house knows him by; (c) the file exists and trainees have no access to it on day one, which is true of almost everything else they will want. Option (a) is the cleanest and has knock-on effects for what the Directorate knows in later chapters, so it is Ingram's call rather than a detail to settle in a scene brief."
+    },
+    {
+      "id": "ground-roles-viability",
+      "question": "Do the five ground roles survive at all, and if so in what form? Raised by Ingram 2026-09-13: 'Umbilical Control as an idea sounds like a player not getting involved and having fun, ground-roles may need completely removing or at least realigning with a SF2E campaign's need to give each player agency over their role and actions.'",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["campaign/ground-roles.json", "data/schema/ground-roles.schema.json", "design/scale-and-chassis.md", "ideas/story/blank-inheritance-ch1-v2.md#8", "data/subsystems/day-1-ground-layer.json"],
+      "notes": "Three separate problems, worth keeping distinct. (1) AGENCY: Umbilical Control converts a kid's successful check into a resource for somebody else's Frame, and Signals Liaison spends a turn adjusting another player's track - both are a player taking an action whose entire payoff lands on a different player's sheet. That is the specific complaint. (2) DEPENDENCY: two of the five (Umbilical Control, Signals Liaison) only exist when a Frame is on the field, so a player who picks one has a job that cannot come up in a personnel-scale session at all. (3) REACH: 'ground role' appears across 84 files as of 2026-09-13, including the kid schema, the equipment catalogue, the six draft kids, the induction prompts, the battle simulator's whole ground-layer and its six kid fixtures, and data/subsystems/day-1-ground-layer.json. Removing them is not a delete, it is a project. Nothing has been removed; the concept is flagged only. THE STANDING REQUIREMENT, from the same message: this is a heavily modified SF2E campaign first, so every player must have real agency over their own role and actions, and no design should stray from what makes a good SF2E table experience."
+    },
+    {
+      "id": "resonance-playability",
+      "question": "Resonance needs substantial work before it is functional, interesting or playable. What does it actually become? Flagged by Ingram 2026-09-13 alongside Bleed.",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["design/resonance-and-bleed.md", "campaign/config.json#resonance", "design/research/evangelion/the-machine-and-the-pilot.md#5"],
+      "notes": "Supersedes the previous framing in which Resonance was treated as locked and authoritative (CLAUDE.md carried that claim until 2026-09-13, when it was corrected). The existing investigation already found the hard numbers: a 5.7x spread in total combat contribution from the lowest band to the highest before ability tiers count, and 'most of the campaign is played at 2 actions' inside a system architecturally built for three. Those findings stand and are the starting point, not the conclusion. Do NOT import Evangelion's answers here - see the standing warning in design/research/evangelion/the-machine-and-the-pilot.md section 5. The existing open questions two-action-default and resonance-band-spread are recorded as resolved; re-read them before assuming any part of this is settled, since a rebuild may reopen them."
+    },
+    {
+      "id": "bleed-playability",
+      "question": "Bleed needs substantial work before it is functional, interesting or playable. What does it actually become? Flagged by Ingram 2026-09-13 alongside Resonance.",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["design/resonance-and-bleed.md", "campaign/config.json#bleed", "design/campaign-arc.md#design-principle-penalties-cost-risk-never-choice", "ideas/entries/location-discovery-and-recovery-risk.json"],
+      "notes": "The existing investigation's finding stands as the starting point: four inflows, one undefined outflow, and a single threshold across ten points, so points 1-9 currently do nothing and the berserk state arrives on a schedule rather than as a managed risk. Four older Bleed questions are still open underneath this one (bleed-intermediate-thresholds, bleed-recovery-sinks, suppression-intent-vs-pattern, hero-points-vs-berserk) and should be answered as part of the same rebuild rather than separately. Check any proposal against 'penalties cost risk, never choice'. A 2026-09-14 wishlist idea (ideas/entries/location-discovery-and-recovery-risk.json) wants some recovery activities to carry real risk rather than pure upside — deliberately written currency-agnostic rather than assuming Bleed survives this rework; worth checking once this question resolves."
+    },
+    {
+      "id": "session-two-shape",
+      "question": "Session Two is agreed in shape and unwritten: a Frame/vehicle-scale training exercise interrupted by a real call-out, the team sent to something live part-way through a safe scheduled drill, before they are ready. What is the actual encounter, and what is the enemy?",
+      "status": "open",
+      "resolution": null,
+      "relatedRefs": ["ideas/story/blank-inheritance-ch1-v2.md#8", "design/scale-and-chassis.md", "design/research/evangelion/the-enemy-as-puzzle.md"],
+      "notes": "Direction given by Ingram 2026-09-13 ('a classic trope'). Blocked on ground-roles-viability: a Frame-scale encounter is exactly where ground roles either earn their place or get cut, so writing the encounter first would bake in a system that may not survive. Ingram also stated a preference, 2026-09-13, for enemies built as puzzles - work out what it is doing, what it is strong at, what not to do against it, then beat it by out-thinking it and through teamwork rather than brute force. The worked catalogue for that shape is design/research/evangelion/the-enemy-as-puzzle.md."
     }
   ]
 }

@@ -1,0 +1,178 @@
+{
+  "$schema": "../schema/asset-registry.schema.json",
+  "id": "asset-registry",
+  "type": "asset-registry",
+  "description": "Source of truth for which artwork has been confirmed and assigned. artwork/ itself is gitignored (bulk, large); this file is tracked, so it's the only durable record that an assignment happened. Check this before assigning anything new -- the same picture must never get used for two things. A `kind: \"npc\"` entry's `ref` is the character's canonical id (matching its ideas/story/bible/characters/<id>.md filename stem where one exists) -- it will NOT resolve against data/npcs/*.json for any character that hasn't been promoted to a real NPC file yet (Shucks Mordant, Hyuck, Rupiah and Anabala all currently have none). That's expected, not a bug: the portrait exists and is assigned before the data file does. Scene-brief cast ids are kept aligned to this same canonical id where practical (episode-c1s1--intake-medicals.json's Shucks cast entry was renamed shucks -> shucks-mordant 2026-09-09 for exactly this reason).",
+  "assets": [
+    {
+      "id": "episode-c1s1--the-road-in",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1s1--the-road-in.png",
+      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--the-road-in" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "garsondee_hand-painted_anime_background_art_matte_painting_goua_a2d86dfc-b90f-4cd3-9611-f34bf23be9b1.png",
+      "note": "An elevated coastal highway curving toward the city skyline, dramatic cumulus cloud bank, warm evening light. The road the six spotlights of The Road In are each travelling, from a distance."
+    },
+    {
+      "id": "shucks-mordant",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/shucks-mordant.png",
+      "assignedTo": { "kind": "npc", "ref": "shucks-mordant" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "ShucksMordant.png",
+      "note": "Already named by the artist -- a skeletal figure in a white coat and stethoscope, arms folded, standing in a cluttered clinic office with a wall clock and a first-aid kit. Matches the bible's doctor-founder exactly."
+    },
+    {
+      "id": "shucks-mordant--hand-detail",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/shucks-mordant--hand-detail.png",
+      "assignedTo": { "kind": "npc", "ref": "shucks-mordant" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "ShucksMordant_LeftHand.png",
+      "note": "Companion detail shot -- his skeletal hand resting on a desk edge, warm side light. A close-up variant, not the primary portrait."
+    },
+    {
+      "id": "hyuck",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/hyuck.png",
+      "assignedTo": { "kind": "npc", "ref": "hyuck" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "Hyuck.png",
+      "note": "Already named by the artist -- a massive gnoll warrior, feathers and painted bands, low-angle heroic framing. Confirms the gnoll-statue connection: Hyuck himself is the gnoll. Founder, alongside Shucks Mordant and Rupiah (blank-inheritance-master-timeline.md, ~200 years ago)."
+    },
+    {
+      "id": "rupiah",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/rupiah.png",
+      "assignedTo": { "kind": "npc", "ref": "rupiah" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "Rupiah.png",
+      "note": "Already named by the artist -- an elf-eared figure in golden window light, moths nearby, contemplative profile. The third founder alongside Hyuck and Shucks Mordant. Confirmed 2026-09-10 (LEDGER.md #8): elf, elf nobility specifically -- the portrait's reading was accurate."
+    },
+    {
+      "id": "anabala",
+      "kind": "image",
+      "category": "character-portraits",
+      "path": "artwork/character-portraits/anabala.png",
+      "assignedTo": { "kind": "npc", "ref": "anabala" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "Anabala.png",
+      "note": "Already named by the artist, found under character-portraits/mitflits/ -- blue-skinned, tall-eared, wide-brimmed hat and round tinted glasses. The mitflit founder who recruited Hyuck, Shucks Mordant and Rupiah to intervene ~200 years ago (mitflits.md already names her as the founder)."
+    },
+    {
+      "id": "episode-c1s1--canteen",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1s1--canteen.png",
+      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--canteen" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "canteen_01.png",
+      "note": "A spacious dining hall, tall windows with tree light, rows of wooden tables and chairs, papers stacked on side counters. Matches 'a room built for hundreds' -- picked as primary over canteen_02 (more classroom-like, kept as an alternate)."
+    },
+    {
+      "id": "episode-c1s1--canteen--alt",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1s1--canteen--alt.png",
+      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--canteen" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "canteen_02.png",
+      "note": "Alternate angle -- reads more like a classroom/study hall (chalkboard visible) than a dining hall. Kept as a secondary variant, not the primary."
+    },
+    {
+      "id": "episode-c1s1--intake-medicals",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1s1--intake-medicals.png",
+      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--intake-medicals" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "hospital_waiting_room.png",
+      "note": "An institutional waiting room, rows of bench seating, notices pinned to a peeling wall, a wall clock. Matches 'the medical hall, first morning' -- The Queue beat."
+    },
+    {
+      "id": "episode-c1s1--intake-medicals--exam-room",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1s1--intake-medicals--exam-room.png",
+      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--intake-medicals" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "hospital_examination_room.png",
+      "note": "A real examination room -- gurney, equipment, city view through blinds. This is specifically Shucks's own room for the 'one at a time' private beat, pairs with his portrait."
+    },
+    {
+      "id": "episode-c1s1--kit-issue",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1s1--kit-issue.png",
+      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--kit-issue" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "equipment_storage.png",
+      "note": "Quartermaster's stores -- shelving of gear, a pegboard of tools, jackets on hooks, red storage crates. Matches Kit Issue's counter/stores exactly."
+    },
+    {
+      "id": "episode-c1s1--flood-tunnel",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1s1--flood-tunnel.png",
+      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--flood-tunnel" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "sewer_trash_compactor.png",
+      "note": "A vaulted underground chamber, ankle-deep sludge lit green, a control panel and archway at the back. Primary image for the compactor chamber itself."
+    },
+    {
+      "id": "episode-c1s1--flood-tunnel--generator-room",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1s1--flood-tunnel--generator-room.png",
+      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--flood-tunnel" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "generator_room.png",
+      "note": "A large cylindrical generator/turbine with a control panel beside it. Matches the 'power-the-line' basic check specifically -- an adjacent room to the main chamber."
+    },
+    {
+      "id": "episode-c1s1--flood-tunnel--machine-room",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1s1--flood-tunnel--machine-room.png",
+      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--flood-tunnel" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "underground_machine.png",
+      "note": "Another industrial machine bay, radiators and a press, a green door at the back. Third variant/detail shot for the same underground complex."
+    },
+    {
+      "id": "directorate-headquarters--exterior",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/directorate-headquarters--exterior.png",
+      "assignedTo": { "kind": "location", "ref": "directorate-headquarters" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "building_entrance_01.png",
+      "note": "A brick building entrance, stone steps, lit doorway among trees. NOT tied to one specific scene brief -- general Directorate facility exterior. No dedicated bible/locations/directorate-headquarters.md exists yet; flagged for the user rather than assumed onto a specific scene."
+    },
+    {
+      "id": "directorate-headquarters--loading-dock",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/directorate-headquarters--loading-dock.png",
+      "assignedTo": { "kind": "location", "ref": "directorate-headquarters" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "building_entrance_02.png",
+      "note": "An industrial roller-shutter loading entrance, cluttered storefront-style stockroom, a vending machine outside. Same caveat as the exterior shot -- general facility image, not scene-specific."
+    },
+    {
+      "id": "directorate-headquarters--lobby",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/directorate-headquarters--lobby.png",
+      "assignedTo": { "kind": "location", "ref": "directorate-headquarters" },
+      "assignedDate": "2026-09-09",
+      "sourceFilename": "building_entrance_interior_01.png",
+      "note": "An interior corridor/lobby -- double doors, bookshelves, a noticeboard, a wall clock. Same caveat -- general facility interior, not scene-specific."
+    }
+  ]
+}

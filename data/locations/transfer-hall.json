@@ -1,0 +1,147 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "transfer-hall",
+  "type": "location",
+  "tier": "site",
+  "name": "Transfer Hall",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "transport",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20254845,
+          34.68094113
+        ],
+        [
+          135.20256925,
+          34.68087447
+        ],
+        [
+          135.20287975,
+          34.67989723
+        ],
+        [
+          135.20270148,
+          34.67986586
+        ],
+        [
+          135.20274546,
+          34.67969683
+        ],
+        [
+          135.20272116,
+          34.67969298
+        ],
+        [
+          135.20227027,
+          34.67961342
+        ],
+        [
+          135.2020894,
+          34.68019565
+        ],
+        [
+          135.2019027,
+          34.68080166
+        ],
+        [
+          135.20254845,
+          34.68094113
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          5840.7,
+          6033.2
+        ],
+        [
+          5846.1,
+          6038.6
+        ],
+        [
+          5925.7,
+          6117.5
+        ],
+        [
+          5913.4,
+          6128.8
+        ],
+        [
+          5926.4,
+          6142.9
+        ],
+        [
+          5924.7,
+          6144.4
+        ],
+        [
+          5893.6,
+          6173
+        ],
+        [
+          5846.5,
+          6125.8
+        ],
+        [
+          5797.6,
+          6076.6
+        ],
+        [
+          5840.7,
+          6033.2
+        ]
+      ]
+    ],
+    "centroidPx": [
+      5865.63,
+      6102.44
+    ],
+    "cells": [
+      "C3·79",
+      "C3·89"
+    ],
+    "ref": "C3·79",
+    "areaM2": 8141.1,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-158",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "The concourse where the two rail systems meet and nobody is permitted to walk straight through. Mainland passengers come down from the up-line platforms, queue at the barrier, show a pass, and climb again to the island platforms on the far side. The crossing takes eleven minutes when nothing is wrong and forty when it is. Benches, a tea stand, and a departures board that lists the island services in a separate, smaller column. Everyone who does this daily has firm opinions about which barrier lane moves fastest.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The concourse where the two rail systems meet and nobody is permitted to walk straight through. Mainland passengers come down from the up-line platforms, queue at the barrier, show a pass, and climb again to the island platforms on the far side. The crossing takes eleven minutes when nothing is wrong and forty when it is. Benches, a tea stand, and a departures board that lists the island services in a separate, smaller column. Everyone who does this daily has firm opinions about which barrier lane moves fastest.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

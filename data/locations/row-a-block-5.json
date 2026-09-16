@@ -1,0 +1,107 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "row-a-block-5",
+  "type": "location",
+  "tier": "site",
+  "name": "Row A, Block 5",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21151214,
+          34.67239308
+        ],
+        [
+          135.21159659,
+          34.67225768
+        ],
+        [
+          135.21211697,
+          34.67247706
+        ],
+        [
+          135.21203252,
+          34.67261246
+        ],
+        [
+          135.21151214,
+          34.67239308
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7030.1,
+          6432.3
+        ],
+        [
+          7044.4,
+          6441.3
+        ],
+        [
+          7073.1,
+          6396.1
+        ],
+        [
+          7058.8,
+          6387.1
+        ],
+        [
+          7030.1,
+          6432.3
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7051.6,
+      6414.2
+    ],
+    "cells": [
+      "D4·40",
+      "D4·41"
+    ],
+    "ref": "D4·40",
+    "areaM2": 904.7,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-115",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "The roof leaks exactly one bucket's worth during the autumn rains, in the same spot, every year, and the block has a standing rotation for who empties it. Nobody has asked maintenance to fix it since the rotation became a genuine point of block pride.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The roof leaks exactly one bucket's worth during the autumn rains, in the same spot, every year, and the block has a standing rotation for who empties it. Nobody has asked maintenance to fix it since the rotation became a genuine point of block pride.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

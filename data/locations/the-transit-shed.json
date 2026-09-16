@@ -1,0 +1,123 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-transit-shed",
+  "type": "location",
+  "tier": "site",
+  "name": "The Transit Shed",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "transport",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20254916,
+          34.66955133
+        ],
+        [
+          135.20247545,
+          34.67067377
+        ],
+        [
+          135.20307983,
+          34.67070045
+        ],
+        [
+          135.20315353,
+          34.669578
+        ],
+        [
+          135.2029184,
+          34.66956809
+        ],
+        [
+          135.20258208,
+          34.66955308
+        ],
+        [
+          135.20254916,
+          34.66955133
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6482.9,
+          7121.3
+        ],
+        [
+          6413.8,
+          7017.5
+        ],
+        [
+          6460,
+          6986.8
+        ],
+        [
+          6529.1,
+          7090.6
+        ],
+        [
+          6511.1,
+          7102.5
+        ],
+        [
+          6485.4,
+          7119.6
+        ],
+        [
+          6482.9,
+          7121.3
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6471.44,
+      7054.04
+    ],
+    "cells": [
+      "D4·13",
+      "D4·14"
+    ],
+    "ref": "D4·13",
+    "areaM2": 6915.0,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-360",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Everything landed off the causeway waits here to be looked at. Nothing in it is meant to stay longer than a day, and a fair amount of it has been here for years.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Everything landed off the causeway waits here to be looked at. Nothing in it is meant to stay longer than a day, and a fair amount of it has been here for years.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

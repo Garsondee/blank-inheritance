@@ -1,0 +1,128 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-telephone-exchange",
+  "type": "location",
+  "tier": "site",
+  "name": "The Telephone Exchange",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "infrastructure",
+  "tags": [],
+  "classification": null,
+  "depth": "sketch",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20669693,
+          34.66420544
+        ],
+        [
+          135.20669118,
+          34.66430559
+        ],
+        [
+          135.20686345,
+          34.66431265
+        ],
+        [
+          135.20686419,
+          34.6642924
+        ],
+        [
+          135.20700897,
+          34.66429821
+        ],
+        [
+          135.20701342,
+          34.66421754
+        ],
+        [
+          135.20669693,
+          34.66420544
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7111.7,
+          7438.8
+        ],
+        [
+          7105.6,
+          7429.5
+        ],
+        [
+          7118.8,
+          7420.8
+        ],
+        [
+          7120,
+          7422.7
+        ],
+        [
+          7131.1,
+          7415.4
+        ],
+        [
+          7136,
+          7422.9
+        ],
+        [
+          7111.7,
+          7438.8
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7120.39,
+      7426.98
+    ],
+    "cells": [
+      "D4·46"
+    ],
+    "ref": "D4·46",
+    "areaM2": 294.6,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-359",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "The island's switchboard. Small, hot, and connected to absolutely everything.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A small, hot building holding the island's switchboard. Every call between any two parts of the Directorate is physically connected by somebody sitting in this room, which makes its handful of operators the best-connected people on the island in both senses. The building is unremarkable from outside and is guarded rather more carefully than it looks.",
+    "playerFacing": "A wall of jacks and cords, four operators working it faster than seems possible, and a heat that comes off the equipment rather than the weather. Nobody looks up when you come in. Everybody knows you did.",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [
+      "An operator recognises the party's voices before they give a name, and mentions -- kindly, and only once -- that somebody else has been asking to be put through to them."
+    ],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [
+    "directorate"
+  ],
+  "npcRefs": [
+    "switchboard-supervisor"
+  ],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": [],
+  "rank": 3
+}

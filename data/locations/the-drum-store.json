@@ -1,0 +1,283 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-drum-store",
+  "type": "location",
+  "tier": "site",
+  "name": "The Drum Store",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "industrial",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.20393073,
+          34.66838156
+        ],
+        [
+          135.20412414,
+          34.66838983
+        ],
+        [
+          135.20412306,
+          34.66840606
+        ],
+        [
+          135.20440682,
+          34.66841843
+        ],
+        [
+          135.20440596,
+          34.66843141
+        ],
+        [
+          135.20449361,
+          34.66844415
+        ],
+        [
+          135.20458272,
+          34.66843943
+        ],
+        [
+          135.20458358,
+          34.66842645
+        ],
+        [
+          135.20487575,
+          34.66843995
+        ],
+        [
+          135.20487683,
+          34.66842372
+        ],
+        [
+          135.20506781,
+          34.66843214
+        ],
+        [
+          135.20507143,
+          34.66838222
+        ],
+        [
+          135.20524969,
+          34.66839056
+        ],
+        [
+          135.2052754,
+          34.6679991
+        ],
+        [
+          135.20509769,
+          34.66799154
+        ],
+        [
+          135.20510127,
+          34.66794688
+        ],
+        [
+          135.20490094,
+          34.66793779
+        ],
+        [
+          135.2049024,
+          34.66792033
+        ],
+        [
+          135.20461715,
+          34.66790764
+        ],
+        [
+          135.20461801,
+          34.66789466
+        ],
+        [
+          135.20453186,
+          34.66788224
+        ],
+        [
+          135.20444612,
+          34.66788636
+        ],
+        [
+          135.20444581,
+          34.66790012
+        ],
+        [
+          135.20415215,
+          34.6678863
+        ],
+        [
+          135.20415124,
+          34.66790454
+        ],
+        [
+          135.20396269,
+          34.66789598
+        ],
+        [
+          135.20393073,
+          34.66838156
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6657.9,
+          7168.7
+        ],
+        [
+          6672.7,
+          7158.9
+        ],
+        [
+          6671.7,
+          7157.4
+        ],
+        [
+          6693.4,
+          7143
+        ],
+        [
+          6692.6,
+          7141.8
+        ],
+        [
+          6698.8,
+          7136.5
+        ],
+        [
+          6706.1,
+          7132.8
+        ],
+        [
+          6706.9,
+          7134
+        ],
+        [
+          6729.2,
+          7119.1
+        ],
+        [
+          6730.2,
+          7120.6
+        ],
+        [
+          6744.8,
+          7110.9
+        ],
+        [
+          6747.9,
+          7115.5
+        ],
+        [
+          6761.5,
+          7106.4
+        ],
+        [
+          6785.6,
+          7142.6
+        ],
+        [
+          6772,
+          7151.6
+        ],
+        [
+          6774.8,
+          7155.7
+        ],
+        [
+          6759.5,
+          7165.9
+        ],
+        [
+          6760.6,
+          7167.5
+        ],
+        [
+          6738.8,
+          7182
+        ],
+        [
+          6739.6,
+          7183.2
+        ],
+        [
+          6733.5,
+          7188.4
+        ],
+        [
+          6726.5,
+          7192
+        ],
+        [
+          6725.7,
+          7190.7
+        ],
+        [
+          6703.3,
+          7205.7
+        ],
+        [
+          6702.2,
+          7204
+        ],
+        [
+          6687.8,
+          7213.6
+        ],
+        [
+          6657.9,
+          7168.7
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6721.72,
+      7158.74
+    ],
+    "cells": [
+      "D4·24",
+      "D4·25"
+    ],
+    "ref": "D4·24",
+    "areaM2": 6659.6,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-366",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Fuel, oil and every grade of grease the works gets through, racked in drums under a roof built low and thick on purpose. Smoking here is the one rule nobody has ever needed reminding of.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Fuel, oil and every grade of grease the works gets through, racked in drums under a roof built low and thick on purpose. Smoking here is the one rule nobody has ever needed reminding of.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

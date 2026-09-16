@@ -87,11 +87,23 @@ test("collectTacticalMetrics returns every metric family for a real battle, with
   // The mirror archetype has no limited-use options and no objective, so several metrics have
   // legitimately empty inputs — the exact shape most likely to throw on a null.
   const m = collectTacticalMetrics(runBattle(ARCHETYPES.mirror({ seed: 7004, roundLimit: 4 })));
-  for (const key of ["focusFire", "mapDiscipline", "oscillation", "resourceUse", "threatPriority", "engagement", "coverUsage"]) {
+  for (const key of ["focusFire", "mapDiscipline", "oscillation", "resourceUse", "threatPriority", "engagement", "coverUsage", "abilityCoverage"]) {
     assert.ok(m[key] !== undefined, `missing metric family: ${key}`);
   }
   assert.equal(m.resourceUse.tracked, 0, "mirror units carry no limited-use options");
   assert.ok(m.engagement.totalDamage >= 0);
+});
+
+// GH #57 (design doc §78): abilityCoverageStats is genuinely cross-scale — Frame logs have no
+// saveAttack/conditionSave/areaAttack/healAbility action types and no slotRank concept at all, so
+// every one of its branches must degrade to its own already-established empty/null-safe case rather
+// than assuming personnel-only fields exist.
+test("abilityCoverageStats: runs clean against a real Frame-scale battle — no crash, no false unmatched/over-use on fields Frame never sets", () => {
+  const log = runBattle(ARCHETYPES.mirror({ seed: 7005, roundLimit: 4 }));
+  const cov = collectTacticalMetrics(log).abilityCoverage;
+  assert.equal(cov.unmatched.length, 0, `Frame-scale strikeName/reactionName should always match a declared ability: ${JSON.stringify(cov.unmatched)}`);
+  assert.equal(cov.overUsed.length, 0, "the mirror archetype's own combatants carry no usesPerEncounter/slotRank abilities");
+  assert.ok(cov.abilities.length > 0, "Frame combatants still declare real strikes — the report should not come back empty");
 });
 
 // REGRESSION (design doc §39, found while building coverUsageStats): ATTACK_TYPES predated
@@ -157,6 +169,36 @@ test("METRIC VALIDATION — sideOutcomeStats: a real areaAttack's multi-target `
   const party = sideOutcomeStats(log, "party");
   assert.equal(party.damageTaken, 7, "5 + 2 across both creatures caught in the same blast");
   assert.equal(party.finalHP, 15 + 18);
+});
+
+// FIX (found investigating GH #69's HP-conservation invariant): engagementStats/resourceUseStats/
+// abilityExecutions all already got the reactions-vs-triggeredReactions fix (GH #57) — this sibling
+// function, three functions later in the same file, never did. A real Reactive Strike's damage was
+// silently invisible to sideOutcomeStats, diverging from the live simulation's own turn.snapshot HP.
+test("METRIC VALIDATION — sideOutcomeStats: a fired reaction's damage (logged inside the MOVER's own action, no targetId of its own) is attributed to the mover, not silently dropped", () => {
+  const roster = { "p-1": { side: "party", maxHP: 20 } };
+  const log = {
+    roster,
+    rounds: [{ round: 1, turns: [{ combatantId: "p-1", actions: [
+      { type: "move", legal: true, reactions: [{ reactorId: "enemy", strikeName: "Warhammer", damageApplied: 6, targetHPAfter: 14 }] }
+    ] }] }]
+  };
+  const party = sideOutcomeStats(log, "party");
+  assert.equal(party.damageTaken, 6, "the reaction's damage must count against the mover's own side");
+  assert.equal(party.finalHP, 14);
+});
+
+test("METRIC VALIDATION — sideOutcomeStats: Frame-scale's own `triggeredReactions[]` shape is unchanged by the fix above", () => {
+  const roster = { "p-1": { side: "party", maxHP: 20 } };
+  const log = {
+    roster,
+    rounds: [{ round: 1, turns: [{ combatantId: "p-1", actions: [
+      { type: "move", legal: true, triggeredReactions: [{ reactorId: "claimant", reactionName: "Claim", damageApplied: 9, targetHPAfter: 11 }] }
+    ] }] }]
+  };
+  const party = sideOutcomeStats(log, "party");
+  assert.equal(party.damageTaken, 9);
+  assert.equal(party.finalHP, 11);
 });
 
 // --- coverUsageStats (design doc §39 — Ingram's own question: "Does the cover mechanic actually

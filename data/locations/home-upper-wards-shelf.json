@@ -1,0 +1,110 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "home-upper-wards-shelf",
+  "type": "location",
+  "tier": "site",
+  "name": "The Trackside House",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [
+    "pc-adoptable"
+  ],
+  "classification": null,
+  "depth": "sketch",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.24113969,
+          34.71591914
+        ],
+        [
+          135.24124896,
+          34.7159496
+        ],
+        [
+          135.24127649,
+          34.71588173
+        ],
+        [
+          135.24116871,
+          34.71585159
+        ],
+        [
+          135.24113969,
+          34.71591914
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          6912.7,
+          894.4
+        ],
+        [
+          6919.6,
+          886.4
+        ],
+        [
+          6925.6,
+          891.6
+        ],
+        [
+          6918.8,
+          899.5
+        ],
+        [
+          6912.7,
+          894.4
+        ]
+      ]
+    ],
+    "centroidPx": [
+      6919.17,
+      892.97
+    ],
+    "cells": [
+      "D1·33"
+    ],
+    "ref": "D1·33",
+    "areaM2": 83.4,
+    "withinRegionRef": "upper-wards",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-388",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "A small residential building in The Upper Wards, available to become a PC's home.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A house on the northern shelf of The Upper Wards, close enough to the rail line that the trains are a fact of daily life rather than a nuisance anyone still notices. Streets here are as often stairs as road, stacked along the slope above the coast.",
+    "playerFacing": "Thin-walled and close to the tracks -- the whole house shifts very slightly when a train goes past, timed precisely enough that a person could set a clock by it, and several of the neighbours do exactly that.",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [
+      "The rail line's own schedule becomes a usable fact -- an alibi, a deadline, a reason to be somewhere at a specific, checkable time."
+    ],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": [],
+  "rank": 4
+}

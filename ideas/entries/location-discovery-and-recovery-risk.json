@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "location-discovery-and-recovery-risk",
+  "type": "idea",
+  "title": "Location discovery, tiered destinations, and risk/reward recovery",
+  "status": "wishlist",
+  "domains": ["mechanics", "narrative", "downtime"],
+  "summary": "Downtime location options aren't fixed or fully known upfront — better destinations get discovered through play, some recovery choices carry real risk instead of being pure upside, and a purchasable 'lucky dip' item grants access to a randomly chosen location at a given time of day.",
+  "description": "Ingram's own framing, verbatim: 'Discovering new locations to visit during the day could be a genuine campaign mechanic. Someone could uncover a legendary Ramen place or some special dive bar and the end result is that players could choose to visit basic options for entertainment or more interesting ones. We could make some recovery activities carry risks or have pros and cons. You could even sell an item which is a lucky dip box of new locations to go to at various times of day across the city.'\n\nThree pieces, related but separable:\n\n1. PROGRESSIVE LOCATION DISCOVERY — the pool of destinations available to a downtime pick (Night Out, and by extension any other location-flavoured activity) isn't fixed and fully known from day one. Some are found through play ('a legendary ramen place,' 'a special dive bar'), so the menu itself grows over the campaign instead of being a static list shown once. This lines up well with the location-rank/location-depth system already built and accepted 2026-09-12 (design/location-rank.md, design/location-depth.md, tools/gazetteer/): a 'legendary' discovered destination is naturally a higher-rank, higher-depth location (its own NPCs, its own consequences, worth the extra authoring pass), while ordinary background options are already exactly what depth-0/rank-5 locations are for. The gazetteer's real location files are the obvious pool this would draw from — nothing here proposes changing that system or its data, it's prior art to build against.\n\n2. TIERED QUALITY — 'basic options for entertainment or more interesting ones' means the choice itself communicates something: a known, ordinary venue versus a rarer, more rewarding one. Pairs directly with the previous day's group-downtime-activity-voting idea, which already proposes venue-to-venue prerequisite gating ('if the group doesn't do A, they can't do D later'). Discovery is plausibly how a venue enters the pool in the first place, and gating is how access to an already-known venue is then controlled — the two ideas read as the same system from two ends: how a venue becomes available, and how a group decides among venues already available.\n\n3. RISK ON RECOVERY — 'some recovery activities carry risks or have pros and cons' pushes back on the current design, where every named rest type (design/downtime-activities.md §2 — Lights Out, Sick Bay, Night Out) is pure upside with no downside at all. Clean fit for the campaign's own standing principle, 'penalties cost risk, never choice' (design/campaign-arc.md, 2026-09-06): that principle wants drawbacks to be dynamic and situational rather than a permanent menu tax, and a chance of a complication on a specific recovery choice is exactly that shape. Deliberately NOT tied to Bleed specifically in this write-up, since Bleed itself is flagged NEEDS REWORK (open-questions.json#bleed-playability) as of 2026-09-13 — whatever currency ends up carrying the risk should be decided once that rework lands, not assumed to still be Bleed.\n\n4. THE LUCKY-DIP ITEM — a literal purchasable good: buy a box, get access to a randomly-selected location, valid at a specific time of day. A real SF2E item (something Earn Income-style credits can buy, per design/downtime-activities.md §3's Part-Time Job) rather than a new abstract resource — a second route into new destinations alongside discovery-through-play, a paid shortcut to the same pool rather than a different system.\n\nRecorded as a wishlist item. Nothing here is decided, and piece 3 specifically should wait on the Bleed rework rather than being designed against the current, flagged-NEEDS-REWORK numbers.",
+  "capturedDate": "2026-09-14",
+  "lastTouchedDate": "2026-09-14",
+  "sourceContext": "Ingram, a follow-up 'new idea' message the day after the afterschool-club/road-routing/group-downtime-voting wishlist items, and the day after the 2026-09-13 campaign clean-slate (Resonance/Bleed/ground-roles flagged for rework).",
+  "openSubQuestions": [
+    "Does discovery require an in-fiction trigger (a Recall Knowledge check, an NPC tip, a Contact) or can it just accumulate over time?",
+    "Is 'legendary' a real rank/depth-backed location (its own file, NPCs, consequences) or a lighter flavour-only tier that doesn't need the full gazetteer treatment?",
+    "What specifically does a recovery activity risk, and does the answer wait on bleed-playability or need its own stakes if Bleed doesn't survive rework?",
+    "Is the lucky-dip box a one-time consumable, a repeatable purchase, or limited in supply (only so many exist in the city)?",
+    "Can a lucky-dip result hand out a location the group hasn't discovered through play yet — buying past the discovery gate — and is that a feature or a problem?"
+  ],
+  "relatedRefs": [
+    "ideas/entries/group-downtime-activity-voting.json",
+    "design/location-rank.md",
+    "design/location-depth.md",
+    "design/downtime-activities.md",
+    "data/campaign/open-questions.json#rest-activity-roster",
+    "data/campaign/open-questions.json#bleed-playability",
+    "design/campaign-arc.md#design-principle-penalties-cost-risk-never-choice"
+  ],
+  "resolution": null
+}

@@ -1,0 +1,139 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-rock",
+  "type": "location",
+  "tier": "site",
+  "name": "The Rock",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "military",
+  "tags": [],
+  "classification": "omega-zero",
+  "depth": "standing",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21596667,
+          34.65427452
+        ],
+        [
+          135.21409422,
+          34.65352243
+        ],
+        [
+          135.21484743,
+          34.65307126
+        ],
+        [
+          135.21531848,
+          34.65296815
+        ],
+        [
+          135.21591268,
+          34.65305514
+        ],
+        [
+          135.21654948,
+          34.65329932
+        ],
+        [
+          135.21654948,
+          34.65329932
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          8403.4,
+          7955.6
+        ],
+        [
+          8298,
+          8114.7
+        ],
+        [
+          8382.9,
+          8122.7
+        ],
+        [
+          8425.9,
+          8110.6
+        ],
+        [
+          8467.9,
+          8074.6
+        ],
+        [
+          8504.4,
+          8021.6
+        ],
+        [
+          8504.4,
+          8021.6
+        ]
+      ]
+    ],
+    "centroidPx": [
+      8404.58,
+      8050.53
+    ],
+    "cells": [
+      "E4·08",
+      "E4·18",
+      "E4·09",
+      "E4·19"
+    ],
+    "ref": "E4·08",
+    "areaM2": 18185.0,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-352",
+    "promotedDate": "2026-09-12"
+  },
+  "authoring": {
+    "note": "A military prison and laboratory. A heavily armoured and defended bunker complex, accessible underground from Central. ",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "The Rock is the Directorate's most compartmentalised site: a military prison and laboratory cut into the same natural rock as Central Fortification, reached by a tunnel from it rather than by any door of its own. Almost nobody knows it exists. Students and most staff are unaware of its purpose, and the Directorate carries it at Omega-Zero classification -- a tier above the ordinary five used everywhere else (design/strategy-layer.md), reserved for places whose existence itself is the secret, not just their contents. Above ground it reads as unremarkable: a carpark serving Central to the north-west, bare ground to the south-east. What that ground actually hides is nine circular silo doors, each large enough to lower something the size of a Frame down into a cell below. What currently occupies any of them is deliberately undecided here -- see gmOnly.",
+    "playerFacing": "From the carpark that serves Central, The Rock doesn't look like anything: a stretch of reinforced ground, a few low vents, nothing marked or signed. Anyone let in usually arrives by the tunnel from Central itself, not from the surface at all. Walking the perimeter on the south-east side turns up nine round metal doors, each several metres across, flush with the ground and ringed in hazard paint gone dull with age. They open straight upward, and whatever they're sized for, it plainly isn't a person.",
+    "gmOnly": "This location is deliberately underwritten. Ingram asked for the basic concept only, with the note that it 'will need to expand this lots later' -- treat everything here as a starting frame, not a finished account.\n\nThe nine silo cells are the location's central mystery, and what -- if anything -- currently occupies each one is not decided here. Do not resolve this unilaterally. It plausibly connects to the Claimant material (data/antagonists/claimants/claimant-guidelines.json -- no individual stat blocks exist yet) or to something else entirely, and either is a real campaign-shaping decision for Ingram to make, not one to infer from set dressing.\n\nOmega-Zero classification (design/strategy-layer.md) means the party should not stumble onto this place by chance. Reaching it should cost something specific -- being brought here by someone who already has access, or a Clearance rung high enough that its existence stops being hidden from them at all. Below that threshold, a check aimed at finding it should fail informatively (there is genuinely nothing to find from where they're standing) rather than partially reveal it."
+  },
+  "scene": {
+    "hooks": [
+      "The party is brought here by someone who already has access, and told plainly not to describe what they saw to anyone who wasn't with them.",
+      "One of the nine silo doors is open when the party arrives, for reasons nobody escorting them explains or seems willing to.",
+      "A name the party recognises turns up on a manifest, a duty roster, or a cell door here, and nobody expected them to be looking."
+    ],
+    "activities": [
+      "Get inside at all -- through the tunnel from Central, under escort, at whatever Clearance rung and Omega-Zero standing the party currently has.",
+      "Observe or assist with whatever the laboratory side is actually doing, without being told the whole picture.",
+      "Interact with whoever, or whatever, is being held in one of the nine cells, on terms the GM sets for that specific encounter.",
+      "Work out, from what's actually visible, what the silo doors are for -- nobody here is going to simply explain it."
+    ],
+    "history": "Cut into the same rock as Central, from the natural island that stood here before the artificial one was reclaimed around it -- long before the Directorate existed, let alone the roughly hundred and ninety-five years since it was founded (ideas/story/blank-inheritance-master-timeline.md). Whether The Rock was carved out alongside Central or added later, once the Directorate had something specific it needed to hold, is not yet decided. Its purpose has stayed secret for long enough that most current staff have never heard the name.",
+    "consequences": "A party's Omega-Zero standing, if they are ever granted any, should be tracked separately from their ordinary Clearance rung (design/strategy-layer.md) -- being trusted with a place's existence is a rarer and different kind of trust than being let deeper into a building everyone already knows about. Once granted, losing it should be a genuinely heavy consequence, not a routine one. Anything the party learns, releases, or damages here should follow them: this is the kind of place where a mistake doesn't stay contained to the scene it happened in."
+  },
+  "realWorld": {},
+  "factionRefs": [
+    "directorate"
+  ],
+  "npcRefs": [
+    "the-rock-warden",
+    "the-rock-research-director"
+  ],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": "locations/the-rock.md",
+  "assetRefs": [],
+  "playlistRefs": [],
+  "rank": 1
+}

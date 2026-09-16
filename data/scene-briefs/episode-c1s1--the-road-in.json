@@ -1,0 +1,91 @@
+{
+  "$schema": "../schema/scene-brief.schema.json",
+  "id": "episode-c1s1--the-road-in",
+  "type": "scene-brief",
+  "episodeRef": "episode-c1s1-mothers-maiden-name",
+  "sceneRef": "the-road-in",
+  "title": "The Road In",
+  "goal": "Every player has said how their own character got here and one thing about who they were the day before this letter arrived.",
+  "howToPlay": "A montage, not a scene. Cut fast between six short spotlights, a minute or two each, then stop. This is the only stretch all session where each of them is, for a moment, the only person on screen. Do not have them meet each other here -- the waiting room next scene is the first time this group is a group, on purpose, and it lands harder for being held back one beat longer.",
+  "runsAbout": "10-15 minutes",
+  "mode": "social",
+  "intro": {
+    "where": "Six separate mornings, six separate places. Weeks ago, each of them got the same letter.",
+    "firstThing": "An envelope from a city none of them had reason to visit, addressed correctly, from an institution that has never written to them before.",
+    "readAloud": "Dear Candidate,\n\nYour application to the City Civil Defence Directorate has been reviewed and accepted. You are asked to report to the combined campus no later than Monday next, where you will be issued instructions, quartered, and enrolled.\n\nPlease bring nothing you cannot carry, and nothing you cannot leave.\n\nWe look forward to your service.",
+    "carriesIn": [
+      { "when": "This is the campaign's first played scene", "then": "Nothing carries in yet. This is everyone's first impression of their own character, and it should be entirely theirs to make." }
+    ]
+  },
+  "cast": [],
+  "beats": [
+    {
+      "id": "the-letter",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Read the letter once, to the whole table, before anyone speaks as their character.",
+      "readAloud": "Dear Candidate,\n\nYour application to the City Civil Defence Directorate has been reviewed and accepted. You are asked to report to the combined campus no later than Monday next, where you will be issued instructions, quartered, and enrolled.\n\nPlease bring nothing you cannot carry, and nothing you cannot leave.\n\nWe look forward to your service.",
+      "direction": "It is the same letter all six of them got, weeks apart, from a city none of them had reason to visit. Say nothing else about it. Let the table sit with \"nothing you cannot leave\" for a second before moving on -- it is doing real work and does not need to be pointed at. Confirmed 2026-09-10 (LEDGER.md #9): the primary reading is practical, not a planted clue -- pack light, this is enlistment, not moving house, the Directorate provides what's needed. The evocative phrasing is house style (Directorate documents run to unusual, slightly poetic language throughout), not a hidden key with one correct unlock -- don't build a future beat that treats this line as foreshadowing something specific."
+    },
+    {
+      "id": "six-roads-in",
+      "kind": "action",
+      "mandatory": true,
+      "delivery": "table",
+      "text": "Go round the table. Ask each player directly: how do you get here, and what's the last thing that happens before you arrive?",
+      "direction": "Ask first. Only offer an example if a player is stuck -- it's a nudge, not a menu, and should never look like six pre-assigned slots. Keep each spotlight short, one exchange, unless a player is clearly enjoying it: six of these can eat the session if you let each one run long.",
+      "note": "IF SOMEBODY WANTS AN EXAMPLE: \"Arrived on a battered motorbike that shouldn't still run, and does.\" / \"Took the early commuter train in with forty strangers going nowhere else.\" / \"Drove an old banger that needed pushing the last hundred yards.\" / \"Walked the causeway on foot, because the fare wasn't worth what it cost.\" / \"Came in by boat with the morning catch, because that's who was going that way.\" / \"Hitched the last leg with someone who never once asked why.\" These are inspiration, not a script -- a player's own idea always wins."
+    },
+    {
+      "id": "a-flourish",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If a player's arrival has an obvious moment in it, offer one roll, their choice of skill.",
+      "challengeRef": "c1s1-the-road-in",
+      "checkRef": "a-flourish",
+      "when": { "condition": "if a player's own arrival has something worth rolling for" },
+      "note": "Never required. This costs nothing on any result -- it exists to make an entrance a little more vivid, not to gate it. Plenty of good arrivals have nothing to roll for at all."
+    },
+    {
+      "id": "a-mark-at-head-height",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If a player's arrival takes them somewhere a stencil could plausibly sit -- a wall, a crate, a train window -- describe a small deep-violet mark at head height before anyone rolls. Then offer the check.",
+      "challengeRef": "c1s1-the-road-in",
+      "checkRef": "a-mark-at-head-height",
+      "when": { "condition": "if a player's own arrival passes somewhere a mark like this could plausibly be" },
+      "note": "Mystery Ledger #6, pays off Ch5. Offer it to as many of the six as fit naturally -- the mark turning up more than once, in the same exact shade, is the actual hook, not any single sighting. Never explain what it means or who's doing it. This replaced a mitflit-trap check cut 2026-09-09; see ideas/story/bible/species/mitflits.md."
+    },
+    {
+      "id": "a-frame-at-a-distance",
+      "kind": "check",
+      "mandatory": false,
+      "delivery": "table",
+      "text": "If a player's arrival passes anywhere a Frame could plausibly be working -- the docks, a maintenance yard, a road crew -- give everyone at the table a first sight of one at a distance before any roll: scale, sound, the ground answering its weight. Then offer the check to the whole table, not only the player whose arrival triggered it.",
+      "challengeRef": "c1s1-the-road-in",
+      "checkRef": "a-frame-at-a-distance",
+      "when": { "condition": "if any player's own arrival passes somewhere a Frame could plausibly be seen" },
+      "note": "Raw material for Mystery Ledger #11 (pays off Ch3, Ch6) on a critical success only -- a plain success is just real information about what a Frame is, which none of them have had reason to know yet. None of them know they'll ever pilot one. Offer this once for the table, not once per player."
+    }
+  ],
+  "artefacts": [],
+  "handouts": [],
+  "gmModifiers": [],
+  "offers": [],
+  "outro": {
+    "endsWhen": "All six spotlights are done. Stop there -- do not stage a shared arrival or have them notice each other. That's next scene's opening, not this one's ending.",
+    "artefactRefs": [],
+    "tracks": [],
+    "onwards": "Straight into Intake Medicals. Time skips a few days on its own -- that scene opens already inside the queue, and this is where the six of them actually become a group for the first time.",
+    "writeDown": [
+      "How each character arrived, worth one callback later if it fits naturally.",
+      "Who succeeded on a-mark-at-head-height and how many times the violet mark came up across the six -- the repetition is the point, and Ch5 pays it off.",
+      "Whether anyone crit-succeeded on a-frame-at-a-distance (the Frame moving oddly carefully) -- that's the only branch that seeds Ledger #11."
+    ]
+  },
+  "carryForward": [],
+  "notes": "Deliberately no shared beat and no artefact. The group forming is Intake Medicals' job, stated in its own queue beat and confirmed 2026-09-09 as intentional -- this scene must not spend that moment early. Assumes character sheets already exist (built at session zero, before this is ever played) -- the flourish check has real stats to roll against from the first line.\n\nThis scene originally opened with a mitflit-trap Encyclopaedia check (mystery-ledger content, mitflit trail step 1). CUT 2026-09-09 -- normalising casual harm to a sentient species as unremarked backdrop in the party's very first scene read far darker than intended, and contradicted an established prior campaign where mitflits were the ones being saved. See ideas/story/bible/species/mitflits.md before writing anything else involving mitflits.\n\nReplaced same day with two opportunistic Encyclopaedia checks pulled from the story bible's own Mystery Ledger rather than invented fresh: a-mark-at-head-height (the cicada stencils, Ledger #6) and a-frame-at-a-distance (a Frame's odd gentleness, raw material for Ledger #11). Both cost nothing on any result, same as a-flourish -- this scene stays zero-stakes throughout."
+}

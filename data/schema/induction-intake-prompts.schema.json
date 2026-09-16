@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "induction-intake-prompts.schema.json",
+  "title": "Induction Intake Prompts",
+  "description": "Suggestion-chip content for the induction terminal's Pages 7-8 (design/induction-terminal.md): gender-identity and pronoun suggestions, the banal texture questions, and bible §20's eight core questions verbatim. Every suggestion here is illustrative only, offered as a quick-start a player may click to insert into their own free-text answer -- never a real answer for any of the six actual kids (data/characters/kids/README.md). Singleton file: data/campaign/induction-intake-prompts.json.",
+  "type": "object",
+  "required": ["id", "type", "genderIdentityOptions", "pronounOptions", "appearanceOptions", "banalQuestions", "eightQuestions"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "induction-intake-prompts" },
+    "type": { "const": "induction-intake-prompts" },
+    "description": { "type": "string" },
+    "genderIdentityOptions": {
+      "type": "array",
+      "description": "Suggestion chips for Page 7's gender-identity field. Illustrative only -- the field is always free text too, and this list is deliberately not exhaustive.",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "pronounOptions": {
+      "type": "array",
+      "description": "Suggestion chips for Page 7's pronouns field. Same free-text-always-available rule as genderIdentityOptions.",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "appearanceOptions": {
+      "type": "array",
+      "description": "Suggestion chips for Page 7's appearance-notes field -- generic texture, not a real description of any of the six actual kids. Same free-text-always-available rule as genderIdentityOptions.",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "banalQuestions": {
+      "type": "array",
+      "description": "Light texture questions, deliberately distinct in register from the Eight Questions below -- adding one is a pure data edit, no code change.",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/promptQuestion" }
+    },
+    "eightQuestions": {
+      "type": "array",
+      "description": "ideas/story/blank-inheritance-v4.md §20's real intake quiz, verbatim -- DO NOT alter the `text` field's wording. Every answer becomes an Anchor, a side-plot seed, or a vulnerability (design/induction-terminal.md §1).",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": { "$ref": "#/$defs/promptQuestion" }
+    }
+  },
+  "$defs": {
+    "promptQuestion": {
+      "type": "object",
+      "required": ["id", "text", "suggestions"],
+      "properties": {
+        "id": { "type": "string" },
+        "number": { "type": "integer", "minimum": 1, "description": "Eight Questions only -- display order 1-8, matching bible §20's own numbering." },
+        "text": { "type": "string", "description": "The question itself, verbatim where it has a canonical bible source." },
+        "purposeNote": {
+          "type": ["string", "null"],
+          "description": "OOC framing for what this answer is used for, populated only where the bible states one explicitly (§20's own parenthetical notes) -- null elsewhere, never invented to make every entry look equally annotated."
+        },
+        "suggestions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "description": "Illustrative answer chips. Clicking one inserts it into the free-text field; never binding, a player's own words always win."
+        }
+      }
+    }
+  }
+}

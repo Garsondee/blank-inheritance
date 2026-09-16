@@ -1,0 +1,203 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "east-tower",
+  "type": "location",
+  "tier": "site",
+  "name": "East Tower",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "residential",
+  "tags": [],
+  "classification": null,
+  "rank": null,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.21019902,
+          34.67044158
+        ],
+        [
+          135.21024381,
+          34.67036949
+        ],
+        [
+          135.21008663,
+          34.67030378
+        ],
+        [
+          135.20989302,
+          34.67061802
+        ],
+        [
+          135.20997263,
+          34.67065142
+        ],
+        [
+          135.20995289,
+          34.67068408
+        ],
+        [
+          135.20986469,
+          34.67064753
+        ],
+        [
+          135.20966766,
+          34.67096762
+        ],
+        [
+          135.2098183,
+          34.67103129
+        ],
+        [
+          135.21003696,
+          34.67067762
+        ],
+        [
+          135.21005225,
+          34.67068483
+        ],
+        [
+          135.21012285,
+          34.67057084
+        ],
+        [
+          135.21041894,
+          34.67069443
+        ],
+        [
+          135.21055011,
+          34.67048078
+        ],
+        [
+          135.21033718,
+          34.670392
+        ],
+        [
+          135.21028422,
+          34.67047749
+        ],
+        [
+          135.21019902,
+          34.67044158
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7036.5,
+          6679.9
+        ],
+        [
+          7044.1,
+          6684.7
+        ],
+        [
+          7035.4,
+          6698.3
+        ],
+        [
+          7002.4,
+          6677.3
+        ],
+        [
+          7006.8,
+          6670.4
+        ],
+        [
+          7003.4,
+          6668.2
+        ],
+        [
+          6998.5,
+          6675.8
+        ],
+        [
+          6964.9,
+          6654.4
+        ],
+        [
+          6973.2,
+          6641.3
+        ],
+        [
+          7010.4,
+          6664.9
+        ],
+        [
+          7011.2,
+          6663.5
+        ],
+        [
+          7023.2,
+          6671.1
+        ],
+        [
+          7039.6,
+          6645.5
+        ],
+        [
+          7062,
+          6659.8
+        ],
+        [
+          7050.2,
+          6678.2
+        ],
+        [
+          7041.2,
+          6672.5
+        ],
+        [
+          7036.5,
+          6679.9
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7018.36,
+      6667.64
+    ],
+    "cells": [
+      "D4·32",
+      "D4·42"
+    ],
+    "ref": "D4·32",
+    "areaM2": 2002.4,
+    "withinRegionRef": "landing-end",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-120",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "Tallest building in the row, assigned to third-term candidates who've survived enough drill cycles to earn the better floors. The stairwell lights on the top three floors have never all worked at once; residents have stopped reporting it and started betting on which one dies next.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "Tallest building in the row, assigned to third-term candidates who've survived enough drill cycles to earn the better floors. The stairwell lights on the top three floors have never all worked at once; residents have stopped reporting it and started betting on which one dies next.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}

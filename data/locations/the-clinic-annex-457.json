@@ -1,0 +1,148 @@
+{
+  "$schema": "../schema/location.schema.json",
+  "id": "the-clinic-annex-457",
+  "type": "location",
+  "tier": "site",
+  "name": "The Clinic Annex",
+  "nameJa": null,
+  "namingPlaceholderRef": null,
+  "kind": "civic",
+  "tags": [
+    "amenity"
+  ],
+  "classification": null,
+  "rank": 5,
+  "depth": "named",
+  "geometry": {
+    "rings": [
+      [
+        [
+          135.2135249,
+          34.66634502
+        ],
+        [
+          135.21273574,
+          34.66656868
+        ],
+        [
+          135.21266705,
+          34.66669954
+        ],
+        [
+          135.21285928,
+          34.66675757
+        ],
+        [
+          135.21303129,
+          34.66670927
+        ],
+        [
+          135.21313505,
+          34.66654771
+        ],
+        [
+          135.21343235,
+          34.66646552
+        ],
+        [
+          135.21341717,
+          34.66642477
+        ],
+        [
+          135.2135449,
+          34.66639074
+        ],
+        [
+          135.2135249,
+          34.66634502
+        ]
+      ]
+    ],
+    "point": null
+  },
+  "pinAnchor": null,
+  "derived": {
+    "imagePx": [
+      [
+        [
+          7530,
+          6916.3
+        ],
+        [
+          7455.1,
+          6931.7
+        ],
+        [
+          7442.3,
+          6922.4
+        ],
+        [
+          7454.2,
+          6907.9
+        ],
+        [
+          7470.5,
+          6904.5
+        ],
+        [
+          7487.8,
+          6915.1
+        ],
+        [
+          7515.9,
+          6909.1
+        ],
+        [
+          7517,
+          6913.7
+        ],
+        [
+          7529,
+          6911
+        ],
+        [
+          7530,
+          6916.3
+        ]
+      ]
+    ],
+    "centroidPx": [
+      7478.11,
+      6917.95
+    ],
+    "cells": [
+      "D4·63"
+    ],
+    "ref": "D4·63",
+    "areaM2": 1178.6,
+    "withinRegionRef": "island-centre",
+    "containsRefs": [],
+    "neighbourRefs": [],
+    "sourceSession": "session-20260911-144323",
+    "sourceLocalId": "item-457",
+    "promotedDate": "2026-09-13"
+  },
+  "authoring": {
+    "note": "amenities and other general city supporting functions and administration.",
+    "status": "drafted"
+  },
+  "lore": {
+    "summary": "A small general clinic for anything that doesn't need the hospital proper.",
+    "playerFacing": "",
+    "gmOnly": ""
+  },
+  "scene": {
+    "hooks": [],
+    "activities": [],
+    "history": "",
+    "consequences": ""
+  },
+  "realWorld": {},
+  "factionRefs": [],
+  "npcRefs": [],
+  "episodeRefs": [],
+  "openQuestionRefs": [],
+  "bibleRef": null,
+  "assetRefs": [],
+  "playlistRefs": []
+}
