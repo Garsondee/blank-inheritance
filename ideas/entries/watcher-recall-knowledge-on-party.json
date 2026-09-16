@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "watcher-recall-knowledge-on-party",
+  "type": "idea",
+  "title": "The Watcher's chosen roll Recall Knowledge on the party — an alien intelligence learning the group's skills and saves through play",
+  "status": "wishlist",
+  "domains": ["mechanics", "narrative", "antagonists", "technical-architecture"],
+  "summary": "Give Claimants an action a GM would almost never use against PCs: an in-combat Recall Knowledge check aimed at a party member, resolving over time into the Watcher's own information-gathering channel — and, eventually, a hard constraint on what the adaptive combat AI is allowed to optimise against.",
+  "description": "The core move: a Claimant spends an action making a Recall Knowledge check targeted at a specific PC, rolled openly like any other combat action. This is deliberately something GMs essentially never do — Recall Knowledge is written and almost universally run as a PC-facing action against creatures, not a thing NPCs do back. That rarity is the entire point: the first few times this happens it should read as a strange, slightly confusing GM misplay, a mechanic that doesn't quite make sense in the moment. Only over time, as the table notices a pattern (which skills, which saves, which tells keep coming up), does it resolve into the real reveal: the enemy is learning about the party at the same time the party is learning about the enemy. Table realization as the payoff, not an upfront explanation.\n\nThis is a concrete mechanism for the Watcher's already-established learning premise (data/antagonists/the-watcher.json, adaptive-antagonist-combat-ai): 'I am behind their eyes, taking notes... I file all of it.' Where adaptive-antagonist-combat-ai captures the premise and the move-log/adaptation idea at a fairly abstract level, this idea proposes an actual in-fiction, in-rules verb for how that information gets collected — not silent omniscient GM knowledge, but a rolled, visible, in-world action with its own degree-of-success (a botched check tells the Watcher less, or something wrong).\n\nThe stated long-term payoff: feed the results into the adaptive combat AI (design/scale-and-chassis.md's AI roadmap, epic #3) as a hard gate rather than flavor — the AI should only be allowed to optimise its play against a PC's skills/saves/defenses that a Claimant has actually, successfully rolled Recall Knowledge on for that character. No such data for a given PC yet = the AI can't lean on knowledge it hasn't diegetically earned. This turns 'convincingly dumb, not omniscient' (the design goal already flagged as an open question in adaptive-antagonist-combat-ai) into a literal data-availability constraint enforced by the engine, not just a design aspiration — mirroring how the battle simulator's belief-state engine already refuses a side full-state knowledge it hasn't earned through vision (design/scale-and-chassis.md §15r-15s).\n\nAlso a natural, narratively-loaded counterpart to automated-recall-knowledge-system (the party's own structured Recall Knowledge against Claimants): the two ideas are mirror images of the same information-warfare theme, and both feed the same 'who's learned what about whom' throughline this campaign already leans into via the Watcher's voice sample and the Sensor Operator ground role.",
+  "capturedDate": "2026-09-02",
+  "lastTouchedDate": "2026-09-02",
+  "sourceContext": "User message, 2026-09-02, offered as 'a fun idea worth recording... as a fun long term extra' while asking for a GitHub issue epic covering the campaign's non-programming/RP ideas.",
+  "openSubQuestions": [
+    "Now sitting alongside a passive sibling channel, watcher-reads-all-comms: this idea's Recall Knowledge check stays the earned, dice-rolled, combat-specific act (predicting contested live behavior is hard, even for the Watcher), deliberately distinct from the comms channel's trivial passive reading (gap-derived-tech-disparity — reading static/transmitted text through Gap-native hardware isn't a comparable problem). Worth keeping that distinction sharp rather than letting the two blur into one 'the Watcher just knows everything' mechanic.",
+    "Which creatures get this action — every Claimant, or only specific 'watcher-touched' ones — and how often can it be used (once per target per encounter/campaign, or repeatable)?",
+    "Data shape for 'what the Watcher has learned about PC X' — likely a new structured field alongside automated-recall-knowledge-system's per-creature reveal data, but for the opposite direction (per-PC, per-Claimant-or-Watcher-global) — not designed.",
+    "Does a successful check against a PC ever surface to the players directly (a chat message, a phone/field-guide entry mirroring the party's own automated Recall Knowledge UI), or does it stay entirely GM-side until the pattern is inferred from play?",
+    "Exact DC and degree-of-success table for the Claimant's check — presumably the SF2E Recall Knowledge DC math (reference/tables/dc-and-check-math.json) run in reverse against the PC as the 'creature,' but not worked out.",
+    "How this actually wires into the combat AI's decision layer (ai/considerations.mjs, ai/profiles.mjs) as a real gate on which PC weaknesses it's allowed to weight — not started; the AI roadmap (epic #3) doesn't yet have a stage for this.",
+    "Whether the cicada-org's human/humanoid allies (antagonist-structure-cicada-org-moral-complexity) could plausibly use a mundane version of this too (surveillance/dossier-building rather than a magical check), as a non-combat parallel."
+  ],
+  "relatedRefs": [
+    "adaptive-antagonist-combat-ai",
+    "automated-recall-knowledge-system",
+    "the-watcher",
+    "data/antagonists/the-watcher.json",
+    "data/campaign/ground-roles.json",
+    "design/scale-and-chassis.md#15r-15s",
+    "tools/battle-simulator/ai/claimant-ai.mjs"
+  ],
+  "resolution": null
+}

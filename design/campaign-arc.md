@@ -18,7 +18,9 @@ Explicit genre-blend, stated directly: this setting is simultaneously
 
 — all at once, unapologetically. "We can be all of these things" (direct quote, worth keeping as a north star for tone whenever a new piece of content risks flattening into just one of these registers).
 
-Worldbuilding implication worth carrying forward: the coexistence of tall sailing ships and giant excavated mechs in the same harbor suggests the setting's technology is **not uniformly advanced** — ordinary society still runs on roughly-1950s industrial capitalism, while Frame/Resonance technology is narrow, scarce, and excavation-derived (from the Gap dig site), which is exactly why it's institutionally controlled and why only specifically-trained, sufficiently-synced pilots can touch it at all. This isn't confirmed as a rule yet, just a strong implication from the reference art worth keeping in mind when writing tech, NPCs' relationship to it, and how ordinary civilians perceive the Directorate.
+Worldbuilding implication worth carrying forward: the coexistence of tall sailing ships and giant excavated mechs in the same harbor suggests the setting's technology is **not uniformly advanced** — ordinary society still runs on roughly-1950s industrial capitalism, while Frame/Resonance technology is narrow, scarce, and excavation-derived (from the Gap dig site), which is exactly why it's institutionally controlled and why only specifically-trained, sufficiently-synced pilots can touch it at all.
+
+**Confirmed 2026-09-02** (see `ideas/entries/gap-derived-tech-disparity.json`) — this is no longer just an implication. It extends further than tech level, too: the party's phones run on the same Gap-derived substrate as the Frames, which is *why* the Watcher can read their traffic essentially for free — not hacking a closed system, but native to the medium it's built from. Full mechanism and the resulting table payoffs are tracked in that idea entry and in `ideas/entries/watcher-reads-all-comms.json`, not duplicated here.
 
 ## Core theme
 

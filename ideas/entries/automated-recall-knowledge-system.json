@@ -8,12 +8,12 @@
   "summary": "Give Recall Knowledge real functional automation, beyond cosmetic renaming, so the GM can control exactly what information about a given enemy gets delivered to players immediately, per degree of success.",
   "description": "Called out as deserving special attention distinct from the general cosmetic terminology reflavor: if Recall Knowledge is automated, the GM gets direct control over exactly what information players receive about a given enemy, delivered immediately rather than looked up/adjudicated live. This lines up closely with the design bible's existing Sensor Operator ground role ('Recall Knowledge checks reveal the Claimant's weaknesses, resistances, immunities. Each success = one true fact the pilot can act on.') — this idea is asking for that mechanism to actually be built/automated with structured per-creature data, rather than left as manual GM adjudication each time.",
   "capturedDate": "2026-08-22",
-  "lastTouchedDate": "2026-08-22",
+  "lastTouchedDate": "2026-09-02",
   "sourceContext": "User planning message, 2026-08-22 — large worldbuilding/tooling brain-dump.",
   "openSubQuestions": [
     "Data shape for a creature's structured Recall Knowledge reveals per degree of success — likely a new optional field on creature.schema.json/combatStatblock (or on the sensor-operator ground-role check itself), not designed yet.",
     "How this surfaces at the table — an inline check result, a GM-panel button, a chat card?"
   ],
-  "relatedRefs": ["data/schema/creature.schema.json", "data/campaign/ground-roles.json", "sf2e-terminology-reflavor", "terminal-login-landing-page"],
+  "relatedRefs": ["data/schema/creature.schema.json", "data/campaign/ground-roles.json", "sf2e-terminology-reflavor", "terminal-login-landing-page", "watcher-recall-knowledge-on-party"],
   "resolution": null
 }

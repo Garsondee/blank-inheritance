@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/idea.schema.json",
+  "id": "gap-derived-tech-disparity",
+  "type": "idea",
+  "title": "Gap-derived tech explains the setting's uneven tech level, and why the Watcher reads comms trivially",
+  "status": "accepted",
+  "domains": ["worldbuilding", "narrative", "antagonists", "technical-architecture"],
+  "summary": "Frame/Resonance technology — and anything else built on the same substrate, including the party's phones — was excavated from the Gap rather than organically developed, which is why 1950s-level ordinary society coexists with giant mechs, and why the Watcher, native to that same alien substrate, can read anything running on it without 'hacking' it in any conventional sense.",
+  "description": "Confirms and extends a thread already floated as a 'strong implication, not confirmed as a rule yet' in design/campaign-arc.md's Setting tone section: the coexistence of tall sailing ships and giant excavated mechs in the same harbor isn't an inconsistency to smooth over, it's the point. Frame/Resonance technology was never organically developed by this society — it was excavated from the Gap dig site, is narrow and scarce, and is only partially understood even by the Directorate that controls it. That's exactly why it's institutionally gatekept and why only specifically-trained, sufficiently-synced pilots can touch it at all. Ordinary civilian life never had to invent the underlying physics, so it never diffused outward the way genuinely home-grown technology would — society advanced everywhere except the narrow, jealously-guarded excavated band. Now confirmed rather than left as an implication.\n\nNew this pass: the player phones (and plausibly other Directorate infrastructure) run on the same Gap-derived substrate as the Frames — not a deliberate Directorate design choice, but because Gap tech is apparently the only way to build something with a phone's capability at all in a society that's otherwise stuck at roughly a 1950s tech level. That's *why* the phones exist as advanced objects in a retro-industrial world: the same worldbuilding move as the Frames themselves, applied to a second piece of hardware.\n\nThe payoff, and the reason this idea exists: the Watcher doesn't 'hack' the phones in any conventional sense. Hacking implies breaking into a system that's otherwise closed to you. The Watcher is native to the substrate the phones (and the Frames) are built from — reading Gap-tech comms traffic isn't an intrusion for it, any more than a fish hacks the water it swims in. This is deliberately a different category of act from a Claimant rolling Recall Knowledge against a PC in combat (see watcher-recall-knowledge-on-party and watcher-reads-all-comms): that's earned, imperfect, and dice-rolled, because predicting live, contested combat behavior is a genuinely hard modeling problem even for something this vast. Reading stored or transmitted text through hardware it's already native to is not remotely the same problem, and shouldn't need a roll, a DC, or a security mechanic the party could ever meaningfully harden against. There's no patch for being the wall.",
+  "capturedDate": "2026-09-02",
+  "lastTouchedDate": "2026-09-02",
+  "sourceContext": "User message, 2026-09-02: 'we need a good reason for tech to be all over the place with some things being in a 1950s like historical state but also things like giant Mechs. the watcher runs on the alien tech so decoding the player Comms based on alien tech is trivial.' Given directly as the answer to (and confirmation of) the uneven-tech implication already flagged in design/campaign-arc.md.",
+  "openSubQuestions": [
+    "Does this extend to all Directorate electronics/infrastructure (sensors, terminals, the intranet) or specifically comms/phones?",
+    "Does ordinary civilian technology ever incorporate a slow trickle-down of Gap-tech-derived components over the campaign, or does the gate stay hard for the whole campaign?",
+    "Whether other factions (the cicada organization) have their own partial access to Gap tech, or the Directorate's excavation is genuinely singular.",
+    "Whether this connects at all to Golarion's existing magic-and-fey layer (the campaign's other confirmed genre-blend element) or stays a separate, parallel explanation for a separate phenomenon."
+  ],
+  "relatedRefs": [
+    "watcher-reads-all-comms",
+    "watcher-recall-knowledge-on-party",
+    "adaptive-antagonist-combat-ai",
+    "the-watcher",
+    "data/antagonists/the-watcher.json",
+    "design/campaign-arc.md#setting-tone-1950s-historical-divergence",
+    "phone-app-suite",
+    "terminal-login-landing-page"
+  ],
+  "resolution": null
+}
