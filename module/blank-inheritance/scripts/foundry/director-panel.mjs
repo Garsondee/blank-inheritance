@@ -25,6 +25,7 @@
 import { sceneRows, transitionOptions, TRANSITION_TYPES } from "../core/director-panel.mjs";
 import { deriveFoundryId } from "../core/ids.mjs";
 import { openSceneCloseDialogue } from "./scene-close.mjs";
+import { landingSceneId } from "./landing-scene.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const MODULE_ID = "blank-inheritance";
@@ -62,7 +63,8 @@ export class DirectorPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       cue: DirectorPanel.#onCue,
       pullEveryone: DirectorPanel.#onPullEveryone,
       setTransition: DirectorPanel.#onSetTransition,
-      closeScene: DirectorPanel.#onCloseScene
+      closeScene: DirectorPanel.#onCloseScene,
+      goHome: DirectorPanel.#onGoHome
     }
   };
 
@@ -103,6 +105,12 @@ export class DirectorPanel extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   static #onCloseScene() {
     openSceneCloseDialogue();
+  }
+
+  /** design/foundry-module-design.md §7's own "persistent Home button" -- the landing scene is idle home base between beats, cued the same way as any other scene. */
+  static async #onGoHome() {
+    await cueScene(await landingSceneId(), { transitionType: this.#transitionType || undefined });
+    this.render();
   }
 }
 

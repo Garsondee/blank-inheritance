@@ -281,8 +281,11 @@ test("registerInductionSocket: relays a delete request to the active GM's client
     registerInductionSocket();
 
     world.game.socket.emit(SOCKET, { type: "induction-actor-delete-request", actorId: actor.id });
-    await Promise.resolve();
-    await Promise.resolve();
+    // A macrotask flush, not a fixed count of microtask ticks -- the handler's
+    // own await chain (now: remove any landing-scene token, then delete the
+    // actor) is free to grow a step without this test needing to track how
+    // many ticks that now takes.
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     assert.equal(world.actors.has(actor.id), false, "the GM-relayed delete must actually remove the orphaned Actor");
   } finally {

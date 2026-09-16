@@ -120,6 +120,7 @@
       "PanelTitle": "Director's Panel",
       "MacroName": "Blank Inheritance: Open Director's Panel",
       "TransitionLabel": "Transition",
+      "Home": "Home",
       "PullEveryone": "Pull everyone to my view",
       "Cue": "Cue",
       "NowActive": "Now active",
@@ -140,6 +141,9 @@
         "Glitch": "Glitch",
         "Dots": "Dots"
       }
+    },
+    "LandingScene": {
+      "Name": "Directorate HQ — Lobby"
     },
     "SceneClose": {
       "Title": "Close Scene",

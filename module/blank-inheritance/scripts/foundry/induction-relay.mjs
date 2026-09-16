@@ -39,7 +39,17 @@
  * at all; an explicit (still fire-and-forget) failure message from the GM's
  * side covers a GM being connected but the create itself failing, so a real
  * validation error doesn't read as "no GM online."
+ *
+ * Placing the new Actor's token on the landing scene rides along with the
+ * same GM-side create step, for the same permission reason: TOKEN_CREATE is
+ * Assistant/GM-only too, with no parent-Scene-ownership exception the way
+ * embedded Items have (see foundry/landing-scene.mjs's own header). It has
+ * its own inner try/catch, separate from the Actor-create one -- a token
+ * failing to place must never be reported back as character-creation
+ * failing, since the actor itself is already real at that point.
  */
+
+import { placeActorOnLandingScene, removeActorTokenFromLandingScene } from "./landing-scene.mjs";
 
 const MODULE_ID = "blank-inheritance";
 const SOCKET = `module.${MODULE_ID}`;
@@ -56,10 +66,13 @@ const CREATE_TIMEOUT_MS = 20000;
 async function resolveActorCreateRequest({ requestId, userId, actorData }) {
   if (!game.user.isGM) return;
   try {
-    await Actor.create(
+    const actor = await Actor.create(
       { ...actorData, ownership: { default: 0, [userId]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER } },
       { keepId: true, render: false }
     );
+    await placeActorOnLandingScene(actor).catch((err) => {
+      console.error("Blank Inheritance | Could not place a token for a newly created character:", err);
+    });
   } catch (err) {
     console.error("Blank Inheritance | Could not create a character Actor on a player's behalf:", err);
     game.socket.emit(SOCKET, {
@@ -79,6 +92,12 @@ async function resolveActorCreateRequest({ requestId, userId, actorData }) {
  */
 async function resolveActorDeleteRequest({ actorId }) {
   if (!game.user.isGM) return;
+  // Before the actor itself, in case ITS OWN delete throws -- an orphaned
+  // token pointing at a still-real actor is nothing, one pointing at a
+  // just-deleted actor is a permanent stray (see removeActorTokenFromLandingScene's own header).
+  await removeActorTokenFromLandingScene(actorId).catch((err) => {
+    console.error("Blank Inheritance | Could not remove an abandoned induction Actor's token:", err);
+  });
   await game.actors.get(actorId)?.delete().catch((err) => {
     console.error("Blank Inheritance | Could not clean up an abandoned induction Actor:", err);
   });
@@ -106,8 +125,14 @@ export function registerInductionSocket() {
  * `timeoutMs` is only ever overridden by tests -- production always uses
  * CREATE_TIMEOUT_MS.
  */
-export function requestActorCreation(actorData, { timeoutMs = CREATE_TIMEOUT_MS } = {}) {
-  if (game.user.isGM) return Actor.create(actorData, { keepId: true, render: false });
+export async function requestActorCreation(actorData, { timeoutMs = CREATE_TIMEOUT_MS } = {}) {
+  if (game.user.isGM) {
+    const actor = await Actor.create(actorData, { keepId: true, render: false });
+    await placeActorOnLandingScene(actor).catch((err) => {
+      console.error("Blank Inheritance | Could not place a token for a newly created character:", err);
+    });
+    return actor;
+  }
 
   const requestId = actorData._id ?? foundry.utils.randomID();
 
@@ -147,8 +172,11 @@ export function requestActorCreation(actorData, { timeoutMs = CREATE_TIMEOUT_MS 
 }
 
 /** Fire-and-forget, matching the `.catch(() => {})` already wrapped around every caller of this -- see resolveActorDeleteRequest's own comment. */
-export function requestActorDeletion(actorId) {
-  if (game.user.isGM) return game.actors.get(actorId)?.delete() ?? Promise.resolve();
+export async function requestActorDeletion(actorId) {
+  if (game.user.isGM) {
+    await removeActorTokenFromLandingScene(actorId);
+    return game.actors.get(actorId)?.delete() ?? Promise.resolve();
+  }
   game.socket.emit(SOCKET, { type: "induction-actor-delete-request", actorId });
   return Promise.resolve();
 }

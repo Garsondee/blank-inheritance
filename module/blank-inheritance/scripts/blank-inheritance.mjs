@@ -44,6 +44,7 @@ import {
 } from "./foundry/scene-runner.mjs";
 import { openInductionTerminal } from "./foundry/induction-terminal.mjs";
 import { registerInductionSocket } from "./foundry/induction-relay.mjs";
+import { ensureLandingScene } from "./foundry/landing-scene.mjs";
 import {
   advanceSegment,
   ensureDowntimeVault,
@@ -172,6 +173,15 @@ Hooks.once("ready", async () => {
       await ensureStageVault();
     } catch (err) {
       console.error("Blank Inheritance | Could not open the staged-cast vault:", err);
+    }
+    // The idle "home base" scene (design/foundry-module-design.md §7) a
+    // freshly-created character's token lands on. Check-then-create, same as
+    // the vaults above -- a second ready hook (reload, second GM client) must
+    // never touch a scene that's already accumulating real player tokens.
+    try {
+      await ensureLandingScene();
+    } catch (err) {
+      console.error("Blank Inheritance | Could not create the landing scene:", err);
     }
     // design/harvest-inference.md: nothing exported the chat log for
     // sync-harvest.mjs to pull down until now. Its own internal GM check
