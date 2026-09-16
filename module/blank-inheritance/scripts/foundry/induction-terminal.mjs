@@ -62,7 +62,8 @@ import {
   isFinishingComplete,
   addLanguage,
   removeLanguage,
-  buildLanguageSuggestions
+  buildLanguageSuggestions,
+  summarizeIntakeAnswers
 } from "../core/induction-intake.mjs";
 import { getPath, setPath } from "../core/state-path.mjs";
 
@@ -1446,11 +1447,60 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       await actor.update({ "system.build.attributes.boosts.1": this.state.attributes.freeBoostPicks });
       await actor.update({ "system.attributes.hp.value": actor.system.attributes.hp.max });
 
+      // Session-zero's whole point (design/induction.md) is the backstory
+      // prompts, not the sheet math above -- but until now the answers had
+      // nowhere to go once this method returned (GitHub #96/#45's own open
+      // question, and #140's audit named it directly). Never fatal to
+      // character creation: a real, playable Actor with no saved backstory
+      // is a smaller problem than losing the whole character over a
+      // whisper failing.
+      try {
+        await this.#persistIntakeAnswers(actor);
+      } catch (err) {
+        console.error("Blank Inheritance | Could not persist this character's intake answers:", err);
+      }
+
       return actor;
     } catch (err) {
       await actor.delete().catch(() => {});
       throw err;
     }
+  }
+
+  /**
+   * The durable copy is the Actor flag -- queryable, survives independently
+   * of chat retention/pruning. The whispered ChatMessage alongside it is
+   * what actually gets this into the harvest pipeline for free: it lands in
+   * foundry/chat-export.mjs's own createChatMessage hook exactly like any
+   * other message, no second export mechanism needed. Whispered to every
+   * GM specifically (not `game.user.id` -- the player who just created this
+   * character is who's logged in here, and this is written for the GM to
+   * read, same as Page 9's own review step already frames the whole flow).
+   */
+  async #persistIntakeAnswers(actor) {
+    const prompts = await loadIntakePrompts();
+    const { text, hasContent } = summarizeIntakeAnswers({
+      prompts,
+      questions: this.state.intake.questions,
+      banalAnswers: this.state.finishing.banalAnswers
+    });
+
+    await actor.setFlag(MODULE_ID, "intake", {
+      questions: this.state.intake.questions,
+      banalAnswers: this.state.finishing.banalAnswers
+    });
+
+    if (!hasContent) return;
+    const gmIds = game.users.filter((u) => u.isGM).map((u) => u.id);
+    if (!gmIds.length) return; // no GM connected to whisper to -- the flag above is still saved
+    await ChatMessage.create({
+      content: `<h3>${actor.name} — intake answers</h3><pre>${text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre>`,
+      whisper: gmIds,
+      // core/chat-export.mjs's own harvestKind flag -- this content is
+      // always worth surfacing in the harvest report, never a candidate for
+      // "does this ordinary message contain a check/link" inference.
+      flags: { [MODULE_ID]: { harvestKind: "intake-answers" } }
+    });
   }
 
   /** `fromUuid` needs the real compendium document id -- resolved from our own catalogue's `id` (a kebab slug) against the live compendium's own `system.slug`, same field the catalogue extraction itself keyed on. */

@@ -52,6 +52,18 @@ const OUTCOME_LABEL = Object.freeze({
  * trusted on its own terms.
  */
 export function classifyMessage(record, { expectedSkills = null } = {}) {
+  // A message the adapter that posted it already knows is real, authored
+  // content (core/chat-export.mjs's own harvestKind flag -- e.g. the
+  // induction terminal's intake-answers summary) skips inference entirely
+  // and is trusted outright, same footing as the GM's own typed log lines.
+  // This is NOT "sentiment analysis of ordinary chat" (the rule this file's
+  // header says never to do) -- it is the opposite: content someone
+  // deliberately marked as worth reading, not a guess about what an
+  // unmarked message might mean.
+  if (record.harvestKind) {
+    return { tier: TIER.HIGH, kind: record.harvestKind, at: record.at, summary: record.text, source: record };
+  }
+
   if (record.check) {
     const { slug, outcome, dc } = record.check;
     const who = record.speaker ?? record.author ?? "Someone";

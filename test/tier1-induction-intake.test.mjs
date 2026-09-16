@@ -15,6 +15,7 @@ import {
   addLanguage,
   removeLanguage,
   buildLanguageSuggestions,
+  summarizeIntakeAnswers,
   getPath,
   setPath
 } from "../module/blank-inheritance/scripts/core/induction-intake.mjs";
@@ -187,4 +188,38 @@ test("data/schema/induction-intake-prompts.schema.json parses as valid JSON and 
   for (const required of schema.required) {
     assert.ok(required in PROMPTS, `prompts file is missing required field "${required}"`);
   }
+});
+
+test("summarizeIntakeAnswers: no answers at all is honestly empty, not a fabricated section", () => {
+  const result = summarizeIntakeAnswers({ prompts: PROMPTS, questions: {}, banalAnswers: {} });
+  assert.equal(result.hasContent, false);
+  assert.equal(result.text, "");
+});
+
+test("summarizeIntakeAnswers: an unanswered question is skipped, not printed as '(no answer)'", () => {
+  const oneAnswer = { [PROMPTS.eightQuestions[0].id]: "My sister." };
+  const result = summarizeIntakeAnswers({ prompts: PROMPTS, questions: oneAnswer, banalAnswers: {} });
+  assert.equal(result.hasContent, true);
+  // Exactly one Q/A pair -- the other seven questions must not appear at all.
+  assert.equal((result.text.match(/^Q:/gm) ?? []).length, 1);
+  assert.match(result.text, new RegExp(PROMPTS.eightQuestions[0].text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+});
+
+test("summarizeIntakeAnswers: whitespace-only answers count as unanswered", () => {
+  const result = summarizeIntakeAnswers({ prompts: PROMPTS, questions: { [PROMPTS.eightQuestions[0].id]: "   " } });
+  assert.equal(result.hasContent, false);
+});
+
+test("summarizeIntakeAnswers: the Eight Questions and the banal settling-in questions are separate, labelled sections", () => {
+  const questions = { [PROMPTS.eightQuestions[0].id]: "An answer." };
+  const banalAnswers = { [PROMPTS.banalQuestions[0].id]: "Socks first." };
+  const result = summarizeIntakeAnswers({ prompts: PROMPTS, questions, banalAnswers });
+  assert.match(result.text, /The Eight Questions/);
+  assert.match(result.text, /Settling In/);
+  assert.ok(result.text.indexOf("The Eight Questions") < result.text.indexOf("Settling In"));
+});
+
+test("summarizeIntakeAnswers: missing prompts/questions/banalAnswers entirely is safe", () => {
+  assert.deepEqual(summarizeIntakeAnswers(), { text: "", hasContent: false });
+  assert.deepEqual(summarizeIntakeAnswers({ prompts: PROMPTS }), { text: "", hasContent: false });
 });

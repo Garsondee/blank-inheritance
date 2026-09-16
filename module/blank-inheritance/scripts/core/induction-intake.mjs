@@ -77,6 +77,39 @@ export function buildLanguageSuggestions(ancestryLanguages, curated, current) {
   return suggestions;
 }
 
+/**
+ * Turns a finished character's answers into GM-readable text -- the one
+ * piece that was going missing entirely (see #createCharacterActor's own
+ * doc comment / GitHub #96): Page 9 created the Actor and the in-memory
+ * answers had nowhere to go. This builds the text; the Foundry side
+ * (foundry/induction-terminal.mjs) is the one that actually persists it
+ * (an Actor flag, durable) and posts it (a whispered ChatMessage, which
+ * core/chat-export.mjs's own hook then carries into the harvest pipeline
+ * for free -- no second export mechanism needed).
+ *
+ * Unanswered questions (blank/whitespace-only) are skipped rather than
+ * printed as "(no answer)" -- a player who skips six of eight is not lying
+ * about having answered them, and the doc comment on Page 8 itself already
+ * treats a skipped question as a legitimate choice, not an error.
+ */
+export function summarizeIntakeAnswers({ prompts, questions = {}, banalAnswers = {} } = {}) {
+  const section = (title, list, answers) => {
+    const lines = (list ?? [])
+      .map((q) => ({ text: q.text, answer: (answers?.[q.id] ?? "").trim() }))
+      .filter((row) => row.answer)
+      .map((row) => `Q: ${row.text}\nA: ${row.answer}`);
+    if (!lines.length) return null;
+    return `${title}\n${lines.join("\n\n")}`;
+  };
+
+  const sections = [
+    section("The Eight Questions", prompts?.eightQuestions, questions),
+    section("Settling In", prompts?.banalQuestions, banalAnswers)
+  ].filter(Boolean);
+
+  return { text: sections.join("\n\n"), hasContent: sections.length > 0 };
+}
+
 // getPath/setPath moved to core/state-path.mjs 2026-09-10, when Page 3's
 // free-boost-slot picking needed the identical dotted-path mechanism --
 // re-exported here so existing imports of this module don't need to change.

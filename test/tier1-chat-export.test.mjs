@@ -14,6 +14,13 @@ test("stripHtml: paragraphs and breaks become newlines, tags are removed, entiti
   assert.equal(stripHtml(null), "");
 });
 
+test("stripHtml: every common block-level closing tag implies a line break, not just </p> (regression, found live 2026-09-16: a <h3>...</h3><pre>...</pre> message ran its heading straight into the next line with no separator)", () => {
+  assert.equal(stripHtml("<h3>Title</h3><pre>Body</pre>"), "Title\nBody");
+  assert.equal(stripHtml("<div>One</div><div>Two</div>"), "One\nTwo");
+  assert.equal(stripHtml("<li>A</li><li>B</li>"), "A\nB");
+  assert.equal(stripHtml("<h1>H1</h1><h2>H2</h2><h6>H6</h6>"), "H1\nH2\nH6");
+});
+
 test("extractContentLinks: parses unenriched @UUID/@Actor/@Item source syntax with and without a label", () => {
   const links = extractContentLinks('Check the @UUID[Actor.abc123]{Shucks Mordant} and @Item[def456]');
   assert.deepEqual(links, [
@@ -74,6 +81,14 @@ test("extractCheckContext: a missing dc is null, not a fabricated number", () =>
 test("extractCheckContext: a message with the old flags.pf2e shape (a different system, or a stale export) is correctly NOT recognised as a check", () => {
   const flags = { pf2e: { context: { type: "skill-check", domains: ["stealth"], outcome: "success", dc: { value: 18 } } } };
   assert.equal(extractCheckContext(flags), null);
+});
+
+test("normalizeMessage: harvestKind is null by default, and picked up from flags['blank-inheritance'].harvestKind when a caller sets it", () => {
+  const bare = normalizeMessage({ content: "hi", rolls: [], flags: {} });
+  assert.equal(bare.harvestKind, null);
+
+  const marked = normalizeMessage({ content: "hi", rolls: [], flags: { "blank-inheritance": { harvestKind: "intake-answers" } } });
+  assert.equal(marked.harvestKind, "intake-answers");
 });
 
 test("normalizeMessage: assembles the full record, preferring flavor text over content when both exist", () => {

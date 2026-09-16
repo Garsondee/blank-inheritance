@@ -22,7 +22,12 @@ export function stripHtml(html) {
   if (!html) return "";
   return html
     .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/p>/gi, "\n")
+    // Every common block-level closing tag implies a line break when read
+    // as plain text -- found live: foundry/induction-terminal.mjs's own
+    // intake-answers message uses <h3>...</h3><pre>...</pre> with no <p>
+    // between them, and only handling </p> ran the heading straight into
+    // the first line of the block that followed it with no separator at all.
+    .replace(/<\/(p|h[1-6]|div|li|pre)>/gi, "\n")
     .replace(/<[^>]+>/g, "")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
@@ -112,6 +117,22 @@ export function extractCheckContext(flags) {
 }
 
 /**
+ * A caller can flag a message it posts as always-worth-reading (e.g.
+ * foundry/induction-terminal.mjs's intake-answers summary) via
+ * `flags["blank-inheritance"].harvestKind`, a plain string. This is
+ * deliberately generic rather than a one-off "is this intake answers" check
+ * -- any future message an adapter authors and KNOWS is real content (not
+ * ordinary chatter to run inference over) can use the same mechanism.
+ * "blank-inheritance" is a literal string, not the Foundry MODULE_ID
+ * constant most adapter files use -- this file is core/, which the tier-0
+ * architecture lint forbids from importing anything Foundry-adjacent, and a
+ * plain string here is not that.
+ */
+function extractHarvestKind(flags) {
+  return flags?.["blank-inheritance"]?.harvestKind ?? null;
+}
+
+/**
  * One raw ChatMessage's plain data (already extracted from the live
  * Document by the adapter — see foundry/chat-export.mjs) -> the normalized
  * record that gets persisted and, later, classified.
@@ -125,6 +146,13 @@ export function normalizeMessage(raw) {
     text: stripHtml(raw.flavor) || stripHtml(raw.content),
     rolls: summarizeRolls(raw.rolls),
     check: extractCheckContext(raw.flags),
-    links: [...extractContentLinks(raw.flavor ?? ""), ...extractContentLinks(raw.content ?? "")]
+    links: [...extractContentLinks(raw.flavor ?? ""), ...extractContentLinks(raw.content ?? "")],
+    // Named harvestKind, not kind, deliberately: core/harvest-inference.mjs's
+    // own classifyMessage() output already uses `kind` for a DIFFERENT thing
+    // (which candidate shape it produced -- "check"/"link"/"gm-note").
+    // Reusing the name for this input field would be a real, confusing
+    // collision between two unrelated concepts that happen to share a file
+    // family.
+    harvestKind: extractHarvestKind(raw.flags)
   };
 }

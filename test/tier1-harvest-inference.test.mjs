@@ -18,6 +18,21 @@ function plainRecord(text = "Just some roleplay.") {
   return { id: "m3", at: "2026-09-16T20:10:00.000Z", author: "Player One", speaker: null, text, rolls: [], check: null, links: [] };
 }
 
+test("classifyMessage: a message with harvestKind set is trusted outright, Tier 1, bypassing check/link inference entirely", () => {
+  const record = { id: "m9", at: "2026-09-16T20:30:00.000Z", author: "Gamemaster", speaker: null, text: "Q: Who do you love?\nA: My sister.", rolls: [], check: null, links: [], harvestKind: "intake-answers" };
+  const result = classifyMessage(record);
+  assert.equal(result.tier, TIER.HIGH);
+  assert.equal(result.kind, "intake-answers", "the candidate's own kind is whatever harvestKind named, not a fixed 'check'/'link' value");
+  assert.equal(result.summary, record.text, "the full text passes through untouched -- no reformatting, unlike the check/link summaries");
+});
+
+test("classifyMessage: harvestKind wins even if the SAME message also happens to carry a check or links", () => {
+  const record = { id: "m10", at: "2026-09-16T20:31:00.000Z", author: "Gamemaster", speaker: null, text: "narrative text", rolls: [], check: { type: "skill-check", slug: "stealth", outcome: "success", dc: 15 }, links: [{ type: "Actor", ref: "x", label: "Someone" }], harvestKind: "intake-answers" };
+  const result = classifyMessage(record);
+  assert.equal(result.kind, "intake-answers");
+  assert.equal(Array.isArray(result), false, "must return the single narrative candidate, not the links array shape");
+});
+
 test("classifyMessage: a structured check with no expectedSkills hint is Tier 1, trusted on its own terms", () => {
   const result = classifyMessage(checkRecord());
   assert.equal(result.tier, TIER.HIGH);
