@@ -35,6 +35,60 @@ This sits directly on top of `campaign-arc.md`'s locked tone — 1950s Japan, pe
 industrial machinery rather than sleek sci-fi, the sea-fort Directorate. The panel should
 read as government hardware built by people who had to justify its cost.
 
+### The UI north star — standing directive, 2026-09-16
+
+Ingram's own words: *"This image needs to be like a UI north star. Put the image in a
+special place, refer to it often, compare your UI building efforts with how this looks.
+Get as close as possible to this appearance by heading towards this image, it's use of
+text, space, colour, shape and controls."*
+
+The image is Noisehead/VST-Design's "Analog Light" plugin mockup, from the free knob kit
+recorded in [CREDITS.md](../CREDITS.md) — **not committed** (it's third-party licensed
+material, see that entry's scope flag), but kept locally and permanently at
+`third-party/UI-NORTH-STAR-analog-light.png`. Open it before any UI work and check new
+work against it directly, the same way a contract test checks output against a schema.
+This is a standing instruction, not a one-time reference — it is expected to be consulted
+repeatedly across sessions, not read once and summarized away.
+
+**What to take from it, against the five things Ingram named:**
+
+- **Text.** One confident wordmark (a clean geometric sans, "Analog" over a small tracked
+  "LIGHT"), then two more sizes and no others: a medium-weight label per control cluster
+  (`Reverb`, `Filter and Gain System`, `Phaser`), and a smaller, lighter label per control
+  (`Mix`, `Size`, `Damp`). Numerals (the 0–10 scale, the VU meter's −20…+3) sit in a
+  distinct thin technical face. Every label is close to what it names and nothing is
+  crowded — a rule this project's own two-register type system (§1b below) already backs.
+- **Space.** A strict tripartite grid — left third / centre spine / right third — each
+  holding its own sub-grid of rounded panel clusters, with real padding inside every
+  cluster and real gaps between them. Nothing touches the outer bezel. The whole unit
+  reads as one mounted object (dark chassis frame, a soft drop shadow) rather than a flat
+  sheet of controls — compare this project's own chassis/pod language in §3.
+- **Colour.** Two honest metal tones do almost all the work — a cool brushed-silver zone
+  and a true-black zone — and exactly **one** warm, saturated colour (the amber VU glow,
+  echoed in the Drive switch's accent line) carries every reading that matters. That is
+  precisely this project's own "one dishonest colour" rule, one section below — the north
+  star is independent proof the rule produces a genuinely good-looking panel, not just a
+  defensible one.
+- **Shape.** Consistent rounded-rectangle clusters recessed into the chassis; circular
+  knobs rendered with real dimension (a domed top, a light source, a cast shadow) rather
+  than a flat disc; a printed radial tick scale around the one knob that needs precision.
+  Every shape in the image is trying to look **machined**, never drawn.
+  Never faked with gradients and box-shadows the way `design/ui/style-prototype.html`
+  (V1) had to — the standing plan (`design/craft-library.md`'s sibling infrastructure
+  decision, made the same day as this directive) is rendered/photographed control art,
+  precisely so this level of shape fidelity is reachable at all.
+- **Controls.** A knob's own highlight tells you which way is "up" before you read a
+  number. The one knob with a real, wide numeric range (`Filter and Gain System`, 0–10)
+  is the one knob given a printed scale around it — exactly Law 1 of `ux-doctrine.md`
+  (*"show the number that will actually be rolled"*) applied to a physical dial. The Drive
+  toggle reads as a real rocker, not a checkbox; the ADSR sliders have a visible track and
+  a distinct cap. Nothing on this panel is ambiguous about how to operate it.
+
+**How to use this in practice:** when a new control ships, put a screenshot of it next to
+this image before calling the work done. If it doesn't hold up next to "Analog Light,"
+it isn't finished — this is the same discipline as the control workshop gallery already
+planned (§6), just applied by eye, every time, not only at review checkpoints.
+
 ### The one dishonest colour
 
 The palette is deliberately honest: steel, brass, bone, signal red, phosphor green, and

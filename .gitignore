@@ -26,6 +26,14 @@ id_ed25519.*
 /artwork/
 /audio/
 
+# Third-party source material (someone else's licensed work, not ours to
+# redistribute raw) — same "bulk material, not project content" treatment as
+# gamesystems/foundryvtt/reference/artwork above, and the same shape as
+# tools/font-pipeline/.cache/: only the specific frames/crops we actually use,
+# processed into our own module assets, get committed. CREDITS.md (tracked)
+# is the ledger of what lives here, who made it, and under what license.
+/third-party/
+
 # Module binaries: synced to the Foundry server by WinSCP, but not committed.
 # The .gitkeep files are kept so the directory structure survives in git.
 /foundry/blank-inheritance/assets/**
