@@ -76,6 +76,13 @@ id_ed25519.*
 # working scratch that accumulated in-tree. Never meant to be committed.
 /tools/city-map/_out/
 
+# Same shape as the above, but landed at the repo root instead of a tool's
+# own scratch dir — a one-off CLI run that didn't cd first. Caught 2026-09-16.
+/production-preview-1200.png
+/region_buildings.json
+/residential_candidates.json
+/residential_picks.json
+
 # Font pipeline download cache — full upstream TTFs (tens of MB) used only as
 # subsetting input. The shipped woff2 files in module/.../assets/fonts/ ARE
 # committed; these intermediates are reproducible via build_fonts.py.
