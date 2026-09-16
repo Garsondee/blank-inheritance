@@ -42,6 +42,13 @@ STAGE_CODE_VERSION = 1
 # natural=* values that mean water, so they never count as land content.
 WATERY_NATURAL = frozenset({"water", "coastline", "bay", "strait", "wetland"})
 
+# Node tags worth keeping as Point Features -- deliberately the same families
+# acquire.EXTRA_NODE_KEYS fetches, since a node fetched but then dropped here
+# is pure waste. `highway=street_lamp` is handled separately and earlier (it
+# becomes an AmbientLight on Foundry export, not a drawn feature), so it is
+# NOT in this list -- a lamp must not be both a lamp and a POI.
+POINT_FEATURE_KEYS = ("power", "man_made", "amenity", "historic", "emergency", "place")
+
 # Fallback building heights in metres, by building=* value, when neither
 # `height` nor `building:levels` is tagged. 1950s Minkai reads low-rise, but
 # these are the real-world OSM defaults the delivered render used.
@@ -342,6 +349,22 @@ def parse_elements(elements: Iterable[dict], fwd):
         if etype == "node":
             if tags.get("highway") == "street_lamp":
                 lamps.append(fwd.transform(element["lon"], element["lat"]))
+                continue
+            # Every other tagged node of interest becomes a real Feature with
+            # Point geometry (added 2026-09-11). Nodes used to be discarded
+            # outright apart from lamps, which silently threw away the entire
+            # POI layer of OSM -- neighbourhood names, pylons, shrines,
+            # evacuation points, harbour cranes. A Point Feature needs no new
+            # machinery downstream: fields.geom_to_map_space rotates and clips
+            # it like any other geometry, Fields.query_features indexes it, and
+            # render_tile's own passes all gate on `feature.area` or on tags it
+            # does not carry, so nothing existing draws it by accident.
+            if any(key in tags for key in POINT_FEATURE_KEYS):
+                features.append(Feature(
+                    id=ids.osm_feature_id("node", element["id"]),
+                    geom=Point(fwd.transform(element["lon"], element["lat"])),
+                    tags=tags, area=False, height_m=0.0,
+                ))
             continue
 
         if etype == "relation":

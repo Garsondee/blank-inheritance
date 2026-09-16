@@ -48,6 +48,11 @@ id_ed25519.*
 # of churn into history for something a one-line command regenerates exactly.
 /tools/map-generator/out/
 
+# City-map hand-touch-up layers: multi-gigabyte Photoshop source files (.psd/.psb),
+# the user's own raw working material, never meant for version control. Caught
+# 2026-09-16 after one accidentally landed in a commit and bloated .git by ~3GB.
+/tools/city-map/export/layers/
+
 # city-map's fetch/build cache: cached Overpass JSON and GSI DEM tiles (L0),
 # parsed world models (L1), per-frame terrain fields (L2), and replayed
 # worlds keyed by op-log content hash (L3). Large binary data reproducible
