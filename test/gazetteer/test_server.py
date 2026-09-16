@@ -180,6 +180,53 @@ class TestServer(unittest.TestCase):
         self.assertIn("region", cfg["tiers"])
         self.assertTrue(cfg["groundTruthAvailable"])
 
+    def test_the_tile_url_the_client_gets_is_content_addressed(self):
+        # Found live: the map "still looks low resolution after a forced
+        # reboot / refresh." The tile pyramid itself was fine (a fresh,
+        # uncached read matched the master pixel-for-pixel) -- the bug was
+        # that /tiles/{z}/{x}/{y}.webp carried no hash at all, so a rebuilt
+        # pyramid changed the BYTES at an UNCHANGED url, and a browser that
+        # had ever loaded the page kept serving the old bytes from its own
+        # disk cache for the full 24-hour max-age -- immune to a plain
+        # refresh (nothing to revalidate against: no ETag, no Last-
+        # Modified) and to rebooting the machine (which never touches
+        # browser disk cache). /api/map is fetched fresh on every load
+        # (no-store, see test_a_fresh_load_never_gets_a_cached_api_response
+        # -shaped guarantee below) and is the one place a hash can reach the
+        # client at all.
+        cfg = get(self.base + "/api/map")
+        self.assertRegex(cfg["tiles"]["url"], r"^/tiles/[0-9a-f]{16}/\{z\}/\{x\}/\{y\}\.webp$",
+                         "the tile url the client is told to fetch from no "
+                         "longer carries the current build's hash -- a "
+                         "rebuilt pyramid would again be invisible behind a "
+                         "url that never changed")
+        self.assertIn(gz.STATE.tile_hash, cfg["tiles"]["url"])
+
+    def test_a_tile_request_ignores_its_own_hash_segment_and_serves_current_bytes(self):
+        # The hash in the path is never checked against STATE.tile_hash --
+        # its only job is making the URL DIFFERENT when the tiles are
+        # rebuilt, a job /api/map's own freshness already does. Requiring a
+        # match here would only add a way for an old tab's stale url to 404
+        # instead of quietly self-healing the moment that tab reloads.
+        os.makedirs(os.path.join(gz.STATE.tile_dir, "3", "1"), exist_ok=True)
+        tile_path = os.path.join(gz.STATE.tile_dir, "3", "1", "2.webp")
+        with open(tile_path, "wb") as fh:
+            fh.write(b"fake-webp-bytes")
+        try:
+            req = urllib.request.Request(self.base + "/tiles/deadbeef00000000/3/1/2.webp")
+            with urllib.request.urlopen(req) as r:
+                body = r.read()
+                cache_control = r.headers.get("Cache-Control")
+            self.assertEqual(body, b"fake-webp-bytes")
+            self.assertEqual(cache_control, "public, max-age=31536000, immutable")
+        finally:
+            os.remove(tile_path)
+
+    def test_a_tile_url_missing_its_hash_segment_is_a_400_not_a_500(self):
+        with self.assertRaises(urllib.error.HTTPError) as cm:
+            get(self.base + "/tiles/3/1/2.webp")  # only z/x/y -- the old, pre-fix shape
+        self.assertEqual(cm.exception.code, 400)
+
     def test_an_unknown_route_is_a_404_with_a_reason(self):
         with self.assertRaises(urllib.error.HTTPError) as cm:
             get(self.base + "/api/nope")
@@ -675,6 +722,134 @@ class TestServer(unittest.TestCase):
                          if {o["a"], o["b"]} == {"seed-1", "coverage-region-test"}]
         self.assertEqual(self_overlaps, [],
                          "a promoted region must not be checked against its own draft copy")
+
+    def test_coverage_resyncs_a_promoted_regions_geometry_before_measuring_it(self):
+        """Found live: /api/coverage built a promoted region's polygon from
+        data/locations/ as of the LAST resync, not from whatever the draft
+        currently holds -- so a vertex dragged and saved (which DOES resync)
+        still left coverage reporting stale numbers for anything that moved
+        BEFORE the resync mechanism next had a reason to run again mid-
+        session. The gap between the "29 problems" Ingram was looking at and
+        the "33" that showed up the moment something else forced a resync
+        was exactly this staleness, not a real change to the map.
+
+        Reproduced here by moving the draft copy directly (bypassing the
+        normal save path, which already resyncs on its own) so the location
+        file is left stale on purpose, then checking that a plain GET to
+        /api/coverage -- no save, no promote -- is what fixes it."""
+        self._seed_item(tier="region", note="a training ground",
+                        name="Resync Region", ring=[[5400, 5400], [5900, 5400],
+                                                     [5900, 5900], [5400, 5900]])
+        post(self.base + "/api/promote",
+            {"localId": "seed-1", "id": "coverage-resync-test"})
+
+        moved_ring = [[6400, 6400], [6900, 6400], [6900, 6900], [6400, 6900]]
+        item = next(i for i in gz.STATE.draft["items"] if i["localId"] == "seed-1")
+        item["geometry"]["ringPx"] = moved_ring
+
+        location_path = os.path.join(self.locations_dir, "coverage-resync-test.json")
+        with open(location_path, encoding="utf-8") as fh:
+            before = json.load(fh)
+        self.assertNotEqual((before.get("derived") or {}).get("imagePx", [None])[0], moved_ring,
+                            "the location file already matches the moved ring -- "
+                            "this test is not exercising staleness at all")
+
+        get(self.base + "/api/coverage")
+
+        with open(location_path, encoding="utf-8") as fh:
+            after = json.load(fh)
+        self.assertEqual((after.get("derived") or {}).get("imagePx", [None])[0], moved_ring,
+                         "GET /api/coverage no longer resyncs a promoted region's "
+                         "geometry before measuring it -- coverage can report "
+                         "stale numbers for a region moved since the last save")
+
+    def test_cleanup_dry_run_reports_the_snap_without_writing_anything(self):
+        """Asked for directly: "Maybe we need a 'Cleanup' button." A dry run
+        (the default -- a bare POST with no body must never write) reports
+        exactly what a real run would do, so a preview and the real thing
+        are provably the same computation."""
+        self._seed_item()  # resets the undo stack and draft to something known
+        a = {"localId": "clean-a", "tier": "region", "name": "Clean A", "kind": "",
+             "note": "", "tags": [], "source": "drawn", "sourceFeatureIds": [],
+             "geometry": {"kind": "polygon",
+                         "ringPx": [[2000, 2000], [2400, 2000], [2400, 2400], [2000, 2400]]},
+             "derived": {}}
+        b = {"localId": "clean-b", "tier": "region", "name": "Clean B", "kind": "",
+             "note": "", "tags": [], "source": "drawn", "sourceFeatureIds": [],
+             "geometry": {"kind": "polygon",
+                         "ringPx": [[2403, 2000], [2800, 2000], [2800, 3000], [2403, 3000]]},
+             "derived": {}}
+        post(self.base + "/api/session", {"items": [a, b]})
+
+        result = post(self.base + "/api/cleanup", {"dryRun": True})
+        self.assertTrue(result["dryRun"])
+        self.assertEqual(len(result["snap"]), 1)
+        self.assertEqual(result["snap"][0]["regionIds"], ["clean-a", "clean-b"])
+        self.assertEqual(result["regionsTouched"], ["clean-a", "clean-b"])
+        self.assertNotIn("saved", result, "a dry run must never report a save")
+
+        after = get(self.base + "/api/session")["draft"]["items"]
+        untouched_a = next(it for it in after if it["localId"] == "clean-a")
+        self.assertEqual(untouched_a["geometry"]["ringPx"],
+                         [[2000, 2000], [2400, 2000], [2400, 2400], [2000, 2400]],
+                         "a dry run wrote to the live draft")
+
+    def test_cleanup_applied_for_real_snaps_the_corner_and_can_be_undone(self):
+        self._seed_item()
+        a = {"localId": "clean-a", "tier": "region", "name": "Clean A", "kind": "",
+             "note": "", "tags": [], "source": "drawn", "sourceFeatureIds": [],
+             "geometry": {"kind": "polygon",
+                         "ringPx": [[2000, 2000], [2400, 2000], [2400, 2400], [2000, 2400]]},
+             "derived": {}}
+        b = {"localId": "clean-b", "tier": "region", "name": "Clean B", "kind": "",
+             "note": "", "tags": [], "source": "drawn", "sourceFeatureIds": [],
+             "geometry": {"kind": "polygon",
+                         "ringPx": [[2403, 2000], [2800, 2000], [2800, 3000], [2403, 3000]]},
+             "derived": {}}
+        post(self.base + "/api/session", {"items": [a, b]})
+
+        result = post(self.base + "/api/cleanup", {"dryRun": False})
+        self.assertFalse(result["dryRun"])
+        self.assertIn("saved", result)
+        self.assertEqual(result["regionsTouched"], ["clean-a", "clean-b"])
+
+        after = get(self.base + "/api/session")["draft"]["items"]
+        snapped_a = next(it for it in after if it["localId"] == "clean-a")
+        snapped_b = next(it for it in after if it["localId"] == "clean-b")
+        self.assertEqual(snapped_a["geometry"]["ringPx"][1], snapped_b["geometry"]["ringPx"][0],
+                         "the two regions' near-corner did not actually snap together")
+
+        undo_result = post(self.base + "/api/undo", {})
+        reverted_a = next(it for it in undo_result["draft"]["items"] if it["localId"] == "clean-a")
+        self.assertEqual(reverted_a["geometry"]["ringPx"],
+                         [[2000, 2000], [2400, 2000], [2400, 2400], [2000, 2400]],
+                         "undoing a real cleanup did not restore the pre-cleanup corner")
+
+    def test_cleanup_with_nothing_to_clean_touches_nothing_and_pushes_no_undo_entry(self):
+        self._seed_item()
+        a = {"localId": "clean-a", "tier": "region", "name": "Clean A", "kind": "",
+             "note": "", "tags": [], "source": "drawn", "sourceFeatureIds": [],
+             "geometry": {"kind": "polygon",
+                         "ringPx": [[2000, 2000], [2400, 2000], [2400, 2400], [2000, 2400]]},
+             "derived": {}}
+        # Far enough from `a` that nothing here is within any of
+        # cleanup.py's default tolerances of anything in it.
+        b = {"localId": "clean-b", "tier": "region", "name": "Clean B", "kind": "",
+             "note": "", "tags": [], "source": "drawn", "sourceFeatureIds": [],
+             "geometry": {"kind": "polygon",
+                         "ringPx": [[9000, 9000], [9400, 9000], [9400, 9400], [9000, 9400]]},
+             "derived": {}}
+        post(self.base + "/api/session", {"items": [a, b]})
+        before_undo_available = get(self.base + "/api/session").get("undoAvailable")
+
+        result = post(self.base + "/api/cleanup", {"dryRun": False})
+        self.assertEqual(result["regionsTouched"], [])
+        self.assertNotIn("saved", result,
+                         "nothing to clean up must not still report a write")
+
+        after_undo_available = get(self.base + "/api/session").get("undoAvailable")
+        self.assertEqual(before_undo_available, after_undo_available,
+                         "a no-op cleanup must not push an undo entry")
 
     def test_a_recycled_localId_never_inherits_the_dead_item_promotion_link(self):
         """The worst bug this tool has produced, found live. Five promoted

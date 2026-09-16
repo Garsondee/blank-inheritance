@@ -120,6 +120,15 @@ body {
   border-color: var(--bi-vermilion);
   animation: gz-armed-pulse 1s ease-in-out infinite;
 }
+/* The same confirm step again, on a plain gz-btn with no --danger/--promote
+   variant of its own (Cleanup) -- the pulse is the same "still waiting on
+   you" signal without borrowing a variant's own resting-state colour. */
+.gz-btn.is-armed {
+  background: var(--bi-vermilion);
+  color: var(--bi-paper);
+  border-color: var(--bi-vermilion);
+  animation: gz-armed-pulse 1s ease-in-out infinite;
+}
 @keyframes gz-armed-pulse { 50% { opacity: .7; } }
 
 .gz-bar__right { display: flex; align-items: center; gap: 10px; }
@@ -659,6 +668,20 @@ body {
   border-color: #5c9c6b;
   box-shadow: 0 0 0 4px rgba(61, 107, 71, .45);
 }
+/* The "pop together" moment, asked for directly: "have them 'pop' together
+   when I move them close." Plays once when the class is ADDED -- see
+   snapEditedVertex's own note on why classList.add never re-triggers it on
+   every drag tick -- and animates the decorative ::after box, never the
+   .gz-vertex element itself, which carries Leaflet's own position
+   transform and must not be fought over. */
+@keyframes gz-vertex-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.45); }
+  100% { transform: scale(1); }
+}
+.gz-vertex--snapped::after {
+  animation: gz-vertex-pop 200ms ease-out;
+}
 .gz-vertex--mid {
   width: 22px; height: 22px;
   margin: -11px 0 0 -11px;
@@ -678,14 +701,6 @@ body {
   border: 2px solid var(--bi-paper);
   background: var(--bi-vermilion);
   box-shadow: 0 0 0 1px rgba(0,0,0,.6);
-}
-.gz-pin--published {
-  width: 16px; height: 16px;
-  margin: -8px 0 0 -8px;
-  border-radius: 50% 50% 50% 0;
-  transform: rotate(-45deg);
-  background: var(--bi-brass);
-  border-color: var(--bi-brass-lit);
 }
 .gz-pin--selected {
   background: #4fc8d8;
@@ -725,6 +740,22 @@ body {
 .gz-snap--edge {
   border: 3px dashed var(--bi-brass);
   background: transparent;
+}
+
+/* Every OTHER district's vertex within reach while dragging one of this
+   region's own -- shown faint so the eye can find a good target before
+   committing to it, distinct from the confirmed winning target (.gz-snap
+   above), which sits brighter and on top of these. Asked for directly:
+   "it would be nice to see other vertexes on other districts/regions
+   nearby." */
+.gz-snap-candidate {
+  width: 14px; height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  border: 2px solid var(--bi-brass);
+  background: rgba(172, 138, 77, .35);
+  opacity: .55;
+  pointer-events: none;
 }
 
 .gz-marquee {

@@ -246,7 +246,7 @@ test("a click on an existing vertex handle never starts a new draft, in any draf
   // SECOND gesture, not the one that actually went wrong.
   const draw = readFileSync(join(STATIC, "draw.js"), "utf8");
   assert.ok(
-    /map\.on\("click"[\s\S]{0,1500}closest\(["'`]\.gz-vertex, \.gz-vertex--mid["'`]\)[\s\S]{0,150}POLYGON_DRAFT_TOOLS\.has\(tool\)/
+    /map\.on\("click"[\s\S]{0,1700}closest\(["'`]\.gz-vertex, \.gz-vertex--mid["'`]\)[\s\S]{0,150}POLYGON_DRAFT_TOOLS\.has\(tool\)/
       .test(draw),
     "the map's click handler no longer checks .gz-vertex/.gz-vertex--mid " +
     "before POLYGON_DRAFT_TOOLS.has(tool) -- a click on an existing " +
@@ -468,41 +468,6 @@ test("a finished edit forces its layers to redraw rather than waiting on the nex
   }
 });
 
-test("the published-locations reference overlay never shares a live tier's colour", () => {
-  // The actual root cause of a whole investigation: "the original shape
-  // remains behind... the tan coloured lines don't update" turned out not
-  // to be a rendering bug at all. state.publishedLayer draws whatever was
-  // last written to data/locations/*.json -- frozen until refreshPublished()
-  // runs again (page load, promote, a few specific actions), by design NOT
-  // tracking a vertex drag on the live draft underneath it. It used to
-  // share region's own unselected colour (#ac8a4d), so that frozen
-  // reference and the shape actually being edited read as the same
-  // outline failing to move, when they were never the same layer. Verified
-  // live: dragging a vertex for real, watching the live shape move while
-  // this ghost sat still the whole time.
-  const app = readFileSync(join(STATIC, "app.js"), "utf8");
-  const draw = readFileSync(join(STATIC, "draw.js"), "utf8");
-  const fnMatch = app.match(/function renderPublishedLayer\(\)\s*\{[\s\S]{0,2600}?state\.publishedLayer\.addLayer\(layer\);/);
-  assert.ok(fnMatch, "renderPublishedLayer() is no longer where this reference overlay is drawn");
-  const fn = fnMatch[0];
-  assert.ok(!/color:\s*"#ac8a4d"/.test(fn),
-    "the published overlay draws region's own unselected colour again -- " +
-    "an edited region and its frozen last-saved reference will look like " +
-    "the same outline that failed to update");
-  assert.ok(/dashArray/.test(fn),
-    "the published overlay no longer marks itself as a reference/ghost " +
-    "with a dashed outline -- nothing distinguishes it from a live shape " +
-    "at a glance while editing");
-  // And the colour it does use must not collide with any OTHER live tier
-  // either -- site/point vermilion, the selected cyan, or locked green.
-  const liveColours = [...draw.matchAll(/color:\s*"(#[0-9a-f]{6})"/g)].map((m) => m[1]);
-  const publishedColour = fn.match(/color:\s*"(#[0-9a-f]{6})"/);
-  assert.ok(publishedColour, "the published overlay no longer sets an explicit stroke colour");
-  assert.ok(!liveColours.includes(publishedColour[1]),
-    `the published overlay's colour (${publishedColour && publishedColour[1]}) ` +
-    "collides with a live tier/selection colour in draw.js");
-});
-
 test("Alt bypasses snapping for a freely-placed point, and clears itself on blur", () => {
   // Asked for directly: "less jumping from position to position, more fine
   // tuned positioning for accuracy." In a crowded corner the always-on
@@ -600,30 +565,43 @@ test("inserting a midpoint welds to what THAT new point touches, not to vertex i
     "again -- vertex i's own coordinates, not the midpoint being created");
 });
 
-test("the published-locations ghost never draws for whatever is currently selected", () => {
-  // The colour/dash fix alone did not close the loop: "I still see a
-  // dashed line left behind when I move vertexes... only gets updated
-  // when I refresh." Correct -- that dashed line is exactly the reference
-  // overlay, working as designed (frozen until refreshPublished() runs
-  // again), but a frozen ghost of the very shape someone is actively
-  // dragging vertices on is pure clutter, not a useful comparison. Other
-  // locations' ghosts stay -- only the one currently selected is
-  // suppressed.
+test("the published-locations ghost overlay is gone, not just re-suppressed again", () => {
+  // Two earlier rounds tried to make this legible: first a colour/dash
+  // distinct from any live tier, then suppressing the ghost for whatever
+  // was currently selected. Neither closed the loop -- tidying a border
+  // between two regions only ever has ONE of them selected at a time, so
+  // the OTHER one's ghost sat there stale and dashed until something else
+  // re-fetched it. Reported directly, after the second fix: "there is
+  // always a dashed line left behind... in order to get the dashed line
+  // to go away I need to refresh... I don't think that's a helpful
+  // feature, it's just confusing things." Removed rather than patched a
+  // third time. state.published (the DATA -- what the inspector and the
+  // depth check use to know an item was promoted) stays; only the second,
+  // dashed COPY drawn onto the map itself is gone.
   const app = readFileSync(join(STATIC, "app.js"), "utf8");
-  assert.ok(/const selectedId = state\.draw\.selected\(\);/.test(app),
-    "renderPublishedLayer no longer looks up the currently-selected item");
-  assert.ok(/const suppressLocationId = selectedItem && selectedItem\.locationRef;/.test(app),
-    "renderPublishedLayer no longer resolves the selected item's own " +
-    "published location id to suppress");
-  assert.ok(/if \(loc\.id === suppressLocationId\) return;/.test(app),
-    "renderPublishedLayer no longer skips drawing the ghost for whatever " +
-    "is currently selected -- dragging a vertex will show a frozen dashed " +
-    "copy of the very shape being edited again");
-  assert.ok(/renderPublishedLayer\(\);\s*\n\}/.test(app) &&
-    /function handleSelectionChange\(ids\)[\s\S]{0,300}renderPublishedLayer\(\)/.test(app),
-    "handleSelectionChange no longer re-renders the published layer on " +
-    "every selection change -- the suppressed ghost would not update " +
-    "until something else happened to trigger a redraw");
+  assert.ok(!/function renderPublishedLayer/.test(app),
+    "renderPublishedLayer() is back -- the dashed ghost overlay was " +
+    "removed for a reason (see this test's own comment), not left out by " +
+    "accident");
+  assert.ok(!/state\.publishedLayer/.test(app),
+    "state.publishedLayer is back -- something is once again drawing a " +
+    "second, frozen copy of a promoted region onto the map");
+  assert.ok(/async function refreshPublished\(\)/.test(app),
+    "refreshPublished no longer exists -- the inspector and the depth " +
+    "check both still need state.published to know an item was promoted");
+  assert.ok(/data\.locations\.forEach\(\(loc\) => state\.published\.set\(loc\.id, loc\)\);/.test(app),
+    "refreshPublished no longer populates state.published -- the data " +
+    "half of this must survive even though the map-overlay half was cut");
+
+  const html = readFileSync(join(STATIC, "index.html"), "utf8");
+  assert.ok(!/id="l-published"/.test(html),
+    "the \"Published locations\" layer checkbox is back in the toolbar " +
+    "with nothing left for it to toggle");
+
+  const css = readFileSync(join(STATIC, "gazetteer.css"), "utf8");
+  assert.ok(!/\.gz-pin--published/.test(css),
+    "gz-pin--published is back in the stylesheet -- dead CSS for a " +
+    "marker class nothing creates anymore");
 });
 
 test("drafting a bisect cut never calls the polygon-only cell/area readout", () => {
@@ -645,6 +623,196 @@ test("drafting a bisect cut never calls the polygon-only cell/area readout", () 
     "redrawDraft calls refsTouched unconditionally again the moment a " +
     "drafting tool reaches its own minimum point count -- bisect's " +
     "minimum is 2, and refsTouched throws below 3");
+});
+
+test("clicking an existing vertex while bisecting places a cut point there instead of being swallowed", () => {
+  // Reported directly: "I can't bisect from vertex to vertex." The map
+  // click handler's vertex-handle bypass guard (added to stop a click on a
+  // handle from starting a brand new Region/Site/Lasso draft on top of it --
+  // see the panning-bug fix above) was unconditional, so it also ate the
+  // one thing Bisect actually needs: clicking exactly on an existing corner
+  // to put a cut endpoint there for the cleanest possible split. Confirmed
+  // live in the Browser pane before this test was written -- with the guard
+  // unconditional, two clicks squarely on a selected region's own vertex
+  // handles left `drafting` false and placed nothing.
+  const src = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(
+    /if \(!isLineTool\(\) && clickTarget && clickTarget\.closest[\s\S]{0,80}closest\("\.gz-vertex, \.gz-vertex--mid"\)\) return;/
+      .test(src),
+    "the click handler's vertex-handle bypass guard no longer exempts " +
+    "line-drafting tools (bisect) -- a click on an existing vertex will " +
+    "be swallowed again instead of placing a cut point there");
+});
+
+test("dragging a vertex onto a neighbour's edge splits that edge instead of leaving a one-sided touch", () => {
+  // Requested directly ("yes, build it") after being proposed as the fix
+  // for a real friction point in the client log: snapping a dragged vertex
+  // onto another region's border only ever moved THIS region's own point
+  // onto that border -- the neighbour's ring never gained a matching
+  // vertex there, so the "shared" corner was only shared from one side
+  // until a second, separate midpoint-insert was done by hand on the
+  // other region too.
+  const src = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(/if \(de < bestEdgeDist\) \{ bestEdgeDist = de; bestEdge = \{ x: cx, y: cy, id, segIndex: i \}; \}/.test(src),
+    "snapRegionPoint no longer records which ring segment an edge match " +
+    "landed on -- there is nothing left to splice a split vertex into");
+  assert.ok(/return \{ x: bestEdge\.x, y: bestEdge\.y, kind: "edge", id: bestEdge\.id, segIndex: bestEdge\.segIndex \};/.test(src),
+    "snapRegionPoint's edge-kind result no longer passes segIndex through to its caller");
+  assert.ok(/function splitTargetEdge\(snapInfo\)[\s\S]{0,80}if \(!snapInfo \|\| snapInfo\.kind !== "edge"\) return;/.test(src),
+    "splitTargetEdge no longer exists (or no longer bails out for a " +
+    "vertex-kind snap, which needs no split -- findWeldedVertices already " +
+    "covers an exact coincidence)");
+  assert.ok(/ring\.splice\(snapInfo\.segIndex \+ 1, 0, \[snapInfo\.x, snapInfo\.y\]\);/.test(src),
+    "splitTargetEdge no longer inserts the snapped point into the " +
+    "neighbouring region's own ring at the matched segment");
+  // Both the main-vertex AND the midpoint-insert drag gestures need the
+  // fix -- a midpoint IS "a new point" being dragged, exactly the
+  // scenario this was requested for.
+  const dragendCount = (src.match(/drawHandles\(\);\s*\n\s*splitTargetEdge\(lastSnapInfo\);\s*\n\s*\}\);/g) || []).length;
+  assert.strictEqual(dragendCount, 2,
+    "splitTargetEdge is no longer called from both the main-vertex and " +
+    "the midpoint-insert dragend handlers -- expected exactly 2 call " +
+    `sites, found ${dragendCount}`);
+});
+
+test("dragging a vertex previews nearby vertices from other districts, and the snap target pops", () => {
+  // Requested directly: "when dragging a vertex it would be nice to see
+  // other vertexes on other districts/regions nearby and have them 'pop'
+  // together when I move them close. Better snapping ideally." Two parts:
+  // a wider preview scan so nearby candidates show up before the drag is
+  // close enough to actually snap, and a CSS pop on the handle that
+  // engages when it does.
+  const draw = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(/function scanNearbyRegionPoints\(x, y, excludeId\)/.test(draw),
+    "scanNearbyRegionPoints no longer exists -- snapEditedVertex has " +
+    "nothing left to build the preview list from");
+  assert.ok(/if \(d <= tolerance\) nearby\.push\(\{ x: vx, y: vy \}\);/.test(draw),
+    "scanNearbyRegionPoints no longer collects every vertex within the " +
+    "snap tolerance, only the single winning snap target -- see " +
+    "SNAP_RADIUS_SCREEN_PX's own comment for why the preview and the " +
+    "actual snap must never again use two different radii");
+  assert.ok(/const \{ snapped, nearby \} = scanNearbyRegionPoints\(p\[0\], p\[1\], entry\.item\.localId\);/.test(draw),
+    "snapEditedVertex no longer calls scanNearbyRegionPoints -- it went " +
+    "back to plain snapRegionPoint, which has no preview list");
+  assert.ok(/for \(const c of nearby\) \{[\s\S]{0,200}className: "gz-snap-candidate"/.test(draw),
+    "snapEditedVertex no longer draws a marker for each nearby candidate " +
+    "vertex during a drag");
+
+  const css = readFileSync(join(STATIC, "gazetteer.css"), "utf8");
+  assert.ok(/@keyframes gz-vertex-pop \{[\s\S]{0,150}\}/.test(css),
+    "the gz-vertex-pop keyframe animation no longer exists");
+  assert.ok(/\.gz-vertex--snapped::after \{\s*\n\s*animation: gz-vertex-pop/.test(css),
+    "the snapped handle no longer plays the pop animation -- it must " +
+    "apply to ::after (the decorative box), never to .gz-vertex itself, " +
+    "which carries Leaflet's own position transform");
+  assert.ok(/\.gz-snap-candidate \{/.test(css),
+    "the .gz-snap-candidate style for nearby-vertex preview markers no " +
+    "longer exists");
+});
+
+test("the tile layer uses the server's own content-addressed url, not a hardcoded path", () => {
+  // Found live -- reported as "the map resolution still seems the same
+  // after a forced reboot / refresh." The tile pyramid on disk was already
+  // correct (pixel-diffed against the master); the bug was that
+  // /api/map's own "tiles.url" field (server.py's _api_map, which now
+  // bakes STATE.tile_hash into it -- see test_server.py's own coverage of
+  // that half) was fetched and then silently ignored here in favour of a
+  // hardcoded literal, so a rebuilt pyramid never changed what url the
+  // browser actually asked for, and a browser cache holding the old bytes
+  // under that unchanged url had nothing to invalidate it -- not a plain
+  // refresh, not rebooting the machine.
+  const app = readFileSync(join(STATIC, "app.js"), "utf8");
+  assert.ok(!/L\.tileLayer\("\/tiles\/\{z\}\/\{x\}\/\{y\}\.webp"/.test(app),
+    "the tile layer went back to a hardcoded \"/tiles/{z}/{x}/{y}.webp\" " +
+    "literal -- a rebuilt pyramid would again be invisible to any browser " +
+    "that already cached the old one");
+  assert.ok(/L\.tileLayer\(cfg\.tiles\.url,/.test(app),
+    "the tile layer no longer builds its url from cfg.tiles.url (the " +
+    "server's own, hash-bearing template) -- it has no other way left to " +
+    "learn that the pyramid was rebuilt");
+});
+
+test("the Cleanup button previews before it writes, the same arm/confirm shape lore-save uses", () => {
+  // Asked for directly: "Maybe we need a 'Cleanup' button." A native
+  // confirm() dialog is explicitly ruled out elsewhere in this file
+  // (already found unreliable in this exact preview harness) -- the same
+  // reasoning applies here, so this checks for the SAME arm/confirm
+  // mechanism, not a dialog.
+  const app = readFileSync(join(STATIC, "app.js"), "utf8");
+  assert.ok(/const CLEANUP_ARM_MS = 4000;/.test(app),
+    "the Cleanup button's arm window no longer exists");
+  assert.ok(/async function runCleanup\(\)/.test(app),
+    "runCleanup no longer exists");
+  assert.ok(/if \(Date\.now\(\) > cleanupArmedUntil\) \{[\s\S]{0,200}dryRun: true/.test(app),
+    "runCleanup's first click no longer runs a fresh dry run before " +
+    "arming -- it must never apply on an unconfirmed first click, and " +
+    "must never trust a REMEMBERED preview instead of a fresh one");
+  assert.ok(/dryRun: false/.test(app),
+    "runCleanup no longer has a real-apply path at all");
+  assert.ok(/\$\("btn-cleanup"\)\.addEventListener\("click", runCleanup\);/.test(app),
+    "the Cleanup button is no longer wired to runCleanup");
+
+  const html = readFileSync(join(STATIC, "index.html"), "utf8");
+  assert.ok(/id="btn-cleanup"/.test(html), "the Cleanup button no longer exists in the toolbar");
+});
+
+test("a real cleanup apply refreshes the client the same way undo() does, not a hand-patched merge", () => {
+  // The whole point of reading back result.draft.items wholesale (see
+  // undo()'s own comment on why a merge is not enough) is that a batch
+  // pass can touch every region on the sheet at once -- far more than any
+  // single edit undo() was originally written to cover, but the same
+  // reasoning applies at any size.
+  const app = readFileSync(join(STATIC, "app.js"), "utf8");
+  assert.ok(/state\.items = result\.draft\.items \|\| \[\];[\s\S]{0,200}state\.draw\.clearShapes\(\);/.test(app),
+    "runCleanup's real-apply path no longer does a full state.items " +
+    "replace from the server's own saved draft");
+  assert.ok(/state\.items\.forEach\(\(it\) => state\.draw\.addShape\(it\)\);/.test(app),
+    "runCleanup no longer redraws every shape after a real apply");
+});
+
+test("drawHandles gives a hole's own ring vertices, not just the outer boundary's", () => {
+  // Reported directly: "I can't edit those shapes where holes have been
+  // cut into regions/districts." polyLatLngs (rendering) and nudge()
+  // (arrow-key move) both already handled holesPx -- only drawHandles, the
+  // one thing that actually lets a person grab a point, never looked past
+  // g.ringPx. Live-verified against an isolated seeded region (an outer
+  // square with a hole cut in the middle): before this fix, selecting it
+  // produced exactly 4 vertex handles (the outer square only); after,
+  // exactly 8 (outer + hole), and dragging the hole's own handle wrote into
+  // holesPx[0] while leaving ringPx untouched.
+  const draw = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(/const rings = \[\{ ring: g\.ringPx, holeIndex: null \},/.test(draw),
+    "drawHandles no longer builds a ring list covering the outer boundary " +
+    "AND every hole -- it went back to only ever handling g.ringPx");
+  assert.ok(/\.\.\.\(g\.holesPx \|\| \[\]\)\.map\(\(hole, holeIndex\) => \(\{ ring: hole, holeIndex \}\)\)/.test(draw),
+    "drawHandles no longer includes each of g.holesPx's own rings in the " +
+    "list of rings it gives handles to");
+  assert.ok(/rings\.forEach\(\(\{ ring, holeIndex \}\) => \{/.test(draw),
+    "drawHandles no longer loops over every ring (outer + holes) to build " +
+    "its vertex and midpoint handles -- it must not go back to a single " +
+    "hardcoded `const ring = g.ringPx;`");
+});
+
+test("the live-drag snap radius matches the preview radius -- one number, not two", () => {
+  // Reported directly, backed by the client log: "every time I need to add
+  // a vertex to each individually and move each individually, that's what
+  // I've been doing for ages." Root cause: scanNearbyRegionPoints showed a
+  // candidate as "nearby" out to 40px (NEARBY_RADIUS_SCREEN_PX) but the
+  // actual snap only ever committed within 12px (SNAP_RADIUS_SCREEN_PX) --
+  // a promise the preview made on every drag between 12 and 40px out that
+  // the commit then broke. Real data on The Open Sea / South Waterfront:
+  // 18 of 20 genuinely-nearby unsnapped placements sat within 40px, past
+  // what 12px could ever catch from a real mouse.
+  const draw = readFileSync(join(STATIC, "draw.js"), "utf8");
+  assert.ok(/const SNAP_RADIUS_SCREEN_PX = 40;/.test(draw),
+    "SNAP_RADIUS_SCREEN_PX reverted to its old, too-tight 12px value -- " +
+    "the whole point of this fix was raising it to match what the " +
+    "preview already promises");
+  assert.ok(!/NEARBY_RADIUS_SCREEN_PX/.test(draw),
+    "a second, separate preview-only radius constant is back -- this is " +
+    "exactly the two-different-numbers shape that caused the bug in the " +
+    "first place; the preview and the actual snap must read the same " +
+    "constant, not two that can drift apart again");
 });
 
 test("the shared fixture is reachable from both suites' expected paths", () => {

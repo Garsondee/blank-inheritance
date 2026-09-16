@@ -51,7 +51,6 @@ const state = {
   features: new Map(),   // ground-truth building id -> { ringPx, layer, centroid }
   featureLayer: null,
   suppressedLayer: null,
-  publishedLayer: null,
   coverageLayer: null,
   biomeLayer: null,       // the L.GridLayer while "Show biomes" is on, else null
   biomes: null,           // cached {ref: biome} from /api/biomes, fetched once per page load
@@ -809,7 +808,13 @@ async function boot() {
   state.map = map;
 
   const bounds = L.latLngBounds(ll(0, 0), ll(cfg.image.width, cfg.image.height));
-  L.tileLayer("/tiles/{z}/{x}/{y}.webp", {
+  // cfg.tiles.url carries the current build's hash baked in (see the
+  // server's own State.tile_hash) -- a hardcoded "/tiles/{z}/{x}/{y}.webp"
+  // here would point at the SAME url after every future rebuild, which is
+  // exactly what let a stale, cached-forever browser copy of the map
+  // outlive a Photoshop re-export: no refresh or reboot busts a cache
+  // whose url never changed.
+  L.tileLayer(cfg.tiles.url, {
     tileSize: cfg.tiles.tileSize,
     minZoom: 0,
     maxZoom: maxNative + 2,
@@ -824,7 +829,6 @@ async function boot() {
   const gridLayer = makeGridLayer(cfg).addTo(map);
   state.featureLayer = L.layerGroup().addTo(map);
   state.suppressedLayer = L.layerGroup();
-  state.publishedLayer = L.layerGroup().addTo(map);
   state.coverageLayer = L.layerGroup().addTo(map);
 
   state.draw = createDrawController({
@@ -1104,6 +1108,92 @@ async function undo() {
     setStatus(err.status === 409 ? message : "could not undo: " + message, "error");
     clientLog("undo", { ok: false, status: err.status, message });
   }
+}
+
+// Same arm/confirm shape as the lore-save button below (see its own
+// comment on why: a native confirm() dialog was already found unreliable
+// in this exact preview harness). A first click always runs a fresh dry
+// run rather than trusting a remembered count -- the whole point of a
+// PREVIEW is that it reflects what is on the sheet right now, not what
+// was on it CLEANUP_ARM_MS ago.
+const CLEANUP_ARM_MS = 4000;
+let cleanupArmedUntil = 0;
+let cleanupArmedTimer = null;
+
+function _cleanupSummary(report) {
+  const snapped = report.snap.reduce((sum, c) => sum + c.vertexCount, 0);
+  const inserted = report.edgeInsert.length;
+  const deduped = report.dedupe.reduce((sum, r) => sum + r.removedCount, 0);
+  const parts = [];
+  if (snapped) parts.push(`${snapped} vertices snapped together`);
+  if (inserted) parts.push(`${inserted} matching point${inserted === 1 ? "" : "s"} inserted`);
+  if (deduped) parts.push(`${deduped} redundant point${deduped === 1 ? "" : "s"} removed`);
+  return parts.join(", ");
+}
+
+async function runCleanup() {
+  const btn = $("btn-cleanup");
+
+  if (Date.now() > cleanupArmedUntil) {
+    setStatus("checking every region for near-duplicate vertices and edges…");
+    let preview;
+    try {
+      preview = await api("/api/cleanup", { dryRun: true });
+    } catch (err) {
+      setStatus("cleanup check failed: " + ((err.payload && err.payload.error) || err.message), "error");
+      return;
+    }
+    const n = preview.regionsTouched.length;
+    if (n === 0) {
+      setStatus("nothing to clean up — every region border is already exact.", "ok");
+      return;
+    }
+    setStatus(`would tidy ${n} region${n === 1 ? "" : "s"}: ${_cleanupSummary(preview)} `
+      + `— click Cleanup again to apply`, "warn");
+    cleanupArmedUntil = Date.now() + CLEANUP_ARM_MS;
+    btn.textContent = "Click again to apply";
+    btn.classList.add("is-armed");
+    clearTimeout(cleanupArmedTimer);
+    cleanupArmedTimer = setTimeout(() => {
+      cleanupArmedUntil = 0;
+      btn.textContent = "Cleanup";
+      btn.classList.remove("is-armed");
+    }, CLEANUP_ARM_MS);
+    return;
+  }
+
+  cleanupArmedUntil = 0;
+  clearTimeout(cleanupArmedTimer);
+  btn.textContent = "Cleanup";
+  btn.classList.remove("is-armed");
+
+  setStatus("applying cleanup…");
+  let result;
+  try {
+    result = await api("/api/cleanup", { dryRun: false });
+  } catch (err) {
+    setStatus("cleanup failed: " + ((err.payload && err.payload.error) || err.message), "error");
+    return;
+  }
+  const n = result.regionsTouched.length;
+  if (n === 0) {
+    setStatus("nothing to clean up.", "ok");
+    return;
+  }
+  // Same full-replace refresh undo() already uses -- a batch edit this
+  // size (potentially every region on the sheet) must be read back from
+  // the server's own saved draft, never reconstructed from what the
+  // browser happened to have in memory.
+  state.items = result.draft.items || [];
+  state.draw.clearShapes();
+  state.items.forEach((it) => state.draw.addShape(it));
+  renderList();
+  updateUndoButton(result.undoAvailable);
+  refreshCoverage();
+  refreshOverview();
+  setStatus(`cleanup applied: ${n} region${n === 1 ? "" : "s"} tidied (${_cleanupSummary(result)}). `
+    + `Undo is available.`, "ok");
+  clientLog("cleanup", { ok: true, regionsTouched: n });
 }
 
 function markDirty() {
@@ -1662,21 +1752,28 @@ async function refreshRequests() {
 // --- published locations -----------------------------------------------------
 
 /**
- * Locations that have already been promoted to data/locations/*.json, shown
- * as a distinct filled layer so a session shows what is already permanent
- * versus what is still a draft. This is the closing half of the loop: a
- * draft item is scratch until promoted, and this is where "promoted" becomes
- * visible on the map, in this session and every one after it.
- */
-/**
- * Fetches every promoted location into `state.published`, unconditionally --
- * this is the inspector's only way to know a draft item was promoted at all
- * (see promoteLocationFor/renderInspector), so it must run regardless of
- * whether the decorative map OVERLAY below is currently switched on. Used to
- * be one function that skipped the fetch entirely when the "published"
- * layer checkbox was off, which meant an item could be fully promoted and
- * written and the inspector would still have no way to find that out unless
- * a completely unrelated checkbox happened to be ticked.
+ * Fetches every promoted location into `state.published` -- the inspector's
+ * only way to know a draft item was promoted at all (see
+ * promoteLocationFor/renderInspector, and checkDepth/suggestDepth's own
+ * use of it for the depth-vs-declaration check), so a session shows what
+ * is already permanent versus what is still a draft.
+ *
+ * Used to also draw a second, dashed "ghost" copy of every promoted
+ * region onto the map itself, frozen at whatever data/locations/*.json
+ * held as of the last refreshPublished() call (page load, promote, a
+ * handful of specific actions) -- explicitly NOT tracking a live vertex
+ * drag underneath it. Removed after two rounds of trying to make that
+ * legible (first giving it a colour and dash pattern distinct from any
+ * live tier, then suppressing it for whichever item was currently
+ * selected) still left it reading as a real bug rather than a reference:
+ * tidying a border between two regions only ever has ONE of them
+ * selected at a time, so the OTHER one's ghost sat there stale and
+ * dashed until something else happened to re-fetch it. Reported
+ * directly, after the second fix: "there is always a dashed line left
+ * behind... in order to get the dashed line to go away I need to
+ * refresh... I don't think that's a helpful feature, it's just
+ * confusing things." A reference layer that needs a manual refresh to
+ * stop lying is worse than no reference layer.
  */
 async function refreshPublished() {
   state.published.clear();
@@ -1684,59 +1781,9 @@ async function refreshPublished() {
   try {
     data = await api("/api/locations");
   } catch (err) {
-    renderPublishedLayer(); // clears it; locations may not exist yet on a fresh repo
-    return;
+    return; // locations may not exist yet on a fresh repo
   }
   data.locations.forEach((loc) => state.published.set(loc.id, loc));
-  renderPublishedLayer();
-}
-
-/** The decorative map overlay only -- gated by its own checkbox, reading
- *  from whatever refreshPublished() already fetched. Split out so toggling
- *  this checkbox never has to re-fetch, and so it never controls whether the
- *  DATA exists, only whether it is drawn as a second shape on the map. */
-function renderPublishedLayer() {
-  state.publishedLayer.clearLayers();
-  if (!$("l-published").checked) return;
-  // Never draw the ghost for whatever is currently selected. It is a
-  // reference for comparing the live draft against what is actually on
-  // disk elsewhere -- useful for OTHER locations, pure clutter for the one
-  // whose own vertices are being dragged right now: the live shape right
-  // there already IS the thing to be looking at, and a frozen dashed copy
-  // of it, sitting behind or beside it until the next refreshPublished(),
-  // reads as a stray line left over from the edit rather than what it is.
-  const selectedId = state.draw.selected();
-  const selectedItem = selectedId && itemById(selectedId);
-  const suppressLocationId = selectedItem && selectedItem.locationRef;
-  state.published.forEach((loc) => {
-    if (loc.id === suppressLocationId) return;
-    let layer;
-    if (loc.tier === "point") {
-      layer = L.marker(ll(loc.pointPx[0], loc.pointPx[1]), {
-        icon: L.divIcon({ className: "gz-pin gz-pin--published", iconSize: [16, 16] }),
-      });
-    } else {
-      // Deliberately NOT region-brass (#ac8a4d) or any other live tier
-      // colour: this polygon is whatever was last written to
-      // data/locations/*.json, frozen until refreshPublished() runs again
-      // (page load, promote, a handful of specific actions) -- it does NOT
-      // track a vertex drag on the live draft underneath it, on purpose.
-      // Sharing region's own colour made that reference polygon and the
-      // thing actually being edited look like the same shape not updating.
-      // Found live: dragging a vertex for real, watching the live shape
-      // move while this ghost sat frozen the whole time, reported as "the
-      // original shape remains behind... the tan coloured lines don't
-      // update" -- because they were never the same layer.
-      const rings = (loc.ringsPx || []).map(ringToLatLngs);
-      layer = L.polygon(rings, {
-        color: "#6b7280", weight: 2, fillOpacity: 0.12, fillColor: "#6b7280",
-        dashArray: "4 4", interactive: true,
-      });
-    }
-    const label = `${loc.name || "(unnamed)"} · ${loc.tier} · ${loc.status}`;
-    layer.bindTooltip(label, { className: "gz-tip", direction: "top", sticky: true });
-    state.publishedLayer.addLayer(layer);
-  });
 }
 
 // --- panels ------------------------------------------------------------------
@@ -1751,9 +1798,6 @@ function itemById(localId) { return state.items.find((it) => it.localId === loca
 function handleSelectionChange(ids) {
   if (ids.length <= 1) renderInspector(ids[0] || null);
   else renderBatchPanel(ids);
-  // Selecting something new changes which location's published ghost (if
-  // any) renderPublishedLayer suppresses -- see its own comment.
-  renderPublishedLayer();
 }
 
 let confirmTierChangeArmed = null; // { localId } | null while a tier-change confirm is pending
@@ -2550,6 +2594,7 @@ function wireChrome() {
     btn.addEventListener("click", () => setTool(btn.dataset.tool));
   });
   $("btn-save").addEventListener("click", save);
+  $("btn-cleanup").addEventListener("click", runCleanup);
   $("btn-undo").addEventListener("click", undo);
   $("btn-biomes").addEventListener("click", toggleBiomeLayer);
   $("btn-biomes-rebuild").addEventListener("click", rebuildBiomes);
@@ -3099,7 +3144,6 @@ function wireLayerToggles(gridLayer) {
       ? state.draw.addShape(it) : state.draw.removeShape(it.localId));
   });
   $("l-suppressed").addEventListener("change", showSuppressed);
-  $("l-published").addEventListener("change", renderPublishedLayer);
   wireReview();
   wireLoreMode();
   $("l-coverage").addEventListener("change", refreshCoverage);

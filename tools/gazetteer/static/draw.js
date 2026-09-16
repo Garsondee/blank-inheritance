@@ -120,7 +120,22 @@ export function createDrawController(opts) {
   //: In SCREEN pixels, converted per-call, because a fixed image-px radius is
   //: a different-sized target at every zoom -- the same lesson the real
   //: building hit-test learned.
-  const SNAP_RADIUS_SCREEN_PX = 12;
+  //:
+  //: Was 12 -- reported directly, backed by the client log: "every time I
+  //: need to add a vertex to each individually and move each individually,
+  //: that's what I've been doing for ages." Real data explains why: on The
+  //: Open Sea's own unsnapped placements genuinely near South Waterfront
+  //: (not just open water far from any neighbour, which correctly never
+  //: snaps to anything), 18 of 20 sat within 40px of the boundary they were
+  //: clearly aimed at -- past what a 12px radius could ever catch from a
+  //: real mouse. The number is not a new guess: it is
+  //: scanNearbyRegionPoints's own preview radius (see below), which was
+  //: ALREADY showing a candidate as "nearby" up to 40px out while the
+  //: actual snap only committed within 12 -- a promise the preview made and
+  //: the commit broke, on every single drag wider than 12px and narrower
+  //: than 40. One radius now, so the two can never again disagree about
+  //: what "nearby" means.
+  const SNAP_RADIUS_SCREEN_PX = 40;
 
   function imgPxPerScreenPx() {
     const a = map.containerPointToLatLng([0, 0]);
@@ -162,7 +177,10 @@ export function createDrawController(opts) {
         const [nx, ny] = ring[(i + 1) % ring.length];
         const [cx, cy] = closestOnSegment(x, y, vx, vy, nx, ny);
         const de = Math.hypot(cx - x, cy - y);
-        if (de < bestEdgeDist) { bestEdgeDist = de; bestEdge = { x: cx, y: cy, id }; }
+        // segIndex travels with the match so a caller that wants to split
+        // this edge (see splitTargetEdge) can splice the new point in at
+        // the right place without re-searching the ring for it.
+        if (de < bestEdgeDist) { bestEdgeDist = de; bestEdge = { x: cx, y: cy, id, segIndex: i }; }
       }
     }
 
@@ -170,7 +188,7 @@ export function createDrawController(opts) {
       return { x: bestVertex.x, y: bestVertex.y, kind: "vertex", id: bestVertex.id };
     }
     if (bestEdge && bestEdgeDist <= tolerance) {
-      return { x: bestEdge.x, y: bestEdge.y, kind: "edge", id: bestEdge.id };
+      return { x: bestEdge.x, y: bestEdge.y, kind: "edge", id: bestEdge.id, segIndex: bestEdge.segIndex };
     }
     return null;
   }
@@ -226,6 +244,54 @@ export function createDrawController(opts) {
     return [snapped.x, snapped.y];
   }
 
+  /** `snapRegionPoint`'s winning-target search, plus a second pass
+   *  collecting every OTHER vertex within the SAME radius, for the preview
+   *  ring shown mid-drag -- one scan over the same ring data instead of
+   *  two, for the live vertex-EDITING drag only (see snapEditedVertex, the
+   *  only caller). Asked for directly: "it would be nice to see other
+   *  vertexes on other districts/regions nearby ... when I move them
+   *  close." Fresh region-drawing (placeDraftPoint, showSnapHint) still
+   *  calls plain snapRegionPoint -- it has no use for the preview list and
+   *  shouldn't pay the extra pass for it.
+   *
+   *  One radius for both the preview and the actual snap on purpose --
+   *  see SNAP_RADIUS_SCREEN_PX's own comment for the bug two DIFFERENT
+   *  radii here actually caused: a candidate shown as "nearby" that the
+   *  drag then could not actually land on. */
+  function scanNearbyRegionPoints(x, y, excludeId) {
+    const tolerance = SNAP_RADIUS_SCREEN_PX * imgPxPerScreenPx();
+    let bestVertex = null, bestVertexDist = Infinity;
+    let bestEdge = null, bestEdgeDist = Infinity;
+    const nearby = [];
+
+    for (const [id, entry] of shapes) {
+      if (id === excludeId) continue;
+      if (entry.item.tier !== "region") continue;
+      const ring = entry.item.geometry && entry.item.geometry.ringPx;
+      if (!ring || ring.length < 3) continue;
+
+      for (let i = 0; i < ring.length; i++) {
+        const [vx, vy] = ring[i];
+        const d = Math.hypot(vx - x, vy - y);
+        if (d <= tolerance) nearby.push({ x: vx, y: vy });
+        if (d < bestVertexDist) { bestVertexDist = d; bestVertex = { x: vx, y: vy, id }; }
+
+        const [nx, ny] = ring[(i + 1) % ring.length];
+        const [cx, cy] = closestOnSegment(x, y, vx, vy, nx, ny);
+        const de = Math.hypot(cx - x, cy - y);
+        if (de < bestEdgeDist) { bestEdgeDist = de; bestEdge = { x: cx, y: cy, id, segIndex: i }; }
+      }
+    }
+
+    let snapped = null;
+    if (bestVertex && bestVertexDist <= tolerance) {
+      snapped = { x: bestVertex.x, y: bestVertex.y, kind: "vertex", id: bestVertex.id };
+    } else if (bestEdge && bestEdgeDist <= tolerance) {
+      snapped = { x: bestEdge.x, y: bestEdge.y, kind: "edge", id: bestEdge.id, segIndex: bestEdge.segIndex };
+    }
+    return { snapped, nearby };
+  }
+
   /** The same snap `placeDraftPoint` gives a freshly-drawn region vertex,
    *  extended to EDITING one that already exists -- dragging a vertex or a
    *  midpoint-insert handle on an already-drawn region. Found missing live,
@@ -240,7 +306,11 @@ export function createDrawController(opts) {
    *  while snapped, so confirmation shows on the THING the eye is already
    *  on, not only on a separate ring that a fast drag can miss entirely:
    *  asked for directly, "I'm never sure that I've snapped things together
-   *  and not left a sliver between them." */
+   *  and not left a sliver between them." The class only gets ADDED, never
+   *  removed and re-added, while the drag stays snapped -- classList.add is
+   *  a no-op on a class already present, which is what keeps the CSS pop
+   *  animation firing once per snap engaged rather than every throttled
+   *  tick of the drag. */
   function snapEditedVertex(entry, p, marker) {
     const clearSnappedClass = () => {
       if (marker) {
@@ -254,11 +324,24 @@ export function createDrawController(opts) {
       lastSnapInfo = null;
       return [round1(p[0]), round1(p[1])];
     }
-    const snapped = snapRegionPoint(p[0], p[1], { excludeId: entry.item.localId });
+    const { snapped, nearby } = scanNearbyRegionPoints(p[0], p[1], entry.item.localId);
     // Same marker showSnapHint draws while drawing a fresh region -- shown
     // here too, mid-drag, so a snap about to happen is visible before the
     // handle is released rather than a surprise discovered afterward.
     snapLayer.clearLayers();
+    // Every other vertex within reach, drawn faint and small -- visible
+    // BEFORE anything is close enough to actually snap, so landing on one
+    // is never a surprise sprung only at the last pixel. Skipped for
+    // whichever one is about to WIN (drawn next, brighter, on top of these
+    // rather than blended into them).
+    for (const c of nearby) {
+      if (snapped && c.x === snapped.x && c.y === snapped.y) continue;
+      snapLayer.addLayer(L.marker(ll(c.x, c.y), {
+        icon: L.divIcon({ className: "gz-snap-candidate", iconSize: [14, 14] }),
+        interactive: false,
+        zIndexOffset: 1100,
+      }));
+    }
     if (!snapped) { clearSnappedClass(); lastSnapInfo = null; return [round1(p[0]), round1(p[1])]; }
     snapLayer.addLayer(L.marker(ll(snapped.x, snapped.y), {
       icon: L.divIcon({ className: "gz-snap gz-snap--" + snapped.kind, iconSize: [36, 36] }),
@@ -269,14 +352,43 @@ export function createDrawController(opts) {
       const el = marker.getElement();
       if (el) el.classList.add("gz-vertex--snapped");
     }
-    // Read once at dragend for that gesture's one log entry -- never for
-    // anything that affects behaviour, and never logged per-tick, which at
-    // 60-throttled calls a second would drown out everything else.
-    lastSnapInfo = { kind: snapped.kind, targetId: snapped.id };
+    // Read once at dragend for that gesture's one log entry, and (for an
+    // edge snap) to drive splitTargetEdge -- never for anything that
+    // affects behaviour per-tick, and never logged per-tick either, which
+    // at 60-throttled calls a second would drown out everything else.
+    lastSnapInfo = {
+      kind: snapped.kind, targetId: snapped.id,
+      segIndex: snapped.segIndex, x: snapped.x, y: snapped.y,
+    };
     report(snapped.kind === "vertex"
       ? "snapped to an existing corner — the border is now shared exactly"
       : "snapped onto an existing border");
     return [snapped.x, snapped.y];
+  }
+
+  /** After a drag settles with the point snapped onto ANOTHER region's
+   *  EDGE (not one of its existing vertices), insert a real, matching
+   *  vertex into that region's own ring at the exact snapped coordinate --
+   *  so one drag creates a genuinely shared corner on both sides, instead
+   *  of requiring a second, separate midpoint-insert on the neighbour
+   *  afterward. Requested directly ("yes, build it") after this was
+   *  proposed as the fix for the two-manual-steps friction visible in the
+   *  client log. Runs once, at dragend only, from the caller's own
+   *  `lastSnapInfo` -- never per drag tick, or every frame of the gesture
+   *  would insert another point. A snap onto an existing VERTEX needs no
+   *  split: the two rings are already coincident there, which is exactly
+   *  what findWeldedVertices is for on the next drag. */
+  function splitTargetEdge(snapInfo) {
+    if (!snapInfo || snapInfo.kind !== "edge") return;
+    const target = shapes.get(snapInfo.targetId);
+    if (!target) return;
+    const ring = target.item.geometry && target.item.geometry.ringPx;
+    if (!ring || snapInfo.segIndex == null || snapInfo.segIndex >= ring.length) return;
+    ring.splice(snapInfo.segIndex + 1, 0, [snapInfo.x, snapInfo.y]);
+    target.layer.setLatLngs(polyLatLngs(target.item.geometry));
+    forceRedraw([target.layer]);
+    onGeometryChange(target.item);
+    if (selected() === target.item.localId) drawHandles();
   }
 
   function showSnapHint(p) {
@@ -633,161 +745,186 @@ export function createDrawController(opts) {
       return;
     }
 
-    const ring = g.ringPx;
-    ring.forEach(([x, y], i) => {
-      const m = L.marker(ll(x, y), {
-        icon: L.divIcon({ className: "gz-vertex", iconSize: [26, 26] }),
-        draggable: true, zIndexOffset: 1000,
-      });
-      // Every OTHER region's vertex currently welded to this one -- see
-      // findWeldedVertices. Captured once, at the start of the gesture:
-      // re-scanning mid-drag would find nothing after the first pixel of
-      // movement, since the whole point is that two points stop being
-      // coincident the moment only one of them moves.
-      let welded = [];
-      m.on("dragstart", () => {
-        editingVertex = true;
-        welded = findWeldedVertices(entry, ring[i][0], ring[i][1]);
-        log("vertex_dragstart", {
-          itemId: entry.item.localId, itemName: entry.item.name, tier: entry.item.tier,
-          ringIndex: i, isMidpoint: false, startPx: [ring[i][0], ring[i][1]],
-          weldedIds: welded.map((w) => w.entry.item.localId),
-        });
-      });
-      const applyDrag = () => {
-        const p = px(m.getLatLng());
-        ring[i] = snapEditedVertex(entry, p, m);
-        // The handle itself jumps to the snapped point too, not just the
-        // polygon outline underneath it -- a magnet that only moves the
-        // shape while the cursor's own handle keeps drifting free reads as
-        // a bug, not an assist.
-        m.setLatLng(ll(ring[i][0], ring[i][1]));
-        entry.layer.setLatLngs(polyLatLngs(entry.item.geometry));
-        // Every welded neighbour moves with it -- otherwise a border that
-        // was genuinely shared becomes merely close, which is a sliver by
-        // another name. Each gets its own fresh [x, y], never a shared
-        // array reference, so a later, independent edit to one region's
-        // ring can never silently mutate another's.
-        for (const w of welded) {
-          w.entry.item.geometry.ringPx[w.index] = [ring[i][0], ring[i][1]];
-          w.entry.layer.setLatLngs(polyLatLngs(w.entry.item.geometry));
-        }
-        liveReport(ring);
-      };
-      m.on("drag", rafThrottle(applyDrag));
-      m.on("dragend", () => {
-        // One final UNTHROTTLED flush -- dragend can fire before a pending
-        // rAF from the last drag event runs, and the release point must
-        // always be exact, not whichever frame happened to land first.
-        applyDrag();
-        editingVertex = false;
-        forceRedraw([entry.layer, ...welded.map((w) => w.entry.layer)]);
-        snapLayer.clearLayers();
-        log("vertex_dragend", {
-          itemId: entry.item.localId, ringIndex: i, isMidpoint: false,
-          finalPx: [ring[i][0], ring[i][1]], snapped: lastSnapInfo,
-          weldedIds: welded.map((w) => w.entry.item.localId),
-        });
-        onGeometryChange(entry.item);
-        drawHandles();
-      });
-      // Right-click removes this vertex, and every welded neighbour's copy
-      // of it too -- deleting a shared corner from only one side of a
-      // border is exactly the same sliver dragging one away creates. A
-      // polygon cannot go below three points, and refusing the WHOLE
-      // delete (not just part of it) is better than silently leaving one
-      // ring short while its neighbour still shares the point that's now
-      // gone.
-      m.on("contextmenu", (e) => {
-        L.DomEvent.stop(e);
-        const welded = findWeldedVertices(entry, ring[i][0], ring[i][1]);
-        if (ring.length <= 3 || welded.some((w) => w.entry.item.geometry.ringPx.length <= 3)) {
-          report("a polygon needs at least three points");
-          return;
-        }
-        ring.splice(i, 1);
-        entry.layer.setLatLngs(polyLatLngs(entry.item.geometry));
-        for (const w of welded) {
-          w.entry.item.geometry.ringPx.splice(w.index, 1);
-          w.entry.layer.setLatLngs(polyLatLngs(w.entry.item.geometry));
-        }
-        forceRedraw([entry.layer, ...welded.map((w) => w.entry.layer)]);
-        log("vertex_delete", {
-          itemId: entry.item.localId, ringIndex: i,
-          weldedIds: welded.map((w) => w.entry.item.localId),
-        });
-        onGeometryChange(entry.item);
-        drawHandles();
-      });
-      handleLayer.addLayer(m);
-    });
+    // Every ring this shape actually has: the outer boundary, plus one per
+    // hole. A hole is a closed loop exactly like the outer ring -- same
+    // minimum of 3 points, same drag/insert/delete gestures -- so it gets
+    // the same two handle passes below, not a separate editor. Found live:
+    // holesPx was drawn (see polyLatLngs, which already renders it, and
+    // nudge(), which already shifts it) but never given handles at all, so
+    // a region with a hole cut into it -- another district sitting inside
+    // that hole, a real courtyard, a lake -- had a hole boundary nobody
+    // could grab. Reported directly: "I can't edit those shapes where
+    // holes have been cut into regions/districts."
+    const rings = [{ ring: g.ringPx, holeIndex: null },
+      ...(g.holesPx || []).map((hole, holeIndex) => ({ ring: hole, holeIndex }))];
 
-    // Midpoint ghosts. Dragging one inserts a vertex there — the gesture
-    // everyone already expects from every vector editor, and the reason a
-    // separate "add point" tool is not needed.
-    ring.forEach(([x, y], i) => {
-      const [nx, ny] = ring[(i + 1) % ring.length];
-      // The point actually being created -- the midpoint of this edge, not
-      // vertex i itself. Found live, the hard way: dragstart used to pass
-      // (x, y) -- vertex i's OWN coordinates -- to findWeldedVertices and
-      // splice it in as the inserted point, instead of this. A real,
-      // pre-existing vertex is exactly the kind of point likely to already
-      // have a genuine weld partner elsewhere on the map (that is the
-      // whole point of welding), so inserting a midpoint next to ANY
-      // already-shared corner found and dragged that corner's unrelated
-      // neighbour along for the ride -- reported as "it starts moving
-      // nearby lines and vertexes which make no sense," the resulting
-      // self-intersections once that unrelated vertex got yanked across
-      // the map, and "snapping something from a different district"
-      // instead of just placing a clean new point. A freshly-computed
-      // midpoint has no pre-existing relationship to protect; it is only
-      // ever welded if it happens to land on a real shared corner, which
-      // this fix is what makes that check actually test for.
-      const midX = (x + nx) / 2, midY = (y + ny) / 2;
-      const mid = L.marker(ll(midX, midY), {
-        icon: L.divIcon({ className: "gz-vertex gz-vertex--mid", iconSize: [22, 22] }),
-        draggable: true, zIndexOffset: 800,
-      });
-      let inserted = false;
-      let welded = [];
-      mid.on("dragstart", () => {
-        editingVertex = true;
-        ring.splice(i + 1, 0, [midX, midY]);
-        inserted = true;
-        welded = findWeldedVertices(entry, midX, midY);
-        log("vertex_dragstart", {
-          itemId: entry.item.localId, itemName: entry.item.name, tier: entry.item.tier,
-          ringIndex: i + 1, isMidpoint: true, startPx: [midX, midY],
-          weldedIds: welded.map((w) => w.entry.item.localId),
+    rings.forEach(({ ring, holeIndex }) => {
+      ring.forEach(([x, y], i) => {
+        const m = L.marker(ll(x, y), {
+          icon: L.divIcon({ className: "gz-vertex", iconSize: [26, 26] }),
+          draggable: true, zIndexOffset: 1000,
         });
-      });
-      const applyMidDrag = () => {
-        if (!inserted) return;
-        const p = px(mid.getLatLng());
-        ring[i + 1] = snapEditedVertex(entry, p, mid);
-        mid.setLatLng(ll(ring[i + 1][0], ring[i + 1][1]));
-        entry.layer.setLatLngs(polyLatLngs(entry.item.geometry));
-        for (const w of welded) {
-          w.entry.item.geometry.ringPx[w.index] = [ring[i + 1][0], ring[i + 1][1]];
-          w.entry.layer.setLatLngs(polyLatLngs(w.entry.item.geometry));
-        }
-        liveReport(ring);
-      };
-      mid.on("drag", rafThrottle(applyMidDrag));
-      mid.on("dragend", () => {
-        applyMidDrag();
-        editingVertex = false;
-        forceRedraw([entry.layer, ...welded.map((w) => w.entry.layer)]);
-        snapLayer.clearLayers();
-        log("vertex_dragend", {
-          itemId: entry.item.localId, ringIndex: i + 1, isMidpoint: true,
-          finalPx: ring[i + 1], snapped: lastSnapInfo,
-          weldedIds: welded.map((w) => w.entry.item.localId),
+        // Every OTHER region's vertex currently welded to this one -- see
+        // findWeldedVertices. Captured once, at the start of the gesture:
+        // re-scanning mid-drag would find nothing after the first pixel of
+        // movement, since the whole point is that two points stop being
+        // coincident the moment only one of them moves. Works unchanged for
+        // a hole vertex -- findWeldedVertices matches on COORDINATES, not on
+        // which ring they came from, so a hole boundary that coincides with
+        // a neighbouring region's own outer boundary (a district sitting
+        // inside this one's hole, the ordinary case) welds exactly the same
+        // way a shared outer corner does.
+        let welded = [];
+        m.on("dragstart", () => {
+          editingVertex = true;
+          welded = findWeldedVertices(entry, ring[i][0], ring[i][1]);
+          log("vertex_dragstart", {
+            itemId: entry.item.localId, itemName: entry.item.name, tier: entry.item.tier,
+            ringIndex: i, holeIndex, isMidpoint: false, startPx: [ring[i][0], ring[i][1]],
+            weldedIds: welded.map((w) => w.entry.item.localId),
+          });
         });
-        onGeometryChange(entry.item);
-        drawHandles();
+        const applyDrag = () => {
+          const p = px(m.getLatLng());
+          ring[i] = snapEditedVertex(entry, p, m);
+          // The handle itself jumps to the snapped point too, not just the
+          // polygon outline underneath it -- a magnet that only moves the
+          // shape while the cursor's own handle keeps drifting free reads as
+          // a bug, not an assist.
+          m.setLatLng(ll(ring[i][0], ring[i][1]));
+          entry.layer.setLatLngs(polyLatLngs(entry.item.geometry));
+          // Every welded neighbour moves with it -- otherwise a border that
+          // was genuinely shared becomes merely close, which is a sliver by
+          // another name. Each gets its own fresh [x, y], never a shared
+          // array reference, so a later, independent edit to one region's
+          // ring can never silently mutate another's.
+          for (const w of welded) {
+            w.entry.item.geometry.ringPx[w.index] = [ring[i][0], ring[i][1]];
+            w.entry.layer.setLatLngs(polyLatLngs(w.entry.item.geometry));
+          }
+          // Always against the OUTER ring, regardless of which ring is
+          // actually being dragged -- the status line describes the
+          // shape's own overall cells/area, not the notch currently under
+          // the cursor, the same fact either ring's handle is moving.
+          liveReport(g.ringPx);
+        };
+        m.on("drag", rafThrottle(applyDrag));
+        m.on("dragend", () => {
+          // One final UNTHROTTLED flush -- dragend can fire before a pending
+          // rAF from the last drag event runs, and the release point must
+          // always be exact, not whichever frame happened to land first.
+          applyDrag();
+          editingVertex = false;
+          forceRedraw([entry.layer, ...welded.map((w) => w.entry.layer)]);
+          snapLayer.clearLayers();
+          log("vertex_dragend", {
+            itemId: entry.item.localId, ringIndex: i, holeIndex, isMidpoint: false,
+            finalPx: [ring[i][0], ring[i][1]], snapped: lastSnapInfo,
+            weldedIds: welded.map((w) => w.entry.item.localId),
+          });
+          onGeometryChange(entry.item);
+          drawHandles();
+          splitTargetEdge(lastSnapInfo);
+        });
+        // Right-click removes this vertex, and every welded neighbour's copy
+        // of it too -- deleting a shared corner from only one side of a
+        // border is exactly the same sliver dragging one away creates. A
+        // polygon (hole or outer ring alike) cannot go below three points,
+        // and refusing the WHOLE delete (not just part of it) is better
+        // than silently leaving one ring short while its neighbour still
+        // shares the point that's now gone.
+        m.on("contextmenu", (e) => {
+          L.DomEvent.stop(e);
+          const welded = findWeldedVertices(entry, ring[i][0], ring[i][1]);
+          if (ring.length <= 3 || welded.some((w) => w.entry.item.geometry.ringPx.length <= 3)) {
+            report("a polygon needs at least three points");
+            return;
+          }
+          ring.splice(i, 1);
+          entry.layer.setLatLngs(polyLatLngs(entry.item.geometry));
+          for (const w of welded) {
+            w.entry.item.geometry.ringPx.splice(w.index, 1);
+            w.entry.layer.setLatLngs(polyLatLngs(w.entry.item.geometry));
+          }
+          forceRedraw([entry.layer, ...welded.map((w) => w.entry.layer)]);
+          log("vertex_delete", {
+            itemId: entry.item.localId, ringIndex: i, holeIndex,
+            weldedIds: welded.map((w) => w.entry.item.localId),
+          });
+          onGeometryChange(entry.item);
+          drawHandles();
+        });
+        handleLayer.addLayer(m);
       });
-      handleLayer.addLayer(mid);
+
+      // Midpoint ghosts. Dragging one inserts a vertex there — the gesture
+      // everyone already expects from every vector editor, and the reason a
+      // separate "add point" tool is not needed.
+      ring.forEach(([x, y], i) => {
+        const [nx, ny] = ring[(i + 1) % ring.length];
+        // The point actually being created -- the midpoint of this edge, not
+        // vertex i itself. Found live, the hard way: dragstart used to pass
+        // (x, y) -- vertex i's OWN coordinates -- to findWeldedVertices and
+        // splice it in as the inserted point, instead of this. A real,
+        // pre-existing vertex is exactly the kind of point likely to already
+        // have a genuine weld partner elsewhere on the map (that is the
+        // whole point of welding), so inserting a midpoint next to ANY
+        // already-shared corner found and dragged that corner's unrelated
+        // neighbour along for the ride -- reported as "it starts moving
+        // nearby lines and vertexes which make no sense," the resulting
+        // self-intersections once that unrelated vertex got yanked across
+        // the map, and "snapping something from a different district"
+        // instead of just placing a clean new point. A freshly-computed
+        // midpoint has no pre-existing relationship to protect; it is only
+        // ever welded if it happens to land on a real shared corner, which
+        // this fix is what makes that check actually test for.
+        const midX = (x + nx) / 2, midY = (y + ny) / 2;
+        const mid = L.marker(ll(midX, midY), {
+          icon: L.divIcon({ className: "gz-vertex gz-vertex--mid", iconSize: [22, 22] }),
+          draggable: true, zIndexOffset: 800,
+        });
+        let inserted = false;
+        let welded = [];
+        mid.on("dragstart", () => {
+          editingVertex = true;
+          ring.splice(i + 1, 0, [midX, midY]);
+          inserted = true;
+          welded = findWeldedVertices(entry, midX, midY);
+          log("vertex_dragstart", {
+            itemId: entry.item.localId, itemName: entry.item.name, tier: entry.item.tier,
+            ringIndex: i + 1, holeIndex, isMidpoint: true, startPx: [midX, midY],
+            weldedIds: welded.map((w) => w.entry.item.localId),
+          });
+        });
+        const applyMidDrag = () => {
+          if (!inserted) return;
+          const p = px(mid.getLatLng());
+          ring[i + 1] = snapEditedVertex(entry, p, mid);
+          mid.setLatLng(ll(ring[i + 1][0], ring[i + 1][1]));
+          entry.layer.setLatLngs(polyLatLngs(entry.item.geometry));
+          for (const w of welded) {
+            w.entry.item.geometry.ringPx[w.index] = [ring[i + 1][0], ring[i + 1][1]];
+            w.entry.layer.setLatLngs(polyLatLngs(w.entry.item.geometry));
+          }
+          liveReport(g.ringPx);
+        };
+        mid.on("drag", rafThrottle(applyMidDrag));
+        mid.on("dragend", () => {
+          applyMidDrag();
+          editingVertex = false;
+          forceRedraw([entry.layer, ...welded.map((w) => w.entry.layer)]);
+          snapLayer.clearLayers();
+          log("vertex_dragend", {
+            itemId: entry.item.localId, ringIndex: i + 1, holeIndex, isMidpoint: true,
+            finalPx: ring[i + 1], snapped: lastSnapInfo,
+            weldedIds: welded.map((w) => w.entry.item.localId),
+          });
+          onGeometryChange(entry.item);
+          drawHandles();
+          splitTargetEdge(lastSnapInfo);
+        });
+        handleLayer.addLayer(mid);
+      });
     });
   }
 
@@ -1042,8 +1179,14 @@ export function createDrawController(opts) {
     // drag that same handle, fell through with nothing to intercept it,
     // and Leaflet's own native map-drag panned the view instead. One
     // mis-routed click, several tools' worth of confusing fallout.
+    // A cut is drawn ACROSS the selected region's own boundary, so a click
+    // on one of ITS OWN handles is a deliberate "put the cut exactly here"
+    // -- the cleanest possible split uses a real existing corner, not an
+    // arbitrary point on an edge -- never the accidental hit it would be
+    // for Region/Site/Lasso drafting a brand new, unrelated shape on top
+    // of it. Reported directly: "I can't bisect from vertex to vertex."
     const clickTarget = e.originalEvent && e.originalEvent.target;
-    if (clickTarget && clickTarget.closest
+    if (!isLineTool() && clickTarget && clickTarget.closest
         && clickTarget.closest(".gz-vertex, .gz-vertex--mid")) return;
     const p = px(e.latlng);
     if (POLYGON_DRAFT_TOOLS.has(tool)) {

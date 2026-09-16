@@ -96,6 +96,16 @@ class State:
         self.tile_dir = tile_dir or os.path.join(_REPO_ROOT, tiles.get("dir", ""))
         self.tile_size = tiles.get("tileSize", 512)
         self.max_zoom = tiles.get("maxZoom", 5)
+        # The docstring above promises tiles are "content-addressed by a
+        # rebuild" -- the URL below is what actually makes that true. Before
+        # this, the URL was plain /tiles/{z}/{x}/{y}.webp with no hash in it
+        # at all, so a Photoshop re-export + a re-run of tile.py changed the
+        # BYTES at an UNCHANGED path, and every browser that had ever loaded
+        # the gazetteer kept serving the old bytes from its own disk cache
+        # for up to the 24-hour max-age, immune to a plain refresh (which
+        # revalidates only what the cache considers stale) and to rebooting
+        # the machine (which does not touch browser disk cache at all).
+        self.tile_hash = tiles.get("builtFromSha256", "0")[:16] or "0"
         self.overrides = overrides_mod.load()
         self.suppression = overrides_mod.Suppression(self.overrides)
         self.lock = threading.Lock()
@@ -217,7 +227,11 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
         if cache:
-            self.send_header("Cache-Control", "public, max-age=86400")
+            # Safe to cache forever now that the URL is genuinely content-
+            # addressed (see State.tile_hash) -- the bytes at this exact path
+            # never change; a rebuild is a different path, not different
+            # bytes at the same one.
+            self.send_header("Cache-Control", "public, max-age=31536000, immutable")
         else:
             self.send_header("Cache-Control", "no-store, must-revalidate")
             self.send_header("Pragma", "no-cache")
@@ -318,6 +332,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._api_handoff()
             if path == "/api/undo":
                 return self._api_undo()
+            if path == "/api/cleanup":
+                return self._api_cleanup()
             if path == "/api/requests":
                 return self._api_create_request()
             if path.startswith("/api/requests/") and path.endswith("/resolve"):
@@ -374,11 +390,19 @@ class Handler(BaseHTTPRequestHandler):
     def _tile(self, rel):
         """A missing tile is a 404, not an error. The pyramid is not padded out
         to a power of two, so the client legitimately asks for tiles past the
-        edge of the sheet and treats the absence as empty."""
+        edge of the sheet and treats the absence as empty.
+
+        The URL is /tiles/<hash>/z/x/y.webp -- see State.tile_hash for why.
+        The hash segment is accepted and otherwise ignored here: it is never
+        checked against the CURRENT hash, because its only job is to make the
+        URL change when the tiles do, which /api/map (fetched fresh on every
+        load, never cached) already guarantees on its own. A tile is always
+        served from whatever is on disk right now, hash-prefixed or not."""
         parts = posixpath.normpath(rel).split("/")
-        if len(parts) != 3 or any(p.startswith(".") for p in parts):
-            return self._error(400, "tile path must be z/x/y.webp")
-        full = os.path.join(STATE.tile_dir, parts[0], parts[1], parts[2])
+        if len(parts) != 4 or any(p.startswith(".") for p in parts):
+            return self._error(400, "tile path must be <hash>/z/x/y.webp")
+        _hash, z, x, y = parts
+        full = os.path.join(STATE.tile_dir, z, x, y)
         if not os.path.isfile(full):
             return self._error(404, "no tile")
         with open(full, "rb") as fh:
@@ -395,7 +419,7 @@ class Handler(BaseHTTPRequestHandler):
             "content": {"width": g.content_w, "height": g.content_h},
             "grid": m["grid"],
             "metresPerPixel": g.metres_per_px,
-            "tiles": {"url": "/tiles/{z}/{x}/{y}.webp",
+            "tiles": {"url": "/tiles/%s/{z}/{x}/{y}.webp" % STATE.tile_hash,
                       "tileSize": STATE.tile_size,
                       "maxZoom": STATE.max_zoom},
             "kinds": list(session_mod.KINDS),
@@ -646,8 +670,22 @@ class Handler(BaseHTTPRequestHandler):
         purpose -- an airport that is no longer there, a large island redrawn
         as a small fort -- so consulting the real world here would invent gaps
         wherever the picture is deliberately different.
+
+        Resyncs promoted regions FIRST, every call -- found live: a promoted
+        region's draft copy can be dragged, saved, and read back here before
+        anything else happens to trigger _resync_promoted_region_geometry, at
+        which point this endpoint was building its polygons from whatever the
+        data/locations/ file happened to hold from the LAST resync, not from
+        the geometry the draft (and every other view in this tool) already
+        agrees is current. The gap between "29 problems" reported here and
+        "33 problems" once resync actually ran was exactly that staleness,
+        not a real change to the map -- a count this tool asks Ingram to
+        trust must never lag behind a save that already happened.
         """
         import coverage as coverage_mod
+
+        with STATE.lock:
+            _resync_promoted_region_geometry(STATE.draft["items"])
 
         # A promoted region's draft copy is the SAME physical district as its
         # data/locations/ twin, not a second one -- counting both is what a
@@ -1631,6 +1669,97 @@ class Handler(BaseHTTPRequestHandler):
             "resyncedLocations": resynced,
             "undoAvailable": STATE.undo_stack.peek()["description"] if len(STATE.undo_stack) else None,
         })
+
+    def _api_cleanup(self):
+        """The batch weld: run core/cleanup.py's three passes over every
+        region on the sheet at once, instead of the one-vertex-at-a-time
+        weld a live drag already does. Asked for directly, after a real
+        measurement backed the premise: "How many [vertices] are so very
+        nearly exactly together that they might as well be the same line
+        or vertex? Maybe we need a 'Cleanup' button."
+
+        `dryRun` (default true -- a POST with no body previews, never
+        writes) reports the exact same computation a real run would apply,
+        because both paths run the identical functions; only whether the
+        result gets written back differs. `snapTolerancePx` /
+        `edgeTolerancePx` / `dedupeTolerancePx` override
+        core/cleanup.py's own defaults, for a caller that wants to preview
+        a wider or narrower pass before committing to one.
+
+        Always works on a fresh deep copy of the draft's items, real run
+        included -- the live STATE.draft["items"] is only ever REPLACED
+        wholesale at the end, the same shape every ordinary save already
+        uses, never mutated piece by piece. That is what keeps the undo
+        snapshot pushed below a true, untouched copy of "before": pushing a
+        REFERENCE and then mutating the very objects it points to would
+        make undo restore nothing at all.
+        """
+        from core import cleanup as cleanup_mod
+        import copy as copy_mod
+
+        body = self._body()
+        dry_run = body.get("dryRun", True)
+        snap_tol = float(body.get("snapTolerancePx", cleanup_mod.DEFAULT_SNAP_TOLERANCE_PX))
+        edge_tol = float(body.get("edgeTolerancePx", cleanup_mod.DEFAULT_EDGE_TOLERANCE_PX))
+        dedupe_tol = float(body.get("dedupeTolerancePx", cleanup_mod.DEFAULT_SELF_DUPLICATE_TOLERANCE_PX))
+
+        with STATE.lock:
+            if not dry_run and STATE.draft_changed_underneath() and not body.get("force"):
+                fresh = STATE.reload_draft()
+                return self._send(409, {
+                    "error": "the draft file changed on disk since this "
+                             "session loaded it -- cleaning up now would "
+                             "overwrite those changes. Reload to pick them "
+                             "up, or send force:true to overwrite deliberately.",
+                    "draft": fresh,
+                    "summary": session_mod.summarise(fresh),
+                })
+
+            new_items = copy_mod.deepcopy(STATE.draft["items"])
+            regions = [{"localId": it["localId"], "ring": (it.get("geometry") or {}).get("ringPx")}
+                      for it in new_items
+                      if it.get("tier") == "region" and (it.get("geometry") or {}).get("ringPx")]
+
+            dedupe_report = cleanup_mod.dedupe_self_duplicates(regions, tolerance_px=dedupe_tol)
+            snap_report = cleanup_mod.cluster_and_snap(regions, tolerance_px=snap_tol)
+            edge_report = cleanup_mod.insert_edge_matches(regions, tolerance_px=edge_tol)
+
+            regions_touched = sorted({
+                *(r["regionId"] for r in dedupe_report),
+                *(rid for r in snap_report for rid in r["regionIds"]),
+                *(r["intoRegionId"] for r in edge_report),
+            })
+            response = {
+                "dryRun": dry_run,
+                "tolerances": {"snapPx": snap_tol, "edgePx": edge_tol, "dedupePx": dedupe_tol},
+                "dedupe": dedupe_report,
+                "snap": snap_report,
+                "edgeInsert": edge_report,
+                "regionsTouched": regions_touched,
+            }
+
+            if dry_run or not regions_touched:
+                self._send(200, response)
+                return
+
+            STATE.undo_stack.push({
+                "items": STATE.draft["items"],
+                "nextLocalId": STATE.draft.get("nextLocalId"),
+                "description": "cleanup: %d region%s tidied" % (
+                    len(regions_touched), "" if len(regions_touched) == 1 else "s"),
+                "at": datetime.datetime.now().isoformat(timespec="seconds"),
+            })
+            STATE.draft["items"] = new_items
+            problems = session_mod.validate(STATE.draft)
+            path = STATE.save_draft()
+            resynced = _resync_promoted_region_geometry(STATE.draft["items"])
+
+        response["saved"] = _repo_relative(path)
+        response["draft"] = STATE.draft
+        response["problems"] = problems
+        response["resyncedLocations"] = resynced
+        response["undoAvailable"] = STATE.undo_stack.peek()["description"] if len(STATE.undo_stack) else None
+        self._send(200, response)
 
     def _api_new_session(self):
         with STATE.lock:

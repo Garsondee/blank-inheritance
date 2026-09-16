@@ -83,6 +83,8 @@
   </div>
 
   <div class="gz-bar__right">
+    <button class="gz-btn" id="btn-cleanup"
+      title="Snap every region vertex that is nearly touching another region's border into one shared point — the batch version of what dragging a vertex onto a neighbour already does. Click once to preview, again to apply.">Cleanup</button>
     <button class="gz-btn" id="btn-undo" title="Nothing to undo yet" disabled>Undo</button>
     <span class="gz-save" id="save-state">saved</span>
     <button class="gz-btn" id="btn-save" title="Save the session (Ctrl+S)">Save</button>
@@ -361,7 +363,6 @@
         <label class="gz-check"><input type="checkbox" id="l-grid" checked> Reference grid</label>
         <label class="gz-check"><input type="checkbox" id="l-buildings" checked> Real buildings</label>
         <label class="gz-check"><input type="checkbox" id="l-items" checked> Drawn locations</label>
-        <label class="gz-check"><input type="checkbox" id="l-published" checked> Published locations</label>
         <label class="gz-check"><input type="checkbox" id="l-suppressed"> Removed buildings</label>
         <!-- The tessellation check. Shades ground no region claims, and
              ground two regions both claim -- the two ways a cover fails. -->
