@@ -50,6 +50,13 @@ import {
   registerCampaignSocket,
   writePrivateCommitment
 } from "./foundry/campaign-state.mjs";
+import {
+  createEquipmentPanelMacroIfMissing,
+  registerEquipmentSettings,
+  registerEquipmentSocket
+} from "./foundry/equipment-state.mjs";
+import { openEquipmentPanel, refreshEquipmentPanel } from "./foundry/equipment-panel.mjs";
+import { mountPhone } from "./foundry/phone.mjs";
 
 const MODULE_ID = "blank-inheritance";
 
@@ -88,7 +95,12 @@ Hooks.once("init", () => {
       // for a characterless user" trigger isn't built yet, so this is the
       // manual, once-per-player way in until it is. No isGM gate: any user,
       // including the GM previewing it, may open this.
-      openInductionTerminal
+      openInductionTerminal,
+      // Kit Issue's inventory UI (GitHub #139). Opened from the macro
+      // foundry/equipment-state.mjs creates and from a content link on the
+      // Kit Issue journal page -- see that file's MACRO_SOURCE_ID comment.
+      // No isGM gate: every player opens the same panel, acting as themselves.
+      openEquipmentPanel
     };
   }
 
@@ -110,6 +122,12 @@ Hooks.once("init", () => {
   // happened. All GM-written, all world-scoped: what the table did is a fact
   // about the campaign, not about one browser.
   registerSceneRunnerSettings();
+
+  // Every equipment grant so far. Not secret -- the whole party can see who
+  // took what, same as the downtime board -- so onChange repaints any open
+  // Equipment Locker on every client the instant one lands, from whichever
+  // client actually caused it.
+  registerEquipmentSettings(() => refreshEquipmentPanel());
 });
 
 Hooks.once("ready", async () => {
@@ -150,6 +168,16 @@ Hooks.once("ready", async () => {
     console.error("Blank Inheritance | Could not open the campaign socket:", err);
   }
 
+  // A player's take/return request travels to the GM's client over this same
+  // socket mechanism -- world settings are GM-writable only, so it cannot
+  // land any other way. Registered on every client for the same reason as
+  // the campaign socket above: each side of the conversation is one of the two.
+  try {
+    registerEquipmentSocket();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not open the equipment locker socket:", err);
+  }
+
   // The console. Every client, both seats -- the class is picked here once and
   // never switched, so a player's browser never constructs the Director's
   // board at all. Its own try: a bar that fails to mount must not stop the
@@ -169,11 +197,22 @@ Hooks.once("ready", async () => {
     console.error("Blank Inheritance | Could not mount the scene runner:", err);
   }
 
+  // The personal comm device. Every client -- unlike the scene runner, both
+  // seats carry a phone, just with a different app list (foundry/phone.mjs's
+  // own GM_APPS/PLAYER_APPS). Its own try, same reasoning as every other
+  // persistent-chrome mount here.
+  try {
+    mountPhone();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not mount the phone:", err);
+  }
+
   if (!game.user.isGM) return;
   try {
     await createTestSyncMacroIfMissing();
     await createRealSyncMacroIfMissing();
     await createStageDemoMacroIfMissing();
+    await createEquipmentPanelMacroIfMissing();
   } catch (err) {
     console.error("Blank Inheritance | Could not create a sync macro (you can still run it from the console):", err);
   }
@@ -201,6 +240,12 @@ Hooks.on("canvasReady", () => {
     mountCommandBar(game.user.isGM ? DirectorBar : PlayerBar);
   } catch (err) {
     console.error("Blank Inheritance | Could not re-assert the command bar:", err);
+  }
+
+  try {
+    mountPhone();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not re-assert the phone:", err);
   }
 
   // The stage, and the camera lock that makes a staged scene a picture rather

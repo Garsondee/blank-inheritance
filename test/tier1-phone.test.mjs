@@ -22,7 +22,8 @@ import {
   createSnake,
   spawnFood,
   turnSnake,
-  stepSnake
+  stepSnake,
+  formatLogEntriesForDisplay
 } from "../module/blank-inheritance/scripts/core/phone.mjs";
 
 test("the Resonance bands are contiguous across the whole 0-100 range", () => {
@@ -200,4 +201,29 @@ test("stepSnake on a dead snake is a no-op", () => {
   const dead = { width: 10, height: 10, dir: { x: 1, y: 0 }, alive: false, score: 3, food: null, snake: [{ x: 1, y: 1 }] };
   const after = stepSnake(dead);
   assert.deepEqual(after, dead);
+});
+
+test("formatLogEntriesForDisplay: newest first, HH:MM pulled out of the ISO timestamp", () => {
+  const entries = [
+    { at: "2026-09-16T18:05:00.000Z", tag: null, text: "first", context: {} },
+    { at: "2026-09-16T18:42:07.000Z", tag: "npc", text: "second", context: {} }
+  ];
+  const rows = formatLogEntriesForDisplay(entries);
+  assert.deepEqual(rows.map((r) => r.text), ["second", "first"], "must reverse to newest-first");
+  assert.equal(rows[0].time, "18:42");
+  assert.equal(rows[1].time, "18:05");
+  assert.equal(rows[0].tag, "npc", "original fields must survive alongside the new `time` field");
+});
+
+test("formatLogEntriesForDisplay: does not mutate the input array, empty input is safe", () => {
+  const entries = [{ at: "2026-09-16T09:00:00.000Z", tag: null, text: "x", context: {} }];
+  const copy = JSON.parse(JSON.stringify(entries));
+  formatLogEntriesForDisplay(entries);
+  assert.deepEqual(entries, copy);
+  assert.deepEqual(formatLogEntriesForDisplay([]), []);
+});
+
+test("formatLogEntriesForDisplay: a missing/malformed `at` yields an empty time rather than throwing", () => {
+  const rows = formatLogEntriesForDisplay([{ at: null, tag: null, text: "x", context: {} }]);
+  assert.equal(rows[0].time, "");
 });

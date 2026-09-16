@@ -125,6 +125,20 @@ export function decayPet(state, amount = 5) {
   };
 }
 
+/**
+ * The phone's Session Log app: today's recorded entries (core/log-entry.mjs),
+ * newest first, with a table-ready HH:MM instead of a full ISO timestamp.
+ * The command bar's own log zone already shows the last three as a receipt
+ * (foundry/director-bar.mjs); this is the same data, just all of it, for
+ * catching up on what the table did five scenes ago without scrolling the bar.
+ */
+export function formatLogEntriesForDisplay(entries = []) {
+  return [...entries].reverse().map((entry) => ({
+    ...entry,
+    time: typeof entry.at === "string" ? entry.at.slice(11, 16) : ""
+  }));
+}
+
 /* ------------------------------------------------------------------ *
  * Snake — one of the terminal's own apps. A grid game is allowed to be
  * a grid; the "not pixelated" direction was about the OS chrome, not

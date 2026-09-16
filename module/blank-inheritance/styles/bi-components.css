@@ -3888,7 +3888,13 @@
   width: min(1520px, 94%);
   height: 80%;
   min-height: 320px;
-  z-index: 8;
+  /* V1's literal z-index:8 (design/ui/phone.js) never had to coexist with
+     Foundry's own chrome -- live-measured 2026-09-16: Foundry's hotbar sits
+     at a plain DOM-order stacking position with no explicit z-index of its
+     own, which was still enough to paint over a flat 8. .bi-bar already
+     solved exactly this problem (see bi-foundry-bridge.css's own note); this
+     reuses its answer rather than re-deriving a second one. */
+  z-index: calc(var(--z-index-app) - 1);
   transform: translate(-50%, calc(100% + 24px));
   transition: transform var(--bi-dur-servo) var(--bi-ease-servo);
   pointer-events: none;
@@ -5853,4 +5859,191 @@
    stamp, the threshold text); this is the one place on the sheet that explicitly doesn't. */
 .bi-runner__tag--insight { border-color: #4a6b52; color: #3d5842; }
 .bi-runner__stamp--insight { border-color: #4a6b52; color: #3d5842; }
+
+/* ------------------------------------------------------------------ *
+ * Equipment Locker (GitHub #139) -- same window chassis and token
+ * vocabulary as .bi-card, deliberately: both are a standalone popup
+ * opened for one purpose and dismissed, in the personnel-scale PAPER
+ * register (design/visual-identity.md §7b).
+ * ------------------------------------------------------------------ */
+
+.bi-equipment {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 12px 12px;
+  background: var(--bi-mat-steel);
+  color: var(--bi-bone);
+}
+
+.bi-equipment__block { display: flex; flex-direction: column; gap: 5px; }
+
+.bi-equipment__scale { display: flex; flex-wrap: wrap; gap: 2px; }
+
+.bi-equipment__step {
+  flex: 1;
+  min-width: 60px;
+  padding: 5px 6px;
+  border: none;
+  border-radius: 2px;
+  background: var(--bi-mat-pod);
+  color: var(--bi-bone-dim);
+  font-family: var(--bi-font-legend);
+  font-size: 9px;
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.bi-equipment__step:hover { background: var(--bi-steel-600); color: var(--bi-bone); }
+.bi-equipment__step--current {
+  background: var(--bi-steel-600);
+  color: var(--bi-amber);
+  box-shadow: inset 0 0 0 1px var(--bi-amber);
+}
+
+.bi-equipment__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid var(--bi-brass-dark);
+  padding-bottom: 6px;
+}
+
+.bi-equipment__viewing { font-family: var(--bi-font-display); font-size: 16px; color: var(--bi-bone); }
+
+.bi-equipment__budget {
+  font-family: var(--bi-font-readout);
+  font-variant-numeric: tabular-nums;
+  color: var(--bi-brass);
+}
+.bi-equipment__budget--over { color: var(--bi-vermilion); }
+
+.bi-equipment__force {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--bi-font-legend);
+  font-size: var(--bi-legend-size);
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  color: var(--bi-bone-dim);
+  cursor: pointer;
+}
+
+.bi-equipment__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.bi-equipment__item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 8px;
+  border-radius: 2px;
+  background: var(--bi-mat-pod);
+}
+.bi-equipment__item--unavailable { opacity: 0.6; }
+
+.bi-equipment__item-main { display: flex; align-items: baseline; gap: 8px; }
+.bi-equipment__item-name { flex: 1; font-family: var(--bi-font-readout); font-size: 12px; color: var(--bi-bone); }
+.bi-equipment__item-price { font-variant-numeric: tabular-nums; color: var(--bi-brass); font-size: 11px; }
+.bi-equipment__item-stock { font-size: 10px; color: var(--bi-bone-dim); min-width: 3em; text-align: right; }
+
+.bi-equipment__item-meta {
+  font-family: var(--bi-font-typewriter);
+  font-size: 10px;
+  color: var(--bi-bone-dim);
+}
+.bi-equipment__item-traits {
+  margin-left: 6px;
+  text-transform: uppercase;
+  letter-spacing: var(--bi-legend-tracking);
+  color: var(--bi-brass);
+}
+
+.bi-equipment__item-actions { display: flex; align-items: center; gap: 6px; justify-content: flex-end; }
+.bi-equipment__item-mine {
+  flex: 1;
+  font-family: var(--bi-font-legend);
+  font-size: 9px;
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  color: var(--bi-amber);
+}
+
+.bi-equipment__take,
+.bi-equipment__return,
+.bi-equipment__revoke {
+  flex: none;
+  border: none;
+  border-radius: 2px;
+  padding: 3px 8px;
+  font-family: var(--bi-font-legend);
+  font-size: 9px;
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.bi-equipment__take { background: var(--bi-brass-dark); color: var(--bi-void); }
+.bi-equipment__take:hover { background: var(--bi-brass); }
+.bi-equipment__take:disabled { background: var(--bi-steel-600); color: var(--bi-bone-dim); cursor: not-allowed; }
+
+.bi-equipment__return,
+.bi-equipment__revoke { background: transparent; color: var(--bi-bone-dim); box-shadow: inset 0 0 0 1px var(--bi-steel-600); }
+.bi-equipment__return:hover,
+.bi-equipment__revoke:hover { color: var(--bi-vermilion); box-shadow: inset 0 0 0 1px var(--bi-vermilion); }
+
+.bi-equipment__log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.bi-equipment__log-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 3px 6px;
+  border-radius: 2px;
+  background: var(--bi-mat-pod);
+  font-family: var(--bi-font-readout);
+  font-size: 11px;
+}
+.bi-equipment__log-who { color: var(--bi-amber); flex: none; }
+.bi-equipment__log-what { flex: 1; color: var(--bi-bone-dim); }
+
+/* ------------------------------------------------------------------ *
+ * The personal comm device (GitHub #90) -- .bi-phone-btn and
+ * .bi-terminal are the validated V1 chrome (design/ui/phone.js, twice
+ * live-reviewed), already fully styled above. This is only the
+ * standalone-mount positioning that chrome never needed while it was
+ * still hypothetical chassis furniture.
+ *
+ * display:contents on the wrapper is load-bearing, not decoration: both
+ * children were designed assuming they sit directly in #interface
+ * (.bi-terminal's own bottom:0/left:50% is written that way, same as
+ * .bi-bar). A wrapper that participated in layout/positioning would
+ * silently break that math; one that doesn't exist in the box tree can't.
+ * ------------------------------------------------------------------ */
+.bi-phone-standalone { display: contents; }
+
+.bi-phone-btn {
+  position: fixed;
+  right: max(16px, var(--bi-sidebar-gutter, 16px));
+  bottom: calc(var(--bi-bar-height) + 14px);
+  z-index: calc(var(--z-index-app) - 1);
+}
+
+.bi-phone__log-list { max-height: 100%; overflow-y: auto; padding: 12px; }
+.bi-phone__log-time {
+  flex: none;
+  font-family: var(--bi-font-readout);
+  font-variant-numeric: tabular-nums;
+  font-size: 10px;
+  color: var(--bi-bone-dim);
+}
 .bi-runner__stamp--insight:hover { opacity: 1; }

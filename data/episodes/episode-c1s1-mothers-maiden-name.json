@@ -30,7 +30,7 @@
       "order": 3,
       "id": "kit-issue",
       "title": "Kit Issue",
-      "description": "A busy quartermaster's counter. Every player picks personnel equipment from a curated Directorate menu, and every player gets one small, unexplained extra from Nobu -- a plant, not a payoff, for much later. Personnel kit only: vehicles and Frames are Session Two's business, and the ground-role pick was removed from this scene 2026-09-13 so the players make one set of decisions tonight rather than two.",
+      "description": "A busy quartermaster's counter. Every player picks personnel equipment from a curated Directorate menu, and every player gets one small, unexplained extra from Nobu -- a plant, not a payoff, for much later. Personnel kit only: vehicles and Frames are Session Two's business, and the ground-role pick was removed from this scene 2026-09-13 so the players make one set of decisions tonight rather than two. GM tool: @UUID[Macro.865e0ce3b7d302e5]{Open Equipment Locker} -- opens the real inventory UI, already showing every connected player the same catalogue and budget.",
       "briefRef": "episode-c1s1--kit-issue",
       "challengeRefs": ["c1s1-kit-issue"]
     },

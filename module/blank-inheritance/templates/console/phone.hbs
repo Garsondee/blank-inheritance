@@ -1,0 +1,38 @@
+{{!--
+    The personal comm device. Button + panel are ONE mounted chassis (this
+    file's single root), not two documents, so a re-render can never leave
+    the toggle and the panel disagreeing about open/closed.
+
+    The current app's own content area (data-app-mount) is deliberately left
+    EMPTY here -- foundry/phone.mjs#_onRender fills it imperatively. See that
+    file's header for why (Snake's game loop cannot go through a Handlebars
+    re-render every tick).
+--}}
+<div class="bi-phone-standalone">
+    <button type="button" class="bi-phone-btn" data-action="toggle" aria-pressed="{{open}}"
+        aria-label="{{localize 'BLANKINHERITANCE.Phone.Toggle'}}" data-tooltip="{{localize 'BLANKINHERITANCE.Phone.Toggle'}}">
+        <i class="fa-solid fa-mobile-screen-button bi-phone-btn__glyph"></i>
+    </button>
+
+    <div class="bi-terminal{{#if open}} bi-terminal--open{{/if}}">
+        <div class="bi-terminal__frame">
+            <div class="bi-terminal__titlebar">
+                <span class="bi-terminal__title-glyph">{{#if currentApp}}<i class="{{currentApp.faIcon}}"></i>{{/if}}</span>
+                <span class="bi-terminal__title">{{#if currentApp}}{{localize currentApp.labelKey}}{{/if}}</span>
+                <span class="bi-terminal__spacer"></span>
+                <button type="button" class="bi-terminal__close" data-action="toggle" aria-label="{{localize 'BLANKINHERITANCE.Phone.Close'}}">&times;</button>
+            </div>
+            <div class="bi-terminal__body">
+                <nav class="bi-terminal__nav">
+                    {{#each apps}}
+                    <button type="button" class="bi-terminal__navbtn" data-action="switchApp" data-app-id="{{this.id}}" aria-pressed="{{this.current}}">
+                        <span class="bi-terminal__navbtn-glyph"><i class="{{this.faIcon}}"></i></span>
+                        <span>{{localize this.labelKey}}</span>
+                    </button>
+                    {{/each}}
+                </nav>
+                <div class="bi-terminal__main" data-app-mount></div>
+            </div>
+        </div>
+    </div>
+</div>

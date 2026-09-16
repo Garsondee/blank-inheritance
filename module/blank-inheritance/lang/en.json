@@ -87,6 +87,35 @@
         "Occupied": "Spoken for"
       }
     },
+    "Equipment": {
+      "Title": "Equipment Locker",
+      "MacroName": "Blank Inheritance: Open Equipment Locker",
+      "ActingAsLabel": "Acting as",
+      "ActingAsGM": "GM (myself)",
+      "Force": "Force (ignore budget)",
+      "Left": "left",
+      "Take": "Take",
+      "Return": "Return",
+      "Revoke": "Undo",
+      "Taken": "Taken ×{count}",
+      "LogLabel": "Log",
+      "NoGrants": "Nothing taken yet.",
+      "TakeFailed": "Could not take that item ({reason})."
+    },
+    "Phone": {
+      "Toggle": "Personal comm device",
+      "Close": "Close",
+      "SessionLog": {
+        "Title": "Session Log",
+        "Empty": "Nothing recorded yet tonight."
+      },
+      "Snake": {
+        "Title": "Snake",
+        "Score": "Score",
+        "GameOver": "Game Over",
+        "Restart": "Restart"
+      }
+    },
     "Settings": {
       "ThemeEnabled": {
         "Name": "Directorate interface theme",

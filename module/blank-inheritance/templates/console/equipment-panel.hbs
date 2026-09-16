@@ -1,0 +1,79 @@
+{{!--
+    The Equipment Locker. Kit Issue's real inventory UI (GitHub #139).
+
+    Every viewer sees the SAME markup -- what differs is what the context
+    handed in. A player's context has an empty actingAsOptions/log, so those
+    sections simply render nothing, the same "removal, not hiding" shape the
+    rest of this console already uses (Law 11), even though a locally-empty
+    array here isn't a secrecy boundary the way social-store.mjs's is -- it's
+    just what a non-GM viewer has no use for.
+--}}
+<div class="bi-equipment">
+    {{#if actingAsOptions.length}}
+    <section class="bi-equipment__block">
+        <div class="bi-bank__label">{{localize "BLANKINHERITANCE.Equipment.ActingAsLabel"}}</div>
+        <div class="bi-equipment__scale">
+            {{#each actingAsOptions}}
+            <button type="button" class="bi-equipment__step{{#if this.current}} bi-equipment__step--current{{/if}}"
+                data-action="setActingAs" data-user-id="{{this.id}}">{{this.label}}</button>
+            {{/each}}
+        </div>
+    </section>
+    {{/if}}
+
+    <header class="bi-equipment__head">
+        <span class="bi-equipment__viewing">{{viewingUserName}}</span>
+        <span class="bi-equipment__budget{{#if budget.over}} bi-equipment__budget--over{{/if}}">{{budget.spent}} / {{budget.total}}cr</span>
+    </header>
+
+    {{#if isGM}}
+    <label class="bi-equipment__force">
+        <input type="checkbox" data-action="toggleForce" {{#if force}}checked{{/if}}>
+        {{localize "BLANKINHERITANCE.Equipment.Force"}}
+    </label>
+    {{/if}}
+
+    <ul class="bi-equipment__list">
+        {{#each items}}
+        <li class="bi-equipment__item{{#unless this.available}} bi-equipment__item--unavailable{{/unless}}">
+            <div class="bi-equipment__item-main">
+                <span class="bi-equipment__item-name">{{this.name}}</span>
+                <span class="bi-equipment__item-price">{{this.price}}cr</span>
+                <span class="bi-equipment__item-stock">{{#if this.unlimited}}&infin;{{else}}{{this.remaining}} {{localize "BLANKINHERITANCE.Equipment.Left"}}{{/if}}</span>
+            </div>
+            <div class="bi-equipment__item-meta">
+                {{this.mechanics}}
+                {{#if this.traits.length}}
+                <span class="bi-equipment__item-traits">{{#each this.traits}}{{this}} {{/each}}</span>
+                {{/if}}
+            </div>
+            <div class="bi-equipment__item-actions">
+                {{#if this.myQuantity}}
+                <span class="bi-equipment__item-mine">{{localize "BLANKINHERITANCE.Equipment.Taken" count=this.myQuantity}}</span>
+                <button type="button" class="bi-equipment__return" data-action="returnOne" data-item-id="{{this.id}}">{{localize "BLANKINHERITANCE.Equipment.Return"}}</button>
+                {{/if}}
+                <button type="button" class="bi-equipment__take" data-action="take" data-item-id="{{this.id}}" {{#unless this.available}}disabled{{/unless}}>{{localize "BLANKINHERITANCE.Equipment.Take"}}</button>
+            </div>
+        </li>
+        {{/each}}
+    </ul>
+
+    {{#if isGM}}
+    <section class="bi-equipment__block">
+        <div class="bi-bank__label">{{localize "BLANKINHERITANCE.Equipment.LogLabel"}}</div>
+        {{#if log.length}}
+        <ul class="bi-equipment__log">
+            {{#each log}}
+            <li class="bi-equipment__log-row">
+                <span class="bi-equipment__log-who">{{this.userName}}</span>
+                <span class="bi-equipment__log-what">{{this.quantity}}&times; {{this.itemName}}</span>
+                <button type="button" class="bi-equipment__revoke" data-action="revoke" data-grant-id="{{this.id}}">{{localize "BLANKINHERITANCE.Equipment.Revoke"}}</button>
+            </li>
+            {{/each}}
+        </ul>
+        {{else}}
+        <p class="bi-legend">{{localize "BLANKINHERITANCE.Equipment.NoGrants"}}</p>
+        {{/if}}
+    </section>
+    {{/if}}
+</div>

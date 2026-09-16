@@ -38,7 +38,15 @@
         "bulk": { "type": "number" },
         "traits": { "type": "array", "items": { "type": "string" } },
         "mechanics": { "type": "string", "description": "Damage die/type, AC bonus, or the item's real effect -- short, factual, no flavor." },
-        "flavorNote": { "type": "string", "description": "How Nobu's counter actually presents it: standard-issue, unremarkable, a form number. This is the reskin layer." }
+        "flavorNote": { "type": "string", "description": "How Nobu's counter actually presents it: standard-issue, unremarkable, a form number. This is the reskin layer." },
+        "stock": {
+          "description": "How many copies exist for the whole party to draw from. Omitted or \"unlimited\" (the default) means every item on this menu today -- anyone can take one. A positive integer caps total takers across all players combined; 1 means unique -- first player to take it, the rest see it gone.",
+          "default": "unlimited",
+          "oneOf": [
+            { "const": "unlimited" },
+            { "type": "integer", "minimum": 1 }
+          ]
+        }
       }
     }
   }

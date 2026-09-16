@@ -26,7 +26,8 @@ import { buildCreatureActorData } from "../module/blank-inheritance/scripts/core
 import { buildNpcActorData } from "../module/blank-inheritance/scripts/core/generators/npc.mjs";
 import { buildCharacterActorData } from "../module/blank-inheritance/scripts/core/generators/character.mjs";
 import { buildJournalEntryData } from "../module/blank-inheritance/scripts/core/generators/journal.mjs";
-import { resolveActorTemplate, hasPath, flattenPaths, findInvalidActorFieldPaths } from "./support/sf2e-template.mjs";
+import { catalogueItemToSf2eItemData } from "../module/blank-inheritance/scripts/core/equipment.mjs";
+import { resolveActorTemplate, resolveItemTemplate, hasPath, flattenPaths, findInvalidActorFieldPaths, findInvalidItemFieldPaths } from "./support/sf2e-template.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
@@ -147,6 +148,33 @@ test("buildNpcActorData: every field path it writes exists on sf2e's real npc Ac
     [],
     "buildNpcActorData's statblock-less branch writes system.* paths that don't exist on sf2e's real npc Actor template."
   );
+});
+
+test("catalogueItemToSf2eItemData: every field path it writes exists on sf2e's real Item templates, for all four catalogue categories", (t) => {
+  if (!existsSync(templateJsonPath)) {
+    t.skip("gamesystems/sf2e/template.json not present locally (gitignored) — skipping loudly rather than failing or silently passing.");
+    return;
+  }
+  const templateJson = JSON.parse(readFileSync(templateJsonPath, "utf8"));
+
+  const sample = {
+    id: "contract-check", name: "Contract Check", price: 10, level: 1, bulk: 1,
+    traits: ["x"], mechanics: "does a thing.", flavorNote: "looks boring."
+  };
+
+  for (const category of ["weapon", "armor", "gear", "consumable"]) {
+    const data = catalogueItemToSf2eItemData({ ...sample, category });
+    const invalid = findInvalidItemFieldPaths(templateJson, data.type, data.system);
+    assert.deepEqual(
+      invalid,
+      [],
+      `catalogueItemToSf2eItemData({category: "${category}"}) writes system.* paths that don't exist on sf2e's real ` +
+        `"${data.type}" Item template (gamesystems/sf2e/template.json) — either the mapping writes a field sf2e ` +
+        `doesn't have, or sf2e renamed/removed one since this was last verified.`
+    );
+    const resolved = resolveItemTemplate(templateJson, data.type);
+    assert.ok(hasPath(resolved, "price.value"), `system.price.value container itself must exist on the "${data.type}" Item template`);
+  }
 });
 
 test("buildCharacterActorData: the one field it writes (details.level.value) exists only via template inheritance", async (t) => {

@@ -36,6 +36,23 @@ export function resolveActorTemplate(templateJson, actorType) {
   return deepMerge(...templates, ownFields);
 }
 
+/**
+ * Same composition as resolveActorTemplate, for an Item type instead of an
+ * Actor type — e.g. "weapon"/"armor"/"equipment"/"consumable", each of which
+ * declares `templates: [...]` (typically including "physical") the same way
+ * Actor types do. Kept as a sibling function rather than a shared/renamed one
+ * so existing callers of resolveActorTemplate/findInvalidActorFieldPaths
+ * (mock-foundry.mjs included) don't have to change shape for this.
+ */
+export function resolveItemTemplate(templateJson, itemType) {
+  const typeDef = templateJson.Item[itemType];
+  if (!typeDef) throw new Error(`Unknown Item type "${itemType}" in template.json`);
+  const templateNames = typeDef.templates ?? [];
+  const templates = templateNames.map((name) => templateJson.Item.templates[name]);
+  const { templates: _omit, ...ownFields } = typeDef;
+  return deepMerge(...templates, ownFields);
+}
+
 export function hasPath(obj, dottedPath) {
   const parts = dottedPath.split(".");
   let cur = obj;
@@ -81,5 +98,22 @@ export function flattenPaths(obj, prefix = "", out = []) {
 export function findInvalidActorFieldPaths(templateJson, actorType, systemData) {
   const resolved = resolveActorTemplate(templateJson, actorType);
   const checkedPaths = flattenPaths(systemData ?? {}).filter((p) => !p.startsWith("skills."));
+  return checkedPaths.filter((dottedPath) => !hasPath(resolved, dottedPath));
+}
+
+/**
+ * Item-type counterpart to findInvalidActorFieldPaths. `price.value.` is
+ * excluded the same way and for the same reason as Actor npc's `skills.` —
+ * template.json declares the physical template's `price.value` as `{}`, an
+ * empty placeholder, since which currency denominations exist (credits, cp,
+ * gp...) is dynamic, not statically listed. Confirmed by running this
+ * unexcluded first: it rejected `price.value.credits` on a real, valid
+ * field (gamesystems/sf2e/lang/en.json's CurrencyAbbreviations lists
+ * "credits" as a real denomination) — the same false positive skills.* was
+ * already known to produce.
+ */
+export function findInvalidItemFieldPaths(templateJson, itemType, systemData) {
+  const resolved = resolveItemTemplate(templateJson, itemType);
+  const checkedPaths = flattenPaths(systemData ?? {}).filter((p) => !p.startsWith("price.value."));
   return checkedPaths.filter((dottedPath) => !hasPath(resolved, dottedPath));
 }
