@@ -230,6 +230,14 @@
         "Draw": "Draw"
       }
     },
+    "CityBoard": {
+      "Toggle": "City Board",
+      "Title": "City Board",
+      "DemoFlag": "Demo",
+      "Target": "Target",
+      "Risk": "Risk",
+      "Status": "Status"
+    },
     "Director": {
       "PanelTitle": "Director's Panel",
       "MacroName": "Blank Inheritance: Open Director's Panel",

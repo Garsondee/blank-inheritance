@@ -4347,6 +4347,72 @@
 .bi-terminal__keyrow { display: flex; gap: 10px; }
 
 /* =====================================================================
+   THE CITY BOARD — .bi-marker's first live home (2026-09-17). Same
+   .bi-terminal chrome as Phone/Console; the one new thing is the board
+   itself, a fixed-size stage .bi-marker's own --x/--y percentages resolve
+   against, exactly the way design/ui/console.js's map screen used it.
+   ===================================================================== */
+.bi-city-board-standalone { display: contents; }
+
+.bi-city-board-btn {
+  position: fixed;
+  right: max(16px, var(--bi-sidebar-gutter, 16px));
+  bottom: calc(var(--bi-bar-height) + 14px + 100px);
+  z-index: calc(var(--z-index-app) - 1);
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: var(--bi-mat-brass);
+  box-shadow: 0 0 0 1px var(--bi-brass-shadow), 0 3px 8px rgb(0 0 0 / 70%);
+  display: grid;
+  place-items: center;
+}
+.bi-city-board-btn::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, var(--bi-steel-600), var(--bi-steel-900));
+}
+.bi-city-board-btn__glyph { position: relative; z-index: 1; color: var(--bi-brass-lit); font-size: 15px; }
+.bi-city-board-btn[aria-pressed="true"] { box-shadow: 0 0 0 1px var(--bi-brass-shadow), 0 0 10px var(--bi-cyan); }
+
+/* A small "DEMO" flag on the titlebar -- this board's whole reason for being
+   scoped the way it is (see foundry/city-board.mjs's own header): the data
+   underneath every pin is a placeholder, not campaign content, and the
+   chrome should say so rather than let it be mistaken for real intel. */
+.bi-terminal__demo-flag {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgb(240 168 48 / 16%);
+  box-shadow: inset 0 0 0 1px rgb(240 168 48 / 45%);
+  color: var(--bi-amber);
+  font-family: var(--bi-font-legend);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.bi-terminal__body--board {
+  flex: 1;
+  overflow: auto;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.bi-city-board__scene {
+  position: relative;
+  flex: none;
+  margin: auto;
+  background: var(--bi-mat-steel);
+  border-radius: 6px;
+  box-shadow: var(--bi-bevel-down), 0 0 0 1px var(--bi-brass-shadow);
+}
+
+/* =====================================================================
    FORTUNE — campy flavour text, one key, no state worth persisting.
    ===================================================================== */
 .bi-fortune { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 18px; padding: 24px; text-align: center; }

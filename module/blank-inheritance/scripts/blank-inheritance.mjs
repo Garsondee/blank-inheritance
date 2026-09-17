@@ -60,6 +60,7 @@ import {
 } from "./foundry/equipment-state.mjs";
 import { openEquipmentPanel, refreshEquipmentPanel } from "./foundry/equipment-panel.mjs";
 import { mountPhone, registerPetSettings } from "./foundry/phone.mjs";
+import { mountCityBoard } from "./foundry/city-board.mjs";
 import { mountConsoleWindow, refreshConsoleWindow } from "./foundry/console-window.mjs";
 import { createDirectorPanelMacroIfMissing, openDirectorPanel, refreshDirectorPanel } from "./foundry/director-panel.mjs";
 import { registerSceneCloseSettings, openSceneCloseDialogue } from "./foundry/scene-close.mjs";
@@ -282,6 +283,16 @@ Hooks.once("ready", async () => {
     console.error("Blank Inheritance | Could not mount the console:", err);
   }
 
+  // The city board -- GM-only (mountCityBoard's own isGM guard), and demo
+  // data throughout (see foundry/city-board.mjs's own header): a first real
+  // Foundry home for V1's still-unused map-pin vocabulary, not a claim that
+  // real campaign locations exist yet.
+  try {
+    mountCityBoard();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not mount the city board:", err);
+  }
+
   // A characterless Player is a real player who hasn't finished session
   // zero yet -- the whole point of the terminal. Found live 2026-09-16,
   // running a full walkthrough as a genuine new player: without this,
@@ -343,6 +354,12 @@ Hooks.on("canvasReady", () => {
     mountConsoleWindow();
   } catch (err) {
     console.error("Blank Inheritance | Could not re-assert the console:", err);
+  }
+
+  try {
+    mountCityBoard();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not re-assert the city board:", err);
   }
 
   // The stage, and the camera lock that makes a staged scene a picture rather
