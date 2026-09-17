@@ -6714,12 +6714,18 @@
 
 /* A black cell: hairline outline, rounded, after the north star's "Voice",
    "Chorus" and "Lfo" cells. */
+/* Every black cell (a key bank, a selector) carries its own faint dust —
+   this is the surface a hand is actually looking at, not the silver margin
+   around it, so the grime has to live on the cell's own background, not just
+   the module's (which a cell's opaque background otherwise fully covers). */
 .bi-deck__cell {
   position: relative;
   box-sizing: border-box;
   border: 1.5px solid var(--bi-ns-outline);
   border-radius: 14px;
-  background: linear-gradient(180deg, #232427, #18191b);
+  background:
+    var(--bi-grain-pitted-light),
+    linear-gradient(180deg, #232427, #18191b);
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 5%), 0 1px 0 rgb(255 255 255 / 7%);
 }
 

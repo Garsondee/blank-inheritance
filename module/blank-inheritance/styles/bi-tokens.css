@@ -422,23 +422,22 @@
   --bi-grain-brushed: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='160'><filter id='b'><feTurbulence type='fractalNoise' baseFrequency='0.004 0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23b)' opacity='0.32'/></svg>");
   --bi-grain-matte: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='m'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23m)' opacity='0.07'/></svg>");
 
-  /* Grime: sparse dark pitting/dust flecks rather than a smooth grain — same
-     two primitives as the brushed/matte grains above (feTurbulence into
-     feColorMatrix), but the alpha row is scaled up and offset down so only
-     turbulence's own brightest peaks survive as flecks instead of smoothly
-     covering the surface. Deliberately not tileable at a fixed rotation
-     (this module's own "grimier, more beaten up" pass, 2026-09-17) — stacked
-     OVER the brushed/matte grain, never replacing it, at an opacity the
-     calling rule controls via its own background-blend or a second faint
-     rect so a heavily-touched surface (round the knobs, the glass's lower
-     edge) can read dirtier than a rarely-touched one without a second token. */
-  --bi-grain-pitted: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' seed='11' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 7 -5.2'/></filter><rect width='100%' height='100%' filter='url(%23p)' opacity='0.6'/></svg>");
+  /* Grime: dark pitting/dust blobs rather than a smooth grain — the same
+     turbulence-into-feColorMatrix idea as the brushed/matte grains above, but
+     thresholded and then BLURRED, so what survives is small soft motes with
+     real area rather than single hard-edged noise pixels (a first pass
+     without the blur, and at too high a baseFrequency, read as scattered
+     dead pixels rather than dust — corrected live, 2026-09-17, after exactly
+     that call). baseFrequency is low enough that each blob spans several
+     units before the fractal octaves roughen its edge. Stacked OVER the
+     brushed/matte grain, never replacing it. */
+  --bi-grain-pitted: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.22' numOctaves='4' seed='11' stitchTiles='stitch' result='n'/><feColorMatrix in='n' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 9 -6.7' result='c'/><feGaussianBlur in='c' stdDeviation='0.35'/></filter><rect width='100%' height='100%' filter='url(%23p)' opacity='0.55'/></svg>");
   /* The same turbulence field, recoloured near-white: scuffs and worn-bare
      specks on a DARK surface read as light, where they read as dark grime on
      a light one. Same seed as --bi-grain-pitted on purpose, so a module that
      layers both (a silver edge worn down to reveal the dark primer beneath)
-     gets flecks that agree with each other rather than two unrelated fields. */
-  --bi-grain-pitted-light: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' seed='11' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 7 -5.2'/></filter><rect width='100%' height='100%' filter='url(%23p)' opacity='0.6'/></svg>");
+     gets motes that agree with each other rather than two unrelated fields. */
+  --bi-grain-pitted-light: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.22' numOctaves='4' seed='11' stitchTiles='stitch' result='n'/><feColorMatrix in='n' values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 9 -6.7' result='c'/><feGaussianBlur in='c' stdDeviation='0.35'/></filter><rect width='100%' height='100%' filter='url(%23p)' opacity='0.55'/></svg>");
 
   /* ---------------------------------------------------------------
      7b. RUNTIME-DRIVEN
