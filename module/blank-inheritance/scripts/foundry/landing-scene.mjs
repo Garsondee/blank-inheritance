@@ -51,7 +51,20 @@ const SCENE_HEIGHT = 1536;
  * has to know the manifest's own ids.
  */
 function authoredLandingScene() {
-  return game.scenes?.find((scene) => scene.getFlag(MODULE_ID, "kind") === "landing") ?? null;
+  // Defensive on purpose. This sits underneath placeActorOnLandingScene, whose
+  // own contract is best-effort ("a player with a real Actor but no token yet
+  // is a far smaller problem than losing the character"), so a collection that
+  // is missing, is not iterable, or holds something without getFlag must read
+  // as "no authored landing scene" rather than take the induction path down
+  // with it. Found by test/tier4-induction-relay.test.mjs, whose mock scenes
+  // legitimately carry no flags at all.
+  try {
+    const scenes = game?.scenes;
+    if (!scenes?.find) return null;
+    return scenes.find((scene) => scene?.getFlag?.(MODULE_ID, "kind") === "landing") ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export async function landingSceneId() {
