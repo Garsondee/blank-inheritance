@@ -1,0 +1,212 @@
+{
+  "$schema": "../schema/scene-set.schema.json",
+  "id": "scene-set",
+  "type": "scene-set",
+  "description": "Every real Foundry Scene in the campaign: the landing scene, one per beat of Session One, the rooms inside those beats, the campaign map they hang off, and the Directorate's own building. Built into a world by the Scene Set macro, idempotently -- run it twice and nothing changes.",
+  "notes": [
+    "SCENE -> MAP -> SCENE. The map is the hub and the thing to cut back to between beats. Session One is a corridor, so its pins run in story order; nothing about the map assumes that stays true, and adding a pin is one entry here.",
+    "Every pin's position comes from the gazetteer location it names (data/locations/<id>.json, derived.centroidPx), never from a coordinate written here. Move a building in the gazetteer and its signpost follows it. data/schema/location.schema.json's own `pinAnchor` field is the eventual home for 'where the pin should sit rather than the centroid'; it is null everywhere today, so centroid plus an explicit offsetPx is what we have.",
+    "TWO PROPOSED CORRESPONDENCES, flagged rather than asserted: Kit Issue is pinned at The Bonded Store and Flood Tunnel Clearance at The Old Landing. Neither is what the brief describes -- the briefs want a quartermaster's counter and a drainage/compactor chamber under the old town, and the gazetteer has neither yet. Both want a real location adding; see locationNote on each.",
+    "The Section Officer's office (episode-c1s2--as-discussed) has NO scene here because it has no artwork yet. It is an outstanding art request, not an oversight."
+  ],
+
+  "artRoot": "modules/blank-inheritance/assets/scenes",
+
+  "groups": [
+    { "id": "session-one", "name": "Session One", "colour": "#7a2d1e" },
+    { "id": "the-city", "name": "The City", "colour": "#1e3a5f" },
+    { "id": "directorate", "name": "Directorate HQ", "colour": "#3a3a3a" }
+  ],
+
+  "scenes": [
+    {
+      "id": "s1-the-road-in",
+      "name": "The Road In",
+      "art": "episode-c1s1--the-road-in",
+      "group": "session-one",
+      "kind": "landing",
+      "order": 1,
+      "briefRef": "episode-c1s1--the-road-in",
+      "locationRef": "candidate-gate",
+      "blurb": "The road in. Six separate journeys, six separate mornings, and the same letter in every pocket. The checkpoint at the end of it is the only road entrance to the candidate housing rows: a guard booth, a barrier arm, and a roster with your name already on it."
+    },
+    {
+      "id": "s1-intake-medicals",
+      "name": "Intake Medicals",
+      "art": "episode-c1s1--intake-medicals",
+      "group": "session-one",
+      "kind": "beat",
+      "order": 2,
+      "briefRef": "episode-c1s1--intake-medicals",
+      "locationRef": "intake-infirmary",
+      "blurb": "Where the semester's screening blood draws happen. Thirty seconds, no explanation, and a queue that moves at the speed of paperwork. A hand-lettered sign reading FORMS FIRST - NO EXCEPTIONS is taped over an older one, in better handwriting, reading MEDICALS FIRST."
+    },
+    {
+      "id": "s1-intake-medicals-exam",
+      "name": "Intake Medicals — The Examination Room",
+      "art": "episode-c1s1--intake-medicals--exam-room",
+      "group": "session-one",
+      "kind": "sub",
+      "order": 3,
+      "navigation": false,
+      "briefRef": "episode-c1s1--intake-medicals",
+      "locationRef": "intake-infirmary"
+    },
+    {
+      "id": "s1-kit-issue",
+      "name": "Kit Issue",
+      "art": "episode-c1s1--kit-issue",
+      "group": "session-one",
+      "kind": "beat",
+      "order": 4,
+      "briefRef": "episode-c1s1--kit-issue",
+      "locationRef": "the-bonded-store",
+      "locationNote": "PROPOSED, not exact. The brief wants a quartermaster's counter issuing personnel equipment; The Bonded Store is the nearest thing the gazetteer has (Directorate-sealed stock, right cluster, right register) but it is not that counter. Wants a real location adding.",
+      "blurb": "The stores. Material arrives here under seal and stays sealed until somebody with the authority to break it says so — and today, apparently, that somebody is in a hurry and talking to three people at once."
+    },
+    {
+      "id": "s1-the-errand",
+      "name": "The Errand",
+      "art": "episode-c1s1--the-errand",
+      "group": "session-one",
+      "kind": "beat",
+      "order": 5,
+      "briefRef": "episode-c1s1--the-errand",
+      "locationRef": "the-general-store-416",
+      "blurb": "The biggest general store in the quarter: if it isn't in stock here, it isn't in stock nearby. The first time all six of you are outdoors in the city together — weather, noise, strangers, and the harbour two streets over."
+    },
+    {
+      "id": "s1-the-errand-tea-house",
+      "name": "The Errand — The Tea House",
+      "art": "episode-c1s1--the-errand--tea-house",
+      "group": "session-one",
+      "kind": "sub",
+      "order": 6,
+      "navigation": false,
+      "briefRef": "episode-c1s1--the-errand",
+      "locationRef": "the-tea-house-420"
+    },
+    {
+      "id": "s1-the-errand-alley",
+      "name": "The Errand — The Alley",
+      "art": "episode-c1s1--the-errand--alley",
+      "group": "session-one",
+      "kind": "sub",
+      "order": 7,
+      "navigation": false,
+      "briefRef": "episode-c1s1--the-errand",
+      "locationRef": "the-general-store-416"
+    },
+    {
+      "id": "s1-canteen",
+      "name": "Canteen",
+      "art": "episode-c1s1--canteen",
+      "group": "session-one",
+      "kind": "beat",
+      "order": 8,
+      "briefRef": "episode-c1s1--canteen",
+      "locationRef": "long-hall",
+      "blurb": "The one building big enough to feed several hundred candidates in three seatings. Trestle tables, a serving line, and a noticeboard at the door thick with drill schedules and the occasional handwritten notice about a lost coat."
+    },
+    {
+      "id": "s1-canteen-tables",
+      "name": "Canteen — The Long Tables",
+      "art": "episode-c1s1--canteen--alt",
+      "group": "session-one",
+      "kind": "sub",
+      "order": 9,
+      "navigation": false,
+      "briefRef": "episode-c1s1--canteen",
+      "locationRef": "long-hall"
+    },
+    {
+      "id": "s1-flood-tunnel",
+      "name": "Flood Tunnel Clearance",
+      "art": "episode-c1s1--flood-tunnel",
+      "group": "session-one",
+      "kind": "beat",
+      "order": 10,
+      "briefRef": "episode-c1s1--flood-tunnel",
+      "locationRef": "old-landing",
+      "locationNote": "PROPOSED, and district-level rather than exact. The brief puts this in a disused drainage/compactor chamber under the old town, reached from Dock C. The Old Landing is the right ground -- the mainland's original waterfront -- but the chamber itself is not in the gazetteer. Wants a real location adding.",
+      "blurb": "The mainland's original waterfront, still the point every road eventually reaches. Ferry stages, chandlers, and a customs hall that predates the Directorate and is politely ignored by it. Underneath all of it, the drains."
+    },
+    {
+      "id": "s1-flood-tunnel-generator",
+      "name": "Flood Tunnel — The Generator Room",
+      "art": "episode-c1s1--flood-tunnel--generator-room",
+      "group": "session-one",
+      "kind": "sub",
+      "order": 11,
+      "navigation": false,
+      "briefRef": "episode-c1s1--flood-tunnel",
+      "locationRef": "old-landing"
+    },
+    {
+      "id": "s1-flood-tunnel-machine",
+      "name": "Flood Tunnel — The Machine Room",
+      "art": "episode-c1s1--flood-tunnel--machine-room",
+      "group": "session-one",
+      "kind": "sub",
+      "order": 12,
+      "navigation": false,
+      "briefRef": "episode-c1s1--flood-tunnel",
+      "locationRef": "old-landing"
+    },
+
+    {
+      "id": "the-city",
+      "name": "The City",
+      "art": "campaign-map",
+      "group": "the-city",
+      "kind": "hub",
+      "order": 1,
+      "width": 6200,
+      "height": 6200,
+      "mapScale": 0.5,
+      "blurb": "The city, as the Directorate draws it.",
+      "pins": [
+        { "sceneRef": "s1-the-road-in", "offsetPx": [-70, -40] },
+        { "sceneRef": "s1-intake-medicals", "offsetPx": [40, 34] },
+        { "sceneRef": "s1-kit-issue" },
+        { "sceneRef": "s1-the-errand" },
+        { "sceneRef": "s1-canteen", "offsetPx": [0, -34] },
+        { "sceneRef": "s1-flood-tunnel" }
+      ]
+    },
+
+    {
+      "id": "hq-exterior",
+      "name": "Directorate HQ — Exterior",
+      "art": "directorate-headquarters--exterior",
+      "group": "directorate",
+      "kind": "place",
+      "order": 1
+    },
+    {
+      "id": "hq-lobby",
+      "name": "Directorate HQ — Lobby",
+      "art": "directorate-headquarters--lobby",
+      "group": "directorate",
+      "kind": "place",
+      "order": 2
+    },
+    {
+      "id": "hq-atrium",
+      "name": "Directorate HQ — The Atrium",
+      "art": "directorate-headquarters--atrium",
+      "group": "directorate",
+      "kind": "place",
+      "order": 3
+    },
+    {
+      "id": "hq-loading-dock",
+      "name": "Directorate HQ — Loading Dock",
+      "art": "directorate-headquarters--loading-dock",
+      "group": "directorate",
+      "kind": "place",
+      "order": 4,
+      "navigation": false
+    }
+  ]
+}

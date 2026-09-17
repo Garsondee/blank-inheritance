@@ -35,6 +35,7 @@ import { ensureIntelVault, writeAuthoredProfile } from "./foundry/social-store.m
 import { ensureStageVault, syncStage, writeAuthoredCast } from "./foundry/stage.mjs";
 import { syncCameraToScene, unlockCamera } from "./foundry/stage-camera.mjs";
 import { buildStageDemoScenes, createStageDemoMacroIfMissing } from "./foundry/stage-demo.mjs";
+import { buildSceneSet, createSceneSetMacroIfMissing, retireTemporaryScenes } from "./foundry/scene-build.mjs";
 import { announceCastChange, primeStingCache } from "./foundry/sting.mjs";
 import { checkForSplash, forceDismissSplash, primeSplashCache, registerSplashSettings } from "./foundry/splash.mjs";
 import {
@@ -131,7 +132,12 @@ Hooks.once("init", () => {
       syncAudioPlaylists,
       loadAudio,
       refreshAudio,
-      runCue
+      runCue,
+      // The real Scene set (data/campaign/scene-set.json): the landing scene,
+      // one per beat of the story, the rooms inside them, and the campaign map
+      // they are reached from. Idempotent -- running it twice changes nothing.
+      buildSceneSet,
+      retireTemporaryScenes
     };
   }
 
@@ -378,6 +384,7 @@ Hooks.once("ready", async () => {
     await createTestSyncMacroIfMissing();
     await createRealSyncMacroIfMissing();
     await createStageDemoMacroIfMissing();
+    await createSceneSetMacroIfMissing();
     await createEquipmentPanelMacroIfMissing();
     await createDirectorPanelMacroIfMissing();
     await createInductionTerminalMacroIfMissing();

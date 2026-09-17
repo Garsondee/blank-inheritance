@@ -203,6 +203,46 @@
       "assignedDate": "2026-09-17",
       "sourceFilename": "ost2-04 - A Crystalline Night Sky.mp3",
       "note": "Reserved for the cicada-stencil mystery thread (ideas/entries/cicada-motif.json) -- NOT used as a music cue in Session 0/1 itself (see data/audio/cues/cicada-motif-appears.json, which uses only a quiet ambience layer so nothing has to explain what music to return to afterward). Reserved now, ahead of use, so it can never be discovered by a future GM already sitting in the mystery pool's shuffle before this thread deserves its own cue -- the actual musical moment is future work."
+    },
+    {
+      "id": "episode-c1s1--the-errand",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1s1--the-errand.png",
+      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--the-errand" },
+      "assignedDate": "2026-09-17",
+      "sourceFilename": "tea-house-exterior.png",
+      "note": "A wooden shopfront under a huge tree, flowers in pots down the steps, deep summer light. The hero image for The Errand -- the quarter around The General Store, and the Tea House a few doors down that takes messages for the old man."
+    },
+    {
+      "id": "episode-c1s1--the-errand--tea-house",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1s1--the-errand--tea-house.png",
+      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--the-errand" },
+      "assignedDate": "2026-09-17",
+      "sourceFilename": "tea-house-interior.png",
+      "note": "Inside the tea house. Where a message for him is left, and where at least one player leaves with a way to reach him again."
+    },
+    {
+      "id": "episode-c1s1--the-errand--alley",
+      "kind": "image",
+      "category": "scenes",
+      "path": "artwork/scenes/episode-c1s1--the-errand--alley.png",
+      "assignedTo": { "kind": "scene", "ref": "episode-c1s1--the-errand" },
+      "assignedDate": "2026-09-17",
+      "sourceFilename": "cicada-graffiti-alley.png",
+      "note": "An alley wall carrying the cicada stencil. Cut to this for the-mark-again beat; the audio cue of the same name slips a real cicada drone into the ambience under it (data/audio/cues/cicada-motif-appears.json). Deliberately NOT scored as ominous -- see design/audio-system.md 11."
+    },
+    {
+      "id": "directorate-headquarters--atrium",
+      "kind": "image",
+      "category": "locations",
+      "path": "artwork/locations/directorate-headquarters--atrium.png",
+      "assignedTo": { "kind": "location", "ref": "directorate-headquarters" },
+      "assignedDate": "2026-09-17",
+      "sourceFilename": "directorate_02.png",
+      "note": "A monumental brutalist atrium -- curved concrete piers, a spiral stair, two tiny figures for scale. The Directorate at its most impersonal; general facility image, not scene-specific."
     }
   ]
 }

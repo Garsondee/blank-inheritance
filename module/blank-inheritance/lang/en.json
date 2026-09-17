@@ -599,6 +599,12 @@
       "BoundTo": "{scene} will now play {soundscape}",
       "Unbound": "{scene} no longer has its own soundscape",
       "NothingToBind": "Apply a soundscape first, then bind it to this scene"
+    },
+    "Scenes": {
+      "MacroName": "Build the scene set",
+      "Built": "Scenes: {created} built, {updated} updated, {pins} pins on the map.",
+      "Retired": "Retired {count} temporary scene(s).",
+      "PinJournal": "The City — Places"
     }
   }
 }

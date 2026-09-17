@@ -31,6 +31,7 @@ export const SYNCED_CAMPAIGN_DIRS = [
   "episodes",
   "factions",
   "hangar",
+  "locations",
   "npcs",
   "scene-briefs",
   "subsystems"
