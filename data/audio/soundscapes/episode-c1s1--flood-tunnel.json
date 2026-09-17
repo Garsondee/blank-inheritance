@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1s1--flood-tunnel",
+  "type": "audio-soundscape",
+  "title": "S1 · Flood Tunnel Clearance",
+  "note": "'Start grounded and physical... before anything turns dangerous.' No music at all going in -- the room is the only instrument until the centipedes come up. The actual fight music is data/audio/cues/section-nines-first-blood.json, fired off the 'the-fight' beat rather than left to wait on a Foundry Combat existing; combat.track is the same reserved track as a second, automatic path if a real Combat IS tracked.",
+  "music": { "silence": true },
+  "combat": { "track": "26-masamichi-amano-jintetsu-no-toujou" },
+  "ambience": [
+    { "track": "esm-emdp1-cinematic-fx-ambience-loop-cave-water-drop-hollow", "level": -6 },
+    { "track": "dungeon-636", "level": -16 },
+    { "track": "factory-mechanical-s011-ssfx", "level": -20 }
+  ],
+  "fade": 2000
+}

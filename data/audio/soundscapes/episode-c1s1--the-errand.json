@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1s1--the-errand",
+  "type": "audio-soundscape",
+  "title": "S1 · The Errand",
+  "note": "'The city, at last... weather, noise, strangers, and a smell of the harbour two streets over.' The session's only exterior and only fully safe outdoor scene -- relaxed pool, a real street bed, and the harbour worked in exactly as the brief describes it: present, not centred.",
+  "music": { "pool": "relaxed" },
+  "ambience": [
+    { "track": "city-street-1724", "level": -4 },
+    { "track": "bay-shore-fisherman-s-wharf-pier-seagulls-san-francisco-ca-03", "level": -14 }
+  ],
+  "fade": 3500
+}

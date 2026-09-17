@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1s1--intake-medicals",
+  "type": "audio-soundscape",
+  "title": "S1 · Intake Medicals",
+  "note": "Warm, slow, unhurried -- 'a school medical crossed with a passport office, and then one genuinely kind conversation each.' The thoughtful pool for the six private one-on-ones with Shucks; music sits a little under the dialogue rather than at unity, since almost the whole scene is two people talking quietly.",
+  "music": { "pool": "thoughtful" },
+  "ambience": [
+    { "track": "esm-pscwea-cinematic-fx-ambience-doctor-office-waiting-room", "level": -6 },
+    { "track": "hospital-life-support-48", "level": -18 }
+  ],
+  "mix": { "music": -3 },
+  "fade": 4000
+}

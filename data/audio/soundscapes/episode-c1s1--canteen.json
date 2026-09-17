@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1s1--canteen",
+  "type": "audio-soundscape",
+  "title": "S1 · Canteen",
+  "note": "'Loud and warm for most of the scene, then one flat, deflating turn at the very end.' This soundscape is deliberately only the FIRST half of that shape -- a big room, dozens of trainees, real scale and belonging. The turn itself is data/audio/cues/canteen-assignment-lands.json, which cuts the music rather than swapping it, because the brief's own ending note is 'don't let the scene wander after it.'",
+  "music": { "pool": "cheerful" },
+  "ambience": [
+    { "track": "mall-79", "level": -6 },
+    { "track": "cafe-coffee-shop-6", "level": -14 }
+  ],
+  "fade": 3000
+}

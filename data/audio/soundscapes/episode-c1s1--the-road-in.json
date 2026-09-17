@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1s1--the-road-in",
+  "type": "audio-soundscape",
+  "title": "S1 · The Road In",
+  "note": "The campaign's own overture, not a shuffle. Six separate arrivals get one piece of music, not six -- the montage already carries the variety; the score's job here is continuity across the cuts, the way a real cold-open plays one theme under every quick scene. No ambience: a montage crosses too many different places for one bed to be honest about any of them, and the track is meant to read as score, not room tone.",
+  "music": { "track": "01-masamichi-amano-main-title", "loop": true },
+  "ambience": [],
+  "fade": 5000
+}

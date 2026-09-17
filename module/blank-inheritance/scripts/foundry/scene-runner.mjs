@@ -34,6 +34,8 @@ import { enricherFor } from "../core/roll-intent.mjs";
 import { deriveFoundryId } from "../core/ids.mjs";
 import { fetchModuleJson } from "./io.mjs";
 import { fitDeck } from "./deck.mjs";
+import { applySoundscape, fireEvent } from "./audio-director.mjs";
+import { cachedAudio, loadAudio } from "./audio-store.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -114,6 +116,39 @@ async function loadJson(dir, id) {
 /** Drops every cached file. The seam for re-reading after a content push. */
 export function resetSceneRunnerCache() {
   cache.clear();
+}
+
+/**
+ * Apply a scene's own soundscape, if one has been authored for it — most
+ * scenes across the wider campaign will not have one yet, and that is the
+ * ordinary case, not a problem: checked against the loaded index first so
+ * picking an unscored scene is a silent no-op rather than a caught
+ * exception on every click. design/audio-system.md §5.1.
+ */
+export async function applySceneAudio(briefId) {
+  if (!briefId || !game.user?.isGM) return;
+  try {
+    const audio = cachedAudio() ?? (await loadAudio());
+    if (!audio?.soundscapes?.has(briefId)) return;
+    await applySoundscape(briefId);
+  } catch (err) {
+    console.error(`Blank Inheritance | Could not apply this scene's soundscape "${briefId}":`, err);
+  }
+}
+
+/**
+ * Fire whatever audio cue is bound to a beat just being ticked (the "beat"
+ * trigger, design/audio-system.md §5.3) — the same event a marker or a
+ * scene-activation fires, so a beat with no cue authored against it costs
+ * nothing beyond the lookup `fireEvent` already does internally.
+ */
+export async function fireBeatAudio(briefId, beatId) {
+  if (!briefId || !beatId || !game.user?.isGM) return;
+  try {
+    await fireEvent({ on: "beat", brief: briefId, beat: beatId });
+  } catch (err) {
+    console.error(`Blank Inheritance | Could not fire this beat's audio cue ("${beatId}"):`, err);
+  }
 }
 
 /**
@@ -314,8 +349,12 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     const state = runStateFor(briefId);
     const ticked = { ...state.ticked };
 
-    if (ticked[beatId]) delete ticked[beatId];
-    else ticked[beatId] = { at: new Date().toISOString() };
+    if (ticked[beatId]) {
+      delete ticked[beatId];
+    } else {
+      ticked[beatId] = { at: new Date().toISOString() };
+      fireBeatAudio(briefId, beatId);
+    }
 
     await writeRunState(briefId, { ...state, ticked });
     this.render({});
@@ -336,8 +375,12 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     const state = runStateFor(briefId);
     const ticked = { ...state.ticked };
 
-    if (ticked[beatId]?.degree === degree) delete ticked[beatId];
-    else ticked[beatId] = { at: new Date().toISOString(), degree };
+    if (ticked[beatId]?.degree === degree) {
+      delete ticked[beatId];
+    } else {
+      ticked[beatId] = { at: new Date().toISOString(), degree };
+      fireBeatAudio(briefId, beatId);
+    }
 
     await writeRunState(briefId, { ...state, ticked });
     this.render({});
@@ -362,7 +405,9 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   static async #onPickScene(event, target) {
-    await game.settings.set(MODULE_ID, SETTING_BRIEF, target.dataset.briefId ?? "");
+    const briefId = target.dataset.briefId ?? "";
+    await game.settings.set(MODULE_ID, SETTING_BRIEF, briefId);
+    applySceneAudio(briefId);
     this.render({});
   }
 
@@ -626,6 +671,18 @@ export function refreshSceneRunner() {
   return active;
 }
 
+/**
+ * Open/close from the deck's own pill key (deck-ident.hbs's `openRunner`
+ * action) — the same "mount if needed, then flip" shape as togglePhone and
+ * toggleConsoleWindow, so the Director's script is one of the deck's own
+ * objects rather than a floating circle bolted on beside it (Ingram's direct
+ * feedback, 2026-09-17, against the real server).
+ */
+export function toggleSceneRunner() {
+  (active ?? mountSceneRunner())?.toggle();
+  return active;
+}
+
 export function unmountSceneRunner() {
   active?.close();
   active = null;
@@ -641,6 +698,7 @@ export async function openSceneRunner(episodeId, briefId = "") {
   resetSceneRunnerCache();
   await game.settings.set(MODULE_ID, SETTING_EPISODE, episodeId ?? "");
   await game.settings.set(MODULE_ID, SETTING_BRIEF, briefId ?? "");
+  if (briefId) applySceneAudio(briefId);
   const runner = mountSceneRunner();
   if (runner && !runner.open) runner.toggle();
   return runner;

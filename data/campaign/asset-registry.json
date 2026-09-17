@@ -173,6 +173,36 @@
       "assignedDate": "2026-09-09",
       "sourceFilename": "building_entrance_interior_01.png",
       "note": "An interior corridor/lobby -- double doors, bookshelves, a noticeboard, a wall clock. Same caveat -- general facility interior, not scene-specific."
+    },
+    {
+      "id": "01-masamichi-amano-main-title",
+      "kind": "audio",
+      "category": "music",
+      "path": "audio/library/music/01-masamichi-amano-main-title.ogg",
+      "assignedTo": { "kind": "moment", "ref": "campaign-open" },
+      "assignedDate": "2026-09-17",
+      "sourceFilename": "01 - Main Title.mp3",
+      "note": "The campaign's own overture. Reserved out of the (otherwise empty) moment-of-cool pool so it can never turn up at random -- it plays exactly once, cold-opening 'The Road In', and nowhere else. See data/audio/soundscapes/episode-c1s1--the-road-in.json."
+    },
+    {
+      "id": "26-masamichi-amano-jintetsu-no-toujou",
+      "kind": "audio",
+      "category": "music",
+      "path": "audio/library/music/26-masamichi-amano-jintetsu-no-toujou.ogg",
+      "assignedTo": { "kind": "scene", "ref": "flood-tunnel" },
+      "assignedDate": "2026-09-17",
+      "sourceFilename": "26 - JINTETSU no Toujou.mp3",
+      "note": "'Section Nine's first blood' -- the campaign's very first fight (six Giant Centipedes, c1s1-flood-tunnel) gets a track of its own rather than a shuffle from the 27-track battle pool, on Ingram's own instruction to reserve specific songs for specific events. Title translates roughly to '<a name>'s Appearance/Entrance' -- fits creatures erupting out of the sludge better than anything generic. Bound as both the soundscape's combat.track (if a real Foundry Combat is tracked) and a dedicated cue on the 'the-fight' beat (fires with zero Foundry combat setup, which is the more reliable path for a scene run straight off the Scene Runner)."
+    },
+    {
+      "id": "ost2-04-a-crystalline-night-sky",
+      "kind": "audio",
+      "category": "music",
+      "path": "audio/library/music/ost2-04-a-crystalline-night-sky.ogg",
+      "assignedTo": { "kind": "moment", "ref": "cicada-motif" },
+      "assignedDate": "2026-09-17",
+      "sourceFilename": "ost2-04 - A Crystalline Night Sky.mp3",
+      "note": "Reserved for the cicada-stencil mystery thread (ideas/entries/cicada-motif.json) -- NOT used as a music cue in Session 0/1 itself (see data/audio/cues/cicada-motif-appears.json, which uses only a quiet ambience layer so nothing has to explain what music to return to afterward). Reserved now, ahead of use, so it can never be discovered by a future GM already sitting in the mystery pool's shuffle before this thread deserves its own cue -- the actual musical moment is future work."
     }
   ]
 }

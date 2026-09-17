@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "episode-c1s2--as-discussed",
+  "type": "audio-soundscape",
+  "title": "S1 (coda) · As Discussed",
+  "note": "'Short, dry and funny, with one real decision in the middle.' Thoughtful pool rather than something bouncier -- the comedy is entirely in the dialogue (he never mentions the vial) and a deadpan score serves that better than a punchline sting would. A small tidy office needs no ambience bed of its own; the quiet is the point.",
+  "music": { "pool": "thoughtful" },
+  "ambience": [],
+  "fade": 3000
+}

@@ -393,7 +393,92 @@ rather than thrown, so one bad file cannot take the session down.
 
 ---
 
-## 11. Where the code lives
+## 11. Session 0/1: the first real content
+
+Authored 2026-09-17, live-verified by clicking through the actual Scene Runner
+(not just applied by hand): seven soundscapes, one per scene brief in the
+opening episode, plus five cues bound to real beats. `data/audio/soundscapes/`
+and `data/audio/cues/` — no demo files remain in either directory.
+
+**Scene Runner integration, added the same day.** Two hooks make this content
+play itself rather than needing a GM to remember to press anything:
+
+- **Picking a scene applies its soundscape automatically**, if one has been
+  authored (`scene-runner.mjs#applySceneAudio`, called from both the panel's
+  own scene picker and `openSceneRunner`'s macro/API entry). A scene with
+  nothing authored is a silent no-op — most of the campaign will be in this
+  state for a long time yet, and that must never be a console error.
+- **Ticking a beat fires whatever cue is bound to it** — the `beat` trigger
+  type existed in the schema from the start but had no real caller until now
+  (`scene-runner.mjs#fireBeatAudio`, from both `#onToggleBeat` and
+  `#onRecordOutcome`). Fires only on the branch that newly sets a tick, never
+  on the branch that clears one — ticking a beat again to undo it must not
+  re-fire whatever it triggered the first time.
+
+**Three tracks were reserved** (`data/campaign/asset-registry.json`), on
+Ingram's own instruction to pick and choose rather than build unique music for
+every antagonist: *"I deliberately put the music into different directories
+so that we could make sure that some songs are unique, special or associated
+with particular baddies/events/themes."* None of the three is a villain
+theme — Session 0/1 has no combat-capable antagonist on stage yet (see below):
+
+| Track | Reserved for | Why |
+|---|---|---|
+| "Main Title" | The campaign's own cold open | It is *called* Main Title. The Road In's soundscape plays it once, straight through, under all six arrival montages — an overture, not a mood loop. |
+| "JINTETSU no Toujou" | Section Nine's first fight (flood-tunnel) | The party's very first combat gets a track of its own rather than a shuffle from the 27-track battle pool. Title translates roughly to "\<name\>'s Entrance" — fits six centipedes erupting out of the sludge better than anything generic. |
+| "A Crystalline Night Sky" | The cicada-stencil motif (`ideas/entries/cicada-motif.json`) | Reserved *ahead of use* — not spent in Session 0/1 (see below), so it can never be discovered sitting in the mystery pool's shuffle before the thread that owns it is ready for its own cue. |
+
+**The cicada mark gets sound design, not scoring.** The stencil recurs across
+`the-road-in` and `the-errand` as a small, unexplained, deep-violet mark —
+and, per the story bible, its meaning is inseparable from the campaign's
+central secret (`ideas/story/bible/characters/manako.md`: the warm old man
+who saves the party in "The Errand" is, unknowingly, the whole antagonist
+structure's own operator). **No cue anywhere touches this and none should.**
+The cicada motif itself is safe to score — Ingram's own idea entry canonises
+cicadas as a beloved, sacred civic animal, not yet a sinister one — but a
+musical STING on the mark would read as "something is wrong here," which is
+false in-fiction and would spoil a twist the players are nowhere near.
+`cicada-motif-appears.json` fires on both beats and does exactly one thing: a
+real cicada drone (`cicadas-174`) slips quietly into whatever ambience is
+already playing, at -14 dB, easy to miss, never announced with a banner. It
+is sound design a keen-eared table might eventually notice recurs — not a
+signal. "A Crystalline Night Sky" is held in reserve for whenever this thread
+gets a scene that can bear a real musical moment, which is not this one.
+
+**Two more cues do the same kind of quiet, specific work:**
+"Section Nine, last, flat, worst" (`canteen-assignment-lands.json`) cuts the
+canteen's music to nothing over five seconds when the tannoy reads the
+assignment — the brief's own ending note is "don't let the scene wander after
+it," and silence lands harder than a mood swap would. "The choice"
+(`as-discussed-let-the-silence-do-it.json`) only dips the music -6 dB when the
+party decides whether to let their superior take the credit, matching the
+brief's explicit instruction to "say nothing to prompt them — let the silence
+do it" — a dip, not a stop, because this is the table thinking out loud, not
+a scored beat.
+
+**Verified live, beat by beat, against the real Scene Runner UI (not the API
+alone):** opening each of the seven scenes applies the right pool or track and
+the right ambience beds at the right levels; clicking the real "the-mark-again"
+checkbox layers the cicada drone in and leaves it there through an undo/redo
+cycle; clicking "the-fight" starts the reserved battle track over silence;
+clicking "the-announcement" fades the canteen to nothing; clicking "the-choice"
+dips As Discussed's music by exactly -6 dB. Rebuilding the playlists after the
+reservations moved the three tracks out of Battle (27→26), Mystery (13→12) and
+Moment of Cool (1→0, and the now-empty pool's own playlist was correctly
+deleted) and into a freshly created "Music — Reserved".
+
+**A real local-environment bug found doing this**, unrelated to the audio
+system itself: the local Foundry test install's `module/blank-inheritance/
+data/campaign/campaign/` was a stale, hand-copied snapshot from over a week
+earlier, not a junction — so a freshly-edited `asset-registry.json` on disk
+was invisible to the locally running app until it was replaced with a real
+junction to `data/campaign/`, matching the `audio` junction already in place.
+Anyone hitting "my edit doesn't show up locally" after editing something
+under `data/campaign/` should check this first.
+
+---
+
+## 12. Where the code lives
 
 | Piece | Pure (`scripts/core/`) | Adapter (`scripts/foundry/`) |
 |---|---|---|

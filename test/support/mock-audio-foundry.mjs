@@ -134,13 +134,22 @@ class MockPlaylist {
       const sound = new MockPlaylistSound(s, this);
       this.sounds.set(sound.id, sound);
     }
-    // Foundry's EmbeddedCollection is iterable and has .map/.find/.filter;
-    // a Map is iterable over [k, v] pairs, so hand out the values instead.
-    Object.defineProperty(this.sounds, "map", { value: (fn) => [...this.sounds.values()].map(fn) });
-    Object.defineProperty(this.sounds, "filter", { value: (fn) => [...this.sounds.values()].filter(fn) });
-    Object.defineProperty(this.sounds, "find", { value: (fn) => [...this.sounds.values()].find(fn) });
-    Object.defineProperty(this.sounds, "some", { value: (fn) => [...this.sounds.values()].some(fn) });
-    Object.defineProperty(this.sounds, "contents", { get: () => [...this.sounds.values()] });
+    // Foundry's real EmbeddedCollection (common/utils/collection.mjs) extends
+    // Map but OVERRIDES Symbol.iterator to yield values, not [k, v] pairs --
+    // "when iterating over a Collection, we should iterate over its values
+    // instead of over its entries" (confirmed directly against that source).
+    // A plain `new Map()` does not do this, and code that does a bare
+    // `for (const sound of playlist.sounds)` -- which audio-playlists.mjs's
+    // own playingGeneratedSounds() does -- would silently iterate [id, sound]
+    // pairs instead and call .getFlag on an array. Found live by this exact
+    // failure, 2026-09-17, writing the scene-runner audio test.
+    const soundsMap = this.sounds;
+    Object.defineProperty(soundsMap, Symbol.iterator, { value: () => soundsMap.values() });
+    Object.defineProperty(soundsMap, "map", { value: (fn) => [...soundsMap.values()].map(fn) });
+    Object.defineProperty(soundsMap, "filter", { value: (fn) => [...soundsMap.values()].filter(fn) });
+    Object.defineProperty(soundsMap, "find", { value: (fn) => [...soundsMap.values()].find(fn) });
+    Object.defineProperty(soundsMap, "some", { value: (fn) => [...soundsMap.values()].some(fn) });
+    Object.defineProperty(soundsMap, "contents", { get: () => [...soundsMap.values()] });
   }
 
   getFlag(scope, key) {
@@ -361,6 +370,25 @@ export function installAudioMock({ settings = {}, isGM = true, moduleFiles = {} 
       }
     }
   };
+
+  // A minimal ApplicationV2 stand-in, just enough that a module which does
+  // `class X extends HandlebarsApplicationMixin(ApplicationV2) { ... }` at
+  // its own top level (scene-runner.mjs, sound-desk.mjs, phone.mjs, ...) can
+  // be IMPORTED under this mock without throwing before a single test runs.
+  // Nothing about ApplicationV2's real render/lifecycle behaviour is modelled
+  // -- this project's own convention for those classes is live verification
+  // in the real app (see reference_local_foundry_test_environment), not a
+  // full mock. This exists only to unblock testing the plain exported
+  // functions such files also carry alongside the class.
+  class MockApplicationV2 {
+    static DEFAULT_OPTIONS = {};
+    static PARTS = {};
+  }
+  globalThis.foundry.applications.api = {
+    ApplicationV2: MockApplicationV2,
+    HandlebarsApplicationMixin: (Base) => class extends Base {}
+  };
+  globalThis.foundry.applications.handlebars = { renderTemplate: async () => "" };
 
   return {
     playlists,

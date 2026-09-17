@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schema/audio-cue.schema.json",
+  "id": "canteen-assignment-lands",
+  "type": "audio-cue",
+  "title": "Section Nine, last, flat, worst",
+  "note": "The brief's own ending note: 'don't let the scene wander after it.' A long fade to nothing lands harder than a swap to something moodier would, and it leaves the table in real silence for whatever the players do next -- which is the whole point of the beat.",
+  "triggers": [
+    { "on": "beat", "brief": "episode-c1s1--canteen", "beat": "the-announcement" }
+  ],
+  "steps": [
+    { "do": "music-stop", "fade": 5000 }
+  ]
+}

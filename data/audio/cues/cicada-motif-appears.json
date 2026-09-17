@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schema/audio-cue.schema.json",
+  "id": "cicada-motif-appears",
+  "type": "audio-cue",
+  "title": "The cicada mark",
+  "note": "Fires wherever the stencil turns up (ideas/entries/cicada-motif.json). Deliberately NOT a sting and NOT a music swap -- both would read as 'something ominous', which is not what this is yet, and a music swap would need somewhere to swap back to that this cue has no way of knowing (it fires from two different scenes with two different base soundscapes). Instead: a real cicada drone slips quietly into whatever ambience is already playing, easy to miss, and never announced. ost2-04-a-crystalline-night-sky is reserved for this motif for a later, more clearly-bounded scene -- not spent here.",
+  "triggers": [
+    { "on": "beat", "brief": "episode-c1s1--the-road-in", "beat": "a-mark-at-head-height" },
+    { "on": "beat", "brief": "episode-c1s1--the-errand", "beat": "the-mark-again" }
+  ],
+  "steps": [
+    { "do": "ambience", "mode": "add", "fade": 3000, "layers": [ { "track": "cicadas-174", "level": -14 } ] }
+  ]
+}
