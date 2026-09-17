@@ -12,6 +12,7 @@ import { SEATS } from "../core/console-model.mjs";
 import { actorForSeat, checkGroupsFor, rollCheck } from "./rolls.mjs";
 import { ringState } from "../core/day-ring.mjs";
 import { currentMoment, requestOffer, segmentContext } from "./campaign-state.mjs";
+import { sheetOverview } from "./sheet-data.mjs";
 
 export class PlayerBar extends CommandBar {
   static SEAT = SEATS.PLAYER;
@@ -29,6 +30,18 @@ export class PlayerBar extends CommandBar {
   /** @override */
   async _decorateZone(zone) {
     if (zone.hidden) return;
+
+    // Always-visible, not tucked behind the opt-in console window: the
+    // mimetic promise ("displays information about the player's character
+    // automatically") has to hold on the bar itself, not just in a panel a
+    // player has to remember to open. Genuinely a gap until this pass — see
+    // command-bar.mjs's own ZONE_PARTIALS comment on "personal" having no
+    // template.
+    if (zone.id === "ident") {
+      const actor = actorForSeat(PlayerBar.SEAT);
+      zone.overview = actor ? sheetOverview(actor) : null;
+      return;
+    }
 
     if (zone.id === "checks") {
       const actor = actorForSeat(PlayerBar.SEAT);

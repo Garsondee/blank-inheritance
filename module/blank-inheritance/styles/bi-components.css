@@ -16,6 +16,12 @@
      3. Chassis                  pods, the command bar, the macro bank
      4. The instrument           the HUD, tiered by Frame generation
      5. Application chrome       windows, sheets, chat cards, traits
+     9. The console window       the full mimetic sheet/dashboard, tabs
+                                 for Overview/Skills/Strikes/Spells/Gear/
+                                 Party/Hub/Log (numbered 9 to match its
+                                 actual position after §8 The terminal,
+                                 which this TOC predates and has not been
+                                 updated to include)
    ===================================================================== */
 
 /* =====================================================================
@@ -282,41 +288,55 @@
 .bi-key--anchor:hover .bi-key__glyph { color: var(--bi-resonance); }
 
 /* --- Rocker toggle switch -------------------------------------------- */
+/* Photoreal rocker toggle: a real 2-frame filmstrip (Noisehead/VST-Design
+   Kit 02, "Takeshy Retrofuture" — see CREDITS.md), frame 0 = off (dark
+   housing), frame 1 = on (a lit red ridge) — each frame is the COMPLETE
+   switch unit, not a track+cap composite, so the old two-element structure
+   (.bi-toggle + a separately-sliding .bi-toggle__cap) is gone: the whole
+   control is just the filmstrip window flipping between its two frames. */
 .bi-toggle {
   position: relative;
-  width: 42px;
-  height: 22px;
+  width: 47px;
+  height: 14.5px;
   flex: none;
   border: none;
   padding: 0;
   cursor: pointer;
-  border-radius: 4px;
-  background: linear-gradient(180deg, var(--bi-steel-900), var(--bi-steel-800));
-  box-shadow: var(--bi-bevel-down), 0 0 0 1px var(--bi-brass-shadow);
+  border-radius: 2px;
+  background-image: url("../assets/ui/filmstrips/switch-big.png");
+  background-repeat: no-repeat;
+  background-size: 47px 29px;
+  background-position-y: 0;
+  box-shadow: 0 0 0 1px var(--bi-brass-shadow), 0 2px 4px rgb(0 0 0 / 60%);
+  /* Same fix as .bi-sheet__hub-tile, applied preemptively: a 2-frame
+     photographed switch must SNAP, not slide, between its two real
+     positions -- see that rule's own comment for the inherited
+     `transition: all .5s` this is guarding against. */
+  transition: none;
 }
-.bi-toggle__cap {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 19px;
-  height: 18px;
-  border-radius: 3px;
-  background: var(--bi-mat-pod);
-  box-shadow: var(--bi-bevel-up), 0 2px 3px rgb(0 0 0 / 70%);
-  transition: transform var(--bi-dur-servo) var(--bi-ease-servo);
-}
-.bi-toggle[aria-pressed="true"] .bi-toggle__cap { transform: translateX(19px); }
 .bi-toggle[aria-pressed="true"] {
-  background: linear-gradient(180deg, var(--bi-phosphor-bed), #0a2418);
-  box-shadow: var(--bi-bevel-down), 0 0 0 1px var(--bi-brass), inset 0 0 8px rgb(111 227 154 / 28%);
+  background-position-y: -14.5px;
+  box-shadow: 0 0 0 1px var(--bi-brass), 0 0 8px rgb(209 64 42 / 45%);
 }
+/* A display-only reading (e.g. the Gear tab's equipped indicator) — real
+   state, just not yet a write action; see console-window.mjs's own note on
+   why that toggle isn't wired to actor.update() yet. */
+.bi-toggle--readonly { cursor: default; flex: none; }
 
-/* --- Rotary knob ------------------------------------------------------ */
+/* --- Rotary knob --------------------------------------------------------
+   Photoreal, not CSS-faked: a 128-frame filmstrip (Noisehead/VST-Design's
+   free "Analog Light" kit, see CREDITS.md), one frame per --frame value.
+   `--bi-knob-size` drives both the visible size and the background math in
+   one place, so resizing the knob never means retuning a second number —
+   the same "structural, not tuned" invariant --bi-dome-size already uses.
+   The brass ring is the physical MOUNT; the filmstrip photo is the round
+   window inset into it, clipped to a circle by the ring's own radius. */
 .bi-knob {
-  --angle: 0deg;
+  --bi-knob-size: 46px;
+  --frame: 64;
   position: relative;
-  width: 46px;
-  height: 46px;
+  width: var(--bi-knob-size);
+  height: var(--bi-knob-size);
   flex: none;
   border-radius: 50%;
   border: none;
@@ -330,27 +350,13 @@
 .bi-knob::before {
   content: "";
   position: absolute;
-  inset: 5px;
+  inset: 4px;
   border-radius: 50%;
-  background:
-    repeating-conic-gradient(from 0deg, var(--bi-steel-600) 0deg 4deg, var(--bi-steel-800) 4deg 8deg),
-    var(--bi-steel-700);
+  background-image: url("../assets/ui/filmstrips/knob-small.png");
+  background-repeat: no-repeat;
+  background-size: calc(var(--bi-knob-size) - 8px) calc((var(--bi-knob-size) - 8px) * 128);
+  background-position-y: calc(var(--frame) * (var(--bi-knob-size) - 8px) * -1);
   box-shadow: inset 0 2px 4px rgb(0 0 0 / 60%), inset 0 -1px 0 rgb(255 255 255 / 10%);
-}
-.bi-knob::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 7px;
-  width: 3px;
-  height: 15px;
-  margin-left: -1.5px;
-  border-radius: 2px;
-  background: var(--bi-amber);
-  box-shadow: 0 0 6px var(--bi-amber);
-  transform-origin: 50% 16px;
-  transform: rotate(var(--angle));
-  transition: transform var(--bi-dur-snap) linear;
 }
 
 /* --- Vertical fader --------------------------------------------------- */
@@ -6240,3 +6246,318 @@
 }
 .bi-scene-close__confirm:hover { background: var(--bi-brass); }
 .bi-scene-close__confirm:disabled { background: var(--bi-steel-600); color: var(--bi-bone-dim); cursor: not-allowed; }
+
+/* =====================================================================
+   9. THE CONSOLE WINDOW
+   ---------------------------------------------------------------------
+   The full mimetic sheet/dashboard — same .bi-terminal chrome §8 already
+   built for the phone, a second floating button beside it. Everything
+   inside .bi-terminal__main here is new: the Overview/Skills/Strikes/
+   Spells/Gear/Party/Hub/Log tabs, all under one .bi-sheet namespace.
+   ===================================================================== */
+
+.bi-console-window-standalone { display: contents; }
+
+.bi-console-btn {
+  position: fixed;
+  right: calc(max(16px, var(--bi-sidebar-gutter, 16px)) + 56px);
+  bottom: calc(var(--bi-bar-height) + 14px);
+  z-index: calc(var(--z-index-app) - 1);
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: var(--bi-mat-brass);
+  box-shadow: 0 0 0 1px var(--bi-brass-shadow), 0 3px 8px rgb(0 0 0 / 70%);
+  display: grid;
+  place-items: center;
+}
+.bi-console-btn::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, var(--bi-steel-600), var(--bi-steel-900));
+  box-shadow: inset 0 2px 4px rgb(0 0 0 / 80%);
+}
+.bi-console-btn__glyph {
+  position: relative;
+  z-index: 1;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--bi-phosphor);
+  text-shadow: 0 0 8px currentColor;
+}
+.bi-console-btn--director .bi-console-btn__glyph { color: var(--bi-amber); }
+.bi-console-btn:hover { transform: scale(1.06); }
+.bi-console-btn:active { transform: scale(0.96); }
+.bi-console-btn[aria-pressed="true"] .bi-console-btn__glyph { color: var(--bi-cyan); }
+.bi-console-btn[aria-pressed="true"]::before { box-shadow: inset 0 2px 4px rgb(0 0 0 / 80%), inset 0 0 0 1.5px var(--bi-cyan); }
+
+.bi-sheet { font-family: var(--bi-font-readout); }
+.bi-sheet__empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--bi-text-dim);
+  font-family: var(--bi-font-legend);
+  font-size: 12px;
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+}
+
+/* --- Overview ----------------------------------------------------------- */
+.bi-sheet__overview { display: flex; flex-direction: column; gap: 18px; padding: 18px; }
+
+.bi-sheet__identity { display: flex; align-items: center; gap: 14px; }
+.bi-sheet__identity-text { flex: 1; min-width: 0; }
+.bi-sheet__portrait {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 0 0 2px var(--bi-brass), 0 2px 6px rgb(0 0 0 / 60%);
+}
+.bi-sheet__name { margin: 0 0 4px; font-size: 20px; }
+.bi-sheet__identity-line { display: flex; gap: 10px; flex-wrap: wrap; margin: 0; color: var(--bi-text-dim); font-size: 11px; }
+.bi-sheet__identity-line span:not(:last-child)::after { content: "\00b7"; margin-left: 10px; opacity: 0.5; }
+
+.bi-sheet__vitals { display: flex; gap: 14px; flex-wrap: wrap; }
+.bi-sheet__hp {
+  flex: 1 1 220px;
+  min-width: 200px;
+  background: var(--bi-mat-pod);
+  border-radius: 8px;
+  padding: 12px 14px;
+  box-shadow: var(--bi-bevel-up);
+}
+.bi-sheet__hp-meter { margin-top: 8px; border-radius: 5px; }
+.bi-sheet__hp[data-tier="ok"] .bi-meter::after {
+  background: linear-gradient(90deg, var(--bi-phosphor), color-mix(in srgb, var(--bi-phosphor) 55%, black));
+  box-shadow: 0 0 7px var(--bi-phosphor);
+}
+.bi-sheet__hp[data-tier="hurt"] .bi-meter::after {
+  background: linear-gradient(90deg, var(--bi-amber), color-mix(in srgb, var(--bi-amber) 55%, black));
+  box-shadow: 0 0 7px var(--bi-amber);
+}
+.bi-sheet__hp[data-tier="critical"] .bi-meter::after,
+.bi-sheet__hp[data-tier="down"] .bi-meter::after {
+  background: linear-gradient(90deg, var(--bi-vermilion), color-mix(in srgb, var(--bi-vermilion) 55%, black));
+  box-shadow: 0 0 7px var(--bi-vermilion);
+}
+.bi-sheet__hp-value { display: block; margin-top: 6px; font-size: 13px; }
+.bi-sheet__hp-value em { color: var(--bi-phosphor); font-style: normal; }
+
+.bi-sheet__statblock { flex: 2 1 320px; display: flex; gap: 10px; }
+.bi-sheet__stat {
+  flex: 1;
+  background: var(--bi-mat-pod);
+  border-radius: 8px;
+  padding: 10px 12px;
+  text-align: center;
+  box-shadow: var(--bi-bevel-up);
+}
+.bi-sheet__stat .bi-readout--lg { display: block; margin-top: 4px; font-size: 22px; }
+.bi-sheet__stat .bi-readout--lg small { font-size: 11px; opacity: 0.7; margin-left: 1px; }
+.bi-sheet__substat { display: block; font-size: 9px; color: var(--bi-text-dim); margin-top: 2px; }
+
+.bi-sheet__abilities { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.bi-knob-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.bi-knob-cell .bi-legend { font-size: 10px; }
+
+.bi-sheet__saves { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.bi-sheet__save { background: var(--bi-mat-pod); border-radius: 8px; padding: 10px; text-align: center; box-shadow: var(--bi-bevel-up); }
+.bi-sheet__save .bi-readout--lg { display: block; font-size: 18px; margin: 4px 0; }
+.bi-sheet__dots { display: inline-flex; gap: 3px; }
+.bi-sheet__dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--bi-steel-700); box-shadow: inset 0 1px 2px rgb(0 0 0 / 60%); }
+.bi-sheet__dot--filled { background: var(--bi-brass-lit); box-shadow: 0 0 4px var(--bi-brass-lit); }
+
+.bi-sheet__resources { display: flex; gap: 14px; flex-wrap: wrap; }
+.bi-sheet__resource { flex: 1 1 140px; background: var(--bi-mat-pod); border-radius: 8px; padding: 10px 12px; box-shadow: var(--bi-bevel-up); }
+.bi-sheet__resource .bi-meter { margin-top: 6px; }
+
+.bi-sheet__conditions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 4px;
+  align-items: center;
+  padding: 10px 16px;
+  background: var(--bi-mat-pod);
+  border-radius: 8px;
+}
+.bi-sheet__condition-label { font-size: 11px; color: var(--bi-text-dim); margin-right: 10px; }
+
+/* --- Skills --------------------------------------------------------------- */
+.bi-sheet__skills { display: flex; flex-direction: column; gap: 14px; padding: 18px; }
+.bi-sheet__skill-rows { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; }
+.bi-sheet__skill-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--bi-text);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--bi-font-readout);
+}
+.bi-sheet__skill-row:hover { background: var(--bi-surface-raised); }
+.bi-sheet__skill-row:active { background: var(--bi-steel-700); }
+.bi-sheet__skill-name { flex: 1; font-size: 12px; }
+.bi-sheet__skill-name small { opacity: 0.6; font-size: 9px; }
+.bi-sheet__skill-mod { min-width: 32px; text-align: right; font-size: 13px; }
+
+/* --- Strikes -------------------------------------------------------------- */
+.bi-sheet__strikes { display: flex; flex-direction: column; gap: 10px; padding: 18px; }
+.bi-sheet__strike { background: var(--bi-mat-pod); border-radius: 8px; padding: 10px 12px; box-shadow: var(--bi-bevel-up); }
+.bi-sheet__strike--unready { opacity: 0.5; }
+.bi-sheet__strike-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.bi-sheet__strike-name { font-family: var(--bi-font-legend); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
+.bi-sheet__trait {
+  font-size: 8px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--bi-steel-700);
+  color: var(--bi-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.bi-sheet__strike-variants { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* --- Spells --------------------------------------------------------------- */
+.bi-sheet__spells { display: flex; flex-direction: column; gap: 16px; padding: 18px; }
+.bi-sheet__spell-entry + .bi-sheet__spell-entry { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--bi-brass-shadow); }
+.bi-sheet__spell-entry-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.bi-sheet__spell-group { margin-top: 8px; }
+.bi-sheet__spell-rows { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.bi-sheet__spell-row {
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  background: var(--bi-mat-pod);
+  color: var(--bi-text);
+  font-size: 11px;
+  cursor: pointer;
+  box-shadow: var(--bi-bevel-up);
+}
+.bi-sheet__spell-row:hover { background: var(--bi-surface-raised); }
+.bi-sheet__spell-row--expended { opacity: 0.4; cursor: not-allowed; text-decoration: line-through; }
+
+/* --- Gear ------------------------------------------------------------------ */
+.bi-sheet__gear { display: flex; flex-direction: column; gap: 14px; padding: 18px; }
+.bi-sheet__credits {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--bi-mat-brass);
+  border-radius: 8px;
+  color: var(--bi-void);
+}
+.bi-sheet__credits .bi-readout--lg { color: var(--bi-void); }
+.bi-sheet__item-rows { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; }
+.bi-sheet__item-row { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 4px; }
+.bi-sheet__item-row--equipped { background: rgb(111 227 154 / 8%); }
+.bi-sheet__feats { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+.bi-sheet__item-name { flex: 1; font-size: 12px; }
+.bi-sheet__item-bulk { font-size: 9px; color: var(--bi-text-dim); }
+
+/* --- Party (Director only) -------------------------------------------------- */
+.bi-sheet__party { display: flex; flex-direction: column; gap: 6px; padding: 18px; }
+.bi-sheet__party-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--bi-mat-pod);
+  cursor: pointer;
+  box-shadow: var(--bi-bevel-up);
+}
+.bi-sheet__party-row:hover { background: var(--bi-surface-raised); }
+.bi-sheet__party-row[data-tier="hurt"] { box-shadow: var(--bi-bevel-up), 0 0 0 1px var(--bi-amber); }
+.bi-sheet__party-row[data-tier="critical"] { box-shadow: var(--bi-bevel-up), 0 0 0 1px var(--bi-vermilion); }
+.bi-sheet__party-row[data-tier="down"] { box-shadow: var(--bi-bevel-up), 0 0 0 1px var(--bi-vermilion); background: rgb(209 64 42 / 12%); }
+.bi-sheet__party-portrait { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; flex: none; }
+.bi-sheet__party-name { flex: 0 0 130px; font-size: 12px; text-align: left; }
+.bi-sheet__party-hp { flex: 1; height: 6px; margin-top: 0; }
+/* Found live 2026-09-17: the row got a red border at low HP but the meter
+   FILL stayed the default green regardless of tier -- the actual bar, the
+   thing a GM scans first, never told the same story as its own border. */
+.bi-sheet__party-row[data-tier="hurt"] .bi-sheet__party-hp::after {
+  background: linear-gradient(90deg, var(--bi-amber), color-mix(in srgb, var(--bi-amber) 55%, black));
+  box-shadow: 0 0 7px var(--bi-amber);
+}
+.bi-sheet__party-row[data-tier="critical"] .bi-sheet__party-hp::after,
+.bi-sheet__party-row[data-tier="down"] .bi-sheet__party-hp::after {
+  background: linear-gradient(90deg, var(--bi-vermilion), color-mix(in srgb, var(--bi-vermilion) 55%, black));
+  box-shadow: 0 0 7px var(--bi-vermilion);
+}
+.bi-sheet__party-hp-value { font-size: 10px; min-width: 54px; flex: none; }
+
+/* --- Hub (Director only) — real launcher tiles onto the already-real panels - */
+.bi-sheet__hub { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; padding: 18px; }
+.bi-sheet__hub-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 72px;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  color: var(--bi-bone-dim);
+  background-image: url("../assets/ui/filmstrips/button-big.png");
+  background-repeat: no-repeat;
+  background-size: 100% 200%;
+  background-position: center 0%;
+  /* A real 2-frame photographed button (lit/unlit) must SNAP between
+     states, not slide -- found live 2026-09-17: Foundry's own base button
+     rule sets `transition: all .5s` on every <button>, which this element
+     inherited by default, so hovering animated the background-position
+     over half a second instead of switching instantly. */
+  transition: none;
+  font-family: var(--bi-font-legend);
+  font-size: 10px;
+  letter-spacing: var(--bi-legend-tracking);
+  text-transform: uppercase;
+}
+.bi-sheet__hub-tile:hover, .bi-sheet__hub-tile:focus-visible { background-position: center 100%; color: var(--bi-bone); }
+.bi-sheet__hub-glyph { font-size: 22px; }
+
+/* --- Log (Director only) -- reuses the bar's own .bi-log__* vocabulary ----- */
+.bi-sheet__log-list { padding: 12px; max-height: 100%; overflow-y: auto; }
+
+/* --- The bar's own always-on identity strip (zone-personal.hbs) --------- */
+.bi-ident-strip { display: flex; align-items: center; gap: 10px; padding: 4px 2px; }
+.bi-ident-strip__portrait {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex: none;
+  box-shadow: 0 0 0 1.5px var(--bi-brass), 0 2px 4px rgb(0 0 0 / 60%);
+}
+.bi-ident-strip__body { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.bi-ident-strip__name { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bi-ident-strip__hp { width: 110px; }
+.bi-ident-strip__hp[data-tier="ok"]::after {
+  background: linear-gradient(90deg, var(--bi-phosphor), color-mix(in srgb, var(--bi-phosphor) 55%, black));
+  box-shadow: 0 0 7px var(--bi-phosphor);
+}
+.bi-ident-strip__hp[data-tier="hurt"]::after {
+  background: linear-gradient(90deg, var(--bi-amber), color-mix(in srgb, var(--bi-amber) 55%, black));
+  box-shadow: 0 0 7px var(--bi-amber);
+}
+.bi-ident-strip__hp[data-tier="critical"]::after,
+.bi-ident-strip__hp[data-tier="down"]::after {
+  background: linear-gradient(90deg, var(--bi-vermilion), color-mix(in srgb, var(--bi-vermilion) 55%, black));
+  box-shadow: 0 0 7px var(--bi-vermilion);
+}
+.bi-ident-strip__stats { font-size: 9px; color: var(--bi-text-dim); white-space: nowrap; }

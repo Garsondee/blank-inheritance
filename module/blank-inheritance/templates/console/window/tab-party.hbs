@@ -1,0 +1,18 @@
+<div class="bi-sheet__party">
+{{#if rows.length}}
+    {{#each rows}}
+    <button type="button" class="bi-sheet__party-row" data-tier="{{this.hp.tier}}" data-action="selectPartyRow" data-actor-id="{{this.id}}">
+        {{#if this.img}}<img class="bi-sheet__party-portrait" src="{{this.img}}" alt="">{{/if}}
+        <span class="bi-sheet__party-name">{{this.name}}</span>
+        <div class="bi-meter bi-sheet__party-hp" style="--v:{{this.hp.pct}}"></div>
+        <span class="bi-readout bi-sheet__party-hp-value">{{this.hp.value}}/{{this.hp.max}}</span>
+        <span class="bi-readout">{{localize "BLANKINHERITANCE.Console.Window.AC"}} {{this.ac}}</span>
+        {{#each this.conditions}}
+        <span class="bi-lamp bi-lamp--lit bi-lamp--red" data-tooltip="{{this.label}}"></span>
+        {{/each}}
+    </button>
+    {{/each}}
+{{else}}
+    <p class="bi-sheet__empty">{{localize "BLANKINHERITANCE.Console.Window.NoParty"}}</p>
+{{/if}}
+</div>

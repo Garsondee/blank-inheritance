@@ -14,7 +14,8 @@ import {
   CONSOLE_SHOWS_DIALOG_BY_DEFAULT,
   enricherFor,
   isRelevantEvent,
-  rollParamsFromEvent
+  rollParamsFromEvent,
+  strikeEventShiftKeyFor
 } from "../module/blank-inheritance/scripts/core/roll-intent.mjs";
 
 /** A click event carries all three modifier flags; that is sf2e's own test. */
@@ -125,4 +126,48 @@ test("wired through rollParamsFromEvent: a plain console click skips the dialog,
   const opts = { showCheckDialogs: CONSOLE_SHOWS_DIALOG_BY_DEFAULT };
   assert.deepEqual(rollParamsFromEvent(click(), opts), { skipDialog: true });
   assert.deepEqual(rollParamsFromEvent(click({ shift: true }), opts), { skipDialog: false });
+});
+
+/* ---------------------------------------------------------------- */
+/*  Strikes: the one lever sf2e leaves for skipping their dialog     */
+/* ---------------------------------------------------------------- */
+
+/**
+ * sf2e's own formula (gamesystems/sf2e/sf2e.mjs, `Check.roll`'s
+ * `eventToRollParams` call), reproduced here so this test proves
+ * `strikeEventShiftKeyFor` actually round-trips through the real thing
+ * rather than just agreeing with itself.
+ */
+function sf2eOwnSkipDialog(shiftKey, realShowCheckDialogs) {
+  const r = !realShowCheckDialogs;
+  return shiftKey ? !r : r;
+}
+
+test("strikeEventShiftKeyFor round-trips: feeding its shiftKey back through sf2e's real formula always yields the desired skipDialog, at every combination", () => {
+  for (const desired of [true, false]) {
+    for (const realSetting of [true, false]) {
+      const shiftKey = strikeEventShiftKeyFor(desired, realSetting);
+      assert.equal(
+        sf2eOwnSkipDialog(shiftKey, realSetting),
+        desired,
+        `desired=${desired} realShowCheckDialogs=${realSetting} -> shiftKey=${shiftKey} did not land on the desired outcome`
+      );
+    }
+  }
+});
+
+test("strikeEventShiftKeyFor needs no shiftKey trick when the real setting already agrees", () => {
+  // showCheckDialogs:true (sf2e's real default) -> baseline (shiftKey:false) already skips nothing;
+  // wanting skipDialog:false needs no override.
+  assert.equal(strikeEventShiftKeyFor(false, true), false);
+  // showCheckDialogs:false -> baseline already skips; wanting skipDialog:true needs no override either.
+  assert.equal(strikeEventShiftKeyFor(true, false), false);
+});
+
+test("strikeEventShiftKeyFor forces shiftKey:true exactly when the desired outcome fights the real setting — this is the actual bug found live", () => {
+  // The console's own default is skipDialog:true (CONSOLE_SHOWS_DIALOG_BY_DEFAULT),
+  // but sf2e's real per-user default is showCheckDialogs:true, whose baseline
+  // (a shiftKey:false event) computes skipDialog:false — the exact mismatch
+  // that left every strike click hanging on an unanswered dialog.
+  assert.equal(strikeEventShiftKeyFor(true, true), true);
 });

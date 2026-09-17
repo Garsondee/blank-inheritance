@@ -1,0 +1,84 @@
+<div class="bi-sheet__overview">
+{{#unless overview}}
+    <p class="bi-sheet__empty">{{localize "BLANKINHERITANCE.Console.Window.NoActor"}}</p>
+{{else}}
+    <header class="bi-sheet__identity">
+        {{#if overview.identity.img}}<img class="bi-sheet__portrait" src="{{overview.identity.img}}" alt="">{{/if}}
+        <div class="bi-sheet__identity-text">
+            <h2 class="bi-legend bi-sheet__name">{{overview.identity.name}}</h2>
+            <p class="bi-readout bi-sheet__identity-line">
+                {{#if overview.identity.level}}<span>{{localize "BLANKINHERITANCE.Console.Window.Level"}} {{overview.identity.level}}</span>{{/if}}
+                {{#if overview.identity.ancestryName}}<span>{{overview.identity.ancestryName}}</span>{{/if}}
+                {{#if overview.identity.className}}<span>{{overview.identity.className}}</span>{{/if}}
+                {{#if overview.identity.backgroundName}}<span>{{overview.identity.backgroundName}}</span>{{/if}}
+            </p>
+        </div>
+    </header>
+
+    <div class="bi-sheet__vitals">
+        <div class="bi-sheet__hp" data-tier="{{overview.hp.tier}}">
+            <span class="bi-legend">{{localize "BLANKINHERITANCE.Console.Window.HP"}}</span>
+            <div class="bi-meter bi-meter--tall bi-sheet__hp-meter" style="--v:{{overview.hp.pct}}"></div>
+            <span class="bi-readout bi-sheet__hp-value">{{overview.hp.value}} / {{overview.hp.max}}{{#if overview.hp.temp}} <em>+{{overview.hp.temp}}</em>{{/if}}</span>
+        </div>
+        <div class="bi-sheet__statblock">
+            <div class="bi-sheet__stat">
+                <span class="bi-legend">{{localize "BLANKINHERITANCE.Console.Window.AC"}}</span>
+                <span class="bi-readout bi-readout--lg">{{overview.defenses.ac.value}}</span>
+            </div>
+            <div class="bi-sheet__stat">
+                <span class="bi-legend">{{localize "BLANKINHERITANCE.Console.Window.Perception"}}</span>
+                <span class="bi-readout bi-readout--lg">{{overview.defenses.perception.valueLabel}}</span>
+            </div>
+            <div class="bi-sheet__stat">
+                <span class="bi-legend">{{localize "BLANKINHERITANCE.Console.Window.Speed"}}</span>
+                <span class="bi-readout bi-readout--lg">{{overview.defenses.speed.value}}<small>ft</small></span>
+                {{#each overview.defenses.speed.otherSpeeds}}
+                <span class="bi-sheet__substat">{{this.label}} {{this.value}}ft</span>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+
+    <div class="bi-sheet__abilities">
+        {{#each overview.abilities}}
+        <div class="bi-knob-cell">
+            <div class="bi-knob" style="--frame:{{this.frame}}" data-ability="{{this.key}}"></div>
+            <span class="bi-legend">{{this.label}}</span>
+            <span class="bi-readout">{{this.modLabel}}</span>
+        </div>
+        {{/each}}
+    </div>
+
+    <div class="bi-sheet__saves">
+        {{#each overview.saves}}
+        <div class="bi-sheet__save">
+            <span class="bi-legend">{{this.label}}</span>
+            <span class="bi-readout bi-readout--lg">{{this.valueLabel}}</span>
+            <span class="bi-sheet__dots">{{#each this.dots}}<i class="bi-sheet__dot{{#if this}} bi-sheet__dot--filled{{/if}}"></i>{{/each}}</span>
+        </div>
+        {{/each}}
+    </div>
+
+    {{#if overview.resources.length}}
+    <div class="bi-sheet__resources">
+        {{#each overview.resources}}
+        <div class="bi-sheet__resource">
+            <span class="bi-legend">{{localize this.labelKey}}</span>
+            <div class="bi-meter" style="--v:{{this.pct}}"></div>
+            <span class="bi-readout">{{this.value}} / {{this.max}}</span>
+        </div>
+        {{/each}}
+    </div>
+    {{/if}}
+
+    {{#if overview.conditions.length}}
+    <div class="bi-sheet__conditions">
+        {{#each overview.conditions}}
+        <span class="bi-lamp bi-lamp--lit bi-lamp--red" data-tooltip="{{this.label}}"></span>
+        <span class="bi-sheet__condition-label">{{this.label}}{{#if this.value}} {{this.value}}{{/if}}</span>
+        {{/each}}
+    </div>
+    {{/if}}
+{{/unless}}
+</div>

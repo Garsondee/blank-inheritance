@@ -1,0 +1,35 @@
+<div class="bi-sheet__spells">
+{{#if actor}}
+    {{#if hasSpells}}
+    {{#each blocks}}
+    <div class="bi-sheet__spell-entry">
+        <div class="bi-sheet__spell-entry-head">
+            <span class="bi-legend">{{this.name}}</span>
+            {{#if this.dc}}<span class="bi-readout">{{localize "BLANKINHERITANCE.Console.Window.SpellDC"}} {{this.dc}}</span>{{/if}}
+        </div>
+        {{#each this.groups}}
+        <div class="bi-bank bi-sheet__spell-group">
+            <div class="bi-bank__label">
+                {{this.label}}
+                {{#if this.uses}}<span class="bi-readout">{{this.uses.value}}/{{this.uses.max}}</span>{{/if}}
+            </div>
+            <div class="bi-sheet__spell-rows">
+                {{#each this.spells}}
+                <button type="button" class="bi-sheet__spell-row{{#if this.expended}} bi-sheet__spell-row--expended{{/if}}"
+                    data-action="castSpell" data-entry-index="{{this.entryIndex}}" data-spell-index="{{this.spellIndex}}" data-group-id="{{../this.id}}"
+                    {{#if this.expended}}disabled{{/if}}>
+                    {{this.name}}
+                </button>
+                {{/each}}
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    {{/each}}
+    {{else}}
+    <p class="bi-sheet__empty">{{localize "BLANKINHERITANCE.Console.Window.NoSpells"}}</p>
+    {{/if}}
+{{else}}
+    <p class="bi-sheet__empty">{{localize "BLANKINHERITANCE.Console.Window.NoActor"}}</p>
+{{/if}}
+</div>

@@ -85,6 +85,47 @@
         "Budget": "{remaining} of {total} slices left",
         "NoOffers": "Nothing on offer this quarter.",
         "Occupied": "Spoken for"
+      },
+      "Sheet": {
+        "HeroPoints": "Hero Points",
+        "Focus": "Focus",
+        "Investiture": "Investiture"
+      },
+      "Window": {
+        "PlayerTitle": "Personnel Dossier",
+        "DirectorTitle": "Command Console",
+        "Close": "Close",
+        "NoActor": "No character assigned yet.",
+        "NoParty": "No one has been added to the party roster yet.",
+        "NoStrikes": "No strikes available.",
+        "NoSpells": "This character has no spellcasting.",
+        "Level": "Level",
+        "HP": "HP",
+        "AC": "AC",
+        "Perception": "Perception",
+        "Speed": "Speed",
+        "Credits": "Credits",
+        "SpellDC": "DC",
+        "Lore": "Lore",
+        "Equipped": "Equipped",
+        "ClickToRoll": "Click to roll",
+        "Tab": {
+          "Overview": "Overview",
+          "Skills": "Skills",
+          "Strikes": "Strikes",
+          "Spells": "Spells",
+          "Gear": "Gear",
+          "Party": "Party",
+          "Hub": "Hub",
+          "Log": "Log"
+        },
+        "Hub": {
+          "DirectorPanel": "Director's Panel",
+          "SceneRunner": "Scene Runner",
+          "Equipment": "Equipment Locker",
+          "SceneClose": "Scene Close",
+          "Induction": "Induction Terminal"
+        }
       }
     },
     "Equipment": {

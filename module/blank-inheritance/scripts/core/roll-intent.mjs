@@ -77,6 +77,30 @@ export function rollParamsFromEvent(event, { showCheckDialogs = true, isGM = fal
 }
 
 /**
+ * The one lever left for skipping a STRIKE's own roll dialog.
+ *
+ * Found live 2026-09-17: unlike `Statistic#roll`, a strike variant's own
+ * `roll({event, ...})` wrapper builds a fresh options object for the
+ * underlying `Check.roll` call and never forwards a caller's `skipDialog`
+ * into it — passing `{event, skipDialog: true}` is silently ignored, and a
+ * console button calling it that way just opens an unanswered dialog.
+ * `Check.roll` DOES still read the event, but only to re-derive
+ * `skipDialog` itself via this same `eventToRollParams`-shaped formula
+ * (`skipDialog = event.shiftKey ? !r : r`, `r = !game.user.settings.showCheckDialogs`)
+ * — using the REAL live user setting, not this console's own
+ * CONSOLE_SHOWS_DIALOG_BY_DEFAULT. So the only way left to force a
+ * particular outcome is choosing the right `shiftKey` for a synthetic
+ * event, solved for here rather than left for a caller to re-derive badly:
+ * given the formula above, `shiftKey = (baselineSkip !== desiredSkipDialog)`
+ * makes `skipDialog` land on `desiredSkipDialog` regardless of what the
+ * real setting currently is.
+ */
+export function strikeEventShiftKeyFor(desiredSkipDialog, realShowCheckDialogs) {
+  const baselineSkip = !realShowCheckDialogs;
+  return baselineSkip !== desiredSkipDialog;
+}
+
+/**
  * The fallback path: an `@Check[...]` enricher string to post as a message.
  *
  * Kept because the direct `Statistic#roll` call reaches into a bundled system

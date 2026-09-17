@@ -1,0 +1,46 @@
+<div class="bi-sheet__gear">
+{{#unless actor}}
+    <p class="bi-sheet__empty">{{localize "BLANKINHERITANCE.Console.Window.NoActor"}}</p>
+{{else}}
+    <div class="bi-sheet__credits">
+        <span class="bi-legend">{{localize "BLANKINHERITANCE.Console.Window.Credits"}}</span>
+        <span class="bi-readout bi-readout--lg">{{credits}}</span>
+    </div>
+
+    {{#each inventory}}
+    <div class="bi-bank">
+        <div class="bi-bank__label">{{this.label}}</div>
+        <div class="bi-sheet__item-rows">
+            {{#each this.items}}
+            <div class="bi-sheet__item-row{{#if this.equipped}} bi-sheet__item-row--equipped{{/if}}">
+                {{#if this.showEquipped}}
+                <span class="bi-toggle bi-toggle--readonly" aria-pressed="{{this.equipped}}" data-tooltip="{{localize 'BLANKINHERITANCE.Console.Window.Equipped'}}"></span>
+                {{/if}}
+                <span class="bi-sheet__item-name">{{this.name}}</span>
+                {{#if this.showQuantity}}<span class="bi-readout">&times;{{this.quantity}}</span>{{/if}}
+                {{#if this.bulk}}<span class="bi-sheet__item-bulk">{{this.bulk}} bulk</span>{{/if}}
+            </div>
+            {{/each}}
+        </div>
+    </div>
+    {{/each}}
+
+    {{#if feats.length}}
+    <div class="bi-sheet__feats">
+        {{#each feats}}
+        <div class="bi-bank">
+            <div class="bi-bank__label">{{this.label}}</div>
+            <div class="bi-sheet__item-rows">
+                {{#each this.items}}
+                <div class="bi-sheet__item-row">
+                    <span class="bi-sheet__item-name">{{this.name}}</span>
+                    {{#each this.traits}}<span class="bi-sheet__trait">{{this}}</span>{{/each}}
+                </div>
+                {{/each}}
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    {{/if}}
+{{/unless}}
+</div>

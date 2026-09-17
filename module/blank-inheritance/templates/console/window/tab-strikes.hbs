@@ -1,0 +1,25 @@
+<div class="bi-sheet__strikes">
+{{#unless actor}}
+    <p class="bi-sheet__empty">{{localize "BLANKINHERITANCE.Console.Window.NoActor"}}</p>
+{{else}}
+    {{#if strikes.length}}
+    {{#each strikes}}
+    <div class="bi-sheet__strike{{#unless this.ready}} bi-sheet__strike--unready{{/unless}}">
+        <div class="bi-sheet__strike-head">
+            <span class="bi-sheet__strike-name">{{this.label}}</span>
+            {{#each this.traits}}<span class="bi-sheet__trait">{{this}}</span>{{/each}}
+        </div>
+        <div class="bi-sheet__strike-variants">
+            {{#each this.variants}}
+            <button type="button" class="bi-key" data-action="rollStrike" data-action-index="{{../actionIndex}}" data-variant-index="{{this.variantIndex}}">
+                {{this.label}}
+            </button>
+            {{/each}}
+        </div>
+    </div>
+    {{/each}}
+    {{else}}
+    <p class="bi-legend">{{localize "BLANKINHERITANCE.Console.Window.NoStrikes"}}</p>
+    {{/if}}
+{{/unless}}
+</div>

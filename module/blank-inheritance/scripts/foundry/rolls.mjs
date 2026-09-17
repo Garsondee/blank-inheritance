@@ -19,7 +19,7 @@
 
 import { SEATS } from "../core/console-model.mjs";
 import { buildCheckGroups, labelForSlug } from "../core/skills.mjs";
-import { CONSOLE_SHOWS_DIALOG_BY_DEFAULT, enricherFor, rollParamsFromEvent } from "../core/roll-intent.mjs";
+import { CONSOLE_SHOWS_DIALOG_BY_DEFAULT, enricherFor, rollParamsFromEvent, strikeEventShiftKeyFor } from "../core/roll-intent.mjs";
 
 /**
  * The character this client rolls as.
@@ -139,4 +139,69 @@ export async function rollCheck({ actor, slug, event = null }) {
   });
 
   return statistic.roll(params);
+}
+
+/**
+ * Roll one strike variant through the sheet's own code path.
+ *
+ * A real dead end, found live 2026-09-17 (an automated call to this
+ * function with a bare `{event}` never resolved — a chat message never
+ * appeared, and a `roll-modifiers-dialog` titled "Melee Strike: …" was
+ * sitting open in the DOM): unlike `Statistic#roll`, a strike variant's own
+ * `roll({event, ...})` wrapper (gamesystems/sf2e/sf2e.mjs, the character
+ * strike closure around "attack-roll") builds its OWN fresh options object
+ * for the underlying `Check.roll(check, options, event, callback)` call and
+ * does **not** forward a caller's `skipDialog` into it at all — passing
+ * `{event, skipDialog: true}` here is silently ignored; confirmed by
+ * calling sf2e's own `variant.roll({skipDialog:true, event:null})` directly
+ * from the console and watching the dialog open anyway.
+ *
+ * `Check.roll` DOES read the event, but only for its own
+ * `eventToRollParams(event, {type:"check"})` call — see
+ * core/roll-intent.mjs's `strikeEventShiftKeyFor` for the formula this
+ * solves against and why. Verified nothing else in Check.roll's body reads
+ * the event — its only other use of the same identifier is a shadowed
+ * local inside an unrelated inner closure, not the outer parameter — so a
+ * plain `{shiftKey, ctrlKey, metaKey}` object is safe to substitute for a
+ * real DOM event here.
+ *
+ * actionIndex/variantIndex are the stable pair core/sheet-model.mjs's
+ * strikeRows() attaches to every button, so a click never has to carry a
+ * slug back through the template.
+ */
+export function rollStrike({ actor, actionIndex, variantIndex, event = null }) {
+  const target = actor ?? consoleActor();
+  const variant = target?.system?.actions?.[actionIndex]?.variants?.[variantIndex];
+  if (!variant) {
+    ui.notifications?.warn(game.i18n.localize("BLANKINHERITANCE.Console.Checks.NoCharacter"));
+    return null;
+  }
+  const params = rollParamsFromEvent(event, {
+    showCheckDialogs: CONSOLE_SHOWS_DIALOG_BY_DEFAULT,
+    isGM: game.user?.isGM ?? false
+  });
+  const syntheticEvent = {
+    shiftKey: strikeEventShiftKeyFor(params.skipDialog, !!game.user?.settings?.showCheckDialogs),
+    ctrlKey: event?.ctrlKey ?? false,
+    metaKey: event?.metaKey ?? false
+  };
+  return variant.roll({ event: syntheticEvent });
+}
+
+/**
+ * Cast one spell through its own casting entry — `entry.cast(spell, {message: true})`,
+ * the same method the sheet's own spellbook calls (verified live against
+ * `gamesystems/sf2e/sf2e.mjs`'s SpellcastingEntry#cast). This spends the
+ * real slot and posts the real chat card; nothing about slot bookkeeping is
+ * reimplemented here.
+ */
+export async function castSpell({ actor, entryIndex, spellIndex, groupId }) {
+  const target = actor ?? consoleActor();
+  const entry = target?.spellcasting?.contents?.[entryIndex];
+  if (!entry) return null;
+  const sheetData = await entry.getSheetData();
+  const group = sheetData.groups?.find((g) => g.id === groupId);
+  const spell = group?.active?.filter(Boolean)?.[spellIndex]?.spell;
+  if (!spell) return null;
+  return entry.cast(spell, { message: true });
 }

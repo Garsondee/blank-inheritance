@@ -1,0 +1,13 @@
+<ul class="bi-log__recent bi-sheet__log-list">
+    {{#if entries.length}}
+    {{#each entries}}
+    <li class="bi-log__entry">
+        <span class="bi-phone__log-time">{{this.time}}</span>
+        {{#if this.tag}}<span class="bi-log__tag">{{this.tag}}</span>{{/if}}
+        <span class="bi-log__text">{{this.text}}</span>
+    </li>
+    {{/each}}
+    {{else}}
+    <li class="bi-log__entry bi-log__entry--empty">{{localize "BLANKINHERITANCE.Phone.SessionLog.Empty"}}</li>
+    {{/if}}
+</ul>

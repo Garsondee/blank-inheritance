@@ -32,7 +32,8 @@ const ZONE_PARTIALS = Object.freeze({
   board: `${TEMPLATE_ROOT}/zone-cast.hbs`,
   bar: `${TEMPLATE_ROOT}/zone-log.hbs`,
   "day-ring": `${TEMPLATE_ROOT}/zone-dome.hbs`,
-  schedule: `${TEMPLATE_ROOT}/zone-segment.hbs`
+  schedule: `${TEMPLATE_ROOT}/zone-segment.hbs`,
+  personal: `${TEMPLATE_ROOT}/zone-personal.hbs`
 });
 
 /**

@@ -59,6 +59,7 @@ import {
 } from "./foundry/equipment-state.mjs";
 import { openEquipmentPanel, refreshEquipmentPanel } from "./foundry/equipment-panel.mjs";
 import { mountPhone } from "./foundry/phone.mjs";
+import { mountConsoleWindow, refreshConsoleWindow } from "./foundry/console-window.mjs";
 import { createDirectorPanelMacroIfMissing, openDirectorPanel, refreshDirectorPanel } from "./foundry/director-panel.mjs";
 import { registerSceneCloseSettings, openSceneCloseDialogue } from "./foundry/scene-close.mjs";
 import { registerChatExportHooks } from "./foundry/chat-export.mjs";
@@ -254,6 +255,16 @@ Hooks.once("ready", async () => {
     console.error("Blank Inheritance | Could not mount the phone:", err);
   }
 
+  // The Console -- the full mimetic sheet/dashboard. Every client, same
+  // toggleable-panel shape as the phone; foundry/console-window.mjs's own
+  // seat check picks Overview/Skills/Strikes/Spells/Gear for everyone plus
+  // Party/Hub/Log for a GM, so there is nothing to branch on here.
+  try {
+    mountConsoleWindow();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not mount the console:", err);
+  }
+
   // A characterless Player is a real player who hasn't finished session
   // zero yet -- the whole point of the terminal. Found live 2026-09-16,
   // running a full walkthrough as a genuine new player: without this,
@@ -309,6 +320,12 @@ Hooks.on("canvasReady", () => {
     mountPhone();
   } catch (err) {
     console.error("Blank Inheritance | Could not re-assert the phone:", err);
+  }
+
+  try {
+    mountConsoleWindow();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not re-assert the console:", err);
   }
 
   // The stage, and the camera lock that makes a staged scene a picture rather
@@ -393,7 +410,27 @@ Hooks.on("updateScene", (scene, changed) => {
 Hooks.on("controlToken", () => {
   if (!game.user?.isGM) return;
   refreshCommandBar(["right"]);
+  // The console's own sheet tabs read the same actorForSeat(DIRECTOR)
+  // selection-or-fallback, so a GM's console needs the same nudge -- it is
+  // a full render (no parts), same cost as any other console.js-side
+  // refresh, since the console's own tab set is small.
+  refreshConsoleWindow();
 });
+
+// The bar's ident strip and every console sheet tab read the live actor
+// fresh on every render (never cached), so the correct fix for "something
+// on the sheet changed" is just "render again" -- no diffing needed. This
+// fires far more often than strictly necessary (any actor's HP anywhere
+// re-renders every client's console even though only one seat's sheet
+// could possibly be showing that actor), but both renders are cheap and a
+// missed refresh reads as a stale, wrong number on a console whose whole
+// point is Law 1 -- the safer failure direction is "renders once too often".
+for (const hook of ["updateActor", "createItem", "updateItem", "deleteItem"]) {
+  Hooks.on(hook, () => {
+    refreshCommandBar(["left", "right"]);
+    refreshConsoleWindow();
+  });
+}
 
 // A player's own character gets assigned well after the bar first mounts --
 // the induction terminal self-assigns user.character once creation
@@ -406,6 +443,7 @@ Hooks.on("controlToken", () => {
 Hooks.on("updateUser", (user, changes) => {
   if (user.id !== game.user.id || !("character" in changes)) return;
   refreshCommandBar();
+  refreshConsoleWindow();
 });
 
 // The mode is derived from combat state rather than stored, so these are

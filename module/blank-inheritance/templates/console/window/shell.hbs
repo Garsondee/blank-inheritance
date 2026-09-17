@@ -1,0 +1,37 @@
+{{!--
+    The Console — button + panel are one mounted chassis, same discipline as
+    templates/console/phone.hbs's own header comment: a re-render can never
+    leave the toggle and the panel disagreeing about open/closed.
+--}}
+<div class="bi-console-window-standalone">
+    <button type="button" class="bi-console-btn{{#if isGM}} bi-console-btn--director{{/if}}" data-action="toggle"
+        aria-pressed="{{open}}" aria-label="{{localize titleKey}}" data-tooltip="{{localize titleKey}}">
+        <i class="fa-solid {{#if isGM}}fa-satellite-dish{{else}}fa-id-card-clip{{/if}} bi-console-btn__glyph"></i>
+    </button>
+
+    <div class="bi-terminal{{#if open}} bi-terminal--open{{/if}}">
+        <div class="bi-terminal__frame">
+            <div class="bi-terminal__titlebar">
+                <span class="bi-terminal__title-glyph"><i class="fa-solid {{#if isGM}}fa-satellite-dish{{else}}fa-id-card-clip{{/if}}"></i></span>
+                <span class="bi-terminal__title">{{localize titleKey}}</span>
+                <span class="bi-terminal__spacer"></span>
+                <button type="button" class="bi-terminal__close" data-action="toggle" aria-label="{{localize 'BLANKINHERITANCE.Console.Window.Close'}}">&times;</button>
+            </div>
+            <div class="bi-terminal__body">
+                <nav class="bi-terminal__nav">
+                    {{#each tabs}}
+                    <button type="button" class="bi-terminal__navbtn" data-action="switchTab" data-tab-id="{{this.id}}" aria-pressed="{{this.current}}">
+                        <span class="bi-terminal__navbtn-glyph"><i class="{{this.faIcon}}"></i></span>
+                        <span>{{localize this.labelKey}}</span>
+                    </button>
+                    {{/each}}
+                </nav>
+                <div class="bi-terminal__main bi-sheet">
+                    {{#if active.template}}
+                    {{> (lookup active 'template') active}}
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

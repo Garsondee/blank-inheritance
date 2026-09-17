@@ -1,0 +1,8 @@
+<div class="bi-sheet__hub">
+    {{#each tiles}}
+    <button type="button" class="bi-sheet__hub-tile" data-action="openHubTile" data-tile-id="{{this.id}}">
+        <i class="{{this.faIcon}} bi-sheet__hub-glyph"></i>
+        <span>{{localize this.labelKey}}</span>
+    </button>
+    {{/each}}
+</div>

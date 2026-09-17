@@ -1,0 +1,20 @@
+<div class="bi-sheet__skills">
+{{#unless actor}}
+    <p class="bi-sheet__empty">{{localize "BLANKINHERITANCE.Console.Window.NoActor"}}</p>
+{{else}}
+    {{#each groups}}
+    <div class="bi-bank">
+        <div class="bi-bank__label">{{localize this.labelKey}}</div>
+        <div class="bi-sheet__skill-rows">
+            {{#each this.entries}}
+            <button type="button" class="bi-sheet__skill-row" data-action="rollCheck" data-slug="{{this.slug}}" title="{{localize 'BLANKINHERITANCE.Console.Window.ClickToRoll'}}">
+                <span class="bi-sheet__skill-name">{{this.label}}{{#if this.lore}} <small>({{localize "BLANKINHERITANCE.Console.Window.Lore"}})</small>{{/if}}</span>
+                <span class="bi-sheet__dots">{{#each this.dots}}<i class="bi-sheet__dot{{#if this}} bi-sheet__dot--filled{{/if}}"></i>{{/each}}</span>
+                <span class="bi-readout bi-sheet__skill-mod">{{this.modLabel}}</span>
+            </button>
+            {{/each}}
+        </div>
+    </div>
+    {{/each}}
+{{/unless}}
+</div>

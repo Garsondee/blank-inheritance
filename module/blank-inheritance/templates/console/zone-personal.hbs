@@ -1,0 +1,19 @@
+{{!--
+    The player's always-on identity strip -- glance-scale only (Law 13: the
+    chassis is for what happens inside a turn). The full sheet lives in the
+    Console window (templates/console/window/tab-overview.hbs); this is
+    deliberately just enough to recognise "this is me" and catch a bad HP
+    total without opening anything.
+--}}
+<div class="bi-ident-strip">
+    {{#if overview}}
+    {{#if overview.identity.img}}<img class="bi-ident-strip__portrait" src="{{overview.identity.img}}" alt="">{{/if}}
+    <div class="bi-ident-strip__body">
+        <span class="bi-legend bi-ident-strip__name">{{overview.identity.name}}</span>
+        <div class="bi-meter bi-ident-strip__hp" data-tier="{{overview.hp.tier}}" style="--v:{{overview.hp.pct}}"></div>
+        <span class="bi-readout bi-ident-strip__stats">{{overview.hp.value}}/{{overview.hp.max}} &middot; {{localize "BLANKINHERITANCE.Console.Window.AC"}} {{overview.defenses.ac.value}}</span>
+    </div>
+    {{else}}
+    <p class="bi-legend">{{localize "BLANKINHERITANCE.Console.Checks.NoCharacter"}}</p>
+    {{/if}}
+</div>
