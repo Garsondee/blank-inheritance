@@ -3917,6 +3917,21 @@
 }
 @media (prefers-reduced-motion: reduce) { .bi-terminal { transition: none; } }
 
+/* The phone sizes to whatever its CURRENT app actually needs, rather than
+   the base .bi-terminal's fixed 80% — Fortune barely needs anything, Snake
+   wants a small fixed grid, Session Log can run long. The Console keeps the
+   base fixed height: its sheet tabs are almost always tall, so a consistent
+   generous panel serves them better than one that jumps size switching tabs.
+   `height:auto` against a bottom-anchored absolute box sizes to content by
+   itself (a percentage height on a child of an auto-height box resolves to
+   auto too, so .bi-terminal__frame/__body need no override) — the max/min
+   here are only the outer bounds. */
+.bi-phone-standalone .bi-terminal {
+  height: auto;
+  max-height: min(80%, 760px);
+  min-height: 260px;
+}
+
 .bi-terminal__frame {
   height: 100%;
   display: flex;
@@ -5401,7 +5416,56 @@
    glows. Nothing is a button pretending to be metal.
    ===================================================================== */
 
+/* The toggle button and the sliding drawer are two children of ONE chassis
+   (panel.hbs's own root, .bi-runner-frame) -- see that file's header. The
+   frame itself takes no layout box of its own, so bi-foundry-bridge.css can
+   position the button and the shell as if they were direct children of the
+   host it already knows how to place. */
+.bi-runner-frame { display: contents; }
+
+.bi-runner-toggle {
+  position: fixed;
+  z-index: calc(var(--z-index-app) - 1);
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: var(--bi-mat-brass);
+  box-shadow: 0 0 0 1px var(--bi-brass-shadow), 0 3px 8px rgb(0 0 0 / 70%);
+  display: grid;
+  place-items: center;
+  transition: box-shadow var(--bi-dur-snap) var(--bi-ease-servo);
+}
+.bi-runner-toggle::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, var(--bi-steel-600), var(--bi-steel-900));
+}
+.bi-runner-toggle__glyph { position: relative; z-index: 1; color: var(--bi-brass-lit); font-size: 17px; }
+.bi-runner-toggle[aria-pressed="true"] {
+  box-shadow: 0 0 0 1px var(--bi-brass-shadow), 0 0 12px var(--bi-phosphor);
+}
+.bi-runner-toggle[aria-pressed="true"] .bi-runner-toggle__glyph { color: var(--bi-phosphor); }
+
+/* The drawer itself slides fully off-screen when closed rather than
+   collapsing width to 0 -- a width transition fights text reflow and looks
+   like the content is being crushed; a slide reads as a real drawer. */
+.bi-runner-shell {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: translateX(-100%);
+  transition: transform var(--bi-dur-servo) var(--bi-ease-servo);
+  pointer-events: none;
+}
+.bi-runner-shell--open { transform: translateX(0); pointer-events: auto; }
+@media (prefers-reduced-motion: reduce) { .bi-runner-shell { transition: none; } }
+
 .bi-runner {
+  height: 100%;
   display: flex;
   flex-direction: column;
   background: var(--bi-mat-paper);

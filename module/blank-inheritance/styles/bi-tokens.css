@@ -388,6 +388,7 @@
      Declared so the panel has a sane size before anything has measured. */
   --bi-deck-scale: 1;
   --bi-deck-left: 0px;
+  --bi-orb-center: 50%;
 
   /* North-star materials. The image's palette, taken literally at Ingram's
      direct instruction ("make it look like the image"): two honest metals —

@@ -33,6 +33,7 @@ import {
 import { enricherFor } from "../core/roll-intent.mjs";
 import { deriveFoundryId } from "../core/ids.mjs";
 import { fetchModuleJson } from "./io.mjs";
+import { fitDeck } from "./deck.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -159,6 +160,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     classes: ["bi-runner-host"],
     window: { frame: false, positioned: false },
     actions: {
+      toggle: SceneRunner.#onToggle,
       toggleBeat: SceneRunner.#onToggleBeat,
       recordOutcome: SceneRunner.#onRecordOutcome,
       openBeat: SceneRunner.#onOpenBeat,
@@ -190,8 +192,27 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     return element;
   }
 
+  /**
+   * @override
+   * The drawer's own open/closed state changes what the deck has to clear
+   * (foundry/deck.mjs#fitDeck reads it directly), and toggling never adds or
+   * removes a child of #interface — the MutationObserver that otherwise keeps
+   * the deck fitted would never see a class change deep inside this panel.
+   */
+  _onRender(context, options) {
+    super._onRender?.(context, options);
+    fitDeck();
+  }
+
   /** The loaded scene, kept so the action handlers do not re-fetch on every click. */
   _scene = null;
+
+  /**
+   * Whether the drawer is open. Closed by default -- a GM who has not opened
+   * an episode should not permanently lose a third of the screen to an empty
+   * "No scene chosen" panel; the toggle button is always visible either way.
+   */
+  #open = false;
 
   /** @override */
   async _prepareContext() {
@@ -209,7 +230,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       .map((s) => ({ order: s.order, title: s.title, briefRef: s.briefRef, isCurrent: s.briefRef === briefId }));
 
     if (!loaded) {
-      return { scenes, episodeTitle: episode?.title ?? null, beats: [], cast: [], handouts: [], carryForward: [], spends: [] };
+      return { open: this.#open, scenes, episodeTitle: episode?.title ?? null, beats: [], cast: [], handouts: [], carryForward: [], spends: [] };
     }
 
     const { brief, subsystem, challenges } = loaded;
@@ -218,14 +239,14 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
 
     return {
       ...state,
-      // `scenes` LAST, after the spread: sceneRunnerState has no scenes of
-      // its own today, but a brief that later grows one must not silently
-      // shadow the episode's running order, which is the only way to move
-      // between scenes at all.
+      // `scenes`/`open` LAST, after the spread: sceneRunnerState has no
+      // scenes or open-state of its own, but either growing one later must
+      // not silently be shadowed by it.
       episodeTitle: episode?.title ?? null,
       beats: state.beats.map((beat) => this.#decorateBeat(beat, brief, challenges)),
       cast: state.cast.map((member) => ({ ...member, brief: member.brief ?? {} })),
-      scenes
+      scenes,
+      open: this.#open
     };
   }
 
@@ -441,6 +462,20 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     if (!brief) return null;
     return beatsWithState(brief, runStateFor(brief.id)).find((b) => b.id === beatId) ?? null;
   }
+
+  get open() {
+    return this.#open;
+  }
+
+  /** Open or close the drawer from outside its own button, same idiom as Phone/ConsoleWindow. */
+  toggle() {
+    SceneRunner.#onToggle.call(this);
+  }
+
+  static #onToggle() {
+    this.#open = !this.#open;
+    this.render({});
+  }
 }
 
 /* ---------------------------------------------------------------- */
@@ -596,11 +631,17 @@ export function unmountSceneRunner() {
   active = null;
 }
 
-/** Open an episode's running order. The once-per-session action. */
+/**
+ * Load an episode's running order AND open the drawer to show it — the
+ * once-per-session action. Loading content without also opening the drawer
+ * would be a silent no-op from the GM's point of view.
+ */
 export async function openSceneRunner(episodeId, briefId = "") {
   if (!game.user?.isGM) return null;
   resetSceneRunnerCache();
   await game.settings.set(MODULE_ID, SETTING_EPISODE, episodeId ?? "");
   await game.settings.set(MODULE_ID, SETTING_BRIEF, briefId ?? "");
-  return mountSceneRunner();
+  const runner = mountSceneRunner();
+  if (runner && !runner.open) runner.toggle();
+  return runner;
 }

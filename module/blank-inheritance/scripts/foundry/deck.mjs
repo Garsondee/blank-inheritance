@@ -516,9 +516,10 @@ export function fitDeck() {
   const style = document.body.style;
   const root = document.getElementById("bi-command-bar");
   if (!root?.classList.contains("bi-deck")) {
-    for (const prop of ["--bi-deck-scale", "--bi-deck-left", "--bi-bar-height"]) style.removeProperty(prop);
+    for (const prop of ["--bi-deck-scale", "--bi-deck-left", "--bi-bar-height", "--bi-orb-center"]) style.removeProperty(prop);
     return null;
   }
+  escapeHotbarFromUiMiddle();
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
   if (!(viewportWidth > 0 && viewportHeight > 0)) return null;
@@ -527,11 +528,47 @@ export function fitDeck() {
   // so its rect is where it actually is right now.
   const sidebar = document.getElementById("sidebar")?.getBoundingClientRect();
   const rightReserve = sidebar && sidebar.width > 0 ? Math.max(0, viewportWidth - sidebar.left) : 0;
-  const fit = deckFit({ viewportWidth, viewportHeight, leftReserve: 0, rightReserve, maxScale: DECK_MAX_SCALE });
+  // The scene runner's drawer host never changes size (only its inner
+  // .bi-runner-shell slides via transform, so a closed drawer's box would
+  // still measure full width) — read whether it is actually OPEN first,
+  // and only then trust the host's own rect.
+  const runnerHost = document.getElementById("bi-scene-runner");
+  const runnerOpen = !!runnerHost?.querySelector(".bi-runner-shell--open");
+  const leftReserve = runnerOpen ? Math.max(0, runnerHost.getBoundingClientRect().right) : 0;
+  const fit = deckFit({ viewportWidth, viewportHeight, leftReserve, rightReserve, maxScale: DECK_MAX_SCALE });
   style.setProperty("--bi-deck-scale", String(fit.scale));
   style.setProperty("--bi-deck-left", `${fit.left}px`);
   style.setProperty("--bi-bar-height", `${fit.crownHeight}px`);
+  // The orb sits centred in the deck's own spine track, i.e. the panel's own
+  // centreline — foundry/deck.mjs's one other consumer of the panel's real
+  // on-screen geometry (the hotbar rampart, bi-foundry-bridge.css).
+  style.setProperty("--bi-orb-center", `${fit.left + fit.width / 2}px`);
   return fit;
+}
+
+/**
+ * Move Foundry's own hotbar out from under #ui-middle and into #interface
+ * directly — the same escape every one of this module's own chassis pieces
+ * already needs (#bi-command-bar, #bi-stage, #bi-scene-runner; see
+ * bi-foundry-bridge.css's own note on why). #ui-middle carries
+ * `transform: scale(var(--ui-scale))`, and a `transform` on an ancestor
+ * makes IT the containing block for a `position: fixed` descendant instead
+ * of the viewport — found live 2026-09-17 wiring the hotbar rampart: the
+ * maths for centring #hotbar on --bi-orb-center (a viewport pixel value)
+ * were correct and the element still rendered ~390px off, because `left`
+ * was being resolved against #ui-middle's own scaled box, not the screen.
+ *
+ * A plain DOM move, not a CSS trick — #hotbar keeps its id, its own
+ * ApplicationV2 instance never needs to know it changed parents (nothing in
+ * this module or Foundry's own Hotbar class looks up its ancestry), and the
+ * move is idempotent (checked before running) so calling this every fit is
+ * free after the first call.
+ */
+function escapeHotbarFromUiMiddle() {
+  const hotbar = document.getElementById("hotbar");
+  const iface = document.getElementById("interface");
+  if (!hotbar || !iface || hotbar.parentElement === iface) return;
+  iface.appendChild(hotbar);
 }
 
 let fittingInstalled = false;

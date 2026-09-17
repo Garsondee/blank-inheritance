@@ -107,6 +107,12 @@ export const THEME_SETTINGS = Object.freeze([
     scope: "client",
     config: true,
     type: Boolean,
-    default: false
+    // Defaults true as of the deck (2026-09-17): the deck's own ident
+    // (player) and cast (Director) modules now cover who's in this scene,
+    // and Ingram asked directly to hide Foundry's own roster now that a
+    // replacement exists. Still a real client setting, not a hard removal —
+    // a GM who wants the connection/online status the deck doesn't show can
+    // switch it back on.
+    default: true
   }
 ]);

@@ -202,36 +202,23 @@ body.bi-theme #ui-bottom {
   padding-bottom: calc(var(--bi-bar-height) + 12px);
 }
 
-/* Keep the bar's CONTROLS clear of the sidebar, while the chassis itself
-   still runs the full width of the screen behind it -- the continuous
-   brass strake is the thing that reads as one machine, and cutting it
-   short at an arbitrary vertical line would not.
-
-   #sidebar-content carries .expanded when open and slides out on a 250ms
-   margin transition (foundry2.css), so this matches that duration and the
-   pods travel with it instead of snapping. #ui-right is scaled by
-   --ui-scale about its top-right corner, so the reserved width has to be
-   scaled too or the pods sit wrong at any zoom but 1.
-
-   :has() rather than a body class toggled off the collapseSidebar hook:
-   no state to hold, nothing to desync, and it cannot be missed on first
-   render. The hook is the fallback if a browser ever lacks :has(). */
-body.bi-theme .bi-bar {
-  transition: padding-right 250ms ease;
+/* Keep the OLD floating phone/console buttons clear of the sidebar while it
+   is open. Dead weight while the deck is mounted (those buttons are
+   `display:none` then — see the deck rule below), but they are the real
+   fallback entry point to Phone/Console if the deck ever fails to mount, so
+   this stays rather than being deleted with the retired pod-bar's own copy
+   of the same reaction. #sidebar-content carries .expanded when open and
+   slides out on a 250ms margin transition (foundry2.css); this matches that
+   duration so the buttons travel with it instead of snapping. */
+body.bi-theme:not(:has(#bi-command-bar.bi-deck)) .bi-phone-btn,
+body.bi-theme:not(:has(#bi-command-bar.bi-deck)) .bi-console-btn {
+  transition: right 250ms ease;
 }
-body.bi-theme:has(#sidebar-content.expanded) .bi-bar {
-  padding-right: calc(18px + (var(--sidebar-width) + var(--bi-sidebar-gutter)) * var(--ui-scale));
+body.bi-theme:not(:has(#bi-command-bar.bi-deck)):has(#sidebar-content.expanded) .bi-phone-btn {
+  right: calc(max(16px, var(--bi-sidebar-gutter, 16px)) + (var(--sidebar-width) * var(--ui-scale)));
 }
-
-/* The bottom-left corner is never ours either -- and unlike the sidebar
-   there is no collapsed state to react to, so this is a PERMANENT
-   reservation rather than a :has()-driven one. FOUND LIVE 2026-09-07:
-   without it, our own left-track legend (CAST, for the Director) rendered
-   directly underneath Foundry's own roster panel -- #players-active's
-   background is semi-transparent (--color-cool-5-75), so the two didn't
-   simply stack, they blended into unreadable overlapping text. */
-body.bi-theme .bi-bar {
-  padding-left: calc(18px + (var(--bi-players-width) + var(--bi-players-edge)) * var(--ui-scale));
+body.bi-theme:not(:has(#bi-command-bar.bi-deck)):has(#sidebar-content.expanded) .bi-console-btn {
+  right: calc(max(16px, var(--bi-sidebar-gutter, 16px)) + (var(--sidebar-width) * var(--ui-scale)) + 56px);
 }
 
 /* --- The deck: the command bar as one mounted panel (2026-09-17) ---
@@ -268,10 +255,37 @@ body.bi-theme:has(#bi-command-bar.bi-deck) .bi-console-btn {
 }
 
 /* Foundry's own hotbar stays — it also carries the main menu and mute keys in
-   v14 (verified live 2026-09-17), so hiding it would strand those — but it is
-   moved off the centre line, where the deck's instrument rises. */
+   v14 (verified live 2026-09-17), so hiding it would strand those. */
 body.bi-theme:has(#bi-command-bar.bi-deck) #ui-bottom {
   align-items: flex-start;
+}
+
+/* --- The hotbar: a rampart flanking the orb ---
+   Ingram's direct request (2026-09-17): "5 on either side of the circle
+   display at the top of the bars poking out the top like a rampart of macro
+   buttons." Foundry's own macro bar is pulled out of #ui-bottom's flow and
+   repositioned centred on the orb's own centreline (--bi-orb-center, written
+   by foundry/deck.mjs#fitDeck), sitting just above the faceplate — the same
+   "bolted to the machine" read the rest of the deck already has, rather than
+   a separate toolbar floating nearby.
+
+   The gap between the 5th and 6th slot is what actually splits the row into
+   two flanks; it has to match the orb's REAL on-screen size
+   (--bi-orb-collar is the authored, unscaled token — #hotbar itself is never
+   inside the deck's own `transform: scale(...)`, so the gap is scaled by
+   hand here instead). #hotbar-controls-left (mute, main menu) rides along
+   with the left flank as its first two items, unmoved from where Foundry
+   already puts them in the DOM. */
+body.bi-theme:has(#bi-command-bar.bi-deck) #hotbar {
+  position: fixed;
+  left: var(--bi-orb-center, 50%);
+  transform: translateX(-50%);
+  bottom: calc(var(--bi-deck-height) * var(--bi-deck-scale) - 6px);
+  z-index: calc(var(--z-index-app) - 1);
+  margin: 0;
+}
+body.bi-theme:has(#bi-command-bar.bi-deck) #action-bar .slot:nth-child(5) {
+  margin-right: calc(var(--bi-orb-collar) * var(--bi-deck-scale));
 }
 
 /* The deck owns the bottom band of the screen, edge to edge — so Foundry's
@@ -447,46 +461,57 @@ body.bi-theme #bi-scene-runner {
   position: absolute;
   left: 0;
   top: 0;
-  /* Stops where the chassis starts, so the two never overlap. */
+  /* Stops where the deck starts, so the two never overlap. */
   bottom: calc(var(--bi-bar-height) + 12px);
   width: var(--bi-runner-width);
-  /* Same band as the bar: above the canvas, below Foundry's own windows,
+  /* Same band as the deck: above the canvas, below Foundry's own windows,
      so a journal or a character sheet still opens on top of the script. */
   z-index: calc(var(--z-index-app) - 1);
+  /* The host itself is never translated or hidden -- .bi-runner-toggle is
+     `position: fixed` and .bi-runner-shell (panel.hbs) does its own slide,
+     so the CLOSED drawer's invisible box sits here doing nothing rather
+     than needing to move. Nothing else reserves space for it while closed:
+     every rule below is scoped to :has(.bi-runner-shell--open). */
 }
 
-/* Slide Foundry's left column clear of the drawer while it is open.
-   `:has()` rather than a body class set from a hook -- no state to
-   desync, and it cannot be missed on a first render (the same reasoning
-   as the sidebar gutter above).
+/* Slide Foundry's left column clear of the drawer, and reserve the deck's
+   own left edge, ONLY while the drawer is actually OPEN — a closed drawer
+   must give the screen back, not just visually (2026-09-17, following
+   Ingram's own "maximum vertical/horizontal page space" direction).
+   `:has()` rather than a body class set from a hook -- no state to desync,
+   and it cannot be missed on a first render (the same reasoning as the
+   sidebar gutter above).
 
-   --ui-scale is deliberately NOT applied here: #ui-left is itself scaled, so
-   a margin expressed in its own coordinate space already scales with it, and
-   multiplying would double-count.
+   --ui-scale is deliberately NOT applied to the #ui-left margin: #ui-left is
+   itself scaled, so a margin expressed in its own coordinate space already
+   scales with it, and multiplying would double-count.
 
    MEASURED LIVE 2026-09-09 at 1600x1000, UI scale 1.0: drawer 496px wide,
-   #ui-left sitting at left:496, bar padding-left 730px (18 + 496 + 216).
-   The arithmetic is exact at 100%. It has NOT been checked at a non-100% UI
-   scale -- if the column ever lands short or long, that is the first thing
-   to measure. */
-body.bi-theme:has(#bi-scene-runner) #ui-left {
+   #ui-left sitting at left:496. The arithmetic is exact at 100%. It has NOT
+   been checked at a non-100% UI scale -- if the column ever lands short or
+   long, that is the first thing to measure. */
+body.bi-theme:has(#bi-scene-runner .bi-runner-shell--open) #ui-left {
   margin-left: var(--bi-runner-width);
   transition: margin-left 250ms ease;
 }
 
-/* The bar's own left reservation has to grow by the same amount, or the
-   CAST legend ends up underneath the roster's new position -- the exact
-   collision that was found live on 2026-09-07 and fixed by reserving the
-   roster's footprint in the first place. */
-body.bi-theme:has(#bi-scene-runner) .bi-bar {
-  padding-left: calc(
-    18px + var(--bi-runner-width) +
-    (var(--bi-players-width) + var(--bi-players-edge)) * var(--ui-scale)
-  );
-}
+/* foundry/deck.mjs#fitDeck reads the drawer's own real rendered edge (only
+   meaningful while it is open — a closed drawer's box reports 0 width
+   since nothing inside it is visible) to keep the deck itself clear, so
+   this needs no matching CSS reservation of its own; noted here so the two
+   halves of "the deck avoids the open drawer" are findable from either side. */
 
 /* The application root ApplicationV2 creates is not the sheet itself — the
    sheet is panel.hbs's own root inside it (same arrangement as #bi-stage).
-   The host carries the position; .bi-runner fills it. */
+   The host carries the position; .bi-runner-frame (display:contents) lets
+   .bi-runner-toggle and .bi-runner-shell act as its direct children. */
 body.bi-theme #bi-scene-runner { display: flex; }
-body.bi-theme #bi-scene-runner > .bi-runner { flex: 1 1 auto; min-height: 0; }
+body.bi-theme #bi-scene-runner > .bi-runner-frame > .bi-runner-shell { flex: 1 1 auto; min-height: 0; }
+
+/* .bi-runner-toggle's fixed screen position: clear of Foundry's own vertical
+   scene-controls column (measured live, ~90px including its own padding)
+   and level with the deck's own pill row. */
+body.bi-theme .bi-runner-toggle {
+  left: 104px;
+  bottom: calc(var(--bi-bar-height) + 14px);
+}

@@ -7,10 +7,23 @@
     There is therefore no `canDirect` guard anywhere in this file, and adding
     one would be a sign somebody had made the panel reachable by a player.
 
-    Rendered entirely in the PAPER register. This is a document a person
-    wrote, not a readout a machine produced, and design/visual-identity.md
-    §1b's split is semantic before it is decorative.
+    The toggle button and the sliding drawer are ONE chassis (this file's
+    single root, .bi-runner-frame) for the same reason phone.hbs's button and
+    panel are one -- a re-render can never leave them disagreeing about
+    open/closed. The button lives OUTSIDE .bi-runner-shell so the shell's own
+    slide-offscreen transform never carries it away: a closed drawer must
+    still be findable.
+
+    The panel itself is rendered entirely in the PAPER register. This is a
+    document a person wrote, not a readout a machine produced, and
+    design/visual-identity.md §1b's split is semantic before it is decorative.
 --}}
+<div class="bi-runner-frame">
+    <button type="button" class="bi-runner-toggle" data-action="toggle" aria-pressed="{{open}}"
+        aria-label="{{localize 'BLANKINHERITANCE.Runner.Toggle'}}" data-tooltip="{{localize 'BLANKINHERITANCE.Runner.Toggle'}}">
+        <i class="fa-solid fa-clipboard-list bi-runner-toggle__glyph"></i>
+    </button>
+<section class="bi-runner-shell{{#if open}} bi-runner-shell--open{{/if}}">
 <section class="bi-runner">
     <header class="bi-runner__head">
         {{#if episodeTitle}}<p class="bi-runner__episode">{{episodeTitle}}</p>{{/if}}
@@ -186,3 +199,5 @@
         {{/if}}
     </div>
 </section>
+</section>
+</div>

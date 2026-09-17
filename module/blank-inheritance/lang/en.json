@@ -313,6 +313,7 @@
     },
     "Runner": {
       "Title": "Scene Runner",
+      "Toggle": "Scene Runner",
       "NoScene": "No scene chosen. Pick one from the running order above.",
       "Cast": "Who is here",
       "Beats": "What has to happen",
