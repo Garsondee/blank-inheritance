@@ -283,9 +283,17 @@ Generation follows the module's existing sync discipline: deterministic ids,
 documents). It only ever deletes documents it generated itself — anything a GM
 added by hand stays.
 
-**Playlist documents reach every client**, so a `PlaylistSound` is named by its
-*music* ("Is Paris Burning"), never by its purpose ("The Observer's theme").
-Purpose lives in the GM-side registry.
+**Playlist documents reach every client** — measured on a real player account,
+not assumed: all 38 playlists were in that client's collection with their full
+sound lists. So a `PlaylistSound` is named by its *music* ("Is Paris Burning"),
+never by its purpose ("The Observer's theme"); purpose lives in the GM-side
+registry.
+
+Foundry's own `Playlist#visible` (`isOwner || playing`) does limit what a
+player's *sidebar* shows to whatever is currently playing, which is a real
+mitigation — but it is a rendering filter, not redaction. The names are in
+their browser either way, which is why the naming rule above is the actual
+protection.
 
 ---
 
