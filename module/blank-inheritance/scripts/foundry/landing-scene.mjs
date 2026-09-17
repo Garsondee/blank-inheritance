@@ -20,6 +20,17 @@
  * idiom), NOT buildStageDemoScenes' delete-then-recreate -- this scene
  * accumulates real player Tokens over time as people finish induction, and a
  * destructive rebuild would wipe every one of them.
+ *
+ * SUPERSEDED IN PART, 2026-09-17. The campaign now authors its own landing
+ * scene in data/campaign/scene-set.json -- "The Road In", which is both a
+ * better home base and the literal road every one of the six arrives on --
+ * and foundry/scene-build.mjs builds it with `kind: "landing"`. So everything
+ * below now DEFERS to that scene when it exists and only falls back to making
+ * its own when it does not.
+ *
+ * Without that deference this module recreated its own lobby on every startup,
+ * beside the authored one, with art that had since been replaced by a WebP
+ * derivative -- two scenes of the same name, one of them blank. Found live.
  */
 
 import { buildStageSceneData } from "../core/generators/stage-scene.mjs";
@@ -28,19 +39,31 @@ import { deriveFoundryId } from "../core/ids.mjs";
 
 const MODULE_ID = "blank-inheritance";
 const LANDING_SCENE_SOURCE_ID = "landing-scene";
-const BACKGROUND_PATH = `modules/${MODULE_ID}/assets/scenes/directorate-headquarters--lobby.png`;
+const BACKGROUND_PATH = `modules/${MODULE_ID}/assets/scenes/directorate-headquarters--lobby.webp`;
 // The real pixel size of that PNG -- buildStageSceneData draws it 1:1 at
 // these dimensions (its own "match the artwork exactly" comment).
 const SCENE_WIDTH = 3072;
 const SCENE_HEIGHT = 1536;
 
+/**
+ * The scene the campaign itself nominates as the landing scene, if it has been
+ * built. Matched on the flag foundry/scene-build.mjs writes, so nothing here
+ * has to know the manifest's own ids.
+ */
+function authoredLandingScene() {
+  return game.scenes?.find((scene) => scene.getFlag(MODULE_ID, "kind") === "landing") ?? null;
+}
+
 export async function landingSceneId() {
-  return deriveFoundryId(LANDING_SCENE_SOURCE_ID);
+  return authoredLandingScene()?.id ?? deriveFoundryId(LANDING_SCENE_SOURCE_ID);
 }
 
 /** GM only. Creates the landing scene once; a second call is a no-op that returns the existing one. */
 export async function ensureLandingScene() {
   if (!game.user.isGM) return null;
+  const authored = authoredLandingScene();
+  if (authored) return authored; // the campaign has its own; do not make a second
+
   const id = await landingSceneId();
   const existing = game.scenes.get(id);
   if (existing) return existing;
