@@ -2891,7 +2891,13 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: var(--bi-mat-scanline);
+  /* Dust sits on the glass over the picture, same as a real console's CRT
+     would collect it — layered with the scanline rather than replacing it,
+     both under the same multiply blend so the grime darkens the image
+     exactly the way the scanline already does (this module's "grimier, more
+     beaten up" pass, 2026-09-17 — ported here from the deck's own grime so
+     V1's still-unbuilt map-pin vocabulary reads as the same aged machine). */
+  background: var(--bi-grain-pitted), var(--bi-mat-scanline);
   mix-blend-mode: multiply;
   opacity: 0.55;
   pointer-events: none;
