@@ -36,6 +36,7 @@ import { ensureStageVault, syncStage, writeAuthoredCast } from "./foundry/stage.
 import { syncCameraToScene, unlockCamera } from "./foundry/stage-camera.mjs";
 import { buildStageDemoScenes, createStageDemoMacroIfMissing } from "./foundry/stage-demo.mjs";
 import { buildSceneSet, createSceneSetMacroIfMissing, retireTemporaryScenes } from "./foundry/scene-build.mjs";
+import { registerPaletteKeybinding, registerPaletteSettings, toggleDirectorPalette } from "./foundry/director-palette.mjs";
 import { announceCastChange, primeStingCache } from "./foundry/sting.mjs";
 import { checkForSplash, forceDismissSplash, primeSplashCache, registerSplashSettings } from "./foundry/splash.mjs";
 import {
@@ -137,7 +138,11 @@ Hooks.once("init", () => {
       // one per beat of the story, the rooms inside them, and the campaign map
       // they are reached from. Idempotent -- running it twice changes nothing.
       buildSceneSet,
-      retireTemporaryScenes
+      retireTemporaryScenes,
+      // One search box for everything a GM can do, Ctrl+K. Half of it is our
+      // own machinery, half is Foundry's own; the group that sorts first is
+      // the one for when the table went somewhere nobody wrote down.
+      toggleDirectorPalette
     };
   }
 
@@ -145,6 +150,8 @@ Hooks.once("init", () => {
   // loaded declaratively from module.json's `styles`; this only controls the
   // body classes that gate them.
   registerThemeSettings();
+  registerPaletteSettings();
+  registerPaletteKeybinding();
 
   // The campaign clock is a world setting, so its onChange fires on EVERY
   // client -- which is what makes a segment transition arrive at the whole

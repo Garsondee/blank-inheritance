@@ -8134,3 +8134,174 @@
 @media (prefers-reduced-motion: reduce) {
   .bi-desk__playhead-bar b { transition: none; }
 }
+
+/* =====================================================================
+   12. THE DIRECTOR'S PALETTE  (scripts/foundry/director-palette.mjs)
+
+   One field and one list, floated over everything. Deliberately the
+   plainest surface in the whole module: it is reached mid-sentence, with
+   a table waiting, and anything decorative here is something to read
+   past. The north-star's instrument idiom belongs on the deck, not on a
+   thing that should be gone again in two seconds.
+   ===================================================================== */
+
+.bi-palette-host { position: fixed; inset: 0; z-index: calc(var(--z-index-app) + 2); }
+/* One top-level element per template is a tier-0 rule (the host div is
+   ApplicationV2's own, and the template's content goes inside it), so the
+   backdrop and the box share this shell rather than being siblings. */
+.bi-palette-shell { position: absolute; inset: 0; }
+
+.bi-palette__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(8 7 6 / 55%);
+  backdrop-filter: blur(2px);
+}
+
+.bi-palette {
+  position: relative;
+  width: min(680px, 92vw);
+  margin: 12vh auto 0;
+  background: var(--bi-ns-black, #14120f);
+  border: 1px solid var(--bi-ns-outline, #3a352c);
+  border-radius: 4px;
+  box-shadow: 0 24px 64px rgb(0 0 0 / 60%), inset 0 1px 0 rgb(255 255 255 / 6%);
+  overflow: hidden;
+  font-family: var(--bi-font-condensed, sans-serif);
+}
+
+.bi-palette__field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--bi-ns-outline, #3a352c);
+  background: var(--bi-ns-black-lo, #0d0b09);
+}
+
+.bi-palette__prompt { color: var(--bi-amber, #ff8a1f); font-size: 13px; }
+
+.bi-palette__input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--bi-bone, #e8dcc4);
+  font-family: var(--bi-font-condensed, sans-serif);
+  font-size: 17px;
+  letter-spacing: 0.01em;
+}
+.bi-palette__input::placeholder { color: var(--bi-ns-ink-soft, #7a7266); }
+
+.bi-palette__dismiss {
+  background: none;
+  border: 1px solid var(--bi-ns-outline, #3a352c);
+  border-radius: 3px;
+  color: var(--bi-ns-ink-soft, #7a7266);
+  font-family: var(--bi-font-mono, monospace);
+  font-size: 10px;
+  padding: 2px 6px;
+  cursor: pointer;
+  transition: none;
+}
+.bi-palette__dismiss:hover { color: var(--bi-bone, #e8dcc4); border-color: var(--bi-bone-dim, #8a8070); }
+
+.bi-palette__list {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+  max-height: 52vh;
+  /* The one place in the module that scrolls on purpose: a palette whose
+     results are cut off at the fold is a palette that hides the answer. */
+  overflow-y: auto;
+}
+
+.bi-palette__heading {
+  padding: 8px 14px 3px;
+  color: var(--bi-amber-dim, #b8641a);
+  font-family: var(--bi-font-stencil, sans-serif);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.bi-palette__row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 7px 14px;
+  color: var(--bi-bone, #e8dcc4);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: none;
+}
+.bi-palette__row:hover { background: rgb(255 255 255 / 4%); }
+
+.bi-palette__row--on {
+  background: rgb(255 138 31 / 14%);
+  border-left-color: var(--bi-amber, #ff8a1f);
+}
+
+.bi-palette__row--danger .bi-palette__title { color: var(--bi-vermilion, #d1402a); }
+
+.bi-palette__icon { color: var(--bi-brass, #b08d57); width: 16px; text-align: center; font-size: 12px; }
+.bi-palette__title { flex: 0 1 auto; font-size: 14px; }
+.bi-palette__hint {
+  flex: 1;
+  text-align: right;
+  color: var(--bi-ns-ink-soft, #7a7266);
+  font-size: 11px;
+  font-family: var(--bi-font-mono, monospace);
+}
+
+.bi-palette__none {
+  padding: 18px 14px;
+  color: var(--bi-ns-ink-soft, #7a7266);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* The Scene Runner's backdrop strip and its way into the palette (§12's
+   panel, reached from where the GM already is). Paper register, like the
+   rest of the runner -- these are part of the printed script, not a readout. */
+.bi-runner__backdrops {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 8px 0 0;
+  padding: 0;
+}
+.bi-runner__backdrop {
+  background: rgb(38 32 24 / 8%);
+  border: 1px solid rgb(38 32 24 / 28%);
+  border-radius: 2px;
+  color: var(--bi-ink, #241f1a);
+  font-family: var(--bi-font-condensed, sans-serif);
+  font-size: 11px;
+  padding: 2px 7px;
+  cursor: pointer;
+  transition: none;
+}
+.bi-runner__backdrop:hover { background: rgb(38 32 24 / 16%); }
+.bi-runner__backdrop--sub { opacity: 0.72; font-style: italic; }
+.bi-runner__backdrop--on {
+  background: var(--bi-vermilion, #d1402a);
+  border-color: var(--bi-vermilion, #d1402a);
+  color: #fff;
+  opacity: 1;
+}
+
+.bi-runner__headfoot { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.bi-runner__palette {
+  background: none;
+  border: 1px dashed rgb(38 32 24 / 35%);
+  border-radius: 2px;
+  color: rgb(38 32 24 / 70%);
+  font-family: var(--bi-font-condensed, sans-serif);
+  font-size: 10px;
+  padding: 2px 8px;
+  cursor: pointer;
+  transition: none;
+}
+.bi-runner__palette:hover { color: var(--bi-ink, #241f1a); border-style: solid; }

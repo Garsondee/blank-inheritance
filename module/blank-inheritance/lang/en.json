@@ -370,7 +370,9 @@
       "GrantConfirmHint": "It goes into their own journals and stays there for the rest of the campaign. This cannot be undone.",
       "Granted": "The party now hold \"{title}\".",
       "Held": "Held by the party",
-      "Insight": "Free to ask"
+      "Insight": "Free to ask",
+      "CutTo": "Cut the table to this",
+      "Palette": "Anything else…"
     },
     "Induction": {
       "MacroName": "Blank Inheritance: Begin Induction",
@@ -605,6 +607,14 @@
       "Built": "Scenes: {created} built, {updated} updated, {pins} pins on the map.",
       "Retired": "Retired {count} temporary scene(s).",
       "PinJournal": "The City — Places"
+    },
+    "Palette": {
+      "Title": "Director's Palette",
+      "Placeholder": "What do you need? (scene, cast, audio, a check, or just say what happened)",
+      "Nothing": "Nothing matches that.",
+      "Close": "Close",
+      "Failed": "Could not run “{title}”. The console has the detail.",
+      "Keybinding": "Open the Director's Palette"
     }
   }
 }

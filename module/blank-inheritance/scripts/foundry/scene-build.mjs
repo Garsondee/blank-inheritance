@@ -18,6 +18,7 @@
 import { hubPinPlan, pinJournalPage, sceneSetPlan, validateSceneSet } from "../core/generators/scene-set.mjs";
 import { deriveFoundryId } from "../core/ids.mjs";
 import { fetchModuleJson } from "./io.mjs";
+import { cachedAudio, loadAudio } from "./audio-store.mjs";
 
 const MODULE_ID = "blank-inheritance";
 const MANIFEST_PATH = "data/campaign/campaign/scene-set.json";
@@ -162,7 +163,17 @@ export async function buildSceneSet({ notify = true, activateLanding = false } =
   if (!game.user.isGM) return { problems: ["only a GM can build scenes"], created: [], updated: [] };
 
   const { manifest, locations, problems } = await loadSceneSet();
-  const report = { created: [], updated: [], pins: 0, problems: [...problems] };
+  const report = { created: [], updated: [], pins: 0, bound: 0, problems: [...problems] };
+
+  // Which briefs actually have a soundscape authored for them. Best-effort:
+  // a world with no audio pushed yet must still build all its scenes.
+  let soundscapes = new Set();
+  try {
+    const audio = cachedAudio() ?? (await loadAudio());
+    soundscapes = new Set((audio?.soundscapes ?? new Map()).keys());
+  } catch (err) {
+    report.problems.push(`could not read the audio library to bind soundscapes: ${err.message}`);
+  }
 
   const folders = new Map();
   for (const group of manifest.groups ?? []) folders.set(group.id, await ensureFolder(group));
@@ -197,6 +208,17 @@ export async function buildSceneSet({ notify = true, activateLanding = false } =
       if (plan.briefRef) await scene.setFlag(MODULE_ID, "briefRef", plan.briefRef);
       if (plan.locationRef) await scene.setFlag(MODULE_ID, "locationRef", plan.locationRef);
       await scene.setFlag(MODULE_ID, "kind", plan.kind);
+
+      // A scene and its soundscape are keyed by the same scene-brief id, so
+      // bind them here rather than making a GM press "Bind to scene" sixteen
+      // times for a correspondence the data already states. Activating the
+      // scene then brings its own audio with it (audio-director.mjs's
+      // scene-activate trigger), which is the whole point of both being
+      // authored against the brief.
+      if (plan.briefRef && soundscapes.has(plan.briefRef)) {
+        await scene.setFlag(MODULE_ID, "audio", { soundscape: plan.briefRef });
+        report.bound += 1;
+      }
     } catch (err) {
       report.problems.push(`could not build "${plan.data.name}": ${err.message}`);
     }

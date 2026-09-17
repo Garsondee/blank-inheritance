@@ -176,6 +176,28 @@ async function loadScene(briefId) {
   return { brief, episode, subsystem, challenges };
 }
 
+/**
+ * Every Foundry Scene built against this brief, in build order.
+ *
+ * Matched on the scene's own `briefRef` flag, which foundry/scene-build.mjs
+ * writes from data/campaign/scene-set.json -- so a picture added to the
+ * manifest turns up here with no change to this file.
+ */
+function backdropsFor(briefId) {
+  if (!briefId) return [];
+  return game.scenes
+    .filter((scene) => scene.getFlag(MODULE_ID, "briefRef") === briefId)
+    .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
+    .map((scene) => ({
+      id: scene.id,
+      name: scene.name,
+      isCurrent: scene.active,
+      // The sub-rooms read as secondary, because the main room is the one
+      // the scene opens in and the others are cuts away from it.
+      isSub: scene.getFlag(MODULE_ID, "kind") === "sub"
+    }));
+}
+
 /** The one check a beat names, out of its challenge's handful. */
 function checkFor(beat, challenges) {
   const challenge = challenges[beat.challengeRef];
@@ -201,6 +223,8 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       openBeat: SceneRunner.#onOpenBeat,
       spend: SceneRunner.#onSpend,
       pickScene: SceneRunner.#onPickScene,
+      cutTo: SceneRunner.#onCutTo,
+      openPalette: SceneRunner.#onOpenPalette,
       postCheck: SceneRunner.#onPostCheck,
       revealHandout: SceneRunner.#onRevealHandout,
       revealHandoutSolo: SceneRunner.#onRevealHandoutSolo,
@@ -265,7 +289,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       .map((s) => ({ order: s.order, title: s.title, briefRef: s.briefRef, isCurrent: s.briefRef === briefId }));
 
     if (!loaded) {
-      return { open: this.#open, scenes, episodeTitle: episode?.title ?? null, beats: [], cast: [], handouts: [], carryForward: [], spends: [] };
+      return { open: this.#open, scenes, episodeTitle: episode?.title ?? null, beats: [], cast: [], handouts: [], carryForward: [], spends: [], backdrops: [] };
     }
 
     const { brief, subsystem, challenges } = loaded;
@@ -274,6 +298,10 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
 
     return {
       ...state,
+      // The actual PICTURES for this brief -- every Scene the scene set built
+      // against it, main room and sub-rooms alike, so cutting to "the
+      // examination room" is one click rather than a hunt through the sidebar.
+      backdrops: backdropsFor(briefId),
       // `scenes`/`open` LAST, after the spread: sceneRunnerState has no
       // scenes or open-state of its own, but either growing one later must
       // not silently be shadowed by it.
@@ -402,6 +430,17 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     const state = runStateFor(briefId);
     await writeRunState(briefId, { ...state, spent: [...state.spent, target.dataset.spendId] });
     this.render({});
+  }
+
+  /** Cut the whole table to one of this brief's backdrops. */
+  static async #onCutTo(event, target) {
+    const { cueScene } = await import("./director-panel.mjs");
+    await cueScene(target.dataset.sceneId);
+    this.render({});
+  }
+
+  static #onOpenPalette() {
+    import("./director-palette.mjs").then((m) => m.toggleDirectorPalette());
   }
 
   static async #onPickScene(event, target) {

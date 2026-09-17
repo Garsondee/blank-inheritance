@@ -43,9 +43,29 @@
         </ul>
         {{/if}}
 
-        {{#if progress}}
-        <p class="bi-runner__progress">{{localize "BLANKINHERITANCE.Runner.Progress"}} <b>{{progress.mandatoryDone}}/{{progress.mandatory}}</b></p>
+        {{!-- The PICTURES for this brief: the room it opens in and every
+              room inside it, one click each. The episode list above picks
+              which script to run; this picks what the table is looking at. --}}
+        {{#if backdrops.length}}
+        <ul class="bi-runner__backdrops">
+            {{#each backdrops}}
+            <li><button type="button"
+                    class="bi-runner__backdrop{{#if this.isSub}} bi-runner__backdrop--sub{{/if}}{{#if this.isCurrent}} bi-runner__backdrop--on{{/if}}"
+                    data-action="cutTo" data-scene-id="{{this.id}}"
+                    data-tooltip="{{localize 'BLANKINHERITANCE.Runner.CutTo'}}">{{this.name}}</button></li>
+            {{/each}}
+        </ul>
         {{/if}}
+
+        <div class="bi-runner__headfoot">
+            {{#if progress}}
+            <p class="bi-runner__progress">{{localize "BLANKINHERITANCE.Runner.Progress"}} <b>{{progress.mandatoryDone}}/{{progress.mandatory}}</b></p>
+            {{/if}}
+            <button type="button" class="bi-runner__palette" data-action="openPalette"
+                data-tooltip="{{localize 'BLANKINHERITANCE.Palette.Keybinding'}}">
+                <i class="fa-solid fa-terminal"></i> {{localize "BLANKINHERITANCE.Runner.Palette"}}
+            </button>
+        </div>
     </header>
 
     <div class="bi-runner__scroll">

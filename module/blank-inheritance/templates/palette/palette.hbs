@@ -1,0 +1,37 @@
+{{!--
+  The Director's Palette. One field, one list, nothing else.
+
+  The backdrop is a real element rather than a ::before so it can take the
+  pointerdown that closes the palette -- clicking away is how every palette
+  in every tool behaves, and a GM will try it before they try Escape.
+--}}
+<div class="bi-palette-shell">
+<div class="bi-palette__backdrop"></div>
+
+<div class="bi-palette" role="dialog" aria-label="{{localize 'BLANKINHERITANCE.Palette.Title'}}">
+    <div class="bi-palette__field">
+        <i class="fa-solid fa-terminal bi-palette__prompt" aria-hidden="true"></i>
+        <input type="text" class="bi-palette__input" autocomplete="off" spellcheck="false"
+               placeholder="{{localize 'BLANKINHERITANCE.Palette.Placeholder'}}" aria-label="{{localize 'BLANKINHERITANCE.Palette.Placeholder'}}">
+        <button type="button" class="bi-palette__dismiss" data-action="close" aria-label="{{localize 'BLANKINHERITANCE.Palette.Close'}}">esc</button>
+    </div>
+
+    <ol class="bi-palette__list">
+        {{#each rows}}
+            {{#if this.isHeading}}
+                <li class="bi-palette__heading">{{this.label}}</li>
+            {{else}}
+                <li class="bi-palette__row{{#if this.isSelected}} bi-palette__row--on{{/if}}{{#if this.danger}} bi-palette__row--danger{{/if}}"
+                    data-action="run" data-command-id="{{this.id}}">
+                    {{#if this.icon}}<i class="{{this.icon}} bi-palette__icon" aria-hidden="true"></i>{{/if}}
+                    <span class="bi-palette__title">{{this.title}}</span>
+                    {{#if this.hint}}<span class="bi-palette__hint">{{this.hint}}</span>{{/if}}
+                </li>
+            {{/if}}
+        {{/each}}
+        {{#if empty}}
+            <li class="bi-palette__none">{{localize "BLANKINHERITANCE.Palette.Nothing"}}</li>
+        {{/if}}
+    </ol>
+</div>
+</div>
