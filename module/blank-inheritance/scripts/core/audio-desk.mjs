@@ -70,6 +70,23 @@ export function faderFrame(position) {
 /*  Now playing                                 */
 /* -------------------------------------------- */
 
+/**
+ * The playhead readout: how far into the track, how much is left.
+ * A GM's real question mid-scene is "have I got time for this beat", so the
+ * remaining time is what reads loudest.
+ */
+export function playheadModel({ currentTime, duration } = {}) {
+  const t = Number(currentTime);
+  const d = Number(duration);
+  if (!Number.isFinite(t) || !Number.isFinite(d) || d <= 0) return { elapsed: "--:--", remaining: "--:--", progress: 0 };
+  const clamped = Math.min(Math.max(t, 0), d);
+  return {
+    elapsed: formatDuration(clamped),
+    remaining: `-${formatDuration(Math.max(0, d - clamped))}`,
+    progress: Math.round((clamped / d) * 1000) / 1000
+  };
+}
+
 /** One line per thing currently making noise, for the desk's "on air" panel. */
 export function nowPlayingModel(state, index) {
   const asset = (id) => index?.assets?.get?.(id) ?? null;

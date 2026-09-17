@@ -27,7 +27,13 @@
                     <span class="bi-desk__lamp{{#unless nowPlaying.silent}} is-lit{{/unless}}">{{localize "BLANKINHERITANCE.Audio.OnAir"}}</span>
                     <div class="bi-desk__air-lines">
                         {{#each nowPlaying.music}}
-                        <div class="bi-desk__air-line"><b>{{localize "BLANKINHERITANCE.Audio.Bus.Music"}}</b> {{this.title}} <span class="bi-desk__dim">{{this.duration}}</span></div>
+                        <div class="bi-desk__air-line">
+                            <b>{{localize "BLANKINHERITANCE.Audio.Bus.Music"}}</b> {{this.title}}
+                            <span class="bi-desk__playhead" data-playhead="{{this.assetId}}">
+                                <i class="bi-desk__playhead-bar"><b style="width: 0%"></b></i>
+                                <span class="bi-desk__playhead-time">--:-- / {{this.duration}}</span>
+                            </span>
+                        </div>
                         {{else}}
                         <div class="bi-desk__air-line bi-desk__dim">{{localize "BLANKINHERITANCE.Audio.NoMusic"}}</div>
                         {{/each}}
@@ -41,6 +47,12 @@
                         {{/if}}
                     </div>
                     <div class="bi-desk__transport">
+                        {{#if hasScene}}
+                        <button type="button" class="bi-key{{#if sceneBound}} bi-key--go{{/if}}" data-action="bindScene"
+                            data-tooltip="{{#if sceneBound}}{{localize 'BLANKINHERITANCE.Audio.BoundHint'}} {{sceneBound}}{{else}}{{localize 'BLANKINHERITANCE.Audio.BindHint'}}{{/if}}">
+                            {{#if sceneBound}}{{localize "BLANKINHERITANCE.Audio.Bound"}}{{else}}{{localize "BLANKINHERITANCE.Audio.Bind"}}{{/if}}
+                        </button>
+                        {{/if}}
                         <button type="button" class="bi-key bi-key--caution" data-action="cycleFade" data-tooltip="{{localize 'BLANKINHERITANCE.Audio.FadeTime'}}">{{fadeLabel}}</button>
                         <button type="button" class="bi-key" data-action="stopMusic">{{localize "BLANKINHERITANCE.Audio.StopMusic"}}</button>
                         <button type="button" class="bi-key bi-key--caution" data-action="stopAll">{{localize "BLANKINHERITANCE.Audio.StopAll"}}</button>

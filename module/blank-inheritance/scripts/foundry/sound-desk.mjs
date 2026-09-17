@@ -15,13 +15,14 @@
  * Everything else is an ordinary ApplicationV2 render.
  */
 
-import { deskChannels, faderDbFromPointer, faderFrame, libraryRow, meterFaceGeometry, nowPlayingModel, paginate, vuNeedleDegrees, LIBRARY_FILTERS } from "../core/audio-desk.mjs";
+import { deskChannels, faderDbFromPointer, faderFrame, libraryRow, meterFaceGeometry, nowPlayingModel, paginate, playheadModel, vuNeedleDegrees, LIBRARY_FILTERS } from "../core/audio-desk.mjs";
 import { searchLibrary } from "../core/audio-library.mjs";
 import { FADE_STEPS_MS, VU_REFERENCE_DBFS, dbToFader, dbToGain, fadeLabel, formatDb, vuStep, withMixChange } from "../core/audio-mix.mjs";
 import { vuFace } from "../core/vu-meter.mjs";
 import { currentMix, playOneShot, readMeters, setMix } from "./audio-engine.mjs";
 import {
   applySoundscape,
+  currentSoundscapeId,
   directorState,
   fireSting,
   playMusicPool,
@@ -31,7 +32,7 @@ import {
   stopAllAudio,
   stopMusic
 } from "./audio-director.mjs";
-import { syncAudioPlaylists, generatedPlaylists } from "./audio-playlists.mjs";
+import { syncAudioPlaylists, generatedPlaylists, soundForAsset } from "./audio-playlists.mjs";
 import { cachedAudio, loadAudio, refreshAudio, srcFor } from "./audio-store.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -72,7 +73,8 @@ export class SoundDesk extends HandlebarsApplicationMixin(ApplicationV2) {
       muteBus: SoundDesk.#onMuteBus,
       nudgeBus: SoundDesk.#onNudgeBus,
       rebuild: SoundDesk.#onRebuild,
-      refresh: SoundDesk.#onRefresh
+      refresh: SoundDesk.#onRefresh,
+      bindScene: SoundDesk.#onBindScene
     }
   };
 
@@ -126,7 +128,9 @@ export class SoundDesk extends HandlebarsApplicationMixin(ApplicationV2) {
       page: { index: pageData.page + 1, pages: pageData.pages, total: pageData.total },
       auditionId: this.#audition?.assetId ?? null,
       problems: audio?.problems ?? [],
-      built: generatedPlaylists().size > 0
+      built: generatedPlaylists().size > 0,
+      hasScene: !!canvas?.scene,
+      sceneBound: canvas?.scene?.getFlag(MODULE_ID, "audio")?.soundscape ?? null
     };
   }
 
@@ -216,7 +220,25 @@ export class SoundDesk extends HandlebarsApplicationMixin(ApplicationV2) {
       if (lamp) lamp.classList.toggle("is-lit", Number.isFinite(level.peakDb) && level.peakDb > -0.5);
       written[bus] = { rmsDb: level.rmsDb, deg };
     }
+    this.#paintPlayheads();
     return written;
+  }
+
+  /**
+   * The elapsed/remaining readout on whatever music is playing. Painted with
+   * the meters rather than re-rendered: a clock that ticks through Handlebars
+   * would rebuild the whole panel once a frame.
+   */
+  #paintPlayheads() {
+    for (const el of this.element.querySelectorAll("[data-playhead]")) {
+      const found = soundForAsset(el.dataset.playhead);
+      const sound = found?.sound?.sound;
+      const head = playheadModel({ currentTime: sound?.currentTime, duration: sound?.duration });
+      const bar = el.querySelector(".bi-desk__playhead-bar b");
+      const time = el.querySelector(".bi-desk__playhead-time");
+      if (bar) bar.style.width = `${Math.round(head.progress * 100)}%`;
+      if (time) time.textContent = `${head.elapsed} / ${head.remaining}`;
+    }
   }
 
   #startMeters() {
@@ -371,6 +393,29 @@ export class SoundDesk extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static async #onRefresh() {
     await refreshAudio();
+    this.render({});
+  }
+
+  /**
+   * Bind the soundscape that is currently up to the scene the GM is looking
+   * at, so activating that scene brings it back. Pressing it again with the
+   * same soundscape unbinds — one key, both directions, because a binding you
+   * cannot see how to remove is one nobody dares press.
+   */
+  static async #onBindScene() {
+    const scene = canvas?.scene;
+    if (!scene) return;
+    const bound = scene.getFlag(MODULE_ID, "audio")?.soundscape ?? null;
+    const current = currentSoundscapeId();
+    if (bound && (bound === current || !current)) {
+      await scene.unsetFlag(MODULE_ID, "audio");
+      ui.notifications.info(game.i18n.format("BLANKINHERITANCE.Audio.Unbound", { scene: scene.name }));
+    } else if (current) {
+      await scene.setFlag(MODULE_ID, "audio", { soundscape: current });
+      ui.notifications.info(game.i18n.format("BLANKINHERITANCE.Audio.BoundTo", { scene: scene.name, soundscape: current }));
+    } else {
+      ui.notifications.warn(game.i18n.localize("BLANKINHERITANCE.Audio.NothingToBind"));
+    }
     this.render({});
   }
 }

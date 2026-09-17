@@ -591,7 +591,14 @@
       },
       "CueLinkTooltip": "Fire this audio cue ({id})",
       "CueLinkUnknown": "No audio cue called {id} — check data/audio/cues/",
-      "CueFailed": "Audio cue {id} failed — see the console"
+      "CueFailed": "Audio cue {id} failed — see the console",
+      "Bind": "Bind to scene",
+      "Bound": "Bound",
+      "BindHint": "Play this soundscape whenever this scene is activated",
+      "BoundHint": "This scene already plays:",
+      "BoundTo": "{scene} will now play {soundscape}",
+      "Unbound": "{scene} no longer has its own soundscape",
+      "NothingToBind": "Apply a soundscape first, then bind it to this scene"
     }
   }
 }

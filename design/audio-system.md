@@ -298,9 +298,16 @@ A panel, not a pod on the deck: `ux-doctrine.md` §9 files the audio mixer under
 the chassis belongs to what happens inside a turn. Same toggle chassis as the
 Summon panel.
 
-On air readout · soundscape list · cue list · music pools · three channel
-strips (amber VU meter, photoreal filmstrip fader, mute, ±1 dB nudges) ·
-searchable library with per-row actions · build/refresh.
+On air readout (with a playhead: elapsed, remaining and a progress bar on
+whatever music is playing) · soundscape list · cue list · music pools · three
+channel strips (amber VU meter, photoreal filmstrip fader, mute, ±1 dB nudges)
+· searchable library with per-row actions · build/refresh · **Bind to scene**.
+
+**Bind to scene** is how a soundscape gets attached without editing JSON:
+apply one, press Bind, and activating that scene brings it back. Pressing it
+again unbinds — one key, both directions, because a binding you cannot see how
+to remove is one nobody dares press. (Verified live: silence → leave the scene
+→ return → music, both beds and the scatter layer all came back by themselves.)
 
 **Audition is pre-fade listen**: the headphone key plays a track on the GM's
 machine only, touching no document, so the library is browsable mid-session
@@ -324,6 +331,10 @@ the whole thing is for them.
 **Adding music:** drop files into `audio/in-tray/music/<mood>/` — the folder is
 the category, and a folder whose name contains "sting" makes stings. Run
 `process`, then press **Build playlists** on the desk.
+
+**Binding audio to a scene:** apply the soundscape you want, then press **Bind
+to scene** on the desk. That writes `flags.blank-inheritance.audio.soundscape`
+on the Scene; nothing else is needed.
 
 **Adding samples:** drop them anywhere under `audio/in-tray/`. The classifier
 proposes a kind, a shelf, a title and tags from the file's own embedded

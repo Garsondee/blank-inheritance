@@ -17,6 +17,7 @@ import {
   meterFaceGeometry,
   nowPlayingModel,
   paginate,
+  playheadModel,
   vuNeedleDegrees,
   vuNeedlePosition
 } from "../module/blank-inheritance/scripts/core/audio-desk.mjs";
@@ -93,6 +94,14 @@ test("now playing lists what the table is hearing, and says when it is hearing n
   assert.equal(model.ambience[0].gainLabel, "-6.0");
   assert.equal(model.silent, false);
   assert.equal(nowPlayingModel({}, index).silent, true);
+});
+
+test("the playhead reads elapsed and remaining, and says nothing rather than lying", () => {
+  assert.deepEqual(playheadModel({ currentTime: 65, duration: 187 }), { elapsed: "1:05", remaining: "-2:02", progress: 0.348 });
+  assert.deepEqual(playheadModel({ currentTime: 0, duration: 187 }).remaining, "-3:07");
+  assert.deepEqual(playheadModel({ currentTime: 999, duration: 187 }), { elapsed: "3:07", remaining: "-0:00", progress: 1 }, "past the end pins rather than going negative");
+  assert.deepEqual(playheadModel({}), { elapsed: "--:--", remaining: "--:--", progress: 0 });
+  assert.deepEqual(playheadModel({ currentTime: 5, duration: 0 }), { elapsed: "--:--", remaining: "--:--", progress: 0 }, "a stream with no known length cannot be measured");
 });
 
 test("a library row offers only what that kind of sound can actually do", () => {

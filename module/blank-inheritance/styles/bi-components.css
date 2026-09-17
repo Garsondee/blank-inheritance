@@ -8113,3 +8113,24 @@
 }
 .bi-cue-link:hover { background: rgb(255 138 31 / 26%); color: #fff; }
 .bi-cue-link--unknown { border-color: var(--bi-vermilion); color: var(--bi-vermilion); background: rgb(209 64 42 / 12%); }
+
+/* The playhead on whatever music is on air: how far in, how much is left.
+   Painted with the meters (foundry/sound-desk.mjs#paintMeters), never
+   re-rendered — a clock that ticked through Handlebars would rebuild the
+   whole panel once a frame. */
+.bi-desk__playhead { display: inline-flex; align-items: center; gap: 6px; margin-left: 8px; }
+.bi-desk__playhead-bar {
+  display: inline-block;
+  width: 96px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--bi-ns-black-lo);
+  box-shadow: inset 0 0 0 1px var(--bi-ns-outline);
+  overflow: hidden;
+}
+.bi-desk__playhead-bar b { display: block; height: 100%; background: var(--bi-vu-orange); transition: width 200ms linear; }
+.bi-desk__playhead-time { font-size: 10px; color: var(--bi-ns-silver-deep); font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bi-desk__playhead-bar b { transition: none; }
+}
