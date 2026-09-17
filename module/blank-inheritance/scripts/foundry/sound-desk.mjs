@@ -291,14 +291,30 @@ export class SoundDesk extends HandlebarsApplicationMixin(ApplicationV2) {
     this.render({});
   }
 
-  static async #onApplyScape(event, target) {
-    await applySoundscape(target.dataset.scapeId, { fadeMs: this.#fadeMs });
+  /**
+   * Run a desk action, and TELL THE GM when it fails.
+   *
+   * Every key on this panel called straight into the director, so anything it
+   * threw became an uncaught promise rejection: nothing on screen changed and
+   * the only evidence was the console. Reported live by Ingram, 2026-09-18,
+   * from a world whose audio playlists had never been built.
+   */
+  async #guard(work) {
+    try {
+      await work();
+    } catch (err) {
+      console.error("Blank Inheritance | Sound Desk action failed:", err);
+      ui.notifications?.warn(err?.message ?? String(err));
+    }
     this.render({});
   }
 
+  static async #onApplyScape(event, target) {
+    await this.#guard(() => applySoundscape(target.dataset.scapeId, { fadeMs: this.#fadeMs }));
+  }
+
   static async #onFireCue(event, target) {
-    await runCue(target.dataset.cueId);
-    this.render({});
+    await this.#guard(() => runCue(target.dataset.cueId));
   }
 
   static #onSetFilter(event, target) {
@@ -313,13 +329,11 @@ export class SoundDesk extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   static async #onPlayAsset(event, target) {
-    await playMusicTrack(target.dataset.assetId, { fadeMs: this.#fadeMs, loop: false });
-    this.render({});
+    await this.#guard(() => playMusicTrack(target.dataset.assetId, { fadeMs: this.#fadeMs, loop: false }));
   }
 
   static async #onPlayPool(event, target) {
-    await playMusicPool(target.dataset.pool, { fadeMs: this.#fadeMs });
-    this.render({});
+    await this.#guard(() => playMusicPool(target.dataset.pool, { fadeMs: this.#fadeMs }));
   }
 
   /** Add (or remove) one ambience bed under whatever is already up. */

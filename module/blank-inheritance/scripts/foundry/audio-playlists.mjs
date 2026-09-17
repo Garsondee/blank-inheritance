@@ -154,6 +154,35 @@ export function generatedPlaylists() {
   return out;
 }
 
+/**
+ * Make sure the generated playlists exist, building them if they do not.
+ *
+ * Reported live by Ingram, 2026-09-18, from a world where they had never been
+ * built: every soundscape threw "No music pool — build the audio playlists
+ * first", as an UNCAUGHT promise rejection, from a scene cut he had not asked
+ * to make any noise. Two things were wrong with that. The build is a one-time
+ * step nobody was told about, and an unbuilt library is a state the system can
+ * fix by itself — so it now does, rather than instructing a GM mid-session.
+ *
+ * Tried once per page. A second failure is a real fault (no audio data pushed,
+ * no permission) and must not become a rebuild attempt on every cut.
+ */
+let buildAttempted = false;
+export async function ensureAudioPlaylists() {
+  if (generatedPlaylists().size) return true;
+  if (buildAttempted || !game.user?.isGM) return false;
+  buildAttempted = true;
+  try {
+    await syncAudioPlaylists({ notify: false });
+    const built = generatedPlaylists().size;
+    if (built) ui.notifications?.info(game.i18n.format("BLANKINHERITANCE.Audio.AutoBuilt", { count: built }));
+    return built > 0;
+  } catch (err) {
+    console.error("Blank Inheritance | Could not build the audio playlists on demand:", err);
+    return false;
+  }
+}
+
 /** Find the PlaylistSound holding a given library asset, wherever it lives. */
 export function soundForAsset(assetId) {
   for (const playlist of game.playlists ?? []) {

@@ -107,7 +107,9 @@ function castCommands() {
             const scene = canvas?.scene;
             if (!scene) return;
             if (here) await removeFromStage(scene, portraitId);
-            else await summonToStage(scene, { id: portraitId, label: actor.name, img: actor.img, kind: actor.hasPlayerOwner ? "pc" : "npc", actorId: actor.id });
+            // The RAW actor id: castMemberFromDescriptor adds the "summon-"
+            // prefix, and `name`/`isPc` are the field names it reads.
+            else await summonToStage(scene, { id: actor.id, name: actor.name, img: actor.img, actorId: actor.id, isPc: actor.hasPlayerOwner });
           }
         },
         {

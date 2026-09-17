@@ -372,7 +372,12 @@
       "Held": "Held by the party",
       "Insight": "Free to ask",
       "CutTo": "Cut the table to this",
-      "Palette": "Anything else…"
+      "Palette": "Anything else…",
+      "NotePlaceholder": "What just happened?",
+      "NoteScene": "→ this scene",
+      "PutOnStage": "Put them on stage",
+      "OnStage": "Already on stage — click to stage again",
+      "NoSceneToStage": "There is no scene open to stage anyone onto."
     },
     "Induction": {
       "MacroName": "Blank Inheritance: Begin Induction",
@@ -600,7 +605,8 @@
       "BoundHint": "This scene already plays:",
       "BoundTo": "{scene} will now play {soundscape}",
       "Unbound": "{scene} no longer has its own soundscape",
-      "NothingToBind": "Apply a soundscape first, then bind it to this scene"
+      "NothingToBind": "Apply a soundscape first, then bind it to this scene",
+      "AutoBuilt": "Built {count} audio playlists — the library had not been set up in this world yet."
     },
     "Scenes": {
       "MacroName": "Build the scene set",

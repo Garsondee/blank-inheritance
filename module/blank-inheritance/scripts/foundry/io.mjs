@@ -30,6 +30,21 @@ export async function fetchModuleJson(relativePath) {
  * state of a campaign that has not authored any of that kind of file.
  */
 export async function listModuleJsonIds(relativeDir) {
+  return (await tryListModuleJsonIds(relativeDir)) ?? [];
+}
+
+/**
+ * The same listing, but NULL when the directory could not be read at all.
+ *
+ * listModuleJsonIds cannot tell "there is nothing there" from "I could not
+ * look", because both come back as an empty array — which is fine for a
+ * caller enumerating optional content and dangerous for one deciding whether
+ * to skip a read. foundry/session-log.mjs uses this to avoid a speculative
+ * 404 WITHOUT ever skipping the load of a log that does exist: a failed
+ * listing falls back to fetching, because losing a GM's notes is far worse
+ * than a red line in the console.
+ */
+export async function tryListModuleJsonIds(relativeDir) {
   const target = `modules/${MODULE_ID}/${relativeDir}`;
   try {
     const result = await foundry.applications.apps.FilePicker.implementation.browse("data", target);
@@ -37,7 +52,27 @@ export async function listModuleJsonIds(relativeDir) {
       .filter((f) => f.toLowerCase().endsWith(".json"))
       .map((f) => decodeURIComponent(f.split("/").pop().replace(/\.json$/i, "")));
   } catch (err) {
-    console.log(`Blank Inheritance | No files under ${target} (${err?.message ?? err})`);
+    console.log(`Blank Inheritance | Could not list ${target} (${err?.message ?? err})`);
+    return null;
+  }
+}
+
+/**
+ * The image files sitting in a module directory, by bare filename stem.
+ *
+ * Same browse-and-forgive shape as listModuleJsonIds above: a missing
+ * directory is an empty list, never a throw, because every caller of this is
+ * decorating something that must still work without art.
+ */
+export async function listModuleImageIds(relativeDir) {
+  const target = `modules/${MODULE_ID}/${relativeDir}`;
+  try {
+    const result = await foundry.applications.apps.FilePicker.implementation.browse("data", target);
+    return (result?.files ?? [])
+      .filter((f) => /\.(webp|png|jpe?g|gif|avif)$/i.test(f))
+      .map((f) => decodeURIComponent(f.split("/").pop().replace(/\.[^.]+$/, "")));
+  } catch (err) {
+    console.log(`Blank Inheritance | No images under ${target} (${err?.message ?? err})`);
     return [];
   }
 }

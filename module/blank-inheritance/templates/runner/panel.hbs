@@ -68,6 +68,20 @@
         </div>
     </header>
 
+    {{!-- The note bar. Doctrine §10.3: capture during a scene has to cost
+          nothing, so this is one field, always here, Enter to save, and it
+          says up front which beat the line will attach itself to. --}}
+    {{#if title}}
+    <div class="bi-runner__notebar">
+        <input type="text" class="bi-runner__note-input" autocomplete="off"
+               placeholder="{{localize 'BLANKINHERITANCE.Runner.NotePlaceholder'}}"
+               aria-label="{{localize 'BLANKINHERITANCE.Runner.NotePlaceholder'}}">
+        <span class="bi-runner__note-target">
+            {{#if noteTarget}}→ {{noteTarget.text}}{{else}}{{localize "BLANKINHERITANCE.Runner.NoteScene"}}{{/if}}
+        </span>
+    </div>
+    {{/if}}
+
     <div class="bi-runner__scroll">
         {{#unless title}}
         <p class="bi-runner__empty">{{localize "BLANKINHERITANCE.Runner.NoScene"}}</p>

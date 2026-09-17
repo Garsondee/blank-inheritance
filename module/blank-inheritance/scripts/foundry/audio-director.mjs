@@ -30,7 +30,7 @@ import {
 import { dbToGain, withMixChange } from "../core/audio-mix.mjs";
 import { AUDIO_KINDS } from "../core/audio-library.mjs";
 import { broadcastAudio, currentMix, onAudioMessage, playOneShot, setMix } from "./audio-engine.mjs";
-import { generatedPlaylists, playingGeneratedSounds, soundForAsset } from "./audio-playlists.mjs";
+import { ensureAudioPlaylists, generatedPlaylists, playingGeneratedSounds, soundForAsset } from "./audio-playlists.mjs";
 import { assetFor, cachedAudio, loadAudio, srcFor } from "./audio-store.mjs";
 import { presentLocally } from "./audio-present.mjs";
 
@@ -101,6 +101,7 @@ async function stopOtherMusic(keepId, fadeMs) {
  * document updates carrying their own fade length.
  */
 export async function playMusicPool(pool, { fadeMs = DEFAULT_FADE_MS } = {}) {
+  await ensureAudioPlaylists();
   const playlist = generatedPlaylists().get(`music-${pool}`);
   if (!playlist) throw new Error(`No music pool "${pool}" — build the audio playlists first.`);
   await stopOtherMusic(playlist.id, fadeMs);
@@ -116,6 +117,7 @@ export async function playMusicPool(pool, { fadeMs = DEFAULT_FADE_MS } = {}) {
  * `PlaylistSound#sync` reads as the offset to start at.
  */
 export async function playMusicTrack(assetId, { fadeMs = DEFAULT_FADE_MS, loop = true, from = 0, restart = true } = {}) {
+  await ensureAudioPlaylists();
   const found = soundForAsset(assetId);
   if (!found) throw new Error(`No playlist sound for "${assetId}" — build the audio playlists first.`);
   const { playlist, sound } = found;
@@ -255,9 +257,19 @@ export async function applySoundscape(soundscapeId, { fadeMs = null } = {}) {
   const fade = fadeMs ?? plan.fadeMs;
 
   if (plan.mix) await setMix(withMixChange(currentMix(), plan.mix));
-  if (plan.music.mode === "silence") await stopMusic({ fadeMs: fade });
-  else if (plan.music.mode === "pool") await playMusicPool(plan.music.pool, { fadeMs: fade });
-  else if (plan.music.mode === "track") await playMusicTrack(plan.music.assetId, { fadeMs: fade, loop: plan.music.loop, from: plan.music.from });
+
+  // The music step is allowed to fail without taking the rest of the scene's
+  // sound with it. A soundscape naming a pool that is empty (or a library that
+  // was never built) should still lay its ambience beds down and still say so
+  // out loud -- half a soundscape beats an uncaught rejection and silence.
+  try {
+    if (plan.music.mode === "silence") await stopMusic({ fadeMs: fade });
+    else if (plan.music.mode === "pool") await playMusicPool(plan.music.pool, { fadeMs: fade });
+    else if (plan.music.mode === "track") await playMusicTrack(plan.music.assetId, { fadeMs: fade, loop: plan.music.loop, from: plan.music.from });
+  } catch (err) {
+    console.error(`Blank Inheritance | Soundscape "${soundscapeId}" could not start its music:`, err);
+    ui.notifications?.warn(err.message);
+  }
 
   await setAmbience(plan.ambience, { fadeMs: fade });
   startScatter(plan.scatter);

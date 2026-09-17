@@ -8305,3 +8305,65 @@
   transition: none;
 }
 .bi-runner__palette:hover { color: var(--bi-ink, #241f1a); border-style: solid; }
+
+/* The Scene Runner's note bar, the notes it writes into the running order's
+   own margin, and the key that puts a named person on stage. Paper register:
+   these are marks made on a script, not readouts. */
+.bi-runner__notebar {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 10px;
+  border-top: 1px solid rgb(38 32 24 / 18%);
+  border-bottom: 1px solid rgb(38 32 24 / 18%);
+  background: rgb(38 32 24 / 5%);
+}
+.bi-runner__note-input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  border-bottom: 1px dashed rgb(38 32 24 / 35%);
+  outline: none;
+  color: var(--bi-ink, #241f1a);
+  font-family: var(--bi-font-hand, var(--bi-font-condensed, sans-serif));
+  font-size: 13px;
+  padding: 2px 0;
+}
+.bi-runner__note-input:focus { border-bottom-style: solid; border-bottom-color: var(--bi-vermilion, #d1402a); }
+.bi-runner__note-input::placeholder { color: rgb(38 32 24 / 40%); }
+
+.bi-runner__note-target {
+  flex: 0 1 auto;
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgb(38 32 24 / 55%);
+  font-family: var(--bi-font-condensed, sans-serif);
+  font-size: 10px;
+}
+
+.bi-runner__jotted { list-style: none; margin: 5px 0 0; padding: 0 0 0 10px; border-left: 2px solid var(--bi-vermilion, #d1402a); }
+.bi-runner__jot {
+  color: rgb(38 32 24 / 82%);
+  font-family: var(--bi-font-hand, var(--bi-font-condensed, sans-serif));
+  font-size: 12px;
+  line-height: 1.35;
+}
+.bi-runner__jot-tag { color: var(--bi-vermilion, #d1402a); text-transform: uppercase; font-size: 9px; letter-spacing: 0.08em; }
+
+.bi-runner__stage {
+  float: right;
+  background: none;
+  border: 1px solid rgb(38 32 24 / 25%);
+  border-radius: 2px;
+  color: rgb(38 32 24 / 55%);
+  font-size: 10px;
+  line-height: 1;
+  padding: 3px 6px;
+  cursor: pointer;
+  transition: none;
+}
+.bi-runner__stage:hover { color: var(--bi-ink, #241f1a); border-color: rgb(38 32 24 / 55%); }
+.bi-runner__stage--on { background: var(--bi-vermilion, #d1402a); border-color: var(--bi-vermilion, #d1402a); color: #fff; }

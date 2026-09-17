@@ -189,3 +189,91 @@ test("only a GM may build the playlists", async () => {
     mock.restore();
   }
 });
+/* ---------------------------------------------------------------- */
+/*  Building on demand (reported live, 2026-09-18)                   */
+/* ---------------------------------------------------------------- */
+
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const readJson = (rel) => JSON.parse(readFileSync(path.join(repoRoot, rel), "utf8"));
+
+/** A world holding the REAL library and one real soundscape. */
+function realWorld(soundscapeOverrides = null) {
+  const scape = readJson("data/audio/soundscapes/episode-c1s1--canteen.json");
+  if (soundscapeOverrides) Object.assign(scape, soundscapeOverrides);
+  return installAudioMock({
+    moduleFiles: {
+      [`${AUDIO_DIR}/library.json`]: readJson("data/audio/library.json"),
+      [`${AUDIO_DIR}/review.json`]: readJson("data/audio/review.json"),
+      "data/campaign/campaign/asset-registry.json": readJson("data/campaign/asset-registry.json"),
+      [`${AUDIO_DIR}/soundscapes/episode-c1s1--canteen.json`]: scape
+    }
+  });
+}
+
+async function freshAudio() {
+  const bust = `?t=${Math.random()}`;
+  const playlists = await import(`../module/blank-inheritance/scripts/foundry/audio-playlists.mjs${bust}`);
+  const director = await import(`../module/blank-inheritance/scripts/foundry/audio-director.mjs${bust}`);
+  const engine = await import(`../module/blank-inheritance/scripts/foundry/audio-engine.mjs${bust}`);
+  const store = await import("../module/blank-inheritance/scripts/foundry/audio-store.mjs");
+  engine.registerAudioSettings();
+  // audio-store caches the library for the page, and a cache-busted director
+  // still imports the SHARED store — so without this the previous test's world
+  // is what the next one reads.
+  await store.loadAudio({ force: true });
+  return { playlists, director, engine, store };
+}
+
+test("a world whose playlists were never built builds them on demand rather than throwing at the GM", async () => {
+  // Reported live by Ingram, 2026-09-18: every soundscape threw "No music pool
+  // — build the audio playlists first" as an UNCAUGHT rejection, from a scene
+  // cut he had not asked to make any noise. The build is a one-time step
+  // nobody was told about, and an unbuilt library is a state the system can
+  // fix by itself.
+  const mock = realWorld();
+  try {
+    const { playlists, director } = await freshAudio();
+    assert.equal(playlists.generatedPlaylists().size, 0, "this world starts with nothing built");
+
+    await assert.doesNotReject(() => director.applySoundscape("episode-c1s1--canteen"));
+
+    assert.ok(playlists.generatedPlaylists().size > 0, "the playlists should have been built on the way");
+    const state = director.directorState();
+    assert.equal(state.soundscapeId, "episode-c1s1--canteen");
+    assert.ok(state.music.length > 0, "and the music should actually be playing");
+  } finally {
+    mock.restore();
+  }
+});
+
+test("a soundscape whose music cannot start still lays its ambience beds down", async () => {
+  // Half a soundscape beats an uncaught rejection and silence.
+  const mock = realWorld({ music: { pool: "no-such-pool" } });
+  try {
+    const { playlists, director } = await freshAudio();
+    await playlists.syncAudioPlaylists({ notify: false });
+
+    await assert.doesNotReject(() => director.applySoundscape("episode-c1s1--canteen"));
+
+    const state = director.directorState();
+    assert.equal(state.music.length, 0, "the music could not start");
+    assert.ok(state.ambience.length > 0, "but the beds it also named are up");
+  } finally {
+    mock.restore();
+  }
+});
+
+test("a pool that genuinely does not exist still reports itself to whoever asked", async () => {
+  // Auto-building must not turn a real mistake into silence.
+  const mock = realWorld();
+  try {
+    const { director } = await freshAudio();
+    await assert.rejects(() => director.playMusicPool("no-such-pool"), /No music pool "no-such-pool"/);
+  } finally {
+    mock.restore();
+  }
+});

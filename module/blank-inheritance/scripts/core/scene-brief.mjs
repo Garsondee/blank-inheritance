@@ -300,6 +300,57 @@ export function displayName(member) {
   return member?.label ?? member?.role ?? member?.id ?? null;
 }
 
+/* ---------------------------------------------------------------- */
+/*  Notes taken while the scene is running                           */
+/* ---------------------------------------------------------------- */
+
+/**
+ * Which beat a note typed right now should attach itself to.
+ *
+ * The most recently ticked beat, by its own timestamp -- because a GM types
+ * what just happened immediately AFTER marking that it happened, and asking
+ * them to also pick a target from a list is the friction doctrine §10.3 says
+ * will stop the note being written at all ("If they ever feel like a form,
+ * they have failed").
+ *
+ * Returns null when nothing has been ticked yet, which the caller should read
+ * as "this note belongs to the scene, not to a beat".
+ */
+export function noteTargetFor(beats = [], runState = emptyRunState()) {
+  const ticked = runState?.ticked ?? {};
+  let best = null;
+  for (const beat of beats) {
+    const at = ticked[beat.id]?.at;
+    if (!at) continue;
+    if (!best || String(at) > String(best.at)) best = { id: beat.id, at, text: beat.text ?? null };
+  }
+  return best;
+}
+
+/**
+ * The notes already written against one beat, oldest first.
+ *
+ * Read straight back out of the session log rather than kept in run state:
+ * the log IS the record (foundry/session-log.mjs writes it to
+ * storage/sessions/), and a second copy in run state would be one more thing
+ * to keep in step and one more place for the two to disagree.
+ */
+export function notesForBeat(entries = [], beatId) {
+  if (!beatId) return [];
+  return entries.filter((entry) => entry?.context?.subject === beatId);
+}
+
+/** How many notes each beat carries, keyed by beat id, for the running order's own margin. */
+export function noteCounts(entries = []) {
+  const counts = {};
+  for (const entry of entries) {
+    const subject = entry?.context?.subject;
+    if (!subject) continue;
+    counts[subject] = (counts[subject] ?? 0) + 1;
+  }
+  return counts;
+}
+
 /**
  * Everything the panel needs for one scene, in one call.
  *

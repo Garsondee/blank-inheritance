@@ -25,15 +25,21 @@
 
 import {
   beatsWithState,
+  displayName,
   emptyRunState,
   hiddenAdjustment,
+  noteCounts,
+  noteTargetFor,
+  notesForBeat,
   postedDc,
   sceneRunnerState
 } from "../core/scene-brief.mjs";
 import { enricherFor } from "../core/roll-intent.mjs";
 import { deriveFoundryId } from "../core/ids.mjs";
-import { fetchModuleJson } from "./io.mjs";
+import { fetchModuleJson, listModuleImageIds } from "./io.mjs";
 import { fitDeck } from "./deck.mjs";
+import { currentEntries, recordLogEntry } from "./session-log.mjs";
+import { summonToStage } from "./stage.mjs";
 import { applySoundscape, fireEvent } from "./audio-director.mjs";
 import { cachedAudio, loadAudio } from "./audio-store.mjs";
 
@@ -162,6 +168,7 @@ export async function fireBeatAudio(briefId, beatId) {
 async function loadScene(briefId) {
   const brief = await loadJson("scene-briefs", briefId);
   if (!brief) return null;
+  primeStagePortraits().catch(() => {}); // best-effort; art is decoration here
 
   const [episode, subsystem] = await Promise.all([
     loadJson("episodes", brief.episodeRef),
@@ -198,6 +205,55 @@ function backdropsFor(briefId) {
     }));
 }
 
+/**
+ * The stage portrait id for one of a brief's cast members.
+ *
+ * A cast member is authored content (an npcRef or a label), not an Actor, so
+ * it gets the same `summon-<id>` shape the summon panel uses for real Actors
+ * -- one namespace on the stage means "is this person already up?" is a single
+ * lookup wherever they came from.
+ */
+function stageIdFor(member) {
+  return String(member?.npcRef ?? member?.id ?? member?.displayName ?? "unknown");
+}
+
+/**
+ * The id the STAGE stores them under.
+ *
+ * core/stage-layout.mjs#castMemberFromDescriptor prepends "summon-" to the
+ * descriptor id itself, so the descriptor gets the RAW id and only this
+ * function knows about the prefix. Passing an already-prefixed id produced
+ * "summon-summon-shucks-mordant" — found live, first click.
+ */
+function portraitIdFor(member) {
+  return `summon-${stageIdFor(member)}`;
+}
+
+/**
+ * Which stage portraits the module actually ships, by id.
+ *
+ * Browsed once per page rather than per render, and per cast member it is a
+ * plain Set lookup. A brief's cast member has no Actor to take an `img` from
+ * — that is the whole difference between them and the summon panel's rows —
+ * so without this they stage as a nameplate over an empty frame.
+ */
+let stagePortraitIds = null;
+async function primeStagePortraits() {
+  if (stagePortraitIds) return stagePortraitIds;
+  stagePortraitIds = new Set(await listModuleImageIds("assets/stage"));
+  return stagePortraitIds;
+}
+
+function stagePortraitFor(id) {
+  return stagePortraitIds?.has(id) ? `modules/${MODULE_ID}/assets/stage/${id}.webp` : undefined;
+}
+
+/** Who is currently standing on the scene the table is looking at. */
+function stagedPortraitIds() {
+  const cast = canvas?.scene?.getFlag(MODULE_ID, "stage")?.cast ?? [];
+  return new Set(cast.map((m) => m.portraitId));
+}
+
 /** The one check a beat names, out of its challenge's handful. */
 function checkFor(beat, challenges) {
   const challenge = challenges[beat.challengeRef];
@@ -225,6 +281,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       pickScene: SceneRunner.#onPickScene,
       cutTo: SceneRunner.#onCutTo,
       openPalette: SceneRunner.#onOpenPalette,
+      stagePerson: SceneRunner.#onStagePerson,
       postCheck: SceneRunner.#onPostCheck,
       revealHandout: SceneRunner.#onRevealHandout,
       revealHandoutSolo: SceneRunner.#onRevealHandoutSolo,
@@ -261,6 +318,15 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
   _onRender(context, options) {
     super._onRender?.(context, options);
     fitDeck();
+
+    // Enter saves. Bound here rather than as a data-action because the field
+    // is a text input, not a button, and a note must never need a second click.
+    const input = this.element.querySelector(".bi-runner__note-input");
+    input?.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      SceneRunner.#onNote.call(this, event);
+    });
   }
 
   /** The loaded scene, kept so the action handlers do not re-fetch on every click. */
@@ -295,6 +361,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     const { brief, subsystem, challenges } = loaded;
     const runState = runStateFor(briefId);
     const state = sceneRunnerState({ brief, subsystem, runState, locationKey: brief.sceneRef });
+    const entries = currentEntries();
 
     return {
       ...state,
@@ -302,12 +369,23 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       // against it, main room and sub-rooms alike, so cutting to "the
       // examination room" is one click rather than a hunt through the sidebar.
       backdrops: backdropsFor(briefId),
+      // Where a note typed right now would land, shown next to the field so
+      // the GM can see it before they commit rather than after.
+      noteTarget: noteTargetFor(state.beats, runState),
       // `scenes`/`open` LAST, after the spread: sceneRunnerState has no
       // scenes or open-state of its own, but either growing one later must
       // not silently be shadowed by it.
       episodeTitle: episode?.title ?? null,
-      beats: state.beats.map((beat) => this.#decorateBeat(beat, brief, challenges)),
-      cast: state.cast.map((member) => ({ ...member, brief: member.brief ?? {} })),
+      beats: state.beats.map((beat) => this.#decorateBeat(beat, brief, challenges, entries)),
+      cast: state.cast.map((member) => ({
+        ...member,
+        brief: member.brief ?? {},
+        portraitId: portraitIdFor(member),
+        // Whether this person is already standing on the scene the table is
+        // looking at, so the key can say "on stage" instead of offering to put
+        // them there twice.
+        onStage: stagedPortraitIds().has(portraitIdFor(member))
+      })),
       scenes,
       open: this.#open
     };
@@ -322,7 +400,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
    * would be invisible to it, and an undefined modifier class fails silently
    * as unstyled markup rather than as an error.
    */
-  #decorateBeat(beat, brief, challenges) {
+  #decorateBeat(beat, brief, challenges, entries = []) {
     const check = checkFor(beat, challenges);
     const handout = beat.handoutRef ? (brief.handouts ?? []).find((h) => h.id === beat.handoutRef) ?? null : null;
 
@@ -333,8 +411,15 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     });
     const dc = postedDc(baseDc, adjustment);
 
+    const notes = notesForBeat(entries, beat.id);
+
     return {
       ...beat,
+      // What the GM wrote down while this beat was happening. Read back out of
+      // the session log by subject -- the log is the record, and the runner
+      // shows it rather than keeping a second copy.
+      notes: notes.map((entry) => ({ text: entry.text, tag: entry.tag ?? null })),
+      noteCount: notes.length,
       isDone: beat.state === "done",
       isPending: beat.state === "pending",
       isConditional: beat.state === "conditional",
@@ -437,6 +522,61 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
     const { cueScene } = await import("./director-panel.mjs");
     await cueScene(target.dataset.sceneId);
     this.render({});
+  }
+
+  /**
+   * Put one of the scene's own cast on the stage the table is looking at.
+   *
+   * The summon panel already does this for real Actors; this does it for the
+   * people the BRIEF names, who mostly have no Actor at all -- which is the
+   * common case in a theatre-of-the-mind scene and the one that previously
+   * meant leaving the script to go and find them.
+   */
+  static async #onStagePerson(event, target) {
+    const scene = canvas?.scene;
+    if (!scene) return ui.notifications.warn(game.i18n.localize("BLANKINHERITANCE.Runner.NoSceneToStage"));
+    const member = (this._scene?.brief?.cast ?? []).find((m) => portraitIdFor(m) === target.dataset.portraitId);
+    if (!member) return;
+    await summonToStage(scene, {
+      id: stageIdFor(member),
+      // core's own displayName, not a second fallback chain: it is what the
+      // panel's heading uses, and a stage that labels someone differently from
+      // the script beside it is worse than either label alone. It also keeps
+      // the naming-placeholder rule (an unnamed NPC shows their role).
+      name: displayName(member),
+      img: member.img ?? stagePortraitFor(stageIdFor(member)),
+      isPc: false
+    });
+    this.render({});
+  }
+
+  /**
+   * One line about what just happened, attached to the beat that just happened.
+   *
+   * Straight into the session log with the beat as its `subject`, which is
+   * what `recordLogEntry` already carries that field for. No dialogue, no
+   * confirmation: doctrine §10.3's whole argument is that capture during a
+   * scene has to cost nothing or it stops happening.
+   */
+  static async #onNote(event) {
+    const input = this.element.querySelector(".bi-runner__note-input");
+    const text = input?.value?.trim();
+    if (!text) return;
+    const briefId = currentBriefId();
+    const target = noteTargetFor(beatsWithState(this._scene?.brief ?? {}, runStateFor(briefId)), runStateFor(briefId));
+    try {
+      await recordLogEntry({
+        text,
+        nowIso: new Date().toISOString(),
+        scene: canvas?.scene?.name ?? null,
+        subject: target?.id ?? briefId
+      });
+      input.value = "";
+      this.render({});
+    } catch (err) {
+      console.error("Blank Inheritance | Could not record the note:", err);
+      ui.notifications.warn(game.i18n.localize("BLANKINHERITANCE.Console.Log.SaveFailed"));
+    }
   }
 
   static #onOpenPalette() {

@@ -7,7 +7,17 @@
     where the eye can find them without reading past them every time.
 --}}
 <article class="bi-runner__person{{#if walkOn}} bi-runner__person--walkon{{/if}}">
-    <h4 class="bi-runner__person-name">{{displayName}}</h4>
+    <h4 class="bi-runner__person-name">
+        {{displayName}}
+        {{!-- Straight onto the stage the table is looking at. Most of a
+              brief's cast have no Actor at all, which is exactly the case the
+              summon panel cannot help with. --}}
+        <button type="button" class="bi-runner__stage{{#if onStage}} bi-runner__stage--on{{/if}}"
+            data-action="stagePerson" data-portrait-id="{{portraitId}}"
+            data-tooltip="{{#if onStage}}{{localize 'BLANKINHERITANCE.Runner.OnStage'}}{{else}}{{localize 'BLANKINHERITANCE.Runner.PutOnStage'}}{{/if}}">
+            <i class="fa-solid fa-masks-theater"></i>
+        </button>
+    </h4>
     {{#if role}}<p class="bi-runner__person-role">{{role}}</p>{{/if}}
 
     {{#if brief.wants}}<p class="bi-runner__wants">{{brief.wants}}</p>{{/if}}

@@ -37,6 +37,17 @@
         {{#if direction}}<p class="bi-runner__direction">{{direction}}</p>{{/if}}
         {{#if note}}<p class="bi-runner__note">{{note}}</p>{{/if}}
 
+        {{!-- What the GM wrote while this was happening. Read back out of the
+              session log by subject, so this margin and the record can never
+              drift apart -- there is only one of them. --}}
+        {{#if notes.length}}
+        <ul class="bi-runner__jotted">
+            {{#each notes}}
+            <li class="bi-runner__jot">{{#if this.tag}}<b class="bi-runner__jot-tag">{{this.tag}}</b> {{/if}}{{this.text}}</li>
+            {{/each}}
+        </ul>
+        {{/if}}
+
         <div class="bi-runner__actions">
             {{#if isConditional}}
             <button type="button" class="bi-runner__stamp" data-action="openBeat" data-beat-id="{{id}}">{{localize "BLANKINHERITANCE.Runner.Open"}}</button>
