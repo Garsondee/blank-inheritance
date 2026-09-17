@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schema/audio-soundscape.schema.json",
+  "id": "demo-street-night",
+  "type": "audio-soundscape",
+  "title": "Demo — Street at night",
+  "note": "A DEMO, and it says so: built to prove the audio system works end to end (music pool + layered beds + a random radio layer + a bus preset), not a decision about how any real scene of this campaign sounds. Session 0/1's own soundscapes are the next piece of work; delete this once they exist.",
+  "music": { "pool": "tense" },
+  "combat": { "pool": "battle" },
+  "ambience": [
+    { "track": "city-downtown-1537", "level": -4 },
+    { "track": "brs-rain-street-neighborhood-med-2", "level": -10 }
+  ],
+  "scatter": [
+    {
+      "tracks": ["police-dispatch-378", "police-dispatch-391", "police-dispatch-408", "police-dispatch-409", "police-dispatch-449"],
+      "every": [25, 70],
+      "level": -8
+    }
+  ],
+  "mix": { "music": -4, "ambience": 0 },
+  "fade": 4000
+}

@@ -23,6 +23,7 @@ import path from "node:path";
 
 export const SYNCED_CAMPAIGN_DIRS = [
   "antagonists",
+  "audio",
   "campaign",
   "challenges",
   "characters",

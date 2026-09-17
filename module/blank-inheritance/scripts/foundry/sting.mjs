@@ -152,6 +152,17 @@ function notify(kind, text) {
   }
 }
 
+/**
+ * Raise a notice from outside this file — the audio director's `banner` cue
+ * step, which lands on every client at its own musical beat (see
+ * foundry/audio-director.mjs). Exported rather than copied so there stays
+ * exactly one banner queue on screen, per the doctrine's "reuse .bi-banner,
+ * don't invent a second banner system" rule.
+ */
+export function showNotice(kind, text) {
+  notify(kind, text);
+}
+
 /* ---------------------------------------------------------------- */
 /*  The scene-facing API                                             */
 /* ---------------------------------------------------------------- */

@@ -302,6 +302,14 @@
       "RosterInBar": {
         "Name": "Move the player list into the command bar",
         "Hint": "Hides Foundry's own player list (which sits under the scene controls on the left in v14) once the command bar carries its own roster. Off by default so nothing disappears unexpectedly."
+      },
+      "AudioEngine": {
+        "Name": "Sound Desk mixer",
+        "Hint": "Route this world's audio through the campaign's own mixer, which adds the GM's channel faders, ducking under stings and the level meters. Turning it off restores Foundry's plain audio routing (needs a reload)."
+      },
+      "AudioAutoCombat": {
+        "Name": "Change music when a fight starts",
+        "Hint": "When the scene's soundscape names combat music, start it automatically at the beginning of an encounter and return to the scene's own music when the encounter ends."
       }
     },
     "Stage": {
@@ -537,6 +545,53 @@
         "SuccessBody": "{actorName} exists, and your token is already waiting on the landing scene. Finish the rest — feats, spells, the last few skills — on your own character sheet.",
         "Back": "Back"
       }
+    },
+    "Audio": {
+      "Desk": "Sound Desk",
+      "OnAir": "ON AIR",
+      "NoMusic": "No music playing",
+      "ScatterLayers": "Random layers",
+      "FadeTime": "Fade time for the next change",
+      "StopMusic": "Stop music",
+      "StopAll": "Stop everything",
+      "Soundscapes": "Soundscapes",
+      "NoSoundscapes": "None authored yet",
+      "Cues": "Cues",
+      "NoCues": "None authored yet",
+      "Pools": "Music pools",
+      "Search": "Search the library",
+      "Rebuild": "Build playlists",
+      "RebuildHint": "Create or update the Foundry playlists from the audio library.",
+      "RefreshHint": "Re-read the audio library from disk.",
+      "All": "all",
+      "NoMatches": "Nothing matches",
+      "Previous": "Previous page",
+      "Next": "Next page",
+      "Audition": "Audition privately (only you hear this)",
+      "PlayToTable": "Play to the table",
+      "Layer": "Lay this bed under the scene",
+      "Fire": "Fire this now",
+      "ReservedFor": "reserved for",
+      "Mute": "Mute this channel",
+      "Duck": "Duck under stings",
+      "NotBuilt": "No audio playlists exist yet — press Build playlists.",
+      "Problems": "Library problems",
+      "Handout": "Handout",
+      "Close": "Close",
+      "Level": "LEVEL",
+      "MuteAll": "Mute all sound",
+      "Unmute": "Unmute",
+      "RadioNote": "Your own levels. The GM's mix rides on top of these; nobody else hears your knobs.",
+      "Radio": "Radio",
+      "Bus": {
+        "Music": "Music",
+        "Ambience": "Ambience",
+        "Stings": "Stings",
+        "Interface": "Effects"
+      },
+      "CueLinkTooltip": "Fire this audio cue ({id})",
+      "CueLinkUnknown": "No audio cue called {id} — check data/audio/cues/",
+      "CueFailed": "Audio cue {id} failed — see the console"
     }
   }
 }

@@ -20,6 +20,29 @@ export async function fetchModuleJson(relativePath) {
 }
 
 /**
+ * Every .json file in one of the module's own data directories, as ids
+ * (filename without the extension).
+ *
+ * Used where content is authored as one-file-per-entity and nothing else
+ * already names the files — the audio director's soundscapes and cues, where
+ * adding one must not also mean editing an index that can go stale. Returns
+ * an empty list when the directory does not exist yet, which is the normal
+ * state of a campaign that has not authored any of that kind of file.
+ */
+export async function listModuleJsonIds(relativeDir) {
+  const target = `modules/${MODULE_ID}/${relativeDir}`;
+  try {
+    const result = await foundry.applications.apps.FilePicker.implementation.browse("data", target);
+    return (result?.files ?? [])
+      .filter((f) => f.toLowerCase().endsWith(".json"))
+      .map((f) => decodeURIComponent(f.split("/").pop().replace(/\.json$/i, "")));
+  } catch (err) {
+    console.log(`Blank Inheritance | No files under ${target} (${err?.message ?? err})`);
+    return [];
+  }
+}
+
+/**
  * Foundry's createDirectory is a plain mkdir, not mkdir -p — it needs each
  * parent level to already exist. On a fresh deploy nothing under storage/
  * has ever been created, so the leaf dir's parent is missing too. Walk the

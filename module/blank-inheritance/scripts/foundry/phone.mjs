@@ -46,6 +46,7 @@
  */
 
 import { currentEntries } from "./session-log.mjs";
+import { renderRadio } from "./radio-app.mjs";
 import {
   createSnake, decayForElapsed, drawFortune, feedPet, formatLogEntriesForDisplay,
   petMood, playWithPet, spawnFood, stepSnake, turnSnake
@@ -332,8 +333,17 @@ const SNAKE_APP = { id: "snake", labelKey: "BLANKINHERITANCE.Phone.Snake.Title",
 const PET_APP = { id: "pet", labelKey: "BLANKINHERITANCE.Phone.Pet.Title", faIcon: "fa-solid fa-paw", render: renderPet };
 const FORTUNE_APP = { id: "fortune", labelKey: "BLANKINHERITANCE.Phone.Fortune.Title", faIcon: "fa-solid fa-star", render: renderFortune };
 
-const GM_APPS = [SESSION_LOG_APP, SNAKE_APP, PET_APP, FORTUNE_APP];
-const PLAYER_APPS = [SNAKE_APP, PET_APP, FORTUNE_APP];
+/**
+ * The Radio: this player's own loudness controls, writing Foundry's own
+ * client volume settings (design/audio-system.md §7.2). Both seats carry it —
+ * a GM wants their own level as much as anyone, and it is the same three
+ * knobs either way. The GM's table-wide faders live on the Sound Desk, which
+ * is a different thing in a different place.
+ */
+const RADIO_APP = { id: "radio", labelKey: "BLANKINHERITANCE.Audio.Radio", faIcon: "fa-solid fa-radio", render: renderRadio };
+
+const GM_APPS = [SESSION_LOG_APP, RADIO_APP, SNAKE_APP, PET_APP, FORTUNE_APP];
+const PLAYER_APPS = [RADIO_APP, SNAKE_APP, PET_APP, FORTUNE_APP];
 
 /* ------------------------------------------------------------------ */
 /*  The shell                                                         */

@@ -1,0 +1,7 @@
+{
+  "$schema": "../schema/audio-review.schema.json",
+  "id": "audio-review",
+  "type": "audio-review",
+  "description": "Human decisions about the audio library, keyed by asset id: what each file actually is, what it is called, and which moments inside it a cue can fire on. The pipeline READS this and never writes it, so re-running the pipeline can never overwrite a decision. An asset with no entry here is unreviewed: still playable and auditionable, just flagged. Nothing has been reviewed yet — the classifier's proposals stand until someone listens.",
+  "decisions": {}
+}

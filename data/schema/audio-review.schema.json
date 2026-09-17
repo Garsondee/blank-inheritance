@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "audio-review.schema.json",
+  "title": "Audio Review",
+  "description": "HUMAN decisions about the audio library: what each asset actually is, what it is called, and which moments inside it are worth firing something on. Keyed by asset id. The pipeline reads this and never writes it, so re-running the pipeline can never lose a decision. Singleton file: data/audio/review.json. An asset with no entry here is 'proposed' — playable and auditionable, but flagged as unreviewed.",
+  "type": "object",
+  "required": ["id", "type", "decisions"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "const": "audio-review" },
+    "type": { "const": "audio-review" },
+    "description": { "type": "string" },
+    "decisions": {
+      "type": "object",
+      "description": "asset id -> decision.",
+      "additionalProperties": { "$ref": "#/$defs/decision" }
+    }
+  },
+  "$defs": {
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": ["proposed", "confirmed", "rejected"],
+          "description": "rejected never ships into a playlist and is never processed again; it stays listed so the decision itself is durable."
+        },
+        "kind": { "enum": ["music", "ambience", "sting", "sfx", "voice", "interface"], "description": "Overrules the proposal. Changing it re-plans the encode (a bed and a hit are normalised differently)." },
+        "title": { "type": "string" },
+        "category": { "type": "string", "description": "The shelf it browses under; for music, the pool it shuffles in." },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "loop": { "type": "boolean", "description": "Whether the processed file gets a seamless crossfaded loop point." },
+        "markers": {
+          "type": "array",
+          "description": "Named moments inside the track. A cue can hang steps off one, so a reveal lands on the beat.",
+          "items": {
+            "type": "object",
+            "required": ["id", "at"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+              "at": { "type": "number", "minimum": 0, "description": "Seconds into the PROCESSED file." },
+              "label": { "type": "string" }
+            }
+          }
+        },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}

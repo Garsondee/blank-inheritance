@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "audio-cue.schema.json",
+  "title": "Audio Cue",
+  "description": "Something that HAPPENS to the sound: an ordered list of steps, plus the events that fire it on their own. Steps run in groups split at every `wait`; steps in one group start together, so 'the sting and the theme hit on the same beat' is the default rather than the exception. One file per cue in data/audio/cues/, filename = id. Validated at load time by module/blank-inheritance/scripts/core/audio-director.mjs#validateCue, which is the authority if these disagree.",
+  "type": "object",
+  "required": ["id", "type", "steps"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "type": { "const": "audio-cue" },
+    "title": { "type": "string", "description": "What the GM sees on the desk's cue list." },
+    "note": { "type": "string" },
+    "triggers": {
+      "type": "array",
+      "description": "Events that fire this cue without anyone pressing anything. A field that is present must match exactly; a field left out matches anything.",
+      "items": {
+        "type": "object",
+        "required": ["on"],
+        "additionalProperties": false,
+        "properties": {
+          "on": { "enum": ["scene-activate", "splash", "stage-reveal", "combat-start", "combat-end", "segment-advance", "beat"] },
+          "scene": { "type": "string", "description": "A Scene's repo id, Foundry id or name." },
+          "actor": { "type": "string", "description": "The Actor id of whoever takes the stage." },
+          "quarter": { "type": "string", "description": "morning / afternoon / evening / night." },
+          "brief": { "type": "string" },
+          "beat": { "type": "string" }
+        }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/step" }
+    }
+  },
+  "$defs": {
+    "step": {
+      "type": "object",
+      "required": ["do"],
+      "properties": {
+        "do": {
+          "enum": ["music", "music-stop", "ambience", "ambience-stop", "soundscape", "sting", "mix", "wait", "at-marker", "banner", "handout", "macro"],
+          "description": "music: play a pool or a named track. ambience: set the beds. soundscape: apply a whole one. sting: fire a one-shot. mix: move the GM's faders. wait: pause before the next group. at-marker: run steps when the music reaches a named moment. banner/handout: put something on screen, on each client's own beat. macro: an escape hatch."
+        },
+        "pool": { "type": "string" },
+        "track": { "type": "string" },
+        "from": { "type": "number", "minimum": 0 },
+        "loop": { "type": "boolean" },
+        "fade": { "type": "number", "minimum": 0, "maximum": 60000 },
+        "layers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["track"],
+            "properties": {
+              "track": { "type": "string" },
+              "level": { "type": "number", "minimum": -60, "maximum": 0 }
+            }
+          }
+        },
+        "mode": { "enum": ["replace", "add"] },
+        "ref": { "type": "string", "description": "A soundscape id." },
+        "level": { "type": "number", "minimum": -60, "maximum": 6 },
+        "duck": { "type": "number", "minimum": -30, "maximum": 0, "description": "How far the beds dip under this sting." },
+        "music": { "type": "number", "minimum": -60, "maximum": 6 },
+        "ambience": { "type": "number", "minimum": -60, "maximum": 6 },
+        "stings": { "type": "number", "minimum": -60, "maximum": 6 },
+        "ms": { "type": "number", "minimum": 0, "maximum": 600000 },
+        "marker": { "type": "string", "description": "A named moment inside the track (data/audio/review.json)." },
+        "then": { "type": "array", "items": { "$ref": "#/$defs/step" }, "description": "Steps to run when the marker arrives. Markers may not be nested inside markers." },
+        "text": { "type": "string" },
+        "brief": { "type": "string" },
+        "handout": { "type": "string" },
+        "name": { "type": "string", "description": "A macro name." }
+      }
+    }
+  }
+}

@@ -7722,3 +7722,394 @@
 @media (prefers-reduced-motion: reduce) {
   .bi-orb__needle { transition: none; }
 }
+
+/* =====================================================================
+   §  THE SOUND DESK  (design/audio-system.md §7)
+   The GM's mixing console, and the player's Radio. A panel rather than a
+   pod on the deck, because the doctrine files the audio mixer under
+   "move to the terminal" (ux-doctrine §9, Law 13).
+
+   The north star is literally an audio plugin, so this is the one surface
+   where the reference image can be followed almost directly: photoreal
+   filmstrip faders, an amber VU meter with a printed scale, black
+   instrument panels with silver engraving.
+   ===================================================================== */
+
+/* --- The filmstrip fader --------------------------------------------- */
+/* Noisehead/VST-Design Kit 02's vertical fader: 150 frames, 72x387 each,
+   drawn at half scale. Frame 0 is the cap at the bottom, frame 149 at the
+   top (verified by cropping both ends, 2026-09-17). The whole control --
+   track, cap and its orange indicator line -- is one image, so a fader is
+   one element and moving it writes one CSS variable.
+   Licence: free for non-commercial use, confirmed by Ingram 2026-09-17;
+   see CREDITS.md. */
+.bi-fader {
+  --frames: 150;
+  --frame: 0;
+  display: block;
+  width: 36px;
+  height: 193.5px;
+  flex: none;
+  background-image: url("../assets/ui/filmstrips/fader-vertical.png");
+  background-repeat: no-repeat;
+  background-size: 36px 29025px;
+  background-position: 0 calc(var(--frame) * -193.5px);
+  /* Foundry's base <button> rule sets `transition: all .5s` on everything,
+     and animating a filmstrip's background-position looks exactly like the
+     image sliding. Same lesson as .bi-toggle and the Hub's launcher tiles. */
+  transition: none;
+  cursor: grab;
+  touch-action: none;
+}
+.bi-fader:active { cursor: grabbing; }
+
+/* --- Launcher button (stacked above the summon panel's) --------------- */
+.bi-desk-standalone { display: contents; }
+
+.bi-desk-btn {
+  position: fixed;
+  right: max(16px, var(--bi-sidebar-gutter, 16px));
+  bottom: calc(var(--bi-bar-height) + 14px + 212px);
+  z-index: calc(var(--z-index-app) - 1);
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: var(--bi-mat-brass);
+  box-shadow: 0 0 0 1px var(--bi-brass-shadow), 0 3px 8px rgb(0 0 0 / 70%);
+  display: grid;
+  place-items: center;
+}
+.bi-desk-btn::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, var(--bi-steel-600), var(--bi-steel-900));
+}
+.bi-desk-btn__glyph { position: relative; z-index: 1; color: var(--bi-brass-lit); font-size: 15px; }
+.bi-desk-btn[aria-pressed="true"] { box-shadow: 0 0 0 1px var(--bi-brass-shadow), 0 0 10px var(--bi-vu-orange); }
+
+.bi-desk-terminal { height: auto; max-height: min(86%, 760px); min-height: 420px; }
+
+/* --- The panel ------------------------------------------------------- */
+.bi-desk {
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  padding: 12px 14px 14px;
+  gap: 10px;
+  background: linear-gradient(180deg, var(--bi-ns-black-hi), var(--bi-ns-black-lo));
+  color: var(--bi-ns-silver);
+  font-family: var(--bi-font-readout);
+}
+.bi-desk__dim { color: var(--bi-ns-silver-deep); font-size: 11px; }
+
+/* On air */
+.bi-desk__air {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--bi-ns-outline);
+  border-radius: 4px;
+  background: var(--bi-steel-900);
+}
+.bi-desk__lamp {
+  flex: none;
+  font-family: var(--bi-font-plate);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  padding: 4px 8px;
+  border-radius: 3px;
+  color: var(--bi-ns-silver-deep);
+  border: 1px solid var(--bi-ns-outline);
+}
+.bi-desk__lamp.is-lit {
+  color: #20140a;
+  background: var(--bi-vu-orange);
+  box-shadow: 0 0 12px rgb(255 138 31 / 55%);
+}
+.bi-desk__air-lines { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.bi-desk__air-line { font-size: 12px; color: var(--bi-ns-silver-hi); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bi-desk__air-line b { color: var(--bi-brass-lit); font-weight: 400; margin-right: 6px; font-family: var(--bi-font-plate); font-size: 10px; letter-spacing: 0.1em; }
+.bi-desk__chip {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 6px;
+  border: 1px solid var(--bi-ns-outline);
+  border-radius: 10px;
+  font-size: 11px;
+}
+.bi-desk__chip i { color: var(--bi-vu-orange); font-style: normal; }
+.bi-desk__transport { flex: none; display: flex; gap: 6px; }
+
+/* Three columns: soundscapes | strips | library */
+.bi-desk__floor {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 210px minmax(240px, 1fr) minmax(300px, 1.3fr);
+  gap: 10px;
+}
+.bi-desk__column {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--bi-ns-outline);
+  border-radius: 4px;
+  background: rgb(10 12 13 / 65%);
+}
+.bi-desk__column--scapes { overflow-y: auto; }
+.bi-desk__legend {
+  margin: 4px 0 2px;
+  font-family: var(--bi-font-plate);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--bi-brass);
+  text-transform: uppercase;
+}
+.bi-desk__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.bi-desk__list--pools { flex-direction: row; flex-wrap: wrap; }
+.bi-desk__row-btn {
+  width: 100%;
+  text-align: left;
+  padding: 4px 7px;
+  border: 1px solid var(--bi-ns-outline);
+  border-radius: 3px;
+  background: var(--bi-ns-black);
+  color: var(--bi-ns-silver);
+  font-family: var(--bi-font-readout);
+  font-size: 12px;
+  cursor: pointer;
+  transition: none;
+}
+.bi-desk__list--pools .bi-desk__row-btn { width: auto; font-size: 11px; text-transform: capitalize; }
+.bi-desk__row-btn i { color: var(--bi-ns-silver-deep); font-style: normal; margin-left: 4px; }
+.bi-desk__row-btn:hover { border-color: var(--bi-vu-orange); color: #fff; }
+.bi-desk__row-btn.is-current { border-color: var(--bi-vu-orange); box-shadow: inset 0 -2px 0 var(--bi-vu-orange); }
+
+/* Channel strips */
+.bi-desk__column--strips { flex-direction: row; align-items: stretch; justify-content: space-around; gap: 4px; position: relative; }
+.bi-desk__strip { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.bi-desk__strip-label {
+  font-family: var(--bi-font-plate);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--bi-ns-silver-lo);
+  text-transform: uppercase;
+}
+.bi-desk__meter {
+  position: relative;
+  width: 104px;
+  height: 66px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: radial-gradient(120% 140% at 50% 120%, #ffb457 0%, #f0821a 55%, #b3540c 100%);
+}
+.bi-desk__meter-face { position: absolute; inset: 0; width: 100%; height: 100%; }
+.bi-desk__meter-arc, .bi-desk__meter-tick { stroke: #2a1a0c; fill: none; stroke-width: 1.2; }
+.bi-desk__meter-tick.is-major { stroke-width: 2.2; }
+.bi-desk__meter-danger { fill: var(--bi-vermilion); stroke: none; }
+.bi-desk__meter-label { fill: #2a1a0c; font-family: var(--bi-font-plate); font-size: 9px; text-anchor: middle; }
+/* `bottom` and `height` come from core/audio-desk.mjs#meterFaceGeometry as
+   inline percentages, so the needle pivots exactly on the printed face's own
+   pivot whatever size the meter is drawn at. */
+.bi-desk__needle {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  width: 2px;
+  height: 69%;
+  background: linear-gradient(180deg, #14100c, #2a1a0c);
+  transform-origin: 50% 100%;
+  transform: translateX(-50%) rotate(var(--needle, -48deg));
+  transition: transform 60ms linear;
+}
+.bi-desk__clip {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #5a1a10;
+  box-shadow: inset 0 0 2px rgb(0 0 0 / 60%);
+}
+.bi-desk__clip.is-lit { background: var(--bi-vermilion); box-shadow: 0 0 8px var(--bi-vermilion); }
+.bi-desk__fader { position: relative; display: grid; place-items: center; }
+.bi-desk__strip-foot { display: flex; align-items: center; gap: 4px; }
+.bi-desk__readout {
+  min-width: 46px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--bi-vu-orange);
+  background: var(--bi-steel-900);
+  border: 1px solid var(--bi-ns-outline);
+  border-radius: 2px;
+  padding: 2px 4px;
+}
+.bi-desk__nudge {
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--bi-ns-outline);
+  border-radius: 2px;
+  background: var(--bi-ns-black);
+  color: var(--bi-ns-silver-lo);
+  cursor: pointer;
+  line-height: 1;
+  font-size: 11px;
+  transition: none;
+}
+.bi-desk__nudge:hover { border-color: var(--bi-vu-orange); color: #fff; }
+.bi-desk__mute { margin-top: 2px; }
+.bi-desk__duck {
+  position: absolute;
+  bottom: 6px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--bi-ns-silver-deep);
+}
+.bi-desk__duck b { color: var(--bi-cyan); font-weight: 400; }
+
+/* Library */
+.bi-desk__column--library { min-width: 0; }
+.bi-desk__search { display: flex; gap: 6px; }
+.bi-desk__search-input {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid var(--bi-ns-outline);
+  border-radius: 3px;
+  background: var(--bi-steel-900);
+  color: var(--bi-phosphor);
+  font-family: var(--bi-font-readout);
+  font-size: 12px;
+}
+.bi-desk__tool, .bi-desk__mini, .bi-desk__filter {
+  border: 1px solid var(--bi-ns-outline);
+  border-radius: 3px;
+  background: var(--bi-ns-black);
+  color: var(--bi-ns-silver-lo);
+  font-family: var(--bi-font-readout);
+  font-size: 11px;
+  padding: 3px 6px;
+  cursor: pointer;
+  transition: none;
+}
+.bi-desk__tool:hover, .bi-desk__mini:hover, .bi-desk__filter:hover { border-color: var(--bi-vu-orange); color: #fff; }
+.bi-desk__mini.is-on { border-color: var(--bi-cyan); color: var(--bi-cyan); }
+.bi-desk__filters { display: flex; flex-wrap: wrap; gap: 3px; }
+.bi-desk__filter.is-current { border-color: var(--bi-vu-orange); color: var(--bi-vu-orange); }
+.bi-desk__library {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.bi-desk__asset {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "name keys" "meta keys";
+  align-items: center;
+  gap: 0 8px;
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 3%);
+}
+.bi-desk__asset:hover { border-color: var(--bi-ns-outline); }
+.bi-desk__asset.is-reserved { border-left: 2px solid var(--bi-brass); }
+.bi-desk__asset-name { grid-area: name; font-size: 12px; color: var(--bi-ns-silver-hi); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bi-desk__asset-meta { grid-area: meta; font-size: 10px; color: var(--bi-ns-silver-deep); }
+.bi-desk__asset-keys { grid-area: keys; display: flex; gap: 3px; }
+.bi-desk__pager { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.bi-desk__warning {
+  margin: 0;
+  padding: 5px 8px;
+  border: 1px solid var(--bi-amber-dim);
+  border-radius: 3px;
+  background: var(--bi-amber-bed);
+  color: var(--bi-amber);
+  font-size: 11px;
+}
+
+/* --- The handout a marker reveals (PAPER, like every other document) --- */
+.bi-audio-handout { max-width: 640px; }
+.bi-audio-handout__image { display: block; max-width: 100%; margin: 0 auto 10px; }
+.bi-audio-handout__body { font-size: 14px; }
+.bi-audio-handout-window .window-content { padding: 0; background: transparent; }
+
+/* --- The Radio (a phone app, every seat) ------------------------------ */
+.bi-radio { display: flex; flex-direction: column; gap: 14px; padding: 16px 18px; }
+.bi-radio__meter {
+  position: relative;
+  height: 72px;
+  border-radius: 4px;
+  background: radial-gradient(120% 140% at 50% 120%, #ffb457 0%, #f0821a 55%, #b3540c 100%);
+  overflow: hidden;
+}
+.bi-radio__needle {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 2px;
+  height: 56px;
+  background: #2a1a0c;
+  transform-origin: 50% 100%;
+  transform: translateX(-50%) rotate(var(--needle, -48deg));
+  transition: transform 60ms linear;
+}
+.bi-radio__meter-label {
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--bi-font-plate);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: #2a1a0c;
+}
+.bi-radio__rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.bi-radio__row { display: flex; align-items: center; gap: 12px; }
+.bi-radio__knob { --bi-knob-size: 52px; }
+.bi-radio__label { flex: 1; font-family: var(--bi-font-plate); font-size: 12px; letter-spacing: 0.08em; color: var(--bi-ns-silver); }
+.bi-radio__value { font-family: var(--bi-font-readout); font-size: 13px; color: var(--bi-vu-orange); min-width: 44px; text-align: right; }
+.bi-radio__mute { align-self: flex-start; }
+.bi-radio__note { margin: 0; font-size: 11px; color: var(--bi-ns-silver-deep); }
+
+@media (prefers-reduced-motion: reduce) {
+  .bi-desk__needle, .bi-radio__needle { transition: none; }
+}
+
+/* A cue link inside enriched text (a journal page, a chat message, a scene
+   brief). Only a GM ever gets one — a player's copy is plain text. */
+.bi-cue-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 7px;
+  border: 1px solid var(--bi-vu-orange);
+  border-radius: 3px;
+  background: rgb(255 138 31 / 12%);
+  color: var(--bi-vu-orange);
+  font-family: var(--bi-font-readout);
+  font-size: 0.95em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: none;
+}
+.bi-cue-link:hover { background: rgb(255 138 31 / 26%); color: #fff; }
+.bi-cue-link--unknown { border-color: var(--bi-vermilion); color: var(--bi-vermilion); background: rgb(209 64 42 / 12%); }

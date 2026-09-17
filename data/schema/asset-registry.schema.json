@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "asset-registry.schema.json",
   "title": "Asset Registry",
-  "description": "The source of truth for which artwork/audio has been assigned to which scene/character/location, and where the confirmed file actually lives. Exists because artwork/ and audio/ are entirely gitignored (bulk, large) while this registry is tracked -- once an asset is confirmed and MOVED (never copied) out of an in-tray into its final organized folder, this file is the only tracked record that the assignment happened at all. Checked before assigning anything new, so the same piece of art never gets used twice by accident (ideas/entries/asset-review-pipeline.json). Singleton file: data/campaign/asset-registry.json.",
+  "description": "The source of truth for which artwork/audio has been assigned to which scene/character/location, and where the confirmed file actually lives. Exists because artwork/ and audio/ are entirely gitignored (bulk, large) while this registry is tracked -- once an asset is confirmed and MOVED (never copied) out of an in-tray into its final organized folder, this file is the only tracked record that the assignment happened at all. Checked before assigning anything new, so the same piece of art never gets used twice by accident (ideas/entries/asset-review-pipeline.json). Singleton file: data/campaign/asset-registry.json.\n\nAUDIO RESERVATIONS LIVE HERE TOO, deliberately, rather than in a second registry inside data/audio/ (design/audio-system.md §3). A reserved audio asset is excluded from every shuffle pool when the Foundry playlists are built -- a villain's theme heard at random in a shopping scene is no longer that villain's theme -- and an asset reserved for two different purposes is reported as a problem on the Sound Desk.",
   "type": "object",
   "required": ["id", "assets"],
   "properties": {
@@ -23,16 +23,16 @@
         "id": { "type": "string", "description": "Matches the final filename's stem, and usually the assignedTo ref." },
         "kind": { "enum": ["image", "audio"] },
         "category": {
-          "enum": ["scenes", "character-portraits", "locations", "mechs"],
-          "description": "The final top-level folder under artwork/ (or a future audio/ equivalent) this asset lives in -- mirrors in-tray/'s own category subfolders, minus the in-tray/ prefix."
+          "enum": ["scenes", "character-portraits", "locations", "mechs", "music", "ambience", "sting", "sfx", "voice", "interface"],
+          "description": "For an image: the final top-level folder under artwork/ -- mirrors in-tray/'s own category subfolders, minus the in-tray/ prefix. For audio: the asset's KIND in the audio library (data/audio/library.json), which is also the folder its processed file lives in."
         },
-        "path": { "type": "string", "description": "Repo-relative path to the final, confirmed file. Never an in-tray/ path -- once registered, the file has been MOVED, not copied." },
+        "path": { "type": "string", "description": "Repo-relative path to the final, confirmed file. Never an in-tray/ path -- once registered, an image has been MOVED, not copied. AUDIO IS DIFFERENT: the pipeline never moves a source, so an audio entry's path is its PROCESSED file under audio/library/, and the source stays in the in-tray." },
         "assignedTo": {
           "type": "object",
           "required": ["kind", "ref"],
           "properties": {
-            "kind": { "enum": ["scene", "npc", "location", "mech"] },
-            "ref": { "type": "string", "description": "The id of the scene-brief / npc / location / hangar entry this asset depicts." }
+            "kind": { "enum": ["scene", "npc", "location", "mech", "faction", "moment"] },
+            "ref": { "type": "string", "description": "The id of the scene-brief / npc / location / hangar / faction entry this asset belongs to. `moment` is for a recurring beat rather than a thing -- the session outro, the title card." }
           }
         },
         "assignedDate": { "type": "string", "format": "date" },

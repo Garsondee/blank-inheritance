@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "audio-soundscape.schema.json",
+  "title": "Audio Soundscape",
+  "description": "A standing audio state for a place or a situation: what music plays, which ambience beds sit under it and how loud, which random one-shot layers run, and where the GM's bus faders should sit. Applied by the Sound Desk, by a cue, or automatically when a Scene carrying flags.blank-inheritance.audio.soundscape is activated. One file per soundscape in data/audio/soundscapes/, filename = id. Validated at load time by module/blank-inheritance/scripts/core/audio-director.mjs#validateSoundscape, which is the authority if these ever disagree.",
+  "type": "object",
+  "required": ["id", "type"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "type": { "const": "audio-soundscape" },
+    "title": { "type": "string", "description": "What the GM sees on the desk." },
+    "note": { "type": "string", "description": "Anything worth remembering about the pick." },
+    "music": {
+      "description": "Exactly one of pool/track/silence. Omit the whole field to leave whatever is playing alone — the right default for a soundscape that only describes a room.",
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "pool": { "type": "string", "description": "A music category id (a shuffle pool)." },
+        "track": { "type": "string", "description": "One audio library asset id." },
+        "silence": { "const": true },
+        "loop": { "type": "boolean", "default": true, "description": "For a named track. A theme usually loops; a piece of scored narration usually does not." },
+        "from": { "type": "number", "minimum": 0, "description": "Start this many seconds in." }
+      }
+    },
+    "combat": {
+      "description": "What to play instead while a fight is running here. Restored to this soundscape's own music when the encounter ends.",
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "pool": { "type": "string" },
+        "track": { "type": "string" }
+      }
+    },
+    "ambience": {
+      "type": "array",
+      "description": "Beds that run until something stops them. Each one's level is relative to the ambience bus.",
+      "items": {
+        "type": "object",
+        "required": ["track"],
+        "additionalProperties": false,
+        "properties": {
+          "track": { "type": "string", "description": "An audio library asset id of kind ambience." },
+          "level": { "type": "number", "minimum": -60, "maximum": 0, "default": 0, "description": "dB relative to the bed's normalised level." }
+        }
+      }
+    },
+    "scatter": {
+      "type": "array",
+      "description": "Random one-shot layers — a dispatch call every twenty to sixty seconds, a distant explosion now and then. Timed on the GM's client, so every client hears the same clip at the same moment.",
+      "items": {
+        "type": "object",
+        "required": ["tracks", "every"],
+        "additionalProperties": false,
+        "properties": {
+          "tracks": { "type": "array", "minItems": 1, "items": { "type": "string" }, "description": "Fire-once asset ids; one is picked each time, never the same one twice running." },
+          "every": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": { "type": "number", "exclusiveMinimum": 0, "maximum": 3600 },
+            "description": "[minSeconds, maxSeconds] between firings."
+          },
+          "level": { "type": "number", "minimum": -60, "maximum": 0, "default": 0 }
+        }
+      }
+    },
+    "mix": {
+      "type": "object",
+      "description": "Where the GM's own faders should sit while this soundscape is up. Applied when the soundscape is; the GM may move them afterwards.",
+      "additionalProperties": false,
+      "properties": {
+        "music": { "type": "number", "minimum": -60, "maximum": 6 },
+        "ambience": { "type": "number", "minimum": -60, "maximum": 6 },
+        "stings": { "type": "number", "minimum": -60, "maximum": 6 }
+      }
+    },
+    "fade": { "type": "number", "minimum": 0, "maximum": 60000, "default": 3000, "description": "Crossfade in milliseconds." }
+  }
+}

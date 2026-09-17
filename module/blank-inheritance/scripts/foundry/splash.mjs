@@ -206,6 +206,13 @@ async function playSplash(member) {
 
   activeSplash = { portraitId: content.portraitId, phase: "take" };
 
+  // A villain arriving is a cue the audio director may answer with their own
+  // theme (design/audio-system.md §5.5, answering the staging doc's own open
+  // question 8 about what a splash does to audio). Announced as a hook rather
+  // than called directly so this file keeps knowing nothing about audio, and
+  // so anything else that wants the same moment can have it.
+  Hooks.callAll("blank-inheritance.splash", { portraitId: content.portraitId, actorId: member.actorId ?? null, name: member.name ?? null, sting: "splash" });
+
   const root = ensureRoot();
   const html = await foundry.applications.handlebars.renderTemplate(TEMPLATE_PATH, content);
   root.innerHTML = html;

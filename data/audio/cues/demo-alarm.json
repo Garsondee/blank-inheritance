@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schema/audio-cue.schema.json",
+  "id": "demo-alarm",
+  "type": "audio-cue",
+  "title": "Demo — Something is wrong",
+  "note": "A DEMO, and it says so: it exists to prove a cue can fire a sting, duck the beds under it, move the GM's faders and put a banner on every screen, in that order and on one press. Not a decision about any real moment in this campaign.",
+  "steps": [
+    { "do": "sting", "track": "mnt-hv-brass-fx-war-horn-villain-black-hole-dark-a", "duck": -10 },
+    { "do": "mix", "music": -8, "ambience": -3 },
+    { "do": "wait", "ms": 1200 },
+    { "do": "banner", "text": "Something is wrong." }
+  ]
+}

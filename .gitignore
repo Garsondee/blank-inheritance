@@ -2,6 +2,10 @@
 Thumbs.db
 node_modules/
 *.log
+# ...except captured tool output kept as test fixtures. These are REAL ffmpeg
+# output, committed on purpose so the parsers are tested against what the tool
+# actually prints rather than what we remember it printing.
+!test/**/fixtures/*.log
 .env
 __pycache__/
 *.pyc

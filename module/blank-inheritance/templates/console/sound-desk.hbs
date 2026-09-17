@@ -1,0 +1,159 @@
+{{!--
+    The Sound Desk. Button and panel are ONE chassis (this file's single root),
+    same discipline as phone.hbs and the summon panel.
+
+    GM-only: foundry/sound-desk.mjs never mounts this for a player, so a
+    player's browser does not construct the desk at all.
+--}}
+<div class="bi-desk-standalone">
+    <button type="button" class="bi-desk-btn" data-action="toggle" aria-pressed="{{open}}"
+        aria-label="{{localize 'BLANKINHERITANCE.Audio.Desk'}}" data-tooltip="{{localize 'BLANKINHERITANCE.Audio.Desk'}}">
+        <i class="fa-solid fa-sliders bi-desk-btn__glyph"></i>
+    </button>
+
+    <div class="bi-terminal bi-desk-terminal{{#if open}} bi-terminal--open{{/if}}">
+        <div class="bi-terminal__frame">
+            <div class="bi-terminal__titlebar">
+                <span class="bi-terminal__title-glyph"><i class="fa-solid fa-sliders"></i></span>
+                <span class="bi-terminal__title">{{localize "BLANKINHERITANCE.Audio.Desk"}}</span>
+                <span class="bi-terminal__spacer"></span>
+                <button type="button" class="bi-terminal__close" data-action="toggle" aria-label="{{localize 'BLANKINHERITANCE.Console.Window.Close'}}">&times;</button>
+            </div>
+
+            <div class="bi-terminal__body bi-desk">
+
+                {{!-- On air: what the table is hearing right now --}}
+                <section class="bi-desk__air">
+                    <span class="bi-desk__lamp{{#unless nowPlaying.silent}} is-lit{{/unless}}">{{localize "BLANKINHERITANCE.Audio.OnAir"}}</span>
+                    <div class="bi-desk__air-lines">
+                        {{#each nowPlaying.music}}
+                        <div class="bi-desk__air-line"><b>{{localize "BLANKINHERITANCE.Audio.Bus.Music"}}</b> {{this.title}} <span class="bi-desk__dim">{{this.duration}}</span></div>
+                        {{else}}
+                        <div class="bi-desk__air-line bi-desk__dim">{{localize "BLANKINHERITANCE.Audio.NoMusic"}}</div>
+                        {{/each}}
+                        {{#if nowPlaying.ambience.length}}
+                        <div class="bi-desk__air-line"><b>{{localize "BLANKINHERITANCE.Audio.Bus.Ambience"}}</b>
+                            {{#each nowPlaying.ambience}}<span class="bi-desk__chip">{{this.title}} <i>{{this.gainLabel}}</i></span>{{/each}}
+                        </div>
+                        {{/if}}
+                        {{#if nowPlaying.scatterLayers}}
+                        <div class="bi-desk__air-line bi-desk__dim">{{localize "BLANKINHERITANCE.Audio.ScatterLayers"}}: {{nowPlaying.scatterLayers}}</div>
+                        {{/if}}
+                    </div>
+                    <div class="bi-desk__transport">
+                        <button type="button" class="bi-key bi-key--caution" data-action="cycleFade" data-tooltip="{{localize 'BLANKINHERITANCE.Audio.FadeTime'}}">{{fadeLabel}}</button>
+                        <button type="button" class="bi-key" data-action="stopMusic">{{localize "BLANKINHERITANCE.Audio.StopMusic"}}</button>
+                        <button type="button" class="bi-key bi-key--caution" data-action="stopAll">{{localize "BLANKINHERITANCE.Audio.StopAll"}}</button>
+                    </div>
+                </section>
+
+                <div class="bi-desk__floor">
+
+                    {{!-- Left: soundscapes and cues --}}
+                    <section class="bi-desk__column bi-desk__column--scapes">
+                        <h3 class="bi-desk__legend">{{localize "BLANKINHERITANCE.Audio.Soundscapes"}}</h3>
+                        <ul class="bi-desk__list">
+                            {{#each soundscapes}}
+                            <li><button type="button" class="bi-desk__row-btn{{#if this.current}} is-current{{/if}}" data-action="applyScape" data-scape-id="{{this.id}}">{{this.title}}</button></li>
+                            {{else}}
+                            <li class="bi-desk__dim">{{localize "BLANKINHERITANCE.Audio.NoSoundscapes"}}</li>
+                            {{/each}}
+                        </ul>
+
+                        <h3 class="bi-desk__legend">{{localize "BLANKINHERITANCE.Audio.Cues"}}</h3>
+                        <ul class="bi-desk__list">
+                            {{#each cues}}
+                            <li><button type="button" class="bi-desk__row-btn" data-action="fireCue" data-cue-id="{{this.id}}">{{this.title}}</button></li>
+                            {{else}}
+                            <li class="bi-desk__dim">{{localize "BLANKINHERITANCE.Audio.NoCues"}}</li>
+                            {{/each}}
+                        </ul>
+
+                        <h3 class="bi-desk__legend">{{localize "BLANKINHERITANCE.Audio.Pools"}}</h3>
+                        <ul class="bi-desk__list bi-desk__list--pools">
+                            {{#each pools}}
+                            <li><button type="button" class="bi-desk__row-btn" data-action="playPool" data-pool="{{this.pool}}">{{this.label}} <i>{{this.count}}</i></button></li>
+                            {{/each}}
+                        </ul>
+                    </section>
+
+                    {{!-- Centre: the three channel strips --}}
+                    <section class="bi-desk__column bi-desk__column--strips">
+                        {{#each channels}}
+                        <div class="bi-desk__strip" data-bus="{{this.bus}}">
+                            <span class="bi-desk__strip-label">{{localize this.labelKey}}</span>
+                            <div class="bi-desk__meter">
+                                <svg viewBox="{{../meterGeometry.viewBox}}" preserveAspectRatio="xMidYMax meet" class="bi-desk__meter-face" aria-hidden="true">
+                                    <path class="bi-desk__meter-arc" d="{{../face.arc}}"></path>
+                                    {{#if ../face.dangerBand}}<path class="bi-desk__meter-danger" d="{{../face.dangerBand}}"></path>{{/if}}
+                                    {{#each ../face.ticks}}<line class="bi-desk__meter-tick{{#if this.major}} is-major{{/if}}" x1="{{this.x1}}" y1="{{this.y1}}" x2="{{this.x2}}" y2="{{this.y2}}"></line>{{/each}}
+                                    {{#each ../face.labels}}<text class="bi-desk__meter-label" x="{{this.x}}" y="{{this.y}}">{{this.text}}</text>{{/each}}
+                                </svg>
+                                {{!-- The needle is an HTML element rotated over the printed face, the
+                                     same construction as the deck's own orb (.bi-orb__needle): one
+                                     CSS variable to write per frame, no SVG re-render. --}}
+                                <i class="bi-desk__needle" data-vu-needle="{{this.bus}}"
+                                    style="--needle: -48deg; bottom: {{../meterGeometry.needleBottomPct}}%; height: {{../meterGeometry.needleHeightPct}}%"></i>
+                                <i class="bi-desk__clip" data-vu-clip="{{this.bus}}" aria-hidden="true"></i>
+                            </div>
+                            <div class="bi-desk__fader" data-fader-bus="{{this.bus}}" role="slider" aria-label="{{localize this.labelKey}}" aria-valuetext="{{this.label}}">
+                                <i class="bi-fader" style="--frame: {{this.faderFrame}}"></i>
+                            </div>
+                            <div class="bi-desk__strip-foot">
+                                <button type="button" class="bi-desk__nudge" data-action="nudgeBus" data-bus="{{this.bus}}" data-by="1" aria-label="+1 dB">+</button>
+                                <span class="bi-desk__readout" data-fader-readout="{{this.bus}}">{{this.label}}</span>
+                                <button type="button" class="bi-desk__nudge" data-action="nudgeBus" data-bus="{{this.bus}}" data-by="-1" aria-label="-1 dB">&minus;</button>
+                            </div>
+                            <button type="button" class="bi-toggle bi-desk__mute{{#if this.muted}} is-on{{/if}}" data-action="muteBus" data-bus="{{this.bus}}" aria-pressed="{{this.muted}}" aria-label="{{localize 'BLANKINHERITANCE.Audio.Mute'}}"></button>
+                        </div>
+                        {{/each}}
+                        <div class="bi-desk__duck">{{localize "BLANKINHERITANCE.Audio.Duck"}} <b>{{duckLabel}}</b></div>
+                    </section>
+
+                    {{!-- Right: the library --}}
+                    <section class="bi-desk__column bi-desk__column--library">
+                        <div class="bi-desk__search">
+                            <input type="search" name="bi-desk-search" data-desk-search class="bi-desk__search-input" value="{{query}}"
+                                placeholder="{{localize 'BLANKINHERITANCE.Audio.Search'}}" aria-label="{{localize 'BLANKINHERITANCE.Audio.Search'}}">
+                            <button type="button" class="bi-desk__tool" data-action="rebuild" data-tooltip="{{localize 'BLANKINHERITANCE.Audio.RebuildHint'}}">{{localize "BLANKINHERITANCE.Audio.Rebuild"}}</button>
+                            <button type="button" class="bi-desk__tool" data-action="refresh" data-tooltip="{{localize 'BLANKINHERITANCE.Audio.RefreshHint'}}"><i class="fa-solid fa-rotate"></i></button>
+                        </div>
+                        <div class="bi-desk__filters">
+                            {{#each filters}}
+                            <button type="button" class="bi-desk__filter{{#if this.current}} is-current{{/if}}" data-action="setFilter" data-filter-id="{{this.id}}">{{this.label}}</button>
+                            {{/each}}
+                        </div>
+                        <ul class="bi-desk__library">
+                            {{#each rows}}
+                            <li class="bi-desk__asset{{#if this.reserved}} is-reserved{{/if}}">
+                                <span class="bi-desk__asset-name" data-tooltip="{{this.id}}{{#if this.reservedFor}} — {{localize 'BLANKINHERITANCE.Audio.ReservedFor'}} {{this.reservedFor}}{{/if}}">{{this.title}}</span>
+                                <span class="bi-desk__asset-meta">{{this.kind}} · {{this.duration}}{{#if this.markers}} · <i class="fa-solid fa-location-dot"></i>{{this.markers}}{{/if}}</span>
+                                <span class="bi-desk__asset-keys">
+                                    <button type="button" class="bi-desk__mini{{#if this.auditioning}} is-on{{/if}}" data-action="audition" data-asset-id="{{this.id}}" data-tooltip="{{localize 'BLANKINHERITANCE.Audio.Audition'}}"><i class="fa-solid fa-headphones"></i></button>
+                                    {{#if this.canPlayMusic}}<button type="button" class="bi-desk__mini" data-action="playAsset" data-asset-id="{{this.id}}" data-tooltip="{{localize 'BLANKINHERITANCE.Audio.PlayToTable'}}"><i class="fa-solid fa-play"></i></button>{{/if}}
+                                    {{#if this.canLayer}}<button type="button" class="bi-desk__mini" data-action="layerAsset" data-asset-id="{{this.id}}" data-tooltip="{{localize 'BLANKINHERITANCE.Audio.Layer'}}"><i class="fa-solid fa-layer-group"></i></button>{{/if}}
+                                    {{#if this.canFire}}<button type="button" class="bi-desk__mini" data-action="fireAsset" data-asset-id="{{this.id}}" data-tooltip="{{localize 'BLANKINHERITANCE.Audio.Fire'}}"><i class="fa-solid fa-bolt"></i></button>{{/if}}
+                                </span>
+                            </li>
+                            {{else}}
+                            <li class="bi-desk__dim">{{localize "BLANKINHERITANCE.Audio.NoMatches"}}</li>
+                            {{/each}}
+                        </ul>
+                        <div class="bi-desk__pager">
+                            <button type="button" class="bi-desk__mini" data-action="pageBy" data-by="-1" aria-label="{{localize 'BLANKINHERITANCE.Audio.Previous'}}"><i class="fa-solid fa-chevron-left"></i></button>
+                            <span class="bi-desk__dim">{{page.index}}/{{page.pages}} · {{page.total}}</span>
+                            <button type="button" class="bi-desk__mini" data-action="pageBy" data-by="1" aria-label="{{localize 'BLANKINHERITANCE.Audio.Next'}}"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </section>
+                </div>
+
+                {{#unless built}}
+                <p class="bi-desk__warning">{{localize "BLANKINHERITANCE.Audio.NotBuilt"}}</p>
+                {{/unless}}
+                {{#if problems.length}}
+                <p class="bi-desk__warning">{{localize "BLANKINHERITANCE.Audio.Problems"}}: {{problems.length}}</p>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>

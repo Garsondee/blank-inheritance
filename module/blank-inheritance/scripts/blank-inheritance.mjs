@@ -65,6 +65,12 @@ import { mountConsoleWindow, refreshConsoleWindow } from "./foundry/console-wind
 import { createDirectorPanelMacroIfMissing, openDirectorPanel, refreshDirectorPanel } from "./foundry/director-panel.mjs";
 import { registerSceneCloseSettings, openSceneCloseDialogue } from "./foundry/scene-close.mjs";
 import { registerChatExportHooks } from "./foundry/chat-export.mjs";
+import { installAudioEngine, registerAudioSettings, registerAudioSocket } from "./foundry/audio-engine.mjs";
+import { onCastRevealed, onSegmentChanged, registerAudioDirectorSettings, registerAudioTriggers, runCue } from "./foundry/audio-director.mjs";
+import { syncAudioPlaylists } from "./foundry/audio-playlists.mjs";
+import { loadAudio, refreshAudio } from "./foundry/audio-store.mjs";
+import { mountSoundDesk, refreshSoundDesk, toggleSoundDesk } from "./foundry/sound-desk.mjs";
+import { registerAudioEnricher } from "./foundry/audio-enricher.mjs";
 
 const MODULE_ID = "blank-inheritance";
 
@@ -116,7 +122,16 @@ Hooks.once("init", () => {
       // from the Director's panel's own button; exposed here too for the
       // same "console access alongside the UI trigger" reason every other
       // panel on this API already is.
-      openSceneCloseDialogue
+      openSceneCloseDialogue,
+      // The Sound Desk (design/audio-system.md). `syncAudioPlaylists` is the
+      // once-per-library-change build step, exposed the same way the sync
+      // macros are; the rest is the console-friendly way into what the desk's
+      // own controls do, and what a macro or a journal link calls.
+      toggleSoundDesk,
+      syncAudioPlaylists,
+      loadAudio,
+      refreshAudio,
+      runCue
     };
   }
 
@@ -127,8 +142,24 @@ Hooks.once("init", () => {
 
   // The campaign clock is a world setting, so its onChange fires on EVERY
   // client -- which is what makes a segment transition arrive at the whole
-  // table at once instead of only where it was clicked.
-  registerCampaignSettings(() => refreshCommandBar());
+  // table at once instead of only where it was clicked. The day ring turning
+  // is also one of the audio director's own trigger events (the segment
+  // ceremony's sound cue, ux-doctrine §7a) -- fired from here rather than
+  // from inside campaign-state.mjs, which knows nothing about audio.
+  registerCampaignSettings((moment) => {
+    refreshCommandBar();
+    onSegmentChanged(moment).catch((err) => console.error("Blank Inheritance | Could not fire the segment audio cue:", err));
+  });
+
+  // The mix every client shares (world) and the mixer's own kill switch
+  // (client). Registered in init like every other setting; the nodes
+  // themselves cannot exist until the audio contexts do -- see ready below.
+  registerAudioSettings(() => refreshSoundDesk());
+  registerAudioDirectorSettings(() => refreshSoundDesk());
+
+  // `@Cue[...]` links in journals and chat. Registered in init because
+  // enrichers have to exist before any content is enriched.
+  registerAudioEnricher();
 
   // No onChange here on purpose -- see foundry/splash.mjs#registerSplashSettings's
   // own comment for why this one world setting doesn't need one.
@@ -273,6 +304,41 @@ Hooks.once("ready", async () => {
     console.error("Blank Inheritance | Could not mount the phone:", err);
   }
 
+  // The audio chain, on every client. Splicing our buses into Foundry's own
+  // three contexts can only happen after they exist, which is after the first
+  // user gesture -- installAudioEngine awaits game.audio.unlock itself. Its
+  // own try: if the mixer fails to install, Foundry's plain routing is still
+  // in place and the table still hears everything.
+  try {
+    registerAudioSocket();
+    installAudioEngine().catch((err) => console.error("Blank Inheritance | Could not install the audio mixer:", err));
+    registerAudioTriggers();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not set up audio:", err);
+  }
+
+  // The GM's mixing console, and the library behind it. GM-only (its own
+  // isGM guard); the library load is deliberately not awaited, so a missing
+  // or half-synced audio library delays nothing else on the way in.
+  if (game.user.isGM) {
+    try {
+      loadAudio().catch((err) => console.error("Blank Inheritance | Could not load the audio library:", err));
+      mountSoundDesk();
+    } catch (err) {
+      console.error("Blank Inheritance | Could not mount the sound desk:", err);
+    }
+  }
+
+  // The Console -- the full mimetic sheet/dashboard. Every client, same
+  // toggleable-panel shape as the phone; foundry/console-window.mjs's own
+  // seat check picks Overview/Skills/Strikes/Spells/Gear for everyone plus
+  // Party/Hub/Log for a GM, so there is nothing to branch on here.
+  try {
+    mountConsoleWindow();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not mount the console:", err);
+  }
+
   // The Console -- the full mimetic sheet/dashboard. Every client, same
   // toggleable-panel shape as the phone; foundry/console-window.mjs's own
   // seat check picks Overview/Skills/Strikes/Spells/Gear for everyone plus
@@ -362,6 +428,12 @@ Hooks.on("canvasReady", () => {
     console.error("Blank Inheritance | Could not re-assert the city board:", err);
   }
 
+  try {
+    mountSoundDesk();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not re-assert the sound desk:", err);
+  }
+
   // The stage, and the camera lock that makes a staged scene a picture rather
   // than a map. Both are no-ops on an ordinary scene, and syncCameraToScene
   // actively UNDOES the lock when leaving one -- a prototype override left in
@@ -436,6 +508,13 @@ Hooks.on("updateScene", (scene, changed) => {
   } catch (err) {
     console.error("Blank Inheritance | Could not process a splash trigger:", err);
   }
+});
+
+// A character taking the stage is an audio trigger too: a villain can have a
+// theme that plays when they appear (Ingram, 2026-09-17). foundry/splash.mjs
+// announces the moment; the director decides whether any cue answers it.
+Hooks.on("blank-inheritance.splash", (event) => {
+  onCastRevealed(event).catch((err) => console.error("Blank Inheritance | Could not fire an arrival's audio cue:", err));
 });
 
 // The Director's deck belongs to whatever is selected — both key banks, the
