@@ -126,6 +126,21 @@ export function decayPet(state, amount = 5) {
 }
 
 /**
+ * How much the two meters have drifted since `elapsedMs` ago, at
+ * `ratePerHour` points per hour. Pure — the adapter reads the real clock and
+ * hands the elapsed span in; nothing here calls `Date.now()`, so "a week
+ * passed between sessions" is exactly as testable as "five minutes passed".
+ * A negative or zero span (a clock that went backwards, or no time at all)
+ * decays nothing rather than throwing — a stored timestamp from a slightly
+ * skewed client clock is a nuisance, not an error worth losing pet state over.
+ */
+export function decayForElapsed(state, elapsedMs, ratePerHour = 0.5) {
+  const hours = Math.max(0, elapsedMs) / 3_600_000;
+  const amount = Math.round(hours * ratePerHour);
+  return amount > 0 ? decayPet(state, amount) : state;
+}
+
+/**
  * The phone's Session Log app: today's recorded entries (core/log-entry.mjs),
  * newest first, with a table-ready HH:MM instead of a full ISO timestamp.
  * The command bar's own log zone already shows the last three as a receipt

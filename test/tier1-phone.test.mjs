@@ -19,6 +19,7 @@ import {
   feedPet,
   playWithPet,
   decayPet,
+  decayForElapsed,
   createSnake,
   spawnFood,
   turnSnake,
@@ -109,6 +110,20 @@ test("feeding, playing and decay clamp to 0-100 and never mutate the input", () 
   const decayed = decayPet({ fed: 3, played: 0 }, 10);
   assert.equal(decayed.fed, 0, "decay must clamp at 0, not go negative");
   assert.equal(decayed.played, 0);
+});
+
+test("decayForElapsed maps real elapsed time to a rounded meter drop, never touching the real clock itself", () => {
+  const state = { fed: 80, played: 80 };
+  const oneDay = 24 * 3_600_000;
+  const decayed = decayForElapsed(state, oneDay, 0.5);
+  assert.equal(decayed.fed, 68, "24h at 0.5/hour is 12 points");
+  assert.equal(decayed.played, 68);
+
+  assert.deepEqual(decayForElapsed(state, 0), state, "no elapsed time changes nothing");
+  assert.deepEqual(decayForElapsed(state, -5000), state, "a clock that went backwards decays nothing rather than throwing");
+
+  const tiny = decayForElapsed(state, 60_000, 0.5);
+  assert.deepEqual(tiny, state, "a span that rounds to zero points changes nothing");
 });
 
 /* ==================================================================

@@ -4320,6 +4320,30 @@
 .bi-pet__meter-label { font-family: var(--bi-font-legend); font-size: 9px; letter-spacing: 0.12em; color: var(--bi-bone-dim); }
 .bi-pet__meter-track { width: 100px; height: 6px; background: var(--bi-steel-900); box-shadow: var(--bi-bevel-down); border-radius: 3px; overflow: hidden; }
 .bi-pet__meter-fill { height: 100%; background: linear-gradient(90deg, var(--bi-phosphor), color-mix(in srgb, var(--bi-phosphor) 55%, black)); }
+/* Every mood's own eyes/mouth path is picked in JS (foundry/phone.mjs) and
+   drawn with the SAME two strokes — the mood word beneath does the reading,
+   the face is texture. */
+.bi-pet__svg { color: var(--bi-phosphor); }
+.bi-pet__svg path { fill: none; }
+.bi-pet__svg path:first-child { stroke: var(--bi-phosphor-dim); }
+
+/* A row of .bi-term-key buttons under an app's own content — Pet's Feed/Play,
+   and anything else that wants the same simple footer. */
+.bi-terminal__keyrow { display: flex; gap: 10px; }
+
+/* =====================================================================
+   FORTUNE — campy flavour text, one key, no state worth persisting.
+   ===================================================================== */
+.bi-fortune { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 18px; padding: 24px; text-align: center; }
+.bi-fortune__text {
+  margin: 0;
+  max-width: 34ch;
+  font-family: var(--bi-font-display);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--bi-bone);
+  text-shadow: 0 0 10px rgb(255 255 255 / 12%);
+}
 
 /* =====================================================================
    Shared small chrome: a generic key + section header used by more than

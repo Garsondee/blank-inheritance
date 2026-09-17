@@ -210,6 +210,24 @@
         "Score": "Score",
         "GameOver": "Game Over",
         "Restart": "Restart"
+      },
+      "Pet": {
+        "Title": "Pet",
+        "Fed": "Fed",
+        "Played": "Played",
+        "Feed": "Feed",
+        "Play": "Play",
+        "Mood": {
+          "delighted": "Delighted",
+          "content": "Content",
+          "restless": "Restless",
+          "sulking": "Sulking"
+        }
+      },
+      "Fortune": {
+        "Title": "Fortune",
+        "Prompt": "Draw a fortune.",
+        "Draw": "Draw"
       }
     },
     "Director": {

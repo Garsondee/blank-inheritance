@@ -59,7 +59,7 @@ import {
   registerEquipmentSocket
 } from "./foundry/equipment-state.mjs";
 import { openEquipmentPanel, refreshEquipmentPanel } from "./foundry/equipment-panel.mjs";
-import { mountPhone } from "./foundry/phone.mjs";
+import { mountPhone, registerPetSettings } from "./foundry/phone.mjs";
 import { mountConsoleWindow, refreshConsoleWindow } from "./foundry/console-window.mjs";
 import { createDirectorPanelMacroIfMissing, openDirectorPanel, refreshDirectorPanel } from "./foundry/director-panel.mjs";
 import { registerSceneCloseSettings, openSceneCloseDialogue } from "./foundry/scene-close.mjs";
@@ -147,6 +147,11 @@ Hooks.once("init", () => {
   // The two mocked scene-close counters (design/ux-doctrine.md §10.3a).
   // World-scoped and GM-only to write, same as everything else here.
   registerSceneCloseSettings();
+
+  // The phone's Pet app. Client-scoped on purpose -- "purely textural, zero
+  // mechanical weight" per the idea entry, so it is genuinely each player's
+  // (and the GM's) own, never a world setting the whole table watches change.
+  registerPetSettings();
 });
 
 Hooks.once("ready", async () => {
