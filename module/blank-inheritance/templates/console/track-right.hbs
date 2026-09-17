@@ -1,12 +1,11 @@
 {{!--
-    Right track: what I do. Checks for a player, the log for the Director.
-
-    Must render exactly ONE top-level element — see track-left.hbs.
+    The deck's right side: inner then outer, the mirror of track-left.hbs.
+    See that file for why material lives in CSS rather than here.
 --}}
-<div class="bi-bar__group bi-bar__group--right" data-track="right" {{#if tracks.right.hidden}}hidden{{/if}}>
+<div class="bi-deck__side bi-deck__side--right" data-track="right">
     {{#each tracks.right.zones}}
-    <section class="bi-pod" data-zone="{{this.id}}" data-partial="{{this.partial}}" {{#if this.hidden}}hidden{{/if}}>
-        <h2 class="bi-legend">{{localize this.labelKey}}</h2>
+    <section class="bi-deck__module" data-slot="{{this.slot}}" data-zone="{{this.id}}" data-partial="{{this.partial}}"
+        aria-label="{{localize this.labelKey}}" {{#if this.hidden}}hidden{{/if}}>
         {{#if this.template}}{{> (lookup this 'template')}}{{/if}}
     </section>
     {{/each}}

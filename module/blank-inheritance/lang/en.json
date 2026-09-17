@@ -69,7 +69,10 @@
         "Checks": "Checks",
         "Segment": "Schedule",
         "Cast": "Cast",
-        "Log": "Log"
+        "Log": "Log",
+        "Orb": "Instrument",
+        "Selectors": "Selectors",
+        "Director": "Log and session"
       },
       "Quarter": {
         "Morning": "Morning",
@@ -126,6 +129,58 @@
           "SceneClose": "Scene Close",
           "Induction": "Induction Terminal"
         }
+      }
+    },
+    "Deck": {
+      "Skills": "Skills",
+      "HP": "HP",
+      "AC": "AC",
+      "ArmorClass": "Armor Class",
+      "Spd": "Spd",
+      "Speed": "Speed",
+      "LandSpeed": "Land speed",
+      "Hero": "Hero",
+      "HeroPoints": "Hero Points",
+      "LevelN": "Lv {level}",
+      "NoConditions": "No conditions",
+      "NoCharacter": "No character assigned",
+      "NoSubject": "Select a token",
+      "Sheet": "Sheet",
+      "Comms": "Comms",
+      "Console": "Console",
+      "Cast": "Cast",
+      "Prev": "Prev",
+      "Next": "Next",
+      "Log": "Log",
+      "Session": "Session",
+      "Lore": "Lore",
+      "NoLore": "No lores",
+      "Roll": "Roll",
+      "Strike": "Strike",
+      "NoStrikes": "No strikes",
+      "Downtime": "Downtime",
+      "Take": "Take",
+      "Taken": "Taken",
+      "NextQuarter": "Next quarter",
+      "RoundN": "Round {round}",
+      "ActionN": "Action {n}",
+      "Reaction": "Reaction",
+      "Spent": "Spent",
+      "Ready": "Ready",
+      "TapToMark": "Tap the ring to mark it",
+      "Natural": "nat {n}",
+      "DC": "DC",
+      "Disposition": {
+        "secret": "Secret",
+        "hostile": "Hostile",
+        "neutral": "Neutral",
+        "friendly": "Friendly"
+      },
+      "Outcome": {
+        "criticalSuccess": "Critical success",
+        "success": "Success",
+        "failure": "Failure",
+        "criticalFailure": "Critical failure"
       }
     },
     "Equipment": {

@@ -1,0 +1,96 @@
+{{!--
+    The player's right shoulder: two rotary selectors in black cells, after the
+    north star's Voice and Lfo cells. Anything unbounded that a player chooses
+    between lives on a detented knob rather than a list — so this module has
+    a fixed face however many lores, offers or weapons there are.
+
+      left cell  — LORE: every lore the character has; the key rolls it.
+      right cell — theatre of the mind: DOWNTIME, this quarter's offers, and a
+                   key to take (or give back) the slice. In a fight: STRIKE,
+                   the character's strikes, and one key per multiple-attack
+                   step showing the number that will be rolled.
+
+    Every cell reads the same way top to bottom: legend, knob, the selected
+    name on a two-line screen, then a row of keys carrying the number that will
+    actually be rolled (ux-doctrine Law 1). Knob detents and pointer frame come
+    from core/deck-layout.mjs#selectorState, so the printed dots and the
+    rendered pointer can never disagree. Click the right half of a knob to step
+    clockwise, the left half to step back, scroll over it, or use the arrow keys.
+--}}
+<div class="bi-deck-shoulder bi-deck-selectors" data-variant="{{selectors.variant}}">
+    <div class="bi-deck__grille" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="bi-deck-selectors__pair">
+        <div class="bi-deck__cell bi-deck-selector" data-selector="lore">
+            <span class="bi-deck__legend">{{localize "BLANKINHERITANCE.Deck.Lore"}}</span>
+            <div class="bi-deck-selector__dial">
+                <svg class="bi-deck-selector__detents" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+                    {{#each selectors.lore.positions}}<circle class="bi-deck-selector__detent{{#if this.active}} is-active{{/if}}" cx="{{this.x}}" cy="{{this.y}}" r="3.4"></circle>{{/each}}
+                </svg>
+                <button type="button" name="bi-selector-lore" class="bi-knob bi-deck-selector__knob" style="--frame: {{selectors.lore.frame}}"
+                    data-action="selectorStep" data-selector="lore" data-bi-wheel="lore" {{#unless selectors.lore.count}}disabled{{/unless}}
+                    aria-label="{{localize 'BLANKINHERITANCE.Deck.Lore'}}"
+                    data-preview-title="{{selectors.lore.title}}" data-preview-value="{{selectors.lore.value}}" data-preview-sub="{{selectors.lore.sub}}"></button>
+            </div>
+            <span class="bi-deck__screen bi-deck-selector__lcd">
+                <span class="bi-deck-selector__name">{{selectors.lore.display}}</span>
+            </span>
+            <span class="bi-deck-selector__keys">
+                <button type="button" class="bi-deck-map bi-deck-map--wide" data-action="rollLore" {{#unless selectors.lore.slug}}disabled{{/unless}}
+                    data-slug="{{selectors.lore.slug}}" data-label="{{selectors.lore.title}}"
+                    aria-label="{{localize 'BLANKINHERITANCE.Deck.Roll'}} {{selectors.lore.title}} {{selectors.lore.value}}"
+                    data-preview-title="{{selectors.lore.title}}" data-preview-value="{{selectors.lore.value}}" data-preview-sub="{{selectors.lore.sub}}">
+                    <span class="bi-deck-map__label">{{localize "BLANKINHERITANCE.Deck.Roll"}}</span>{{#if selectors.lore.slug}} {{selectors.lore.value}}{{/if}}
+                </button>
+            </span>
+        </div>
+
+        {{#if selectors.strike}}
+        <div class="bi-deck__cell bi-deck-selector" data-selector="strike">
+            <span class="bi-deck__legend">{{localize "BLANKINHERITANCE.Deck.Strike"}}</span>
+            <div class="bi-deck-selector__dial">
+                <svg class="bi-deck-selector__detents" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+                    {{#each selectors.strike.positions}}<circle class="bi-deck-selector__detent{{#if this.active}} is-active{{/if}}" cx="{{this.x}}" cy="{{this.y}}" r="3.4"></circle>{{/each}}
+                </svg>
+                <button type="button" name="bi-selector-strike" class="bi-knob bi-deck-selector__knob" style="--frame: {{selectors.strike.frame}}"
+                    data-action="selectorStep" data-selector="strike" data-bi-wheel="strike" {{#unless selectors.strike.count}}disabled{{/unless}}
+                    aria-label="{{localize 'BLANKINHERITANCE.Deck.Strike'}}"
+                    data-preview-title="{{selectors.strike.name}}" data-preview-value="{{selectors.strike.value}}" data-preview-sub="{{selectors.strike.sub}}"></button>
+            </div>
+            <span class="bi-deck__screen bi-deck-selector__lcd">
+                <span class="bi-deck-selector__name">{{selectors.strike.name}}</span>
+            </span>
+            <span class="bi-deck-selector__keys">
+                {{#each selectors.strike.variants}}
+                <button type="button" class="bi-deck-map" data-action="rollStrike" data-action-index="{{../selectors.strike.actionIndex}}" data-variant-index="{{this.variantIndex}}"
+                    aria-label="{{../selectors.strike.name}} {{this.label}}" data-preview-title="{{../selectors.strike.name}}" data-preview-value="{{this.short}}" data-preview-sub="{{this.label}}">{{this.short}}</button>
+                {{/each}}
+            </span>
+        </div>
+        {{else}}
+        <div class="bi-deck__cell bi-deck-selector" data-selector="downtime">
+            <span class="bi-deck__legend">{{localize "BLANKINHERITANCE.Deck.Downtime"}}</span>
+            <div class="bi-deck-selector__dial">
+                <svg class="bi-deck-selector__detents" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+                    {{#each selectors.downtime.positions}}<circle class="bi-deck-selector__detent{{#if this.active}} is-active{{/if}}{{#if this.taken}} is-taken{{/if}}" cx="{{this.x}}" cy="{{this.y}}" r="3.4"></circle>{{/each}}
+                </svg>
+                <button type="button" name="bi-selector-downtime" class="bi-knob bi-deck-selector__knob" style="--frame: {{selectors.downtime.frame}}"
+                    data-action="selectorStep" data-selector="downtime" data-bi-wheel="downtime" {{#unless selectors.downtime.count}}disabled{{/unless}}
+                    aria-label="{{localize 'BLANKINHERITANCE.Deck.Downtime'}}"
+                    data-preview-title="{{selectors.downtime.name}}" data-preview-value="{{selectors.downtime.cost}}" data-preview-sub="{{selectors.downtime.effect}}"></button>
+            </div>
+            <span class="bi-deck__screen bi-deck-selector__lcd">
+                <span class="bi-deck-selector__name">{{selectors.downtime.name}}</span>
+            </span>
+            <span class="bi-deck-selector__keys">
+                <button type="button" class="bi-deck-map bi-deck-map--wide{{#if selectors.downtime.takenByMe}} is-on{{/if}}" data-action="takeOffer" data-offer-id="{{selectors.downtime.id}}"
+                    {{#unless selectors.downtime.id}}disabled{{/unless}} aria-pressed="{{selectors.downtime.takenByMe}}"
+                    aria-label="{{localize 'BLANKINHERITANCE.Deck.Take'}} {{selectors.downtime.name}}"
+                    data-preview-title="{{selectors.downtime.name}}" data-preview-value="{{selectors.downtime.cost}}" data-preview-sub="{{selectors.downtime.effect}}">
+                    <span class="bi-deck-map__label">{{#if selectors.downtime.takenByMe}}{{localize "BLANKINHERITANCE.Deck.Taken"}}{{else}}{{localize "BLANKINHERITANCE.Deck.Take"}}{{/if}}</span>
+                    {{#each selectors.downtime.budgetLamps}}<i class="bi-deck__jewel{{#if this}} is-lit{{/if}}" aria-hidden="true"></i>{{/each}}
+                </button>
+            </span>
+        </div>
+        {{/if}}
+    </div>
+</div>

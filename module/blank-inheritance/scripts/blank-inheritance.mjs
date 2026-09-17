@@ -29,6 +29,7 @@ import { registerThemeSettings, applyTheme } from "./foundry/theme.mjs";
 import { mountCommandBar, refreshCommandBar } from "./foundry/command-bar.mjs";
 import { PlayerBar } from "./foundry/player-bar.mjs";
 import { DirectorBar } from "./foundry/director-bar.mjs";
+import { installDeckFitting, noteRoll, resetActionPips } from "./foundry/deck.mjs";
 import { loadSessionLog } from "./foundry/session-log.mjs";
 import { ensureIntelVault, writeAuthoredProfile } from "./foundry/social-store.mjs";
 import { ensureStageVault, syncStage, writeAuthoredCast } from "./foundry/stage.mjs";
@@ -200,7 +201,8 @@ Hooks.once("ready", async () => {
   // player receiving their own private commitments. Registered on every client
   // because each end of that conversation is one of the two.
   try {
-    registerCampaignSocket(() => refreshCommandBar(["left"]));
+    // The downtime selector lives on the deck's right shoulder.
+    registerCampaignSocket(() => refreshCommandBar(["right"]));
   } catch (err) {
     console.error("Blank Inheritance | Could not open the campaign socket:", err);
   }
@@ -234,6 +236,16 @@ Hooks.once("ready", async () => {
     mountCommandBar(game.user.isGM ? DirectorBar : PlayerBar);
   } catch (err) {
     console.error("Blank Inheritance | Could not mount the command bar:", err);
+  }
+
+  // The deck is drawn at one authored size and scaled to fit between whatever
+  // Foundry has claimed at the bottom corners, so it has to hear about window
+  // resizes and the sidebar opening. Its own try: a fit that fails leaves a
+  // deck at scale 1, which is still usable.
+  try {
+    installDeckFitting();
+  } catch (err) {
+    console.error("Blank Inheritance | Could not install the deck's fitting:", err);
   }
 
   // The GM's script. Its own try: a panel that fails to mount must not stop
@@ -404,33 +416,55 @@ Hooks.on("updateScene", (scene, changed) => {
   }
 });
 
-// The Director's checks belong to whatever is selected, so a selection change
-// changes what the bar is showing. Only the right track needs repainting,
-// which is what render({parts}) is for.
+// The Director's deck belongs to whatever is selected — both key banks, the
+// defences and the instrument's needle — so a selection change repaints all
+// of it. Debounced because switching selection fires this twice (release the
+// old token, control the new one), and two renders of the whole deck for one
+// click is waste the GM would see as a flicker.
+const refreshForSelection = foundry.utils.debounce(() => {
+  refreshCommandBar();
+  // The console's own sheet tabs read the same actorForSeat(DIRECTOR)
+  // selection-or-fallback, so a GM's console needs the same nudge.
+  refreshConsoleWindow();
+}, 40);
 Hooks.on("controlToken", () => {
   if (!game.user?.isGM) return;
-  refreshCommandBar(["right"]);
-  // The console's own sheet tabs read the same actorForSeat(DIRECTOR)
-  // selection-or-fallback, so a GM's console needs the same nudge -- it is
-  // a full render (no parts), same cost as any other console.js-side
-  // refresh, since the console's own tab set is small.
-  refreshConsoleWindow();
+  refreshForSelection();
 });
 
-// The bar's ident strip and every console sheet tab read the live actor
-// fresh on every render (never cached), so the correct fix for "something
-// on the sheet changed" is just "render again" -- no diffing needed. This
-// fires far more often than strictly necessary (any actor's HP anywhere
-// re-renders every client's console even though only one seat's sheet
-// could possibly be showing that actor), but both renders are cheap and a
-// missed refresh reads as a stale, wrong number on a console whose whole
-// point is Law 1 -- the safer failure direction is "renders once too often".
+// The deck and every console sheet tab read the live actor fresh on every
+// render (never cached), so the correct fix for "something on the sheet
+// changed" is just "render again" -- no diffing needed. The whole deck, not
+// just the side tracks: the instrument's needle reads hit points. This fires
+// far more often than strictly necessary, but a missed refresh reads as a
+// stale, wrong number on a console whose whole point is Law 1 -- the safer
+// failure direction is "renders once too often".
 for (const hook of ["updateActor", "createItem", "updateItem", "deleteItem"]) {
   Hooks.on(hook, () => {
-    refreshCommandBar(["left", "right"]);
+    refreshCommandBar();
     refreshConsoleWindow();
   });
 }
+
+// The instrument reads out the last check rolled for whoever the deck is
+// showing. createChatMessage fires on every client that receives the message,
+// and noteRoll ignores anything this viewer cannot see.
+Hooks.on("createChatMessage", (message) => {
+  try {
+    noteRoll(message);
+  } catch (err) {
+    console.error("Blank Inheritance | Could not read a roll onto the deck:", err);
+  }
+});
+
+// The action pips on the instrument's bezel are a finger on a list: when a
+// creature's turn comes round, its three actions and reaction are all back.
+Hooks.on("combatTurnChange", (combat, _prior, current) => {
+  resetActionPips(combat?.combatants?.get(current?.combatantId)?.actor ?? null);
+});
+Hooks.on("combatStart", (combat) => {
+  resetActionPips(combat?.combatant?.actor ?? null);
+});
 
 // A player's own character gets assigned well after the bar first mounts --
 // the induction terminal self-assigns user.character once creation

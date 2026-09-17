@@ -34,6 +34,17 @@ export function consoleActor() {
 }
 
 /**
+ * Whether the table is shown roll outcomes — sf2e's own metagame setting,
+ * read here because this file is the one place allowed to reach into the
+ * system's namespace (tier0-architecture.test.mjs). The deck's central
+ * instrument consults it before telling a player whether they succeeded
+ * (ux-doctrine Law 11). Unreadable means shown, which is the system default.
+ */
+export function tableSeesResults() {
+  return game.pf2e?.settings?.metagame?.results ?? true;
+}
+
+/**
  * Whose checks the bar is showing.
  *
  * A player's are their own character's. A GM's belong to whatever is

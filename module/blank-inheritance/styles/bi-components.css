@@ -6534,30 +6534,1025 @@
 /* --- Log (Director only) -- reuses the bar's own .bi-log__* vocabulary ----- */
 .bi-sheet__log-list { padding: 12px; max-height: 100%; overflow-y: auto; }
 
-/* --- The bar's own always-on identity strip (zone-personal.hbs) --------- */
-.bi-ident-strip { display: flex; align-items: center; gap: 10px; padding: 4px 2px; }
-.bi-ident-strip__portrait {
+/* =====================================================================
+   10. THE DECK — the command bar as ONE mounted instrument panel
+   ---------------------------------------------------------------------
+   Rebuilt 2026-09-17 against the UI north star
+   (third-party/UI-NORTH-STAR-analog-light.png) at Ingram's direct
+   instruction: "make it look like the image", "build the whole thing as a
+   single panel", "no part of the UI should scroll", "a large round central
+   display ... in the vibrant orange of the UV meter", "symmetrical at least
+   in ratios". design/visual-identity.md, "The deck", is the design record.
+
+   One object, five modules, symmetric by construction:
+
+     cheek | OUTER silver | INNER black | SPINE silver + orb | INNER black | OUTER silver | cheek
+
+   The widths are tokens that sum to --bi-deck-width (tested). The panel is
+   drawn at that authored size and scaled as a whole by the bridge — it never
+   reflows, so it can never collide with itself, and every module is a fixed
+   face that holds exactly what it was designed to hold. Nothing here sets
+   overflow to scroll or auto; unbounded content is paged or put on a rotary
+   selector by core/deck-layout.mjs instead (also tested).
+
+   Two-frame and sprite controls declare `transition: none` explicitly:
+   Foundry's own base <button> rule sets `transition: all .5s`, which makes a
+   photographed button SLIDE between its states (found live 2026-09-17). The
+   needle is the one deliberate animation — a real needle sweeps.
+   ===================================================================== */
+
+.bi-deck {
+  position: relative;
+  box-sizing: border-box;
+  width: var(--bi-deck-width);
+  height: var(--bi-deck-height);
+  padding: 0 var(--bi-deck-cheek);
+  display: grid;
+  grid-template-columns:
+    calc(var(--bi-deck-outer) + var(--bi-deck-inner))
+    var(--bi-deck-spine)
+    calc(var(--bi-deck-inner) + var(--bi-deck-outer));
+  /* Pinned, not auto. An auto row sizes to its tallest module's content, so a
+     module that needs 221px silently grew the whole row past the 196px panel
+     and its bottom row of keys fell off the screen (measured live 2026-09-17).
+     With the row pinned, a module that does not fit is a module to fix. */
+  grid-template-rows: minmax(0, 1fr);
+  border-radius: 12px 12px 0 0;
+  background: var(--bi-ns-black-lo);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 75%),
+    0 -12px 36px rgb(0 0 0 / 55%),
+    0 -2px 8px rgb(0 0 0 / 40%);
+  isolation: isolate;
+  color: var(--bi-ns-ink);
+  font-family: var(--bi-font-plate);
+  line-height: 1.2;
+  text-align: left;
+}
+
+/* The black end cheeks: rubberised, faintly ribbed, standing a few pixels
+   proud of the faceplate like the north star's own side strips. */
+.bi-deck::before,
+.bi-deck::after {
+  content: "";
+  position: absolute;
+  top: -6px;
+  bottom: 0;
+  width: var(--bi-deck-cheek);
+  z-index: 5;
+  /* A rubbed-shiny patch a third of the way down — where a GM's palm brushes
+     the cheek reaching past it for the key bank — plus the pitted grain any
+     other exposed edge of this panel carries. */
+  background:
+    radial-gradient(60% 18% at 50% 34%, rgb(255 255 255 / 7%) 0%, rgb(255 255 255 / 0%) 100%),
+    var(--bi-grain-pitted-light),
+    repeating-linear-gradient(0deg, rgb(255 255 255 / 3%) 0 1px, transparent 1px 4px),
+    var(--bi-grain-matte),
+    linear-gradient(90deg, #0a0b0c 0%, #2c2e31 36%, #1c1d1f 68%, #0c0d0e 100%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 14%), 0 0 0 1px rgb(0 0 0 / 60%);
+  pointer-events: none;
+}
+.bi-deck::before { left: 0; border-radius: 12px 0 0 0; }
+.bi-deck::after  { right: 0; border-radius: 0 12px 0 0; }
+
+.bi-deck__side { display: grid; grid-template-rows: minmax(0, 1fr); height: 100%; min-width: 0; min-height: 0; }
+.bi-deck__side--left  { grid-template-columns: var(--bi-deck-outer) var(--bi-deck-inner); }
+.bi-deck__side--right { grid-template-columns: var(--bi-deck-inner) var(--bi-deck-outer); }
+.bi-deck__spine { position: relative; height: 100%; min-width: 0; min-height: 0; }
+
+.bi-deck__module {
+  position: relative;
+  box-sizing: border-box;
+  height: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+.bi-deck__module[hidden] { display: none; }
+
+/* Silver: the shoulders and the spine. A dark glossy trim rail runs along the
+   top edge of every module, the way the north star's panels are capped.
+
+   Grimed 2026-09-17: this has sat in a hangar a long time. A worn-bare
+   scuff-field (--bi-grain-pitted, dark specks — bare metal under the paint)
+   sits over the brushed grain, and a handful of fixed radial-gradient smudges
+   and paint-chips mark where hands and elbows actually land — never
+   randomised per-render, the same wear every time a table looks at it, like
+   a real machine would show. Every wear layer is folded into this ONE
+   `background` list rather than a ::before pseudo: a pseudo-element is a box
+   in the module's own child stack, and would need its own negative z-index to
+   paint under the module's real content instead of over it — a background
+   layer paints under all descendants by construction, no stacking question
+   to get wrong. */
+.bi-deck__module[data-slot="outer"],
+.bi-deck__module[data-slot="spine"] {
+  background:
+    linear-gradient(180deg, #08090a 0 3px, rgb(255 255 255 / 62%) 3px 4px, rgb(255 255 255 / 0%) 4px),
+    radial-gradient(11px 7px at 14px 176px, rgb(60 56 48 / 45%) 0%, rgb(60 56 48 / 0%) 100%),
+    radial-gradient(8px 5px at 92% 12px, rgb(60 56 48 / 32%) 0%, rgb(60 56 48 / 0%) 100%),
+    radial-gradient(120% 60% at 50% 100%, rgb(20 18 15 / 22%) 0%, rgb(20 18 15 / 0%) 70%),
+    var(--bi-grain-pitted),
+    var(--bi-grain-brushed),
+    linear-gradient(180deg, var(--bi-ns-silver-hi) 0%, var(--bi-ns-silver) 36%, var(--bi-ns-silver-lo) 100%);
+}
+.bi-deck__module[data-slot="spine"] {
+  overflow: visible;
+  box-shadow: inset 2px 0 0 rgb(0 0 0 / 55%), inset 3px 0 0 rgb(255 255 255 / 45%),
+    inset -2px 0 0 rgb(0 0 0 / 55%), inset -3px 0 0 rgb(255 255 255 / 45%);
+}
+/* Black: the two key banks. Flat for the first 40px so a cell's legend can
+   sit on exactly the colour behind it and read as breaking the outline. The
+   pitted grain runs LIGHT here (worn-bare flecks show pale against black
+   plastic, not dark) — the same field as the silver modules', so the two
+   materials read as one aged machine rather than two different textures.
+   Grime pools in the two lower corners; a faint worn-shiny patch sits where a
+   palm rests bracing for the bottom row of keys. */
+.bi-deck__module[data-slot="inner"] {
+  background:
+    linear-gradient(180deg, #050506 0 3px, rgb(255 255 255 / 16%) 3px 4px, rgb(255 255 255 / 0%) 4px),
+    radial-gradient(90% 46% at 50% 100%, rgb(0 0 0 / 35%) 0%, rgb(0 0 0 / 0%) 70%),
+    radial-gradient(60px 34px at 50% 85%, rgb(180 180 180 / 5%) 0%, rgb(180 180 180 / 0%) 100%),
+    var(--bi-grain-pitted-light),
+    var(--bi-grain-matte),
+    linear-gradient(180deg, var(--bi-ns-black-hi) 0 40px, var(--bi-ns-black) 90px, var(--bi-ns-black-lo) 100%);
+}
+
+/* --- Shared hardware ---------------------------------------------------- */
+
+/* Vent grille: five slots with a catch-light under each, top of a shoulder. */
+.bi-deck__grille {
+  display: grid;
+  gap: 3px;
+  width: 68%;
+  margin: 12px auto 0;
+  flex: none;
+}
+.bi-deck__grille i {
+  display: block;
+  height: 2.5px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #060707, #34373a);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 62%);
+}
+
+/* A recessed well milled into silver. */
+.bi-deck__well {
+  position: relative;
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: 9px;
+  border-radius: 14px;
+  padding: 8px 9px;
+  background:
+    var(--bi-grain-brushed),
+    linear-gradient(180deg, #a6aeb2 0%, #b6bdc1 55%, #bcc3c7 100%);
+  box-shadow:
+    inset 0 2px 5px rgb(0 0 0 / 38%),
+    inset 0 -1px 0 rgb(255 255 255 / 55%),
+    0 1px 0 rgb(255 255 255 / 55%);
+}
+
+/* A black cell: hairline outline, rounded, after the north star's "Voice",
+   "Chorus" and "Lfo" cells. */
+.bi-deck__cell {
+  position: relative;
+  box-sizing: border-box;
+  border: 1.5px solid var(--bi-ns-outline);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #232427, #18191b);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 5%), 0 1px 0 rgb(255 255 255 / 7%);
+}
+
+.bi-deck__legend {
+  font-family: var(--bi-font-plate);
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--bi-ns-legend);
+  white-space: nowrap;
+}
+
+.bi-deck__plate {
+  font-family: var(--bi-font-plate);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--bi-ns-ink);
+  white-space: nowrap;
+}
+
+/* A black LCD slot inset into metal. One warm phosphor, the VU's own family. */
+.bi-deck__screen {
+  box-sizing: border-box;
+  border-radius: 5px;
+  background: linear-gradient(180deg, #040505, #121415);
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 95%), 0 1px 0 rgb(255 255 255 / 48%);
+  color: #ffb866;
+  font-family: var(--bi-font-readout);
+}
+
+.bi-deck__counter {
+  display: inline-grid;
+  place-items: center;
+  min-width: 42px;
+  height: 20px;
+  padding: 0 6px;
+  font-size: 12px;
+  align-self: center;
+}
+
+.bi-deck__chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  padding: 2px 5px 1px;
+  border-radius: 4px;
+  background: #0c0d0e;
+  box-shadow: inset 0 1px 2px #000, 0 1px 0 rgb(255 255 255 / 55%);
+  white-space: nowrap;
+}
+.bi-deck__chip em {
+  font-family: var(--bi-font-plate);
+  font-style: normal;
+  font-size: 10px;
+  color: #9ba2a6;
+}
+.bi-deck__chip b {
+  font-family: var(--bi-font-readout);
+  font-weight: normal;
+  font-size: 13px;
+  color: #ffb866;
+}
+
+.bi-deck__jewel {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #6b7074, #26292c);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 55%);
+}
+.bi-deck__jewel.is-lit {
+  background: radial-gradient(circle at 35% 30%, #fff3dc, var(--bi-vu-orange) 55%, var(--bi-vu-ember));
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 55%), 0 0 6px rgb(255 138 31 / 85%);
+}
+
+.bi-deck__tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-family: var(--bi-font-plate);
+  font-size: 10.5px;
+  line-height: 1.3;
+  white-space: nowrap;
+  color: #6f140e;
+  background: rgb(212 38 29 / 14%);
+  box-shadow: inset 0 0 0 1px rgb(212 38 29 / 45%);
+}
+.bi-deck__tag--quiet { color: var(--bi-ns-ink-soft); background: none; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 16%); }
+.bi-deck__tag--more { color: var(--bi-ns-ink); background: rgb(0 0 0 / 8%); box-shadow: none; }
+
+/* Pill keys: a capsule with its engraved label underneath, exactly the north
+   star's "Type" / "Routing" / "Slope" selectors. */
+.bi-deck__pills {
+  flex: none;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: flex-end;
+  gap: 8px;
+  padding-top: 7px;
+}
+.bi-deck-pill {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.bi-deck-pill__cap {
+  appearance: none;
+  box-sizing: border-box;
+  width: 50px;
+  height: 15px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: none;
+  /* Proud of the silver, not printed on it: a darker hairline and a drop
+     shadow, so the capsule reads as a key at a glance (it was too faint to
+     find on the first live render). A faint yellowed patch off-centre is
+     years of the same fingertip landing in the same spot. */
+  background:
+    radial-gradient(9px 6px at 62% 40%, rgb(120 90 40 / 10%) 0%, rgb(120 90 40 / 0%) 100%),
+    linear-gradient(180deg, #eef1f2 0%, #cdd3d6 55%, #b4bbbf 100%);
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 48%),
+    inset 0 2px 0 rgb(255 255 255 / 85%),
+    0 2px 3px rgb(0 0 0 / 35%),
+    0 1px 0 rgb(255 255 255 / 60%);
+}
+.bi-deck-pill__cap:hover { background: linear-gradient(180deg, #f7f9f9 0%, #dde2e4 55%, #c3c9cc 100%); }
+.bi-deck-pill__cap:active { box-shadow: inset 0 1px 3px rgb(0 0 0 / 45%), 0 1px 0 rgb(255 255 255 / 55%); }
+.bi-deck-pill__cap:focus-visible { outline: 2px solid var(--bi-vu-orange); outline-offset: 2px; }
+.bi-deck-pill__cap:disabled { cursor: default; opacity: 0.45; }
+.bi-deck-pill.is-on .bi-deck-pill__cap {
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 30%), inset 0 -4px 0 -1px var(--bi-vu-orange), 0 0 8px rgb(255 138 31 / 45%);
+}
+.bi-deck-pill__label {
+  font-family: var(--bi-font-plate);
+  font-size: 11px;
+  line-height: 1;
+  color: var(--bi-ns-ink);
+  white-space: nowrap;
+}/* On black, the pill is a dark capsule with a light hairline. */
+.bi-deck__cell .bi-deck-pill__cap {
+  background: linear-gradient(180deg, #2c2e31, #1b1c1e);
+  box-shadow: inset 0 0 0 1px #62676b, 0 1px 2px rgb(0 0 0 / 60%);
+}
+.bi-deck__cell .bi-deck-pill__cap:hover { background: linear-gradient(180deg, #383b3e, #232427); }
+.bi-deck__cell .bi-deck-pill.is-on .bi-deck-pill__cap {
+  box-shadow: inset 0 0 0 1px #62676b, inset 0 -4px 0 -1px var(--bi-vu-orange), 0 0 8px rgb(255 138 31 / 45%);
+}
+.bi-deck__cell .bi-deck-pill__label { color: var(--bi-ns-legend); }
+
+/* --- The key banks (inner, black) --------------------------------------- */
+
+.bi-deck-bank { box-sizing: border-box; height: 100%; padding: 22px 11px 11px; }
+.bi-deck-bank__cell { height: 100%; padding: 13px 9px 9px; }
+.bi-deck-bank__cell > .bi-deck__legend {
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 7px;
+  background: var(--bi-ns-black-hi);
+}
+.bi-deck-bank__keys {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  height: 100%;
+}
+
+.bi-deck-key {
+  appearance: none;
+  position: relative;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  margin: 0;
+  padding: 4px 3px 4px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  align-items: center;
+  border: 1px solid #3d4044;
+  border-radius: 9px;
+  /* Eighteen keys, thousands of presses across a campaign — the centre of
+     each one is worn faintly shinier than its own edges. */
+  background:
+    radial-gradient(60% 40% at 50% 55%, rgb(255 255 255 / 4%) 0%, rgb(255 255 255 / 0%) 100%),
+    linear-gradient(180deg, #35373b 0%, #27292c 46%, #1c1d20 100%);
+  box-shadow: 0 2px 3px rgb(0 0 0 / 70%), inset 0 1px 0 rgb(255 255 255 / 9%);
+  color: var(--bi-ns-legend);
+  font-family: var(--bi-font-plate);
+  cursor: pointer;
+  transition: none;
+}
+.bi-deck-key:hover {
+  border-color: rgb(255 138 31 / 80%);
+  box-shadow: 0 2px 3px rgb(0 0 0 / 70%), 0 0 9px rgb(255 138 31 / 35%), inset 0 1px 0 rgb(255 255 255 / 12%);
+}
+.bi-deck-key:active {
+  transform: translateY(1px);
+  background: linear-gradient(180deg, #1c1d20, #27292c);
+  box-shadow: inset 0 2px 4px rgb(0 0 0 / 70%);
+}
+.bi-deck-key:focus-visible { outline: 2px solid var(--bi-vu-orange); outline-offset: 1px; }
+.bi-deck-key__label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  line-height: 1.05;
+  color: #b7bdc1;
+}
+.bi-deck-key__mod {
+  font-family: var(--bi-font-readout);
+  font-size: 17px;
+  line-height: 1;
+  color: var(--bi-ns-cap);
+}
+.bi-deck-key[data-rank="0"] .bi-deck-key__mod { color: #82888c; }
+.bi-deck-key__pips { display: flex; gap: 3px; height: 4px; }
+.bi-deck-key__pips i { display: block; width: 4px; height: 4px; border-radius: 50%; background: #3b3e42; }
+.bi-deck-key__pips i.is-lit { background: var(--bi-vu-orange); box-shadow: 0 0 4px rgb(255 138 31 / 75%); }
+.bi-deck-key--blank { cursor: default; opacity: 0.45; box-shadow: inset 0 1px 0 rgb(255 255 255 / 5%); }
+
+/* --- The spine: defences flanking the central instrument ------------------ */
+
+.bi-orb-deck { position: relative; height: 100%; }
+.bi-orb-deck[data-empty] .bi-orb__needle { opacity: 0.35; }
+
+.bi-deck-flank {
+  position: absolute;
+  top: 12px;
+  bottom: 10px;
+  width: 60px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+.bi-deck-flank--left  { left: 0; }
+.bi-deck-flank--right { right: 0; }
+
+.bi-deck-defence { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+/* A creature with no such defence keeps the hole in the panel, not a gap in the layout. */
+.bi-deck-defence--blank .bi-deck-round__label { visibility: hidden; }
+
+/* A round black push button in a silver bezel, after the one below the
+   north star's Filter and Gain knob. */
+.bi-deck-round {
+  appearance: none;
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: none;
+  color: var(--bi-ns-cap);
+  /* A defence key gets pressed every single roll of that save — the faint
+     bright fingerprint low on the face is where a thumb actually lands. */
+  background:
+    radial-gradient(13px 9px at 50% 65%, rgb(255 255 255 / 6%) 0%, rgb(255 255 255 / 0%) 100%),
+    radial-gradient(circle at 50% 30%, #4a4d51 0%, #26282b 48%, #101113 100%);
+  box-shadow:
+    0 0 0 3px #d9dee0,
+    0 0 0 4px rgb(0 0 0 / 32%),
+    0 5px 7px rgb(0 0 0 / 45%),
+    inset 0 1px 1px rgb(255 255 255 / 22%),
+    inset 0 -2px 3px rgb(0 0 0 / 60%);
+}
+.bi-deck-round:hover {
+  box-shadow:
+    0 0 0 3px #d9dee0,
+    0 0 0 4px rgb(0 0 0 / 32%),
+    0 0 14px rgb(255 138 31 / 60%),
+    0 5px 7px rgb(0 0 0 / 45%),
+    inset 0 1px 1px rgb(255 255 255 / 22%);
+}
+.bi-deck-round:active { transform: translateY(1px); }
+.bi-deck-round:focus-visible { outline: 2px solid var(--bi-vu-orange); outline-offset: 4px; }
+.bi-deck-round--blank { cursor: default; opacity: 0.4; }
+.bi-deck-round__mod { font-family: var(--bi-font-readout); font-size: 15px; line-height: 1; }
+.bi-deck-round__label {
+  font-family: var(--bi-font-plate);
+  font-size: 10.5px;
+  line-height: 1;
+  color: var(--bi-ns-ink);
+  white-space: nowrap;
+}
+
+/* --- The central instrument ---------------------------------------------- */
+
+.bi-orb {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: calc(-1 * var(--bi-deck-crown));
+  width: var(--bi-orb-collar);
+  height: var(--bi-orb-collar);
+  margin-left: calc(var(--bi-orb-collar) / -2);
+}
+
+/* The machined silver collar: a raised disc with lathe rings, like the collar
+   the north star mounts its Reverb and Delay knobs in. Grimed like the deck's
+   other silver: worn specks plus a faint thumb-smudge low on the ring, where
+   a hand naturally rests reaching past it for the round buttons either side. */
+.bi-orb__collar {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(46px 30px at 50% 82%, rgb(70 40 12 / 12%) 0%, rgb(70 40 12 / 0%) 100%),
+    var(--bi-grain-pitted),
+    repeating-radial-gradient(circle at 50% 50%, rgb(0 0 0 / 0%) 0 1.5px, rgb(0 0 0 / 5%) 1.5px 2.5px),
+    radial-gradient(circle at 50% 20%, #f4f6f7 0%, #d3d8db 42%, #afb6ba 78%, #929a9e 100%);
+  box-shadow:
+    0 12px 26px rgb(0 0 0 / 45%),
+    0 2px 5px rgb(0 0 0 / 35%),
+    inset 0 2px 1px rgb(255 255 255 / 85%),
+    inset 0 -5px 9px rgb(0 0 0 / 22%);
+}
+
+.bi-orb__bezel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--bi-orb-bezel);
+  height: var(--bi-orb-bezel);
+  transform: translate(-50%, -50%);
+  overflow: visible;
+}
+.bi-orb__bezel-ring {
+  fill: #131416;
+  stroke: rgb(0 0 0 / 70%);
+  stroke-width: 0.7;
+}
+.bi-orb__arc { fill: #3a3d41; }
+.bi-orb__arc[data-state="past"] { fill: #5a3818; }
+.bi-orb__arc[data-state="current"] { fill: var(--bi-vu-orange); filter: drop-shadow(0 0 1.6px rgb(255 138 31 / 95%)); }
+.bi-orb__glyph {
+  font-family: var(--bi-font-gothic);
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: #6c7276;
+}
+.bi-orb__glyph[data-state="past"] { fill: #8a6a4b; }
+.bi-orb__glyph[data-state="current"] { fill: var(--bi-vu-bright); }
+
+.bi-orb__glass {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  width: var(--bi-orb-glass);
+  height: var(--bi-orb-glass);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  overflow: hidden;
+  /* A faint thumb-smudge low-left on the glass, where a hand rests checking
+     HP at a glance, and a scattering of dust the orange backlight makes
+     visible the way real glass over a lamp always shows it. Both sit UNDER
+     .bi-orb__gloss's highlight sweep in paint order (gloss is a later sibling
+     with z-index:4), so the smudge reads as on the glass, not on the light. */
+  background:
+    radial-gradient(70px 46px at 32% 78%, rgb(40 18 4 / 14%) 0%, rgb(40 18 4 / 0%) 100%),
+    var(--bi-grain-pitted-light),
+    radial-gradient(circle at 46% 34%,
+    var(--bi-vu-hot) 0%, var(--bi-vu-bright) 20%, var(--bi-vu-orange) 48%, var(--bi-vu-deep) 76%, var(--bi-vu-ember) 100%);
+  box-shadow:
+    0 0 0 2px #0a0b0c,
+    0 0 0 3px rgb(255 255 255 / 10%),
+    0 0 28px rgb(255 128 20 / 45%),
+    inset 0 10px 22px rgb(0 0 0 / 28%),
+    inset 0 -12px 28px rgb(110 30 0 / 45%);
+}
+
+.bi-orb__face { position: absolute; inset: 0; width: 100%; height: 100%; }
+.bi-orb__scale { fill: none; stroke: var(--bi-vu-ink); stroke-width: 1.7; stroke-linecap: round; }
+.bi-orb__tick { stroke: var(--bi-vu-ink); stroke-width: 1.1; stroke-linecap: round; }
+.bi-orb__tick--major { stroke-width: 1.9; }
+.bi-orb__danger { fill: var(--bi-vu-red); opacity: 0.9; }
+.bi-orb__num,
+.bi-orb__minus,
+.bi-orb__plus,
+.bi-orb__gauge {
+  font-family: var(--bi-font-condensed);
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--bi-vu-ink);
+}
+.bi-orb__gauge { letter-spacing: 0.06em; }
+
+/* The needle pivots at the face's own pivot (core/vu-meter.mjs: 124 of 200),
+   and sweeps rather than jumps — foundry/deck.mjs renders it at the previous
+   reading and moves it to the new one a frame later. */
+.bi-orb__needle {
+  position: absolute;
+  z-index: 2;
+  left: calc(50% - 1.25px);
+  bottom: 38%;
+  width: 2.5px;
+  /* Pivot to tip is 40% of the glass = 80 face units: just past the scale's
+     major ticks (radius 70 + 8, foundry/deck.mjs ORB_FACE), like a real VU
+     needle, rather than sweeping over the printed numbers. */
+  height: 40%;
+  border-radius: 2px 2px 1px 1px;
+  transform-origin: 50% 100%;
+  transform: rotate(var(--needle, -50deg));
+  background: linear-gradient(180deg, #120803 0%, #1c0c04 70%, #3b2210 100%);
+  box-shadow: 1px 2px 2px rgb(70 20 0 / 45%);
+  transition: transform 950ms cubic-bezier(0.22, 1.35, 0.4, 1);
+}
+.bi-orb__pivot {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 62%;
+  width: 17px;
+  height: 17px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #ffffff 0%, #cfd4d7 42%, #6a7175 100%);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 65%), 0 0 0 1px rgb(0 0 0 / 35%);
+}
+
+/* The readout window: a dark slot in the orange glass, after the black LCD
+   the north star sets above its meter. Three lines: what, how much, and the
+   margin or rank that makes the number mean something. */
+.bi-orb__window {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 67%;
+  width: 56%;
+  height: 24%;
+  transform: translateX(-50%);
+  box-sizing: border-box;
+  padding: 3px 6px 4px;
+  border-radius: 9px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(180deg, rgb(16 7 2 / 90%), rgb(34 14 4 / 94%));
+  box-shadow: inset 0 2px 6px rgb(0 0 0 / 85%), 0 1px 0 rgb(255 225 180 / 50%);
+  color: #ffc98a;
+}
+.bi-orb__line {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bi-orb__line--title { font-family: var(--bi-font-plate); font-size: 10.5px; line-height: 1.1; color: #f3c490; }
+.bi-orb__line--value { font-family: var(--bi-font-readout); font-size: 20px; line-height: 1; color: #ffe2b8; text-shadow: 0 0 8px rgb(255 150 50 / 55%); }
+.bi-orb__line--sub { font-family: var(--bi-font-plate); font-size: 10px; line-height: 1.1; color: #d99b5c; }
+.bi-orb__window[data-tone="good"] .bi-orb__line--value { color: #fff0cf; text-shadow: 0 0 10px rgb(255 200 90 / 80%); }
+.bi-orb__window[data-tone="bad"] .bi-orb__line--value { color: #ff9a86; text-shadow: 0 0 10px rgb(212 38 29 / 70%); }
+.bi-orb__window[data-mode="hover"] { box-shadow: inset 0 2px 6px rgb(0 0 0 / 85%), 0 1px 0 rgb(255 225 180 / 50%), 0 0 0 1px rgb(255 180 100 / 55%); }
+
+.bi-orb__gloss {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 66% 34% at 40% 14%, rgb(255 255 255 / 40%), rgb(255 255 255 / 0%) 72%),
+    linear-gradient(205deg, rgb(255 255 255 / 12%) 0%, rgb(255 255 255 / 0%) 42%);
+}
+
+/* Engraved round the top of the collar: the day, or the round. The arc and the
+   letter height are core/orb-geometry.mjs's ORB_ENGRAVING, in the collar's own
+   100-unit box. */
+.bi-orb__engraving {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.bi-orb__caption {
+  font-family: var(--bi-font-plate);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-anchor: middle;
+  fill: #3a3f43;
+}
+.bi-orb__caption--light { fill: rgb(255 255 255 / 75%); }
+
+/* The bezel is also a set of keys. In a fight each quarter of it is one action
+   (tap to mark it spent); in theatre of the mind the Director's deck carries
+   ONE key on it — the next quarter's arc, which winds the day on. A player's
+   deck renders no key there at all. The hit areas are masked to the ring so
+   the glass inside stays inert. */
+.bi-orb__hits {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 50%;
+  width: var(--bi-orb-bezel);
+  height: var(--bi-orb-bezel);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  -webkit-mask: radial-gradient(circle, transparent 79%, #000 80%);
+  mask: radial-gradient(circle, transparent 79%, #000 80%);
+}
+.bi-orb__hit {
+  appearance: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: none;
+}
+.bi-orb__hit[data-quadrant="0"] { clip-path: polygon(50% 50%, 50% 0, 100% 0, 100% 50%); }
+.bi-orb__hit[data-quadrant="1"] { clip-path: polygon(50% 50%, 100% 50%, 100% 100%, 50% 100%); }
+.bi-orb__hit[data-quadrant="2"] { clip-path: polygon(50% 50%, 50% 100%, 0 100%, 0 50%); }
+.bi-orb__hit[data-quadrant="3"] { clip-path: polygon(50% 50%, 0 50%, 0 0, 50% 0); }
+.bi-orb__hit:hover { background: rgb(255 180 90 / 16%); }
+.bi-orb__hit:focus-visible { outline: none; background: rgb(255 180 90 / 24%); }
+.bi-orb__hit[data-action="advanceSegment"]:hover { background: rgb(255 180 90 / 30%); }
+
+/* --- The shoulders (outer, silver) --------------------------------------- */
+
+.bi-deck-shoulder {
+  box-sizing: border-box;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0 11px 8px;
+}
+/* The four shoulder faces. Each seat's pair mirrors: the player's ident (left)
+   and selectors (right), the Director's cast (left) and log (right). The outer
+   edge of each shoulder carries the heavier padding, the edge that meets its
+   key bank the lighter, so both pairs read as reflections of each other. */
+.bi-deck-ident,
+.bi-deck-cast     { padding-left: 13px; padding-right: 9px; }
+.bi-deck-director,
+.bi-deck-selectors { padding-left: 9px; padding-right: 13px; }
+
+.bi-deck-ident__well { display: flex; flex-direction: column; gap: 6px; }
+.bi-deck-ident__well--empty { align-items: center; justify-content: center; }
+.bi-deck-ident__who { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.bi-deck-ident__portrait {
+  flex: none;
   width: 40px;
   height: 40px;
-  border-radius: 6px;
-  object-fit: cover;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #17181a;
+  box-shadow: 0 0 0 2px #2a2d30, 0 0 0 3px rgb(255 255 255 / 45%), inset 0 1px 3px #000;
+}
+.bi-deck-ident__portrait img { display: block; width: 100%; height: 100%; object-fit: cover; border: none; }
+.bi-deck-ident__text { display: grid; gap: 2px; min-width: 0; }
+.bi-deck-ident__name,
+.bi-deck-ident__line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bi-deck-ident__name { font-family: var(--bi-font-plate); font-size: 13.5px; font-weight: 600; line-height: 1.1; color: var(--bi-ns-ink); }
+.bi-deck-ident__line { font-family: var(--bi-font-plate); font-size: 11px; line-height: 1.1; color: var(--bi-ns-ink-soft); }
+.bi-deck-ident__row { display: flex; align-items: center; gap: 5px; }
+.bi-deck-ident__hero { display: inline-flex; align-items: center; gap: 3px; margin-left: auto; }
+.bi-deck-ident__hero em { font-family: var(--bi-font-plate); font-style: normal; font-size: 10px; color: var(--bi-ns-ink-soft); margin-right: 1px; }
+.bi-deck-ident__conditions { display: flex; flex-wrap: wrap; gap: 4px; min-height: 0; overflow: hidden; }
+
+.bi-deck-cast__well { display: flex; flex-direction: column; gap: 4px; padding: 6px 8px 7px; }
+.bi-deck-cast__head { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+.bi-deck-cast__count { font-family: var(--bi-font-plate); font-size: 10px; color: var(--bi-ns-ink-soft); white-space: nowrap; }
+.bi-deck-cast__rows {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: 3px 3px;
+  list-style: none;
+  display: grid;
+  grid-template-rows: repeat(5, minmax(0, 1fr));
+}
+.bi-deck-cast__slot { display: flex; align-items: stretch; min-height: 0; margin: 0; }
+/* Faint rules between rows, so an empty row still reads as a line on a screen. */
+.bi-deck-cast__slot + .bi-deck-cast__slot { box-shadow: inset 0 1px 0 rgb(255 184 102 / 9%); }
+.bi-deck-cast__row {
+  appearance: none;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  margin: 0;
+  padding: 0 5px;
+  border: none;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  /* Foundry's base button centres its content; a board row reads from the left. */
+  justify-content: flex-start;
+  gap: 5px;
+  background: none;
+  color: #e3c8a2;
+  font-family: var(--bi-font-plate);
+  font-size: 11px;
+  line-height: 1;
+  text-align: left;
+  cursor: pointer;
+  transition: none;
+}
+.bi-deck-cast__row:hover { background: rgb(255 138 31 / 12%); }
+.bi-deck-cast__row:disabled { cursor: default; opacity: 0.5; }
+.bi-deck-cast__row.is-selected { background: rgb(255 138 31 / 26%); color: #ffe0b8; }
+.bi-deck-cast__name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bi-deck-cast__lamp { flex: none; width: 7px; height: 7px; border-radius: 50%; background: #5d6166; }
+.bi-deck-cast__row[data-disposition="friendly"] .bi-deck-cast__lamp { background: #e9eef0; box-shadow: 0 0 4px rgb(255 255 255 / 60%); }
+.bi-deck-cast__row[data-disposition="neutral"]  .bi-deck-cast__lamp { background: var(--bi-vu-orange); box-shadow: 0 0 4px rgb(255 138 31 / 70%); }
+.bi-deck-cast__row[data-disposition="hostile"]  .bi-deck-cast__lamp { background: var(--bi-vu-red); box-shadow: 0 0 4px rgb(212 38 29 / 80%); }
+.bi-deck-cast__flag { flex: none; font-family: var(--bi-font-readout); font-size: 10px; color: #8a8f93; }
+.bi-deck-cast__card {
+  appearance: none;
   flex: none;
-  box-shadow: 0 0 0 1.5px var(--bi-brass), 0 2px 4px rgb(0 0 0 / 60%);
+  width: 18px;
+  min-height: 0;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #8e7456;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  transition: none;
 }
-.bi-ident-strip__body { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-.bi-ident-strip__name { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.bi-ident-strip__hp { width: 110px; }
-.bi-ident-strip__hp[data-tier="ok"]::after {
-  background: linear-gradient(90deg, var(--bi-phosphor), color-mix(in srgb, var(--bi-phosphor) 55%, black));
-  box-shadow: 0 0 7px var(--bi-phosphor);
+.bi-deck-cast__card:hover { color: var(--bi-vu-orange); }
+.bi-deck__pills--pager { justify-content: space-between; align-items: flex-end; padding-left: 6px; padding-right: 6px; }
+
+.bi-deck-director__well { display: flex; flex-direction: column; gap: 5px; padding: 6px 8px 7px; }
+.bi-deck-director__head { display: flex; align-items: center; gap: 8px; }
+.bi-deck-session { flex: 1 1 auto; min-width: 0; }
+.bi-deck-session__track {
+  position: relative;
+  display: block;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #0b0c0d;
+  box-shadow: inset 0 1px 2px #000, 0 1px 0 rgb(255 255 255 / 55%);
 }
-.bi-ident-strip__hp[data-tier="hurt"]::after {
-  background: linear-gradient(90deg, var(--bi-amber), color-mix(in srgb, var(--bi-amber) 55%, black));
-  box-shadow: 0 0 7px var(--bi-amber);
+.bi-deck-session__band { position: absolute; top: 0; bottom: 0; background: rgb(255 138 31 / 38%); }
+.bi-deck-session__now {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--bi-vu-hot);
+  box-shadow: 0 0 5px var(--bi-vu-orange);
 }
-.bi-ident-strip__hp[data-tier="critical"]::after,
-.bi-ident-strip__hp[data-tier="down"]::after {
-  background: linear-gradient(90deg, var(--bi-vermilion), color-mix(in srgb, var(--bi-vermilion) 55%, black));
-  box-shadow: 0 0 7px var(--bi-vermilion);
+.bi-deck-session[data-phase="after"] .bi-deck-session__now { background: #ff8d80; box-shadow: 0 0 5px var(--bi-vu-red); }
+.bi-deck-log__input {
+  appearance: none;
+  flex: none;
+  width: 100%;
+  height: 22px;
+  min-height: 0;
+  margin: 0;
+  padding: 0 6px;
+  border: none;
+  font-size: 11px;
+  line-height: 22px;
+  outline: none;
 }
-.bi-ident-strip__stats { font-size: 9px; color: var(--bi-text-dim); white-space: nowrap; }
+.bi-deck-log__input::placeholder { color: #86623c; }
+.bi-deck-log__input:focus { box-shadow: inset 0 1px 3px #000, 0 0 0 1px var(--bi-vu-orange); }
+.bi-deck-log__recent {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: 3px 6px;
+  list-style: none;
+  display: grid;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  align-items: center;
+}
+.bi-deck-log__entry {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10.5px;
+  line-height: 1.2;
+  color: #e9b67c;
+}
+.bi-deck-log__entry b { margin-right: 4px; font-weight: normal; color: var(--bi-vu-orange); }
+.bi-deck-log__entry.is-empty { color: #8c6a45; font-style: italic; }
+
+.bi-deck-selectors__pair {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: 9px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+.bi-deck-selector {
+  min-width: 0;
+  padding: 6px 5px 6px;
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  justify-items: center;
+  align-items: center;
+  gap: 2px;
+}
+/* 58px, not larger: the cell is 142.5px tall and also carries a two-line
+   screen and a row of keys (measured live 2026-09-17). */
+.bi-deck-selector__dial { position: relative; width: 58px; height: 58px; display: grid; place-items: center; }
+.bi-deck-selector__detents { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.bi-deck-selector__detent { fill: #3c3f43; }
+.bi-deck-selector__detent.is-taken { fill: #7d4a1e; }
+.bi-deck-selector__detent.is-active { fill: var(--bi-vu-orange); filter: drop-shadow(0 0 1.5px rgb(255 138 31 / 90%)); }
+/* The knob itself is the shared filmstrip .bi-knob (§1), dressed for the deck:
+   a dark mount rather than brass, a pointer cursor because it steps, and the
+   same explicit no-transition every sprite control on the deck carries. */
+.bi-deck-selector__knob {
+  --bi-knob-size: 40px;
+  appearance: none;
+  min-height: 0;
+  margin: 0;
+  cursor: pointer;
+  transition: none;
+  /* The mount ring picks up a faint oily sheen at the bottom, where thumb and
+     forefinger actually pinch it to turn — the one control on the deck a
+     hand touches every single check. */
+  background:
+    radial-gradient(60% 34% at 50% 78%, rgb(255 200 130 / 10%) 0%, rgb(255 200 130 / 0%) 100%),
+    radial-gradient(circle, #202225 58%, #0b0c0d 100%);
+  box-shadow: 0 3px 5px rgb(0 0 0 / 70%), inset 0 0 0 1px rgb(255 255 255 / 8%);
+}
+.bi-deck-selector__knob::before { transition: none; }
+.bi-deck-selector__knob:disabled { cursor: default; opacity: 0.45; }
+.bi-deck-selector__knob:focus-visible { outline: 2px solid var(--bi-vu-orange); outline-offset: 3px; }
+/* Two lines of name, always the same height, so a short name and a long one
+   leave the keys below in the same place. */
+.bi-deck-selector__lcd {
+  width: 100%;
+  height: 30px;
+  min-width: 0;
+  padding: 3px 4px;
+  display: grid;
+  place-items: center;
+}
+.bi-deck-selector__name {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  text-align: center;
+  overflow-wrap: anywhere;
+  font-family: var(--bi-font-plate);
+  font-size: 10.5px;
+  line-height: 12px;
+  color: #f0b46e;
+}
+/* Every selector cell ends in a row of keys, each carrying its number. */
+.bi-deck-selector__keys { display: flex; justify-content: center; gap: 3px; width: 100%; }
+.bi-deck-map {
+  appearance: none;
+  box-sizing: border-box;
+  width: 24px;
+  height: 18px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #3d4044;
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, #35373b, #1c1d20);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 70%);
+  color: var(--bi-ns-cap);
+  font-family: var(--bi-font-readout);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  transition: none;
+}
+.bi-deck-map:hover { border-color: rgb(255 138 31 / 80%); }
+.bi-deck-map:active { transform: translateY(1px); }
+.bi-deck-map:focus-visible { outline: 2px solid var(--bi-vu-orange); outline-offset: 1px; }
+.bi-deck-map:disabled { cursor: default; opacity: 0.45; border-color: #3d4044; }
+.bi-deck-map--wide {
+  flex: 1 1 auto;
+  width: auto;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.bi-deck-map__label { font-family: var(--bi-font-plate); font-size: 11px; color: var(--bi-ns-legend); }
+.bi-deck-map.is-on {
+  border-color: var(--bi-vu-orange);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 70%), inset 0 -2px 0 var(--bi-vu-orange), 0 0 8px rgb(255 138 31 / 40%);
+}
+.bi-deck-map .bi-deck__jewel { width: 7px; height: 7px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bi-orb__needle { transition: none; }
+}

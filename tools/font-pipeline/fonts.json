@@ -7,7 +7,7 @@
     "latin": "No CJK. Latin-only families, converted to woff2 and otherwise untouched."
   },
 
-  "uiKanji": "機密極秘部外秘公開統制局命令第号文書番発行写承認閲覧記録要取扱注意同調侵蝕率機体型演出捕捉抹消空白相続情報保安級別作戦報告書式整備出撃待機警戒解除完了未確認損傷回収搭乗員候補生訓練所日時場所目標状態異常正常危険安全通信受信送信開始終了中断継続音楽効果音声量調整地図拠点座標距離方位高度速度残弾補給修理格納庫発艦着艦管制塔指揮官医療班避難誘導structural",
+  "uiKanji": "機密極秘部外秘公開統制局命令第号文書番発行写承認閲覧記録要取扱注意同調侵蝕率機体型演出捕捉抹消空白相続情報保安級別作戦報告書式整備出撃待機警戒解除完了未確認損傷回収搭乗員候補生訓練所日時場所目標状態異常正常危険安全通信受信送信開始終了中断継続音楽効果音声量調整地図拠点座標距離方位高度速度残弾補給修理格納庫発艦着艦管制塔指揮官医療班避難誘導朝昼夕夜structural",
 
   "families": [
     { "name": "Shippori Mincho",      "weights": [400, 700], "profile": "full",  "role": "Document body and titles. The one face that must render arbitrary Japanese." },

@@ -1,15 +1,16 @@
 {{!--
-    Left track of the command bar: identity. Who am I, what shape am I in.
+    The deck's left side: two modules, outer then inner (core/console-model.mjs
+    orders them physically). The module's face is its zone partial; the
+    material (silver shoulder vs black key bank) comes from data-slot in CSS,
+    so a template never decides what a module is made of.
 
     Must render exactly ONE top-level element — ApplicationV2's #parsePartHTML
-    throws "Template part must render a single HTML element" otherwise
-    (client/applications/api/handlebars-application.mjs). The data-application-part
-    attribute is added by Foundry, not here.
+    throws otherwise (tier0-architecture.test.mjs enforces it).
 --}}
-<div class="bi-bar__group bi-bar__group--left" data-track="left" {{#if tracks.left.hidden}}hidden{{/if}}>
+<div class="bi-deck__side bi-deck__side--left" data-track="left">
     {{#each tracks.left.zones}}
-    <section class="bi-pod" data-zone="{{this.id}}" data-partial="{{this.partial}}" {{#if this.hidden}}hidden{{/if}}>
-        <h2 class="bi-legend">{{localize this.labelKey}}</h2>
+    <section class="bi-deck__module" data-slot="{{this.slot}}" data-zone="{{this.id}}" data-partial="{{this.partial}}"
+        aria-label="{{localize this.labelKey}}" {{#if this.hidden}}hidden{{/if}}>
         {{#if this.template}}{{> (lookup this 'template')}}{{/if}}
     </section>
     {{/each}}

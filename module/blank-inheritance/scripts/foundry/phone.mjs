@@ -246,6 +246,11 @@ export class Phone extends HandlebarsApplicationMixin(ApplicationV2) {
     return super.close(options);
   }
 
+  /** Open or close the device from outside its own button — the deck's Comms pill. */
+  toggle() {
+    Phone.#onToggle.call(this);
+  }
+
   static #onToggle() {
     this.#open = !this.#open;
     // A closed phone running Snake's interval in the background is a silent
@@ -273,4 +278,9 @@ export function mountPhone() {
   if (!active) active = new Phone();
   active.render({ force: true });
   return active;
+}
+
+/** Open or close the mounted phone; mounts it first if nothing has yet. */
+export function togglePhone() {
+  (active ?? mountPhone()).toggle();
 }

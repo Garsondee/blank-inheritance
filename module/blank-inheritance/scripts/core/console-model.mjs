@@ -45,54 +45,59 @@ export const MODES = Object.freeze({
   FRAME: "frame"
 });
 
-/** The three grid tracks of .bi-bar, left to right. */
+/**
+ * The three render parts of the deck, left to right. Each side track holds
+ * two modules (outer then inner on the left, inner then outer on the right),
+ * so the five physical modules read symmetrically around the instrument.
+ */
 export const TRACKS = Object.freeze(["left", "instrument", "right"]);
 
 export const SEAT_LIST = Object.freeze(Object.values(SEATS));
 export const MODE_LIST = Object.freeze(Object.values(MODES));
 
 /**
- * The zones, per seat, in render order within their track.
+ * The zones, per seat, in render order within their track — and, since the
+ * 2026-09-17 rebuild into one mounted panel (design/visual-identity.md, "The
+ * deck"), in PHYSICAL order: the left track is [outer module, inner module],
+ * the right track is [inner module, outer module], so the five modules read
+ * outer | inner | instrument | inner | outer and every seat is symmetric in
+ * its ratios by construction.
  *
- * `theatreOnly` is the one mode-dependent property, and it exists because of
- * a specific ruling: downtime scheduling is not a fourth mode, it is theatre
- * of the mind played at city scale — so the day/time instrument and the
- * schedule board belong to that mode and must not appear in a fight, where
- * time is measured in rounds and a quarter-of-the-day dial is noise.
- * Everything else (who I am, what I can roll, the cast, the log) is true in
- * every mode. The log in particular is always on: running the session and
- * recording it are one act.
+ * `partials` maps each mode to a content variant. A mode may swap what a
+ * module shows (the player's selectors read downtime offers in theatre of the
+ * mind and strikes in a fight — downtime is not a fourth mode, it is theatre
+ * of the mind at city scale, and time in a fight is rounds), but it never
+ * moves a module or removes one: a panel whose keys change places between
+ * scenes is a panel nobody can learn by hand. A `null` variant sheds the
+ * module's face while its slot stays.
+ *
+ * The two seats share the checks banks and the instrument (a GM rolls
+ * constantly — for whatever is selected on the board) and differ on the
+ * outer modules: a player's are a sheet (who I am, what I can choose), a
+ * GM's are a board (who is here, what just happened).
  */
-/**
- * THE RIGHT TRACK BELONGS TO `checks` ALONE, on both seats. Everything else
- * lives left of the instrument.
- *
- * Measured, not chosen for tidiness (2026-09-07, in a real Foundry world).
- * The checks zone is the only one whose content is unbounded — eighteen fixed
- * skills, three saves, Perception, and however many Lores a character has —
- * and its row count falls as its column count rises. Sharing a track with the
- * log squeezed it to 320px (its own floor) and FOUR columns, which put a
- * plain 22-key character at five rows and forced a scrollbar on the one
- * control players use most. Alone in the track it gets 560px and TEN columns:
- * a 27-key character with five Lores fits in three rows with nothing hidden.
- *
- * That is the whole reason for the split, and it is worth more than the
- * symmetry of putting each seat's "other" zone opposite its first. It also
- * happens to read well: left is the world (who is here, what happened, what
- * is scheduled), right is what I can do about it, centre is when we are.
- */
+const EVERY_MODE = (partial) => Object.freeze({ theatre: partial, personnel: partial, frame: partial });
+
 const ZONE_TABLE = Object.freeze({
   [SEATS.PLAYER]: Object.freeze([
-    Object.freeze({ id: "ident", track: "left", partial: "personal", labelKey: "BLANKINHERITANCE.Console.Zone.Ident" }),
-    Object.freeze({ id: "segment", track: "left", partial: "schedule", theatreOnly: true, labelKey: "BLANKINHERITANCE.Console.Zone.Segment" }),
-    Object.freeze({ id: "dome", track: "instrument", partial: "day-ring", theatreOnly: true, labelKey: "BLANKINHERITANCE.Console.Zone.Dome" }),
-    Object.freeze({ id: "checks", track: "right", partial: "skills", labelKey: "BLANKINHERITANCE.Console.Zone.Checks" })
+    Object.freeze({ id: "ident", track: "left", slot: "outer", partials: EVERY_MODE("ident"), labelKey: "BLANKINHERITANCE.Console.Zone.Ident" }),
+    Object.freeze({ id: "checks-left", track: "left", slot: "inner", partials: EVERY_MODE("checks"), labelKey: "BLANKINHERITANCE.Console.Zone.Checks" }),
+    Object.freeze({ id: "orb", track: "instrument", slot: "spine", partials: EVERY_MODE("orb"), labelKey: "BLANKINHERITANCE.Console.Zone.Orb" }),
+    Object.freeze({ id: "checks-right", track: "right", slot: "inner", partials: EVERY_MODE("checks"), labelKey: "BLANKINHERITANCE.Console.Zone.Checks" }),
+    Object.freeze({
+      id: "selectors",
+      track: "right",
+      slot: "outer",
+      partials: Object.freeze({ theatre: "downtime", personnel: "strikes", frame: "strikes" }),
+      labelKey: "BLANKINHERITANCE.Console.Zone.Selectors"
+    })
   ]),
   [SEATS.DIRECTOR]: Object.freeze([
-    Object.freeze({ id: "cast", track: "left", partial: "board", labelKey: "BLANKINHERITANCE.Console.Zone.Cast" }),
-    Object.freeze({ id: "log", track: "left", partial: "bar", labelKey: "BLANKINHERITANCE.Console.Zone.Log" }),
-    Object.freeze({ id: "dome", track: "instrument", partial: "day-ring", theatreOnly: true, labelKey: "BLANKINHERITANCE.Console.Zone.Dome" }),
-    Object.freeze({ id: "checks", track: "right", partial: "skills", labelKey: "BLANKINHERITANCE.Console.Zone.Checks" })
+    Object.freeze({ id: "cast", track: "left", slot: "outer", partials: EVERY_MODE("cast"), labelKey: "BLANKINHERITANCE.Console.Zone.Cast" }),
+    Object.freeze({ id: "checks-left", track: "left", slot: "inner", partials: EVERY_MODE("checks"), labelKey: "BLANKINHERITANCE.Console.Zone.Checks" }),
+    Object.freeze({ id: "orb", track: "instrument", slot: "spine", partials: EVERY_MODE("orb"), labelKey: "BLANKINHERITANCE.Console.Zone.Orb" }),
+    Object.freeze({ id: "checks-right", track: "right", slot: "inner", partials: EVERY_MODE("checks"), labelKey: "BLANKINHERITANCE.Console.Zone.Checks" }),
+    Object.freeze({ id: "director", track: "right", slot: "outer", partials: EVERY_MODE("director"), labelKey: "BLANKINHERITANCE.Console.Zone.Director" })
   ])
 });
 
@@ -129,19 +134,15 @@ export function zonesFor(mode, seat) {
   if (!rows) throw new Error(`Unknown seat "${seat}" — expected one of ${SEAT_LIST.join(", ")}.`);
   if (!MODE_LIST.includes(mode)) throw new Error(`Unknown mode "${mode}" — expected one of ${MODE_LIST.join(", ")}.`);
 
-  return rows.map(({ id, track, partial, labelKey, theatreOnly = false }) => {
-    const shed = theatreOnly && mode !== MODES.THEATRE;
-    return { id, track, labelKey, partial: shed ? null : partial, hidden: shed };
+  return rows.map(({ id, track, slot, partials, labelKey }) => {
+    const partial = partials[mode] ?? null;
+    return { id, track, slot, labelKey, partial, hidden: partial === null };
   });
 }
 
 /**
- * The full render context for the bar: zones grouped into their grid tracks,
+ * The full render context for the deck: zones grouped into their tracks,
  * each track knowing whether it is entirely empty.
- *
- * A track that is empty must be hidden rather than merely childless, because
- * the centre track has a fixed width (--bi-dome-size) and would otherwise
- * hold a 252px gap open in the middle of the chassis with nothing in it.
  */
 export function consoleLayout(mode, seat) {
   const zones = zonesFor(mode, seat);

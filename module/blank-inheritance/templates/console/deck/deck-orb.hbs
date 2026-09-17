@@ -1,0 +1,111 @@
+{{!--
+    The central instrument: a large round orange VU meter, after the north
+    star's own amber meter, carrying three readings in three rings.
+
+      bezel  — time. In theatre of the mind, the four quarters of the day, the
+               current one lit (the day ring, rethought as the instrument's
+               own rim). In a fight, the action budget — three actions and a
+               reaction — because ux-doctrine Law 3 makes the action budget
+               the centrepiece of a turn.
+      needle — hit points, swinging on a printed scale whose red zone is the
+               bottom quarter.
+      window — whatever a hand is on (the modifier that will be rolled), else
+               the last roll and its margin, else who this is.
+
+    Every coordinate is computed in core (day-ring.mjs, vu-meter.mjs,
+    deck-layout.mjs); nothing here does arithmetic. The defences flank the
+    instrument on the spine, Perception and Fortitude left, Reflex and Will
+    right.
+--}}
+<div class="bi-orb-deck" data-bezel="{{orb.bezel.kind}}" data-tier="{{orb.hp.tier}}"{{#unless orb.subject}} data-empty="1"{{/unless}}>
+    <div class="bi-deck-flank bi-deck-flank--left">
+        {{#each orb.flanks.left}}
+        <div class="bi-deck-defence{{#unless this}} bi-deck-defence--blank{{/unless}}">
+            {{#if this}}
+            <button type="button" class="bi-deck-round" data-action="rollCheck" data-slug="{{this.slug}}" data-label="{{this.label}}"
+                aria-label="{{this.label}} {{this.modLabel}}"
+                data-preview-title="{{this.label}}" data-preview-value="{{this.modLabel}}" data-preview-sub="{{this.rankLabel}}">
+                <span class="bi-deck-round__mod">{{this.modLabel}}</span>
+            </button>
+            <span class="bi-deck-round__label">{{this.label}}</span>
+            {{else}}
+            <span class="bi-deck-round bi-deck-round--blank" aria-hidden="true"></span>
+            <span class="bi-deck-round__label">&nbsp;</span>
+            {{/if}}
+        </div>
+        {{/each}}
+    </div>
+
+    <div class="bi-orb">
+        <div class="bi-orb__collar" aria-hidden="true"></div>
+        <svg class="bi-orb__bezel" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+            <circle class="bi-orb__bezel-ring" cx="50" cy="50" r="49.5"></circle>
+            <g transform="translate({{orb.bezel.offset}} {{orb.bezel.offset}})">
+                {{#each orb.bezel.slices}}
+                <path class="bi-orb__arc" d="{{this.d}}" data-state="{{this.state}}"></path>
+                {{/each}}
+            </g>
+            {{#each orb.bezel.slices}}
+            <text class="bi-orb__glyph" x="{{this.labelX}}" y="{{this.labelY}}" font-size="{{../orb.bezel.glyphSize}}" data-state="{{this.state}}">{{this.glyph}}</text>
+            {{/each}}
+        </svg>
+        {{#if orb.bezel.hits.length}}
+        <div class="bi-orb__hits">
+            {{#each orb.bezel.hits}}
+            <button type="button" class="bi-orb__hit" data-quadrant="{{this.index}}" data-action="{{this.action}}" data-index="{{this.index}}"
+                {{#if this.pressable}}aria-pressed="{{this.pressed}}"{{/if}} aria-label="{{this.ariaLabel}}"
+                data-preview-title="{{this.previewTitle}}" data-preview-value="{{this.previewValue}}" data-preview-sub="{{this.previewSub}}"></button>
+            {{/each}}
+        </div>
+        {{/if}}
+
+        <div class="bi-orb__glass">
+            <svg class="bi-orb__face" viewBox="{{orb.face.viewBox}}" aria-hidden="true" focusable="false">
+                {{#if orb.face.dangerBand}}<path class="bi-orb__danger" d="{{orb.face.dangerBand}}"></path>{{/if}}
+                <path class="bi-orb__scale" d="{{orb.face.arc}}"></path>
+                {{#each orb.face.ticks}}
+                <line class="bi-orb__tick{{#if this.major}} bi-orb__tick--major{{/if}}" x1="{{this.x1}}" y1="{{this.y1}}" x2="{{this.x2}}" y2="{{this.y2}}"></line>
+                {{/each}}
+                {{#each orb.face.labels}}
+                <text class="bi-orb__num" x="{{this.x}}" y="{{this.y}}" font-size="{{../orb.type.num}}">{{this.text}}</text>
+                {{/each}}
+                <text class="bi-orb__minus" x="{{orb.face.minus.x}}" y="{{orb.face.minus.y}}" font-size="{{orb.type.sign}}">−</text>
+                <text class="bi-orb__plus" x="{{orb.face.plus.x}}" y="{{orb.face.plus.y}}" font-size="{{orb.type.sign}}">+</text>
+                <text class="bi-orb__gauge" x="{{orb.face.pivot.x}}" y="{{orb.type.gaugeY}}" font-size="{{orb.type.gauge}}">{{orb.gaugeLabel}}</text>
+            </svg>
+            <div class="bi-orb__needle" style="--needle: {{orb.needle.from}}deg" data-needle-to="{{orb.needle.to}}"></div>
+            <div class="bi-orb__pivot" aria-hidden="true"></div>
+            <div class="bi-orb__window" data-orb-window data-mode="idle" data-tone="{{orb.readout.tone}}" aria-live="polite">
+                <span class="bi-orb__line bi-orb__line--title" data-orb-title>{{orb.readout.title}}</span>
+                <span class="bi-orb__line bi-orb__line--value" data-orb-value>{{orb.readout.value}}</span>
+                <span class="bi-orb__line bi-orb__line--sub" data-orb-sub>{{orb.readout.sub}}</span>
+            </div>
+            <div class="bi-orb__gloss" aria-hidden="true"></div>
+        </div>
+
+        {{!-- Engraved round the collar: a light copy a hair lower, then the ink, so the letters read as cut into the metal. --}}
+        <svg class="bi-orb__engraving" viewBox="0 0 100 100" role="img" aria-label="{{orb.bezel.caption}}" focusable="false">
+            <path id="bi-orb-caption-arc" d="{{orb.engraving.arc}}" fill="none"></path>
+            <text class="bi-orb__caption bi-orb__caption--light" font-size="{{orb.engraving.size}}" transform="translate(0 0.28)" aria-hidden="true"><textPath href="#bi-orb-caption-arc" startOffset="50%">{{orb.bezel.caption}}</textPath></text>
+            <text class="bi-orb__caption" font-size="{{orb.engraving.size}}" aria-hidden="true"><textPath href="#bi-orb-caption-arc" startOffset="50%">{{orb.bezel.caption}}</textPath></text>
+        </svg>
+    </div>
+
+    <div class="bi-deck-flank bi-deck-flank--right">
+        {{#each orb.flanks.right}}
+        <div class="bi-deck-defence{{#unless this}} bi-deck-defence--blank{{/unless}}">
+            {{#if this}}
+            <button type="button" class="bi-deck-round" data-action="rollCheck" data-slug="{{this.slug}}" data-label="{{this.label}}"
+                aria-label="{{this.label}} {{this.modLabel}}"
+                data-preview-title="{{this.label}}" data-preview-value="{{this.modLabel}}" data-preview-sub="{{this.rankLabel}}">
+                <span class="bi-deck-round__mod">{{this.modLabel}}</span>
+            </button>
+            <span class="bi-deck-round__label">{{this.label}}</span>
+            {{else}}
+            <span class="bi-deck-round bi-deck-round--blank" aria-hidden="true"></span>
+            <span class="bi-deck-round__label">&nbsp;</span>
+            {{/if}}
+        </div>
+        {{/each}}
+    </div>
+</div>

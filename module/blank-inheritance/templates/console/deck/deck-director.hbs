@@ -1,0 +1,45 @@
+{{!--
+    The Director's right shoulder: the log, the session clock, and the ways off
+    the deck. Running the session and recording it are one act (ux-doctrine
+    Law 15), so the log field is always here, in every mode.
+
+    The input's name= is load-bearing: ApplicationV2 only restores focus across
+    a part re-render when the focused element has an id or a name
+    (handlebars-application.mjs _preSyncPartState), so without it the GM loses
+    the caret every time a log entry lands.
+--}}
+<div class="bi-deck-shoulder bi-deck-director">
+    <div class="bi-deck__grille" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="bi-deck__well bi-deck-director__well">
+        <div class="bi-deck-director__head">
+            <span class="bi-deck__plate">{{localize "BLANKINHERITANCE.Deck.Log"}}</span>
+            <span class="bi-deck-session" data-phase="{{director.session.phase}}"
+                data-preview-title="{{localize 'BLANKINHERITANCE.Deck.Session'}}" data-preview-value="{{director.session.clock}}" data-preview-sub="{{director.session.label}}">
+                <span class="bi-deck-session__track">
+                    <i class="bi-deck-session__band" style="left: {{director.session.startPct}}%; width: {{director.session.spanPct}}%"></i>
+                    <i class="bi-deck-session__now" style="left: {{director.session.nowPct}}%"></i>
+                </span>
+            </span>
+        </div>
+        <input type="text" name="bi-log-entry" class="bi-deck__screen bi-deck-log__input" data-bi-log-input autocomplete="off"
+            placeholder="{{localize 'BLANKINHERITANCE.Console.Log.Placeholder'}}"
+            aria-label="{{localize 'BLANKINHERITANCE.Console.Log.Placeholder'}}">
+        <ul class="bi-deck__screen bi-deck-log__recent">
+            {{#each director.entries}}
+            <li class="bi-deck-log__entry">{{#if this.tag}}<b>{{this.tag}}</b>{{/if}}<span>{{this.text}}</span></li>
+            {{else}}
+            <li class="bi-deck-log__entry is-empty">{{localize "BLANKINHERITANCE.Console.Log.Empty"}}</li>
+            {{/each}}
+        </ul>
+    </div>
+    <div class="bi-deck__pills">
+        <span class="bi-deck-pill">
+            <button type="button" class="bi-deck-pill__cap" data-action="openConsole" aria-label="{{localize 'BLANKINHERITANCE.Deck.Console'}}"></button>
+            <span class="bi-deck-pill__label">{{localize "BLANKINHERITANCE.Deck.Console"}}</span>
+        </span>
+        <span class="bi-deck-pill">
+            <button type="button" class="bi-deck-pill__cap" data-action="openComms" aria-label="{{localize 'BLANKINHERITANCE.Deck.Comms'}}"></button>
+            <span class="bi-deck-pill__label">{{localize "BLANKINHERITANCE.Deck.Comms"}}</span>
+        </span>
+    </div>
+</div>

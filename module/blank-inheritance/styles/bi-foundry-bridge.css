@@ -234,6 +234,63 @@ body.bi-theme .bi-bar {
   padding-left: calc(18px + (var(--bi-players-width) + var(--bi-players-edge)) * var(--ui-scale));
 }
 
+/* --- The deck: the command bar as one mounted panel (2026-09-17) ---
+   design/visual-identity.md, "The deck". The panel is drawn at its authored
+   size (bi-tokens.css §7a) and scaled as ONE object about its bottom-left
+   corner, then placed between whatever Foundry has claimed on either side —
+   foundry/deck.mjs measures the roster, the scene runner and an open
+   sidebar, runs core/deck-layout.mjs#deckFit, and writes --bi-deck-scale and
+   --bi-deck-left onto <body>.
+
+   It ALSO rewrites --bi-bar-height on <body> to the deck's full on-screen
+   footprint, rising instrument included. Every existing consumer of that
+   token — the hotbar reservation above, the stage's padding, the scene
+   runner's bottom edge — therefore clears the instrument with no rule of its
+   own changing, and cannot drift from the panel's real size.
+
+   The inherited `left: 0; right: 0` from the #bi-command-bar rule above is
+   replaced here: a scaled object with a fixed authored width is positioned
+   by its left edge, not stretched between two. */
+body.bi-theme #bi-command-bar.bi-deck {
+  left: var(--bi-deck-left);
+  right: auto;
+  transform: scale(var(--bi-deck-scale));
+  transform-origin: 0 100%;
+}
+
+/* The deck carries its own keys for the comm device and the console window
+   (pill keys on its shoulders), so the two floating round buttons those
+   panels used to bring would be a second, detached way to do the same thing
+   bobbing above a panel that is meant to be one object. */
+body.bi-theme:has(#bi-command-bar.bi-deck) .bi-phone-btn,
+body.bi-theme:has(#bi-command-bar.bi-deck) .bi-console-btn {
+  display: none;
+}
+
+/* Foundry's own hotbar stays — it also carries the main menu and mute keys in
+   v14 (verified live 2026-09-17), so hiding it would strand those — but it is
+   moved off the centre line, where the deck's instrument rises. */
+body.bi-theme:has(#bi-command-bar.bi-deck) #ui-bottom {
+  align-items: flex-start;
+}
+
+/* The deck owns the bottom band of the screen, edge to edge — so Foundry's
+   furniture that lives at the foot of its two side columns stands ON TOP of
+   the deck instead of the deck shrinking around it: the player roster (foot of
+   #ui-left-column-1) and, with the sidebar collapsed, the floating chat
+   messages and chat input (#chat-notifications, foot of #ui-right-column-1).
+   FOUND LIVE 2026-09-17: the chat input sat over the deck's right shoulder.
+
+   Both columns are scaled by --ui-scale (foundry2.css, "Game Layout"), and
+   --bi-bar-height is in screen pixels, so the reservation is divided back
+   into the columns' own coordinate space. The sidebar itself is NOT lifted —
+   it is the one thing that genuinely runs the full height of the screen, so
+   foundry/deck.mjs reserves its width instead. */
+body.bi-theme:has(#bi-command-bar.bi-deck) #ui-left #ui-left-column-1,
+body.bi-theme:has(#bi-command-bar.bi-deck) #ui-right #ui-right-column-1 {
+  padding-bottom: calc(var(--bi-bar-height) / var(--ui-scale, 1) + 12px);
+}
+
 /* --- The player roster ---
    Default: restyle in place, so nothing disappears unexpectedly.
    Opt-in: body.bi-roster-in-bar hides it once the bar renders its own

@@ -1,17 +1,22 @@
 // Tier 1 — the console's pure model. No Foundry, no DOM, no fixtures.
 //
-// This is where the two rules that shape the whole command bar are locked
-// down, because both are the kind of thing that reads as a cosmetic glitch
-// when it breaks and is actually an architecture mistake:
+// This is where the rules that shape the whole deck are locked down, because
+// each is the kind of thing that reads as a cosmetic glitch when it breaks and
+// is actually an architecture mistake:
 //
-//   1. The zone list for a seat is FIXED. Mode sheds zones, it never adds or
-//      removes them — ApplicationV2's _replaceHTML never removes a part that
-//      vanishes from the descriptor set, so a shed zone has to keep its slot.
+//   1. The zone list for a seat is FIXED, and so is every zone's physical
+//      slot. Mode changes what a module shows, never where it is or whether
+//      it exists — ApplicationV2's _replaceHTML never removes a part that
+//      vanishes from the descriptor set, and a panel whose keys change places
+//      between scenes is a panel nobody can learn by hand.
 //
-//   2. The day/time instrument and the schedule board are theatre-of-the-mind
-//      only. Downtime is not a fourth mode, it is theatre of the mind at city
-//      scale; in a fight, time is rounds, and a quarter-of-the-day dial there
-//      is noise.
+//   2. The deck is symmetric: five modules, outer | inner | instrument |
+//      inner | outer, on both seats (rebuilt 2026-09-17 as one mounted panel
+//      after the UI north star — design/visual-identity.md, "The deck").
+//
+//   3. Downtime is not a fourth mode, it is theatre of the mind at city
+//      scale; in a fight, time is rounds, so the player's selectors read
+//      strikes there instead of downtime offers.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -76,40 +81,46 @@ test("the seat is decided by GM status and nothing else", () => {
 
 const GOLDEN = {
   "player/theatre": [
-    ["ident", "left", "personal", false],
-    ["segment", "left", "schedule", false],
-    ["dome", "instrument", "day-ring", false],
-    ["checks", "right", "skills", false]
+    ["ident", "left", "ident", false],
+    ["checks-left", "left", "checks", false],
+    ["orb", "instrument", "orb", false],
+    ["checks-right", "right", "checks", false],
+    ["selectors", "right", "downtime", false]
   ],
   "player/personnel": [
-    ["ident", "left", "personal", false],
-    ["segment", "left", null, true],
-    ["dome", "instrument", null, true],
-    ["checks", "right", "skills", false]
+    ["ident", "left", "ident", false],
+    ["checks-left", "left", "checks", false],
+    ["orb", "instrument", "orb", false],
+    ["checks-right", "right", "checks", false],
+    ["selectors", "right", "strikes", false]
   ],
   "player/frame": [
-    ["ident", "left", "personal", false],
-    ["segment", "left", null, true],
-    ["dome", "instrument", null, true],
-    ["checks", "right", "skills", false]
+    ["ident", "left", "ident", false],
+    ["checks-left", "left", "checks", false],
+    ["orb", "instrument", "orb", false],
+    ["checks-right", "right", "checks", false],
+    ["selectors", "right", "strikes", false]
   ],
   "director/theatre": [
-    ["cast", "left", "board", false],
-    ["log", "left", "bar", false],
-    ["dome", "instrument", "day-ring", false],
-    ["checks", "right", "skills", false]
+    ["cast", "left", "cast", false],
+    ["checks-left", "left", "checks", false],
+    ["orb", "instrument", "orb", false],
+    ["checks-right", "right", "checks", false],
+    ["director", "right", "director", false]
   ],
   "director/personnel": [
-    ["cast", "left", "board", false],
-    ["log", "left", "bar", false],
-    ["dome", "instrument", null, true],
-    ["checks", "right", "skills", false]
+    ["cast", "left", "cast", false],
+    ["checks-left", "left", "checks", false],
+    ["orb", "instrument", "orb", false],
+    ["checks-right", "right", "checks", false],
+    ["director", "right", "director", false]
   ],
   "director/frame": [
-    ["cast", "left", "board", false],
-    ["log", "left", "bar", false],
-    ["dome", "instrument", null, true],
-    ["checks", "right", "skills", false]
+    ["cast", "left", "cast", false],
+    ["checks-left", "left", "checks", false],
+    ["orb", "instrument", "orb", false],
+    ["checks-right", "right", "checks", false],
+    ["director", "right", "director", false]
   ]
 };
 
@@ -138,15 +149,45 @@ test("the zone list for a seat is identical in every mode — mode sheds, it nev
   }
 });
 
-test("a fight never shows the day ring or the schedule board", () => {
+test("a fight never shows downtime offers — the player's selectors read strikes instead", () => {
+  for (const mode of [MODES.PERSONNEL, MODES.FRAME]) {
+    const selectors = zonesFor(mode, SEATS.PLAYER).find((z) => z.id === "selectors");
+    assert.equal(selectors.partial, "strikes", `player/${mode} selectors should read strikes`);
+    for (const seat of SEAT_LIST) {
+      assert.ok(
+        zonesFor(mode, seat).every((z) => z.partial !== "downtime"),
+        `${seat}/${mode} still shows downtime offers in a fight`
+      );
+    }
+  }
+  const theatre = zonesFor(MODES.THEATRE, SEATS.PLAYER).find((z) => z.id === "selectors");
+  assert.equal(theatre.partial, "downtime");
+});
+
+test("the deck is symmetric: outer | inner | instrument | inner | outer on both seats", () => {
   for (const seat of SEAT_LIST) {
-    for (const mode of [MODES.PERSONNEL, MODES.FRAME]) {
-      for (const zone of zonesFor(mode, seat)) {
-        if (zone.id === "dome" || zone.id === "segment") {
-          assert.equal(zone.hidden, true, `${seat}/${mode} left "${zone.id}" visible`);
-          assert.equal(zone.partial, null, `${seat}/${mode} still resolved a partial for "${zone.id}"`);
-        }
-      }
+    for (const mode of MODE_LIST) {
+      const layout = consoleLayout(mode, seat);
+      assert.equal(layout.tracks.left.zones.length, 2, `${seat}/${mode} left side is not two modules`);
+      assert.equal(layout.tracks.instrument.zones.length, 1, `${seat}/${mode} has no single instrument`);
+      assert.equal(layout.tracks.right.zones.length, 2, `${seat}/${mode} right side is not two modules`);
+      // The inner modules mirror each other across the instrument.
+      assert.equal(layout.tracks.left.zones[1].id, "checks-left", `${seat}/${mode} inner-left is not the left key bank`);
+      assert.equal(layout.tracks.right.zones[0].id, "checks-right", `${seat}/${mode} inner-right is not the right key bank`);
+      assert.equal(layout.tracks.instrument.zones[0].id, "orb");
+      // Physical slots read outer | inner | spine | inner | outer, left to right.
+      const slots = TRACKS.flatMap((name) => layout.tracks[name].zones.map((z) => z.slot));
+      assert.deepEqual(slots, ["outer", "inner", "spine", "inner", "outer"], `${seat}/${mode} slots are not symmetric`);
+    }
+  }
+});
+
+test("the central instrument is present in every mode — only its face changes", () => {
+  for (const seat of SEAT_LIST) {
+    for (const mode of MODE_LIST) {
+      const orb = zonesFor(mode, seat).find((z) => z.id === "orb");
+      assert.equal(orb.hidden, false, `${seat}/${mode} hid the instrument`);
+      assert.equal(orb.partial, "orb");
     }
   }
 });
@@ -197,12 +238,12 @@ test("the two seats are different shapes, not the same shape with more buttons",
   const onlyPlayer = playerZones.filter((id) => !directorZones.includes(id));
   const onlyDirector = directorZones.filter((id) => !playerZones.includes(id));
 
-  assert.deepEqual(onlyPlayer, ["ident", "segment"], "the player sheet lost what makes it a sheet");
-  assert.deepEqual(onlyDirector, ["cast", "log"], "the Director board lost what makes it a board");
+  assert.deepEqual(onlyPlayer, ["ident", "selectors"], "the player sheet lost what makes it a sheet");
+  assert.deepEqual(onlyDirector, ["cast", "director"], "the Director board lost what makes it a board");
 
   // Shared zones are shared on purpose and are the same zone, not a copy.
   const shared = playerZones.filter((id) => directorZones.includes(id));
-  assert.deepEqual(shared, ["dome", "checks"]);
+  assert.deepEqual(shared, ["checks-left", "orb", "checks-right"]);
 });
 
 test("an unknown seat or mode throws rather than rendering an empty bar", () => {
@@ -230,24 +271,23 @@ test("consoleLayout groups every zone into exactly one track, losing none", () =
   }
 });
 
-test("a track is marked hidden exactly when every zone in it is shed", () => {
-  // The centre berth has a fixed width (--bi-dome-size), so an empty-but-shown
-  // instrument track holds a 252px gap open in the middle of the chassis.
-  const combat = consoleLayout(MODES.FRAME, SEATS.PLAYER);
-  assert.equal(combat.tracks.instrument.hidden, true);
-  assert.equal(combat.tracks.left.hidden, false);
-  assert.equal(combat.tracks.right.hidden, false, "checks survives into combat, so the right track stays");
-
-  const theatre = consoleLayout(MODES.THEATRE, SEATS.PLAYER);
-  for (const name of TRACKS) {
-    assert.equal(theatre.tracks[name].hidden, false, `theatre hid the ${name} track`);
+test("no track is ever shed on the deck — every module keeps a face in every mode", () => {
+  // The old bar hid its whole centre track in a fight. The deck is one
+  // physical object, so a missing module would be a hole in the faceplate.
+  for (const seat of SEAT_LIST) {
+    for (const mode of MODE_LIST) {
+      const layout = consoleLayout(mode, seat);
+      for (const name of TRACKS) {
+        assert.equal(layout.tracks[name].hidden, false, `${seat}/${mode} hid the ${name} track`);
+      }
+    }
   }
 });
 
 test("the Director keeps a cast and a log in every mode — running and recording are one act", () => {
   for (const mode of MODE_LIST) {
-    const layout = consoleLayout(mode, SEATS.DIRECTOR);
-    assert.equal(layout.tracks.left.hidden, false, `${mode} hid the cast`);
-    assert.equal(layout.tracks.right.hidden, false, `${mode} hid the log`);
+    const zones = zonesFor(mode, SEATS.DIRECTOR);
+    assert.equal(zones.find((z) => z.id === "cast").hidden, false, `${mode} hid the cast`);
+    assert.equal(zones.find((z) => z.id === "director").hidden, false, `${mode} hid the log`);
   }
 });

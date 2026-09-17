@@ -86,10 +86,13 @@ export function sheetSkillGroups(actor) {
   if (!actor) return [];
   const skillData = actor.system.skills ?? {};
   const saveData = actor.system.saves ?? {};
+  // Perception is neither a skill nor a save, so it is in neither map above;
+  // without this it silently read +0 Untrained for every creature.
+  const perceptionData = actor.system.perception ?? {};
   return checkGroupsFor(actor).map((group) => ({
     ...group,
     entries: group.entries.map((entry) => {
-      const flat = skillData[entry.slug] ?? saveData[entry.slug] ?? {};
+      const flat = entry.slug === "perception" ? perceptionData : skillData[entry.slug] ?? saveData[entry.slug] ?? {};
       const mod = Number(flat.mod ?? flat.value ?? 0);
       return { ...entry, mod, modLabel: formatMod(mod), ...proficiencyDots(flat.rank ?? 0) };
     })

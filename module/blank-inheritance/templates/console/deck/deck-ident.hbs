@@ -1,0 +1,57 @@
+{{!--
+    The player's left shoulder: who I am, in one glance. A silver module after
+    the north star's shoulder panels — vent grille, then a recessed well — with
+    the two ways off the deck (the full sheet, the comm device) as pill keys.
+
+    Deliberately glance-scale (ux-doctrine Law 13): the full sheet is one pill
+    away, so nothing here is a list. Conditions are capped by the adapter and
+    the overflow counted, never scrolled.
+--}}
+<div class="bi-deck-shoulder bi-deck-ident">
+    <div class="bi-deck__grille" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    {{#if ident}}
+    <div class="bi-deck__well bi-deck-ident__well">
+        <div class="bi-deck-ident__who">
+            <span class="bi-deck-ident__portrait">{{#if ident.img}}<img src="{{ident.img}}" alt="">{{/if}}</span>
+            <span class="bi-deck-ident__text">
+                <span class="bi-deck-ident__name">{{ident.name}}</span>
+                <span class="bi-deck-ident__line">{{ident.line}}</span>
+            </span>
+        </div>
+        <div class="bi-deck-ident__row">
+            <span class="bi-deck__chip" data-preview-title="{{localize 'BLANKINHERITANCE.Deck.ArmorClass'}}" data-preview-value="{{ident.ac}}" data-preview-sub="{{ident.acBreakdown}}">
+                <em>{{localize "BLANKINHERITANCE.Deck.AC"}}</em><b>{{ident.ac}}</b>
+            </span>
+            <span class="bi-deck__chip" data-preview-title="{{localize 'BLANKINHERITANCE.Deck.Speed'}}" data-preview-value="{{ident.speed}}" data-preview-sub="{{ident.speedSub}}">
+                <em>{{localize "BLANKINHERITANCE.Deck.Spd"}}</em><b>{{ident.speed}}</b>
+            </span>
+            <span class="bi-deck-ident__hero" data-preview-title="{{localize 'BLANKINHERITANCE.Deck.HeroPoints'}}" data-preview-value="{{ident.heroLabel}}" data-preview-sub="">
+                <em>{{localize "BLANKINHERITANCE.Deck.Hero"}}</em>
+                {{#each ident.hero}}<i class="bi-deck__jewel{{#if this}} is-lit{{/if}}"></i>{{/each}}
+            </span>
+        </div>
+        <div class="bi-deck-ident__conditions">
+            {{#each ident.conditions}}
+            <span class="bi-deck__tag">{{this.label}}{{#if this.value}} {{this.value}}{{/if}}</span>
+            {{else}}
+            <span class="bi-deck__tag bi-deck__tag--quiet">{{localize "BLANKINHERITANCE.Deck.NoConditions"}}</span>
+            {{/each}}
+            {{#if ident.moreConditions}}<span class="bi-deck__tag bi-deck__tag--more">+{{ident.moreConditions}}</span>{{/if}}
+        </div>
+    </div>
+    {{else}}
+    <div class="bi-deck__well bi-deck-ident__well bi-deck-ident__well--empty">
+        <span class="bi-deck__plate">{{localize "BLANKINHERITANCE.Deck.NoCharacter"}}</span>
+    </div>
+    {{/if}}
+    <div class="bi-deck__pills">
+        <span class="bi-deck-pill">
+            <button type="button" class="bi-deck-pill__cap" data-action="openSheet" aria-label="{{localize 'BLANKINHERITANCE.Deck.Sheet'}}"></button>
+            <span class="bi-deck-pill__label">{{localize "BLANKINHERITANCE.Deck.Sheet"}}</span>
+        </span>
+        <span class="bi-deck-pill">
+            <button type="button" class="bi-deck-pill__cap" data-action="openComms" aria-label="{{localize 'BLANKINHERITANCE.Deck.Comms'}}"></button>
+            <span class="bi-deck-pill__label">{{localize "BLANKINHERITANCE.Deck.Comms"}}</span>
+        </span>
+    </div>
+</div>

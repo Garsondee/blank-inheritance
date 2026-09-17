@@ -12,8 +12,8 @@
 
     The kind modifier is four separate {{#if}} blocks rather than a
     concatenated `bi-banner--{{kind}}`, matching every other dynamic class in
-    this module's templates (frame.hbs's `bi-frame--concealed`, zone-cast's
-    `bi-cast__row--selected`). tier0-architecture.test.mjs's class lint can
+    this module's templates (frame.hbs's `bi-frame--concealed`, deck-cast's
+    `is-selected`). tier0-architecture.test.mjs's class lint can
     only see a literal class name that sits OUTSIDE a {{ }} expression — a
     concatenated one disappears into the stripped text, and the lint could
     never have caught the eighteen-skills-in-one-column bug that way either.

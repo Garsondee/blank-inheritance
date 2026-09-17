@@ -1,0 +1,50 @@
+{{!--
+    The Director's left shoulder: everyone in this scene, on a black screen
+    inset into the silver, one shallow row each — a BOARD. Five rows a page,
+    paged with hardware keys; never scrolled (the deck's one rule).
+
+    Clicking a row selects that token, which is what the key banks and the
+    central instrument read. GM-only by construction: a player's client never
+    instantiates DirectorBar, so this partial is never reached there.
+--}}
+<div class="bi-deck-shoulder bi-deck-cast">
+    <div class="bi-deck__grille" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="bi-deck__well bi-deck-cast__well">
+        <div class="bi-deck-cast__head">
+            <span class="bi-deck__plate">{{localize "BLANKINHERITANCE.Deck.Cast"}}</span>
+            <span class="bi-deck-cast__count">{{cast.summaryText}}</span>
+        </div>
+        <ol class="bi-deck__screen bi-deck-cast__rows">
+            {{#each cast.slots}}
+            <li class="bi-deck-cast__slot">
+                {{#if this}}
+                <button type="button" class="bi-deck-cast__row{{#if this.selected}} is-selected{{/if}}" data-action="selectCast"
+                    data-token-id="{{this.id}}" data-disposition="{{this.disposition}}" {{#unless this.hasActor}}disabled{{/unless}}
+                    data-preview-title="{{this.name}}" data-preview-value="{{#if this.isPC}}PC{{else}}NPC{{/if}}" data-preview-sub="{{this.dispositionLabel}}">
+                    <i class="bi-deck-cast__lamp" aria-hidden="true"></i>
+                    <span class="bi-deck-cast__name">{{this.name}}</span>
+                    {{#if this.hidden}}<span class="bi-deck-cast__flag">H</span>{{/if}}
+                </button>
+                {{#if this.hasActor}}
+                <button type="button" class="bi-deck-cast__card" data-action="openCard" data-actor-id="{{this.actorId}}"
+                    aria-label="{{localize 'BLANKINHERITANCE.Console.Card.Open'}}">▣</button>
+                {{/if}}
+                {{/if}}
+            </li>
+            {{/each}}
+        </ol>
+    </div>
+    <div class="bi-deck__pills bi-deck__pills--pager">
+        <span class="bi-deck-pill">
+            <button type="button" class="bi-deck-pill__cap" data-action="castPage" data-step="-1" {{#unless cast.hasPrev}}disabled{{/unless}}
+                aria-label="{{localize 'BLANKINHERITANCE.Deck.Prev'}}"></button>
+            <span class="bi-deck-pill__label">{{localize "BLANKINHERITANCE.Deck.Prev"}}</span>
+        </span>
+        <span class="bi-deck__screen bi-deck__counter">{{cast.label}}</span>
+        <span class="bi-deck-pill">
+            <button type="button" class="bi-deck-pill__cap" data-action="castPage" data-step="1" {{#unless cast.hasNext}}disabled{{/unless}}
+                aria-label="{{localize 'BLANKINHERITANCE.Deck.Next'}}"></button>
+            <span class="bi-deck-pill__label">{{localize "BLANKINHERITANCE.Deck.Next"}}</span>
+        </span>
+    </div>
+</div>

@@ -172,6 +172,11 @@ export class ConsoleWindow extends HandlebarsApplicationMixin(ApplicationV2) {
     };
   }
 
+  /** Open or close the window from outside its own button — the deck's Sheet and Console pills. */
+  toggle() {
+    ConsoleWindow.#onToggle.call(this);
+  }
+
   static #onToggle() {
     this.#open = !this.#open;
     this.render();
@@ -230,4 +235,9 @@ export function mountConsoleWindow() {
 /** Repaint the mounted console in place — cheap, and a no-op render on a closed-but-mounted panel, same as refreshCommandBar. */
 export function refreshConsoleWindow() {
   active?.render();
+}
+
+/** Open or close the mounted console window; mounts it first if nothing has yet. */
+export function toggleConsoleWindow() {
+  (active ?? mountConsoleWindow()).toggle();
 }

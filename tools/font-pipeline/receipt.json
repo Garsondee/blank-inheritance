@@ -211,7 +211,7 @@
       "weight": 400,
       "profile": "ui",
       "file": "zen-old-mincho-400.woff2",
-      "bytes": 102692,
+      "bytes": 103740,
       "present": true
     },
     {
@@ -219,7 +219,7 @@
       "weight": 900,
       "profile": "ui",
       "file": "zen-old-mincho-900.woff2",
-      "bytes": 106776,
+      "bytes": 107784,
       "present": true
     },
     {
@@ -227,7 +227,7 @@
       "weight": 400,
       "profile": "ui",
       "file": "klee-one-400.woff2",
-      "bytes": 134652,
+      "bytes": 135468,
       "present": true
     },
     {
@@ -235,7 +235,7 @@
       "weight": 600,
       "profile": "ui",
       "file": "klee-one-600.woff2",
-      "bytes": 138728,
+      "bytes": 139668,
       "present": true
     },
     {
@@ -243,7 +243,7 @@
       "weight": 400,
       "profile": "ui",
       "file": "yuji-syuku-400.woff2",
-      "bytes": 202644,
+      "bytes": 204388,
       "present": true
     },
     {
@@ -251,7 +251,7 @@
       "weight": 400,
       "profile": "ui",
       "file": "dotgothic16-400.woff2",
-      "bytes": 35068,
+      "bytes": 35312,
       "present": true
     },
     {
@@ -259,7 +259,7 @@
       "weight": 400,
       "profile": "ui",
       "file": "noto-sans-jp-400.woff2",
-      "bytes": 106824,
+      "bytes": 107468,
       "present": true
     },
     {
@@ -267,7 +267,7 @@
       "weight": 700,
       "profile": "ui",
       "file": "noto-sans-jp-700.woff2",
-      "bytes": 109692,
+      "bytes": 110216,
       "present": true
     },
     {
@@ -275,7 +275,7 @@
       "weight": 400,
       "profile": "ui",
       "file": "zen-kaku-gothic-new-400.woff2",
-      "bytes": 61384,
+      "bytes": 61752,
       "present": true
     },
     {
@@ -283,7 +283,7 @@
       "weight": 700,
       "profile": "ui",
       "file": "zen-kaku-gothic-new-700.woff2",
-      "bytes": 61376,
+      "bytes": 61876,
       "present": true
     },
     {
@@ -291,7 +291,7 @@
       "weight": 400,
       "profile": "ui",
       "file": "rocknroll-one-400.woff2",
-      "bytes": 68656,
+      "bytes": 69148,
       "present": true
     },
     {

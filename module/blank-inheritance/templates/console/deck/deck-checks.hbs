@@ -1,0 +1,30 @@
+{{!--
+    One of the deck's two black key banks — nine skills, three by three.
+    core/deck-layout.mjs#splitChecks deals A–M to the left bank and N–T to the
+    right and pads both to nine, so a creature with fewer skills shows blank
+    caps in the same places instead of a bank that changes shape per token.
+
+    Every key carries the number that will actually be rolled
+    (ux-doctrine Law 1), and its data-preview-* attributes are what the central
+    instrument reads out while a hand is on it — no Foundry call on hover.
+--}}
+<div class="bi-deck-bank" data-side="{{bank.side}}">
+    <div class="bi-deck__cell bi-deck-bank__cell">
+        <span class="bi-deck__legend">{{localize "BLANKINHERITANCE.Deck.Skills"}}</span>
+        <div class="bi-deck-bank__keys">
+            {{#each bank.keys}}
+            {{#if this}}
+            <button type="button" class="bi-deck-key" data-action="rollCheck" data-slug="{{this.slug}}" data-label="{{this.label}}"
+                data-rank="{{this.rank}}" aria-label="{{this.label}} {{this.modLabel}}"
+                data-preview-title="{{this.label}}" data-preview-value="{{this.modLabel}}" data-preview-sub="{{this.rankLabel}}">
+                <span class="bi-deck-key__label">{{this.label}}</span>
+                <span class="bi-deck-key__mod">{{this.modLabel}}</span>
+                <span class="bi-deck-key__pips" aria-hidden="true">{{#each this.dots}}<i{{#if this}} class="is-lit"{{/if}}></i>{{/each}}</span>
+            </button>
+            {{else}}
+            <span class="bi-deck-key bi-deck-key--blank" aria-hidden="true"></span>
+            {{/if}}
+            {{/each}}
+        </div>
+    </div>
+</div>

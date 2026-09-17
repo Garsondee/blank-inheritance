@@ -1,73 +1,64 @@
 /**
- * The Director's console: a BOARD. Many creatures, one row each.
+ * The Director's deck: a BOARD. Many creatures, one row each.
  *
  * Constructed only on a GM's client. That is the point — a player's browser
  * never instantiates this class, so GM-only content is absent rather than
  * hidden, which is the standard doctrine Law 11 holds every surface to.
+ *
+ * The key banks and the central instrument are filled by the shared chassis
+ * (command-bar.mjs) for whatever token is selected. This seat owns its two
+ * shoulders — who is here (cast) and what just happened (log) — and the one
+ * key on the instrument a player's deck does not carry: winding the day.
  */
 
-import { CommandBar, refreshCommandBar } from "./command-bar.mjs";
+import { CommandBar, currentMode, refreshCommandBar } from "./command-bar.mjs";
 import { SEATS } from "../core/console-model.mjs";
-import { actorForSeat, checkGroupsFor, postInlineCheck, rollCheck } from "./rolls.mjs";
-import { castForScene, selectCastRow } from "./cast.mjs";
+import { actorForSeat, postInlineCheck, rollCheck } from "./rolls.mjs";
+import { selectCastRow } from "./cast.mjs";
 import { openCharacterCard } from "./character-card.mjs";
-import { currentEntries, loadSessionLog, recordLogEntry } from "./session-log.mjs";
-import { currentMode } from "./command-bar.mjs";
-import { ringState, quarterAt, quarterIndex } from "../core/day-ring.mjs";
-import { advanceSegment, currentMoment } from "./campaign-state.mjs";
+import { recordLogEntry } from "./session-log.mjs";
+import { quarterAt, quarterIndex } from "../core/day-ring.mjs";
+import { advanceSegment } from "./campaign-state.mjs";
+import { deckCastFor, deckDirectorFor } from "./deck.mjs";
 
 export class DirectorBar extends CommandBar {
   static SEAT = SEATS.DIRECTOR;
 
+  static CAN_WIND_CLOCK = true;
+
   static DEFAULT_OPTIONS = {
-    classes: ["bi-bar--director"],
+    classes: ["bi-deck--director"],
     actions: {
       rollCheck: DirectorBar.#onRollCheck,
       selectCast: DirectorBar.#onSelectCast,
       openCard: DirectorBar.#onOpenCard,
+      castPage: DirectorBar.#onCastPage,
       advanceSegment: DirectorBar.#onAdvanceSegment
     }
   };
 
+  /** Which page of the cast board is showing. Client memory — a hand position. */
+  #castPage = 0;
+
   /** @override */
   async _decorateZone(zone) {
-    if (zone.hidden) return;
-
-    // The clock is the Director's to move, and only theirs. The zone is
-    // identical on both seats except for this one control — which is the
-    // right shape: a player watches the same instrument, they just cannot
-    // wind it.
-    if (zone.id === "dome") {
-      zone.ring = ringState(currentMoment());
-      zone.canAdvance = true;
-      return;
-    }
-
-    if (zone.id === "checks") {
-      const actor = actorForSeat(DirectorBar.SEAT);
-      zone.subject = actor?.name ?? null;
-      zone.groups = checkGroupsFor(actor);
-      zone.canPost = true;
-      return;
-    }
-
     if (zone.id === "cast") {
-      Object.assign(zone, castForScene());
+      zone.cast = deckCastFor(this.#castPage);
+      this.#castPage = zone.cast.page;
       return;
     }
-
-    if (zone.id === "log") {
-      zone.entries = currentEntries().slice(-3).reverse();
+    if (zone.id === "director") {
+      zone.director = deckDirectorFor();
     }
   }
 
   /** @override */
   _onRender(context, options) {
-    super._onRender?.(context, options);
+    super._onRender(context, options);
 
     // Enter submits. Deliberately a keydown listener rather than a <form>:
     // a form inside the chassis invites Foundry's own submit handling and a
-    // stray Enter anywhere else in the bar reloading the field.
+    // stray Enter anywhere else on the deck reloading the field.
     // _onRender fires for ANY part re-render, including ones that leave this
     // element untouched -- so without a guard the log field collects a second
     // listener every time the cast board repaints, and one Enter submits twice.
@@ -109,11 +100,6 @@ export class DirectorBar extends CommandBar {
    * Auto-logs, because advancing the day IS a session event and doctrine Law 15
    * says running the session and recording it are one act — a GM should never
    * have to remember to write down that the evening started.
-   *
-   * The louder half of the ceremony (a `.bi-banner` drop, a sound cue) is
-   * deliberately NOT here: that machinery belongs to the sting work specified
-   * in design/theatre-of-the-mind-staging.md §5, and building a second,
-   * parallel notice path now would mean tearing one out later.
    */
   static async #onAdvanceSegment() {
     const change = await advanceSegment(1);
@@ -139,19 +125,26 @@ export class DirectorBar extends CommandBar {
     openCharacterCard(target.dataset.actorId);
   }
 
+  /** The cast board's hardware page keys. Clamped by core/deck-layout.mjs#pageOf. */
+  static #onCastPage(event, target) {
+    this.#castPage = Math.max(0, this.#castPage + Number(target.dataset.step || 0));
+    this.render({ parts: ["left"] });
+  }
+
   /**
    * Click rolls it. Ctrl rolls it secretly. Shift asks the table.
    *
    * Shift deliberately does NOT mean what it means on a character sheet
    * here — sf2e uses it to invert the roll-dialog setting. On the
-   * Director's bar the far more common intent is "somebody roll this",
+   * Director's deck the far more common intent is "somebody roll this",
    * so it posts an inline check instead. The sheet still has the original
    * behaviour, and the player seat is untouched.
    */
   static async #onRollCheck(event, target) {
     const slug = target.dataset.slug;
+    if (!slug) return;
     if (event?.shiftKey) {
-      await postInlineCheck({ slug, label: target.getAttribute("title") });
+      await postInlineCheck({ slug, label: target.dataset.label ?? null });
       return;
     }
     await rollCheck({ actor: actorForSeat(DirectorBar.SEAT), slug, event });
