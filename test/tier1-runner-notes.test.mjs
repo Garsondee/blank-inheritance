@@ -130,3 +130,63 @@ test("a scene already closed never asks again", () => {
   const run = { ticked: { "the-queue": { at: "2026-09-18T10:00:00.000Z" } }, closedAt: "2026-09-18T11:00:00.000Z" };
   assert.equal(shouldOfferClose(run), false, "its closure is already on record");
 });
+
+/* ---------------------------------------------------------------- */
+/*  Pacing                                                           */
+/* ---------------------------------------------------------------- */
+
+import { expectedMinutes, pacing } from "../module/blank-inheritance/scripts/core/scene-brief.mjs";
+
+test("the expected length is read out of the brief's own prose", () => {
+  // These are the real strings the seven Session One briefs carry.
+  assert.deepEqual(expectedMinutes("20-25 minutes"), { low: 20, high: 25 });
+  assert.deepEqual(expectedMinutes("30-40 minutes, because every player gets a private scene"), { low: 30, high: 40 });
+  assert.deepEqual(
+    expectedMinutes("30-45 minutes with the optional hazard, 20-30 without"),
+    { low: 30, high: 45 },
+    "the headline range wins; a brief that qualifies itself afterwards still leads with a number"
+  );
+  assert.deepEqual(expectedMinutes("about 15 minutes"), { low: 15, high: 15 });
+});
+
+test("an unparseable length gets no readout rather than an invented one", () => {
+  assert.equal(expectedMinutes("as long as it takes"), null);
+  assert.equal(expectedMinutes(null), null);
+  assert.equal(expectedMinutes(""), null);
+  assert.equal(expectedMinutes("40-20 minutes"), null, "a backwards range is not a range");
+});
+
+test("pacing states the elapsed time against the expected window", () => {
+  const startedAt = "2026-09-18T19:00:00.000Z";
+  const at = (mins) => pacing({ startedAt, now: new Date(Date.parse(startedAt) + mins * 60000).toISOString(), runsAbout: "20-25 minutes" });
+
+  assert.equal(at(5).state, "early");
+  assert.equal(at(22).state, "inside");
+  assert.equal(at(40).state, "over");
+  assert.equal(at(22).label, "22 min · 20–25");
+  assert.equal(at(22).elapsedMinutes, 22);
+});
+
+test("only running over is flagged, and only as a fact", () => {
+  // A GM twelve minutes over on a scene the table is enjoying is not doing
+  // anything wrong, so exactly one state carries any emphasis.
+  const startedAt = "2026-09-18T19:00:00.000Z";
+  const at = (mins) => pacing({ startedAt, now: new Date(Date.parse(startedAt) + mins * 60000).toISOString(), runsAbout: "20-25 minutes" });
+  assert.equal(at(5).isOver, false);
+  assert.equal(at(22).isOver, false);
+  assert.equal(at(40).isOver, true);
+});
+
+test("a scene not yet started, or with no stated length, still answers safely", () => {
+  const unstarted = pacing({ startedAt: null, runsAbout: "20-25 minutes" });
+  assert.equal(unstarted.started, false);
+  assert.equal(unstarted.label, "20–25 min", "it can still say what it expects");
+
+  const noLength = pacing({ startedAt: "2026-09-18T19:00:00.000Z", now: "2026-09-18T19:10:00.000Z", runsAbout: "as long as it takes" });
+  assert.equal(noLength.state, "running");
+  assert.equal(noLength.label, "10 min");
+  assert.equal(noLength.isOver, false);
+
+  assert.equal(pacing({ startedAt: "not a date", now: "2026-09-18T19:10:00.000Z" }).started, false);
+  assert.equal(pacing({}).started, false);
+});

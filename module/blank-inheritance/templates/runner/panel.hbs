@@ -95,6 +95,11 @@
             <p class="bi-runner__goal">{{goal}}</p>
             {{#if howToPlay}}<p class="bi-runner__howto">{{howToPlay}}</p>{{/if}}
             <p class="bi-runner__meta">
+                {{!-- How long this has been running, against how long it said
+                      it would. A statement of fact, not a countdown: a GM
+                      twelve minutes over on a scene the table is enjoying is
+                      not doing anything wrong. --}}
+                {{#if pacing.started}}<span class="bi-runner__pace{{#if pacing.isOver}} bi-runner__pace--over{{/if}}">{{pacing.label}}</span>{{/if}}
                 {{#if runsAbout}}<span>{{runsAbout}}</span>{{/if}}
                 {{#if mode}}<span>{{mode}}</span>{{/if}}
                 {{#if accomplishment}}<span>{{accomplishment.xp}} XP — {{accomplishment.forWhat}}</span>{{/if}}

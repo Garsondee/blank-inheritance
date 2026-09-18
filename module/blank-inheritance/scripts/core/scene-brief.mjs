@@ -374,6 +374,68 @@ export function shouldOfferClose(runState = emptyRunState()) {
 }
 
 /* ---------------------------------------------------------------- */
+/*  Pacing                                                           */
+/* ---------------------------------------------------------------- */
+
+/**
+ * The minutes a brief says it should run for.
+ *
+ * `runsAbout` is prose, not a field: "30-40 minutes, because every player gets
+ * a private scene", or "30-45 minutes with the optional hazard, 20-30
+ * without". Only the FIRST range is read — it is the headline case, and a
+ * brief that qualifies itself afterwards is still telling you the number it
+ * leads with. Returns null for anything unparseable, which is a perfectly
+ * good answer: a scene with no stated length gets no pacing readout rather
+ * than a made-up one.
+ */
+export function expectedMinutes(runsAbout) {
+  const match = /(\d+)\s*(?:-|–|—|to)\s*(\d+)/.exec(String(runsAbout ?? ""));
+  if (match) {
+    const low = Number(match[1]);
+    const high = Number(match[2]);
+    if (Number.isFinite(low) && Number.isFinite(high) && low <= high) return { low, high };
+    return null;
+  }
+  const single = /(\d+)\s*min/i.exec(String(runsAbout ?? ""));
+  if (single) {
+    const only = Number(single[1]);
+    return Number.isFinite(only) ? { low: only, high: only } : null;
+  }
+  return null;
+}
+
+/**
+ * How long this scene has been running, against how long it said it would.
+ *
+ * Deliberately NOT a countdown or a warning. design/pacing-and-the-responsive-campaign.md
+ * is about a sawtooth, not a schedule, and a GM who is twelve minutes over on
+ * a scene the table is enjoying is not doing anything wrong. This states a
+ * fact and leaves the judgement where it belongs.
+ */
+export function pacing({ startedAt = null, now = null, runsAbout = null } = {}) {
+  const expected = expectedMinutes(runsAbout);
+  if (!startedAt) return { started: false, expected, elapsedMinutes: null, state: "unstarted", label: expected ? `${expected.low}–${expected.high} min` : null };
+
+  const startMs = Date.parse(startedAt);
+  const nowMs = now ? Date.parse(now) : Date.now();
+  if (!Number.isFinite(startMs) || !Number.isFinite(nowMs)) return { started: false, expected, elapsedMinutes: null, state: "unstarted", label: null };
+
+  const elapsedMinutes = Math.max(0, Math.floor((nowMs - startMs) / 60000));
+  let state = "inside";
+  if (!expected) state = "running";
+  else if (elapsedMinutes < expected.low) state = "early";
+  else if (elapsedMinutes > expected.high) state = "over";
+
+  const label = expected ? `${elapsedMinutes} min · ${expected.low}–${expected.high}` : `${elapsedMinutes} min`;
+  // `isOver` as a precomputed boolean, not a state string the template
+  // interpolates into a class name: the tier-0 class lint strips Handlebars
+  // before it looks, so `bi-runner__pace--{{state}}` would be invisible to it
+  // and an undefined modifier fails silently as unstyled markup. beat.hbs
+  // carries the same warning for the same reason.
+  return { started: true, expected, elapsedMinutes, state, label, isOver: state === "over" };
+}
+
+/* ---------------------------------------------------------------- */
 /*  Notes taken while the scene is running                           */
 /* ---------------------------------------------------------------- */
 

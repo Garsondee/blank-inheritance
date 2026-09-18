@@ -31,6 +31,7 @@ import {
   noteCounts,
   noteTargetFor,
   notesForBeat,
+  pacing,
   sectionStates,
   shouldOfferClose,
   postedDc,
@@ -407,6 +408,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       // the GM can see it before they commit rather than after.
       noteTarget: noteTargetFor(state.beats, runState),
       sections: sectionStates(folds()),
+      pacing: pacing({ startedAt: runState.startedAt ?? null, runsAbout: brief.runsAbout }),
       // `scenes`/`open` LAST, after the spread: sceneRunnerState has no
       // scenes or open-state of its own, but either growing one later must
       // not silently be shadowed by it.
@@ -504,7 +506,11 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       fireBeatAudio(briefId, beatId);
     }
 
-    await writeRunState(briefId, { ...state, ticked });
+    // When the scene actually BEGAN, which is the first thing ticked rather
+    // than the moment the brief was opened — a GM reads ahead long before
+    // they run anything, and pacing measured from reading is a lie.
+    const startedAt = state.startedAt ?? ticked[beatId]?.at ?? null;
+    await writeRunState(briefId, { ...state, ticked, ...(startedAt ? { startedAt } : {}) });
     this.render({});
   }
 

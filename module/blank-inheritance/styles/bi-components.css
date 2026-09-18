@@ -8445,3 +8445,13 @@
   font-family: var(--bi-font-condensed, sans-serif);
   font-size: 12px;
 }
+
+/* How long the scene has been running. Three states, and none of them scolds:
+   "early" and "inside" are the same quiet ink, and only running over gets any
+   colour at all — and then vermilion as information, not alarm. */
+.bi-runner__pace {
+  color: rgb(38 32 24 / 62%);
+  font-family: var(--bi-font-mono, monospace);
+  font-variant-numeric: tabular-nums;
+}
+.bi-runner__pace--over { color: var(--bi-vermilion, #d1402a); }
