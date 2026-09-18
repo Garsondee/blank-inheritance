@@ -6,21 +6,28 @@
     somewhere the script never anticipated. Topics second. Sample lines last,
     where the eye can find them without reading past them every time.
 --}}
-<article class="bi-runner__person{{#if walkOn}} bi-runner__person--walkon{{/if}}">
-    <h4 class="bi-runner__person-name">
-        {{displayName}}
-        {{!-- Straight onto the stage the table is looking at. Most of a
-              brief's cast have no Actor at all, which is exactly the case the
-              summon panel cannot help with. --}}
-        <button type="button" class="bi-runner__stage{{#if onStage}} bi-runner__stage--on{{/if}}"
-            data-action="stagePerson" data-portrait-id="{{portraitId}}"
-            data-tooltip="{{#if onStage}}{{localize 'BLANKINHERITANCE.Runner.OnStage'}}{{else}}{{localize 'BLANKINHERITANCE.Runner.PutOnStage'}}{{/if}}">
-            <i class="fa-solid fa-masks-theater"></i>
-        </button>
-    </h4>
-    {{#if role}}<p class="bi-runner__person-role">{{role}}</p>{{/if}}
+{{!--
+    Folded by default, and the SUMMARY is the part that decides what this
+    person does when the players go somewhere the script never anticipated:
+    their name, their role, and what they want. Everything below — topics,
+    refusals, sample lines — is looked up when they actually speak, which is
+    why it is one click away rather than two screens of scroll.
+--}}
+<details class="bi-runner__person{{#if walkOn}} bi-runner__person--walkon{{/if}}">
+    <summary class="bi-runner__person-head">
+        <span class="bi-runner__person-name">{{displayName}}</span>
+        {{#if role}}<span class="bi-runner__person-role">{{role}}</span>{{/if}}
+        {{#if brief.wants}}<span class="bi-runner__wants">{{brief.wants}}</span>{{/if}}
+    </summary>
 
-    {{#if brief.wants}}<p class="bi-runner__wants">{{brief.wants}}</p>{{/if}}
+    {{!-- Straight onto the stage the table is looking at. Most of a brief's
+          cast have no Actor at all, which is exactly the case the summon
+          panel cannot help with. --}}
+    <button type="button" class="bi-runner__stage{{#if onStage}} bi-runner__stage--on{{/if}}"
+        data-action="stagePerson" data-portrait-id="{{portraitId}}"
+        data-tooltip="{{#if onStage}}{{localize 'BLANKINHERITANCE.Runner.OnStage'}}{{else}}{{localize 'BLANKINHERITANCE.Runner.PutOnStage'}}{{/if}}">
+        <i class="fa-solid fa-masks-theater"></i> {{localize "BLANKINHERITANCE.Runner.PutOnStage"}}
+    </button>
 
     {{#if brief.opensWith}}
     <ul class="bi-runner__topics">
@@ -64,4 +71,4 @@
         {{/each}}
     </div>
     {{/if}}
-</article>
+</details>

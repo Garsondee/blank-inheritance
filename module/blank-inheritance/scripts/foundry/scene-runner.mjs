@@ -31,6 +31,7 @@ import {
   noteCounts,
   noteTargetFor,
   notesForBeat,
+  sectionStates,
   postedDc,
   sceneRunnerState
 } from "../core/scene-brief.mjs";
@@ -59,6 +60,7 @@ const DEGREE_LABELS = Object.freeze([
 const SETTING_EPISODE = "runnerEpisode";
 const SETTING_BRIEF = "runnerBrief";
 const SETTING_RUNS = "runnerRuns";
+const SETTING_FOLDS = "runnerFolds";
 
 /* ---------------------------------------------------------------- */
 /*  Settings                                                         */
@@ -78,11 +80,16 @@ export function registerSceneRunnerSettings() {
   game.settings.register(MODULE_ID, SETTING_EPISODE, { scope: "world", config: false, type: String, default: "" });
   game.settings.register(MODULE_ID, SETTING_BRIEF, { scope: "world", config: false, type: String, default: "" });
   game.settings.register(MODULE_ID, SETTING_RUNS, { scope: "world", config: false, type: Object, default: {} });
+  // Which sections this GM keeps open. CLIENT scope, unlike the run state
+  // beside it: how one person likes their script laid out is not a fact about
+  // the campaign, and a second GM must not inherit it.
+  game.settings.register(MODULE_ID, SETTING_FOLDS, { scope: "client", config: false, type: Object, default: {} });
 }
 
 const currentEpisodeId = () => game.settings.get(MODULE_ID, SETTING_EPISODE) || "";
 const currentBriefId = () => game.settings.get(MODULE_ID, SETTING_BRIEF) || "";
 const allRuns = () => game.settings.get(MODULE_ID, SETTING_RUNS) ?? {};
+const folds = () => { try { return game.settings.get(MODULE_ID, SETTING_FOLDS) ?? {}; } catch { return {}; } };
 
 export function runStateFor(briefId) {
   return allRuns()[briefId] ?? emptyRunState();
@@ -321,6 +328,17 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
 
     // Enter saves. Bound here rather than as a data-action because the field
     // is a text input, not a button, and a note must never need a second click.
+    // <details> does the folding itself; this only remembers the choice, and
+    // deliberately does NOT re-render — re-rendering on open would fight the
+    // element's own animation and lose the GM's scroll position.
+    for (const fold of this.element.querySelectorAll(".bi-runner__section--fold")) {
+      fold.addEventListener("toggle", () => {
+        const id = fold.dataset.section;
+        if (!id || !game.user.isGM) return;
+        game.settings.set(MODULE_ID, SETTING_FOLDS, { ...folds(), [id]: fold.open }).catch(() => {});
+      });
+    }
+
     const input = this.element.querySelector(".bi-runner__note-input");
     input?.addEventListener("keydown", (event) => {
       if (event.key !== "Enter") return;
@@ -355,7 +373,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       .map((s) => ({ order: s.order, title: s.title, briefRef: s.briefRef, isCurrent: s.briefRef === briefId }));
 
     if (!loaded) {
-      return { open: this.#open, scenes, episodeTitle: episode?.title ?? null, beats: [], cast: [], handouts: [], carryForward: [], spends: [], backdrops: [] };
+      return { open: this.#open, scenes, episodeTitle: episode?.title ?? null, beats: [], cast: [], handouts: [], carryForward: [], spends: [], backdrops: [], sections: sectionStates(folds()) };
     }
 
     const { brief, subsystem, challenges } = loaded;
@@ -372,6 +390,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       // Where a note typed right now would land, shown next to the field so
       // the GM can see it before they commit rather than after.
       noteTarget: noteTargetFor(state.beats, runState),
+      sections: sectionStates(folds()),
       // `scenes`/`open` LAST, after the spread: sceneRunnerState has no
       // scenes or open-state of its own, but either growing one later must
       // not silently be shadowed by it.

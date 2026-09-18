@@ -301,6 +301,65 @@ export function displayName(member) {
 }
 
 /* ---------------------------------------------------------------- */
+/*  What the panel shows at a glance                                 */
+/* ---------------------------------------------------------------- */
+
+/**
+ * The runner's sections, and whether each one starts open.
+ *
+ * Measured, not guessed: Intake Medicals rendered 5,293px of panel into a
+ * 655px window -- an eight-to-one scroll, with the running order itself
+ * below two full screens of material a GM reads ONCE. The fix is not less
+ * content; a brief earns its detail. It is that the panel should open showing
+ * what gets used every minute and keep the rest one click away.
+ *
+ * So the default is by FREQUENCY OF USE at the table:
+ *   open   — the goal (short, and the point), the live clock, and the beats
+ *   closed — how it starts, the cast's full briefs, handouts, artefacts,
+ *            how it ends
+ *
+ * `intro` is closed against the first guess made here, on the same kind of
+ * measurement that prompted all this: leaving it open still pushed the running
+ * order off the first screen (4.8 screens of scroll, beats below the fold).
+ * "Getting in" is read once, out loud, at the top of a scene — which is the
+ * definition of the read-once category, not an exception to it.
+ *
+ * A GM's own toggles persist, so this only decides the first render of a
+ * scene they have not opened before.
+ */
+export const RUNNER_SECTIONS = Object.freeze([
+  { id: "goal", open: true },
+  { id: "intro", open: false },
+  { id: "clock", open: true },
+  { id: "beats", open: true },
+  { id: "cast", open: false },
+  { id: "handouts", open: false },
+  { id: "artefacts", open: false },
+  { id: "outro", open: false }
+]);
+
+const SECTION_DEFAULTS = new Map(RUNNER_SECTIONS.map((s) => [s.id, s.open]));
+
+/**
+ * Whether one section should render open.
+ *
+ * `overrides` is whatever the GM has toggled, keyed by section id. An unknown
+ * section opens, because a section this file has not heard of is more likely
+ * to be new content than something worth hiding.
+ */
+export function sectionOpen(id, overrides = {}) {
+  if (Object.prototype.hasOwnProperty.call(overrides ?? {}, id)) return overrides[id] === true;
+  return SECTION_DEFAULTS.has(id) ? SECTION_DEFAULTS.get(id) : true;
+}
+
+/** Every section's open state at once, for a template that cannot call a function. */
+export function sectionStates(overrides = {}) {
+  const out = {};
+  for (const { id } of RUNNER_SECTIONS) out[id] = sectionOpen(id, overrides);
+  return out;
+}
+
+/* ---------------------------------------------------------------- */
 /*  Notes taken while the scene is running                           */
 /* ---------------------------------------------------------------- */
 

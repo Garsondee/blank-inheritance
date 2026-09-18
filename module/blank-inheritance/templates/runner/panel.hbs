@@ -103,20 +103,20 @@
         {{/if}}
 
         {{#if intro}}
-        <section class="bi-runner__section">
-            <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Intro"}}</h3>
+        <details class="bi-runner__section bi-runner__section--fold" data-section="intro"{{#if sections.intro}} open{{/if}}>
+            <summary class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Intro"}}</summary>
             {{#if intro.where}}<p class="bi-runner__beat-text">{{intro.where}}</p>{{/if}}
             {{#if intro.firstThing}}<p class="bi-runner__note">{{intro.firstThing}}</p>{{/if}}
             {{#if intro.readAloud}}<div class="bi-runner__read">{{intro.readAloud}}</div>{{/if}}
             {{#each intro.carriesIn}}
             <p class="bi-runner__carries"><b>{{when}}</b> — {{then}}</p>
             {{/each}}
-        </section>
+        </details>
         {{/if}}
 
         {{#if clock}}
-        <section class="bi-runner__section">
-            <h3 class="bi-runner__section-title">{{clock.name}}</h3>
+        <details class="bi-runner__section bi-runner__section--fold" data-section="clock"{{#if sections.clock}} open{{/if}}>
+            <summary class="bi-runner__section-title">{{clock.name}}</summary>
             <p class="bi-runner__clock{{#if clock.exhausted}} bi-runner__clock--spent{{/if}}">
                 <span class="bi-runner__clock-value">{{clock.current}}</span>
                 <span class="bi-runner__clock-of">{{localize "BLANKINHERITANCE.Runner.Of"}} {{clock.start}}</span>
@@ -132,32 +132,32 @@
                 {{/each}}
             </div>
             {{/if}}
-        </section>
+        </details>
         {{/if}}
 
         {{#if beats.length}}
-        <section class="bi-runner__section">
-            <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Beats"}}</h3>
+        <details class="bi-runner__section bi-runner__section--fold" data-section="beats"{{#if sections.beats}} open{{/if}}>
+            <summary class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Beats"}} <span class="bi-runner__count">{{progress.mandatoryDone}}/{{progress.mandatory}}</span></summary>
             <ul class="bi-runner__beats">
                 {{#each beats}}
                 {{> "modules/blank-inheritance/templates/runner/beat.hbs"}}
                 {{/each}}
             </ul>
-        </section>
+        </details>
         {{/if}}
 
         {{#if cast.length}}
-        <section class="bi-runner__section">
-            <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Cast"}}</h3>
+        <details class="bi-runner__section bi-runner__section--fold" data-section="cast"{{#if sections.cast}} open{{/if}}>
+            <summary class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Cast"}} <span class="bi-runner__count">{{cast.length}}</span></summary>
             {{#each cast}}
             {{> "modules/blank-inheritance/templates/runner/person.hbs"}}
             {{/each}}
-        </section>
+        </details>
         {{/if}}
 
         {{#if handouts.length}}
-        <section class="bi-runner__section">
-            <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Handouts"}}</h3>
+        <details class="bi-runner__section bi-runner__section--fold" data-section="handouts"{{#if sections.handouts}} open{{/if}}>
+            <summary class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Handouts"}} <span class="bi-runner__count">{{handouts.length}}</span></summary>
             {{#each handouts}}
             <article class="bi-runner__person">
                 <h4 class="bi-runner__person-name">{{title}}</h4>
@@ -177,12 +177,12 @@
                 </div>
             </article>
             {{/each}}
-        </section>
+        </details>
         {{/if}}
 
         {{#if artefacts.length}}
-        <section class="bi-runner__section">
-            <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Artefacts"}}</h3>
+        <details class="bi-runner__section bi-runner__section--fold" data-section="artefacts"{{#if sections.artefacts}} open{{/if}}>
+            <summary class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Artefacts"}} <span class="bi-runner__count">{{artefacts.length}}</span></summary>
             {{#each artefacts}}
             <article class="bi-runner__person">
                 <h4 class="bi-runner__person-name">{{title}}</h4>
@@ -198,12 +198,12 @@
                 </div>
             </article>
             {{/each}}
-        </section>
+        </details>
         {{/if}}
 
         {{#if outro}}
-        <section class="bi-runner__section">
-            <h3 class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Outro"}}</h3>
+        <details class="bi-runner__section bi-runner__section--fold" data-section="outro"{{#if sections.outro}} open{{/if}}>
+            <summary class="bi-runner__section-title">{{localize "BLANKINHERITANCE.Runner.Outro"}}</summary>
             {{#if outro.endsWhen}}<p class="bi-runner__beat-text">{{outro.endsWhen}}</p>{{/if}}
             {{#if outro.readAloud}}<div class="bi-runner__read">{{outro.readAloud}}</div>{{/if}}
             {{#each outro.tracks}}
@@ -218,7 +218,7 @@
                 {{/each}}
             </ul>
             {{/if}}
-        </section>
+        </details>
         {{/if}}
 
         {{#if carryForward.length}}

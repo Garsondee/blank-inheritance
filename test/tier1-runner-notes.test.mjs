@@ -72,3 +72,42 @@ test("counts are per beat, for the running order's margin", () => {
   assert.deepEqual(noteCounts(entries), { x: 2, y: 1 });
   assert.deepEqual(noteCounts([]), {});
 });
+
+/* ---------------------------------------------------------------- */
+/*  Folding the panel                                                */
+/* ---------------------------------------------------------------- */
+
+import { RUNNER_SECTIONS, sectionOpen, sectionStates } from "../module/blank-inheritance/scripts/core/scene-brief.mjs";
+
+test("the panel opens on what gets used every minute, not on what is read once", () => {
+  // Measured: Intake Medicals was 5,293px of panel in a 655px window, with
+  // the running order below two screens of read-once material.
+  const open = RUNNER_SECTIONS.filter((s) => s.open).map((s) => s.id);
+  const shut = RUNNER_SECTIONS.filter((s) => !s.open).map((s) => s.id);
+  assert.ok(open.includes("beats"), "the running order is the one thing that must never be hidden");
+  assert.ok(open.includes("goal"), "the goal is short and is the point");
+  assert.ok(shut.includes("cast"), "the cast's full briefs are looked up when someone speaks");
+  assert.ok(shut.includes("outro"), "how it ends is needed once, at the end");
+  assert.ok(shut.includes("intro"), "and 'getting in' is read once, out loud, at the top — leaving it open kept the beats below the fold");
+});
+
+test("a GM's own toggle beats the default, in both directions", () => {
+  assert.equal(sectionOpen("cast", {}), false, "closed by default");
+  assert.equal(sectionOpen("cast", { cast: true }), true, "opened by the GM stays open");
+  assert.equal(sectionOpen("beats", { beats: false }), true === false, "and a GM may close even the beats");
+});
+
+test("an unknown section opens rather than hiding itself", () => {
+  // New content is likelier than something worth hiding, and a section that
+  // silently never appears is the worst of the two failures.
+  assert.equal(sectionOpen("something-new", {}), true);
+});
+
+test("sectionStates answers for every section at once, for a template that cannot call a function", () => {
+  const states = sectionStates({ cast: true });
+  assert.equal(Object.keys(states).length, RUNNER_SECTIONS.length);
+  assert.equal(states.beats, true);
+  assert.equal(states.cast, true, "the override is applied");
+  assert.equal(states.outro, false);
+  assert.deepEqual(sectionStates(), sectionStates({}), "no overrides is the same as empty overrides");
+});
