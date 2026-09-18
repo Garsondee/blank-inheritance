@@ -32,6 +32,7 @@ import {
   noteTargetFor,
   notesForBeat,
   sectionStates,
+  shouldOfferClose,
   postedDc,
   sceneRunnerState
 } from "../core/scene-brief.mjs";
@@ -40,6 +41,7 @@ import { deriveFoundryId } from "../core/ids.mjs";
 import { fetchModuleJson, listModuleImageIds } from "./io.mjs";
 import { fitDeck } from "./deck.mjs";
 import { currentEntries, recordLogEntry } from "./session-log.mjs";
+import { openSceneCloseDialogue } from "./scene-close.mjs";
 import { summonToStage } from "./stage.mjs";
 import { applySoundscape, fireEvent } from "./audio-director.mjs";
 import { cachedAudio, loadAudio } from "./audio-store.mjs";
@@ -213,6 +215,19 @@ function backdropsFor(briefId) {
 }
 
 /**
+ * Stamp a brief's run state as closed, so leaving it never asks again.
+ *
+ * Kept in run state rather than anywhere new: "this scene has been closed" is
+ * exactly what run state is for, and the session log already holds the closure
+ * itself.
+ */
+async function markClosed(briefId) {
+  if (!briefId || !game.user?.isGM) return;
+  const state = runStateFor(briefId);
+  await writeRunState(briefId, { ...state, closedAt: new Date().toISOString() });
+}
+
+/**
  * The stage portrait id for one of a brief's cast members.
  *
  * A cast member is authored content (an npcRef or a label), not an Actor, so
@@ -289,6 +304,7 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
       cutTo: SceneRunner.#onCutTo,
       openPalette: SceneRunner.#onOpenPalette,
       stagePerson: SceneRunner.#onStagePerson,
+      closeScene: SceneRunner.#onCloseScene,
       postCheck: SceneRunner.#onPostCheck,
       revealHandout: SceneRunner.#onRevealHandout,
       revealHandoutSolo: SceneRunner.#onRevealHandoutSolo,
@@ -603,10 +619,27 @@ export class SceneRunner extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   static async #onPickScene(event, target) {
+    const leaving = currentBriefId();
     const briefId = target.dataset.briefId ?? "";
     await game.settings.set(MODULE_ID, SETTING_BRIEF, briefId);
     applySceneAudio(briefId);
     this.render({});
+
+    // design/ux-doctrine.md §10.3a puts the close dialogue "on cueing the next
+    // scene", and calls it the one place friction is wanted. Offered AFTER the
+    // switch rather than blocking it: a GM moving on should move on, and an
+    // unfinished scene is a real state the dialogue itself handles ("it stays
+    // open and carries forward"). Only for a scene actually RUN — flicking
+    // between briefs to read them must not nag.
+    if (leaving && leaving !== briefId && shouldOfferClose(runStateFor(leaving))) {
+      const brief = this._scene?.brief?.id === leaving ? this._scene.brief : null;
+      openSceneCloseDialogue({ briefRef: leaving, title: brief?.title ?? leaving });
+    }
+  }
+
+  /** The explicit act, from the foot of the running order where a GM finishes. */
+  static #onCloseScene() {
+    openSceneCloseDialogue({ briefRef: currentBriefId(), title: this._scene?.brief?.title ?? null });
   }
 
   /**
@@ -857,6 +890,13 @@ export function getSceneRunner() {
  * never constructs it at all — the same structural guarantee the command bar
  * gets from choosing DirectorBar or PlayerBar once, at mount.
  */
+// A confirmed closure stamps the brief it closed, so the prompt on leaving
+// fires once rather than every time.
+Hooks.on("blank-inheritance.sceneClosed", ({ briefRef } = {}) => {
+  if (!briefRef) return;
+  markClosed(briefRef).then(() => refreshSceneRunner()).catch(() => {});
+});
+
 export function mountSceneRunner() {
   if (!game.user?.isGM) return null;
   if (!active) active = new SceneRunner();

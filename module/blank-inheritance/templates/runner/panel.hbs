@@ -231,6 +231,16 @@
             </ul>
         </section>
         {{/if}}
+        {{!-- Where a GM actually finishes a scene. The same dialogue the
+              palette and a scene change open — doctrine §10.3a is explicit
+              that there is one shape, signposted, not a second flow. --}}
+        {{#if title}}
+        <div class="bi-runner__closebar">
+            <button type="button" class="bi-runner__close" data-action="closeScene">
+                <i class="fa-solid fa-flag-checkered"></i> {{localize "BLANKINHERITANCE.Runner.CloseScene"}}
+            </button>
+        </div>
+        {{/if}}
     </div>
 </section>
 </section>

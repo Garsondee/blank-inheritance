@@ -359,6 +359,20 @@ export function sectionStates(overrides = {}) {
   return out;
 }
 
+/**
+ * Should leaving this scene offer to close it?
+ *
+ * Yes once it has actually been RUN — a ticked beat — and not once it has
+ * already been closed. Both halves matter: flicking between briefs to read
+ * them must not nag, and neither must a scene whose closure is already on
+ * record. design/ux-doctrine.md §10.3a wants friction at the boundary, which
+ * is not the same thing as friction every time.
+ */
+export function shouldOfferClose(runState = emptyRunState()) {
+  const ticked = Object.keys(runState?.ticked ?? {}).length > 0;
+  return ticked && !runState?.closedAt;
+}
+
 /* ---------------------------------------------------------------- */
 /*  Notes taken while the scene is running                           */
 /* ---------------------------------------------------------------- */

@@ -5,6 +5,11 @@
     enables; there is no way to skip the dropdowns for a scene marked complete.
 --}}
 <div class="bi-scene-close">
+    {{!-- Which scene this is closing. Opened from the Scene Runner it knows;
+          opened cold from the palette it does not, and says nothing rather
+          than guessing at the canvas scene, which is often a map. --}}
+    {{#if sceneTitle}}<p class="bi-scene-close__scene">{{sceneTitle}}</p>{{/if}}
+
     <label class="bi-scene-close__complete">
         <input type="checkbox" data-action="toggleComplete" {{#if complete}}checked{{/if}}>
         {{localize "BLANKINHERITANCE.SceneClose.IsComplete"}}

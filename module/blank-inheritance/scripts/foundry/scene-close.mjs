@@ -35,12 +35,21 @@ export function currentCounters() {
 }
 
 /** GM only. The actual mechanical act (Law 15) -- validates, logs, and bumps whichever mocked counter the cost names. */
-export async function confirmSceneClosure({ complete, ending, cost, notes }) {
+export async function confirmSceneClosure({ complete, ending, cost, notes, scene = null, briefRef = null }) {
   if (!game.user.isGM) return null;
   const result = summarizeClosure({ complete, ending, cost, notes });
   if (!result.ok) return result;
 
-  await recordLogEntry({ text: result.logLine, nowIso: new Date().toISOString() });
+  // WHICH scene closed, not just that one did. A session log full of
+  // "Scene closed -- Resolved / Nothing" with nothing to attach it to is a
+  // much poorer record than the log's own `scene`/`subject` fields allow, and
+  // they were simply going unused.
+  await recordLogEntry({
+    text: result.logLine,
+    nowIso: new Date().toISOString(),
+    scene: scene ?? canvas?.scene?.name ?? null,
+    subject: briefRef
+  });
 
   if (result.delta.casualties) {
     await game.settings.set(MODULE_ID, SETTING_CASUALTIES, currentCounters().casualties + result.delta.casualties);
@@ -59,6 +68,8 @@ export class SceneCloseDialogue extends HandlebarsApplicationMixin(ApplicationV2
   #complete = true;
   #ending = null;
   #cost = null;
+  /** Which authored scene this is closing, when it was opened from one. */
+  #context = { briefRef: null, title: null };
 
   static DEFAULT_OPTIONS = {
     id: "bi-scene-close",
@@ -83,11 +94,18 @@ export class SceneCloseDialogue extends HandlebarsApplicationMixin(ApplicationV2
     const legality = canCloseScene({ complete: this.#complete, ending: this.#ending, cost: this.#cost });
     return {
       complete: this.#complete,
+      sceneTitle: this.#context.title,
       endings: ENDING_OPTIONS.map((o) => ({ ...o, current: o.id === this.#ending })),
       costs: COST_OPTIONS.map((o) => ({ ...o, current: o.id === this.#cost })),
       counters: currentCounters(),
       canConfirm: legality.ok
     };
+  }
+
+  /** Told, not guessed: the runner knows which brief it is closing. */
+  setContext({ briefRef = null, title = null } = {}) {
+    this.#context = { briefRef, title };
+    return this;
   }
 
   static #onToggleComplete() {
@@ -111,17 +129,21 @@ export class SceneCloseDialogue extends HandlebarsApplicationMixin(ApplicationV2
       complete: this.#complete,
       ending: this.#ending,
       cost: this.#cost,
-      notes: notesField?.value ?? ""
+      notes: notesField?.value ?? "",
+      briefRef: this.#context.briefRef,
+      scene: this.#context.title ?? canvas?.scene?.name ?? null
     });
     if (!result?.ok) return; // canConfirm already gates this in the UI; a null/failed result is a no-op, not a silent-looking success
     ui.notifications.info(game.i18n.localize("BLANKINHERITANCE.SceneClose.Confirmed"));
+    Hooks.callAll("blank-inheritance.sceneClosed", { ...result, briefRef: this.#context.briefRef });
     this.close();
   }
 }
 
-export function openSceneCloseDialogue() {
+export function openSceneCloseDialogue({ briefRef = null, title = null } = {}) {
   if (!game.user?.isGM) return null;
   const dialogue = new SceneCloseDialogue();
+  dialogue.setContext({ briefRef, title });
   dialogue.render({ force: true });
   return dialogue;
 }

@@ -377,7 +377,8 @@
       "NoteScene": "→ this scene",
       "PutOnStage": "Put them on stage",
       "OnStage": "Already on stage — click to stage again",
-      "NoSceneToStage": "There is no scene open to stage anyone onto."
+      "NoSceneToStage": "There is no scene open to stage anyone onto.",
+      "CloseScene": "Close this scene"
     },
     "Induction": {
       "MacroName": "Blank Inheritance: Begin Induction",

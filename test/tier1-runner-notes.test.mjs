@@ -111,3 +111,22 @@ test("sectionStates answers for every section at once, for a template that canno
   assert.equal(states.outro, false);
   assert.deepEqual(sectionStates(), sectionStates({}), "no overrides is the same as empty overrides");
 });
+
+/* ---------------------------------------------------------------- */
+/*  Offering to close                                                */
+/* ---------------------------------------------------------------- */
+
+import { shouldOfferClose } from "../module/blank-inheritance/scripts/core/scene-brief.mjs";
+
+test("leaving a scene offers to close it only once it has actually been run", () => {
+  // Doctrine §10.3a wants friction at the boundary — which is not the same
+  // thing as friction every time a GM flicks between briefs to read them.
+  assert.equal(shouldOfferClose({ ticked: {} }), false, "opened and read is not run");
+  assert.equal(shouldOfferClose({}), false);
+  assert.equal(shouldOfferClose({ ticked: { "the-queue": { at: "2026-09-18T10:00:00.000Z" } } }), true);
+});
+
+test("a scene already closed never asks again", () => {
+  const run = { ticked: { "the-queue": { at: "2026-09-18T10:00:00.000Z" } }, closedAt: "2026-09-18T11:00:00.000Z" };
+  assert.equal(shouldOfferClose(run), false, "its closure is already on record");
+});
