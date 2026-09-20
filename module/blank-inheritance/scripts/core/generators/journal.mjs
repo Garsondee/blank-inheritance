@@ -1,5 +1,6 @@
 import { deriveFoundryId } from "../ids.mjs";
 import { redactHtml, assertNoUnprocessedRedactions } from "../redact.mjs";
+import { PROMOTABLE_STATUSES } from "../promote.mjs";
 
 const HTML_FORMAT = 1; // CONST.JOURNAL_ENTRY_PAGE_FORMATS.HTML (foundryvtt common/constants.mjs:993)
 const SORT_INTEGER_DENSITY = 100000; // spacing convention Foundry itself uses for sortable siblings (common/constants.mjs:955)
@@ -60,6 +61,19 @@ function paragraph(label, value) {
   return `<p><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</p>`;
 }
 
+// design/approvals-desk.md §3, issue #168: "not a silent allow, not a hard
+// block." A page whose authoring isn't sound/final yet still exists (the GM
+// can see the scene is there and roughly what it's called), but its actual
+// prose is replaced with this note rather than shown -- the same "withhold,
+// don't hide the structure" shape the Director's panel's cue-gate uses.
+const WITHHELD_CONTENT =
+  `<p><em>This content is still drafted and has not yet been reviewed -- withheld from the live table view ` +
+  `(design/approvals-desk.md §3). Promote it to "sound" or "final" to include the real text here.</em></p>`;
+
+function isReviewed(authoring) {
+  return PROMOTABLE_STATUSES.includes(authoring?.status);
+}
+
 /**
  * Adapts an episode file (data/episodes/*.json, episode.schema.json) into
  * buildJournalEntryData's {id, name, pages} shape -- one overview page from
@@ -73,6 +87,14 @@ function paragraph(label, value) {
  * read (episode-01 has authored scenes; episode-02 and the interlude don't
  * yet, so a bare overview page is the correct, honest output for those, not
  * a bug) -- see data/episodes/*.json.
+ *
+ * Gating is per-page, not per-episode (issue #168): the episode's OWN
+ * authoring gates the overview page; each scene's own authoring gates that
+ * scene's page independently. This is deliberately finer-grained than
+ * sync.mjs's NPC/creature gate (which withholds the whole document, since
+ * those have no sub-structure to partially reveal) -- a scene is the actual
+ * unit design/approvals-desk.md §1 grades, so partial episode progress must
+ * be representable without waiting for every scene to clear at once.
  */
 export function episodeToJournalSource(episode) {
   const overviewParts = [
@@ -89,19 +111,28 @@ export function episodeToJournalSource(episode) {
     overviewParts.push(`<p><strong>Required beats:</strong></p><ul>${items}</ul>`);
   }
 
-  const pages = [{ id: "overview", name: "Overview", content: overviewParts.filter(Boolean).join("\n") }];
+  const overviewContent = isReviewed(episode.authoring) ? overviewParts.filter(Boolean).join("\n") : WITHHELD_CONTENT;
+  const pages = [{ id: "overview", name: "Overview", content: overviewContent }];
 
   for (const scene of episode.scenes ?? []) {
-    const bodyParts = [`<p>${escapeHtml(scene.description ?? "")}</p>`];
-    if (scene.encounterRef) bodyParts.push(paragraph("Encounter", scene.encounterRef));
-    if (scene.subsystemRef) bodyParts.push(paragraph("Subsystem", scene.subsystemRef));
-    if (scene.challengeRefs?.length) bodyParts.push(paragraph("Challenges", scene.challengeRefs.join(", ")));
     // A scene's own `id` when it has one, position only as the fallback for
     // the nine scenes authored before that field existed. Keyed on `order`
     // alone, inserting a scene silently reassigns every page id after it --
     // and a Foundry page id is what a link, a bookmark, or a run record
     // points at.
-    pages.push({ id: scene.id ?? `scene-${scene.order}`, name: `${scene.order}. ${scene.title}`, content: bodyParts.join("\n") });
+    const pageId = scene.id ?? `scene-${scene.order}`;
+    const pageName = `${scene.order}. ${scene.title}`;
+
+    if (!isReviewed(scene.authoring)) {
+      pages.push({ id: pageId, name: pageName, content: WITHHELD_CONTENT });
+      continue;
+    }
+
+    const bodyParts = [`<p>${escapeHtml(scene.description ?? "")}</p>`];
+    if (scene.encounterRef) bodyParts.push(paragraph("Encounter", scene.encounterRef));
+    if (scene.subsystemRef) bodyParts.push(paragraph("Subsystem", scene.subsystemRef));
+    if (scene.challengeRefs?.length) bodyParts.push(paragraph("Challenges", scene.challengeRefs.join(", ")));
+    pages.push({ id: pageId, name: pageName, content: bodyParts.join("\n") });
   }
 
   return { id: episode.id, name: episode.title ?? episode.id, pages };

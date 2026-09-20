@@ -6,6 +6,7 @@ import { buildSceneData } from "../core/generators/scene.mjs";
 import { buildJournalEntryData, episodeToJournalSource } from "../core/generators/journal.mjs";
 import { validateActor, validateScene, validateJournalEntry } from "../core/validate.mjs";
 import { summarizeReport, reportToHtml, reportToClipboardText } from "../core/report.mjs";
+import { PROMOTABLE_STATUSES } from "../core/promote.mjs";
 import { fetchModuleJson, writeReportFile, copyTextToClipboard } from "./io.mjs";
 
 const MODULE_ID = "blank-inheritance";
@@ -234,9 +235,43 @@ export async function runDiagnosticTestSync() {
   });
 }
 
+/**
+ * design/approvals-desk.md §3, issue #168: "drafted must actually withhold
+ * something." A creature/NPC has no sub-structure to partially reveal the
+ * way an episode's scenes do (see episodeToJournalSource's own per-page
+ * gating), so the gate here is coarse: the whole document, or nothing.
+ * `existingCollection` lets the report show what's actually live right now
+ * (if this content predates the gate) without this function creating or
+ * touching anything.
+ */
+async function withheldForDraftStatus(foundryType, source, existingCollection) {
+  const expectedId = await deriveFoundryId(source.id);
+  const existing = existingCollection.get(expectedId);
+  const status = source.authoring?.status ?? "(no authoring block)";
+  return {
+    sourceId: source.id,
+    foundryType,
+    expectedId,
+    actualId: existing?.id ?? null,
+    checks: [],
+    withheld: true,
+    withheldReason: `authoring.status is "${status}", not sound/final -- run promote() (module/blank-inheritance/scripts/core/promote.mjs) before this can sync`
+  };
+}
+
+// Exported (issue #172's own explicit ask: "the sync eligibility set equals
+// the set of items at sound or above") so that equivalence is a direct,
+// dedicated unit test rather than only ever exercised indirectly through a
+// full mocked sync run.
+export function isPushable(source) {
+  return PROMOTABLE_STATUSES.includes(source?.authoring?.status);
+}
+
 async function runRealCreatureCase(fetchPath) {
   const source = await fetchModuleJson(fetchPath);
-  const data = await buildCreatureActorData(source);
+  if (!isPushable(source)) return withheldForDraftStatus("creature", source, game.actors);
+
+  const data = await buildCreatureActorData(source, { tokenImage: TOKEN_IMAGE_BY_ID[source.id] ?? null });
   const hash = await contentHash(source);
 
   const existing = game.actors.get(data._id);
@@ -255,7 +290,9 @@ async function runRealCreatureCase(fetchPath) {
 
 async function runRealNpcCase(fetchPath) {
   const source = await fetchModuleJson(fetchPath);
-  const data = await buildNpcActorData(source);
+  if (!isPushable(source)) return withheldForDraftStatus("npc", source, game.actors);
+
+  const data = await buildNpcActorData(source, { tokenImage: TOKEN_IMAGE_BY_ID[source.id] ?? null });
   const hash = await contentHash(source);
 
   const existing = game.actors.get(data._id);
@@ -300,6 +337,22 @@ async function runRealJournalCase(fetchPath, transform) {
   return { ...(await validateJournalEntry(created, journalSource, data._id)), skipped: false };
 }
 
+// A staged Dynamic Token Ring subject texture (tools/token-ring/'s output),
+// keyed by the entity's own repo `id` -- resolved here, not inside
+// core/generators/npc.mjs|creature.mjs themselves, so those stay pure
+// functions of their arguments (see token-ring.mjs's header). Only
+// shucks-mordant has one so far: the six placeholder Directorate-staff
+// portraits assigned 2026-09-18 (hospital-chief-of-staff, school-history-
+// teacher, works-manager, section-officer, repair-chief-ishikawa,
+// repair-chief-kaneda) are DELIBERATELY NOT listed here even though they're
+// already circle-cropped and registered in asset-registry.json -- see the
+// REAL_NPC_PATHS comment immediately below for why a still-placeholder NPC
+// never belongs in this real/live sync regardless of whether art exists for
+// it. Demoed instead against the local throwaway Foundry world.
+const TOKEN_IMAGE_BY_ID = {
+  "shucks-mordant": "modules/blank-inheritance/assets/tokens/shucks-mordant.webp"
+};
+
 // Real content synced so far -- deliberately NOT the kids/Frames (still
 // marked DRAFT/not confirmed in data/characters/) or the three Directorate
 // poles (Commander/Caretaker/Transparency Advocate are still "placeholder —
@@ -307,10 +360,24 @@ async function runRealJournalCase(fetchPath, transform) {
 // live world reads as finalizing it, which is the user's collaborative
 // creative call to make, not something to do just because the pipeline can
 // now technically reach it -- see CLAUDE.md's "don't invent/finalize the six
-// kids/Frames" rule. The real Claimant, the episode outlines, and the three
-// NPCs below all have no such open-question flag -- each is "established and
-// voiced" per its own data/npcs/*.json status field, not a placeholder.
-const REAL_CLAIMANT_PATH = "data/campaign/antagonists/claimants/contact-unclassified.json";
+// kids/Frames" rule. The episode outlines and the three NPCs below all have
+// no such open-question flag -- each is "established and voiced" per its own
+// data/npcs/*.json status field, not a placeholder. This is also why
+// TOKEN_IMAGE_BY_ID above stays this short: a portrait existing for a
+// placeholder NPC is not the same thing as that NPC being real enough to
+// sync -- the same "placeholder" status gate applies to both.
+//
+// REMOVED 2026-09-19, at Ingram's direct instruction: there was a
+// REAL_CLAIMANT_PATH constant here and a "claimant:contact-unclassified" case
+// in runRealContentSync() below, pointing at
+// data/antagonists/claimants/contact-unclassified.json. That file (and the
+// whole frame-scale battle-simulator engine/AI it was also the single source
+// of truth for -- see tools/battle-simulator/data/combatants.mjs's own former
+// header) was deleted: unapproved, stale, and the frame-scale simulator work
+// it belonged to predates and is lower quality than the personnel-scale work
+// that superseded it. No real Claimant exists to sync right now. Restore this
+// case (same shape as REAL_NPC_PATHS below, but via runRealCreatureCase since
+// a Claimant carries a combat statblock) once a new, approved one exists.
 // Statblock-less social NPCs, already fully written in ideas/story/bible/ and
 // voiced in real scene briefs -- see GitHub epic #140's Session 0/1 audit.
 // Pushed via buildNpcActorData (core/generators/npc.mjs), not
@@ -347,7 +414,6 @@ export async function runRealContentSync() {
   };
 
   try {
-    report.results.push(await runCase("claimant:contact-unclassified", () => runRealCreatureCase(REAL_CLAIMANT_PATH)));
     for (const path of REAL_NPC_PATHS) {
       const label = path.split("/").pop().replace(/\.json$/, "");
       report.results.push(await runCase(`npc:${label}`, () => runRealNpcCase(path)));

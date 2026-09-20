@@ -1,10 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
+import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { stageCampaignData, cleanupStagedData } from "../../tools/module-sync/stage-campaign-data.mjs";
+import { stageCampaignData, cleanupStagedData, SYNCED_MAP_FILES } from "../../tools/module-sync/stage-campaign-data.mjs";
 import { computeLocalChecksums } from "../../tools/module-sync/local-hash.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -15,7 +17,12 @@ test("stageCampaignData: copies only the allow-listed directories, not everythin
   try {
     assert.ok(existsSync(path.join(stagingDir, "episodes", "ep1.json")), "an allow-listed directory (episodes/) must be staged");
     assert.ok(existsSync(path.join(stagingDir, "npcs", "commander.json")), "an allow-listed directory (npcs/) must be staged");
-    assert.ok(!existsSync(path.join(stagingDir, "map")), "map/ is not on the allow-list -- must never be staged, regardless of what it contains");
+    // The fixture's own map/ holds style/theme.json, not any of
+    // SYNCED_MAP_FILES's named files -- so this also proves the bulk of
+    // map/ (the 115MB+ GIS root this fixture stands in for) is still never
+    // staged, even though specific named files under it now are (see
+    // the dedicated tests below).
+    assert.ok(!existsSync(path.join(stagingDir, "map")), "map/ holds no SYNCED_MAP_FILES entry in this fixture -- nothing should be staged from it");
     assert.ok(!existsSync(path.join(stagingDir, "README.md")), "a loose top-level file outside any allow-listed directory must not be staged either");
   } finally {
     await cleanupStagedData(stagingDir);
@@ -65,4 +72,52 @@ test("cleanupStagedData: actually removes the staging directory", async () => {
   assert.ok(existsSync(stagingDir));
   await cleanupStagedData(stagingDir);
   assert.ok(!existsSync(stagingDir));
+});
+
+/* ------------------------------------------------------------------ */
+/*  data/map/ -- exactly the named files, never the directory wholesale */
+/* ------------------------------------------------------------------ */
+
+/** A throwaway data root with a map/ that mixes SYNCED_MAP_FILES with everything else that lives there in the real repo (bulk GIS content this pipeline must never touch). */
+async function makeMapDataRoot() {
+  const root = await mkdtemp(path.join(os.tmpdir(), "blank-inheritance-map-fixture-"));
+  await mkdir(path.join(root, "map"), { recursive: true });
+  for (const name of SYNCED_MAP_FILES) await writeFile(path.join(root, "map", name), JSON.stringify({ name }));
+  await writeFile(path.join(root, "map", "kurose.gpkg"), "not really a 115MB GIS store, but stands in for one");
+  return root;
+}
+
+test("stageCampaignData: every SYNCED_MAP_FILES entry is staged under map/ when present", async () => {
+  const dataRoot = await makeMapDataRoot();
+  const stagingDir = await stageCampaignData(dataRoot);
+  try {
+    for (const name of SYNCED_MAP_FILES) {
+      assert.ok(existsSync(path.join(stagingDir, "map", name)), `${name} should be staged under map/`);
+    }
+  } finally {
+    await cleanupStagedData(stagingDir);
+  }
+});
+
+test("stageCampaignData: everything else under map/ is left behind, even sitting right next to the named files", async () => {
+  const dataRoot = await makeMapDataRoot();
+  const stagingDir = await stageCampaignData(dataRoot);
+  try {
+    assert.ok(!existsSync(path.join(stagingDir, "map", "kurose.gpkg")), "an unlisted file under map/ must never be staged");
+  } finally {
+    await cleanupStagedData(stagingDir);
+  }
+});
+
+test("stageCampaignData: a data root with neither named map file present stages no map/ directory at all", async () => {
+  // The real repo's own state today for campaign-data-sample -- see the
+  // first test above. Restated here as its own case so this specific
+  // guarantee has one test that would fail if it ever regressed, rather than
+  // riding along as a side effect of an unrelated assertion.
+  const stagingDir = await stageCampaignData(fixtureRoot);
+  try {
+    assert.ok(!existsSync(path.join(stagingDir, "map")));
+  } finally {
+    await cleanupStagedData(stagingDir);
+  }
 });

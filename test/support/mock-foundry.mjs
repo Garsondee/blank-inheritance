@@ -216,6 +216,32 @@ function makeMockSocket() {
   };
 }
 
+/**
+ * A minimal `window` -- addEventListener/removeEventListener plus a `fire`
+ * a test can call directly. Not a real DOM dispatchEvent (no Event object,
+ * no capture/bubble/preventDefault-by-default): this only needs to hand a
+ * fake event to whatever this project's OWN code registered, same "one
+ * process, no protocol" simplification as makeMockSocket above. Added for
+ * session-log.mjs's beforeunload guard (found live 2026-09-17 -- see that
+ * file's own header).
+ */
+function makeMockWindow() {
+  const listeners = new Map();
+  return {
+    addEventListener(type, fn) {
+      if (!listeners.has(type)) listeners.set(type, new Set());
+      listeners.get(type).add(fn);
+    },
+    removeEventListener(type, fn) {
+      listeners.get(type)?.delete(fn);
+    },
+    fire(type, event) {
+      for (const fn of listeners.get(type) ?? []) fn(event);
+      return event;
+    }
+  };
+}
+
 export function installMockFoundry({ moduleFiles = {}, templateJson = null, moduleManifest = null } = {}) {
   if (!globalThis.crypto) globalThis.crypto = webcrypto;
   if (!globalThis.File) globalThis.File = NodeFile;
@@ -258,7 +284,8 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
     JournalEntry: globalThis.JournalEntry,
     ChatMessage: globalThis.ChatMessage,
     foundry: globalThis.foundry,
-    fetch: globalThis.fetch
+    fetch: globalThis.fetch,
+    window: globalThis.window
   };
 
   // navigator gets its own descriptor-based save/restore, not the plain
@@ -311,6 +338,9 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
 
   globalThis.Hooks = makeMockHooks();
 
+  globalThis.window = makeMockWindow();
+  world.window = globalThis.window;
+
   // Verified against common/constants.mjs directly -- OWNER's own doc
   // comment there is the exact citation for why Actor delete needs the GM
   // relay too: "Owned documents cannot be deleted by anyone other than a
@@ -345,7 +375,27 @@ export function installMockFoundry({ moduleFiles = {}, templateJson = null, modu
     },
     applications: {
       apps: { FilePicker: makeMockFilePicker(world) },
-      api: { DialogV2: makeMockDialogV2(world) }
+      // ApplicationV2/HandlebarsApplicationMixin: a minimal stand-in, just
+      // enough that a module which does
+      // `class X extends HandlebarsApplicationMixin(ApplicationV2) { ... }`
+      // at its own top level (approvals-desk.mjs, director-panel.mjs,
+      // scene-runner.mjs, ...) can be IMPORTED under this mock without
+      // throwing before a single test runs. Nothing about ApplicationV2's
+      // real render/lifecycle behaviour is modelled -- this project's own
+      // convention for those classes is live verification in the real app
+      // (see reference_local_foundry_test_environment), not a full mock.
+      // This exists only to unblock testing the plain exported functions
+      // such files also carry alongside the class. Copied from the identical,
+      // already-precedented stand-in in test/support/mock-audio-foundry.mjs.
+      api: {
+        DialogV2: makeMockDialogV2(world),
+        ApplicationV2: class MockApplicationV2 {
+          static DEFAULT_OPTIONS = {};
+          static PARTS = {};
+        },
+        HandlebarsApplicationMixin: (Base) => class extends Base {}
+      },
+      handlebars: { renderTemplate: async () => "" }
     }
   };
 

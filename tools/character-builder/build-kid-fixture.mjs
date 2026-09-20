@@ -57,6 +57,7 @@ export function buildKidFixture(ingredients, fixture) {
     $schema: "PLACEHOLDER", // set by the caller once it knows the file's final path
     id: fixture.id,
     type: "kid",
+    authoring: { status: "drafted" },
     name: `TEST FIXTURE — ${fixture.groundRole} (${ingredients.className}, synthetic, not one of the six real kids)`,
     player: null,
     age: 17,

@@ -19,12 +19,15 @@
         "additionalProperties": false,
         "properties": {
           "id": { "type": "string", "description": "instr-<n>, monotonic, never recycled." },
-          "documentId": { "type": "string", "description": "A lore-library.json document id -- the file this instruction applies to." },
+          "documentId": { "type": "string", "description": "The id of the thing this instruction concerns -- usually a lore-library.json document, but since 2026-09 (issue #171) also any entity id when `source` is \"approvals-desk\": a `changes` bounce from the Desk reuses this same store rather than inventing a fourth one (design/approvals-desk.md §6), so this field's real meaning is 'a repo id, resolved against whichever store `entityType`/context implies' -- see `entityType`/`source` below." },
           "text": { "type": "string", "description": "Ingram's own words describing the change wanted. Never rewritten or summarised when logged -- kept verbatim so intent survives even if the edit that follows needs a second pass." },
           "status": { "enum": ["pending", "done", "needs-clarification"] },
           "raisedAt": { "type": "string" },
           "resolvedAt": { "type": ["string", "null"] },
-          "resolution": { "type": ["string", "null"], "description": "One line on what was actually done -- or, for 'needs-clarification', what question was asked instead of guessing." }
+          "resolution": { "type": ["string", "null"], "description": "One line on what was actually done -- or, for 'needs-clarification', what question was asked instead of guessing." },
+          "entityType": { "type": ["string", "null"], "description": "Added for #171's Desk bounce: which data/ subdirectory documentId lives in (e.g. \"npc\", \"challenge\", \"location\") when it isn't a lore-library document, so a later reader isn't left guessing. Null for a lore-library instruction (the pre-existing, pre-#171 case) or when genuinely unknown." },
+          "raisedBy": { "type": ["string", "null"], "description": "Who raised this -- Ingram's own name for a Desk bounce (design/data-ownership.md's 'named rather than assumed'), null for the pre-#171 lore-library case where this was never tracked." },
+          "source": { "type": ["string", "null"], "enum": ["approvals-desk", null], "description": "\"approvals-desk\" for a `changes` bounce (issue #171); null for the original lore-library-edit-request case this store was built for. Lets a consumer tell the two apart without guessing from documentId's shape." }
         }
       }
     }

@@ -4,11 +4,12 @@
   "title": "Episode",
   "description": "A hand-placed campaign-opening episode or interlude. One file per episode/interlude in data/episodes/.",
   "type": "object",
-  "required": ["id", "type", "title", "dayRange"],
+  "required": ["id", "type", "title", "dayRange", "authoring"],
   "properties": {
     "$schema": { "type": "string" },
     "id": { "type": "string" },
     "type": { "enum": ["episode", "interlude"] },
+    "authoring": { "$ref": "common/authoring.schema.json#/$defs/authoring", "description": "The episode as a whole. Each scene below carries its own -- a scene is the unit the Approvals Desk actually grades, since it's the unit the table actually sits down to." },
     "title": { "type": "string" },
     "dayRange": {
       "type": ["object", "null"],
@@ -40,9 +41,10 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["order", "title", "description"],
+        "required": ["order", "title", "description", "authoring"],
         "properties": {
           "order": { "type": "integer" },
+          "authoring": { "$ref": "common/authoring.schema.json#/$defs/authoring" },
           "id": {
             "type": "string",
             "pattern": "^[a-z0-9-]+$",

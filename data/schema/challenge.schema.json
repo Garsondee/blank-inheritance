@@ -4,11 +4,12 @@
   "title": "Challenge",
   "description": "A generic skill challenge: one or a handful of DC'd checks with no persistent point pool/tracking (see subsystem.schema.json for that — Victory Points, Chases, Infiltration, etc.). Fits the campaign's own Ground Role checks (e.g. a Sensor Operator's Recall Knowledge check during a Contact), Anchor Time scenes, or any one-off skill gauntlet. Structured with explicit DCs and skills so a future probability calculator can estimate the party's odds per check (see reference/tables/dc-and-check-math.json for the underlying degree-of-success math).",
   "type": "object",
-  "required": ["id", "type", "name", "checks"],
+  "required": ["id", "type", "name", "checks", "authoring"],
   "properties": {
     "$schema": { "type": "string" },
     "id": { "type": "string" },
     "type": { "const": "challenge" },
+    "authoring": { "$ref": "common/authoring.schema.json#/$defs/authoring" },
     "name": { "type": "string" },
     "description": { "type": "string", "description": "Narrative framing — what this challenge represents in-fiction." },
     "levelContext": { "type": ["integer", "null"], "description": "The level this challenge's DCs are pitched at (usually the Frame's tier for anything tied to a Contact, or the kids' level for a purely ground-level scene) — see design bible's ground-role DC rule: DCs come from the task, never from an enemy's level." },

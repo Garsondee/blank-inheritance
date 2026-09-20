@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "common/authoring.schema.json",
+  "title": "Authoring lifecycle",
+  "description": "The shared `authoring` block every entity schema references — design/approvals-desk.md, design/data-ownership.md. This is a `lifecycle` field (data-ownership.md §3): the repo (Claude's generators, authoring scripts, sync paths) may only ever write the baseline (`drafted`, or `needs-lore` for a location scoped but not yet written); the Foundry Approvals Desk's own guarded promote() path (#167) is the sole legal writer of `sound`/`final`/`gradedAt`/`gradedBy`/`batchId`. There is no conflict to adjudicate, because the repo side was never a legitimate second writer of those fields.",
+  "$defs": {
+    "authoring": {
+      "type": "object",
+      "$comment": "OWNER: foundry-approvals-desk (design/approvals-desk.md, design/data-ownership.md). status/gradedAt/gradedBy/batchId may only be raised above the baseline by the Desk's own promote()/cutItem() paths (#167, #171) -- every generator, authoring script and sync path must emit 'drafted' (or 'needs-lore') and otherwise leave this block alone. note/uncertainty/dependsOn are repo-authored input TO the Desk, not its output, and stay freely editable here.",
+      "required": ["status"],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": ["needs-lore", "drafted", "sound", "final", "cut"],
+          "default": "drafted",
+          "description": "needs-lore: scoped/promoted with a note but no written content yet -- a queue pointed at Claude, not Ingram (the Desk's out-tray). drafted: written, unread -- grants nothing: not citable as canon, not syncable, not player-visible. sound: read -- the substance is right, may now be built on and cited as canon. final: read -- the words themselves are right, safe to put in front of players verbatim. cut: read and killed -- not a failure, a decision (design/approvals-desk.md §2/§6); the item stays on record rather than vanishing, same as data/audio/review.json's 'rejected'. Only the Desk's own promote()/cutItem() paths may write 'sound', 'final' or 'cut'; every other writer emits 'drafted' or 'needs-lore'."
+        },
+        "note": {
+          "type": ["string", "null"],
+          "description": "The rough brief this item was authored/scoped from -- e.g. a gazetteer drawing session's note. Repo-authored; corrections append, they do not overwrite."
+        },
+        "uncertainty": {
+          "type": ["string", "null"],
+          "description": "What Claude was unsure about when writing this -- \"I invented a surname here\", \"this assumes the ground roles survive\". design/approvals-desk.md §4: the single highest-value thing on the Desk's card, since it points straight at the part most likely to be wrong. Repo-authored; clearing it is the Desk's business, not a rule enforced here."
+        },
+        "dependsOn": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Other entities (by id, any type) this item's own soundness assumes. Lets the Desk flag a dependency that is itself still drafted (design/approvals-desk.md §4) -- a safety check, not a second ordering axis."
+        },
+        "gradedAt": {
+          "type": ["string", "null"],
+          "format": "date",
+          "description": "When the Desk last changed `status`. Null until first graded. Desk-owned."
+        },
+        "gradedBy": {
+          "type": ["string", "null"],
+          "description": "Who graded it. Named rather than assumed, per data-ownership.md's rule that a lifecycle field's advanced values have exactly one legal writer. Desk-owned."
+        },
+        "batchId": {
+          "type": ["string", "null"],
+          "description": "Set when this item was cleared as part of a machine-proposed batch rather than read individually (design/approvals-desk.md §5), so a problem traced back later can see it was a sweep, not a read. Desk-owned; null for an individually-graded item."
+        }
+      }
+    }
+  }
+}

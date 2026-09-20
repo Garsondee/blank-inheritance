@@ -18,10 +18,11 @@ import { deriveFoundryId, contentHash } from "../module/blank-inheritance/script
 import { buildCreatureActorData } from "../module/blank-inheritance/scripts/core/generators/creature.mjs";
 import { buildNpcActorData } from "../module/blank-inheritance/scripts/core/generators/npc.mjs";
 import { buildCharacterActorData } from "../module/blank-inheritance/scripts/core/generators/character.mjs";
+import { RING_EFFECTS, resolveTokenRing } from "../module/blank-inheritance/scripts/core/generators/token-ring.mjs";
 import { buildSceneData } from "../module/blank-inheritance/scripts/core/generators/scene.mjs";
 import { buildJournalEntryData, episodeToJournalSource } from "../module/blank-inheritance/scripts/core/generators/journal.mjs";
 import { validateActor, validateScene, validateJournalEntry } from "../module/blank-inheritance/scripts/core/validate.mjs";
-import { summarizeReport, reportToClipboardText } from "../module/blank-inheritance/scripts/core/report.mjs";
+import { summarizeReport, reportToHtml, reportToClipboardText } from "../module/blank-inheritance/scripts/core/report.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
@@ -150,6 +151,64 @@ test("buildCharacterActorData: deliberately does not write system.abilities or a
   assert.deepEqual(Object.keys(data.system), ["details"]);
 });
 
+test("resolveTokenRing: every actor gets a ring, enabled, with Ring Pulse on, regardless of kind", () => {
+  for (const [kind, source] of [["npc", { affiliation: "directorate" }], ["creature", { traits: ["claimant"] }], ["character", {}]]) {
+    const ring = resolveTokenRing(kind, source);
+    assert.equal(ring.enabled, true);
+    assert.equal(ring.effects, RING_EFFECTS.ENABLED | RING_EFFECTS.RING_PULSE, `${kind}: effects must be ENABLED | RING_PULSE`);
+    assert.equal(ring.effects, 3, "ENABLED (0x01) | RING_PULSE (0x02) — pinned to the literal Foundry core writes to disk");
+  }
+});
+
+test("resolveTokenRing: npc ring color is vermilion for the Directorate, amber otherwise (faction identification, Ingram 2026-09-18)", () => {
+  assert.equal(resolveTokenRing("npc", { affiliation: "directorate" }).colors.ring, "#d1402a");
+  assert.equal(resolveTokenRing("npc", { affiliation: null }).colors.ring, "#f0a830");
+  assert.equal(resolveTokenRing("npc", { affiliation: "some-other-faction" }).colors.ring, "#f0a830");
+  assert.equal(resolveTokenRing("npc", {}).colors.ring, "#f0a830", "missing affiliation must not throw");
+});
+
+test("resolveTokenRing: creature ring color is resonance violet for a Claimant, amber for any other creature", () => {
+  // bi-tokens.css already reserves this violet for "Claimant telemetry" specifically —
+  // this applies that existing decision rather than inventing a new one.
+  assert.equal(resolveTokenRing("creature", { traits: ["aberration", "claimant"] }).colors.ring, "#a986e8");
+  assert.equal(resolveTokenRing("creature", { traits: ["aberration"] }).colors.ring, "#f0a830", "a non-Claimant creature (e.g. a test fixture) must not read as a Claimant");
+  assert.equal(resolveTokenRing("creature", {}).colors.ring, "#f0a830", "missing traits must not throw");
+});
+
+test("resolveTokenRing: character (kid/Frame) ring color is always cyan — every source IS the player party", () => {
+  assert.equal(resolveTokenRing("character", {}).colors.ring, "#4fc8d8");
+  assert.equal(resolveTokenRing("character", { affiliation: "directorate" }).colors.ring, "#4fc8d8", "a character source has no affiliation field in practice, but even a stray one must not override party color");
+});
+
+test("resolveTokenRing: ring.subject.texture is ALWAYS null -- it is not where an assigned portrait goes", () => {
+  // Found live 2026-09-18: ring.subject.texture is an advanced override for a
+  // subject distinct from the token's own base art, not "the portrait." A
+  // portrait belongs on prototypeToken.texture.src instead -- see the
+  // buildXActorData test below and token-ring.mjs's own header for the full
+  // story (setting it here produced a real double-image bug against a live
+  // Foundry world: the default icon stayed the actual displayed token art
+  // with the assigned portrait rendering as a mostly-hidden second layer).
+  assert.equal(resolveTokenRing("npc", { affiliation: "directorate" }).subject.texture, null);
+  assert.equal(resolveTokenRing("creature", {}).subject.texture, null);
+  assert.equal(resolveTokenRing("character", {}).subject.texture, null);
+});
+
+test("buildNpcActorData/buildCreatureActorData/buildCharacterActorData: every Actor carries prototypeToken.ring, and tokenImage flows to prototypeToken.texture.src -- NOT ring.subject.texture", async () => {
+  const npcData = await buildNpcActorData({ id: "x", affiliation: "directorate" }, { tokenImage: "modules/blank-inheritance/assets/tokens/x.webp" });
+  assert.equal(npcData.prototypeToken.ring.colors.ring, "#d1402a");
+  assert.equal(npcData.prototypeToken.texture.src, "modules/blank-inheritance/assets/tokens/x.webp");
+  assert.equal(npcData.prototypeToken.ring.subject.texture, null, "the portrait must not ALSO be written to ring.subject.texture");
+
+  const creatureData = await buildCreatureActorData({ id: "y", traits: ["claimant"] });
+  assert.equal(creatureData.prototypeToken.ring.colors.ring, "#a986e8");
+  assert.equal(creatureData.prototypeToken.texture, undefined, "no tokenImage supplied -- prototypeToken.texture must be omitted entirely, not an empty/null placeholder, so Foundry's own default token art is untouched");
+
+  const characterData = await buildCharacterActorData({ id: "z" }, { tokenImage: "modules/blank-inheritance/assets/tokens/z.webp" });
+  assert.equal(characterData.prototypeToken.ring.colors.ring, "#4fc8d8");
+  assert.equal(characterData.prototypeToken.ring.enabled, true);
+  assert.equal(characterData.prototypeToken.texture.src, "modules/blank-inheritance/assets/tokens/z.webp");
+});
+
 test("buildSceneData matches golden output", async () => {
   const sceneSource = readFixture("test-scene.json");
   const actorIdBySourceId = readGolden("actor-id-by-source-id.json");
@@ -222,6 +281,12 @@ test("episodeToJournalSource: a real episode with authored scenes (Session One) 
   // the only real episode in the repo, and is the better fixture anyway: it is
   // the one we actually intend to run.
   const episode = readRealData("episodes/episode-c1s1-mothers-maiden-name.json");
+  // Real content is still "drafted" today (issue #166's backfill, nothing
+  // promoted yet) -- this test is about page structure/content shape, not
+  // the withholding gate (that's tier1-writer-audit and tier4-mocked-adapter's
+  // job), so simulate "already reviewed" in-memory. Never mutates the real file.
+  episode.authoring = { ...episode.authoring, status: "sound" };
+  episode.scenes = episode.scenes.map((scene) => ({ ...scene, authoring: { ...scene.authoring, status: "sound" } }));
   const source = episodeToJournalSource(episode);
 
   assert.equal(source.id, "episode-c1s1-mothers-maiden-name");
@@ -236,7 +301,12 @@ test("episodeToJournalSource: a real episode with authored scenes (Session One) 
   // ids at all, so this branch of journal.mjs was never actually covered.
   const fightPage = source.pages.find((p) => p.id === "flood-tunnel");
   assert.ok(fightPage, "expected a page for the flood tunnel scene, keyed on the scene's own id");
-  assert.equal(fightPage.name, "6. Flood Tunnel Clearance");
+  // Order number asserted loosely rather than hardcoded: Session One's own
+  // running order has grown twice already (5 scenes -> 6 with Flood Tunnel
+  // -> 8 with The Tram Back/The Walk Down added 2026-09-19), and the exact
+  // position isn't what this test is checking -- the scene's own id-keyed
+  // page and its content are. Assert the title text, not its numeric prefix.
+  assert.match(fightPage.name, /\. Flood Tunnel Clearance$/);
   assert.match(fightPage.content, /Giant Centipedes/, "scene page must include the scene's own description");
   assert.match(fightPage.content, /c1s1-flood-tunnel/, "scene page must surface its encounterRef");
   assert.match(fightPage.content, /c1s1-compactor-cycle/, "scene page must surface its subsystemRef");
@@ -256,6 +326,7 @@ test("episodeToJournalSource: an episode with no authored scenes yet still produ
   const source = episodeToJournalSource({
     id: "episode-stub",
     title: "A Stub",
+    authoring: { status: "sound" },
     summary: "Mandatory school and training eat most of each day.",
     requiredBeats: ["Seed exactly one dangling thread. Don't resolve it yet."],
     danglingThreads: ["who-was-meant-to-pilot"],
@@ -268,8 +339,43 @@ test("episodeToJournalSource: an episode with no authored scenes yet still produ
 });
 
 test("episodeToJournalSource: HTML-special characters in prose are escaped, not injected as markup", () => {
-  const source = episodeToJournalSource({ id: "x", title: "X", summary: "Kids & Frames <fight>" });
+  const source = episodeToJournalSource({ id: "x", title: "X", authoring: { status: "sound" }, summary: "Kids & Frames <fight>" });
   assert.match(source.pages[0].content, /Kids &amp; Frames &lt;fight&gt;/);
+});
+
+test("episodeToJournalSource: issue #168 -- a drafted overview and a drafted scene are both withheld, with a clear placeholder instead of their real prose", () => {
+  const source = episodeToJournalSource({
+    id: "ep", title: "Ep", authoring: { status: "drafted" }, summary: "This must never appear in the output.",
+    scenes: [{ order: 1, id: "scene-a", title: "Scene A", description: "This must never appear either.", authoring: { status: "drafted" } }]
+  });
+  assert.equal(source.pages.length, 2);
+  for (const page of source.pages) {
+    assert.match(page.content, /still drafted and has not yet been reviewed/, `${page.id} must show the withheld placeholder`);
+    assert.doesNotMatch(page.content, /must never appear/, `${page.id} must not leak its real, unreviewed content`);
+  }
+});
+
+test("episodeToJournalSource: issue #168 -- gating is per-scene, not all-or-nothing: a sound scene's real content shows even while a sibling scene is still drafted", () => {
+  const source = episodeToJournalSource({
+    id: "ep", title: "Ep", authoring: { status: "sound" }, summary: "A reviewed overview.",
+    scenes: [
+      { order: 1, id: "reviewed-scene", title: "Reviewed", description: "Real, reviewed content.", authoring: { status: "sound" } },
+      { order: 2, id: "drafted-scene", title: "Drafted", description: "Not yet reviewed content.", authoring: { status: "drafted" } }
+    ]
+  });
+  const reviewed = source.pages.find((p) => p.id === "reviewed-scene");
+  const drafted = source.pages.find((p) => p.id === "drafted-scene");
+  assert.match(reviewed.content, /Real, reviewed content/);
+  assert.match(drafted.content, /still drafted and has not yet been reviewed/);
+  assert.doesNotMatch(drafted.content, /Not yet reviewed content/, "the drafted scene's real prose must not leak just because a sibling scene cleared review");
+});
+
+test("episodeToJournalSource: a scene with no authoring block at all is treated as drafted, not as an accidental pass -- missing information must never leak content", () => {
+  const source = episodeToJournalSource({
+    id: "ep", title: "Ep", authoring: { status: "sound" },
+    scenes: [{ order: 1, id: "s", title: "S", description: "Real content." }]
+  });
+  assert.match(source.pages[1].content, /still drafted and has not yet been reviewed/);
 });
 
 test("validateActor + summarizeReport: a matching Actor passes every check", async () => {
@@ -324,6 +430,45 @@ test("summarizeReport: counts skipped results separately from pass/fail, without
 test("summarizeReport: a result with no 'skipped' field at all (older report shape) counts as 0 skipped, not a crash", () => {
   const summary = summarizeReport({ results: [{ checks: [{ pass: true }] }] });
   assert.equal(summary.skipped, 0);
+});
+
+// --- issue #172: "the sync dialog gains a line -- N items now live" ------
+
+test("summarizeReport: newlyLive counts a result that was actually created/updated this run -- not skipped, not withheld, every check passed", () => {
+  const summary = summarizeReport({
+    results: [
+      { skipped: false, withheld: false, checks: [{ pass: true }, { pass: true }] },
+      { skipped: true, withheld: false, checks: [{ pass: true }] }, // unchanged -- not newly live
+      { skipped: false, withheld: true, checks: [] }, // withheld -- not newly live
+      { skipped: false, withheld: false, checks: [{ pass: true }, { pass: false }] } // a real failure -- not newly live
+    ]
+  });
+  assert.equal(summary.newlyLive, 1);
+});
+
+test("summarizeReport: newlyLive is 0, not undefined, when nothing qualifies -- an empty report must never crash the 'N items now live' line", () => {
+  assert.equal(summarizeReport({ results: [] }).newlyLive, 0);
+  assert.equal(summarizeReport({ results: [{ skipped: true, checks: [{ pass: true }] }] }).newlyLive, 0);
+});
+
+test("reportToHtml / reportToClipboardText: the 'now live' line only appears when newlyLive is actually positive", () => {
+  const liveResult = { skipped: false, withheld: false, checks: [{ pass: true }], sourceId: "x", foundryType: "npc", expectedId: "a", actualId: "a" };
+  const summaryWithLive = summarizeReport({ results: [liveResult] });
+  assert.match(reportToHtml({ results: [liveResult] }, summaryWithLive), /1 item now live/);
+  assert.match(reportToClipboardText({ results: [liveResult], timestamp: "t" }, summaryWithLive), /1 now live/);
+
+  const skippedResult = { skipped: true, withheld: false, checks: [{ pass: true }], sourceId: "x", foundryType: "npc", expectedId: "a", actualId: "a" };
+  const summaryNoLive = summarizeReport({ results: [skippedResult] });
+  assert.doesNotMatch(reportToHtml({ results: [skippedResult] }, summaryNoLive), /now live/);
+  assert.doesNotMatch(reportToClipboardText({ results: [skippedResult], timestamp: "t" }, summaryNoLive), /now live/);
+});
+
+test("reportToHtml: pluralizes correctly -- '1 item now live' vs '2 items now live'", () => {
+  const result = (id) => ({ skipped: false, withheld: false, checks: [{ pass: true }], sourceId: id, foundryType: "npc", expectedId: "a", actualId: "a" });
+  const oneReport = { results: [result("a")] };
+  assert.match(reportToHtml(oneReport, summarizeReport(oneReport)), /1 item now live/);
+  const twoReport = { results: [result("a"), result("b")] };
+  assert.match(reportToHtml(twoReport, summarizeReport(twoReport)), /2 items now live/);
 });
 
 test("validateActor: a mismatched field is reported as a failed check, not silently accepted", async () => {

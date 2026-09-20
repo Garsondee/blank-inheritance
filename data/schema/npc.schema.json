@@ -4,11 +4,12 @@
   "title": "NPC",
   "description": "A named or working-name adult/institutional character. One file per NPC in data/npcs/. Most Directorate NPCs are purely social/narrative and never need `statblock` at all — only set it if this NPC could plausibly end up in a fight or an opposed check that needs real numbers.",
   "type": "object",
-  "required": ["id", "type", "name", "role"],
+  "required": ["id", "type", "name", "role", "authoring"],
   "properties": {
     "$schema": { "type": "string" },
     "id": { "type": "string" },
     "type": { "const": "npc" },
+    "authoring": { "$ref": "common/authoring.schema.json#/$defs/authoring" },
     "name": { "type": ["string", "null"] },
     "role": { "type": "string", "description": "Functional title, e.g. \"The Commander\"." },
     "pole": { "type": ["string", "null"], "description": "Which of the Directorate's three (non-stable) poles this NPC represents, if any." },

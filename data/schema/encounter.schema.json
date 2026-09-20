@@ -4,11 +4,12 @@
   "title": "Encounter",
   "description": "A combat encounter: the participant list and inputs needed to check it against SF2E's XP-budget encounter math (see reference/tables/encounter-and-rewards-math.json) — distinct from challenge.schema.json (skill checks) and subsystem.schema.json (victory-point scenes), which don't use XP budgeting. A future validator can sum creatures[].level via the relative-level XP table and compare to encounterDifficultyThresholds for partySize.",
   "type": "object",
-  "required": ["id", "type", "name", "partyLevel", "partySize", "creatures"],
+  "required": ["id", "type", "name", "partyLevel", "partySize", "creatures", "authoring"],
   "properties": {
     "$schema": { "type": "string" },
     "id": { "type": "string" },
     "type": { "const": "encounter" },
+    "authoring": { "$ref": "common/authoring.schema.json#/$defs/authoring" },
     "name": { "type": "string" },
     "description": { "type": "string" },
     "partyLevel": { "type": "integer", "description": "The scale this specific fight is pitched at -- 12 for a Frame Contact (the Frames' fixed tier; Claimants are leveled to the Frame's tier, never the kids'), or 1 for a personnel-scale fight like Session One's Flood Tunnel. Not assumed to be one or the other; read per encounter." },

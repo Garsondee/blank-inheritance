@@ -1,0 +1,177 @@
+{{!--
+    The Approvals Desk (issue #170) -- full screen, above the Foundry
+    interface entirely (Ingram, live: "anything less than full screen is
+    stupid" for a surface built to read a lot of text at once). Keyboard
+    first: J/K move, S sound, F final, C changes, X cut, U undo, Escape
+    closes -- see foundry/approvals-desk.mjs's own #onKey. Buttons exist
+    too, for a mouse, but the whole point of this panel is never needing
+    them.
+
+    One screen, both directions (issue #171 §6): the out-tray toggle stays
+    visible regardless of which view is showing, since "what's waiting on me
+    vs. on him" is one question, answerable from either side of it.
+--}}
+<div class="bi-desk">
+    <button type="button" class="bi-desk__close" data-action="close" aria-label="{{localize "BLANKINHERITANCE.Desk.Close"}}">&times;</button>
+
+    {{#unless loading}}
+    <button type="button" class="bi-desk__out-tray-toggle" data-action="toggleOutTray">
+        {{#if showOutTray}}{{localize "BLANKINHERITANCE.Desk.BackToQueue"}}{{else}}{{localize "BLANKINHERITANCE.Desk.OutTray" count=outTrayCount}}{{/if}}
+    </button>
+    {{/unless}}
+
+    {{#if loading}}
+    <p class="bi-desk__loading">{{localize "BLANKINHERITANCE.Desk.Loading"}}</p>
+
+    {{else if showOutTray}}
+    <div class="bi-desk__out-tray">
+        <h1 class="bi-desk__name">{{localize "BLANKINHERITANCE.Desk.OutTrayTitle"}}</h1>
+        <p class="bi-desk__location">{{localize "BLANKINHERITANCE.Desk.OutTraySubtitle"}}</p>
+
+        <section class="bi-desk__meta-block">
+            <h2>{{localize "BLANKINHERITANCE.Desk.PendingInstructions"}}</h2>
+            {{#if pendingInstructions.length}}
+            <ul class="bi-desk__out-tray-list">
+                {{#each pendingInstructions}}
+                <li><strong>{{this.documentId}}</strong> — {{this.text}}</li>
+                {{/each}}
+            </ul>
+            {{else}}
+            <p class="bi-desk__field--empty">{{localize "BLANKINHERITANCE.Desk.OutTrayEmpty"}}</p>
+            {{/if}}
+        </section>
+
+        <section class="bi-desk__meta-block">
+            <h2>{{localize "BLANKINHERITANCE.Desk.OpenGazetteerRequests"}}</h2>
+            {{#if openGazetteerRequests.length}}
+            <ul class="bi-desk__out-tray-list">
+                {{#each openGazetteerRequests}}
+                <li>{{this.what}}</li>
+                {{/each}}
+            </ul>
+            {{else}}
+            <p class="bi-desk__field--empty">{{localize "BLANKINHERITANCE.Desk.OutTrayEmpty"}}</p>
+            {{/if}}
+        </section>
+
+        <section class="bi-desk__meta-block">
+            <h2>{{localize "BLANKINHERITANCE.Desk.NeedsLoreItems"}}</h2>
+            {{#if needsLoreItems.length}}
+            <ul class="bi-desk__out-tray-list">
+                {{#each needsLoreItems}}
+                <li>{{this.name}}</li>
+                {{/each}}
+            </ul>
+            {{else}}
+            <p class="bi-desk__field--empty">{{localize "BLANKINHERITANCE.Desk.OutTrayEmpty"}}</p>
+            {{/if}}
+        </section>
+
+        <hr class="bi-desk__out-tray-divider">
+        <p class="bi-desk__location">{{localize "BLANKINHERITANCE.Desk.WaitingOnYou"}}</p>
+
+        <section class="bi-desk__meta-block">
+            <h2>{{localize "BLANKINHERITANCE.Desk.OpenCreativeQuestions"}}</h2>
+            {{#if openCreativeQuestions.length}}
+            <ul class="bi-desk__out-tray-list">
+                {{#each openCreativeQuestions}}
+                <li>{{this.question}}</li>
+                {{/each}}
+            </ul>
+            {{else}}
+            <p class="bi-desk__field--empty">{{localize "BLANKINHERITANCE.Desk.OutTrayEmpty"}}</p>
+            {{/if}}
+        </section>
+
+        <section class="bi-desk__meta-block">
+            <h2>{{localize "BLANKINHERITANCE.Desk.UnreviewedAudio" count=unreviewedAudio.length}}</h2>
+            <p class="bi-desk__field--empty">{{localize "BLANKINHERITANCE.Desk.UnreviewedAudioHint"}}</p>
+        </section>
+    </div>
+
+    {{else if empty}}
+    <div class="bi-desk__empty">
+        <p>{{localize "BLANKINHERITANCE.Desk.Empty"}}</p>
+    </div>
+
+    {{else}}
+    <header class="bi-desk__head">
+        <span class="bi-desk__counter">{{localize "BLANKINHERITANCE.Desk.Counter" index=index remaining=remaining}}</span>
+        <button type="button" class="bi-desk__undo" data-action="undo" {{#unless canUndo}}disabled{{/unless}}>
+            <kbd>U</kbd> {{localize "BLANKINHERITANCE.Desk.Undo"}}
+        </button>
+    </header>
+
+    {{#if undoNotice}}
+    <p class="bi-desk__notice">{{undoNotice}}</p>
+    {{/if}}
+
+    <div class="bi-desk__layout">
+        <article class="bi-desk__reading">
+            <div class="bi-desk__card-head">
+                <span class="bi-desk__type">{{item.type}}</span>
+                <span class="bi-desk__status">{{item.status}}</span>
+            </div>
+            <h1 class="bi-desk__name">{{item.name}}</h1>
+            <p class="bi-desk__location">{{item.episodeId}} / {{item.sceneId}}</p>
+
+            {{#if item.uncertainty}}
+            <p class="bi-desk__uncertainty">
+                <strong>{{localize "BLANKINHERITANCE.Desk.Uncertainty"}}:</strong> {{item.uncertainty}}
+            </p>
+            {{/if}}
+
+            <div class="bi-desk__body">{{{item.bodyHtml}}}</div>
+
+            {{#if item.canOpenCard}}
+            <button type="button" class="bi-desk__open-card" data-action="openCard" data-actor-id="{{item.actorId}}">
+                {{localize "BLANKINHERITANCE.Desk.OpenCard"}}
+            </button>
+            {{/if}}
+        </article>
+
+        <aside class="bi-desk__meta">
+            {{#if item.blockedBy.length}}
+            <div class="bi-desk__meta-block">
+                <h2>{{localize "BLANKINHERITANCE.Desk.DependsOn"}}</h2>
+                <ul class="bi-desk__deps">
+                    {{#each item.blockedBy}}
+                    <li class="bi-desk__dep {{this.statusClass}}">{{this.id}} <span>({{this.status}})</span></li>
+                    {{/each}}
+                </ul>
+            </div>
+            {{/if}}
+
+            {{#if item.unblocks.length}}
+            <div class="bi-desk__meta-block">
+                <h2>{{localize "BLANKINHERITANCE.Desk.Unblocks"}}</h2>
+                <ul class="bi-desk__unblocks">
+                    {{#each item.unblocks}}
+                    <li>{{this}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            {{/if}}
+        </aside>
+    </div>
+
+    <footer class="bi-desk__grades">
+        <button type="button" class="bi-desk__grade bi-desk__grade--sound" data-action="grade" data-action-key="sound">
+            <kbd>S</kbd> {{localize "BLANKINHERITANCE.Desk.Sound"}}
+        </button>
+        <button type="button" class="bi-desk__grade bi-desk__grade--final" data-action="grade" data-action-key="final">
+            <kbd>F</kbd> {{localize "BLANKINHERITANCE.Desk.Final"}}
+        </button>
+        <button type="button" class="bi-desk__grade bi-desk__grade--changes" data-action="grade" data-action-key="changes">
+            <kbd>C</kbd> {{localize "BLANKINHERITANCE.Desk.Changes"}}
+        </button>
+        <button type="button" class="bi-desk__grade bi-desk__grade--cut" data-action="grade" data-action-key="cut">
+            <kbd>X</kbd> {{localize "BLANKINHERITANCE.Desk.Cut"}}
+        </button>
+    </footer>
+    <nav class="bi-desk__nav">
+        <button type="button" class="bi-desk__nav-btn" data-action="prev"><kbd>K</kbd> {{localize "BLANKINHERITANCE.Desk.Prev"}}</button>
+        <button type="button" class="bi-desk__nav-btn" data-action="next"><kbd>J</kbd> {{localize "BLANKINHERITANCE.Desk.Next"}}</button>
+    </nav>
+    {{/if}}
+</div>

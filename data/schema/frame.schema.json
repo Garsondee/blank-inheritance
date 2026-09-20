@@ -7,11 +7,12 @@
     { "$ref": "common/sf2e-common.schema.json#/$defs/pcStatblock" },
     {
       "type": "object",
-      "required": ["id", "type", "name", "pilotKidRef"],
+      "required": ["id", "type", "name", "pilotKidRef", "authoring"],
       "properties": {
         "$schema": { "type": "string" },
         "id": { "type": "string" },
         "type": { "const": "frame" },
+        "authoring": { "$ref": "common/authoring.schema.json#/$defs/authoring" },
         "name": { "type": ["string", "null"] },
         "pilotKidRef": { "type": ["string", "null"], "description": "id of the kid who pilots this Frame." },
         "level": { "type": "integer", "minimum": 12, "default": 12, "description": "12 through the opening arc (Days 1-6); rises in lockstep with the pilot's kid level from Day 7 onward, gated by a major Claimant defeat plus enough downtime to refit. See design/campaign-arc.md." },

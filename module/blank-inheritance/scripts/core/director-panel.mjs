@@ -9,6 +9,8 @@
  * document into what the panel actually renders.
  */
 
+import { PROMOTABLE_STATUSES } from "./promote.mjs";
+
 /**
  * The 13 real transition types TextureTransitionFilter supports
  * (foundryvtt/.../client/canvas/rendering/filters/transition.mjs's own
@@ -53,4 +55,41 @@ export function sceneRows(scenes = []) {
     thumbUrl: scene.thumb ?? null,
     active: Boolean(scene.active)
   }));
+}
+
+/**
+ * Finds the episode-scene (episode.schema.json's scenes[] entry, issue #166)
+ * whose own `briefRef` matches a live Foundry Scene's `briefRef` flag
+ * (stamped by scene-build.mjs at build time) -- the only key a Foundry Scene
+ * document and the narrative scene it represents actually share; scene-set.json
+ * entries and episode scenes have no shared `id`, only this.
+ *
+ * Returns null when no episode scene claims this briefRef at all -- a hub
+ * scene, a pin journal, or anything else that isn't part of a scheduled beat.
+ * Per design/approvals-desk.md §1, nothing outside a scheduled beat is
+ * tracked by the Desk at all, so "not found" correctly means "no gate
+ * applies," never "block."
+ */
+export function findSceneAuthoring(episodes, briefRef) {
+  if (!briefRef) return null;
+  for (const episode of episodes ?? []) {
+    const match = (episode.scenes ?? []).find((scene) => scene.briefRef === briefRef);
+    if (match) return match.authoring ?? null;
+  }
+  return null;
+}
+
+/**
+ * design/approvals-desk.md §3: "not a silent allow, not a hard block."
+ * `authoring` is whatever findSceneAuthoring returned above -- null (untracked,
+ * or genuinely no gate for this scene) always allows. `override` always
+ * allows too: a hard block would mean Ingram being away for a week stops the
+ * GM from ever showing the group anything, the same worse-failure reasoning
+ * promote()'s own escape hatch is built on.
+ */
+export function cueGateDecision(authoring, { override = false } = {}) {
+  if (override) return { allowed: true, status: authoring?.status ?? null, gated: false };
+  if (!authoring) return { allowed: true, status: null, gated: false };
+  if (PROMOTABLE_STATUSES.includes(authoring.status)) return { allowed: true, status: authoring.status, gated: false };
+  return { allowed: false, status: authoring.status ?? "drafted", gated: true };
 }

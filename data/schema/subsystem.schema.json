@@ -4,11 +4,12 @@
   "title": "Subsystem",
   "description": "A GM Core-style victory-point subsystem instance (Victory Points, Influence, Research, Chases, Infiltration, Hacking, or a custom homebrew one). One or more point pools, built from discrete obstacles/checks whose degrees of success move those pools, bounded by a round/time/attempt limit, resolving to a win/lose/graduated state. Grounded in GM Core Ch.4 (reference/srd/gm-core/1125-1170). The six named subsystems share this core shape but diverge in real ways (see subsystemSpecific) — don't force a Hacking or Infiltration instance to pretend it's a simple point pool if it isn't one.",
   "type": "object",
-  "required": ["id", "type", "name", "subsystemType", "pools", "obstacles"],
+  "required": ["id", "type", "name", "subsystemType", "pools", "obstacles", "authoring"],
   "properties": {
     "$schema": { "type": "string" },
     "id": { "type": "string" },
     "type": { "const": "subsystem" },
+    "authoring": { "$ref": "common/authoring.schema.json#/$defs/authoring" },
     "name": { "type": "string" },
     "subsystemType": { "enum": ["victory-points", "influence", "research", "chases", "infiltration", "hacking", "custom"] },
     "description": { "type": "string", "description": "Narrative framing — what winning/losing this subsystem means in-fiction." },

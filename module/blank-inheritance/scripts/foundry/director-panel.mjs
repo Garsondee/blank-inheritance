@@ -22,20 +22,75 @@
  * because there is genuinely less to it.
  */
 
-import { sceneRows, transitionOptions, TRANSITION_TYPES } from "../core/director-panel.mjs";
+import { sceneRows, transitionOptions, TRANSITION_TYPES, findSceneAuthoring, cueGateDecision } from "../core/director-panel.mjs";
 import { deriveFoundryId } from "../core/ids.mjs";
 import { openSceneCloseDialogue } from "./scene-close.mjs";
 import { landingSceneId } from "./landing-scene.mjs";
+import { fetchModuleJson } from "./io.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const MODULE_ID = "blank-inheritance";
 const MACRO_SOURCE_ID = "blank-inheritance-director-panel-macro";
 
+/**
+ * Low-level primitive: activate a scene, no policy attached. Deliberately
+ * NOT gated by authoring status (issue #168) -- this is shared by an
+ * automatic "never blocks arrival" advance path (scene-runner.mjs's
+ * advanceAfterClose) and by travel.mjs's own final leg of a travel sequence,
+ * neither of which should ever silently stop moving the table because
+ * something is still drafted. Callers that represent a genuinely deliberate
+ * "cue this specific scene" GM choice check the gate THEMSELVES first, via
+ * checkCueGate below, and only call this once allowed or overridden -- see
+ * #onCue in this file and #onCutTo/#onCueScene in scene-runner.mjs.
+ */
 export async function cueScene(sceneId, { transitionType, transitionDuration } = {}) {
   if (!game.user.isGM) return null;
   const scene = game.scenes.get(sceneId);
   if (!scene) return null;
   return scene.activate({ viewOptions: { transition: transitionOptions(transitionType, transitionDuration) } });
+}
+
+// The only two episode files that currently exist (CLAUDE.md's data/episodes/
+// entry) -- kept as a small local list rather than a directory browse, same
+// shape as sync.mjs's own REAL_EPISODE_PATHS, since a genuinely missing
+// episode just means findSceneAuthoring finds no match (issue #166: "not
+// found" already correctly means "no gate applies").
+const EPISODE_PATHS_FOR_GATE = [
+  "data/campaign/episodes/episode-c1s1-mothers-maiden-name.json",
+  "data/campaign/episodes/episode-c1s2-scheduled-exercise.json"
+];
+
+/** Resolves a live Scene's `briefRef` flag back to its narrative scene's authoring block, or null if untracked. */
+async function resolveSceneAuthoring(scene) {
+  const briefRef = scene.getFlag(MODULE_ID, "briefRef");
+  if (!briefRef) return null;
+  const episodes = await Promise.all(
+    EPISODE_PATHS_FOR_GATE.map((p) => fetchModuleJson(p).catch(() => null))
+  );
+  return findSceneAuthoring(episodes.filter(Boolean), briefRef);
+}
+
+/**
+ * design/approvals-desk.md §3, issue #168: cueing a still-drafted scene is
+ * gated, not silently allowed and not hard-blocked -- but ONLY at the
+ * deliberate-choice call sites that opt into calling this (see cueScene's own
+ * header for why it isn't baked into every scene transition). Exported so
+ * scene-runner.mjs's #onCutTo/#onCueScene can share it rather than
+ * reimplementing the same resolution.
+ */
+export async function checkCueGate(sceneId, { override = false } = {}) {
+  const scene = game.scenes.get(sceneId);
+  if (!scene) return { allowed: true, status: null, gated: false };
+  const authoring = await resolveSceneAuthoring(scene);
+  return cueGateDecision(authoring, { override });
+}
+
+/** Shared confirm dialog for a gated cue, used by every deliberate-choice call site. Returns true if the GM chose to proceed anyway. */
+export async function confirmDraftedSceneCue(status) {
+  return foundry.applications.api.DialogV2.confirm({
+    window: { title: game.i18n.localize("BLANKINHERITANCE.Director.DraftedSceneTitle") },
+    content: `<p>${game.i18n.format("BLANKINHERITANCE.Director.DraftedSceneBody", { status })}</p>`
+  }).catch(() => false);
 }
 
 /** Pulls every currently-connected player to whatever the GM is looking at right now, without touching the world's active scene. */
@@ -83,7 +138,11 @@ export class DirectorPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   static async #onCue(event, target) {
-    await cueScene(target.dataset.sceneId, { transitionType: this.#transitionType || undefined });
+    const sceneId = target.dataset.sceneId;
+    const gate = await checkCueGate(sceneId);
+    if (!gate.allowed && !(await confirmDraftedSceneCue(gate.status))) return;
+
+    await cueScene(sceneId, { transitionType: this.#transitionType || undefined });
     this.render();
   }
 

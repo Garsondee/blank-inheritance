@@ -7,11 +7,12 @@
     { "$ref": "common/sf2e-common.schema.json#/$defs/combatStatblock" },
     {
       "type": "object",
-      "required": ["id", "type", "name"],
+      "required": ["id", "type", "name", "authoring"],
       "properties": {
         "$schema": { "type": "string" },
         "id": { "type": "string" },
         "type": { "const": "creature" },
+        "authoring": { "$ref": "common/authoring.schema.json#/$defs/authoring" },
         "name": { "type": ["string", "null"] },
         "notes": { "type": "string" }
       }

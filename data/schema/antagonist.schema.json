@@ -4,11 +4,12 @@
   "title": "Antagonist",
   "description": "A named long-arc antagonist (as opposed to a per-encounter Claimant). One file per antagonist in data/antagonists/.",
   "type": "object",
-  "required": ["id", "type", "workingName"],
+  "required": ["id", "type", "workingName", "authoring"],
   "properties": {
     "$schema": { "type": "string" },
     "id": { "type": "string" },
     "type": { "const": "antagonist" },
+    "authoring": { "$ref": "common/authoring.schema.json#/$defs/authoring" },
     "name": { "type": ["string", "null"] },
     "workingName": { "type": "string" },
     "namingPlaceholderRef": { "type": ["string", "null"] },

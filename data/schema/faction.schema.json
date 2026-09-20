@@ -4,11 +4,12 @@
   "title": "Faction",
   "description": "An organisation. One file per faction in data/factions/.",
   "type": "object",
-  "required": ["id", "type", "name", "description"],
+  "required": ["id", "type", "name", "description", "authoring"],
   "properties": {
     "$schema": { "type": "string" },
     "id": { "type": "string" },
     "type": { "const": "faction" },
+    "authoring": { "$ref": "common/authoring.schema.json#/$defs/authoring" },
     "name": { "type": ["string", "null"] },
     "namingPlaceholderRef": { "type": ["string", "null"] },
     "description": { "type": "string" },
