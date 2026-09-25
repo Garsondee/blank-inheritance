@@ -15,19 +15,40 @@
 <section class="bi-induction">
     <div class="bi-doc bi-induction__page">
         <header class="bi-doc__head">
-            <h1 class="bi-doc__title">{{localize "BLANKINHERITANCE.Induction.Page1.Title"}}</h1>
+            <h1 class="bi-doc__title"><span class="bi-doc__title-jp">{{localize "BLANKINHERITANCE.Induction.OrgNameJP"}}</span>{{localize "BLANKINHERITANCE.Induction.Page1.Title"}}</h1>
             <div class="bi-doc__meta">
                 {{localize "BLANKINHERITANCE.Induction.Page1.FormNumber"}}
                 {{#if userName}}<br><b>{{userName}}</b>{{/if}}
             </div>
         </header>
 
-        <div class="bi-induction__tracker" role="list" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
-            {{#each trackerSteps}}
-            <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
-                  role="listitem" title="{{this.number}}. {{this.label}}">{{this.number}}</span>
-            {{/each}}
-        </div>
+        <nav class="bi-induction__tracker" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
+            <ol class="bi-induction__tracker-steps">
+                {{#each trackerSteps}}
+                <li>
+                    {{#if this.canJump}}
+                    <button type="button" class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} bi-induction__tracker-step--link"
+                            data-action="jumpToStep" data-step="{{this.id}}" title="{{this.number}}. {{this.label}}" aria-label="{{this.number}}. {{this.label}}">{{this.number}}</button>
+                    {{else}}
+                    <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
+                          title="{{this.number}}. {{this.label}}" {{#if this.isCurrent}}aria-current="step"{{/if}}>{{this.number}}</span>
+                    {{/if}}
+                </li>
+                {{/each}}
+            </ol>
+            <span class="bi-induction__tracker-label">{{trackerLabel}}</span>
+        </nav>
+        <div class="bi-induction__body" data-induction-body>
+
+        {{#if savedDraft}}
+        <section class="bi-induction__resume" aria-labelledby="bi-induction-resume-title">
+            <p class="bi-induction__resume-title" id="bi-induction-resume-title">{{localize "BLANKINHERITANCE.Induction.Resume.Title"}}</p>
+            <p class="bi-induction__resume-name">{{savedDraft.name}}</p>
+            {{#if savedDraft.what}}<p class="bi-induction__resume-what">{{savedDraft.what}}</p>{{/if}}
+            <p class="bi-induction__resume-meta">{{#if savedDraft.where}}{{savedDraft.where}}{{/if}}{{#if savedDraft.when}}{{#if savedDraft.where}} · {{/if}}{{savedDraft.when}}{{/if}}</p>
+            {{#if confirmingDiscard}}<p class="bi-induction__resume-warning" role="alert">{{localize "BLANKINHERITANCE.Induction.Resume.DiscardWarning"}}</p>{{/if}}
+        </section>
+        {{/if}}
 
         <p>{{localize "BLANKINHERITANCE.Induction.Page1.Intro1"}}</p>
         <p>{{localize "BLANKINHERITANCE.Induction.Page1.Intro2"}}</p>
@@ -38,10 +59,26 @@
         <h2>{{localize "BLANKINHERITANCE.Induction.Page1.WhatYouNeedTitle"}}</h2>
         <p>{{localize "BLANKINHERITANCE.Induction.Page1.WhatYouNeed"}}</p>
 
+        </div>
+
+        {{#if savedDraft}}
+        <div class="bi-induction__actions bi-induction__actions--split">
+            {{#if confirmingDiscard}}
+            <button type="button" class="bi-induction__back" data-action="keepDraft">{{localize "BLANKINHERITANCE.Induction.Resume.Keep"}}</button>
+            <button type="button" class="bi-induction__begin bi-induction__begin--danger" data-action="discardDraft">{{localize "BLANKINHERITANCE.Induction.Resume.Discard"}}</button>
+            {{else}}
+            <button type="button" class="bi-induction__back" data-action="startAgain">{{localize "BLANKINHERITANCE.Induction.Resume.StartAgain"}}</button>
+            <button type="button" class="bi-induction__begin" data-action="resumeDraft">{{localize "BLANKINHERITANCE.Induction.Resume.Continue"}}</button>
+            {{/if}}
+        </div>
+        {{else}}
         <div class="bi-induction__actions">
+            <span class="bi-induction__blocker" role="status" data-induction-blocker {{#unless blocker}}hidden{{/unless}}>{{blocker}}</span>
+            {{#if canReturnToReview}}<button type="button" class="bi-induction__back bi-induction__to-review" data-action="returnToReview">{{localize "BLANKINHERITANCE.Induction.ReturnToReview"}}</button>{{/if}}
             <button type="button" class="bi-induction__begin" data-action="begin">
                 {{localize "BLANKINHERITANCE.Induction.Page1.Begin"}}
             </button>
         </div>
+        {{/if}}
     </div>
 </section>

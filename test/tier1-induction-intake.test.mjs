@@ -131,47 +131,77 @@ test("setPath: creates a missing intermediate object rather than throwing", () =
 
 test("setPath then getPath round-trips", () => {
   const state = {};
-  setPath(state, "finishing.banalAnswers.unpacking", "Socks first.");
-  assert.equal(getPath(state, "finishing.banalAnswers.unpacking"), "Socks first.");
+  setPath(state, "finishing.personality.likes", "Hot water.");
+  assert.equal(getPath(state, "finishing.personality.likes"), "Hot water.");
 });
 
 // ---------------------------------------------------------------------------
 // The real authored prompts file, run through the real code.
 //
 // Everything above is fixtures agreeing with themselves. This is what catches
-// the schema and this content drifting apart -- and, separately, catches the
-// Eight Questions' wording ever silently drifting from bible §20's canon.
+// the schema and this content drifting apart -- and, separately, holds the
+// 2026-09-18 compression in place: the whole point of that pass was that the
+// open-question count came DOWN and stays down (design/induction-intake-audit.md
+// §6), which is a thing a content edit can silently undo.
 // ---------------------------------------------------------------------------
 
 const PROMPTS = JSON.parse(readFileSync(new URL("../data/campaign/induction-intake-prompts.json", import.meta.url), "utf8"));
 
-// ideas/story/blank-inheritance-v4.md §20, copied here verbatim as the
-// source of truth this test guards against ever silently drifting from.
-const CANONICAL_EIGHT_QUESTIONS = [
-  "Who do you love, and what would you never tell them?",
-  "What are you good at that has nothing to do with piloting?",
-  "What did you want to be, before the draft notice?",
-  "Who in this city owes you something? Who do you owe?",
-  "What is the smallest thing that would make today a good day?",
-  "What do you not want the Directorate to know about you?",
-  "Name someone who thinks you are better than you are.",
-  "What do you find funny?"
+const ALL_PROMPTS = [
+  ...PROMPTS.personalFile,
+  ...PROMPTS.personality,
+  ...PROMPTS.openQuestions,
+  PROMPTS.freeform
 ];
 
-test("the real prompts file has exactly 8 eightQuestions, numbered 1-8 in order, unique ids", () => {
-  assert.equal(PROMPTS.eightQuestions.length, 8);
-  assert.deepEqual(PROMPTS.eightQuestions.map((q) => q.number), [1, 2, 3, 4, 5, 6, 7, 8]);
-  assert.equal(new Set(PROMPTS.eightQuestions.map((q) => q.id)).size, 8);
+test("the open questions stay capped: at most five, which is the point of the 2026-09-18 compression", () => {
+  assert.ok(
+    PROMPTS.openQuestions.length <= 5,
+    `open questions have crept back up to ${PROMPTS.openQuestions.length} -- see design/induction-intake-audit.md §6 before raising this`
+  );
 });
 
-test("every eightQuestions text string-matches bible §20's canonical wording exactly", () => {
-  assert.deepEqual(PROMPTS.eightQuestions.map((q) => q.text), CANONICAL_EIGHT_QUESTIONS);
+test("open questions are numbered 1..n in order, with unique ids", () => {
+  assert.deepEqual(
+    PROMPTS.openQuestions.map((q) => q.number),
+    PROMPTS.openQuestions.map((_, i) => i + 1)
+  );
+  assert.equal(new Set(PROMPTS.openQuestions.map((q) => q.id)).size, PROMPTS.openQuestions.length);
 });
 
-test("every question (banal and eight) has at least one suggestion chip", () => {
-  for (const q of [...PROMPTS.banalQuestions, ...PROMPTS.eightQuestions]) {
+test("prompt ids are unique across every group, since they key both DOM ids and state paths", () => {
+  const ids = ALL_PROMPTS.map((q) => q.id);
+  assert.equal(new Set(ids).size, ids.length, `duplicate prompt id: ${ids.filter((id, i) => ids.indexOf(id) !== i)}`);
+});
+
+test("every prompt except the freeform box has at least one suggestion chip", () => {
+  for (const q of [...PROMPTS.personalFile, ...PROMPTS.personality, ...PROMPTS.openQuestions]) {
     assert.ok(q.suggestions.length > 0, `${q.id} has no suggestion chips`);
   }
+  assert.deepEqual(PROMPTS.freeform.suggestions, [], "the catch-all box is deliberately the player's alone -- no chips");
+});
+
+test("exactly one prompt is addressed to the player rather than the character", () => {
+  const ooc = ALL_PROMPTS.filter((q) => q.outOfCharacter === true);
+  assert.equal(ooc.length, 1);
+  assert.equal(ooc[0].id, "player-goal");
+});
+
+test("the survivors of the compression are still present, as one-liners rather than open questions", () => {
+  // design/induction-intake-audit.md §6c: bible §20's Q5 (the smallest good
+  // day) and Q2 (competence outside piloting) were DEMOTED, never cut. A
+  // future content edit that quietly drops them should fail here.
+  const personalityIds = PROMPTS.personality.map((q) => q.id);
+  assert.ok(personalityIds.includes("likes"), "old Q5 (the smallest good day) must survive as `likes`");
+  assert.ok(personalityIds.includes("good-at"), "old Q2 (good at, not piloting) must survive as `good-at`");
+});
+
+test("both halves of the relationship question survive as separate sheet destinations", () => {
+  // Ingram, 2026-09-18: combined into one open section, but Allies AND
+  // Enemies both stay real fields on the sheet.
+  const paths = PROMPTS.openQuestions.map((q) => q.bioPath);
+  assert.ok(paths.includes("system.details.biography.allies"));
+  assert.ok(paths.includes("system.details.biography.enemies"));
 });
 
 test("genderIdentityOptions, pronounOptions and appearanceOptions are all non-empty, and contain no blank/duplicate entries", () => {
@@ -191,35 +221,48 @@ test("data/schema/induction-intake-prompts.schema.json parses as valid JSON and 
 });
 
 test("summarizeIntakeAnswers: no answers at all is honestly empty, not a fabricated section", () => {
-  const result = summarizeIntakeAnswers({ prompts: PROMPTS, questions: {}, banalAnswers: {} });
+  const result = summarizeIntakeAnswers({ prompts: PROMPTS, questions: {} });
   assert.equal(result.hasContent, false);
   assert.equal(result.text, "");
 });
 
 test("summarizeIntakeAnswers: an unanswered question is skipped, not printed as '(no answer)'", () => {
-  const oneAnswer = { [PROMPTS.eightQuestions[0].id]: "My sister." };
-  const result = summarizeIntakeAnswers({ prompts: PROMPTS, questions: oneAnswer, banalAnswers: {} });
+  const oneAnswer = { [PROMPTS.openQuestions[0].id]: "My sister." };
+  const result = summarizeIntakeAnswers({ prompts: PROMPTS, questions: oneAnswer });
   assert.equal(result.hasContent, true);
-  // Exactly one Q/A pair -- the other seven questions must not appear at all.
+  // Exactly one Q/A pair -- every other question must not appear at all.
   assert.equal((result.text.match(/^Q:/gm) ?? []).length, 1);
-  assert.match(result.text, new RegExp(PROMPTS.eightQuestions[0].text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.match(result.text, new RegExp(PROMPTS.openQuestions[0].text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
 });
 
 test("summarizeIntakeAnswers: whitespace-only answers count as unanswered", () => {
-  const result = summarizeIntakeAnswers({ prompts: PROMPTS, questions: { [PROMPTS.eightQuestions[0].id]: "   " } });
+  const result = summarizeIntakeAnswers({ prompts: PROMPTS, questions: { [PROMPTS.openQuestions[0].id]: "   " } });
   assert.equal(result.hasContent, false);
 });
 
-test("summarizeIntakeAnswers: the Eight Questions and the banal settling-in questions are separate, labelled sections", () => {
-  const questions = { [PROMPTS.eightQuestions[0].id]: "An answer." };
-  const banalAnswers = { [PROMPTS.banalQuestions[0].id]: "Socks first." };
-  const result = summarizeIntakeAnswers({ prompts: PROMPTS, questions, banalAnswers });
-  assert.match(result.text, /The Eight Questions/);
-  assert.match(result.text, /Settling In/);
-  assert.ok(result.text.indexOf("The Eight Questions") < result.text.indexOf("Settling In"));
+test("summarizeIntakeAnswers: each group is its own labelled section, open questions first for the GM", () => {
+  const result = summarizeIntakeAnswers({
+    prompts: PROMPTS,
+    questions: { [PROMPTS.openQuestions[0].id]: "An answer." },
+    freeform: "A paragraph about my character.",
+    personality: { [PROMPTS.personality[0].id]: "Hot water." },
+    personalFile: { [PROMPTS.personalFile[0].id]: "24" }
+  });
+  assert.match(result.text, /In Their Own Words/);
+  assert.match(result.text, /Anything Else/);
+  assert.match(result.text, /Personality/);
+  assert.match(result.text, /Personal File/);
+  assert.ok(result.text.indexOf("In Their Own Words") < result.text.indexOf("Personality"));
+  assert.ok(result.text.indexOf("Anything Else") < result.text.indexOf("Personal File"));
 });
 
-test("summarizeIntakeAnswers: missing prompts/questions/banalAnswers entirely is safe", () => {
+test("summarizeIntakeAnswers: the freeform box alone is enough to count as content", () => {
+  const result = summarizeIntakeAnswers({ prompts: PROMPTS, freeform: "Everything I want to say." });
+  assert.equal(result.hasContent, true);
+  assert.match(result.text, /Everything I want to say\./);
+});
+
+test("summarizeIntakeAnswers: missing prompts/answers entirely is safe", () => {
   assert.deepEqual(summarizeIntakeAnswers(), { text: "", hasContent: false });
   assert.deepEqual(summarizeIntakeAnswers({ prompts: PROMPTS }), { text: "", hasContent: false });
 });

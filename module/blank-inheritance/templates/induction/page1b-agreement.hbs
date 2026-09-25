@@ -1,0 +1,78 @@
+{{!--
+    The induction terminal — Page 2, the Service Agreement (FORM 1-B).
+
+    A gag with hooks in it (Ingram, 2026-09-25): an absurdly long agreement nobody reads, signed before
+    anything else, with clauses buried in it for the GM to use later. Seen once, at signing; the only
+    way on is I AGREE. The text is NOT in this template, deliberately: it's drawn onto the canvas by
+    foundry/induction-agreement-view.mjs so it can't be selected or copied (design/induction-agreement.md).
+    It ends with a plain out-of-character note saying it's a joke, not a real contract.
+
+    The pre-ticked, disabled "I have read and understood" box is part of the joke. Nothing else on this
+    page pretends; the Back button is real.
+--}}
+<section class="bi-induction">
+    <div class="bi-doc bi-induction__page bi-induction__page--agreement">
+        <header class="bi-doc__head">
+            <h1 class="bi-doc__title"><span class="bi-doc__title-jp">{{localize "BLANKINHERITANCE.Induction.OrgNameJP"}}</span>{{localize "BLANKINHERITANCE.Induction.Agreement.Title"}}</h1>
+            <div class="bi-doc__meta">
+                {{localize "BLANKINHERITANCE.Induction.Agreement.FormNumber"}}
+                {{#if userName}}<br><b>{{userName}}</b>{{/if}}
+            </div>
+        </header>
+
+        <nav class="bi-induction__tracker" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
+            <ol class="bi-induction__tracker-steps">
+                {{#each trackerSteps}}
+                <li>
+                    {{#if this.canJump}}
+                    <button type="button" class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} bi-induction__tracker-step--link"
+                            data-action="jumpToStep" data-step="{{this.id}}" title="{{this.number}}. {{this.label}}" aria-label="{{this.number}}. {{this.label}}">{{this.number}}</button>
+                    {{else}}
+                    <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
+                          title="{{this.number}}. {{this.label}}" {{#if this.isCurrent}}aria-current="step"{{/if}}>{{this.number}}</span>
+                    {{/if}}
+                </li>
+                {{/each}}
+            </ol>
+            <span class="bi-induction__tracker-label">{{trackerLabel}}</span>
+        </nav>
+        <div class="bi-induction__body bi-induction__body--fill" data-induction-body>
+
+        <p class="bi-agreement__intro">{{localize "BLANKINHERITANCE.Induction.Agreement.Intro"}}</p>
+        {{#if agreementReadingTime}}
+        <p class="bi-agreement__meta">{{localize "BLANKINHERITANCE.Induction.Agreement.ReadingTime" time=agreementReadingTime}}</p>
+        {{/if}}
+
+        <div class="bi-agreement" data-agreement-root>
+            <div class="bi-agreement__tools">
+                <button type="button" class="bi-agreement__zoom" data-agreement-zoom="out" aria-label="{{localize 'BLANKINHERITANCE.Induction.Agreement.ZoomOut'}}" title="{{localize 'BLANKINHERITANCE.Induction.Agreement.ZoomOut'}}">−</button>
+                <button type="button" class="bi-agreement__zoom" data-agreement-zoom="in" aria-label="{{localize 'BLANKINHERITANCE.Induction.Agreement.ZoomIn'}}" title="{{localize 'BLANKINHERITANCE.Induction.Agreement.ZoomIn'}}">+</button>
+            </div>
+            <div class="bi-agreement__viewport" data-agreement-viewport tabindex="0" role="document" aria-label="{{localize 'BLANKINHERITANCE.Induction.Agreement.ViewportLabel'}}">
+                <canvas class="bi-agreement__canvas" data-agreement-canvas aria-hidden="true"></canvas>
+                <div class="bi-agreement__spacer" data-agreement-spacer></div>
+            </div>
+            {{#if agreementError}}
+            <p class="bi-agreement__error" role="alert">{{agreementError}}</p>
+            {{/if}}
+        </div>
+
+        <label class="bi-agreement__ack">
+            <input type="checkbox" checked disabled>
+            {{localize "BLANKINHERITANCE.Induction.Agreement.ReadAck"}}
+        </label>
+
+        </div>
+
+        <div class="bi-induction__actions bi-agreement__actions">
+            <button type="button" class="bi-induction__back" data-action="backFromAgreement">
+                {{localize "BLANKINHERITANCE.Induction.Agreement.Back"}}
+            </button>
+            <span class="bi-induction__blocker" role="status" data-induction-blocker {{#unless blocker}}hidden{{/unless}}>{{blocker}}</span>
+            {{#if canReturnToReview}}<button type="button" class="bi-induction__back bi-induction__to-review" data-action="returnToReview">{{localize "BLANKINHERITANCE.Induction.ReturnToReview"}}</button>{{/if}}
+            <button type="button" class="bi-induction__begin" data-action="signAgreement" {{#unless agreementReady}}disabled{{/unless}}>
+                {{localize "BLANKINHERITANCE.Induction.Agreement.Agree"}}
+            </button>
+        </div>
+    </div>
+</section>

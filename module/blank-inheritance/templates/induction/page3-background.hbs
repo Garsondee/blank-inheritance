@@ -15,25 +15,37 @@
     Pages 1-2.
 --}}
 <section class="bi-induction">
-    <div class="bi-doc bi-induction__page">
+    <div class="bi-doc bi-induction__page bi-induction__page--wide">
         <header class="bi-doc__head">
-            <h1 class="bi-doc__title">{{localize "BLANKINHERITANCE.Induction.Page3.Title"}}</h1>
+            <h1 class="bi-doc__title"><span class="bi-doc__title-jp">{{localize "BLANKINHERITANCE.Induction.OrgNameJP"}}</span>{{localize "BLANKINHERITANCE.Induction.Page3.Title"}}</h1>
             <div class="bi-doc__meta">
                 {{localize "BLANKINHERITANCE.Induction.Page3.FormNumber"}}
                 {{#if userName}}<br><b>{{userName}}</b>{{/if}}
             </div>
         </header>
 
-        <div class="bi-induction__tracker" role="list" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
-            {{#each trackerSteps}}
-            <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
-                  role="listitem" title="{{this.number}}. {{this.label}}">{{this.number}}</span>
-            {{/each}}
-        </div>
+        <nav class="bi-induction__tracker" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
+            <ol class="bi-induction__tracker-steps">
+                {{#each trackerSteps}}
+                <li>
+                    {{#if this.canJump}}
+                    <button type="button" class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} bi-induction__tracker-step--link"
+                            data-action="jumpToStep" data-step="{{this.id}}" title="{{this.number}}. {{this.label}}" aria-label="{{this.number}}. {{this.label}}">{{this.number}}</button>
+                    {{else}}
+                    <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
+                          title="{{this.number}}. {{this.label}}" {{#if this.isCurrent}}aria-current="step"{{/if}}>{{this.number}}</span>
+                    {{/if}}
+                </li>
+                {{/each}}
+            </ol>
+            <span class="bi-induction__tracker-label">{{trackerLabel}}</span>
+        </nav>
+        <div class="bi-induction__body bi-induction__body--picker" data-induction-body>
 
         <p>{{localize "BLANKINHERITANCE.Induction.Page3.Intro"}}</p>
 
-        {{#unless selected}}
+        <div class="bi-induction__picker">
+        <div class="bi-induction__picker-list" data-picker-list>
             {{#if loadFailed}}
             <div class="bi-induction__load-error">
                 <p class="bi-induction__load-error-title">{{localize "BLANKINHERITANCE.Induction.Page2.LoadFailedTitle"}}</p>
@@ -50,8 +62,8 @@
                     <h2>{{localize "BLANKINHERITANCE.Induction.Page3.GroupCommon"}}</h2>
                     <div class="bi-induction__ancestry-list">
                         {{#each backgroundGroups.common}}
-                        <button type="button" class="bi-induction__ancestry-item" data-action="pickBackground"
-                                data-background-id="{{this.id}}" data-induction-name="{{this.nameLower}}">{{this.name}}</button>
+                        <button type="button" class="bi-induction__ancestry-item {{#if this.isSelected}}bi-induction__ancestry-item--selected{{/if}}" data-action="pickBackground"
+                                aria-pressed="{{#if this.isSelected}}true{{else}}false{{/if}}" title="{{this.hint}}" data-background-id="{{this.id}}" data-induction-name="{{this.nameLower}}">{{this.name}}</button>
                         {{/each}}
                     </div>
                 </div>
@@ -59,8 +71,8 @@
                     <h2>{{localize "BLANKINHERITANCE.Induction.Page3.GroupUncommon"}}</h2>
                     <div class="bi-induction__ancestry-list">
                         {{#each backgroundGroups.uncommon}}
-                        <button type="button" class="bi-induction__ancestry-item" data-action="pickBackground"
-                                data-background-id="{{this.id}}" data-induction-name="{{this.nameLower}}">{{this.name}}</button>
+                        <button type="button" class="bi-induction__ancestry-item {{#if this.isSelected}}bi-induction__ancestry-item--selected{{/if}}" data-action="pickBackground"
+                                aria-pressed="{{#if this.isSelected}}true{{else}}false{{/if}}" title="{{this.hint}}" data-background-id="{{this.id}}" data-induction-name="{{this.nameLower}}">{{this.name}}</button>
                         {{/each}}
                     </div>
                 </div>
@@ -68,21 +80,20 @@
                     <h2>{{localize "BLANKINHERITANCE.Induction.Page3.GroupRare"}}</h2>
                     <div class="bi-induction__ancestry-list">
                         {{#each backgroundGroups.rare}}
-                        <button type="button" class="bi-induction__ancestry-item" data-action="pickBackground"
-                                data-background-id="{{this.id}}" data-induction-name="{{this.nameLower}}">{{this.name}}</button>
+                        <button type="button" class="bi-induction__ancestry-item {{#if this.isSelected}}bi-induction__ancestry-item--selected{{/if}}" data-action="pickBackground"
+                                aria-pressed="{{#if this.isSelected}}true{{else}}false{{/if}}" title="{{this.hint}}" data-background-id="{{this.id}}" data-induction-name="{{this.nameLower}}">{{this.name}}</button>
                         {{/each}}
                     </div>
                 </div>
             </div>
             <p class="bi-induction__no-matches" data-induction-no-matches hidden>{{localize "BLANKINHERITANCE.Induction.Page3.NoMatches"}}</p>
             {{/if}}
-        {{/unless}}
-
+        </div>
+        <div class="bi-induction__picker-detail" data-picker-detail>
         {{#if selected}}
         <div class="bi-induction__selected">
             <div class="bi-induction__selected-head">
                 <h2 class="bi-induction__selected-name">{{selected.name}}</h2>
-                <button type="button" class="bi-induction__change" data-action="changeBackground">{{localize "BLANKINHERITANCE.Induction.Page3.Change"}}</button>
             </div>
             {{#if selected.isRare}}
             <span class="bi-induction__rarity-tag bi-induction__rarity-tag--rare">{{selected.rarity}}</span>
@@ -144,11 +155,19 @@
                 <p>{{localize "BLANKINHERITANCE.Induction.Page3.HelpBody"}}</p>
             </details>
         </div>
+        {{else}}
+        <p class="bi-induction__picker-empty">{{localize "BLANKINHERITANCE.Induction.Page3.PickPrompt"}}</p>
         {{/if}}
+        </div>
+        </div>
+
+        </div>
 
         <div class="bi-induction__actions bi-induction__actions--split">
             <button type="button" class="bi-induction__back" data-action="backFromBackground">{{localize "BLANKINHERITANCE.Induction.Page3.Back"}}</button>
-            <button type="button" class="bi-induction__begin" data-action="continueFromBackground" {{#unless isComplete}}disabled{{/unless}}>
+            <span class="bi-induction__blocker" role="status" data-induction-blocker {{#unless blocker}}hidden{{/unless}}>{{blocker}}</span>
+            {{#if canReturnToReview}}<button type="button" class="bi-induction__back bi-induction__to-review" data-action="returnToReview">{{localize "BLANKINHERITANCE.Induction.ReturnToReview"}}</button>{{/if}}
+            <button type="button" class="bi-induction__begin" data-action="continueFromBackground">
                 {{localize "BLANKINHERITANCE.Induction.Page3.Continue"}}
             </button>
         </div>

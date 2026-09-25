@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FORM 1-B preview</title>
+<!-- A dev preview of the induction terminal's page 2 outside Foundry: the real viewer module, the real
+     stylesheets and the real shipped asset, with page1b-agreement.hbs's markup copied in by hand.
+     Serve the repo root (the "agreement-preview" launch config) and open /tools/induction-agreement/preview.html. -->
+<link rel="stylesheet" href="../../module/blank-inheritance/styles/bi-fonts.css">
+<link rel="stylesheet" href="../../module/blank-inheritance/styles/bi-tokens.css">
+<link rel="stylesheet" href="../../module/blank-inheritance/styles/bi-components.css">
+<link rel="stylesheet" href="../../module/blank-inheritance/styles/bi-agreement.css">
+<style>
+  body { margin: 0; min-height: 100vh; background: #2b2a27; display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box; }
+  .bi-induction__page { max-height: none; }
+  #status { position: fixed; left: 8px; bottom: 8px; color: #ddd; font: 12px monospace; }
+</style>
+</head>
+<body class="bi-theme">
+<section class="bi-induction">
+  <div class="bi-doc bi-induction__page bi-induction__page--agreement">
+    <header class="bi-doc__head">
+      <h1 class="bi-doc__title"><span class="bi-doc__title-jp">特別対策本部</span>Articles of Enrolment</h1>
+      <div class="bi-doc__meta">FORM 1-B — ARTICLES OF ENROLMENT AND GENERAL CONSENTS<br><b>Preview</b></div>
+    </header>
+    <p class="bi-agreement__intro">Before anything else, the Directorate requires your agreement to the terms below. Recruits are advised to read them in full.</p>
+    <p class="bi-agreement__meta" id="reading-time"></p>
+    <div class="bi-agreement" data-agreement-root>
+      <div class="bi-agreement__tools">
+        <button type="button" class="bi-agreement__zoom" data-agreement-zoom="out" aria-label="Smaller text">−</button>
+        <button type="button" class="bi-agreement__zoom" data-agreement-zoom="in" aria-label="Larger text">+</button>
+      </div>
+      <div class="bi-agreement__viewport" data-agreement-viewport tabindex="0" role="document">
+        <canvas class="bi-agreement__canvas" data-agreement-canvas aria-hidden="true"></canvas>
+        <div class="bi-agreement__spacer" data-agreement-spacer></div>
+      </div>
+    </div>
+    <label class="bi-agreement__ack"><input type="checkbox" checked disabled> I have read and understood this Agreement in full.</label>
+    <div class="bi-induction__actions bi-agreement__actions">
+      <button type="button" class="bi-induction__back">Back</button>
+      <button type="button" class="bi-induction__begin" id="agree">I Agree</button>
+    </div>
+  </div>
+</section>
+<div id="status">loading…</div>
+<script type="module">
+  import { loadAgreement, mountAgreementView } from "../../module/blank-inheritance/scripts/foundry/induction-agreement-view.mjs";
+  import { readingTime } from "../../module/blank-inheritance/scripts/core/agreement-layout.mjs";
+  const fetchText = async (rel) => (await fetch(`../../module/blank-inheritance/${rel}`)).text();
+  const doc = await loadAgreement(fetchText);
+  document.getElementById("reading-time").textContent = `Estimated reading time: ${readingTime(doc.words)}. Recruits are advised to allow sufficient time.`;
+  const view = mountAgreementView(document.querySelector("[data-agreement-root]"), doc);
+  window.__agreement = { doc, view };
+  document.getElementById("agree").addEventListener("click", () => {
+    document.getElementById("status").textContent = `signed: ${JSON.stringify(view.stats())}`;
+  });
+  document.getElementById("status").textContent = `ready: ${doc.words} words, ${doc.blocks.length} blocks`;
+</script>
+</body>
+</html>

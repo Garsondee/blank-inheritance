@@ -218,3 +218,45 @@ test("no other data file under data/campaign/ silently duplicates the ancestry c
     assert.notEqual(doc.id, "ancestry-catalogue", `${file} reuses the ancestry-catalogue id`);
   }
 });
+
+// --- The campaign's era (GitHub #203, Ingram 2026-09-25: "Trim the ancestry text") ---------------------
+// Players read these descriptions on Page 2. The campaign is set on Golarion (#34), with the Gap still to
+// come, so nothing a player reads may assume a later era. Planets of Golarion's own solar system stay.
+
+const LATER_ERA = [
+  [/\bthe Gap\b|pre-Gap|post-Gap/i, "the Gap has already happened"],
+  [/\bPact\b/, "the Pact Worlds exist"],
+  [/loss of their home world, Golarion|Golarion['’]s (loss|disappearance)/i, "Golarion is lost"],
+  [/\bDrift\b/, "the Drift exists"]
+];
+
+test("no ancestry description a player reads assumes a later era than the campaign's", () => {
+  for (const a of CATALOGUE.ancestries) {
+    for (const [pattern, meaning] of LATER_ERA) {
+      assert.doesNotMatch(a.description, pattern, a.id + "'s description assumes " + meaning);
+    }
+  }
+});
+
+test("a trimmed description only ever deletes: every word of it appears, in order, in SF2E's own text", () => {
+  const words = (s) => s.toLowerCase().match(/[a-z0-9'’-]+/g) ?? [];
+  const trimmed = CATALOGUE.ancestries.filter((a) => a.sourceDescription);
+  assert.ok(trimmed.length >= 7, "the seven trimmed in #203 keep their source");
+  for (const a of trimmed) {
+    assert.notEqual(a.description, a.sourceDescription, a.id + " keeps a source identical to what's shown");
+    const source = words(a.sourceDescription);
+    let at = 0;
+    for (const word of words(a.description)) {
+      at = source.indexOf(word, at);
+      assert.ok(at >= 0, a.id + ": '" + word + "' isn't in SF2E's text at this point -- a trim may not add words");
+      at += 1;
+    }
+  }
+});
+
+test("the trim keeps Golarion's own solar system: its planets are this campaign's setting (#34), not a later era", () => {
+  const all = CATALOGUE.ancestries.map((a) => a.description).join(" ");
+  for (const planet of ["Akiton", "Castrovel", "Eox", "Bretheda", "Triaxus", "Liavara"]) {
+    assert.match(all, new RegExp("\\b" + planet), planet + " should still be named where SF2E names it");
+  }
+});

@@ -4,7 +4,7 @@
 yet (confirmed by a live audit of `module/blank-inheritance/scripts/`: zero code, despite
 `design/induction.md` §4 and GitHub issues #96/#45 tracking the concept). This document is the
 missing technical layer: what the form actually asks, in what order, and how it becomes a real
-Foundry Actor.*
+Foundry Actor.* *(Since built: all nine pages by 2026-09-10, with Pages 7 and 8 rebuilt 2026-09-18; see §8.)*
 
 ---
 
@@ -29,20 +29,33 @@ it. See §5 below — this was flagged as the design's hardest open problem in a
 document, and it's resolved now, not by solving it, but by correctly deciding it isn't this form's
 job.
 
-**The eight real questions (`blank-inheritance-v4.md` §20) — do not invent new ones:**
+**The eight questions (`blank-inheritance-v4.md` §20) — SUPERSEDED 2026-09-18. Read
+[induction-intake-audit.md](induction-intake-audit.md) §6 before touching Page 7 or 8.**
 
-1. Who do you love, and what would you never tell them?
-2. What are you good at that has nothing to do with piloting? *(→ ground-role affinity, likely a side plot)*
-3. What did you want to be, before the draft notice?
-4. Who in this city owes you something? Who do you owe?
-5. What is the smallest thing that would make today a good day? *(the campaign's cheapest, most reliable emotional lever)*
-6. What do you not want the Directorate to know about you?
-7. Name someone who thinks you are better than you are.
-8. What do you find funny? *(tells the GM what register that player wants)*
+This section used to read "do not invent new ones" and list bible §20's eight questions as the fixed
+content of Page 8. **That instruction is retired, on Ingram's direct call**, after an audit found
+that the form was asking fifteen separate free-text questions across twelve subjects, that none of
+what it collected reached the real sf2e character sheet, and that the single large catch-all box from
+the original accepted idea had never been built. The eight questions are still the ancestor of what
+is there now, and none of their material was thrown away — it was compressed:
 
-Every answer becomes an Anchor, a side-plot seed, or a vulnerability — this is not flavor text, it's
-campaign-shaping input for future session generation (`ideas/entries/character-creation-intake-form.json`,
-accepted).
+| Bible §20's question | Where it is now |
+|---|---|
+| 1. Who do you love, and what would you never tell them? | Open question 1 (allies), combined |
+| 4. Who in this city owes you something? Who do you owe? | Open questions 1 and 2 (allies/enemies), combined |
+| 7. Name someone who thinks you are better than you are. | Open question 1 (allies), combined |
+| 3. What did you want to be, before the draft notice? | Open question 3 (organizations), rephrased — the old wording contradicted the settled volunteers-not-conscripts premise |
+| 6. What do you not want the Directorate to know about you? | Open question 4, near-verbatim |
+| 2. What are you good at that has nothing to do with piloting? | Page 7's Personality block, as a one-liner |
+| 5. What is the smallest thing that would make today a good day? | Page 7's Personality block → sf2e's own `Likes` field |
+| 8. What do you find funny? | **Cut**, on Ingram's call — its register-request job is done better by the new out-of-character question |
+
+Every answer still becomes a side-plot seed or a vulnerability — this is not flavor text,
+it's campaign-shaping input for future episode generation
+(`ideas/entries/character-creation-intake-form.json`, accepted). **New since 2026-09-18: every answer
+also lands on a real sf2e biography field**, declared per-prompt as a `bioPath` in
+`data/campaign/induction-intake-prompts.json` and applied by `core/induction-bio.mjs`. Nothing this
+form collects is allowed to go unrecorded.
 
 **The help toggle (`induction.md` §4), refined 2026-09-09:** every question has an in-character layer
 and an out-of-character layer. The OOC layer does two different jobs depending on what it sits next
@@ -58,9 +71,8 @@ is roleplay layered on by the player, except for one real new piece: the **passi
 Page 6) is an actual asset, not just narration.
 
 **Equipment is explicitly OUT of scope here.** Real SF2E chargen's Step 8 (Buy Equipment) is handled
-live, at the table, by Kit Issue (`data/scene-briefs/episode-c1s1--kit-issue.json`,
-`data/campaign/equipment-catalogue.json`) — decided 2026-09-09. Ground role selection is equally out
-of scope, for the same reason.
+live, at the table, by Kit Issue (`data/scene-briefs/episode-c1e1--kit-issue.json`,
+`data/campaign/equipment-catalogue.json`) — decided 2026-09-09.
 
 ---
 
@@ -85,7 +97,8 @@ pregen's authored ones.
 **Real option data source:** `gamesystems/sf2e/packs/ancestries`, `packs/backgrounds`, `packs/classes`
 (raw compendium packs — same LevelDB-via-live-Foundry-query technique already used this session for
 the equipment catalogue and the Giant Centipede). No flat extracted list exists yet; building one is
-implementation work, not part of this design pass.
+implementation work, not part of this design pass. *(Since built: `data/campaign/ancestry-catalogue.json`,
+`background-catalogue.json` and `class-catalogue.json`; see §8.)*
 
 **Real file-upload precedent already exists too** — see §4 Page 6.
 
@@ -123,15 +136,16 @@ login.
 
 | Page | What it does | Help-toggle content |
 |---|---|---|
-| **1. Orientation** | Not just flavor text anymore — a real explanation, before anything is asked: what this terminal is, what the player is about to do, roughly how long it takes, and what to have ready (a character concept, nothing more — this is explicitly stated so nobody logs in unprepared). The acceptance-letter beat (already in `data/scene-briefs/episode-c1s1--the-road-in.json`) opens it. | This page IS the OOC layer, by design — no toggle needed. |
+| **1. Orientation** | Not just flavor text anymore — a real explanation, before anything is asked: what this terminal is, what the player is about to do, roughly how long it takes, and what to have ready (a character concept, nothing more — this is explicitly stated so nobody logs in unprepared). The acceptance-letter beat (already in `data/scene-briefs/episode-c1e1--the-road-in.json`) opens it. **Since the 2026-09-25 UI pass it also offers back a form in progress** (name, what they are, where they stopped, when) with Continue This Form / Start Again — offered, never silently resumed; see §8. | This page IS the OOC layer, by design — no toggle needed. |
+| **1b. Service Agreement (FORM 1-B)** — **built, off by default** | The absurdly long agreement, shown once, second, only while the world setting `inductionAgreementEnabled` is on (off until Ingram grades the text). Its own design: [induction-agreement.md](induction-agreement.md). Keyed `"agreement"`, not renumbered into the nine: the tracker's numbers are display positions (`core/induction-flow.mjs`), so page ids never moved. Never a tracker link — seen once, at signing. | N/A. |
 | **2. Ancestry** — **built** | Real ancestry (mechanical), all 51, grouped Terrestrial-Presenting/Alien-Coded with a live name filter (2026-09-09 decision: "full catalogue, grouped/searchable" over a curated shortlist). Boost/flaw choice slots resolved against the real compendium data (`data/campaign/ancestry-catalogue.json`); heritage and ancestry feat are **not** picked here — see §5, extended. **Selecting non-terrestrial flips a hidden flag and queues the lockdown sub-flow (Page 6a, not yet built — Page 2 itself only shows a short, reassuring note in the same spot).** | OOC: what this changes (boosts/flaw, HP, size, speed) — mechanical register, plus an explicit statement that an ancestry feat comes next, on the real character sheet, same as class feats. |
 | **3. Background** — **built** | Real background (mechanical), all 154, grouped Common/Uncommon/Rare with a live name filter — the axis that actually matters at this scale, same "full catalogue, grouped/searchable" decision as Page 2. Boost slots resolved against the real compendium data (`data/campaign/background-catalogue.json`); trained skills, Lore skill(s) and the granted background feat are shown read-only, **not** picked here — some real backgrounds phrase their skill grant as a genuine prose choice the flat data can't represent, and the feat itself is deferred to the real character sheet, same reasoning as ancestry feat/heritage. | OOC: mechanical (two boosts, one or two trained skills, a skill feat) — plus the same "a skill feat comes next, on the real character sheet" statement Page 2 makes for ancestry feat. |
 | **4. Class** — **built** | Real class — the pick only, all 6 (`data/campaign/class-catalogue.json`, extracted live from `gamesystems/sf2e/packs/classes`). A flat list, not grouped/filtered — 6 items is the honest fit, unlike ancestry's 51 or background's 154. Key ability is one boost slot (core/boost-slots.mjs, shared with ancestry/background) — fixed for five classes, a real choice for Witchwarper (Charisma or Intelligence). Trained skills, weapon/armor proficiencies shown read-only; the free skill count ("plus N more of your choice") and class features/feats/spells are explicitly deferred (§1/§5). | OOC: mechanical (key ability, HP per level, saves, proficiencies) — plus a plain statement that feats/spells come next, on the real character sheet, not lost or skipped, and that Class DC starts Trained for every class at level 1. |
-| **5. Attribute Boosts** — **built** | Four free boosts, the fourth real consumer of the shared boost-slot machinery (core/boost-slots.mjs) — no catalogue, no picker/resolver two-state, just four identical fully-open slots shown directly. Ancestry/background/class boosts from Pages 2-4 are NOT re-shown here (each is already visible on its own page); the four free boosts must differ from each other, but may legally repeat an ability those earlier pages already boosted — a separate step, per Player Core's own "different ability at the same time" rule. | OOC: "this permanently raises one of six numbers that drive almost every roll you make" — the single most consequential page. |
-| **6. Portrait** — **built** | Upload via Foundry's real system, then crop client-side to the project's own established **2:3 ratio** (`design/theatre-of-the-mind-staging.md` — the same ratio every other staged portrait already uses, so a new character doesn't look inconsistent next to the cast that already exists). Genuinely optional — Continue is never gated on it, same treatment as every Page 7/8 field except Page 7's name, and Foundry's own default silhouette makes skipping it a real, unpenalized path. **Scoped down from the original plan, deliberately: the lockdown passing-portrait dual-collection (§4a) is NOT built this pass** — matches Page 2's own existing minimal treatment (a short reassuring note, not the full sub-flow) rather than the table's original "this page also collects the passing portrait" line. | OOC: why the crop matters (visual consistency across the roster), not a mechanical explanation. |
-| **7. Finishing Details** — **built** | Name (the only required field), pronouns, gender identity, a few light "banal" texture questions, appearance notes, languages. Every field pairs free text with a row of illustrative suggestion chips that insert into the same box on click — never a separate/binding choice. Languages are a real multi-value tag list (add/remove), suggested from the character's own ancestry plus a curated common-language list (Player Core pg. 97), with a free-text "Add" escape hatch. | Minimal — mostly self-explanatory. |
-| **8. The Eight Questions** — **built** | Bible §20's real quiz, verbatim, free-text answers, same suggestion-chip pattern as Page 7. Nothing is required — leaving every box blank and continuing is a real, supported path. | OOC: narrative-purpose register — what each answer is *for* in campaign terms, shown per-question where the bible states one explicitly. |
-| **9. Review & Confirm** — **built** | A read-only summary of every choice, NOT a computed sheet — resolved 2026-09-10, see the build-status paragraph below for why the original "full derived sheet via `derive.mjs`" plan turned out to be architecturally wrong. One Confirm button. On confirm: creates a real Actor, embeds the real ancestry/background/class compendium Items with the player's boost/key-ability selections pre-set, so sf2e's own derived-data engine computes AC/HP/skills/saves live, exactly like a real character sheet. Token placement and the landing page remain open (§7 item 1 — no lobby scene concept exists yet). | N/A. |
+| **5. Attribute Boosts** — **built** | Four free boosts, the fourth real consumer of the shared boost-slot machinery (core/boost-slots.mjs) — no catalogue, no picker/resolver two-state, shown as **one row of six toggles** since the 2026-09-25 UI pass (four identical open slots that must all differ are the same choice as "pick four different attributes"). **Each row now shows the running modifier and where it came from** (ancestry +1, ancestry flaw −1, background +1, class +1, chosen here +1 — `abilityTally`): the original "Pages 2-4's boosts are NOT re-shown here" meant the single most consequential page was made blind, with the player flipping back three pages to see where their numbers would land. Display only: the sheet's real numbers still come from sf2e on confirm. The four free boosts must differ from each other, but may legally repeat an ability those earlier pages already boosted — a separate step, per Player Core's own "different ability at the same time" rule. | OOC: "this permanently raises one of six numbers that drive almost every roll you make" — the single most consequential page. |
+| **6. Portrait** — **built** | Upload via Foundry's real system, then crop client-side to the project's own established **2:3 ratio** (`design/theatre-of-the-mind-staging.md` — the same ratio every other staged portrait already uses, so a new character doesn't look inconsistent next to the cast that already exists). A photo can also be **dropped onto the page**, and the crop box works from the keyboard (arrows move, + and − zoom) and the mouse wheel (2026-09-25). Genuinely optional — Continue is never gated on it, same treatment as every Page 7/8 field except Page 7's name, and Foundry's own default silhouette makes skipping it a real, unpenalized path. **Scoped down from the original plan, deliberately: the lockdown passing-portrait dual-collection (§4a) is NOT built this pass** — matches Page 2's own existing minimal treatment (a short reassuring note, not the full sub-flow) rather than the table's original "this page also collects the passing portrait" line. | OOC: why the crop matters (visual consistency across the roster), not a mechanical explanation. |
+| **7. Finishing Details** — **built, rebuilt 2026-09-18** | Short answers only, in four sections echoing sf2e's own Biography tab: **Personal particulars** (name — still the only required field — pronouns, gender identity, age, height, weight, where you're from), **Appearance**, **Languages**, and **Personality** (the smallest good day, a dislike, how you come across, a belief, what you're good at that isn't piloting). Every field pairs free text with a row of illustrative suggestion chips that insert into the same box on click — never a separate/binding choice. Languages are a real multi-value tag list (add/remove), suggested from the character's own ancestry plus a curated common-language list (Player Core pg. 97), with a free-text "Add" escape hatch. The three "banal" texture questions that used to live here were cut. | Per-field, where the prompt has a real purpose worth stating (age's no-upper-limit note, birthplace, the good-day lever, the competence question). |
+| **8. In Your Own Words** — **built, rebuilt 2026-09-18** | Five open questions (allies, enemies, what you were part of and why you left it, what you'd rather the Directorate didn't know, and an out-of-character question to the player about what they want to play), plus **one large catch-all box** — `character-creation-intake-form.json`'s original "write as much or as little as you want" prompt, finally built, writing to sf2e's own Backstory. Nothing is required — leaving every box blank and continuing is a real, supported path. The out-of-character question is visually tagged so nobody answers it in voice by mistake. | OOC: narrative-purpose register, per question — what each answer is *for* in campaign terms, and which of them the other players can see. |
+| **9. Review & Confirm** — **built** | A read-only summary of every choice, NOT a computed sheet. **Since 2026-09-25 it opens on the character as a whole** (photo, name, "Vesk Soldier · Smuggler", the six attribute modifiers — the same display-only tally as Page 5), and every section carries a **Change** that jumps straight back to the page that set it, with "Back to review" on every page once Review has been reached; sections left blank say so. NOT a computed sheet was resolved 2026-09-10, see the build-status paragraph below for why the original "full derived sheet via `derive.mjs`" plan turned out to be architecturally wrong. One Confirm button. On confirm: creates a real Actor, embeds the real ancestry/background/class compendium Items with the player's boost/key-ability selections pre-set, so sf2e's own derived-data engine computes AC/HP/skills/saves live, exactly like a real character sheet. Token placement and the landing page remain open (§7 item 1 — no lobby scene concept exists yet). | N/A. |
 
 ### 4a. The alien-lockdown sub-flow — expanded 2026-09-09
 
@@ -214,17 +228,26 @@ spells. Not a new decision, the same one applied to the next case it obviously c
    fixture") turned out not to be the right tool either — it deliberately writes only identity/level,
    by design, for the same reason `derive.mjs` doesn't apply (see point 3). Page 9's own
    `#createCharacterActor` creates the Actor directly instead; see its build-status paragraph below
-   for the full real recipe. **Token placement and the landing page remain unbuilt** — the player is
-   NOT currently routed anywhere after confirm beyond Page 9's own success message. **Which scene a
-   token would land on is still a real open question (§7)** — nothing currently defines a "lobby" or
-   "dorm" scene for this purpose, and building token placement without one would just be guessing.
+   for the full real recipe. **Corrected 2026-09-25, this line was stale:** it said token placement and the landing page
+   were unbuilt. They exist: `foundry/induction-relay.mjs` places the new Actor's token on the
+   landing scene (`foundry/landing-scene.mjs`'s `placeActorOnLandingScene`) as part of creating it,
+   which is what Page 9's "your token is already waiting on the landing scene" success line says.
+   §7 item 1 below predates that and should be read in the same light.
 5. **The eight questions' answers need to leave Foundry and reach this repo for the GM/Claude to
-   actually use them** — the whole point of goal 7 (context for future session generation). This is
+   actually use them** — the whole point of goal 7 (context for future episode generation). This is
    `ideas/entries/character-creation-intake-form.json`'s own named v1 scope: session-boundary
-   latency, write now, sync and read between sessions. The harvest/inbound sync mechanism this
-   depends on **does not exist yet** (GitHub issue #140's own audit — only a docstring). The
-   terminal can capture the answers into the Actor (flags, or a journal page) regardless; getting
-   them back to `data/` for actual use is a separate, currently-unbuilt dependency.
+   latency, write now, sync and read between sessions. **Corrected 2026-09-19, this line was
+   stale:** this used to say the harvest/inbound sync mechanism **does not exist yet** (GitHub issue
+   #140's own audit at the time — only a docstring), but that specific item on #140 (still open
+   overall as the Session 0/1 epic) was closed out 2026-09-16 (commit `53246f0`, "Session zero's
+   backstory answers no longer vanish into the void"): Page 9 now sets a durable
+   `blank-inheritance.intake` Actor flag and posts a GM-whispered chat message tagged
+   `harvestKind: "intake-answers"` (`#persistIntakeAnswers` in `induction-terminal.mjs`), which
+   `core/chat-export.mjs` carries into the harvest pipeline automatically and
+   `core/harvest-inference.mjs` trusts outright as high-confidence content, no inference needed. The
+   answers do now reach this repo, staged under `harvest/` once a GM runs
+   `sync-harvest.mjs`/`review-harvest.mjs`; promoting that staged content into canonical `data/`
+   files remains a deliberate human step by design (`harvest/README.md`), not an unbuilt dependency.
 
 ---
 
@@ -272,6 +295,17 @@ spells. Not a new decision, the same one applied to the next case it obviously c
 9. ~~Page 7's gender-identity suggestion list is a judgment call.~~ **Confirmed 2026-09-10:** "Two-Spirit"
    stays off `genderIdentityOptions` — Ingram agreed directly. The field is always free text too, so
    nothing was ever blocked; this only ever affected what's pre-populated as a suggestion.
+10. **The ancestry and background descriptions name SF2E's own setting — found 2026-09-25, GitHub
+   #203.** Pages 2-3 show the compendium's own text. **Ancestries: resolved the same day** (Ingram:
+   "Trim the ancestry text"). Seven descriptions were trimmed, by deletion only — Android, Gnome,
+   Human, Kasatha, Nuar, Osharu, Pahtra — removing the words that assume the Gap has happened, the
+   Pact Worlds exist, Golarion is lost (Human's "loss of their home world, Golarion") or the Drift
+   exists. Each keeps SF2E's original as `sourceDescription`, and `test/tier1-induction-ancestry.test.mjs`
+   fails if a later-era phrase comes back or a trim ever adds a word. The other twelve first counted only
+   name planets of Golarion's own solar system (Akiton, Castrovel, Eox, Bretheda…), which are this
+   campaign's setting (#34), so they stay. **Backgrounds: still open.** 53 of 154 are the same kind of
+   problem, but many are *named* after places (Absalom Local, Eoxian Local, Starfinder Hopeful), so
+   trimming their sentences can't fix them — they need hiding, renaming or rewriting instead. Ingram's call.
 
 ---
 
@@ -381,8 +415,7 @@ Page 2's former idiom exactly.
 
 `kid.schema.json` gained `pronouns`, `genderIdentity`, `appearance` (all optional/nullable strings) and
 `intake.banal[]`/`intake.questions[]` (raw Q&A, `{id, answer}` pairs) — deliberately **not** merged into
-`anchors`, which stays capped at 3 and a separate, later, collaborative concept; distilling an intake
-answer into a real Anchor stays a human decision, not something this terminal does automatically.
+`anchors` (the Anchors system was cut 2026-09-20).
 
 Covered by the generic tier0 architecture tests for the UI shell (templates/lang/CSS) plus dedicated
 pure-logic suites for both the ancestry choice resolution and the intake suggestion/language logic.
@@ -435,7 +468,7 @@ forged-pick check against this page's own claimed-ability set -- confirmed rejec
 `isLegalPick`'s regression test predicts for any of the four call sites, not just the one that
 originally surfaced it.
 
-Page 6 is not built — §4's table is still the plan.
+Page 6 was not built yet at this point; its own build paragraph is below.
 
 **Presentation pass, 2026-09-10** — a progress tracker and a page-transition animation, added across
 every built page at Ingram's direct request for "a nicely styled CSS form with bells and whistles."
@@ -592,6 +625,101 @@ the way through Page 9's Confirm into `Actor#img`, then opened the real sf2e cha
 the portrait actually renders there, correctly, alongside the correct AC/HP/saves — the first live proof
 that Page 6's output and Page 9's Actor-creation pipeline actually agree with each other, not just each
 verified in isolation. `npm run test:ui` 504/504.
+
+**Pages 7 and 8 rebuilt, 2026-09-18 — the compression pass, and the biography write-back.** Driven by
+[induction-intake-audit.md](induction-intake-audit.md), which found three things: the form asked
+fifteen free-text questions across twelve subjects; `#createCharacterActor` wrote `name`, `img` and
+`level` to the Actor and **nothing else**, so pronouns, gender identity, appearance and languages were
+collected and silently dropped; and the large catch-all box from the accepted idea had never been
+built. Open questions went from eleven to five (the three banal ones cut, the relational three
+combined, two survivors demoted to one-liners rather than cut), and a new pure module,
+`core/induction-bio.mjs`, maps everything the form collects onto real sf2e biography fields. The
+mapping is data-driven — every prompt in `induction-intake-prompts.json` declares its own `bioPath`,
+and a test fails if any prompt lacks one, so "we gathered it and dropped it" cannot recur quietly.
+Fifteen of sf2e's twenty-one biography fields are filled; the other six are deliberate and documented
+in the audit's §6e.
+
+Three implementation details worth not rediscovering: sf2e's six **rich-text** biography fields
+(`appearance`, `backstory`, `campaignNotes`, `allies`, `enemies`, `organizations` — its own
+`Actor.htmlFields` list) drop bare newlines, so answers are escaped and wrapped in real paragraph
+markup while the plain-string fields beside them must **not** be; `details.languages.value` holds
+slugs, so Page 7's display title-casing has to be reversed, and a hand-typed language sf2e doesn't
+know goes to `details.languages.details` rather than being dropped by the choice-validated field; and
+several prompts deliberately share one destination (`campaignNotes` carries three), so each
+contribution is written under its own `<h4>` heading, computed from the prompt definitions rather than
+from which answers happen to be filled.
+
+Verified live end to end on a real character (Vesk / Smuggler / Witchwarper, every field on every page
+filled, deliberately named as a test): all four Page 7 sections and both Page 8 groups render, the
+suggestion chips append rather than overwrite, the out-of-character tag shows, Page 9 summarises all
+fourteen short answers plus the five questions and the box, and Confirm produced an Actor whose real
+sf2e sheet shows every field in its right place — Appearance with Height/Weight, Backstory
+paragraph-broken correctly through ProseMirror, Birth Place, the full Personality block, and Campaign
+notes carrying three headed contributions with the out-of-character one labelled. Catchphrases, Edicts
+and Anathema are correctly empty. The mechanical half was re-checked against hand arithmetic and is
+unchanged: Str +1 / Dex +2 / Con +2 / Int +3 / Wis 0 / Cha +1, HP 20, AC 15, Class DC 16, Perception
++3, Smuggler's Stealth training and Piracy Lore both applied. `npm run test:ui` 992/992,
+`npm run test:fast` 447/447, and the new tier-3 contract test proves every path the terminal writes
+exists on sf2e's real character template.
+
+**UI/UX pass, 2026-09-25** — the whole terminal, page by page and as one flow (Ingram: "give the whole
+interface a pass, give the whole process a pass of improvement… focus on UI / UX"). What a player now
+sees and does:
+
+- **One fixed frame.** Header and tracker pinned at the top, the action bar pinned at the bottom, only
+  the body between them scrolls — Continue is never below the fold, and the card no longer jumps in
+  height from page to page. The whole terminal scales with the screen (`--bi-zoom`, 1 → 1.45 at a
+  2560×1440 CSS page), as a share of it rather than a pixel cap.
+- **A tracker you can use.** Every step's name is shown ("Step 5 of 9 · Attributes"); finished steps are
+  links, forward only over ground already covered and never past an unfinished page
+  (`core/induction-flow.mjs`); the agreement is never a link. Once Review has been reached, every
+  page offers **Back to review**.
+- **Continue shows you what's missing** — GitHub #162 item 4, Ingram's own pattern: "let the click
+  evaluate the form, then move the camera/scroll back up to the first missing field and point it out
+  there — not just block silently or show a generic error." Continue is never greyed out on a page the
+  player can finish. Clicked early, it scrolls to the first missing thing (the list, if nothing is
+  chosen; the first choice slot with no pick; the attribute rows; the Name field), marks it like a
+  highlighter stroke, writes the reason just above it ("One more choice to make.", "Your character
+  needs a name to continue.") and moves focus into it; any pick clears the mark. The same reason also
+  sits beside Continue as a quiet hint, updated live as the name is typed. Confirm, the one button that
+  touches the real world, still stays disabled until Review is complete.
+- **Pick and read side by side.** Ancestry, Background and Class keep the list on the left and the
+  chosen option's details on the right, each column scrolling on its own, so browsing is click-click-
+  click instead of pick → read → Change → pick. The old Change buttons (and their handlers) are gone.
+  Each ancestry chip carries a one-line hint (HP, size, speed); each class is a card with its first
+  sentence and its key ability, so a player new to SF2E can choose without opening all six.
+- **Attributes you can see** (Page 5, above): one row of six toggles with the running total and its
+  sources; a fifth pick is refused, "N of 4 chosen" counts.
+- **Portrait:** drop a photo onto the page; arrows/+/−/wheel work the crop. A real bug fixed: on a
+  zoomed screen a drag moved the photo 1.45× faster than the pointer, because pointer movement is in
+  screen pixels and the crop in the terminal's own — now divided by the effective zoom.
+- **Review opens on the character** (Page 9, above), with a Change on every section.
+- **A form in progress survives a reload.** Twenty to thirty minutes of choices used to exist only in
+  the open window; a reload, a crash or a stray close lost everything, and the characterless-player
+  auto-open then started again at Page 1. The form now saves as the player goes
+  (`core/induction-draft.mjs`: every choice kept, anything only true for a moment dropped, versioned,
+  laid over a blank form on the way back in so a field added later still has its default) to a
+  **client-scoped setting — the player's own browser, never the server**, so half-written answers are
+  never broadcast to anyone. Page 1 then **offers** it back: never silently resumed, which is exactly
+  what the 2026-09-09 reset in `mountInductionTerminal` was built to stop. Continue reopens where it
+  stopped, or on the first earlier step that isn't finished (a form saved before the agreement was
+  switched on reopens on the agreement); Start Again asks once before throwing it away. Cleared when
+  the character is created.
+- **Housekeeping.** The default state is defined once (`freshInductionState`) instead of twice by hand;
+  every page opens at its top with focus on its title; picking the same option twice no longer
+  re-renders.
+
+Verified in `tools/induction-terminal/preview.html` — the real module code, templates, styles and
+catalogues on a small Foundry shim (`foundry-shim.mjs`, served by `serve.py`, launch config
+"agreement-preview"), so the local Foundry world another user had open was never touched — at
+1280×800 and 2560×1440: a full click-through from Page 1 to an enabled Confirm with the agreement on
+(ten steps), save → reload → Continue / Start Again, Change → edit → Back to review, a dropped photo,
+keyboard pan and zoom, and a zoomed drag measured against the expected distance. **Not re-verified
+against a live Foundry world or the live server this pass**, and nothing has been pushed: the Confirm
+path itself is unchanged apart from clearing the saved form. Tests:
+`test/tier1-induction-flow.test.mjs` (step order, jump rules, saved forms),
+`test/tier1-induction-attributes.test.mjs` (toggle and tally), `test/tier3-induction-ui-wiring.test.mjs`
+(every button reaches a handler, the saved-form wiring, Review's Change targets, the zoomed drag).
 
 ---
 

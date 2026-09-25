@@ -2,9 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "induction-intake-prompts.schema.json",
   "title": "Induction Intake Prompts",
-  "description": "Suggestion-chip content for the induction terminal's Pages 7-8 (design/induction-terminal.md): gender-identity and pronoun suggestions, the banal texture questions, and bible §20's eight core questions verbatim. Every suggestion here is illustrative only, offered as a quick-start a player may click to insert into their own free-text answer -- never a real answer for any of the six actual kids (data/characters/kids/README.md). Singleton file: data/campaign/induction-intake-prompts.json.",
+  "description": "Prompt text and suggestion-chip content for the induction terminal's Pages 7-8 (design/induction-terminal.md, revised by design/induction-intake-audit.md §6 on 2026-09-18). Page 7 holds the Personal File short fields and the Personality one-liners; Page 8 holds the five open questions and the freeform box. Every prompt declares a `bioPath` -- the real sf2e Actor path its answer is written to on confirm -- so no answer this form collects is ever left unrecorded. Every suggestion is illustrative only, offered as a quick-start a player may click to insert into their own free-text answer, never a real answer for any of the six actual kids (data/characters/kids/README.md). Singleton file: data/campaign/induction-intake-prompts.json.",
   "type": "object",
-  "required": ["id", "type", "genderIdentityOptions", "pronounOptions", "appearanceOptions", "banalQuestions", "eightQuestions"],
+  "required": ["id", "type", "genderIdentityOptions", "pronounOptions", "appearanceOptions", "personalFile", "personality", "openQuestions", "freeform"],
   "properties": {
     "$schema": { "type": "string" },
     "id": { "const": "induction-intake-prompts" },
@@ -24,41 +24,58 @@
     },
     "appearanceOptions": {
       "type": "array",
-      "description": "Suggestion chips for Page 7's appearance-notes field -- generic texture, not a real description of any of the six actual kids. Same free-text-always-available rule as genderIdentityOptions.",
+      "description": "Suggestion chips for Page 7's appearance-notes field -- generic texture, not a real description of any of the six actual kids.",
       "items": { "type": "string" },
       "minItems": 1
     },
-    "banalQuestions": {
+    "personalFile": {
       "type": "array",
-      "description": "Light texture questions, deliberately distinct in register from the Eight Questions below -- adding one is a pure data edit, no code change.",
+      "description": "Page 7's short factual fields (age, height, weight, birthplace). One line each, never an essay prompt -- the deliberate answer to filling sf2e's biography fields without adding open questions (audit §6c).",
       "minItems": 1,
       "items": { "$ref": "#/$defs/promptQuestion" }
     },
-    "eightQuestions": {
+    "personality": {
       "type": "array",
-      "description": "ideas/story/blank-inheritance-v4.md §20's real intake quiz, verbatim -- DO NOT alter the `text` field's wording. Every answer becomes an Anchor, a side-plot seed, or a vulnerability (design/induction-terminal.md §1).",
-      "minItems": 8,
-      "maxItems": 8,
+      "description": "Page 7's Personality one-liners, mapping onto sf2e's own Personality block (likes/dislikes/attitude/beliefs). Carries two survivors of the 2026-09-18 compression: `likes` is bible §20's old Q5 (the smallest good day) and `good-at` is its old Q2, both demoted from open questions to single lines rather than cut.",
+      "minItems": 1,
       "items": { "$ref": "#/$defs/promptQuestion" }
+    },
+    "openQuestions": {
+      "type": "array",
+      "description": "Page 8's open questions -- deliberately capped small. Eleven open questions (three banal + bible §20's eight) were compressed to five here on 2026-09-18; raising this count back up is a design decision, not a content edit, and should go through design/induction-intake-audit.md first.",
+      "minItems": 1,
+      "maxItems": 6,
+      "items": { "$ref": "#/$defs/promptQuestion" }
+    },
+    "freeform": {
+      "$ref": "#/$defs/promptQuestion",
+      "description": "The single large catch-all box -- ideas/entries/character-creation-intake-form.json's original 'write as much or as little as you want' prompt, finally built. Writes to sf2e's own Backstory field."
     }
   },
   "$defs": {
     "promptQuestion": {
       "type": "object",
-      "required": ["id", "text", "suggestions"],
+      "required": ["id", "text", "bioPath", "suggestions"],
       "properties": {
-        "id": { "type": "string" },
-        "number": { "type": "integer", "minimum": 1, "description": "Eight Questions only -- display order 1-8, matching bible §20's own numbering." },
-        "text": { "type": "string", "description": "The question itself, verbatim where it has a canonical bible source." },
+        "id": { "type": "string", "description": "Kebab-case; also the state key and the DOM element id suffix." },
+        "number": { "type": "integer", "minimum": 1, "description": "Open questions only -- display order." },
+        "text": { "type": "string", "description": "The prompt itself, as the player reads it." },
+        "bioPath": {
+          "type": ["string", "null"],
+          "description": "The real sf2e Actor path this answer is written to on confirm (e.g. system.details.biography.likes), verified against gamesystems/sf2e/template.json. Several prompts MAY share one path -- core/induction-bio.mjs joins them into one headed block, which is how campaignNotes carries more than one answer. Null means deliberately intake-only, which should be rare and justified."
+        },
+        "outOfCharacter": {
+          "type": "boolean",
+          "description": "True for a prompt addressed to the PLAYER rather than the character. Affects how the answer is headed on the sheet and how the form frames it."
+        },
         "purposeNote": {
           "type": ["string", "null"],
-          "description": "OOC framing for what this answer is used for, populated only where the bible states one explicitly (§20's own parenthetical notes) -- null elsewhere, never invented to make every entry look equally annotated."
+          "description": "OOC framing for what this answer is used for, shown behind the per-question help toggle. Null where the prompt genuinely needs no explanation -- never invented to make every entry look equally annotated."
         },
         "suggestions": {
           "type": "array",
           "items": { "type": "string" },
-          "minItems": 1,
-          "description": "Illustrative answer chips. Clicking one inserts it into the free-text field; never binding, a player's own words always win."
+          "description": "Illustrative answer chips. Clicking one inserts it into the free-text field; never binding, a player's own words always win. Deliberately empty for the freeform box, which is the player's alone."
         }
       }
     }

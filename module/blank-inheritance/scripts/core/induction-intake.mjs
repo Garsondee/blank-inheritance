@@ -1,12 +1,16 @@
 /**
  * Pure logic for the induction terminal's Pages 7-8 (design/induction-terminal.md
- * §4): the suggestion-chip + free-text pattern shared by every RP-response
- * field (pronouns, gender identity, appearance, the banal texture questions,
- * and bible §20's eight core questions), plus the separate multi-value
+ * §4, revised by design/induction-intake-audit.md §6): the suggestion-chip +
+ * free-text pattern shared by every RP-response field (pronouns, gender
+ * identity, appearance, the Personal File and Personality one-liners, the
+ * five open questions and the freeform box), plus the separate multi-value
  * language tag list. No new chargen math here -- Page 7's languages map
  * straight onto tools/character-builder/derive.mjs's existing input shape
  * with zero transformation; everything else is narrative record-keeping,
  * never mechanical.
+ *
+ * Where the answers actually LAND on the character sheet is
+ * core/induction-bio.mjs's job, not this module's.
  *
  * Suggestion content itself is illustrative only, never a real answer for
  * any of the six actual kids -- see data/campaign/induction-intake-prompts.json's
@@ -88,11 +92,14 @@ export function buildLanguageSuggestions(ancestryLanguages, curated, current) {
  * for free -- no second export mechanism needed).
  *
  * Unanswered questions (blank/whitespace-only) are skipped rather than
- * printed as "(no answer)" -- a player who skips six of eight is not lying
+ * printed as "(no answer)" -- a player who skips four of five is not lying
  * about having answered them, and the doc comment on Page 8 itself already
  * treats a skipped question as a legitimate choice, not an error.
+ *
+ * Ordered most-useful-first for a GM reading the whisper: the open questions
+ * and the freeform box before the one-line texture fields.
  */
-export function summarizeIntakeAnswers({ prompts, questions = {}, banalAnswers = {} } = {}) {
+export function summarizeIntakeAnswers({ prompts, questions = {}, freeform = "", personalFile = {}, personality = {} } = {}) {
   const section = (title, list, answers) => {
     const lines = (list ?? [])
       .map((q) => ({ text: q.text, answer: (answers?.[q.id] ?? "").trim() }))
@@ -102,9 +109,12 @@ export function summarizeIntakeAnswers({ prompts, questions = {}, banalAnswers =
     return `${title}\n${lines.join("\n\n")}`;
   };
 
+  const freeformText = (freeform ?? "").trim();
   const sections = [
-    section("The Eight Questions", prompts?.eightQuestions, questions),
-    section("Settling In", prompts?.banalQuestions, banalAnswers)
+    section("In Their Own Words", prompts?.openQuestions, questions),
+    freeformText && prompts?.freeform ? `Anything Else\nQ: ${prompts.freeform.text}\nA: ${freeformText}` : null,
+    section("Personality", prompts?.personality, personality),
+    section("Personal File", prompts?.personalFile, personalFile)
   ].filter(Boolean);
 
   return { text: sections.join("\n\n"), hasContent: sections.length > 0 };

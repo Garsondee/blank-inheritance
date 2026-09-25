@@ -2,7 +2,7 @@
   "$schema": "../schema/ancestry-catalogue.schema.json",
   "id": "ancestry-catalogue",
   "type": "ancestry-catalogue",
-  "description": "The real, complete SF2E ancestry catalogue (51 entries), extracted live from gamesystems/sf2e/packs/ancestries for the induction terminal's Page 2 (design/induction-terminal.md). Boosts/flaws are Player Core's own choice slots -- a single-ability array is a fixed boost/flaw, a multi-ability array is a free choice the player resolves; core/induction/ancestry.mjs resolves a player's picks against these into the flat ability lists tools/character-builder/derive.mjs consumes. `terrestrial` is this project's own tag (not an SF2E field, see project_induction_and_newcomers memory / design/induction.md §2): can this species itself BE the 'presents as human/elf/halfling or similar' disguise, i.e. does picking it as a REAL ancestry skip the induction terminal's alien-lockdown sub-flow (Page 6a). Currently true only for the five classic ancestries (Human, Elf, Dwarf, Gnome, Halfling); Orc and Goblin are the nearest borderline case (Earth-folklore-adjacent, but SF2E writes them as their own starfaring species with no stated tie to Golarion-fantasy monsterfolk) and were left non-terrestrial -- this is a plain boolean in a data file, trivial to correct if that boundary is wrong. Heritage and ancestry-feat selection are deliberately NOT part of this catalogue or Page 2 -- deferred to the real post-induction character sheet, same reasoning as class feats/spells (design doc §5): both are real menu picks that grant their own rule text, not numbers derive.mjs needs. Singleton file: data/campaign/ancestry-catalogue.json.",
+  "description": "The real, complete SF2E ancestry catalogue (51 entries), extracted live from gamesystems/sf2e/packs/ancestries for the induction terminal's Page 2 (design/induction-terminal.md). Descriptions are SF2E's own text, except seven trimmed for this campaign's era (GitHub #203, Ingram 2026-09-25): the words assuming the Gap has happened, the Pact Worlds exist, Golarion is lost or the Drift exists were deleted -- nothing was added -- and each of those seven keeps SF2E's original as sourceDescription. Planets of Golarion's own solar system (Akiton, Castrovel, Eox, Bretheda and so on) stay: the campaign is set on Golarion (#34). Boosts/flaws are Player Core's own choice slots -- a single-ability array is a fixed boost/flaw, a multi-ability array is a free choice the player resolves; core/induction/ancestry.mjs resolves a player's picks against these into the flat ability lists tools/character-builder/derive.mjs consumes. `terrestrial` is this project's own tag (not an SF2E field, see project_induction_and_newcomers memory / design/induction.md §2): can this species itself BE the 'presents as human/elf/halfling or similar' disguise, i.e. does picking it as a REAL ancestry skip the induction terminal's alien-lockdown sub-flow (Page 6a). Currently true only for the five classic ancestries (Human, Elf, Dwarf, Gnome, Halfling); Orc and Goblin are the nearest borderline case (Earth-folklore-adjacent, but SF2E writes them as their own starfaring species with no stated tie to Golarion-fantasy monsterfolk) and were left non-terrestrial -- this is a plain boolean in a data file, trivial to correct if that boundary is wrong. Heritage and ancestry-feat selection are deliberately NOT part of this catalogue or Page 2 -- deferred to the real post-induction character sheet, same reasoning as class feats/spells (design doc §5): both are real menu picks that grant their own rule text, not numbers derive.mjs needs. Singleton file: data/campaign/ancestry-catalogue.json.",
   "ancestries": [
     {
       "id": "android",
@@ -41,7 +41,8 @@
       ],
       "rarity": "common",
       "vision": "low-light-vision",
-      "description": "Androids first emerged as synthetic beings crafted by many technologically advanced civilizations throughout the galaxy. The first androids were created by humanoid peoples in their own images, but after the technology that animated the living constructs spread, androids began displaying a fantastic diversity of forms. Androids in the Pact Worlds were originally designed as servants, but today androids and other robotic beings stand as equals to organic ancestries under the Pact. Some androids have formed their own independent communities, while most integrate seamlessly into Pact Worlds societies. Unlike many other technological constructs, androids are more than intricate synthetic organs and complex programming, and each possesses their own soul.",
+      "description": "Androids first emerged as synthetic beings crafted by many technologically advanced civilizations throughout the galaxy. The first androids were created by humanoid peoples in their own images, but after the technology that animated the living constructs spread, androids began displaying a fantastic diversity of forms. Some androids have formed their own independent communities. Unlike many other technological constructs, androids are more than intricate synthetic organs and complex programming, and each possesses their own soul.",
+      "sourceDescription": "Androids first emerged as synthetic beings crafted by many technologically advanced civilizations throughout the galaxy. The first androids were created by humanoid peoples in their own images, but after the technology that animated the living constructs spread, androids began displaying a fantastic diversity of forms. Androids in the Pact Worlds were originally designed as servants, but today androids and other robotic beings stand as equals to organic ancestries under the Pact. Some androids have formed their own independent communities, while most integrate seamlessly into Pact Worlds societies. Unlike many other technological constructs, androids are more than intricate synthetic organs and complex programming, and each possesses their own soul.",
       "terrestrial": false
     },
     {
@@ -699,7 +700,8 @@
       ],
       "rarity": "common",
       "vision": "low-light-vision",
-      "description": "Gnomes are a small and hardy species with pre-Gap ancestry that can trace their origins back to wanderers from the First World.",
+      "description": "Gnomes are a small and hardy species that can trace their origins back to wanderers from the First World.",
+      "sourceDescription": "Gnomes are a small and hardy species with pre-Gap ancestry that can trace their origins back to wanderers from the First World.",
       "terrestrial": true
     },
     {
@@ -819,7 +821,8 @@
       ],
       "rarity": "common",
       "vision": "normal",
-      "description": "Humans are known for their ability to adapt and thrive in the most challenging situations, including the mysterious loss of their home world, Golarion. Ambitious, creative, and endlessly curious, humans maintain a robust presence in the galaxy, often taking on positions of leadership or acting at the forefront of exploration. Humans can be found almost anywhere, doing almost anything.",
+      "description": "Humans are known for their ability to adapt and thrive in the most challenging situations. Ambitious, creative, and endlessly curious, humans maintain a robust presence in the galaxy, often taking on positions of leadership or acting at the forefront of exploration. Humans can be found almost anywhere, doing almost anything.",
+      "sourceDescription": "Humans are known for their ability to adapt and thrive in the most challenging situations, including the mysterious loss of their home world, Golarion. Ambitious, creative, and endlessly curious, humans maintain a robust presence in the galaxy, often taking on positions of leadership or acting at the forefront of exploration. Humans can be found almost anywhere, doing almost anything.",
       "terrestrial": true
     },
     {
@@ -1026,7 +1029,8 @@
       ],
       "rarity": "common",
       "vision": "normal",
-      "description": "Steeped in the ancient traditions of a distant home world orbiting a dying star, kasathas are four-armed humanoids who arrived in the Pact Worlds aboard a massive worldship named Idari. Striving for cosmic balance in all things, kasathas take pride in tempering their technological advances with the wisdom of their ancestors.",
+      "description": "Steeped in the ancient traditions of a distant home world orbiting a dying star, kasathas are four-armed humanoids. Striving for cosmic balance in all things, kasathas take pride in tempering their technological advances with the wisdom of their ancestors.",
+      "sourceDescription": "Steeped in the ancient traditions of a distant home world orbiting a dying star, kasathas are four-armed humanoids who arrived in the Pact Worlds aboard a massive worldship named Idari. Striving for cosmic balance in all things, kasathas take pride in tempering their technological advances with the wisdom of their ancestors.",
       "terrestrial": false
     },
     {
@@ -1354,7 +1358,8 @@
       ],
       "rarity": "uncommon",
       "vision": "darkvision",
-      "description": "A distant, smaller cousin of minotaurs, nuars have a calm nature that belies their tall frame. With their home and history lost to the vacuum of the Gap, nuars find company in other cultures while creating their own as they go. Adept at solving problems and mysteries, a nuar is always an asset wherever they are.",
+      "description": "A distant, smaller cousin of minotaurs, nuars have a calm nature that belies their tall frame. Nuars find company in other cultures while creating their own as they go. Adept at solving problems and mysteries, a nuar is always an asset wherever they are.",
+      "sourceDescription": "A distant, smaller cousin of minotaurs, nuars have a calm nature that belies their tall frame. With their home and history lost to the vacuum of the Gap, nuars find company in other cultures while creating their own as they go. Adept at solving problems and mysteries, a nuar is always an asset wherever they are.",
       "terrestrial": false
     },
     {
@@ -1475,7 +1480,8 @@
       ],
       "rarity": "common",
       "vision": "darkvision",
-      "description": "Sluglike osharus inhabit the harsh planet of Pabaq. As religiously studious creatures, they're famous across the galaxy for their pious, intelligent, and inquisitive natures. They've built numerous prestigious university-cities across their home world, now launched to the galactic stage by the new Drift beacon in its system.",
+      "description": "Sluglike osharus inhabit the harsh planet of Pabaq. As religiously studious creatures, they're famous across the galaxy for their pious, intelligent, and inquisitive natures. They've built numerous prestigious university-cities across their home world.",
+      "sourceDescription": "Sluglike osharus inhabit the harsh planet of Pabaq. As religiously studious creatures, they're famous across the galaxy for their pious, intelligent, and inquisitive natures. They've built numerous prestigious university-cities across their home world, now launched to the galactic stage by the new Drift beacon in its system.",
       "terrestrial": false
     },
     {
@@ -1517,7 +1523,8 @@
       ],
       "rarity": "common",
       "vision": "darkvision",
-      "description": "Pahtras are a humanoid feline species from a nearby star system. They're highly competitive and known for their achievements in magic, music, and war. Their home world was recently freed from the Veskarium's occupation, and they've joined the Pact Worlds.",
+      "description": "Pahtras are a humanoid feline species from a nearby star system. They're highly competitive and known for their achievements in magic, music, and war.",
+      "sourceDescription": "Pahtras are a humanoid feline species from a nearby star system. They're highly competitive and known for their achievements in magic, music, and war. Their home world was recently freed from the Veskarium's occupation, and they've joined the Pact Worlds.",
       "terrestrial": false
     },
     {

@@ -27,6 +27,43 @@ export function isFreeBoostsComplete(freeBoostPicks) {
 }
 
 /**
+ * Page 5's one-row picker (UI pass, 2026-09-25): the four free boosts must all differ, so "pick four
+ * different attributes" is the same choice as four identical rows of six, shown as one row of six toggles.
+ * Clicking a picked attribute unpicks it; a fifth pick is refused. Returns a new array, compact and in
+ * pick order -- resolveSlots only needs one entry per identical slot, not a particular order.
+ */
+export function toggleFreeBoost(freeBoostPicks, ability) {
+  const picks = (freeBoostPicks ?? []).filter(Boolean);
+  if (!ABILITIES.includes(ability)) return picks;
+  if (picks.includes(ability)) return picks.filter((a) => a !== ability);
+  return picks.length >= FREE_BOOST_SLOTS.length ? picks : [...picks, ability];
+}
+
+/**
+ * Where every attribute modifier ends up, and why: the running tally Page 5 and Review show, so the most
+ * consequential choice in the form isn't made blind. Level 1 arithmetic only: each boost +1, each flaw
+ * -1, from a base of 0 (Player Core's attribute modifiers). A level-1 character can't pass +4, and these
+ * sources can't either: ancestry, background, class and the free four each touch an attribute at most once.
+ *
+ * Takes already-resolved picks (null or missing entries are fine, for a half-made choice) and returns
+ * one row per attribute, in the standard order: { ability, mod, parts: [{ from, delta }] }.
+ * `from` is "ancestry" | "flaw" | "background" | "class" | "free".
+ */
+export function abilityTally({ ancestryBoosts = [], ancestryFlaws = [], backgroundBoosts = [], classKey = null, freeBoosts = [] } = {}) {
+  const sources = [
+    ["ancestry", ancestryBoosts, +1], ["flaw", ancestryFlaws, -1], ["background", backgroundBoosts, +1],
+    ["class", classKey ? [classKey] : [], +1], ["free", freeBoosts, +1]
+  ];
+  return ABILITIES.map((ability) => {
+    const parts = [];
+    for (const [from, list, delta] of sources) {
+      if ((list ?? []).includes(ability)) parts.push({ from, delta });
+    }
+    return { ability, mod: parts.reduce((sum, p) => sum + p.delta, 0), parts };
+  });
+}
+
+/**
  * The flat shape derive.mjs's deriveAbilityModifiers consumes (its
  * `freeBoosts` param). Throws on a missing pick, same discipline as every
  * other resolveXIngredients in this module family.

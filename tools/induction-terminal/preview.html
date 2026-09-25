@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Induction terminal preview</title>
+<!-- The REAL induction terminal (module code, templates, styles, catalogues) running on ./foundry-shim.mjs.
+     Serve the repo root (launch config "agreement-preview") and open /tools/induction-terminal/preview.html.
+     ?page=N (or ?page=agreement) opens straight on a page; ?agreement=0 turns the Service Agreement off;
+     ?fresh=1 forgets any saved form (they live in this browser's localStorage, as in Foundry). -->
+<link rel="stylesheet" href="/foundryvtt/Foundry%20Virtual%20Tabletop/resources/app/public/css/foundry2.css">
+<link rel="stylesheet" href="/module/blank-inheritance/styles/bi-fonts.css">
+<link rel="stylesheet" href="/module/blank-inheritance/styles/bi-tokens.css">
+<link rel="stylesheet" href="/module/blank-inheritance/styles/bi-components.css">
+<link rel="stylesheet" href="/module/blank-inheritance/styles/bi-agreement.css">
+<link rel="stylesheet" href="/module/blank-inheritance/styles/bi-foundry-bridge.css">
+<style>
+  body { background: #1d1f22 radial-gradient(circle at 30% 20%, #2c3035, #15171a 70%); min-height: 100vh; margin: 0; }
+  #interface { position: fixed; inset: 0; }
+</style>
+<script src="/foundryvtt/Foundry%20Virtual%20Tabletop/resources/app/node_modules/handlebars/dist/handlebars.min.js"></script>
+</head>
+<body class="vtt game system-sf2e theme-dark bi-theme">
+<div id="interface"></div>
+<script type="module">
+  import { installFoundryShim } from "./foundry-shim.mjs";
+  const params = new URLSearchParams(location.search);
+  if (params.get("fresh") === "1") localStorage.removeItem("blank-inheritance.inductionDrafts");
+  await installFoundryShim({ settings: { "blank-inheritance.inductionAgreementEnabled": params.get("agreement") !== "0" } });
+  const terminal = await import("/module/blank-inheritance/scripts/foundry/induction-terminal.mjs");
+  terminal.registerInductionSettings();
+  const app = terminal.openInductionTerminal();
+  window.__terminal = app;
+  const page = params.get("page");
+  if (page) { app.state.page = page === "agreement" ? "agreement" : Number(page); await app.render({}); }
+</script>
+</body>
+</html>

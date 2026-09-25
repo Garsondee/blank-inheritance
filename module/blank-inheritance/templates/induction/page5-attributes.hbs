@@ -15,34 +15,42 @@
 <section class="bi-induction">
     <div class="bi-doc bi-induction__page">
         <header class="bi-doc__head">
-            <h1 class="bi-doc__title">{{localize "BLANKINHERITANCE.Induction.Page5.Title"}}</h1>
+            <h1 class="bi-doc__title"><span class="bi-doc__title-jp">{{localize "BLANKINHERITANCE.Induction.OrgNameJP"}}</span>{{localize "BLANKINHERITANCE.Induction.Page5.Title"}}</h1>
             <div class="bi-doc__meta">
                 {{localize "BLANKINHERITANCE.Induction.Page5.FormNumber"}}
                 {{#if userName}}<br><b>{{userName}}</b>{{/if}}
             </div>
         </header>
 
-        <div class="bi-induction__tracker" role="list" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
-            {{#each trackerSteps}}
-            <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
-                  role="listitem" title="{{this.number}}. {{this.label}}">{{this.number}}</span>
-            {{/each}}
-        </div>
+        <nav class="bi-induction__tracker" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
+            <ol class="bi-induction__tracker-steps">
+                {{#each trackerSteps}}
+                <li>
+                    {{#if this.canJump}}
+                    <button type="button" class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} bi-induction__tracker-step--link"
+                            data-action="jumpToStep" data-step="{{this.id}}" title="{{this.number}}. {{this.label}}" aria-label="{{this.number}}. {{this.label}}">{{this.number}}</button>
+                    {{else}}
+                    <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
+                          title="{{this.number}}. {{this.label}}" {{#if this.isCurrent}}aria-current="step"{{/if}}>{{this.number}}</span>
+                    {{/if}}
+                </li>
+                {{/each}}
+            </ol>
+            <span class="bi-induction__tracker-label">{{trackerLabel}}</span>
+        </nav>
+        <div class="bi-induction__body" data-induction-body>
 
         <p>{{localize "BLANKINHERITANCE.Induction.Page5.Intro"}}</p>
 
-        <div class="bi-induction__slots">
-            {{#each freeBoostSlots}}
-            <div class="bi-induction__slot">
-                <span class="bi-induction__slot-hint">{{localize "BLANKINHERITANCE.Induction.Page2.ChooseOne"}}</span>
-                <div class="bi-induction__options">
-                    {{#each this.options}}
-                    <button type="button"
-                            class="bi-induction__option {{#if this.picked}}bi-induction__option--picked{{/if}} {{#if this.claimed}}bi-induction__option--claimed{{/if}}"
-                            data-action="pickFreeBoost" data-slot-index="{{this.slotIndex}}" data-ability="{{this.ability}}"
-                            aria-pressed="{{this.picked}}" {{#if this.claimed}}disabled{{/if}}>{{this.label}}</button>
-                    {{/each}}
-                </div>
+        <p class="bi-induction__tally-count" role="status">{{localize "BLANKINHERITANCE.Induction.Page5.Count" picked=freePickedCount}}</p>
+        <div class="bi-induction__tally" role="group" aria-label="{{localize 'BLANKINHERITANCE.Induction.Page5.TallyLabel'}}">
+            {{#each attributeRows}}
+            <div class="bi-induction__tally-row {{#if this.picked}}bi-induction__tally-row--picked{{/if}}">
+                <button type="button" class="bi-induction__option bi-induction__tally-toggle {{#if this.picked}}bi-induction__option--picked{{/if}}"
+                        data-action="toggleFreeBoost" data-ability="{{this.ability}}"
+                        aria-pressed="{{#if this.picked}}true{{else}}false{{/if}}" {{#if this.disabled}}disabled{{/if}}>{{this.label}}</button>
+                <span class="bi-induction__tally-mod {{#if this.isRaised}}bi-induction__tally-mod--up{{/if}} {{#if this.isLowered}}bi-induction__tally-mod--down{{/if}}">{{this.modLabel}}</span>
+                <span class="bi-induction__tally-parts">{{this.partsLabel}}</span>
             </div>
             {{/each}}
         </div>
@@ -52,9 +60,13 @@
             <p>{{localize "BLANKINHERITANCE.Induction.Page5.HelpBody"}}</p>
         </details>
 
+        </div>
+
         <div class="bi-induction__actions bi-induction__actions--split">
             <button type="button" class="bi-induction__back" data-action="backFromAttributes">{{localize "BLANKINHERITANCE.Induction.Page5.Back"}}</button>
-            <button type="button" class="bi-induction__begin" data-action="continueFromAttributes" {{#unless isComplete}}disabled{{/unless}}>
+            <span class="bi-induction__blocker" role="status" data-induction-blocker {{#unless blocker}}hidden{{/unless}}>{{blocker}}</span>
+            {{#if canReturnToReview}}<button type="button" class="bi-induction__back bi-induction__to-review" data-action="returnToReview">{{localize "BLANKINHERITANCE.Induction.ReturnToReview"}}</button>{{/if}}
+            <button type="button" class="bi-induction__begin" data-action="continueFromAttributes">
                 {{localize "BLANKINHERITANCE.Induction.Page5.Continue"}}
             </button>
         </div>

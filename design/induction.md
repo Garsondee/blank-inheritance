@@ -13,7 +13,7 @@ none of them are at home here. They arrive because they were summoned.
 This is a structural decision, not a flavour one. It solves the problem that a lore-rich setting
 always has: somebody has to explain it, and every explanation delivered to a character who should
 already know it reads as exposition. If the characters are new, the explanations are real — an
-induction officer explaining the berserk protocol is doing their job, not serving the audience.
+induction officer explaining the base's rules is doing their job, not serving the audience.
 
 **The rule that follows:** the players learn the setting at the speed the characters do, and never
 faster. If the party has not been told something, the GM has not told the table either.
@@ -36,7 +36,10 @@ clear. A small number come back with an unusual marker, and **those candidates a
 onto a different course, together.**
 
 **Only people carrying that marker can operate a Frame.** That is the entire reason the track
-exists, and nobody on it is told so.
+exists, and nobody on it is told so. *(Corrected 2026-09-24, LEDGER #32 and #34: this said any Frame. Gen 1
+clankers have no living core, and trained pilots drive them without the marker. The marker is what a **Gen 2**
+needs ("these mechs aren't usable by just anyone"), and that is why these six are streamed together ahead of the
+day Gen 2 is offered, at the end of Chapter 4.)*
 
 Where the marker comes from varies and does not need to be uniform:
 
@@ -84,6 +87,10 @@ Three things it interlocks with, none of which needed changing to accommodate it
 - **The Frames.** The pilot cavity is not a fixed shape somebody measured — it forms a seat for
   whoever links with it. A character in a borrowed shape climbing into a hollow moulded to their
   real one is a scene that writes itself, and it is available the first time they sit in a Frame.
+  *(2026-09-24, LEDGER #32: only Gen 2 has a seat that shapes itself. Gen 1 Frames are Golarion clankers with no
+  living core, so this scene waits for the first Gen 2, at the end of Chapter 4 at the earliest. How it meets the
+  player-owned reveal was decided in LEDGER #33: a disguised pilot can climb in and fly, and finds it uncomfortable
+  except in their true form. Nothing forces a reveal; it stays the player's (`open-questions.json#gen2-seat-and-disguise`).)*
 - **The mitflits** were mistaken for tools and became tools. A disguised player character is
   someone managing, every day, how they are seen. They are on the same axis.
 - **The Directorate's founding sin** is information suppression as a reflex. A party each keeping
@@ -183,8 +190,8 @@ Character creation, run in fiction, as a scene. The players sit at a Directorate
 in the induction questionnaire, and what comes out is a character sheet.
 
 This replaces nothing — bible §20's intake quiz already lists eight questions, each of which
-becomes an Anchor, a side plot seed, or a vulnerability. This is that quiz, given a diegetic
-housing and two features.
+becomes a side plot seed or a vulnerability. This is that quiz, given a diegetic housing and two
+features.
 
 ### The help toggle
 
@@ -226,134 +233,13 @@ Three rules about this, because it is the kind of joke that goes wrong easily:
 
 ## 5. Recruit to cadet, and the shape of levels 1–2
 
-**Levels 1→2 is Chapter One.** One thousand XP. The encounter ledger in
-`ideas/story/blank-inheritance-ch1-v2.md` already balances it — eight encounters at 680, with
-accomplishment awards carrying the remaining ~320. **Nothing below changes those numbers.** This is
-the same chapter, reorganised around the intake premise and the Clearance rungs, in five acts.
-
-**Do not count sessions.** Some scenes below are five minutes and one of them is a ninety-minute
-fight. Acts end when they end.
-
-### Act I — INTAKE · *Recruit → Cadet*
-
-The only act where things happen *to* them.
-
-1. **The acceptance.** Read before play. Polite, official, slightly warmer than it needs to be, and
-   unexplained. Each player says what they left to answer it.
-2. **Arriving.** Cliff-top red tile against the smokestack line, sail traders alongside coal cranes.
-   Several hundred other candidates, all doing the same thing they are. **First-look register,
-   confirmed 2026-09-10: a genuine, deliberate mix of school and military, neither dominant from the
-   very first image** — not a school that reveals its militarization gradually, and not a barracks with
-   incongruous classrooms underneath. Both registers carry equal weight in the very first description:
-   drill and uniformed presence in the same breath as quads and classroom windows.
-3. **The hall.** Forms, noise, a queue. *(A texture detail belongs here — not yet chosen; see
-   ideas/story/bible/species/mitflits.md before reaching for a mitflit one. A version of this step
-   used to plant a mitflit trap on the harbour wall, unremarked, "same as the rat traps" — cut
-   2026-09-09, see that file for why.)*
-4. **The screen.** A blood draw. Thirty seconds. No explanation, because none is thought necessary.
-5. **The sorting.** Names read from a list, groups formed, corridors pointed at. The six of them end
-   up in the same group. **This should feel completely unremarkable.**
-6. **The dormitory.** Six unfamiliar beds and somebody has already taken the good one. This is where
-   they stop being six players and start being a party.
-7. **The medical.** Shucks, privately, one at a time (§3). Every character gets a moment; every
-   disguised one gets the questions only a doctor would think to ask.
-8. **"Irregular."** Said flatly, six times, in six separate rooms.
-9. **The terminal.** The induction questionnaire, the help toggle, and the lockdown (§4).
-10. **Kit issue.** Nobu signs personally and is oddly generous with the allowance.
-11. **Ground role aptitude**, taught by doing. The five lenses, introduced as chores.
-12. **Hangar Four.** They see a Frame and do not get to touch it. Something under a tarp at the back
-    has a blank maintenance schedule.
-13. **Assembly.** An anthem with no composer credited. The berserk protocol recited sing-song by
-    people who learned it at fourteen, opening with a line about brothers that everyone hears as
-    metaphor. An exam timetable that will not be moved for anything.
-14. **They compare notes.** Everyone in this section came back irregular. *Moderate accomplishment,
-    30 XP* — and the first thing they work out without being told.
-15. **The flood tunnel.** ENCOUNTER 1. A nest of Giant Centipedes in the storm drains, tide due, poor
-    light, difficult terrain *(changed 2026-09-09 from an earlier mitflit-nest draft -- see
-    ideas/story/bible/species/mitflits.md; the moral-trap material this step used to carry moved to
-    Session Four's mitflit-in-a-trap beat instead)*. **A proper fight, because this is where the table
-    learns their characters doing the thing SF2E is best at.**
-16. **The debrief.** Paid by the head. Filed. Nobody will ever tell them they did anything wrong.
-17. **The boots don't fit.** Something has gone wrong that is nobody's fault and everybody's problem.
-18. **THE SIZING BOARD.** ENCOUNTER 2, run in initiative, chaired by Nobu. They argue for their own
-    kit in front of people who can say no. **→ CADETS.**
-
-### Act II — TRAINING · *Cadet*
-
-They touch a Frame for the first time, and it is funny.
-
-The quarry, Taka's briefing of things that have gone wrong in previous years, and **ENCOUNTER 3**:
-a progressive structural collapse with a weighted mannequin on the third floor and DO NOT CRUSH THE
-CIVILIAN painted on its chest. Six teenagers discover they command six-storey machines that can walk
-through a wall and cannot reliably lift a dummy. Somebody suggests a race; it happens; **a Frame
-moves more gently than its pilot ordered.** Make the table love Taka tonight — everything he is for
-later depends on it.
-
-*For a disguised character, the cavity is the scene.* It forms a seat for whoever links with it, and
-what it forms is not the shape they walk around in.
-
-### Act III — DUTY · *Cadet*
-
-Real work, and the first object that does not behave.
-
-Harbour patrol and flood barriers. **A mitflit caught in a wall trap, furious, refusing help it
-obviously needs** — the first one they talk to rather than kill, and the first personal mitflit
-content in the campaign (check ideas/story/bible/species/mitflits.md before running this — it
-matters that this reads as a specific, sympathetic rescue, not routine pest control). Lab
-inventory turns up bulk quantities of extremely dull reagents missing across three months.
-**ENCOUNTER 4**, the lab stakeout: four professionals through a window at two in the morning, there
-for the boring shelf, fighting to flee rather than to the death. **At least one can be taken alive.**
-
-And in the crate: **a lens that does nothing.** It works perfectly. There is simply nothing in that
-room to see. *(Manako trail — the best breadcrumb in the chapter.)*
-
-### Act IV — THE PATTERN · *Cadet*
-
-The city starts to have a shape.
-
-The stencil sweep, tedious and endless, and **sited with obvious deliberation** if anyone maps it.
-Escort duty at a public meeting where Satoru answers a hostile question straight, to visible
-institutional discomfort. **ENCOUNTER 5**, the tunnel run: couriers in the storm drains and a sluice
-gate on a municipal timer that only Structural Command can read — half the encounter is the water,
-and it teaches that the ground roles are not decoration one act before they need that badly. Then a
-dog that will not walk down one particular street, and an owner exasperated enough to explain at
-length.
-
-### Act V — FOUNDING DAY, AND THE ALARM · *→ Duty Section*
-
-**ENCOUNTER 6**: two centuries of an institution that has never been needed, celebrated in the
-harbour square. Ninety seconds of sky. A crowd of hundreds through gaps built for dozens, every
-ground role with a job, real damage on the table and nobody obliged to die. **No combat, on
-purpose** — the cultists do not run and do not fight, and the party are ordered to detain people who
-will not resist.
-
-Then statements taken kindly by people writing down something else. Oda's address: an aerosolised
-agent, a documented phenomenon, no cause for concern — **and he is not lying**, he has been told the
-same thing. **ENCOUNTER 7**, the reagent trail, the first thing the party does that nobody asked
-them to do, ending at professionals with no opinions about the sky and countersigned paperwork.
-
-And then the wrong alarm, and an institution finding out in real time that it has never rehearsed
-this. **ENCOUNTER 8**: one Frame launches, five ground roles live. The thing in the harbour fights a
-bronze statue with total sincerity for ninety seconds, and when the statue proves unresponsive it
-turns and fights the statue's reflection in the water. **Play it straight and let them laugh.**
-
-Then it moves an obstacle out of its way and a man is killed. One man, named later, in a list they
-will read.
-
-**→ DUTY SECTION.** Nobody had standing to give the order. They went anyway. The rung is a
-description of what they already did.
+*(Removed 2026-09-25: an older plan for levels 1–2, superseded by Episodes One and Two as built in data/episodes/.)*
 
 ## 6. The two-aspect rule
 
 **Every scene carries at least two things that matter.** Not one plant and some connective tissue —
 two, and they should be different in kind. A joke and a plant. A relationship and a piece of
 geography. A rules lesson and a thread breadcrumb.
-
-Checked against the arc above: the hall carries institutional texture *and* whatever replaces the
-cut mitflit-trap plant, still open. The dormitory carries party formation *and* whatever each
-player chose to bring from home. The
-flood tunnel carries a combat tutorial *and* the moral trap. Assembly carries worldbuilding *and*
-plant #8.
 
 A scene that carries one thing is a scene that should be half as long or merged with its neighbour.
 This is worth enforcing in the data eventually — a scene brief could declare what it carries, and a
@@ -363,18 +249,21 @@ lint could flag any scene declaring fewer than two.
 
 ## 7. Writing the Watcher
 
+*(Updated 2026-09-25: this section describes the Watcher's early stages, before it learns. Since LEDGER #31 it is
+the campaign's adversary and it changes over the campaign; the current treatment, with all four stages and its later
+voice, is `ideas/story/dossier-observer.md`.)*
+
 Ingram, 2026-09-09: *"it's a strange and curious mix of godlike and childlike intelligence."*
 
 That is not a contradiction, it is the exact shape: **godlike perception, childlike framework.** It
 counts every waking person in the harbour district and cannot stop. It fills the sky past the
-horizon in every direction. And it inferred its entire purpose from being shot once, it fights a
-bronze statue with total sincerity, it loses to a reflection, and it does not know what crying is.
+horizon in every direction. And it does not know what crying is.
 
 Enormous capability, no framework to hang it on. That is why it can be sympathetic and unsettling
-in the same sentence, and it is why the campaign's answer is *teaching* rather than *defeating*.
+in the same sentence.
 
 **Three rules when writing it:**
-- **Never malice.** Every Claimant is a good-faith attempt to be useful.
+- **Never malice.** It is never evil; it is an objective pursued without limit (`ideas/story/dossier-observer.md` §6).
 - **Scale in the perception, innocence in the conclusion.** It knows an impossible amount and draws
   a child's inference from it.
 - **It has Manako's personality, not its own.** Read its behaviour backwards and it is a portrait of
@@ -383,5 +272,5 @@ in the same sentence, and it is why the campaign's answer is *teaching* rather t
 ---
 
 *Related: `ideas/story/blank-inheritance-v4.md` §1 (the thesis and the image), §3 (the Frames and
-the cavity), §20 (the intake quiz); `ideas/story/blank-inheritance-ch1-v2.md` (sessions one and
-two); `design/strategy-layer.md` (Clearance and the Board); `ideas/entries/character-creation-intake-form.json`.*
+the cavity), §20 (the intake quiz); `ideas/story/blank-inheritance-ch1-v2.md` (Chapter One and
+Episode One); `design/strategy-layer.md` (Clearance and the Board); `ideas/entries/character-creation-intake-form.json`.*

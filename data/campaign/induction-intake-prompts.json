@@ -2,7 +2,7 @@
   "$schema": "../schema/induction-intake-prompts.schema.json",
   "id": "induction-intake-prompts",
   "type": "induction-intake-prompts",
-  "description": "Suggestion-chip content for the induction terminal's Page 7 (Finishing Details) and Page 8 (The Eight Questions). Every suggestion here is illustrative only -- a quick-start a player may click to insert into their own answer, never a real answer for any of the six actual kids. The Eight Questions' text is bible §20's real intake quiz, verbatim; do not alter the wording.",
+  "description": "Prompt text and suggestion-chip content for the induction terminal's Page 7 (Personal File + Personality) and Page 8 (In Your Own Words). Revised 2026-09-18 per design/induction-intake-audit.md §6: the three banal texture questions and bible §20's eight questions were replaced by a shorter set -- five open questions and a freeform box, down from eleven open questions -- with the surviving material folded into short one-line fields instead of being cut (old Q5 is now `likes`, old Q2 is now `good-at`). Every entry declares its own `bioPath`: the real sf2e Actor path its answer is written to, so nothing collected here is ever dropped on the floor (core/induction-bio.mjs consumes it). Every suggestion is illustrative only -- a quick-start a player may click to insert into their own answer, never a real answer for any of the six actual kids.",
   "genderIdentityOptions": [
     "Woman",
     "Man",
@@ -36,126 +36,176 @@
     "Dresses like someone twice their age.",
     "You'd know them by their laugh before you'd know their face."
   ],
-  "banalQuestions": [
+  "personalFile": [
     {
-      "id": "unpacking",
-      "text": "What's the first thing you unpack, and the last?",
-      "purposeNote": null,
-      "suggestions": [
-        "A photograph, first. Whatever's left, last.",
-        "Socks first — cold feet is a genuine tragedy.",
-        "Nothing's really unpacked. Still in the bag, just in case."
-      ]
+      "id": "age",
+      "text": "Age",
+      "bioPath": "system.details.age.value",
+      "purposeNote": "Volunteers have no upper age limit — only conscripts do. Older than the cadets around you is a real, supported choice.",
+      "suggestions": ["17", "19", "24", "31", "46"]
     },
     {
-      "id": "canteen-food",
-      "text": "What do you actually think of the canteen food?",
+      "id": "height",
+      "text": "Height",
+      "bioPath": "system.details.height.value",
       "purposeNote": null,
-      "suggestions": [
-        "Better than home, and I'll never admit that.",
-        "I've had worse. I've also had much better.",
-        "Ask again after exam week."
-      ]
+      "suggestions": ["1.55 m", "1.68 m", "1.81 m", "Short, and tired of hearing about it"]
     },
     {
-      "id": "first-name-learned",
-      "text": "Who's the first person here whose name you bothered to learn?",
+      "id": "weight",
+      "text": "Weight",
+      "bioPath": "system.details.weight.value",
       "purposeNote": null,
+      "suggestions": ["48 kg", "61 kg", "75 kg", "The kit office weighed me twice and got two answers"]
+    },
+    {
+      "id": "birth-place",
+      "text": "Where are you from?",
+      "bioPath": "system.details.biography.birthPlace",
+      "purposeNote": "Nobody here is from here. How far off is entirely yours to decide.",
       "suggestions": [
-        "Whoever was rude to me first — you remember rude.",
-        "Nobody yet. Give it a week.",
-        "The kid who couldn't reach the top bunk. Felt obligated."
+        "A fishing village four hours down the coast.",
+        "Two valleys over. You can see the smokestacks from the ridge.",
+        "A long way off. I'd rather not be specific.",
+        "Here, technically — but we left when I was small."
       ]
     }
   ],
-  "eightQuestions": [
+  "personality": [
     {
-      "id": "q1",
-      "number": 1,
-      "text": "Who do you love, and what would you never tell them?",
-      "purposeNote": null,
-      "suggestions": [
-        "My little sister. That I'm scared too.",
-        "A friend back home. That I only left because of them.",
-        "Someone in this building already. That I noticed on day one."
-      ]
-    },
-    {
-      "id": "q2",
-      "number": 2,
-      "text": "What are you good at that has nothing to do with piloting?",
-      "purposeNote": "This becomes your ground-role affinity, and probably a side plot.",
-      "suggestions": [
-        "Fixing things nobody else can figure out.",
-        "Making people laugh when they need it.",
-        "Cooking — really cooking, not just canteen trays."
-      ]
-    },
-    {
-      "id": "q3",
-      "number": 3,
-      "text": "What did you want to be, before the draft notice?",
-      "purposeNote": null,
-      "suggestions": [
-        "A teacher. Still might be, someday.",
-        "Whatever my parents were, and I never said otherwise.",
-        "Honestly? Nothing. I hadn't decided yet."
-      ]
-    },
-    {
-      "id": "q4",
-      "number": 4,
-      "text": "Who in this city owes you something? Who do you owe?",
-      "purposeNote": null,
-      "suggestions": [
-        "Nobody owes me anything. I owe someone everything.",
-        "A friend covered for me once. I haven't paid that back.",
-        "Nobody yet — I've only just arrived."
-      ]
-    },
-    {
-      "id": "q5",
-      "number": 5,
-      "text": "What is the smallest thing that would make today a good day?",
-      "purposeNote": "The campaign's cheapest, most reliable emotional lever — your GM will actually use this.",
+      "id": "likes",
+      "text": "The smallest thing that would make today a good day",
+      "bioPath": "system.details.biography.likes",
+      "purposeNote": "The cheapest, most reliable emotional lever in the campaign — your GM will actually use this.",
       "suggestions": [
         "A letter from home, any length.",
         "Getting through a whole drill without being singled out.",
-        "Someone laughing at something I said on purpose."
+        "Someone laughing at something I said on purpose.",
+        "Hot water. Actually hot, not lukewarm."
       ]
     },
     {
-      "id": "q6",
-      "number": 6,
-      "text": "What do you not want the Directorate to know about you?",
+      "id": "dislikes",
+      "text": "Something that reliably gets on your nerves",
+      "bioPath": "system.details.biography.dislikes",
       "purposeNote": null,
+      "suggestions": [
+        "People who talk through announcements.",
+        "Being told to calm down.",
+        "Wet boots.",
+        "Anyone who says \"it's procedure\" like that settles it."
+      ]
+    },
+    {
+      "id": "attitude",
+      "text": "How you come across when someone first meets you",
+      "bioPath": "system.details.biography.attitude",
+      "purposeNote": null,
+      "suggestions": [
+        "Polite, and hard to read.",
+        "Loud, then embarrassed about it.",
+        "Watchful.",
+        "Friendly with everyone, close to nobody yet."
+      ]
+    },
+    {
+      "id": "beliefs",
+      "text": "Something you believe, and would argue about",
+      "bioPath": "system.details.biography.beliefs",
+      "purposeNote": null,
+      "suggestions": [
+        "People are worth the trouble.",
+        "Rules are mostly for the people who wrote them.",
+        "If you can fix it, you should.",
+        "Nobody gets left in the water."
+      ]
+    },
+    {
+      "id": "good-at",
+      "text": "What are you good at that has nothing to do with piloting?",
+      "bioPath": "system.details.biography.campaignNotes",
+      "purposeNote": "Competence outside the headline job is worth writing down — this is the one that most often turns into a side plot.",
+      "suggestions": [
+        "Fixing things nobody else can figure out.",
+        "Making people laugh when they need it.",
+        "Cooking — really cooking, not just canteen trays.",
+        "Remembering names and faces. All of them."
+      ]
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "allies",
+      "number": 1,
+      "text": "Who's in your life? Friends, family, the people who would come if you called.",
+      "bioPath": "system.details.biography.allies",
+      "purposeNote": "Write whatever you like here, at whatever length. Every name you give us is somebody your GM can bring back.",
+      "suggestions": [
+        "My little sister. I write every week and she never writes back.",
+        "A friend back home who covered for me once and never brought it up again.",
+        "An old teacher who still thinks I'm going to be something.",
+        "Nobody yet. That's part of why I came."
+      ]
+    },
+    {
+      "id": "enemies",
+      "number": 2,
+      "text": "And who would rather not see you again? A debt, a grudge, something you left badly.",
+      "bioPath": "system.details.biography.enemies",
+      "purposeNote": "Also open — as much or as little as you want. \"Nobody\" is a real answer.",
+      "suggestions": [
+        "Someone I owe money to, who was decent about it, which is worse.",
+        "A brother I stopped speaking to. Neither of us can remember why.",
+        "Nobody's angry with me. I'd like to keep it that way.",
+        "A foreman who'll tell anyone who asks that I walked out mid-shift."
+      ]
+    },
+    {
+      "id": "organizations",
+      "number": 3,
+      "text": "What were you part of before this — a school, a trade, a crew, a family business — and why did you leave it to come here?",
+      "bioPath": "system.details.biography.organizations",
+      "purposeNote": "You volunteered. Several hundred people did. This is where you say what you gave up to do it.",
+      "suggestions": [
+        "My family's boatyard. Three generations, and I'm the one who left.",
+        "A school that quietly asked me to stop attending.",
+        "A dock crew. Good people, no future in it.",
+        "Nothing worth the name. That was the problem."
+      ]
+    },
+    {
+      "id": "directorate",
+      "number": 4,
+      "text": "What would you rather the Directorate didn't know about you?",
+      "bioPath": "system.details.biography.campaignNotes",
+      "purposeNote": "This one goes to your GM and stays there. It is not visible to the other players.",
       "suggestions": [
         "Where I actually come from.",
         "Why I really signed up.",
-        "Something I did before any of this."
+        "Something I did before any of this.",
+        "Nothing at all. That bothers me more than it should."
       ]
     },
     {
-      "id": "q7",
-      "number": 7,
-      "text": "Name someone who thinks you are better than you are.",
-      "purposeNote": null,
+      "id": "player-goal",
+      "number": 5,
+      "text": "A question for you, not your character: what do you want out of this? Is there something you have always wanted to do with a character and never got the chance to?",
+      "bioPath": "system.details.biography.campaignNotes",
+      "outOfCharacter": true,
+      "purposeNote": "Say it plainly. This is the single most useful thing you can tell your GM, and it is the one place in this form where you are not in character.",
       "suggestions": [
-        "My mother. She's wrong, but I let her be.",
-        "A teacher who wrote me a recommendation I didn't earn.",
-        "Someone I haven't spoken to in years."
-      ]
-    },
-    {
-      "id": "q8",
-      "number": 8,
-      "text": "What do you find funny?",
-      "purposeNote": "Tells your GM what register you want — funnier, darker, weirder. There's no wrong answer.",
-      "suggestions": [
-        "People who take the uniform more seriously than the job.",
-        "My own bad luck, eventually — just not yet.",
-        "Anything that goes wrong for someone in charge."
+        "I want to play someone genuinely, unfashionably kind.",
+        "I've always wanted to be the one who talks the enemy down instead of shooting it.",
+        "A character who's bad at the thing everyone expects them to be good at.",
+        "Honestly? I want to find out how far the machine can be pushed."
       ]
     }
-  ]
+  ],
+  "freeform": {
+    "id": "freeform",
+    "text": "Anything else. As much or as little as you like.",
+    "bioPath": "system.details.biography.backstory",
+    "purposeNote": "Nothing above has to have covered it. Write a paragraph, write a page, or leave it empty — all three are fine.",
+    "suggestions": []
+  }
 }

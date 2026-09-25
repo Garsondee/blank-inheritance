@@ -19,28 +19,39 @@
 <section class="bi-induction">
     <div class="bi-doc bi-induction__page">
         <header class="bi-doc__head">
-            <h1 class="bi-doc__title">{{localize "BLANKINHERITANCE.Induction.Page6.Title"}}</h1>
+            <h1 class="bi-doc__title"><span class="bi-doc__title-jp">{{localize "BLANKINHERITANCE.Induction.OrgNameJP"}}</span>{{localize "BLANKINHERITANCE.Induction.Page6.Title"}}</h1>
             <div class="bi-doc__meta">
                 {{localize "BLANKINHERITANCE.Induction.Page6.FormNumber"}}
                 {{#if userName}}<br><b>{{userName}}</b>{{/if}}
             </div>
         </header>
 
-        <div class="bi-induction__tracker" role="list" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
-            {{#each trackerSteps}}
-            <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
-                  role="listitem" title="{{this.number}}. {{this.label}}">{{this.number}}</span>
-            {{/each}}
-        </div>
+        <nav class="bi-induction__tracker" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
+            <ol class="bi-induction__tracker-steps">
+                {{#each trackerSteps}}
+                <li>
+                    {{#if this.canJump}}
+                    <button type="button" class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} bi-induction__tracker-step--link"
+                            data-action="jumpToStep" data-step="{{this.id}}" title="{{this.number}}. {{this.label}}" aria-label="{{this.number}}. {{this.label}}">{{this.number}}</button>
+                    {{else}}
+                    <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
+                          title="{{this.number}}. {{this.label}}" {{#if this.isCurrent}}aria-current="step"{{/if}}>{{this.number}}</span>
+                    {{/if}}
+                </li>
+                {{/each}}
+            </ol>
+            <span class="bi-induction__tracker-label">{{trackerLabel}}</span>
+        </nav>
+        <div class="bi-induction__body" data-induction-body>
 
         <p>{{localize "BLANKINHERITANCE.Induction.Page6.Intro"}}</p>
 
-        <div class="bi-portrait">
+        <div class="bi-portrait" data-portrait-drop>
             <input type="file" id="bi-portrait-file-input" accept="image/*" class="bi-portrait__file-input" data-portrait-file-input {{#if portraitUploading}}disabled{{/if}}>
 
             {{#if isCropping}}
             <div class="bi-portrait__crop">
-                <div class="bi-portrait__viewport" data-portrait-viewport>
+                <div class="bi-portrait__viewport" data-portrait-viewport tabindex="0" role="group" aria-label="{{localize 'BLANKINHERITANCE.Induction.Page6.ViewportLabel'}}">
                     <img src="{{cropImageUrl}}" alt="" data-portrait-crop-image
                          style="transform: translate({{cropOffsetXNeg}}px, {{cropOffsetYNeg}}px) scale({{cropScale}});">
                 </div>
@@ -49,6 +60,7 @@
                     <input type="range" id="bi-portrait-zoom" data-portrait-zoom
                            min="0" max="1" step="0.001" value="{{cropZoomSliderValue}}">
                 </div>
+                <p class="bi-portrait__hint">{{localize "BLANKINHERITANCE.Induction.Page6.CropHint"}}</p>
                 <div class="bi-portrait__crop-actions">
                     <button type="button" class="bi-induction__begin" data-action="confirmPortraitCrop" {{#if portraitUploading}}disabled{{/if}}>
                         {{localize "BLANKINHERITANCE.Induction.Page6.UseThisCrop"}}
@@ -71,6 +83,7 @@
             <label class="bi-portrait__chooser" for="bi-portrait-file-input">
                 <span class="bi-portrait__chooser-label">{{localize "BLANKINHERITANCE.Induction.Page6.NoPhotoLabel"}}</span>
                 <span class="bi-portrait__choose-button">{{localize "BLANKINHERITANCE.Induction.Page6.ChoosePhoto"}}</span>
+                <span class="bi-portrait__drop-hint">{{localize "BLANKINHERITANCE.Induction.Page6.DropHint"}}</span>
             </label>
             {{/if}}
 
@@ -82,8 +95,12 @@
             <p>{{localize "BLANKINHERITANCE.Induction.Page6.HelpBody"}}</p>
         </details>
 
+        </div>
+
         <div class="bi-induction__actions bi-induction__actions--split">
             <button type="button" class="bi-induction__back" data-action="backFromPortrait">{{localize "BLANKINHERITANCE.Induction.Page6.Back"}}</button>
+            <span class="bi-induction__blocker" role="status" data-induction-blocker {{#unless blocker}}hidden{{/unless}}>{{blocker}}</span>
+            {{#if canReturnToReview}}<button type="button" class="bi-induction__back bi-induction__to-review" data-action="returnToReview">{{localize "BLANKINHERITANCE.Induction.ReturnToReview"}}</button>{{/if}}
             <button type="button" class="bi-induction__begin" data-action="continueFromPortrait">
                 {{localize "BLANKINHERITANCE.Induction.Page6.Continue"}}
             </button>

@@ -1,31 +1,46 @@
 {{!--
     The induction terminal — Page 7, Finishing Details.
 
-    Name (the only required field), pronouns, gender identity, a few light
-    "banal" texture questions, appearance notes, and languages -- see
-    design/induction-terminal.md §4. Every RP-response field pairs a
-    free-text control with a row of illustrative suggestion chips (click one
-    to insert it into the same box) -- content lives in
-    data/campaign/induction-intake-prompts.json, never invented here.
+    Short answers only: name, pronouns, gender identity, the Personal File
+    one-liners (age/height/weight/where you're from), appearance, languages,
+    and the Personality one-liners -- see design/induction-intake-audit.md §6.
+    Every field on this page maps onto a REAL sf2e character-sheet field
+    (core/induction-bio.mjs owns that mapping), which is why the section
+    headings deliberately echo sf2e's own Biography tab.
+
+    Every field pairs a free-text control with a row of illustrative
+    suggestion chips (click one to insert it into the same box) -- content
+    lives in data/campaign/induction-intake-prompts.json, never invented here.
 
     PAPER register throughout, same .bi-doc vocabulary as Pages 1-2.
 --}}
 <section class="bi-induction">
     <div class="bi-doc bi-induction__page">
         <header class="bi-doc__head">
-            <h1 class="bi-doc__title">{{localize "BLANKINHERITANCE.Induction.Page7.Title"}}</h1>
+            <h1 class="bi-doc__title"><span class="bi-doc__title-jp">{{localize "BLANKINHERITANCE.Induction.OrgNameJP"}}</span>{{localize "BLANKINHERITANCE.Induction.Page7.Title"}}</h1>
             <div class="bi-doc__meta">
                 {{localize "BLANKINHERITANCE.Induction.Page7.FormNumber"}}
                 {{#if userName}}<br><b>{{userName}}</b>{{/if}}
             </div>
         </header>
 
-        <div class="bi-induction__tracker" role="list" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
-            {{#each trackerSteps}}
-            <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
-                  role="listitem" title="{{this.number}}. {{this.label}}">{{this.number}}</span>
-            {{/each}}
-        </div>
+        <nav class="bi-induction__tracker" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
+            <ol class="bi-induction__tracker-steps">
+                {{#each trackerSteps}}
+                <li>
+                    {{#if this.canJump}}
+                    <button type="button" class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} bi-induction__tracker-step--link"
+                            data-action="jumpToStep" data-step="{{this.id}}" title="{{this.number}}. {{this.label}}" aria-label="{{this.number}}. {{this.label}}">{{this.number}}</button>
+                    {{else}}
+                    <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
+                          title="{{this.number}}. {{this.label}}" {{#if this.isCurrent}}aria-current="step"{{/if}}>{{this.number}}</span>
+                    {{/if}}
+                </li>
+                {{/each}}
+            </ol>
+            <span class="bi-induction__tracker-label">{{trackerLabel}}</span>
+        </nav>
+        <div class="bi-induction__body" data-induction-body>
 
         <p>{{localize "BLANKINHERITANCE.Induction.Page7.Intro"}}</p>
 
@@ -36,6 +51,8 @@
         </div>
         {{else}}
 
+        <h2>{{localize "BLANKINHERITANCE.Induction.Page7.PersonalFileTitle"}}</h2>
+
         <div class="bi-prompt-field">
             <label class="bi-prompt-field__label" for="{{nameField.elementId}}">{{nameField.label}}</label>
             <input type="text" class="bi-prompt-field__control" id="{{nameField.elementId}}" name="{{nameField.elementId}}"
@@ -43,19 +60,39 @@
                    placeholder="{{localize 'BLANKINHERITANCE.Induction.Page7.NamePlaceholder'}}">
         </div>
 
-        {{#each promptFields}}
+        <div class="bi-prompt-grid">
+            {{#each identityFields}}
+            <div class="bi-prompt-field">
+                <label class="bi-prompt-field__label" for="{{this.elementId}}">{{this.label}}</label>
+                <input type="text" class="bi-prompt-field__control" id="{{this.elementId}}" name="{{this.elementId}}"
+                       data-prompt-field="{{this.statePath}}" value="{{this.value}}">
+                {{#if this.suggestions.length}}
+                <div class="bi-induction__options">
+                    {{#each this.suggestions}}
+                    <button type="button" class="bi-induction__option" data-prompt-suggestion
+                            data-prompt-target="{{this.targetElementId}}" data-suggestion-text="{{this.text}}"
+                            data-prompt-separator="{{this.separator}}">{{this.text}}</button>
+                    {{/each}}
+                </div>
+                {{/if}}
+                {{#if this.helpBody}}
+                <details class="bi-induction__help" data-sync="{{this.syncKey}}">
+                    <summary>{{localize "BLANKINHERITANCE.Induction.Page7.HelpSummary"}}</summary>
+                    <p>{{this.helpBody}}</p>
+                </details>
+                {{/if}}
+            </div>
+            {{/each}}
+        </div>
+
+        <h2>{{localize "BLANKINHERITANCE.Induction.Page7.AppearanceTitle"}}</h2>
         <div class="bi-prompt-field">
-            <label class="bi-prompt-field__label" for="{{this.elementId}}">{{this.label}}</label>
-            {{#if this.isTextarea}}
-            <textarea class="bi-prompt-field__control bi-prompt-field__control--textarea" id="{{this.elementId}}"
-                      name="{{this.elementId}}" data-prompt-field="{{this.statePath}}">{{this.value}}</textarea>
-            {{else}}
-            <input type="text" class="bi-prompt-field__control" id="{{this.elementId}}" name="{{this.elementId}}"
-                   data-prompt-field="{{this.statePath}}" value="{{this.value}}">
-            {{/if}}
-            {{#if this.suggestions.length}}
+            <label class="bi-prompt-field__label" for="{{appearanceField.elementId}}">{{appearanceField.label}}</label>
+            <textarea class="bi-prompt-field__control bi-prompt-field__control--textarea" id="{{appearanceField.elementId}}"
+                      name="{{appearanceField.elementId}}" data-prompt-field="{{appearanceField.statePath}}">{{appearanceField.value}}</textarea>
+            {{#if appearanceField.suggestions.length}}
             <div class="bi-induction__options">
-                {{#each this.suggestions}}
+                {{#each appearanceField.suggestions}}
                 <button type="button" class="bi-induction__option" data-prompt-suggestion
                         data-prompt-target="{{this.targetElementId}}" data-suggestion-text="{{this.text}}"
                         data-prompt-separator="{{this.separator}}">{{this.text}}</button>
@@ -63,8 +100,6 @@
             </div>
             {{/if}}
         </div>
-        {{/each}}
-        <p class="bi-prompt-field__optional-note">{{localize "BLANKINHERITANCE.Induction.Page7.BanalOptionalNote"}}</p>
 
         <h2>{{localize "BLANKINHERITANCE.Induction.Page7.LanguagesTitle"}}</h2>
         <div class="bi-langlist">
@@ -92,11 +127,41 @@
             </div>
         </div>
 
+        <h2>{{localize "BLANKINHERITANCE.Induction.Page7.PersonalityTitle"}}</h2>
+        {{#each personalityFields}}
+        <div class="bi-prompt-field">
+            <label class="bi-prompt-field__label" for="{{this.elementId}}">{{this.label}}</label>
+            <input type="text" class="bi-prompt-field__control" id="{{this.elementId}}" name="{{this.elementId}}"
+                   data-prompt-field="{{this.statePath}}" value="{{this.value}}">
+            {{#if this.suggestions.length}}
+            <div class="bi-induction__options">
+                {{#each this.suggestions}}
+                <button type="button" class="bi-induction__option" data-prompt-suggestion
+                        data-prompt-target="{{this.targetElementId}}" data-suggestion-text="{{this.text}}"
+                        data-prompt-separator="{{this.separator}}">{{this.text}}</button>
+                {{/each}}
+            </div>
+            {{/if}}
+            {{#if this.helpBody}}
+            <details class="bi-induction__help" data-sync="{{this.syncKey}}">
+                <summary>{{localize "BLANKINHERITANCE.Induction.Page7.HelpSummary"}}</summary>
+                <p>{{this.helpBody}}</p>
+            </details>
+            {{/if}}
+        </div>
+        {{/each}}
+
+        <p class="bi-prompt-field__optional-note">{{localize "BLANKINHERITANCE.Induction.Page7.OptionalNote"}}</p>
+
         {{/if}}
+
+        </div>
 
         <div class="bi-induction__actions bi-induction__actions--split">
             <button type="button" class="bi-induction__back" data-action="backFromFinishing">{{localize "BLANKINHERITANCE.Induction.Page7.Back"}}</button>
-            <button type="button" class="bi-induction__begin" data-action="continueFromFinishing" {{#unless isComplete}}disabled{{/unless}}>
+            <span class="bi-induction__blocker" role="status" data-induction-blocker {{#unless blocker}}hidden{{/unless}}>{{blocker}}</span>
+            {{#if canReturnToReview}}<button type="button" class="bi-induction__back bi-induction__to-review" data-action="returnToReview">{{localize "BLANKINHERITANCE.Induction.ReturnToReview"}}</button>{{/if}}
+            <button type="button" class="bi-induction__begin" data-action="continueFromFinishing">
                 {{localize "BLANKINHERITANCE.Induction.Page7.Continue"}}
             </button>
         </div>

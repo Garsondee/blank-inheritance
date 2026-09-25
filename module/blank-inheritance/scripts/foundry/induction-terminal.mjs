@@ -48,7 +48,11 @@
  * that mixin's _replaceHTML/_configureRenderParts for why.
  */
 
-import { fetchModuleJson, writeStorageFile } from "./io.mjs";
+import { fetchModuleJson, fetchModuleText, writeStorageFile } from "./io.mjs";
+import { loadAgreement, mountAgreementView, effectiveZoom } from "./induction-agreement-view.mjs";
+import { stepOrder, trackerSteps, canJumpTo, laterStep, remainingPicks } from "../core/induction-flow.mjs";
+import { draftKey, hasProgress, serializeDraft, restoreDraft, resumeStep } from "../core/induction-draft.mjs";
+import { readingTime, wordCount } from "../core/agreement-layout.mjs";
 import { resolveSlots, claimedAbilities, isLegalPick, isFixedSlot } from "../core/boost-slots.mjs";
 import {
   OUTPUT_WIDTH, OUTPUT_HEIGHT,
@@ -68,7 +72,7 @@ import {
   filterBackgrounds
 } from "../core/induction-background.mjs";
 import { isClassChoiceComplete, resolveClassIngredients } from "../core/induction-class.mjs";
-import { FREE_BOOST_SLOTS, isFreeBoostsComplete, resolveFreeBoosts } from "../core/induction-attributes.mjs";
+import { FREE_BOOST_SLOTS, isFreeBoostsComplete, resolveFreeBoosts, toggleFreeBoost, abilityTally } from "../core/induction-attributes.mjs";
 import { isReviewComplete, stripGrantItemRules } from "../core/induction-review.mjs";
 import {
   insertSuggestion,
@@ -78,6 +82,7 @@ import {
   buildLanguageSuggestions,
   summarizeIntakeAnswers
 } from "../core/induction-intake.mjs";
+import { buildBioUpdate } from "../core/induction-bio.mjs";
 import { getPath, setPath } from "../core/state-path.mjs";
 import { requestActorCreation, requestActorDeletion } from "./induction-relay.mjs";
 import { deriveFoundryId } from "../core/ids.mjs";
@@ -90,6 +95,11 @@ const TEMPLATE_ROOT = `modules/${MODULE_ID}/templates/induction`;
 const ABILITY_KEYS = {
   str: "PF2E.AbilityStr", dex: "PF2E.AbilityDex", con: "PF2E.AbilityCon",
   int: "PF2E.AbilityInt", wis: "PF2E.AbilityWis", cha: "PF2E.AbilityCha"
+};
+/** sf2e's own three-letter forms ("Str"), for Review's attribute strip. */
+const ABILITY_SHORT_KEYS = {
+  str: "PF2E.AbilityId.str", dex: "PF2E.AbilityId.dex", con: "PF2E.AbilityId.con",
+  int: "PF2E.AbilityId.int", wis: "PF2E.AbilityId.wis", cha: "PF2E.AbilityId.cha"
 };
 const SIZE_KEYS = {
   tiny: "PF2E.ActorSizeTiny", sm: "PF2E.ActorSizeSmall", med: "PF2E.ActorSizeMedium", lg: "PF2E.ActorSizeLarge"
@@ -117,6 +127,13 @@ const DEFENSE_CATEGORIES = [
 const PORTRAIT_BOX = { width: 220, height: 330 };
 /** A soft sanity cap, not a real limit -- protects against a wildly wrong file pick (an unrelated multi-hundred-MB file), not a meaningful photo size. */
 const PORTRAIT_MAX_FILE_BYTES = 20 * 1024 * 1024;
+
+/** A catalogue description's first sentence, as a one-line summary on a picker card. */
+function firstSentence(text) {
+  const s = String(text ?? "").trim();
+  const m = s.match(/^.+?[.!?](?=\s|$)/);
+  return m ? m[0] : s;
+}
 
 const abilityLabel = (key) => game.i18n.localize(ABILITY_KEYS[key] ?? key);
 const sizeLabel = (key) => game.i18n.localize(SIZE_KEYS[key] ?? key);
@@ -190,7 +207,7 @@ function loadIntakePrompts() {
     intakePromptsPromise = null;
     return {
       genderIdentityOptions: [], pronounOptions: [], appearanceOptions: [],
-      banalQuestions: [], eightQuestions: [], failed: true
+      personalFile: [], personality: [], openQuestions: [], freeform: null, failed: true
     };
   });
   return intakePromptsPromise;
@@ -219,22 +236,27 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     actions: {
       begin: InductionTerminal.#onBegin,
       back: InductionTerminal.#onBack,
+      signAgreement: InductionTerminal.#onSignAgreement,
+      backFromAgreement: InductionTerminal.#onBackFromAgreement,
+      jumpToStep: InductionTerminal.#onJumpToStep,
+      returnToReview: InductionTerminal.#onReturnToReview,
+      resumeDraft: InductionTerminal.#onResumeDraft,
+      startAgain: InductionTerminal.#onStartAgain,
+      keepDraft: InductionTerminal.#onKeepDraft,
+      discardDraft: InductionTerminal.#onDiscardDraft,
       pickAncestry: InductionTerminal.#onPickAncestry,
-      changeAncestry: InductionTerminal.#onChangeAncestry,
       pickBoost: InductionTerminal.#onPickBoost,
       pickFlaw: InductionTerminal.#onPickFlaw,
       continueFromAncestry: InductionTerminal.#onContinueFromAncestry,
       pickBackground: InductionTerminal.#onPickBackground,
-      changeBackground: InductionTerminal.#onChangeBackground,
       pickBackgroundBoost: InductionTerminal.#onPickBackgroundBoost,
       continueFromBackground: InductionTerminal.#onContinueFromBackground,
       backFromBackground: InductionTerminal.#onBackFromBackground,
       pickClass: InductionTerminal.#onPickClass,
-      changeClass: InductionTerminal.#onChangeClass,
       pickClassKeyAbility: InductionTerminal.#onPickClassKeyAbility,
       continueFromClass: InductionTerminal.#onContinueFromClass,
       backFromClass: InductionTerminal.#onBackFromClass,
-      pickFreeBoost: InductionTerminal.#onPickFreeBoost,
+      toggleFreeBoost: InductionTerminal.#onToggleFreeBoost,
       continueFromAttributes: InductionTerminal.#onContinueFromAttributes,
       backFromAttributes: InductionTerminal.#onBackFromAttributes,
       removePortrait: InductionTerminal.#onRemovePortrait,
@@ -242,6 +264,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       continueFromPortrait: InductionTerminal.#onContinueFromPortrait,
       backFromPortrait: InductionTerminal.#onBackFromPortrait,
       confirmCharacter: InductionTerminal.#onConfirmCharacter,
+      finishInduction: InductionTerminal.#onFinishInduction,
       backFromReview: InductionTerminal.#onBackFromReview,
       continueFromFinishing: InductionTerminal.#onContinueFromFinishing,
       backFromFinishing: InductionTerminal.#onBackFromFinishing,
@@ -257,85 +280,63 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   // _configureRenderParts below, which is what actually decides that.
   static PARTS = {
     page1: {
-      template: `${TEMPLATE_ROOT}/page1-orientation.hbs`
+      template: `${TEMPLATE_ROOT}/page1-orientation.hbs`,
+      scrollable: [".bi-induction__body"]
+    },
+    // The Service Agreement (design/induction-agreement.md): shown second, but keyed by name rather than
+    // a number so none of the nine numbered pages, or their handlers, had to be renumbered around it.
+    pageagreement: {
+      template: `${TEMPLATE_ROOT}/page1b-agreement.hbs`
     },
     page2: {
       template: `${TEMPLATE_ROOT}/page2-ancestry.hbs`,
-      scrollable: [".bi-induction__page"]
+      scrollable: [".bi-induction__body", "[data-picker-list]", "[data-picker-detail]"]
     },
     page3: {
       template: `${TEMPLATE_ROOT}/page3-background.hbs`,
-      scrollable: [".bi-induction__page"]
+      scrollable: [".bi-induction__body", "[data-picker-list]", "[data-picker-detail]"]
     },
     page4: {
       template: `${TEMPLATE_ROOT}/page4-class.hbs`,
-      scrollable: [".bi-induction__page"]
+      scrollable: [".bi-induction__body", "[data-picker-list]", "[data-picker-detail]"]
     },
     page5: {
       template: `${TEMPLATE_ROOT}/page5-attributes.hbs`,
-      scrollable: [".bi-induction__page"]
+      scrollable: [".bi-induction__body"]
     },
     page6: {
       template: `${TEMPLATE_ROOT}/page6-portrait.hbs`,
-      scrollable: [".bi-induction__page"]
+      scrollable: [".bi-induction__body"]
     },
     page7: {
       template: `${TEMPLATE_ROOT}/page7-finishing.hbs`,
-      scrollable: [".bi-induction__page"]
+      scrollable: [".bi-induction__body"]
     },
     page8: {
       template: `${TEMPLATE_ROOT}/page8-questions.hbs`,
-      scrollable: [".bi-induction__page"]
+      scrollable: [".bi-induction__body"]
     },
     page9: {
       template: `${TEMPLATE_ROOT}/page9-review.hbs`,
-      scrollable: [".bi-induction__page"]
+      scrollable: [".bi-induction__body"]
     }
   };
 
   /** All in-progress choices. Nothing here touches Foundry until Page 9's real confirm (design doc §6). */
-  state = {
-    page: 1,
-    ancestry: {
-      id: null,
-      filter: "",
-      boostPicks: [], // parallel to the FREE boost slots only, see core/boost-slots.mjs
-      flawPicks: []
-    },
-    background: {
-      id: null,
-      filter: "",
-      boostPicks: [] // backgrounds have no flaws (Player Core: "two boosts... no flaw")
-    },
-    class: {
-      id: null,
-      keyAbilityPicks: [] // one slot (core/induction-class.mjs); empty until a free key ability needs a pick
-    },
-    attributes: {
-      freeBoostPicks: [] // parallel to core/induction-attributes.mjs's four FREE_BOOST_SLOTS
-    },
-    portrait: {
-      path: null, // the full Foundry-relative path once uploaded, e.g. "modules/blank-inheritance/storage/portraits/<id>.webp"
-      uploading: false,
-      error: null
-    },
-    finishing: {
-      name: "",
-      pronouns: "",
-      genderIdentity: "",
-      appearance: "",
-      languages: [],
-      banalAnswers: {} // keyed by induction-intake-prompts.json's banalQuestions[].id
-    },
-    intake: {
-      questions: {} // keyed by induction-intake-prompts.json's eightQuestions[].id
-    },
-    review: {
-      confirming: false, // true only while #createCharacterActor's own await chain is in flight
-      error: null,
-      createdActorId: null
-    }
-  };
+  state = freshInductionState();
+
+  /**
+   * A saved form found on open, waiting on Page 1 for the player to continue it or throw it away
+   * ({ state, savedAt }, core/induction-draft.mjs's restoreDraft). Never resumed silently: while this is
+   * set nothing is saved over it, so the empty form behind it can't overwrite the one being offered.
+   */
+  _savedDraft = null;
+
+  /** Page 1's second step for Start Again: the saved form is only thrown away after a confirming click. */
+  _confirmingDiscard = false;
+
+  /** The pending save, so a burst of typing writes once, a moment after it stops. */
+  _draftTimer = null;
 
   /** The loaded catalogues, kept so action handlers don't re-fetch on every click. */
   _ancestries = [];
@@ -354,6 +355,17 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
    * on a successful upload, a fresh file pick, or a remount.
    */
   _portraitCropSession = null;
+
+  /** The mounted FORM 1-B canvas viewer ({ stats, destroy, root }), only while page 2 is showing. */
+  _agreementView = null;
+
+  /** @override */
+  _onClose(options) {
+    // Closing mid-sentence still keeps the sentence: the pending save runs now rather than never.
+    if (this._draftTimer) this.#saveDraftNow();
+    this.#releaseAgreementView();
+    super._onClose?.(options);
+  }
 
   /**
    * @override
@@ -378,37 +390,265 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
 
   /** @override */
   async _prepareContext() {
-    const base = { userName: game.user?.name ?? "", trackerSteps: this.#trackerSteps() };
-    if (this.state.page === 2) return { ...base, ...(await this.#page2Context()) };
-    if (this.state.page === 3) return { ...base, ...(await this.#page3Context()) };
-    if (this.state.page === 4) return { ...base, ...(await this.#page4Context()) };
-    if (this.state.page === 5) return { ...base, ...this.#page5Context() };
-    if (this.state.page === 6) return { ...base, ...this.#page6Context() };
-    if (this.state.page === 7) return { ...base, ...(await this.#page7Context()) };
-    if (this.state.page === 8) return { ...base, ...(await this.#page8Context()) };
-    if (this.state.page === 9) return { ...base, ...(await this.#page9Context()) };
-    return base;
+    // The catalogues are cached promises: loading all three up front costs nothing after the first
+    // page, and lets the tracker and the "what's missing" line judge every page, not just this one.
+    await Promise.all([loadAncestryCatalogue(), loadBackgroundCatalogue(), loadClassCatalogue()]).then(([a, b, c]) => {
+      this._ancestries = a.ancestries ?? this._ancestries;
+      this._backgrounds = b.backgrounds ?? this._backgrounds;
+      this._classes = c.classes ?? this._classes;
+    });
+    const order = this.#stepOrder();
+    this.state.furthest = laterStep(this.state.furthest ?? 1, this.state.page, order);
+
+    const page = this.state.page;
+    const pageContext =
+      page === 1 ? this.#page1Context()
+      : page === "agreement" ? await this.#pageAgreementContext()
+      : page === 2 ? await this.#page2Context()
+      : page === 3 ? await this.#page3Context()
+      : page === 4 ? await this.#page4Context()
+      : page === 5 ? this.#page5Context()
+      : page === 6 ? this.#page6Context()
+      : page === 7 ? await this.#page7Context()
+      : page === 8 ? await this.#page8Context()
+      : page === 9 ? await this.#page9Context()
+      : {};
+
+    const steps = this.#trackerSteps();
+    const current = steps.find((s) => s.isCurrent);
+    return {
+      userName: game.user?.name ?? "",
+      trackerSteps: steps,
+      trackerLabel: current
+        ? game.i18n.format("BLANKINHERITANCE.Induction.Tracker.StepOf", { n: current.number, total: steps.length, label: current.label })
+        : "",
+      blocker: this.#blocker(),
+      canReturnToReview: this.#canReturnToReview(),
+      ...pageContext
+    };
+  }
+
+  /** Display order, by page id. The agreement slots in second, only when the world setting shows it. */
+  #stepOrder() {
+    return stepOrder({ agreement: agreementPageEnabled() });
+  }
+
+  /** Whether a page's own requirements are met, judged from state alone (core/induction-flow.mjs asks). */
+  #isStepComplete(id) {
+    const s = this.state;
+    switch (id) {
+      case 1: return true;
+      case "agreement": return s.agreement.signed || !agreementPageEnabled();
+      case 2: return isAncestryChoiceComplete(this._ancestries.find((a) => a.id === s.ancestry.id) ?? null, s.ancestry.boostPicks, s.ancestry.flawPicks);
+      case 3: return isBackgroundChoiceComplete(this._backgrounds.find((b) => b.id === s.background.id) ?? null, s.background.boostPicks);
+      case 4: return isClassChoiceComplete(this._classes.find((c) => c.id === s.class.id) ?? null, s.class.keyAbilityPicks);
+      case 5: return isFreeBoostsComplete(s.attributes.freeBoostPicks);
+      case 6: return !s.portrait.uploading;
+      case 7: return isFinishingComplete(s.finishing);
+      case 8: return true;
+      case 9: return isReviewComplete(s);
+      default: return false;
+    }
   }
 
   /**
-   * The routing-slip progress tracker every page's header shows (design
-   * doc §4's own page table, all nine entries -- shown even for the ones
-   * not built yet, so "you are on step 3 of 9" reads honestly rather than
-   * only ever showing however many pages happen to exist so far). Computed
-   * once in the shared base context so every page template gets it for
-   * free, rather than each page's own #pageNContext() repeating it.
+   * The routing-slip progress tracker every page's header shows. Steps the player has already finished
+   * (and, once they've been further, any finished step up to there) are buttons: a player can jump back
+   * to fix something and come straight back, instead of paging through everything in between.
    */
   #trackerSteps() {
-    const labels = [
-      "Orientation", "Ancestry", "Background", "Class", "Attributes",
-      "Portrait", "Finishing", "Questions", "Review"
-    ];
-    return labels.map((label, index) => {
-      const number = index + 1;
-      const isDone = number < this.state.page;
-      const isCurrent = number === this.state.page;
-      return { number, label, isDone, isCurrent, isUpcoming: !isDone && !isCurrent };
+    return trackerSteps({
+      order: this.#stepOrder(),
+      current: this.state.page,
+      furthest: this.state.furthest ?? this.state.page,
+      isComplete: (id) => this.#isStepComplete(id)
     });
+  }
+
+  /** Once a player has reached Review, every earlier page offers a way straight back to it. */
+  #canReturnToReview() {
+    return this.state.page !== 9 && canJumpTo(9, {
+      order: this.#stepOrder(), current: this.state.page, furthest: this.state.furthest ?? this.state.page,
+      isComplete: (id) => this.#isStepComplete(id)
+    });
+  }
+
+  /**
+   * Continue with something still missing, as Ingram asked for in GitHub #162 (item 4): "let the click
+   * evaluate the form, then move the camera/scroll back up to the first missing field and point it out
+   * there -- not just block silently or show a generic error." So Continue is never greyed out on a page
+   * a player can finish; clicking it early scrolls to the first missing thing, marks it, puts the reason
+   * right above it and moves focus into it. The next render (any pick) clears the mark.
+   */
+  #pointAtMissing() {
+    const root = this.element;
+    const target = this.#firstMissingElement();
+    if (!root || !target) return;
+    root.querySelectorAll(".bi-induction__missing").forEach((el) => el.classList.remove("bi-induction__missing"));
+    root.querySelectorAll("[data-missing-note]").forEach((el) => el.remove());
+    target.classList.add("bi-induction__missing");
+    const message = this.#blocker();
+    if (message) {
+      const note = document.createElement("p");
+      note.className = "bi-induction__missing-note";
+      note.dataset.missingNote = "";
+      note.setAttribute("role", "alert");
+      note.textContent = message;
+      target.prepend(note);
+    }
+    // Smooth scrolling runs on animation frames, which a hidden page never gets -- it would stall there.
+    const still = document.visibilityState === "hidden" || window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    const behavior = still ? "auto" : "smooth";
+    // A list column scrolls on its own: its top (the filter, the first options) is what's missing.
+    const scrolls = /(auto|scroll)/.test(getComputedStyle(target).overflowY) && target.scrollHeight > target.clientHeight;
+    if (scrolls) target.scrollTo({ top: 0, behavior });
+    target.scrollIntoView({ block: scrolls ? "nearest" : "center", behavior });
+    const focusable = target.matches("input, textarea") ? target : target.querySelector(
+      "[data-induction-filter], input:not([disabled]), textarea:not([disabled]), button:not([disabled]):not([aria-pressed=\"true\"])"
+    );
+    focusable?.focus({ preventScroll: true });
+  }
+
+  /**
+   * The first thing on this page that stops Continue: the list, if nothing is chosen yet; otherwise the
+   * first choice slot with no pick (fixed slots never count); the attribute rows; the Name field.
+   */
+  #firstMissingElement() {
+    const root = this.element;
+    if (!root) return null;
+    const s = this.state;
+    const openSlot = () => [...root.querySelectorAll("[data-picker-detail] .bi-induction__slot")]
+      .find((slot) => slot.querySelector(".bi-induction__options") && !slot.querySelector(".bi-induction__option--picked"));
+    const list = () => root.querySelector("[data-picker-list]");
+    switch (s.page) {
+      case 2: return s.ancestry.id ? openSlot() ?? null : list();
+      case 3: return s.background.id ? openSlot() ?? null : list();
+      case 4: return s.class.id ? openSlot() ?? null : list();
+      case 5: return root.querySelector(".bi-induction__tally");
+      case 7: {
+        const name = root.querySelector('[data-prompt-field="finishing.name"]');
+        return name?.closest(".bi-prompt-field") ?? name;
+      }
+      default: return null;
+    }
+  }
+
+  /** The one-line reason Continue can't go on yet, shown beside it. Null when nothing is missing. */
+  #blocker() {
+    const s = this.state;
+    const say = (key, data) => game.i18n.format(BLOCKER_KEYS[key], data ?? {});
+    switch (s.page) {
+      case 2: {
+        const ancestry = this._ancestries.find((a) => a.id === s.ancestry.id);
+        if (!ancestry) return say("PickAncestry");
+        const left = remainingPicks(ancestry.boosts, s.ancestry.boostPicks) + remainingPicks(ancestry.flaws, s.ancestry.flawPicks);
+        return left ? say(left === 1 ? "OneMorePick" : "MorePicks", { count: left }) : null;
+      }
+      case 3: {
+        const background = this._backgrounds.find((b) => b.id === s.background.id);
+        if (!background) return say("PickBackground");
+        const left = remainingPicks(background.boosts, s.background.boostPicks);
+        return left ? say(left === 1 ? "OneMorePick" : "MorePicks", { count: left }) : null;
+      }
+      case 4: {
+        const cls = this._classes.find((c) => c.id === s.class.id);
+        if (!cls) return say("PickClass");
+        return remainingPicks([cls.keyAbility], s.class.keyAbilityPicks) ? say("PickKeyAbility") : null;
+      }
+      case 5: {
+        const left = remainingPicks(FREE_BOOST_SLOTS, s.attributes.freeBoostPicks);
+        return left ? say(left === 1 ? "OneMoreAttribute" : "MoreAttributes", { count: left }) : null;
+      }
+      case 6: return s.portrait.uploading ? say("Uploading") : null;
+      case 7: return isFinishingComplete(s.finishing) ? null : say("NeedName");
+      case 9: return isReviewComplete(s) || s.review.createdActorId ? null : say("ReviewIncomplete");
+      default: return null;
+    }
+  }
+
+  /**
+   * Page 1's only moving part: a saved form, if one was found on open, summed up so the player can tell
+   * which form it is before choosing -- who (the name, or "unnamed"), what (ancestry, class, background),
+   * where they stopped, and when.
+   */
+  #page1Context() {
+    const draft = this._savedDraft;
+    if (!draft) return { savedDraft: null };
+    const s = draft.state;
+    const ancestry = this._ancestries.find((a) => a.id === s.ancestry.id)?.name;
+    const cls = this._classes.find((c) => c.id === s.class.id)?.name;
+    const background = this._backgrounds.find((b) => b.id === s.background.id)?.name;
+    const order = this.#stepOrder();
+    const at = order.findIndex(([id]) => id === s.page);
+    let when = null;
+    try {
+      // The browser's own locale (undefined), not Foundry's language code: "en" alone reads as US dates.
+      if (draft.savedAt) when = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(draft.savedAt));
+    } catch { when = null; }
+    return {
+      savedDraft: {
+        name: s.finishing.name.trim() || game.i18n.localize("BLANKINHERITANCE.Induction.Resume.Unnamed"),
+        what: [[ancestry, cls].filter(Boolean).join(" "), background].filter(Boolean).join(" · "),
+        where: at >= 0
+          ? game.i18n.format("BLANKINHERITANCE.Induction.Resume.Where", { n: at + 1, total: order.length, label: order[at][1] })
+          : null,
+        when: when ? game.i18n.format("BLANKINHERITANCE.Induction.Resume.When", { time: when }) : null
+      },
+      confirmingDiscard: this._confirmingDiscard
+    };
+  }
+
+  /** Saves the form a moment after the last change, so a burst of typing writes once. */
+  #saveDraftSoon() {
+    clearTimeout(this._draftTimer);
+    this._draftTimer = setTimeout(() => this.#saveDraftNow(), 400);
+  }
+
+  /**
+   * Writes the form to the player's own browser. Never while a saved form is still being offered on Page 1
+   * (the empty form behind it would overwrite it), never an empty form, and a finished one is cleared.
+   */
+  #saveDraftNow() {
+    clearTimeout(this._draftTimer);
+    this._draftTimer = null;
+    if (this._savedDraft) return;
+    if (this.state.review.createdActorId) {
+      writeStoredDraft(null);
+      return;
+    }
+    if (hasProgress(this.state)) writeStoredDraft(serializeDraft(this.state));
+  }
+
+  /** FORM 1-B's page context: only the reading-time line and whether the text loaded. The text itself never enters the template. */
+  async #pageAgreementContext() {
+    try {
+      const doc = await loadAgreement(fetchModuleText);
+      return { agreementReady: true, agreementReadingTime: readingTime(doc.words ?? wordCount(doc.blocks)) };
+    } catch (err) {
+      console.error("Blank Inheritance | The Service Agreement could not be loaded.", err);
+      return { agreementReady: false, agreementError: game.i18n.localize("BLANKINHERITANCE.Induction.Agreement.LoadError") };
+    }
+  }
+
+  /** Mounts the canvas viewer on the agreement page; tears it down on every other page. */
+  async #bindAgreementView() {
+    const root = this.element?.querySelector("[data-agreement-root]");
+    if (!root) { this.#releaseAgreementView(); return; }
+    if (this._agreementView?.root === root) return;
+    this.#releaseAgreementView();
+    try {
+      const doc = await loadAgreement(fetchModuleText);
+      if (!root.isConnected) return;
+      this._agreementView = Object.assign(mountAgreementView(root, doc), { root });
+      root.querySelector("[data-agreement-viewport]")?.focus({ preventScroll: true });
+    } catch (err) {
+      console.error("Blank Inheritance | The Service Agreement viewer failed to mount.", err);
+    }
+  }
+
+  #releaseAgreementView() {
+    this._agreementView?.destroy();
+    this._agreementView = null;
   }
 
   async #page2Context() {
@@ -417,7 +657,11 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
 
     const filtered = filterAncestries(this._ancestries, this.state.ancestry.filter);
     const { terrestrial, alienCoded } = groupAncestries(filtered);
-    const toRow = (a) => ({ id: a.id, name: a.name, nameLower: a.name.toLowerCase() });
+    const toRow = (a) => ({
+      id: a.id, name: a.name, nameLower: a.name.toLowerCase(),
+      isSelected: a.id === this.state.ancestry.id,
+      hint: `${a.hp} HP · ${sizeLabel(a.size)} · ${a.speed} ft.`
+    });
 
     const ancestry = this._ancestries.find((a) => a.id === this.state.ancestry.id) ?? null;
 
@@ -478,7 +722,11 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
 
     const filtered = filterBackgrounds(this._backgrounds, this.state.background.filter);
     const { common, uncommon, rare } = groupBackgroundsByRarity(filtered);
-    const toRow = (b) => ({ id: b.id, name: b.name, nameLower: b.name.toLowerCase() });
+    const toRow = (b) => ({
+      id: b.id, name: b.name, nameLower: b.name.toLowerCase(),
+      isSelected: b.id === this.state.background.id,
+      hint: [...(b.trainedSkills ?? []).map(skillLabel), ...(b.loreSkills ?? [])].join(" · ")
+    });
 
     const background = this._backgrounds.find((b) => b.id === this.state.background.id) ?? null;
 
@@ -547,7 +795,12 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
 
     return {
       loadFailed: catalogue.failed === true,
-      classes: this._classes.map((c) => ({ id: c.id, name: c.name })),
+      classes: this._classes.map((c) => ({
+        id: c.id, name: c.name,
+        isSelected: c.id === this.state.class.id,
+        tagline: firstSentence(c.description),
+        meta: game.i18n.format("BLANKINHERITANCE.Induction.Page4.CardMeta", { key: c.keyAbility.map(abilityLabel).join(" or "), hp: c.hp })
+      })),
       selected: cls ? this.#decorateClass(cls) : null,
       isComplete: isClassChoiceComplete(cls, this.state.class.keyAbilityPicks)
     };
@@ -610,22 +863,55 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
    * needs no await at all, unlike every other #pageNContext.
    */
   #page5Context() {
-    const { resolved } = resolveSlots(FREE_BOOST_SLOTS, this.state.attributes.freeBoostPicks);
-    const freeBoostSlots = FREE_BOOST_SLOTS.map((slot, slotIndex) => {
-      const picked = resolved[slotIndex] ?? null;
-      const claimed = claimedAbilities(FREE_BOOST_SLOTS, this.state.attributes.freeBoostPicks, slotIndex);
-      return {
-        options: slot.map((ability) => ({
-          ability,
-          label: abilityLabel(ability),
-          picked: ability === picked,
-          claimed: claimed.has(ability) && ability !== picked,
-          slotIndex
-        }))
-      };
-    });
+    const picks = (this.state.attributes.freeBoostPicks ?? []).filter(Boolean);
+    const full = picks.length >= FREE_BOOST_SLOTS.length;
+    const attributeRows = this.#abilityRows().map((row) => ({
+      ...row,
+      picked: picks.includes(row.ability),
+      disabled: full && !picks.includes(row.ability)
+    }));
+    return {
+      attributeRows,
+      freePickedCount: picks.length,
+      isComplete: isFreeBoostsComplete(this.state.attributes.freeBoostPicks)
+    };
+  }
 
-    return { freeBoostSlots, isComplete: isFreeBoostsComplete(this.state.attributes.freeBoostPicks) };
+  /**
+   * Every attribute's running modifier and its sources, from whatever has been chosen so far on Pages
+   * 2-5 (core/induction-attributes.mjs's abilityTally). Shown on Page 5 and again on Review, so a player
+   * sees where their numbers land before committing. Display only: the real sheet's numbers are still
+   * computed by sf2e from the embedded Items on confirm (design doc §6).
+   */
+  #abilityRows() {
+    const s = this.state;
+    const safe = (slots, picks) => { try { return resolveSlots(slots ?? [], picks ?? []).resolved; } catch { return []; } };
+    const ancestry = this._ancestries.find((a) => a.id === s.ancestry.id);
+    const background = this._backgrounds.find((b) => b.id === s.background.id);
+    const cls = this._classes.find((c) => c.id === s.class.id);
+    const rows = abilityTally({
+      ancestryBoosts: ancestry ? safe(ancestry.boosts, s.ancestry.boostPicks) : [],
+      ancestryFlaws: ancestry ? safe(ancestry.flaws, s.ancestry.flawPicks) : [],
+      backgroundBoosts: background ? safe(background.boosts, s.background.boostPicks) : [],
+      classKey: cls ? safe([cls.keyAbility], s.class.keyAbilityPicks)[0] ?? null : null,
+      freeBoosts: (s.attributes.freeBoostPicks ?? []).filter(Boolean)
+    });
+    const FROM = {
+      ancestry: "BLANKINHERITANCE.Induction.Page5.From.Ancestry",
+      flaw: "BLANKINHERITANCE.Induction.Page5.From.Flaw",
+      background: "BLANKINHERITANCE.Induction.Page5.From.Background",
+      class: "BLANKINHERITANCE.Induction.Page5.From.Class",
+      free: "BLANKINHERITANCE.Induction.Page5.From.Free"
+    };
+    return rows.map(({ ability, mod, parts }) => ({
+      ability,
+      label: abilityLabel(ability),
+      short: game.i18n.localize(ABILITY_SHORT_KEYS[ability]),
+      modLabel: mod > 0 ? `+${mod}` : mod < 0 ? `\u2212${Math.abs(mod)}` : "0",
+      partsLabel: parts.map((part) => game.i18n.localize(FROM[part.from])).join(" · "),
+      isRaised: mod > 0,
+      isLowered: mod < 0
+    }));
   }
 
   /**
@@ -679,7 +965,11 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       label: game.i18n.localize("BLANKINHERITANCE.Induction.Page7.NameLabel")
     });
 
-    const promptFields = [
+    // Three named groups rather than one flat list (2026-09-18): the template
+    // renders them under sf2e's own biography headings, so a player can see
+    // that these short fields ARE their character sheet rather than a
+    // parallel questionnaire that happens to look like one.
+    const identityFields = [
       this.#decoratePromptField({
         id: "pronouns", statePath: "finishing.pronouns",
         label: game.i18n.localize("BLANKINHERITANCE.Induction.Page7.PronounsLabel"),
@@ -690,20 +980,29 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
         label: game.i18n.localize("BLANKINHERITANCE.Induction.Page7.GenderIdentityLabel"),
         suggestions: prompts.genderIdentityOptions
       }),
-      ...prompts.banalQuestions.map((q) => this.#decoratePromptField({
-        id: q.id, statePath: `finishing.banalAnswers.${q.id}`, label: q.text, isTextarea: true, suggestions: q.suggestions
-      })),
-      this.#decoratePromptField({
-        id: "appearance", statePath: "finishing.appearance",
-        label: game.i18n.localize("BLANKINHERITANCE.Induction.Page7.AppearanceLabel"), isTextarea: true,
-        suggestions: prompts.appearanceOptions
-      })
+      ...(prompts.personalFile ?? []).map((q) => this.#decoratePromptField({
+        id: q.id, statePath: `finishing.personalFile.${q.id}`, label: q.text,
+        suggestions: q.suggestions, helpBody: q.purposeNote
+      }))
     ];
+
+    const appearanceField = this.#decoratePromptField({
+      id: "appearance", statePath: "finishing.appearance",
+      label: game.i18n.localize("BLANKINHERITANCE.Induction.Page7.AppearanceLabel"), isTextarea: true,
+      suggestions: prompts.appearanceOptions
+    });
+
+    const personalityFields = (prompts.personality ?? []).map((q) => this.#decoratePromptField({
+      id: q.id, statePath: `finishing.personality.${q.id}`, label: q.text,
+      suggestions: q.suggestions, helpBody: q.purposeNote
+    }));
 
     return {
       loadFailed: prompts.failed === true,
       nameField,
-      promptFields,
+      identityFields,
+      appearanceField,
+      personalityFields,
       languages: this.state.finishing.languages,
       languageSuggestions: buildLanguageSuggestions(
         (ancestry?.languages ?? []).map((l) => titleCase(l.replace(/-/g, " "))),
@@ -716,15 +1015,30 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
 
   async #page8Context() {
     const prompts = await loadIntakePrompts();
-    const promptFields = prompts.eightQuestions.map((q) => this.#decoratePromptField({
+    const promptFields = (prompts.openQuestions ?? []).map((q) => this.#decoratePromptField({
       id: q.id,
       statePath: `intake.questions.${q.id}`,
       label: `${q.number}. ${q.text}`,
       isTextarea: true,
       suggestions: q.suggestions,
-      helpBody: q.purposeNote
+      helpBody: q.purposeNote,
+      outOfCharacter: q.outOfCharacter === true
     }));
-    return { loadFailed: prompts.failed === true, promptFields };
+    // The catch-all box, kept out of the numbered list on purpose: it is not
+    // a sixth question, it is the place for everything the five did not ask
+    // (design/induction-intake-audit.md §3 -- this was in the original
+    // accepted idea and never got built until now).
+    const freeformField = prompts.freeform
+      ? this.#decoratePromptField({
+        id: prompts.freeform.id,
+        statePath: "intake.freeform",
+        label: prompts.freeform.text,
+        isTextarea: true,
+        suggestions: prompts.freeform.suggestions,
+        helpBody: prompts.freeform.purposeNote
+      })
+      : null;
+    return { loadFailed: prompts.failed === true, promptFields, freeformField };
   }
 
   /**
@@ -754,6 +1068,9 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
 
     return {
       loadFailed: prompts.failed === true,
+      portraitPath: this.state.portrait.path,
+      summaryLine: [[ancestry?.name, cls?.name].filter(Boolean).join(" "), background?.name].filter(Boolean).join(" · "),
+      attributeRows: this.#abilityRows(),
       ancestryName: ancestry?.name ?? null,
       ancestryBoostLabels: ancestry ? resolvedLabels(ancestry.boosts, this.state.ancestry.boostPicks) : [],
       ancestryFlawLabels: ancestry ? resolvedLabels(ancestry.flaws, this.state.ancestry.flawPicks) : [],
@@ -768,8 +1085,10 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       appearance: this.state.finishing.appearance || null,
       languages: this.state.finishing.languages,
       hasLanguages: this.state.finishing.languages.length > 0,
-      banalAnswers: answerRows(prompts.banalQuestions, this.state.finishing.banalAnswers),
-      questionAnswers: answerRows(prompts.eightQuestions, this.state.intake.questions),
+      personalFileAnswers: answerRows(prompts.personalFile, this.state.finishing.personalFile),
+      personalityAnswers: answerRows(prompts.personality, this.state.finishing.personality),
+      questionAnswers: answerRows(prompts.openQuestions, this.state.intake.questions),
+      freeformAnswer: (this.state.intake.freeform ?? "").trim() || null,
       isComplete: isReviewComplete(this.state),
       confirming: this.state.review.confirming,
       error: this.state.review.error,
@@ -793,7 +1112,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
    * identical data-sync="help" toggles on Page 8 would all collapse onto
    * one tracked entry.
    */
-  #decoratePromptField({ id, statePath, label, isTextarea = false, suggestions = [], helpBody = null }) {
+  #decoratePromptField({ id, statePath, label, isTextarea = false, suggestions = [], helpBody = null, outOfCharacter = false }) {
     const elementId = `bi-prompt-${id}`;
     const separator = isTextarea ? "\n\n" : ", ";
     return {
@@ -802,6 +1121,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       elementId,
       isTextarea,
       label,
+      outOfCharacter,
       value: getPath(this.state, statePath),
       suggestions: (suggestions ?? []).map((text) => ({ text, targetElementId: elementId, separator })),
       helpBody,
@@ -812,9 +1132,35 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   /** @override */
   _onRender(context, options) {
     super._onRender?.(context, options);
+    this.#arriveOnPage();
     this.#bindFilter();
     this.#bindPromptFields();
     this.#bindPortraitCropper();
+    this.#bindAgreementView();
+    this.#saveDraftSoon();
+  }
+
+  /**
+   * A NEW page opens at its top, with focus on its title. Foundry's part-state sync carries the scroll
+   * position across every re-render of the "page" part -- right for a re-render of the same page (pick a
+   * chip, stay where you were), wrong for a page change, which used to open the next page wherever the
+   * last one had been scrolled to (found in the 2026-09-25 UI pass: Background opened mid-list).
+   */
+  #arriveOnPage() {
+    if (this._resetDetailScroll && this._renderedPage === this.state.page) {
+      const detail = this.element?.querySelector("[data-picker-detail]");
+      if (detail) detail.scrollTop = 0;
+      this._resetDetailScroll = false;
+    }
+    if (this._renderedPage === this.state.page) return;
+    this._renderedPage = this.state.page;
+    for (const el of this.element?.querySelectorAll("[data-induction-body], [data-picker-list], [data-picker-detail]") ?? []) el.scrollTop = 0;
+    this._resetDetailScroll = false;
+    const title = this.element?.querySelector(".bi-doc__title");
+    if (title) {
+      title.setAttribute("tabindex", "-1");
+      title.focus({ preventScroll: true });
+    }
   }
 
   /**
@@ -872,7 +1218,8 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       field.dataset.biBound = "1";
       field.addEventListener("input", () => {
         setPath(this.state, field.dataset.promptField, field.value);
-        if (field.dataset.promptField === "finishing.name") this.#syncContinueFromFinishingDisabled();
+        if (field.dataset.promptField === "finishing.name") this.#syncFinishingBlocker();
+        this.#saveDraftSoon();
       });
     });
 
@@ -891,15 +1238,29 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
         setPath(this.state, field.dataset.promptField, next);
         field.focus();
         if (typeof field.setSelectionRange === "function") field.setSelectionRange(next.length, next.length);
-        if (field.dataset.promptField === "finishing.name") this.#syncContinueFromFinishingDisabled();
+        if (field.dataset.promptField === "finishing.name") this.#syncFinishingBlocker();
+        this.#saveDraftSoon();
       });
     }
   }
 
-  /** Direct DOM toggle, not a render -- Page 7's Name field is the only thing gating Continue, and it must react on every keystroke. */
-  #syncContinueFromFinishingDisabled() {
-    const button = this.element?.querySelector('[data-action="continueFromFinishing"]');
-    if (button) button.disabled = !isFinishingComplete(this.state.finishing);
+  /**
+   * Page 7's Name field is the only thing it needs, and it's typed, not clicked -- so no render happens
+   * as it fills. The "what's missing" line beside Continue follows it on every keystroke (without this,
+   * a typed name left the line saying a name was needed; found in the 2026-09-25 UI pass), and once there
+   * is a name, the mark Continue put on the field (#pointAtMissing) comes off.
+   */
+  #syncFinishingBlocker() {
+    const blocker = this.element?.querySelector("[data-induction-blocker]");
+    const text = this.#blocker() ?? "";
+    if (blocker) {
+      blocker.textContent = text;
+      blocker.hidden = !text;
+    }
+    if (!text) {
+      this.element?.querySelectorAll(".bi-induction__missing").forEach((el) => el.classList.remove("bi-induction__missing"));
+      this.element?.querySelectorAll("[data-missing-note]").forEach((el) => el.remove());
+    }
   }
 
   /**
@@ -928,7 +1289,84 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     if (viewport && !viewport.dataset.biBound) {
       viewport.dataset.biBound = "1";
       this.#bindPortraitDrag(viewport);
+      this.#bindPortraitKeysAndWheel(viewport);
     }
+
+    const dropZone = this.element?.querySelector("[data-portrait-drop]");
+    if (dropZone && !dropZone.dataset.biBound) {
+      dropZone.dataset.biBound = "1";
+      this.#bindPortraitDrop(dropZone);
+    }
+  }
+
+  /**
+   * A photo dragged from the desktop onto the portrait area starts a crop, same as Choose Photo -- the
+   * way most people expect to hand a page an image (UI pass, 2026-09-25). stopPropagation keeps the drop
+   * away from Foundry's own document-level drop handling, which would otherwise swallow it.
+   */
+  #bindPortraitDrop(zone) {
+    const hasFile = (event) => Array.from(event.dataTransfer?.types ?? []).includes("Files");
+    let depth = 0; // dragenter/dragleave fire for every child crossed; count them so the highlight doesn't flicker
+    zone.addEventListener("dragenter", (event) => {
+      if (!hasFile(event)) return;
+      event.preventDefault();
+      depth += 1;
+      zone.classList.add("bi-portrait--drop-target");
+    });
+    zone.addEventListener("dragover", (event) => {
+      if (!hasFile(event)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      event.dataTransfer.dropEffect = this.state.portrait.uploading ? "none" : "copy";
+    });
+    zone.addEventListener("dragleave", () => {
+      depth = Math.max(0, depth - 1);
+      if (depth === 0) zone.classList.remove("bi-portrait--drop-target");
+    });
+    zone.addEventListener("drop", (event) => {
+      if (!hasFile(event)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      depth = 0;
+      zone.classList.remove("bi-portrait--drop-target");
+      this.#startPortraitCrop(event.dataTransfer.files?.[0]);
+    });
+  }
+
+  /**
+   * The crop without a mouse: arrow keys move the photo (Shift for bigger steps), + and - zoom; the mouse
+   * wheel zooms too. The zoom slider was already keyboard-reachable, but panning was drag-only.
+   */
+  #bindPortraitKeysAndWheel(viewport) {
+    const nudgeZoom = (delta) => {
+      const slider = this.element?.querySelector("[data-portrait-zoom]");
+      if (!slider) return;
+      slider.value = String(Math.min(1, Math.max(0, Number(slider.value) + delta)));
+      this.#onPortraitZoomInput(slider);
+    };
+    viewport.addEventListener("keydown", (event) => {
+      const session = this._portraitCropSession;
+      if (!session) return;
+      const step = event.shiftKey ? 40 : 10;
+      // Same direction as a drag (core/induction-portrait.mjs's panBy): the photo moves the way the arrow points.
+      const pan = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[event.key];
+      if (pan) {
+        event.preventDefault();
+        session.crop = panBy(session.crop, pan[0], pan[1], session.naturalWidth, session.naturalHeight, PORTRAIT_BOX.width, PORTRAIT_BOX.height);
+        this.#paintPortraitCropTransform();
+      } else if (event.key === "+" || event.key === "=") {
+        event.preventDefault();
+        nudgeZoom(0.05);
+      } else if (event.key === "-" || event.key === "_") {
+        event.preventDefault();
+        nudgeZoom(-0.05);
+      }
+    });
+    viewport.addEventListener("wheel", (event) => {
+      if (!this._portraitCropSession) return;
+      event.preventDefault();
+      nudgeZoom(event.deltaY < 0 ? 0.04 : -0.04);
+    }, { passive: false });
   }
 
   /**
@@ -945,6 +1383,11 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   async #onPortraitFileChosen(fileInput) {
     const file = fileInput.files?.[0];
     fileInput.value = ""; // choosing the SAME file again must still fire 'change'
+    await this.#startPortraitCrop(file);
+  }
+
+  /** A photo from either way in -- the file picker or a drop onto the page -- becomes a fresh crop session. */
+  async #startPortraitCrop(file) {
     if (!file || this.state.portrait.uploading) return;
 
     if (!file.type.startsWith("image/")) {
@@ -1030,8 +1473,11 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       if (!dragging) return;
       const session = this._portraitCropSession;
       if (!session) return;
-      const dx = event.clientX - lastX;
-      const dy = event.clientY - lastY;
+      // Screen pixels to the terminal's own CSS pixels: on a big screen the terminal is CSS-zoomed
+      // (bi-components.css), and an undivided delta moved the photo faster than the pointer.
+      const zoom = effectiveZoom(viewport) || 1;
+      const dx = (event.clientX - lastX) / zoom;
+      const dy = (event.clientY - lastY) / zoom;
       lastX = event.clientX;
       lastY = event.clientY;
       session.crop = panBy(session.crop, dx, dy, session.naturalWidth, session.naturalHeight, PORTRAIT_BOX.width, PORTRAIT_BOX.height);
@@ -1057,7 +1503,9 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   /* --- actions -------------------------------------------------- */
 
   static async #onBegin(_event, _target) {
-    this.state.page = 2;
+    if (this._savedDraft) return; // Page 1 shows Continue / Start Again instead while a saved form is on offer
+    // The agreement comes first, once. Signed, it's never shown again for this character.
+    this.state.page = agreementPageEnabled() && !this.state.agreement.signed ? "agreement" : 2;
     this.render({});
   }
 
@@ -1066,15 +1514,83 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     this.render({});
   }
 
-  static async #onPickAncestry(_event, target) {
-    this.state.ancestry.id = target.dataset.ancestryId;
-    this.state.ancestry.boostPicks = [];
-    this.state.ancestry.flawPicks = [];
+  /** I AGREE: the only way on (Ingram, 2026-09-25). Records when, how long, and how far down they read. */
+  static async #onSignAgreement(_event, _target) {
+    const stats = this._agreementView?.stats() ?? { secondsOnPage: null, furthestRead: null };
+    this.state.agreement = { signed: true, signedAt: new Date().toISOString(), ...stats };
+    this.#releaseAgreementView();
+    this.state.page = 2;
     this.render({});
   }
 
-  static async #onChangeAncestry(_event, _target) {
-    this.state.ancestry.id = null;
+  static async #onBackFromAgreement(_event, _target) {
+    this.#releaseAgreementView();
+    this.state.page = 1;
+    this.render({});
+  }
+
+  /** A finished tracker step: go straight there. Re-checked here, not just trusted from the button. */
+  static async #onJumpToStep(_event, target) {
+    const raw = target?.dataset?.step;
+    const step = raw === "agreement" ? raw : Number(raw);
+    const allowed = canJumpTo(step, {
+      order: this.#stepOrder(), current: this.state.page, furthest: this.state.furthest ?? this.state.page,
+      isComplete: (id) => this.#isStepComplete(id)
+    });
+    if (!allowed) return;
+    this.#releaseAgreementView();
+    this.state.page = step;
+    this.render({});
+  }
+
+  static async #onReturnToReview(_event, _target) {
+    if (!this.#canReturnToReview()) return;
+    this.state.page = 9;
+    this.render({});
+  }
+
+  /**
+   * Continue a saved form: its choices come back, and it reopens where it stopped -- or on the first
+   * earlier step that isn't finished (core/induction-draft.mjs's resumeStep), such as the agreement if
+   * it was switched on after the form was saved.
+   */
+  static async #onResumeDraft(_event, _target) {
+    const draft = this._savedDraft;
+    if (!draft) return;
+    this._savedDraft = null;
+    this._confirmingDiscard = false;
+    this.state = draft.state;
+    this.state.page = resumeStep(this.state.page, { order: this.#stepOrder(), isComplete: (id) => this.#isStepComplete(id) });
+    this.render({});
+  }
+
+  /** Start Again asks first: the saved form is only thrown away by the second click. */
+  static async #onStartAgain(_event, _target) {
+    if (!this._savedDraft) return;
+    this._confirmingDiscard = true;
+    this.render({});
+  }
+
+  static async #onKeepDraft(_event, _target) {
+    this._confirmingDiscard = false;
+    this.render({});
+  }
+
+  /** Throws the saved form away and begins a new one, exactly as Begin would. */
+  static async #onDiscardDraft(_event, _target) {
+    if (!this._savedDraft || !this._confirmingDiscard) return;
+    this._savedDraft = null;
+    this._confirmingDiscard = false;
+    writeStoredDraft(null);
+    this.state = freshInductionState();
+    this.state.page = agreementPageEnabled() ? "agreement" : 2;
+    this.render({});
+  }
+
+  static async #onPickAncestry(_event, target) {
+    if (target.dataset.ancestryId === this.state.ancestry.id) return;
+    this._resetDetailScroll = true;
+    this.state.ancestry.id = target.dataset.ancestryId;
     this.state.ancestry.boostPicks = [];
     this.state.ancestry.flawPicks = [];
     this.render({});
@@ -1136,26 +1652,22 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
 
   static async #onContinueFromAncestry(_event, _target) {
     const ancestry = this._ancestries.find((a) => a.id === this.state.ancestry.id);
-    if (!isAncestryChoiceComplete(ancestry, this.state.ancestry.boostPicks, this.state.ancestry.flawPicks)) return;
+    if (!isAncestryChoiceComplete(ancestry, this.state.ancestry.boostPicks, this.state.ancestry.flawPicks)) return this.#pointAtMissing();
     this.state.page = 3;
     this.render({});
   }
 
   static async #onPickBackground(_event, target) {
+    if (target.dataset.backgroundId === this.state.background.id) return;
+    this._resetDetailScroll = true;
     this.state.background.id = target.dataset.backgroundId;
-    this.state.background.boostPicks = [];
-    this.render({});
-  }
-
-  static async #onChangeBackground(_event, _target) {
-    this.state.background.id = null;
     this.state.background.boostPicks = [];
     this.render({});
   }
 
   static async #onContinueFromBackground(_event, _target) {
     const background = this._backgrounds.find((b) => b.id === this.state.background.id);
-    if (!isBackgroundChoiceComplete(background, this.state.background.boostPicks)) return;
+    if (!isBackgroundChoiceComplete(background, this.state.background.boostPicks)) return this.#pointAtMissing();
     this.state.page = 4;
     this.render({});
   }
@@ -1166,13 +1678,9 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   static async #onPickClass(_event, target) {
+    if (target.dataset.classId === this.state.class.id) return;
+    this._resetDetailScroll = true;
     this.state.class.id = target.dataset.classId;
-    this.state.class.keyAbilityPicks = [];
-    this.render({});
-  }
-
-  static async #onChangeClass(_event, _target) {
-    this.state.class.id = null;
     this.state.class.keyAbilityPicks = [];
     this.render({});
   }
@@ -1184,7 +1692,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
 
   static async #onContinueFromClass(_event, _target) {
     const cls = this._classes.find((c) => c.id === this.state.class.id);
-    if (!isClassChoiceComplete(cls, this.state.class.keyAbilityPicks)) return;
+    if (!isClassChoiceComplete(cls, this.state.class.keyAbilityPicks)) return this.#pointAtMissing();
     this.state.page = 5;
     this.render({});
   }
@@ -1194,12 +1702,13 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     this.render({});
   }
 
-  static async #onPickFreeBoost(_event, target) {
-    this.#pickFreeSlot("attributes.freeBoostPicks", FREE_BOOST_SLOTS, target);
+  static async #onToggleFreeBoost(_event, target) {
+    this.state.attributes.freeBoostPicks = toggleFreeBoost(this.state.attributes.freeBoostPicks, target?.dataset?.ability);
+    this.render({});
   }
 
   static async #onContinueFromAttributes(_event, _target) {
-    if (!isFreeBoostsComplete(this.state.attributes.freeBoostPicks)) return;
+    if (!isFreeBoostsComplete(this.state.attributes.freeBoostPicks)) return this.#pointAtMissing();
     this.state.page = 6;
     this.render({});
   }
@@ -1297,7 +1806,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   static async #onContinueFromFinishing(_event, _target) {
-    if (!isFinishingComplete(this.state.finishing)) return;
+    if (!isFinishingComplete(this.state.finishing)) return this.#pointAtMissing();
     this.state.page = 8;
     this.render({});
   }
@@ -1370,6 +1879,7 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     try {
       const actor = await this.#createCharacterActor();
       this.state.review.createdActorId = actor.id;
+      writeStoredDraft(null); // the form is finished: nothing left to offer back
     } catch (err) {
       console.error("Blank Inheritance | Induction terminal: character creation failed:", err);
       this.state.review.error = err?.message ?? String(err);
@@ -1377,6 +1887,19 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       this.state.review.confirming = false;
       this.render({});
     }
+  }
+
+  /**
+   * GH #162: once a character exists, the only way off Page 9 was "Back" —
+   * which does nothing useful once the Actor is already created, and left
+   * the terminal with no way to dismiss it at all. The terminal is a one-shot
+   * flow, not a persistent toggle panel like Phone/Deck, so finishing really
+   * closes it (unmountInductionTerminal's own `active?.close()`) rather than
+   * just hiding it — a player who has just finished character creation is
+   * done with this UI for good.
+   */
+  static async #onFinishInduction(_event, _target) {
+    unmountInductionTerminal();
   }
 
   /**
@@ -1469,6 +1992,28 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
       await actor.update({ "system.build.attributes.boosts.1": this.state.attributes.freeBoostPicks });
       await actor.update({ "system.attributes.hp.value": actor.system.attributes.hp.max });
 
+      // Everything this form collected goes onto the real sf2e biography
+      // (core/induction-bio.mjs). Before 2026-09-18 pronouns, gender,
+      // appearance and languages were gathered on Page 7 and written
+      // nowhere -- see design/induction-intake-audit.md §6b. Non-fatal for
+      // the same reason as the intake answers below: a mechanically correct
+      // Actor with an unfilled Biography tab is a far smaller problem than
+      // losing the whole character to a failed text write.
+      try {
+        const bioUpdate = buildBioUpdate({
+          prompts: await loadIntakePrompts(),
+          finishing: this.state.finishing,
+          intake: this.state.intake,
+          // sf2e validates languages against its own list; anything a player
+          // typed by hand that isn't in it goes to the free-text companion
+          // field instead of being silently dropped.
+          knownLanguageSlugs: Object.keys(CONFIG.PF2E?.languages ?? {})
+        });
+        if (Object.keys(bioUpdate).length) await actor.update(bioUpdate);
+      } catch (err) {
+        console.error("Blank Inheritance | Could not write this character's biography fields:", err);
+      }
+
       // Session-zero's whole point (design/induction.md) is the backstory
       // prompts, not the sheet math above -- but until now the answers had
       // nowhere to go once this method returned (GitHub #96/#45's own open
@@ -1520,13 +2065,20 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
     const { text, hasContent } = summarizeIntakeAnswers({
       prompts,
       questions: this.state.intake.questions,
-      banalAnswers: this.state.finishing.banalAnswers
+      freeform: this.state.intake.freeform,
+      personalFile: this.state.finishing.personalFile,
+      personality: this.state.finishing.personality
     });
 
     await actor.setFlag(MODULE_ID, "intake", {
       questions: this.state.intake.questions,
-      banalAnswers: this.state.finishing.banalAnswers
+      freeform: this.state.intake.freeform,
+      personalFile: this.state.finishing.personalFile,
+      personality: this.state.finishing.personality
     });
+    // FORM 1-B: when they signed, how long they spent on it, and how far down they scrolled (0-1).
+    // An in-fiction record for NPCs to remark on later (design/induction-agreement.md).
+    if (this.state.agreement.signed) await actor.setFlag(MODULE_ID, "agreement", { ...this.state.agreement });
 
     if (!hasContent) return;
     const gmIds = game.users.filter((u) => u.isGM).map((u) => u.id);
@@ -1572,6 +2124,107 @@ export class InductionTerminal extends HandlebarsApplicationMixin(ApplicationV2)
 }
 
 /* ---------------------------------------------------------------- */
+/*  State                                                            */
+/* ---------------------------------------------------------------- */
+
+/**
+ * A blank form. The ONE definition of the terminal's default state: the class field and every reset
+ * both call this. It used to be written out twice, once as the class field and once in
+ * mountInductionTerminal's reset, "kept in sync by hand" -- every new sub-object had to be added in
+ * both places (found live 2026-09-09) -- and a saved draft is now laid over it as well
+ * (core/induction-draft.mjs), which a third copy would only have made worse.
+ */
+function freshInductionState() {
+  return {
+    page: 1,
+    furthest: 1, // the furthest step reached, so finished steps up to there stay one click away
+    // FORM 1-B. Signed once, never shown again for this character (Ingram: "only at signing").
+    agreement: { signed: false, signedAt: null, secondsOnPage: null, furthestRead: null },
+    ancestry: {
+      id: null,
+      filter: "",
+      boostPicks: [], // parallel to the FREE boost slots only, see core/boost-slots.mjs
+      flawPicks: []
+    },
+    background: {
+      id: null,
+      filter: "",
+      boostPicks: [] // backgrounds have no flaws (Player Core: "two boosts... no flaw")
+    },
+    class: {
+      id: null,
+      keyAbilityPicks: [] // one slot (core/induction-class.mjs); empty until a free key ability needs a pick
+    },
+    attributes: {
+      freeBoostPicks: [] // core/induction-attributes.mjs's four free boosts, compact and in pick order
+    },
+    portrait: {
+      path: null, // the full Foundry-relative path once uploaded, e.g. "modules/blank-inheritance/storage/portraits/<id>.webp"
+      uploading: false,
+      error: null
+    },
+    finishing: {
+      name: "",
+      pronouns: "",
+      genderIdentity: "",
+      appearance: "",
+      languages: [],
+      personalFile: {}, // keyed by induction-intake-prompts.json's personalFile[].id (age, height, weight, birth-place)
+      personality: {} // keyed by its personality[].id (likes, dislikes, attitude, beliefs, good-at)
+    },
+    intake: {
+      questions: {}, // keyed by induction-intake-prompts.json's openQuestions[].id
+      freeform: "" // the single large catch-all box -> sf2e's own Backstory field
+    },
+    review: {
+      confirming: false, // true only while #createCharacterActor's own await chain is in flight
+      error: null,
+      createdActorId: null
+    }
+  };
+}
+
+/**
+ * Saved forms (core/induction-draft.mjs) live in a client-scoped setting: the player's own browser,
+ * never the server, so a half-written answer is never broadcast to the table or readable by anyone
+ * else. One entry per world and user, keyed by draftKey().
+ */
+export const SETTING_DRAFTS = "inductionDrafts";
+
+function currentDraftKey() {
+  return draftKey(game.world?.id ?? "world", game.userId ?? game.user?.id ?? "user");
+}
+
+function readStoredDrafts() {
+  try {
+    const all = game.settings.get(MODULE_ID, SETTING_DRAFTS);
+    return all && typeof all === "object" ? all : {};
+  } catch {
+    return {};
+  }
+}
+
+/** Writes (or, given null, removes) this user's saved form. Never throws: a form that can't be saved still works. */
+function writeStoredDraft(draft) {
+  const warn = (err) => console.warn("Blank Inheritance | Induction terminal: could not save the form in progress:", err);
+  const all = { ...readStoredDrafts() };
+  const key = currentDraftKey();
+  if (draft) all[key] = draft;
+  else if (key in all) delete all[key];
+  else return;
+  try {
+    Promise.resolve(game.settings.set(MODULE_ID, SETTING_DRAFTS, all)).catch(warn);
+  } catch (err) {
+    warn(err);
+  }
+}
+
+/** This user's saved form, laid over a blank one, or null if there isn't one worth offering. */
+function readSavedDraft() {
+  return restoreDraft(readStoredDrafts()[currentDraftKey()], freshInductionState());
+}
+
+/* ---------------------------------------------------------------- */
 /*  The singleton                                                    */
 /* ---------------------------------------------------------------- */
 
@@ -1587,14 +2240,13 @@ export function getInductionTerminal() {
  * 1," which was false for a second invocation before this fixed it (found
  * live 2026-09-09: re-opening mid-flow silently resumed wherever state had
  * been left, with no visible way to tell that had happened).
+ *
+ * A saved form is still never resumed silently: it's looked up here and
+ * OFFERED on Page 1, where the player sees which form it is and chooses to
+ * continue it or start again (#page1Context, #onResumeDraft).
  */
 export function mountInductionTerminal() {
   if (!active) active = new InductionTerminal();
-  // Mirrors the class field's own default state literal above exactly --
-  // the two must be kept in sync by hand (found live 2026-09-09, the first
-  // time this reset existed at all: it's the one place a NEW state
-  // sub-object has to be added twice, once here and once as the class
-  // field's own default).
   else {
     // A stale crop session (object URL and all) belongs to whatever
     // character was mid-portrait last time this instance was open --
@@ -1604,20 +2256,55 @@ export function mountInductionTerminal() {
     // next" reasoning as every field being reset below).
     if (active._portraitCropSession) URL.revokeObjectURL(active._portraitCropSession.objectUrl);
     active._portraitCropSession = null;
-    active.state = {
-      page: 1,
-      ancestry: { id: null, filter: "", boostPicks: [], flawPicks: [] },
-      background: { id: null, filter: "", boostPicks: [] },
-      class: { id: null, keyAbilityPicks: [] },
-      attributes: { freeBoostPicks: [] },
-      portrait: { path: null, uploading: false, error: null },
-      finishing: { name: "", pronouns: "", genderIdentity: "", appearance: "", languages: [], banalAnswers: {} },
-      intake: { questions: {} },
-      review: { confirming: false, error: null, createdActorId: null }
-    };
+    active.state = freshInductionState();
   }
+  active._savedDraft = readSavedDraft();
+  active._confirmingDiscard = false;
   active.render({ force: true });
   return active;
+}
+
+/** The "what's missing" lines beside a disabled Continue, spelled out in full so the lang-key test can see them. */
+const BLOCKER_KEYS = {
+  PickAncestry: "BLANKINHERITANCE.Induction.Blocker.PickAncestry",
+  PickBackground: "BLANKINHERITANCE.Induction.Blocker.PickBackground",
+  PickClass: "BLANKINHERITANCE.Induction.Blocker.PickClass",
+  PickKeyAbility: "BLANKINHERITANCE.Induction.Blocker.PickKeyAbility",
+  OneMorePick: "BLANKINHERITANCE.Induction.Blocker.OneMorePick",
+  MorePicks: "BLANKINHERITANCE.Induction.Blocker.MorePicks",
+  OneMoreAttribute: "BLANKINHERITANCE.Induction.Blocker.OneMoreAttribute",
+  MoreAttributes: "BLANKINHERITANCE.Induction.Blocker.MoreAttributes",
+  Uploading: "BLANKINHERITANCE.Induction.Blocker.Uploading",
+  NeedName: "BLANKINHERITANCE.Induction.Blocker.NeedName",
+  ReviewIncomplete: "BLANKINHERITANCE.Induction.Blocker.ReviewIncomplete"
+};
+
+/**
+ * The world setting that shows FORM 1-B, the Service Agreement, as the terminal's second page.
+ * Off by default: the text is drafted, and nothing drafted reaches a player until Ingram has graded it
+ * (design/approvals-desk.md). The GM turns it on in Configure Settings once it's approved.
+ */
+export const SETTING_AGREEMENT = "inductionAgreementEnabled";
+
+export function registerInductionSettings() {
+  game.settings.register(MODULE_ID, SETTING_AGREEMENT, {
+    name: "BLANKINHERITANCE.Induction.Agreement.SettingName",
+    hint: "BLANKINHERITANCE.Induction.Agreement.SettingHint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false
+  });
+  game.settings.register(MODULE_ID, SETTING_DRAFTS, {
+    scope: "client",
+    config: false,
+    type: Object,
+    default: {}
+  });
+}
+
+function agreementPageEnabled() {
+  try { return game.settings.get(MODULE_ID, SETTING_AGREEMENT) === true; } catch { return false; }
 }
 
 export function refreshInductionTerminal() {
@@ -1631,12 +2318,10 @@ export function unmountInductionTerminal() {
 }
 
 /**
- * Open the terminal, always starting at Page 1 -- deliberately trivial
- * today, since there is no per-user state to seed first (a returning
- * user's in-progress page isn't persisted yet, design doc §6). Kept as its
- * own exported function anyway, matching openSceneRunner's shape, since a
- * later page adds real setup here and callers should not have to change
- * which function they call when that lands.
+ * Open the terminal, always starting at Page 1 -- which offers the player's
+ * saved form back, if they have one (mountInductionTerminal). Kept as its
+ * own exported function, matching openSceneRunner's shape, so callers never
+ * have to change which function they call when opening grows more setup.
  */
 export function openInductionTerminal() {
   return mountInductionTerminal();

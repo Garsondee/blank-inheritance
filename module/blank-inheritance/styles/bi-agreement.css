@@ -1,0 +1,94 @@
+/* The induction terminal's page 2: FORM 1-B, the Service Agreement (design/induction-agreement.md).
+   The text is drawn on a canvas by foundry/induction-agreement-view.mjs; this file is the paper it sits
+   on. The background is "security paper": fine guilloche lines, printed-form furniture that also makes
+   screenshots harder to OCR. It scrolls with the text (background-attachment: local). Nothing on the
+   page can be selected. */
+
+.bi-induction__page--agreement { width: min(860px, 94vw); }
+
+.bi-agreement__intro { margin-bottom: 6px; }
+.bi-agreement__meta {
+  font-family: var(--bi-font-typewriter);
+  font-size: 12px;
+  color: var(--bi-paper-ink-2);
+  margin: 0 0 12px;
+}
+
+.bi-agreement {
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.bi-agreement__tools {
+  position: absolute;
+  top: 8px;
+  right: 22px;
+  z-index: 2;
+  display: flex;
+  gap: 4px;
+}
+.bi-agreement__zoom {
+  width: 26px;
+  height: 26px;
+  line-height: 1;
+  padding: 0;
+  font-family: var(--bi-font-typewriter);
+  font-size: 15px;
+  color: var(--bi-paper-ink);
+  background: var(--bi-paper-shade);
+  border: 1px solid var(--bi-paper-rule);
+  cursor: pointer;
+}
+.bi-agreement__zoom:focus-visible { outline: 2px solid var(--bi-vermilion); outline-offset: 2px; }
+
+.bi-agreement__viewport {
+  position: relative;
+  height: min(54vh, 620px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid var(--bi-paper-rule);
+  box-shadow: inset 0 0 24px rgb(120 100 70 / 22%);
+  background-color: rgb(250 244 228);
+  background-image:
+    repeating-radial-gradient(circle at 12% 30%, rgb(160 140 100 / 0%) 0 6px, rgb(160 140 100 / 9%) 6px 7px),
+    repeating-radial-gradient(circle at 88% 70%, rgb(120 130 150 / 0%) 0 9px, rgb(120 130 150 / 7%) 9px 10px),
+    repeating-linear-gradient(0deg, rgb(141 124 86 / 5%) 0 1px, transparent 1px 22px);
+  background-attachment: local;
+}
+.bi-agreement__viewport:focus-visible { outline: 2px solid var(--bi-vermilion); outline-offset: 2px; }
+
+/* Gives the scroll container its height: the full document minus the canvas's own screenful
+   (set in px by the viewer on every layout). */
+.bi-agreement__spacer { width: 1px; pointer-events: none; }
+
+.bi-agreement__canvas {
+  position: sticky;
+  top: 0;
+  display: block;
+  pointer-events: none;
+}
+
+.bi-agreement__error {
+  font-family: var(--bi-font-typewriter);
+  color: var(--bi-vermilion-dim);
+  margin: 8px 0 0;
+}
+
+.bi-agreement__ack {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-family: var(--bi-font-typewriter);
+  font-size: 12px;
+  color: var(--bi-paper-ink-2);
+}
+
+.bi-agreement__actions > :first-child { margin-right: auto; }
+
+/* Inside the terminal's fixed frame (bi-components.css), the document box takes whatever height the page
+   leaves it, so I AGREE is always on screen and there's only ever one scroll bar: the Agreement's own. */
+.bi-induction__body--fill .bi-agreement { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.bi-induction__body--fill .bi-agreement__viewport { flex: 1 1 auto; height: auto; min-height: 160px; }

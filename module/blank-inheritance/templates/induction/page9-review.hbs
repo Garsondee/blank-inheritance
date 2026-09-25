@@ -6,7 +6,15 @@
     adapter doc comments explain why: sf2e's own derived-data engine
     computes AC/HP/skills/saves live once the real ancestry/background/
     class Items are embedded, so this terminal never re-implements that
-    math itself). Confirm is the only action in this whole terminal that
+    math itself). The one number shown is the six attribute modifiers,
+    the same display-only tally Page 5 shows (core/induction-attributes.mjs's
+    abilityTally): level-1 boosts are plain +1s and can't pass +4, so this
+    can't disagree with the sheet.
+
+    Opens on the character as a whole (photo, name, what they are, the six
+    numbers), then each section with a Change that jumps straight back to
+    the page that set it; every page offers "Back to review" once here
+    (UI pass, 2026-09-25). Confirm is the only action in this whole terminal that
     touches the real world -- everything before this point is pure
     in-memory wizard state.
 
@@ -16,19 +24,30 @@
 <section class="bi-induction">
     <div class="bi-doc bi-induction__page">
         <header class="bi-doc__head">
-            <h1 class="bi-doc__title">{{localize "BLANKINHERITANCE.Induction.Page9.Title"}}</h1>
+            <h1 class="bi-doc__title"><span class="bi-doc__title-jp">{{localize "BLANKINHERITANCE.Induction.OrgNameJP"}}</span>{{localize "BLANKINHERITANCE.Induction.Page9.Title"}}</h1>
             <div class="bi-doc__meta">
                 {{localize "BLANKINHERITANCE.Induction.Page9.FormNumber"}}
                 {{#if userName}}<br><b>{{userName}}</b>{{/if}}
             </div>
         </header>
 
-        <div class="bi-induction__tracker" role="list" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
-            {{#each trackerSteps}}
-            <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
-                  role="listitem" title="{{this.number}}. {{this.label}}">{{this.number}}</span>
-            {{/each}}
-        </div>
+        <nav class="bi-induction__tracker" aria-label="{{localize 'BLANKINHERITANCE.Induction.Tracker.Label'}}">
+            <ol class="bi-induction__tracker-steps">
+                {{#each trackerSteps}}
+                <li>
+                    {{#if this.canJump}}
+                    <button type="button" class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} bi-induction__tracker-step--link"
+                            data-action="jumpToStep" data-step="{{this.id}}" title="{{this.number}}. {{this.label}}" aria-label="{{this.number}}. {{this.label}}">{{this.number}}</button>
+                    {{else}}
+                    <span class="bi-induction__tracker-step {{#if this.isDone}}bi-induction__tracker-step--done{{/if}} {{#if this.isCurrent}}bi-induction__tracker-step--current{{/if}}"
+                          title="{{this.number}}. {{this.label}}" {{#if this.isCurrent}}aria-current="step"{{/if}}>{{this.number}}</span>
+                    {{/if}}
+                </li>
+                {{/each}}
+            </ol>
+            <span class="bi-induction__tracker-label">{{trackerLabel}}</span>
+        </nav>
+        <div class="bi-induction__body" data-induction-body>
 
         {{#if createdActorId}}
         <div class="bi-induction__success">
@@ -53,7 +72,31 @@
         </div>
         {{/if}}
 
-        <h2>{{localize "BLANKINHERITANCE.Induction.Page9.SectionIdentity"}}</h2>
+        <div class="bi-induction__dossier">
+            <div class="bi-induction__dossier-side">
+                <div class="bi-induction__dossier-photo">
+                    {{#if portraitPath}}<img src="{{portraitPath}}" alt="{{name}}">{{else}}<span class="bi-induction__dossier-nophoto">{{localize "BLANKINHERITANCE.Induction.Page6.NoPhotoLabel"}}</span>{{/if}}
+                </div>
+                <button type="button" class="bi-induction__change" data-action="jumpToStep" data-step="6" aria-label="{{localize 'BLANKINHERITANCE.Induction.Page9.ChangeWhat' what=(localize 'BLANKINHERITANCE.Induction.Page9.Photo')}}">{{localize "BLANKINHERITANCE.Induction.Page9.Change"}}</button>
+            </div>
+            <div class="bi-induction__dossier-text">
+                <p class="bi-induction__dossier-name">{{name}}</p>
+                {{#if summaryLine}}<p class="bi-induction__dossier-line">{{summaryLine}}</p>{{/if}}
+                <ol class="bi-induction__stats" aria-label="{{localize 'BLANKINHERITANCE.Induction.Page9.StatsLabel'}}">
+                    {{#each attributeRows}}
+                    <li class="bi-induction__stat {{#if this.isRaised}}bi-induction__stat--up{{/if}} {{#if this.isLowered}}bi-induction__stat--down{{/if}}" title="{{this.label}}">
+                        <span class="bi-induction__stat-name">{{this.short}}</span>
+                        <span class="bi-induction__stat-mod">{{this.modLabel}}</span>
+                    </li>
+                    {{/each}}
+                </ol>
+            </div>
+        </div>
+
+        <div class="bi-induction__review-head">
+            <h2>{{localize "BLANKINHERITANCE.Induction.Page9.SectionIdentity"}}</h2>
+            <button type="button" class="bi-induction__change" data-action="jumpToStep" data-step="7" aria-label="{{localize 'BLANKINHERITANCE.Induction.Page9.ChangeWhat' what=(localize 'BLANKINHERITANCE.Induction.Page9.SectionIdentity')}}">{{localize "BLANKINHERITANCE.Induction.Page9.Change"}}</button>
+        </div>
         <div class="bi-form-row">
             <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page9.StatName"}}</span>
             <span class="bi-form-row__lead"></span>
@@ -84,52 +127,95 @@
         <p class="bi-induction__review-note">{{appearance}}</p>
         {{/if}}
 
-        <h2>{{localize "BLANKINHERITANCE.Induction.Page9.SectionMechanical"}}</h2>
+        <div class="bi-induction__review-head">
+            <h2>{{localize "BLANKINHERITANCE.Induction.Page9.SectionMechanical"}}</h2>
+            
+        </div>
         <div class="bi-form-row">
             <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page9.StatAncestry"}}</span>
             <span class="bi-form-row__lead"></span>
             <span class="bi-form-row__value">{{ancestryName}} ({{#each ancestryBoostLabels}}{{#unless @first}}, {{/unless}}{{this}}{{/each}}{{#if ancestryFlawLabels.length}}; −{{#each ancestryFlawLabels}}{{#unless @first}}, {{/unless}}{{this}}{{/each}}{{/if}})</span>
+            <button type="button" class="bi-induction__change" data-action="jumpToStep" data-step="2" aria-label="{{localize 'BLANKINHERITANCE.Induction.Page9.ChangeWhat' what=(localize 'BLANKINHERITANCE.Induction.Page9.StatAncestry')}}">{{localize "BLANKINHERITANCE.Induction.Page9.Change"}}</button>
         </div>
         <div class="bi-form-row">
             <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page9.StatBackground"}}</span>
             <span class="bi-form-row__lead"></span>
             <span class="bi-form-row__value">{{backgroundName}} ({{#each backgroundBoostLabels}}{{#unless @first}}, {{/unless}}{{this}}{{/each}})</span>
+            <button type="button" class="bi-induction__change" data-action="jumpToStep" data-step="3" aria-label="{{localize 'BLANKINHERITANCE.Induction.Page9.ChangeWhat' what=(localize 'BLANKINHERITANCE.Induction.Page9.StatBackground')}}">{{localize "BLANKINHERITANCE.Induction.Page9.Change"}}</button>
         </div>
         <div class="bi-form-row">
             <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page9.StatClass"}}</span>
             <span class="bi-form-row__lead"></span>
             <span class="bi-form-row__value">{{className}} ({{classKeyAbilityLabel}})</span>
+            <button type="button" class="bi-induction__change" data-action="jumpToStep" data-step="4" aria-label="{{localize 'BLANKINHERITANCE.Induction.Page9.ChangeWhat' what=(localize 'BLANKINHERITANCE.Induction.Page9.StatClass')}}">{{localize "BLANKINHERITANCE.Induction.Page9.Change"}}</button>
         </div>
         <div class="bi-form-row">
             <span class="bi-form-row__label">{{localize "BLANKINHERITANCE.Induction.Page9.StatFreeBoosts"}}</span>
             <span class="bi-form-row__lead"></span>
             <span class="bi-form-row__value">{{#each freeBoostLabels}}{{#unless @first}}, {{/unless}}{{this}}{{/each}}</span>
+            <button type="button" class="bi-induction__change" data-action="jumpToStep" data-step="5" aria-label="{{localize 'BLANKINHERITANCE.Induction.Page9.ChangeWhat' what=(localize 'BLANKINHERITANCE.Induction.Page9.StatFreeBoosts')}}">{{localize "BLANKINHERITANCE.Induction.Page9.Change"}}</button>
         </div>
 
-        {{#if banalAnswers.length}}
-        <h2>{{localize "BLANKINHERITANCE.Induction.Page9.SectionTexture"}}</h2>
-        {{#each banalAnswers}}
+        <div class="bi-induction__review-head">
+            <h2>{{localize "BLANKINHERITANCE.Induction.Page9.SectionTexture"}}</h2>
+            <button type="button" class="bi-induction__change" data-action="jumpToStep" data-step="7" aria-label="{{localize 'BLANKINHERITANCE.Induction.Page9.ChangeWhat' what=(localize 'BLANKINHERITANCE.Induction.Page9.SectionTexture')}}">{{localize "BLANKINHERITANCE.Induction.Page9.Change"}}</button>
+        </div>
+        {{#if personalFileAnswers.length}}
+        {{#each personalFileAnswers}}
         <p class="bi-induction__review-qa"><em>{{this.prompt}}</em> — {{this.answer}}</p>
         {{/each}}
+        {{else}}
+        <p class="bi-induction__review-blank">{{localize "BLANKINHERITANCE.Induction.Page9.LeftBlank"}}</p>
         {{/if}}
 
+        <div class="bi-induction__review-head">
+            <h2>{{localize "BLANKINHERITANCE.Induction.Page9.SectionPersonality"}}</h2>
+            <button type="button" class="bi-induction__change" data-action="jumpToStep" data-step="7" aria-label="{{localize 'BLANKINHERITANCE.Induction.Page9.ChangeWhat' what=(localize 'BLANKINHERITANCE.Induction.Page9.SectionPersonality')}}">{{localize "BLANKINHERITANCE.Induction.Page9.Change"}}</button>
+        </div>
+        {{#if personalityAnswers.length}}
+        {{#each personalityAnswers}}
+        <p class="bi-induction__review-qa"><em>{{this.prompt}}</em> — {{this.answer}}</p>
+        {{/each}}
+        {{else}}
+        <p class="bi-induction__review-blank">{{localize "BLANKINHERITANCE.Induction.Page9.LeftBlank"}}</p>
+        {{/if}}
+
+        <div class="bi-induction__review-head">
+            <h2>{{localize "BLANKINHERITANCE.Induction.Page9.SectionQuestions"}}</h2>
+            <button type="button" class="bi-induction__change" data-action="jumpToStep" data-step="8" aria-label="{{localize 'BLANKINHERITANCE.Induction.Page9.ChangeWhat' what=(localize 'BLANKINHERITANCE.Induction.Page9.SectionQuestions')}}">{{localize "BLANKINHERITANCE.Induction.Page9.Change"}}</button>
+        </div>
         {{#if questionAnswers.length}}
-        <h2>{{localize "BLANKINHERITANCE.Induction.Page9.SectionQuestions"}}</h2>
         {{#each questionAnswers}}
         <p class="bi-induction__review-qa"><em>{{this.prompt}}</em> — {{this.answer}}</p>
         {{/each}}
+        {{else}}
+        <p class="bi-induction__review-blank">{{localize "BLANKINHERITANCE.Induction.Page9.LeftBlank"}}</p>
+        {{/if}}
+
+        {{#if freeformAnswer}}
+        <div class="bi-induction__review-head">
+            <h2>{{localize "BLANKINHERITANCE.Induction.Page9.SectionFreeform"}}</h2>
+            <button type="button" class="bi-induction__change" data-action="jumpToStep" data-step="8" aria-label="{{localize 'BLANKINHERITANCE.Induction.Page9.ChangeWhat' what=(localize 'BLANKINHERITANCE.Induction.Page9.SectionFreeform')}}">{{localize "BLANKINHERITANCE.Induction.Page9.Change"}}</button>
+        </div>
+        <p class="bi-induction__review-note">{{freeformAnswer}}</p>
         {{/if}}
 
         <p class="bi-prompt-field__optional-note">{{localize "BLANKINHERITANCE.Induction.Page9.ConfirmNote"}}</p>
         {{/if}}
 
-        <div class="bi-induction__actions bi-induction__actions--split">
+        </div>
+
+        <div class="bi-induction__actions {{#unless createdActorId}}bi-induction__actions--split{{/unless}}">
+            {{#if createdActorId}}
+            <button type="button" class="bi-induction__begin" data-action="finishInduction">{{localize "BLANKINHERITANCE.Induction.Page9.Finish"}}</button>
+            {{else}}
             <button type="button" class="bi-induction__back" data-action="backFromReview" {{#if confirming}}disabled{{/if}}>{{localize "BLANKINHERITANCE.Induction.Page9.Back"}}</button>
-            {{#unless createdActorId}}
+            <span class="bi-induction__blocker" role="status" data-induction-blocker {{#unless blocker}}hidden{{/unless}}>{{blocker}}</span>
+            {{#if canReturnToReview}}<button type="button" class="bi-induction__back bi-induction__to-review" data-action="returnToReview">{{localize "BLANKINHERITANCE.Induction.ReturnToReview"}}</button>{{/if}}
             <button type="button" class="bi-induction__begin" data-action="confirmCharacter" {{#unless isComplete}}disabled{{/unless}} {{#if confirming}}disabled{{/if}}>
                 {{#if confirming}}{{localize "BLANKINHERITANCE.Induction.Page9.Confirming"}}{{else}}{{localize "BLANKINHERITANCE.Induction.Page9.Confirm"}}{{/if}}
             </button>
-            {{/unless}}
+            {{/if}}
         </div>
     </div>
 </section>

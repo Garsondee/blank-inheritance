@@ -48,7 +48,8 @@
         "traits": { "type": "array", "items": { "type": "string" } },
         "rarity": { "enum": ["common", "uncommon", "rare", "unique"] },
         "vision": { "type": "string" },
-        "description": { "type": "string", "description": "Real Player Core / Galactic Ancestries / Alien Core flavor text, HTML-stripped." },
+        "description": { "type": "string", "description": "Real Player Core / Galactic Ancestries / Alien Core flavor text, HTML-stripped -- shown to players on Page 2. Trimmed, by deletion only, where SF2E's text assumes a later era than this campaign's: see sourceDescription and GitHub #203." },
+        "sourceDescription": { "type": "string", "description": "SF2E's own description, verbatim, present only where description was trimmed for this campaign's era (GitHub #203, 2026-09-25): the words assuming the Gap has happened, the Pact Worlds exist, Golarion is lost or the Drift exists. Never shown to players; kept so the trim can be checked or undone." },
         "terrestrial": {
           "type": "boolean",
           "description": "This project's own tag, not an SF2E field (project_induction_and_newcomers memory, design/induction.md §2): can this species itself BE the 'presents as human/elf/halfling or similar' disguise? True only for Human, Elf, Dwarf, Gnome, Halfling. Picking a non-terrestrial ancestry on Page 2 queues the alien-lockdown sub-flow (Page 6a) -- picking a terrestrial one does not. A plain boolean, trivially correctable if the boundary is wrong."
